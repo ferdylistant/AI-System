@@ -19,7 +19,7 @@ class PenulisController extends Controller
                         ->whereNull('deleted_at')
                         ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp')
                         ->get();
-                $data = collect($data)->map(function($val) { 
+                $data = collect($data)->map(function($val) {
                     $val->email = is_null($val->email)?'-':$val->email;
                     $val->ponsel_domisili = is_null($val->ponsel_domisili)?'-':$val->ponsel_domisili;
                     $val->ktp = is_null($val->ktp)?'-':$val->ktp;
@@ -30,11 +30,11 @@ class PenulisController extends Controller
                 $delete = Gate::allows('do_delete', 'hapus-data-penulis');
                 return Datatables::of($data)
                         ->addColumn('action', function($data) use($update, $delete){
-                            $btn = '<a href="'.url('penerbitan/penulis/detail-penulis/'.$data->id).'" 
+                            $btn = '<a href="'.url('penerbitan/penulis/detail-penulis/'.$data->id).'"
                                     class="btn btn-sm btn-primary btn-icon mr-1">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if($update) {
-                                $btn .= '<a href="'.url('penerbitan/penulis/mengubah-penulis/'.$data->id).'" 
+                                $btn .= '<a href="'.url('penerbitan/penulis/mengubah-penulis/'.$data->id).'"
                                     class="btn btn-sm btn-warning btn-icon mr-1">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
@@ -59,7 +59,7 @@ class PenulisController extends Controller
         if(is_null($penulis)) { abort(404); }
 
         $penulis = (object)collect($penulis)->map(function($val, $key){
-            if(!in_array($key, ['scan_ktp', 'scan_npwp', 'foto_penulis', 'file_tentang_penulis']) 
+            if(!in_array($key, ['scan_ktp', 'scan_npwp', 'foto_penulis', 'file_tentang_penulis'])
                 AND $val == '') { return '-'; }
             if($key == 'tanggal_lahir') {
                 $val = Carbon::createFromFormat('Y-m-d', $val)->format('d F Y');
@@ -68,7 +68,8 @@ class PenulisController extends Controller
         })->all();
 
         return view('penerbitan.penulis.detail-penulis', [
-            'penulis' => $penulis
+            'penulis' => $penulis,
+            'title' => 'Detail Penulis Penerbitan'
         ]);
     }
 
@@ -88,7 +89,7 @@ class PenulisController extends Controller
                 ], [
                     'required' => 'This field is requried'
                 ]);
-                
+
                 $idPenulis = Str::uuid()->getHex();
                 $scanktp = null;
                 $scannpwp = null;
@@ -98,12 +99,12 @@ class PenulisController extends Controller
                     $scannpwp = explode('/', $request->file('add_scan_npwp')->store('penerbitan/penulis/'.$idPenulis.'/'));
                     $scannpwp = end($scannpwp);
                 }
-                
+
                 if(!is_null($request->file('add_scan_ktp'))) {
                     $scanktp = explode('/', $request->file('add_scan_ktp')->store('penerbitan/penulis/'.$idPenulis.'/'));
                     $scanktp = end($scanktp);
                 }
-                
+
                 if(!is_null($request->file('add_foto_penulis'))) {
                     $fotoPenulis = explode('/', $request->file('add_foto_penulis')->store('penerbitan/penulis/'.$idPenulis.'/'));
                     $fotoPenulis = end($fotoPenulis);
@@ -151,7 +152,9 @@ class PenulisController extends Controller
                 return;
             }
         }
-        return view('penerbitan.penulis.create-penulis');
+        return view('penerbitan.penulis.create-penulis',[
+            'title' => 'Tambah Penulis Penerbitan'
+        ]);
     }
 
     public function updatePenulis(Request $request) {
@@ -222,7 +225,7 @@ class PenulisController extends Controller
                             'updated_at' => date('Y-m-d H:i:s'),
                             'updated_by' => auth()->id()
                         ]);
-                    
+
                 } catch(\Exception $e) {
                     if($scanktp !== $penulis->scan_ktp) {
                         Storage::delete('penerbitan/penulis/'.$penulis->id.'/'.$scanktp);
@@ -254,16 +257,17 @@ class PenulisController extends Controller
                 return;
             }
         }
-        
+
         $penulis = (object)collect($penulis)->map(function($item, $key) {
             if($key == 'tanggal_lahir') {
                 return Carbon::createFromFormat('Y-m-d', $item)->format('d F Y');
             }
             return $item;
         })->all();
-        
+
         return view('penerbitan.penulis.update-penulis', [
-            'penulis' => $penulis
+            'penulis' => $penulis,
+            'title' => 'Update Penulis',
         ]);
     }
 

@@ -26,7 +26,7 @@
         border: 1px solid #ced4da;
     }
     .tb-naskah, .tb-naskah th, .tb-naskah td {
-        height: auto !important; 
+        height: auto !important;
         padding: 10px 15px 10px 15px !important;
     }
     .tb-naskah th {
@@ -52,7 +52,7 @@
 
     <div class="section-body">
         <div class="row">
-            <div class="col-12 col-md-8">
+            <div class="col-12 col-md-12">
                 <div class="card card-primary">
                     <div class="card-header">
                         <h4>Data Naskah</h4>
@@ -112,7 +112,7 @@
                                 <tr>
                                     <th>File Naskah Tambahan</th>
                                     <td>
-                                        @if($fileNaskah->rar) 
+                                        @if($fileNaskah->rar)
                                         <a href="{{url('storage/penerbitan/naskah/'.$naskah->id.'/'.$fileNaskah->rar)}}"
                                         class="btn btn-sm btn-primary">Download</a>
                                         @endif
@@ -121,7 +121,7 @@
                                 <tr>
                                     <th>File Naskah Asli</th>
                                     <td>
-                                        <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/naskah/'.$naskah->id.'/'.$fileNaskah->pdf)}}" 
+                                        <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/naskah/'.$naskah->id.'/'.$fileNaskah->pdf)}}"
                                         data-book-engine="onepageswipe" style="max-height: 300px;"></div>
                                     </td>
                                 </tr>
@@ -151,7 +151,7 @@
                             data-penilaian="EditSet" data-naskahid="{{$naskah->id}}" href="#pn_EditSet" role="tab" aria-controls="editset">Editor/Setter</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{$startPn=='mpenerbitan'?'active':''}}" id="mpenerbitan-tab" data-toggle="tab" 
+                            <a class="nav-link {{$startPn=='mpenerbitan'?'active':''}}" id="mpenerbitan-tab" data-toggle="tab"
                             data-penilaian="mPenerbitan" data-naskahid="{{$naskah->id}}" href="#pn_mPenerbitan" role="tab" aria-controls="mpenerbitan">M.Penerbitan</a>
                         </li>
                         <li class="nav-item">
@@ -162,13 +162,13 @@
                             <a class="nav-link {{$startPn=='dpemasaran'?'active':''}}" id="dpemasaran-tab" data-toggle="tab"
                             data-penilaian="dPemasaran" data-naskahid="{{$naskah->id}}" href="#pn_dPemasaran" role="tab" aria-controls="dpemasaran">D.Pemasaran</a>
                         </li>
-                        
+
                         <li class="nav-item">
                             <a class="nav-link {{$startPn=='direksi'?'active':''}}" id="direksi-tab"data-toggle="tab"
                             data-penilaian="Direksi" data-naskahid="{{$naskah->id}}" href="#pn_Direksi" role="tab" aria-controls="direksi">Direksi</a>
                         </li>
                     </ul>
-                    
+
                     <div class="tab-content" style="max-height: 750px; overflow-y: auto; overflow-x: hidden;">
                         <div class="tab-pane fade {{$startPn=='guest'?'show active':($startPn=='prodev'?'show active':'')}}" id="pn_Prodev" role="tabpanel" aria-labelledby="prodev-tab"></div>
                         <div class="tab-pane fade {{in_array($startPn, ['editor', 'setter'])?'show active':''}}" id="pn_EditSet" role="tabpanel" aria-labelledby="editset-tab"></div>
@@ -182,7 +182,7 @@
             </div>
         </div>
         @endif
-        
+
     </div>
 </section>
 
@@ -218,7 +218,7 @@ $(function() {
     let pn1_Prodev, pn2_EditSet, pn3_Pemasaran, pn4_Penerbitan, pn5_Direksi, pn6_DPemasaran, f_tl, f_dtl;
 
     // First load form penilaian
-    loadPenilaian($('#form_penilaian .nav-link.active').data('penilaian'), 
+    loadPenilaian($('#form_penilaian .nav-link.active').data('penilaian'),
         $('#form_penilaian .nav-link.active').data('naskahid'));
     loadTimeline($('#timeline').data('id'));
 
@@ -232,7 +232,7 @@ $(function() {
     $('#md_Timeline').on('show.bs.modal', function(e){
         let id = $(e.relatedTarget).data('id'), // idnaskah / idtimeline
             method = $(e.relatedTarget).data('method'); // add / edit
-        
+
         $.ajax({
             type: "POST",
             url: "{{url('penerbitan/naskah/timeline/timeline')}}",
@@ -241,7 +241,7 @@ $(function() {
                 $('#md_Timeline .modal-content').empty();
                 $('#md_Timeline .modal-content').append(result);
                 f_tl = jqueryValidation_('#f_tl');
-                reinitialDatePicker();  
+                reinitialDatePicker();
                 // console.log(result)
             },
             error: function(err) {
@@ -339,7 +339,7 @@ $(function() {
         $('.datepicker').datepicker({
             format: 'dd MM yyyy',
         }).on('show.bs.modal', function(event) {
-            event.stopPropagation(); 
+            event.stopPropagation();
         });
     }
 
@@ -392,7 +392,7 @@ $(function() {
                         pn5_Direksi = jqueryValidation_('#fpn5');
                     } else if(tab.toLowerCase() == 'dpemasaran') {
                         pn6_DPemasaran = jqueryValidation_('#fpn6');
-                    } 
+                    }
                 },
                 error: function(err) {
                     console.log(err)
@@ -401,9 +401,9 @@ $(function() {
                 complete: function() {
                     $('#form_penilaian').parent().removeClass('card-progress')
                 }
-            }) 
+            })
         }
-         
+
     }
 
     function loadTimeline(id) {
@@ -479,7 +479,7 @@ $(function() {
                     ajaxPenProdev($(this))
                 }
             });
-            
+
         }
     })
     // Submit Penilaian Editor/Setter
@@ -533,7 +533,7 @@ $(function() {
                     ajaxPenEditSet($(this))
                 }
             });
-            
+
         }
     })
     // Submit Penilaian Manager Pemasaran
@@ -584,7 +584,7 @@ $(function() {
                 if (confirm_) {
                     ajaxPenPemasaran($(this))
                 }
-            });  
+            });
         }
     })
     // Submit Penilaian Penerbitan
@@ -634,7 +634,7 @@ $(function() {
                 if (confirm_) {
                     ajaxPenPenerbitan($(this))
                 }
-            });  
+            });
         }
     })
     // Submit Penilaian Direksi
@@ -684,7 +684,7 @@ $(function() {
                 if (confirm_) {
                     ajaxPenDireksi($(this))
                 }
-            });  
+            });
         }
     })
     // Submit Penilaian Direktur Pemasaran
@@ -734,7 +734,7 @@ $(function() {
                 if (confirm_) {
                     ajaxPenDPemasaran($(this))
                 }
-            }); 
+            });
         }
     })
 
@@ -787,7 +787,7 @@ $(function() {
                 if (confirm_) {
                     ajaxSubmitTimeline($(this))
                 }
-            });  
+            });
         }
     })
 
@@ -832,7 +832,7 @@ $(function() {
                 if (confirm_) {
                     ajaxSubmitDateTimeline($(this))
                 }
-            });  
+            });
         }
     })
 
@@ -850,7 +850,7 @@ $(function() {
                     notifToast('error', 'Sub-Timeline gagal disimpan!');
                 }
                 console.log(result)
-                
+
             },
             error: function(err) {
                 notifToast('error', 'Sub-Timeline gagal disimpan!');
@@ -871,7 +871,7 @@ $(function() {
                 if (confirm_) {
                     ajaxSubmitSubTl($(e.currentTarget).get(0));
                 }
-            });  
+            });
         }
     })
 })

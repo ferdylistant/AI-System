@@ -15,112 +15,43 @@ class NaskahController extends Controller
         if($request->ajax()) {
             if($request->input('request_') === 'table-naskah') {
                 $data = DB::table('penerbitan_naskah as pn')
-                    ->join('penerbitan_m_kelompok_buku as mkb', 'pn.kelompok_buku_id', '=', 'mkb.id')
-                    ->join('penerbitan_pn_stts as stts', 'pn.id', '=', 'stts.naskah_id')
-                    ->whereNull('pn.deleted_at')
-                    ->leftJoin('timeline as t', 'pn.id', 't.naskah_id')
-                    ->select('pn.id',
-                    'pn.kode',
-                    'pn.judul_asli',
-                    'mkb.nama as kelompok_buku',
-                    'pn.jalur_buku',
-                    'pn.tanggal_masuk_naskah',
-                    'stts.tgl_pn_selesai',
-                    'stts.tgl_pn_editor',
-                    'stts.tgl_pn_setter',
-                    'stts.tgl_pn_prodev',
-                    'stts.tgl_pn_m_pemasaran',
-                    'stts.tgl_pn_m_penerbitan',
-                    'stts.tgl_pn_d_pemasaran',
-                    'stts.tgl_pn_prodev',
-                    'stts.tgl_pn_direksi')
-                    ->get();
+                            ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+                            ->whereNull('pn.deleted_at')
+                            ->select('pn.id', 'pn.kode', 'pn.judul_asli', 'pn.jalur_buku', 'pn.tanggal_masuk_naskah',
+                                'pn.selesai_penilaian', 'pns.tgl_pn_prodev', 'pns.tgl_pn_m_penerbitan',
+                                'pns.tgl_pn_m_pemasaran', 'pns.tgl_pn_d_pemasaran', 'pns.tgl_pn_direksi', 'pns.tgl_pn_editor',
+                                'pns.tgl_pn_setter', 'pns.tgl_pn_selesai')
+                            ->get();
                 $update = Gate::allows('do_update', 'ubah-data-naskah');
 
                 return Datatables::of($data)
+                        ->addColumn('judul_asli', function($data){
+                            return Str::limit($data->judul_asli, 40);
+                        })
                         ->addColumn('stts_penilaian', function($data) {
-                            if(is_null($data->tgl_pn_selesai)) {
-                                $btn = '<span class="badge badge-dark">Belum Selesai</span>';
-                            }else {
-                                $btn = Carbon::createFromFormat('Y-m-d h:i:s',$data->tgl_pn_selesai)->format('d F Y');
-                            }
-                            return $btn;
-                        })
-                        ->addColumn('penilaian_editor_setter', function($data) {
-                            if(is_null($data->tgl_pn_editor)) {
-                                if ($data->jalur_buku=='Pro Literasi') {
-                                    $btn = "<span class='badge badge-danger'>Belum ada penilaian</span>";
-                                }
-                                else{
-                                    $btn = '<span class="badge badge-warning">Tidak perlu penilaian</span>';
-                                }
-                            }else {
-                                $btn = '<span class="badge badge-success">Sudah dinilai</span>';
-                            }
-                            return $btn;
-                        })
-                        ->addColumn('penilaian_m_penerbitan', function($data) {
-                            if(is_null($data->tgl_pn_m_penerbitan)) {
-                                if($data->jalur_buku=='Reguler' OR $data->jalur_buku=='MoU-Reguler' OR $data->jalur_buku=='SMK/NonSMK')
-                                {
-                                    if(is_null($data->tgl_pn_prodev)) {
-                                        $btn = "<span class='badge badge-primary'>Menunggu penilaian Prodev</span>";
-                                    } 
-                                    else {
-                                        $btn = "<span class='badge badge-danger'>Belum ada penilaian</span>";
-                                    }
+                            $badge = '';
+                            if(in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
+                                if(!is_null($data->tgl_pn_selesai)) {
+                                    $badge .= '<span class="badge badge-primary">Selesai Dinilai</span>';
                                 } else {
-                                    $btn = "<span class='badge badge-warning'>Tidak perlu penilaian</span>";
+                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_prodev)?'danger':'success').'">Pdv</span>';
+                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_m_penerbitan)?'danger':'success').'">M.Pen</span>';
+                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_m_pemasaran)?'danger':'success').'">M.Pem</span>';
+                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_d_pemasaran)?'danger':'success').'">D.Pem</span>';
+                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_direksi)?'danger':'success').'">Dir</span>';
                                 }
-                            }else {
-                                $btn = '<span class="badge badge-success">Sudah dinilai</span>';
-                            }
-                            return $btn;
-                        })
-                        ->addColumn('penilaian_m_pemasaran', function($data) {
-                            if(is_null($data->tgl_pn_m_pemasaran)) {
-                                if($data->jalur_buku=='Reguler' OR $data->jalur_buku=='MoU-Reguler') {
-                                    $btn = "<span class='badge badge-danger'>Belum ada penilaian</span>";
-                                } else{
-                                    $btn = "<span class='badge badge-warning'>Tidak perlu penilaian</span>";
-                                }
-                            }else {
-                                $btn = '<span class="badge badge-success">Sudah dinilai</span>';
-                            }
-                            return $btn;
-                        })
-                        ->addColumn('penilaian_d_pemasaran', function($data) {
-                            if(is_null($data->tgl_pn_d_pemasaran)) {
-                                if ($data->jalur_buku=='Reguler' or $data->jalur_buku=='MoU-Reguler') {
-                                    $btn = "<span class='badge badge-danger'>Belum ada penilaian</span>";
+                            } elseif($data->jalur_buku == 'Pro Literasi') {
+                                if(!is_null($data->tgl_pn_selesai)) {
+                                    $badge .= '<span class="badge badge-primary">Selesai Dinilai</span>';
                                 } else {
-                                    $btn = "<span class='badge badge-warning'>Tidak perlu penilaian</span>";                                    
+                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_editor)?'danger':'success').'">Editor</span>';
+                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_setter)?'danger':'success').'">Setter</span>';
                                 }
-                            }else {
-                                $btn = '<span class="badge badge-success">Sudah dinilai</span>';
+                            } else {
+                                $badge .= '<span class="badge badge-primary">Tidak Dinilai</span>';
                             }
-                            return $btn;
-                        })
-                        ->addColumn('penilaian_prodev', function($data) {
-                            if(is_null($data->tgl_pn_prodev)) {
-                                $btn = "<span class='badge badge-danger'>Belum ada penilaian</span>";
-                            }else {
-                                $btn = '<span class="badge badge-success">Sudah dinilai</span>';
-                            }
-                            return $btn;
-                        })
-                        ->addColumn('penilaian_direksi', function($data) {
-                            if(is_null($data->tgl_pn_direksi)) {
-                                if($data->jalur_buku=='Reguler' OR $data->jalur_buku=='MoU-Reguler')
-                                {
-                                    $btn = "<span class='badge badge-danger'>Belum ada penilaian</span>";
-                                } else {
-                                    $btn = "<span class='badge badge-warning'>Tidak perlu penilaian</span>";
-                                }
-                            }else {
-                                $btn = '<span class="badge badge-success">Sudah dinilai</span>';
-                            }
-                            return $btn;
+
+                            return $badge;
                         })
                         ->addColumn('action', function($data) use($update) {
                             $btn = '<a href="'.url('penerbitan/naskah/melihat-naskah/'.$data->id).'"
@@ -133,7 +64,7 @@ class NaskahController extends Controller
                             }
                             return $btn;
                         })
-                        ->rawColumns(['penilaian_editor_setter','penilaian_m_penerbitan','penilaian_m_pemasaran','penilaian_d_pemasaran','penilaian_prodev','penilaian_direksi', 'stts_penilaian', 'action'])
+                        ->rawColumns(['stts_penilaian', 'action'])
                         ->make(true);
             } elseif($request->input('request_') === 'selectPenulis') {
                 $data = DB::table('penerbitan_penulis')
@@ -264,7 +195,8 @@ class NaskahController extends Controller
         return view('penerbitan.naskah.create-naskah', [
             'kode' => self::generateId(),
             'kbuku' => $kbuku,
-            'user' => $user
+            'user' => $user,
+            'title' => 'Tambah Naskah Penerbitan'
         ]);
     }
 
@@ -418,7 +350,8 @@ class NaskahController extends Controller
 
         return view('penerbitan.naskah.update-naskah', [
             'kbuku' => $kbuku,
-            'user' => $user
+            'user' => $user,
+            'title' => 'Update Naskah',
         ]);
     }
 
@@ -481,7 +414,8 @@ class NaskahController extends Controller
 
         return view('penerbitan.naskah.detail-naskah', [
             'naskah' => $naskah, 'penulis' => $penulis, 'startPn' => $startPn,
-            'fileNaskah' => (object)$fileNaskah
+            'fileNaskah' => (object)$fileNaskah,
+            'title' => 'Detail Naskah'
         ]);
     }
 
@@ -531,12 +465,12 @@ class NaskahController extends Controller
                     [   'id' => Str::uuid()->getHex(),
                         'section' => 'Penerbitan',
                         'type' => 'Penilaian Naskah',
-                        'permission_id' => 'a213b689b8274f4dbe19b3fb24d66840', // Pemasaran
+                        'permission_id' => 'a213b689b8274f4dbe19b3fb24d66840', // M.Pemasaran
                         'form_id' => $data['form_id'], ],
                     [   'id' => Str::uuid()->getHex(),
                         'section' => 'Penerbitan',
                         'type' => 'Penilaian Naskah',
-                        'permission_id' => '9beba245308543ce821efe8a3ba965e3', // M.Pemasaran
+                        'permission_id' => '9beba245308543ce821efe8a3ba965e3', // D.Pemasaran
                         'form_id' => $data['form_id'], ],
                     [   'id' => Str::uuid()->getHex(),
                         'section' => 'Penerbitan',
@@ -649,7 +583,8 @@ class NaskahController extends Controller
             return view('penerbitan.naskah.page.modal-timeline', [
                 'naskah' => $naskah,
                 'method' => $request->input('method_'),
-                'timeline' => $timeline
+                'timeline' => $timeline,
+                'title' => 'Timeline Naskah',
             ]);
 
         } elseif($request->input('request_')=='submit') {

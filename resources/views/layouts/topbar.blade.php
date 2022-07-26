@@ -16,7 +16,7 @@
             <div class="dropdown-menu dropdown-list dropdown-menu-right">
                 <div class="dropdown-header">Notifications</div>
                 <div  class="dropdown-list-content dropdown-list-icons">
-                    
+
                 </div>
                 <div class="dropdown-footer text-center">
                     <a href="#">View All <i class="fas fa-chevron-right"></i></a>

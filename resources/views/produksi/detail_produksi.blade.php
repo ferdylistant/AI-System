@@ -72,13 +72,21 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Kode Order</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">22-39998</p>
+                                    <p class="mb-1 text-monospace">{{ $data->id }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Status Cetak</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Cetak ulang-revisi</p>
+                                    <p class="mb-1 text-monospace">
+                                        @if ($data->status_cetak == 1)
+                                            Buku Baru
+                                        @elseif ($data->status_cetak == 2)
+                                            Cetak Ulang Revisi
+                                        @elseif ($data->status_cetak == 3)
+                                            Cetak Ulang
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
@@ -127,37 +135,49 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Urgent</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Iya</p>
+                                    <p class="mb-1 text-monospace">
+                                        @if ($data->urgent == 1)
+                                            Ya
+                                        @else
+                                            Tidak
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">ISBN</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">12334-sdss-3se5</p>
+                                    <p class="mb-1 text-monospace">{{ $data->isbn }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">E-ISBN</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">12334-sdss-3se5</p>
+                                    <p class="mb-1 text-monospace">{{ $data->eisbn }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Tanggal Terbit</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">12 July 2022</p>
+                                    <p class="mb-1 text-monospace">
+                                        @if ($data->tanggal_terbit != null)
+                                            {{ Carbon::createFromFormat('Y-m-d',$data->tanggal_terbit)->format('d F Y'); }}
+                                        @else
+                                            -
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Buku Contoh</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">adasdasd</p>
+                                    <p class="mb-1 text-monospace">{{ $data->buku_contoh }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Buku Jadi</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">asdasdasd</p>
+                                    <p class="mb-1 text-monospace">{{ $data->buku_jadi }}</p>
                                 </div>
 
                             </div>
@@ -166,61 +186,61 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Judul Buku</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Di Balik Mata Kaca</p>
+                                    <p class="mb-1 text-monospace">{{ $data->judul_buku }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Sub-Judul Buku</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Menceritakan Asumsi</p>
+                                    <p class="mb-1 text-monospace">{{ $data->sub_judul }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Penulis</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">John Lennon</p>
+                                    <p class="mb-1 text-monospace">{{ $data->penulis }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Penerbit</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Gramedia</p>
+                                    <p class="mb-1 text-monospace">{{ $data->penerbit }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Edisi/Cetakan</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">IV/4</p>
+                                    <p class="mb-1 text-monospace">{{ $data->edisi_cetakan }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Kelompok Buku</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Documentary</p>
+                                    <p class="mb-1 text-monospace">{{ $data->kelompok_buku }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Format Buku</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">22 x 80 cm</p>
+                                    <p class="mb-1 text-monospace">{{ $data->format_buku }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Jumlah Halaman</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">69 Halaman</p>
+                                    <p class="mb-1 text-monospace">{{ $data->jumlah_halaman }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Jumlah Cetak</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">5.000 eks</p>
+                                    <p class="mb-1 text-monospace">{{ $data->jumlah_cetak }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Perlengkapan</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Lorem ipsum dolor sit amet?</p>
+                                    <p class="mb-1 text-monospace">{{ $data->perlengkapan }}</p>
                                 </div>
                             </div>
                             <div class="col-12 col-md-4">
@@ -228,61 +248,73 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Kertas Isi</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">HVS 70</p>
+                                    <p class="mb-1 text-monospace">{{ $data->kertas_isi }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Warna Isi</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">FC</p>
+                                    <p class="mb-1 text-monospace">{{ $data->warna_isi }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Kertas Cover</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Ivory, 210</p>
+                                    <p class="mb-1 text-monospace">{{ $data->kertas_cover }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Warna Cover</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Full Color</p>
+                                    <p class="mb-1 text-monospace">{{ $data->warna_cover }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Efek Cover</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">UV</p>
+                                    <p class="mb-1 text-monospace">{{ $data->efek_cover }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Jenis Cover</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Biasa</p>
+                                    <p class="mb-1 text-monospace">{{ $data->jenis_cover }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Jahit Kawat</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Biasa</p>
+                                    <p class="mb-1 text-monospace">
+                                        @if($data->jahit_kawat == 1)
+                                            Iya
+                                        @else
+                                            Tidak
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Jahit Benang</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Biasa</p>
+                                    <p class="mb-1 text-monospace">
+                                        @if($data->jahit_benang == 1)
+                                            Iya
+                                        @else
+                                            Tidak
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Bending</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">Bending 1,7 cm</p>
+                                    <p class="mb-1 text-monospace">{{ $data->bending }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Keterangan</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">sdasdasd dsdsdds sdsdfsf</p>
+                                    <p class="mb-1 text-monospace">{{ $data->keterangan }}</p>
                                 </div>
                             </div>
 

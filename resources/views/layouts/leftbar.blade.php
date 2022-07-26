@@ -9,13 +9,6 @@
     </div>
 
     <ul class="sidebar-menu">
-        <li class="menu-header">Produksi</li>
-        <li class="">
-            <a class="nav-link" href="{{ route('produksi.view')}}">
-                <i class="fa fa-book"></i>
-                <span>Order Cetak Buku</span>
-            </a>
-        </li>
         @foreach(session('menus') as $key => $menus)
         <li class="menu-header">{{$key}}</li>
             @foreach($menus as $menu)

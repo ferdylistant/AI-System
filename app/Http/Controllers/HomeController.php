@@ -12,8 +12,8 @@ class HomeController extends Controller
 {
     public function index() {
         // var_dump(session('menus')); die();
-        // $tahapan = is_null(null)?'all':'naskah-masuk'; 
-        // $mulai = null; $selesai = null; 
+        // $tahapan = is_null(null)?'all':'naskah-masuk';
+        // $mulai = null; $selesai = null;
         // if(!is_null(null)) {
         //     $tanggal = explode(' - ', '27 May 2022 - 27 May 2022');
         //     $mulai = Carbon::createFromFormat('d F Y', $tanggal[0])->format('Y-m-d');
@@ -58,11 +58,14 @@ class HomeController extends Controller
         //     $arr->tgl_jadi = $arr->tgl_jadi!=''?Carbon::createFromFormat('Y-m-d H:i:s', $arr->tgl_jadi)->format('d F Y'):'-';
         //     return $arr;
         // });
-    
+
         // return Datatables::of($data)->make(true);
+        $userdata = DB::table('users')->where('id', auth()->user()->id)->first();
         return view('home', [
             'title' => 'Home',
-            'id' => Str::uuid()->getHex()
+            'id' => Str::uuid()->getHex(),
+            'userdata' => $userdata
+
         ]);
     }
 
@@ -74,8 +77,8 @@ class HomeController extends Controller
     }
 
     protected function dataNaskah($request) {
-        $tahapan = is_null($request->input('tahapan'))?'all':$request->input('tahapan'); 
-        $mulai = null; $selesai = null; 
+        $tahapan = is_null($request->input('tahapan'))?'all':$request->input('tahapan');
+        $mulai = null; $selesai = null;
         if(!is_null($request->input('tanggal'))) {
             $tanggal = explode(' - ', $request->input('tanggal'));
             $mulai = Carbon::createFromFormat('d F Y', $tanggal[0])->format('Y-m-d');
@@ -121,14 +124,14 @@ class HomeController extends Controller
             $arr->tgl_jadi = $arr->tgl_jadi!=''?Carbon::createFromFormat('Y-m-d H:i:s', $arr->tgl_jadi)->format('d F Y'):'-';
             return $arr;
         });
-    
+
         return Datatables::of($data)
                 ->addColumn('action', function($data) {
-                    return '<a href="'.url('penerbitan/naskah/melihat-naskah/'.$data->id).'" 
+                    return '<a href="'.url('penerbitan/naskah/melihat-naskah/'.$data->id).'"
                             class="btn btn-sm btn-primary btn-icon" target="_blank">
                             <div><i class="fas fa-envelope-open-text"></i></div></a>';
                 })->make(true);
     }
 
-    
+
 }

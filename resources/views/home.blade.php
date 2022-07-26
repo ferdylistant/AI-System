@@ -29,7 +29,7 @@
         border: 1px solid #ced4da;
     }
     .tb-detail-naskah th, .tb-detail-naskah td {
-        height: auto !important; 
+        height: auto !important;
         padding: 10px 15px 10px 15px !important;
     }
     .tb-detail-naskah th {
@@ -46,10 +46,13 @@
 
 <div class="section-body">
     <div class="row">
-        <div>
-
-        </div>
         <div class="col-12">
+            <div class="card pb-5" >
+                <h2 class="display-5">&nbsp;Selamat datang, {{ $userdata->nama}}.</h2>
+
+            </div>
+        </div>
+        <!-- <div class="col-12">
             <div id="container_tb_naskah" class="card card-primary">
                 <div class="card-body">
                     <div class="col-8 offset-2">
@@ -81,7 +84,7 @@
                     <div id='calendar'></div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </div>
 
@@ -173,7 +176,7 @@
             locale: { format: 'DD MMM YYYY' }
         });
         $('input[name="tb_naskah_tgl"]').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('DD MMM YYYY') + ' - ' 
+            $(this).val(picker.startDate.format('DD MMM YYYY') + ' - '
                         + picker.endDate.format('DD MMM YYYY'));
             reloadTbNaskah();
         });
@@ -191,7 +194,7 @@
             let tahapan = $('select[name="tb_naskah_tahapan"]').val(),
                 tanggal = $('input[name="tb_naskah_tgl"]').val(),
                 elmnt = $('#container_tb_naskah');
-            
+
             tableNaskah = $('#tb_Naskah').DataTable({
                 processing: true,
                 serverSide: true,
@@ -313,7 +316,7 @@
                 }
             })
         })
-        
+
         calendar.render();
     })
 </script>

@@ -32,17 +32,17 @@ class AuthServiceProvider extends ServiceProvider
 
         Gate::define('do_create', function ($user, $raw) {
             return session('permissions')->where('raw', $raw)
-                    ->isNotEmpty();  
+                    ->isNotEmpty();
         });
 
         Gate::define('do_update', function ($user, $raw) {
             return session('permissions')->where('raw', $raw)
-                    ->isNotEmpty();   
+                    ->isNotEmpty();
         });
 
         Gate::define('do_delete', function ($user, $raw) {
             return session('permissions')->where('raw', $raw)
-                    ->isNotEmpty();   
+                    ->isNotEmpty();
         });
     }
 }

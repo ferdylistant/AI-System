@@ -40,7 +40,6 @@
 @section('jsRequired')
 <script src="{{url('vendors/datatables/media/js/jquery.dataTables.min.js')}}"></script>
 <script src="{{url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
-<script src="{{url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js')}}"></script>
 <script src="{{url('vendors/select2/dist/js/select2.full.min.js')}}"></script>
 <script src="{{url('vendors/sweetalert/dist/sweetalert.min.js')}}"></script>
 <script src="{{url('vendors/jquery-validation/dist/jquery.validate.js')}}"></script>
@@ -51,7 +50,7 @@
 @section('jsNeeded')
 <script>
     $(function() {
-        let tableNaskah = $('#tb_Produksi').DataTable({
+         $('#tb_Produksi').DataTable({
             responsive: true,
             rowReorder: {
                 selector: 'td:nth-child(2)'
@@ -69,7 +68,7 @@
             { orderable: false, targets: '_all' }
         ],
             ajax: {
-                url: "{{ route('produksi.view') }}",
+                url: "{{ url('produksi/order-cetak') }}",
                 data: {"request_": "table-produksi"}
             },
             columns: [
@@ -88,19 +87,20 @@
                 { data: 'status_buku', name: 'status_buku', title: 'Status Buku'},
                 { data: 'kelompok_buku', name: 'kelompok_buku', title: 'Kelompok Buku'},
                 { data: 'edisi_cetakan', name: 'edisi_cetakan', title: 'Edisi Cetakan'},
+                { data: 'format_buku', name: 'format_buku', title: 'Format Buku'},
                 { data: 'jumlah_halaman', name: 'jumlah_halaman', title: 'Jumlah Halaman'},
                 { data: 'kertas_isi', name: 'kertas_isi', title: 'Kertas Isi'},
                 { data: 'warna_isi', name: 'warna_isi', title: 'Warna Isi'},
                 { data: 'kertas_cover', name: 'kertas_cover', title: 'Kertas Cover'},
                 { data: 'warna_cover', name: 'warna_cover', title: 'Warna Cover'},
-                { data: 'efek_cover', name: 'efek_cover', title: 'Jenis Cover'},
+                { data: 'efek_cover', name: 'efek_cover', title: 'Efek Cover'},
+                { data: 'jenis_cover', name: 'jenis_cover', title: 'Jenis Cover'},
                 { data: 'jahit_kawat', name: 'jahit_kawat', title: 'Jahit Kawat'},
                 { data: 'jahit_benang', name: 'jahit_benang', title: 'Jahit Benang'},
                 { data: 'bending', name: 'bending', title: 'Bending'},
                 { data: 'tanggal_terbit', name: 'tanggal_terbit', title: 'Tanggal Terbit'},
                 { data: 'buku_jadi', name: 'buku_jadi', title: 'Buku Jadi'},
                 { data: 'jumlah_cetak', name: 'jumlah_cetak', title: 'Jumlah Cetak'},
-                { data: 'spp', name: 'spp', title: 'SPP'},
                 { data: 'buku_contoh', name: 'buku_contoh', title: 'Buku Contoh'},
                 { data: 'keterangan', name: 'keterangan', title: 'Keterangan'},
                 { data: 'perlengkapan', name: 'perlengkapan', title: 'Perlengkapan'},
@@ -109,7 +109,6 @@
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
             ]
         });
-
     })
 </script>
 @endsection

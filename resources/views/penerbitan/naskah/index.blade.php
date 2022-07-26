@@ -26,7 +26,7 @@
                 <div class="card card-primary">
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_Naskah" style="width:100%">
+                            <table class="table table-striped" id="tb_Naskah">
                             </table>
                         </div>
                     </div>
@@ -52,7 +52,7 @@
 @section('jsNeeded')
 <script>
     $(function() {
-        let tableNaskah = $('#tb_Naskah').DataTable({
+         $('#tb_Naskah').DataTable({
             responsive: true,
             rowReorder: {
                 selector: 'td:nth-child(2)'
@@ -77,13 +77,7 @@
                 { data: 'kode', name: 'kode', title: 'Kode' },
                 { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
                 { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku' },
-                { data: 'penilaian_editor_setter', name: 'penilaian_editor_setter', title: 'Penilaian Editor/Setter'},
-                { data: 'penilaian_m_penerbitan', name: 'penilaian_m_penerbitan', title: 'Penilaian M.Penerbitan'},
-                { data: 'penilaian_m_pemasaran', name: 'penilaian_m_pemasaran', title: 'Penilaian M.Pemasaran'},
-                { data: 'penilaian_d_pemasaran', name: 'penilaian_d_pemasaran', title: 'Penilaian D.Pemasaran'},
-                { data: 'penilaian_prodev', name: 'penilaian_prodev', title: 'Penilaian Prodev'},
-                { data: 'penilaian_direksi', name: 'penilaian_direksi', title: 'Penilaian Direksi'},
-                { data: 'stts_penilaian', name: 'stts_penilaian', title: 'Selesai Penilaian'},
+                { data: 'stts_penilaian', name: 'stts_penilaian', title: 'Penilaian'},
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
             ]
         });

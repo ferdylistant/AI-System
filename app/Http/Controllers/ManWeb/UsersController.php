@@ -21,7 +21,7 @@ class UsersController extends Controller
                         ->leftJoin('divisi as d', 'u.divisi_id', '=', 'd.id')
                         ->leftJoin('jabatan as j', 'u.jabatan_id', '=', 'j.id')
                         ->whereNull('u.deleted_at');
-                if(auth()->id() != 'be8d42fa88a14406ac201974963d9c1b') { // Only Super Admin 
+                if(auth()->id() != 'be8d42fa88a14406ac201974963d9c1b') { // Only Super Admin
                     $data = $data->where('u.id', '<>', 'be8d42fa88a14406ac201974963d9c1b');
                 }
                 $data = $data->select(DB::raw('
@@ -29,7 +29,7 @@ class UsersController extends Controller
                             c.nama as cabang, d.nama as divisi, j.nama as jabatan
                         '))
                         ->get();
-                
+
                 return Datatables::of($data)
                         ->addIndexColumn()
                         ->addColumn('bagian', function($data) {
@@ -39,7 +39,7 @@ class UsersController extends Controller
                             return $data->divisi.' - '.$data->jabatan;
                         })
                         ->addColumn('action', function($data) {
-                            $btn = '<a href="'.url('manajemen-web/user/'.$data->id).'" 
+                            $btn = '<a href="'.url('manajemen-web/user/'.$data->id).'"
                                     class="btn btn-sm btn-primary mr-2" >
                                     <div><i class="fa fa-folder-open"></i></div></a>';
                             $btn .= '<a href="#" class="btn_DelUser btn btn-sm btn-danger"
@@ -49,7 +49,7 @@ class UsersController extends Controller
                         })
                         ->make(true);
 
-            } 
+            }
         }
 
         $lcabang = DB::table('cabang')->whereNull('deleted_at')
@@ -57,7 +57,7 @@ class UsersController extends Controller
         $ldivisi = DB::table('divisi')->whereNull('deleted_at')
                     ->select('id', 'nama')->get();
         $ljabatan = DB::table('jabatan')->whereNull('deleted_at')
-                    ->select('id', 'nama')->get();      
+                    ->select('id', 'nama')->get();
 
 
         return view('manweb.users.index', [
@@ -92,7 +92,7 @@ class UsersController extends Controller
                     ->where('u.id', $id)
                     ->first();
         }
-        
+
         $user = collect($user)->map(function($item, $key) {
             if($key == 'tanggal_lahir') {
                 return $item!='' ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y')
@@ -106,20 +106,22 @@ class UsersController extends Controller
             $userAccess = $this->getDataPermissions($id);
 
             return view('manweb.users.user-detail', [
-                'btnPrev' => $btnPrev, 
+                'btnPrev' => $btnPrev,
                 'user' => (object)$user, 'lcab' => $lcab, 'ldiv' => $ldiv, 'ljab' => $ljab,
                 'accBagian' => collect($userAccess['accbag']),
                 'access' => collect(['ls' => $userAccess['ls'], 'ld' => $userAccess['ld']]),
-                'permissions' => $userAccess['perm']
+                'permissions' => $userAccess['perm'],
+                'title' => 'User Detail',
             ]);
         } else {
             return view('manweb.users.user-detail', [
-                'btnPrev' => $btnPrev, 
-                'user' => (object)$user
+                'btnPrev' => $btnPrev,
+                'user' => (object)$user,
+                'title' => 'Detail User'
             ]);
         }
 
-        
+
     }
 
     public function ajaxUser(Request $request) {
@@ -151,7 +153,7 @@ class UsersController extends Controller
         $id = Str::uuid()->getHex();
 
         Storage::copy('users/avatars/default.jpg', 'users/'.$id.'/default.jpg');
-        
+
         DB::table('users')->insert([
             'id' => $id,
             'nama' => $request->input('adduser_nama'),
@@ -167,18 +169,18 @@ class UsersController extends Controller
     }
 
     protected function updateUser(Request $request) {
-        $tgl_lahir = is_null($request->input('uedit_tanggal_lahir')) ? $request->input('uedit_tanggal_lahir') 
+        $tgl_lahir = is_null($request->input('uedit_tanggal_lahir')) ? $request->input('uedit_tanggal_lahir')
                         : Carbon::createFromFormat('d F Y', $request->input('uedit_tanggal_lahir'))->format('Y-m-d');
 
         try {
             $user = DB::table('users')->where('id', $request->input('uedit_id'))->first();
-            
+
             $avatar = $user->avatar;
             if(!is_null($request->file('uedit_pp'))) {
                 $avatar = explode('/', $request->file('uedit_pp')->store('users/'.$user->id.'/'));
                 $avatar = end($avatar);
             }
-            
+
             if(Gate::allows('do_update', 'ubah-data-user')) {
                 $request->validate([
                     'uedit_nama' => 'required',
@@ -240,7 +242,7 @@ class UsersController extends Controller
         if(is_null($user)) {
             return abort(404);
         }
-        
+
         $request->validate([
             'uedit_pwd_old' => ['required', function($attr, $val, $fail) use($request, $user) {
                 if(!Hash::check($request->input('uedit_pwd_old'), $user->password)) {
@@ -270,7 +272,7 @@ class UsersController extends Controller
                 DB::table('user_permission')
                 ->where('user_id', $request->input('user_id'))
                 ->delete();
-                
+
                 if($request->has('access')) {
                     foreach($request->input('access') as $a) {
                         $access[] = [
@@ -278,7 +280,7 @@ class UsersController extends Controller
                             'permission_id' => $a
                         ];
                     }
-                    
+
                     DB::table('user_permission')->insert($access);
                 }
 
@@ -322,7 +324,7 @@ class UsersController extends Controller
                     ];
                     $temp += 1;
                     break;
-                }   
+                }
             }
             if($temp < 1) {
                 $perm[] = (object)[
@@ -382,7 +384,7 @@ class UsersController extends Controller
             }else { continue; }
             $temp = 0;
         }
-        
+
         foreach($accessBagian as $ab) {
             foreach($ls as $s) {
                 if($ab->id == $s->bagian_id AND $s->checked) {
@@ -403,7 +405,7 @@ class UsersController extends Controller
                 ];
             }
             $temp = 0;
-        } 
+        }
 
         return [
             'accbag' => $accbag,

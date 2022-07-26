@@ -7,15 +7,15 @@ use Illuminate\Support\Facades\{Auth, DB};
 
 class AuthController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('guest', ['except' => 'logout']);
+    }
     public function login() {
         return view('login');
     }
 
     public function doLogin(Request $request) {
-        if(auth()->check()) {
-            return redirect('/');
-        }
-
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6'
@@ -24,7 +24,7 @@ class AuthController extends Controller
         if(Auth::attempt($credentials)) {
             $dataMenu = DB::select("
                 SELECT a.*, ab.order_ab
-                FROM access AS a 
+                FROM access AS a
                 JOIN (
                     SELECT a.id, a.parent_id, a.url
                     FROM user_permission AS up JOIN permissions AS p ON up.permission_id = p.id
@@ -48,7 +48,7 @@ class AuthController extends Controller
             foreach($dataMenu as $d) {
                 if($d->level == 1) {
                     $menus[$d->id]['detail'] = [
-                        'bagian_id' => $d->bagian_id, 
+                        'bagian_id' => $d->bagian_id,
                         'url' => $d->url,
                         'icon' => $d->icon,
                         'name' => $d->name,
@@ -61,7 +61,7 @@ class AuthController extends Controller
                         'name' => $d->name,
                     ];
                 }
-                
+
             }
 
             ## HardCode untuk Menu Header
@@ -73,8 +73,10 @@ class AuthController extends Controller
                     $menus_['Penerbitan'][$key] = $m;
                 }elseif($m['detail']['bagian_id'] == 'f7e795b9ece54c6d82b0ed19f025a65e') {
                     $menus_['Manajemen Web'][$key] = $m;
+                }elseif($m['detail']['bagian_id'] == '8a3ca046fb54492a86aaead53f36bec7') {
+                    $menus_['Produksi'][$key] = $m;
                 }
-                
+
             }
             $permissions = DB::table('user_permission as up')
                                 ->leftJoin('permissions as p', 'up.permission_id', '=', 'p.id')
@@ -82,8 +84,8 @@ class AuthController extends Controller
                                 ->where('up.user_id', Auth::id())
                                 ->get();
 
-                                
-            
+
+
             $request->session()->put('menus', $menus_);
             $request->session()->put('permissions', $permissions);
 
@@ -95,7 +97,7 @@ class AuthController extends Controller
 
     public function logout(Request $request) {
         Auth::logout();
-        
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

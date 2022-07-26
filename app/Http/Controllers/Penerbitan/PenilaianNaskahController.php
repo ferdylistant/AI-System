@@ -64,6 +64,7 @@ class PenilaianNaskahController extends Controller
                         'form' => 'add',
                         'naskah' => $naskah,
                         'kbuku' => $kbuku,
+                        'title' => 'Tambah Penilaian Prodev'
                     ]);
 
                 } elseif (is_null($naskah->tgl_pn_direksi)) { // Edit form prodev
@@ -76,7 +77,8 @@ class PenilaianNaskahController extends Controller
                         'naskah' => $naskah,
                         'pn_prodev' => $pn_prodev,
                         'kbuku' => $kbuku,
-                        'fileProdev' => $fileProdev
+                        'fileProdev' => $fileProdev,
+                        'title' => 'Edit Penilaian Prodev'
                     ]);
 
                 } else {
@@ -89,7 +91,8 @@ class PenilaianNaskahController extends Controller
                         'naskah' => $naskah,
                         'pn_prodev' => $pn_prodev,
                         'kbuku' => $kbuku,
-                        'fileProdev' => $fileProdev
+                        'fileProdev' => $fileProdev,
+                        'title' => 'Lihat Penilaian Prodev'
                     ]);
 
                 }
@@ -106,7 +109,8 @@ class PenilaianNaskahController extends Controller
                         'naskah' => $naskah,
                         'pn_prodev' => $pn_prodev,
                         'kbuku' => $kbuku,
-                        'fileProdev' => $fileProdev
+                        'fileProdev' => $fileProdev,
+                        'title' => 'Lihat Penilaian Prodev'
                     ]);
                 }
             }

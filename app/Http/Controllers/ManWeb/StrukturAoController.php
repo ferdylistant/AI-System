@@ -18,7 +18,7 @@ class StrukturAoController extends Controller
                             ->whereNull('deleted_at')
                             ->select('id', 'kode', 'nama', 'telp', 'alamat')
                             ->get();
-                
+
                 return Datatables::of($table)
                         ->addColumn('action', function($data){
                             $btn = '<a href="#" class="btn btn-sm btn-warning btn_EditCabang btn-icon mr-1"
@@ -36,11 +36,11 @@ class StrukturAoController extends Controller
                 $table = DB::table('divisi')
                                 ->whereNull('deleted_at')
                                 ->select('id', 'nama')->get();
-                    
+
                     return Datatables::of($table)
                             ->addIndexColumn()
                             ->addColumn('action', function($data){
-                                $btn = '<a href="#" class="btn btn-sm btn-warning btn-icon mr-1" data-tipe="Divisi" 
+                                $btn = '<a href="#" class="btn btn-sm btn-warning btn-icon mr-1" data-tipe="Divisi"
                                         data-toggle="modal" data-target="#md_EditDivJab" data-backdrop="static"
                                         data-id="'.$data->id.'" data-nama="'.$data->nama.'"">
                                         <div><i class="fas fa-edit"></i></div></a>';
@@ -50,16 +50,16 @@ class StrukturAoController extends Controller
                                 return $btn;
                             })
                             ->make(true);
-                    
+
             } elseif ($request->input('request_') === 'table-jabatan') { // Load Table Jabatan
                 $table = DB::table('jabatan')
                                 ->whereNull('deleted_at')
                                 ->select('id', 'nama')->get();
-                    
+
                     return Datatables::of($table)
                             ->addIndexColumn()
                             ->addColumn('action', function($data){
-                                $btn = '<a href="#" class="btn btn-sm btn-warning btn-icon mr-1" data-tipe="Jabatan" 
+                                $btn = '<a href="#" class="btn btn-sm btn-warning btn-icon mr-1" data-tipe="Jabatan"
                                         data-toggle="modal" data-target="#md_EditDivJab" data-backdrop="static"
                                         data-id="'.$data->id.'" data-nama="'.$data->nama.'"">
                                         <div><i class="fas fa-edit"></i></div></a>';
@@ -78,8 +78,10 @@ class StrukturAoController extends Controller
                 return $result;
             }
         }
-        
-        return view('manweb.struktur-ao.index');
+
+        return view('manweb.struktur-ao.index',[
+            'title' => 'Struktur AO'
+        ]);
     }
 
     public function crudSO(Request $request) {
@@ -102,7 +104,7 @@ class StrukturAoController extends Controller
                 $users = DB::table('users')->whereNull('deleted_at')
                             ->where('cabang_id', $request->input('id'))
                             ->get();
-                
+
                 if($users->isEmpty()) {
                     DB::table('cabang')->where('id', $request->input('id'))
                         ->update([
@@ -120,7 +122,7 @@ class StrukturAoController extends Controller
                 $users = DB::table('users')->whereNull('deleted_at')
                             ->where('divisi_id', $request->input('id'))
                             ->get();
-                
+
                 if($users->isEmpty()) {
                     DB::table('divisi')->where('id', $request->input('id'))
                         ->update([
@@ -138,7 +140,7 @@ class StrukturAoController extends Controller
                 $users = DB::table('users')->whereNull('deleted_at')
                             ->where('jabatan_id', $request->input('id'))
                             ->get();
-                
+
                 if($users->isEmpty()) {
                     DB::table('jabatan')->where('id', $request->input('id'))
                         ->update([
@@ -246,7 +248,7 @@ class StrukturAoController extends Controller
         }
     }
 
-    
 
-    
+
+
 }
