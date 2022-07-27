@@ -179,7 +179,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Format Buku</label>
+                                <label>Format Buku <span class="text-danger">*</span></label>
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <input type="text" class="form-control" name="add_format_buku_1" placeholder="Format angka">
@@ -399,12 +399,29 @@ $(function() {
     $('.datepicker').datepicker({
         format: 'dd MM yyyy'
     });
+    function resetFrom(form) {
+    form.trigger('reset');
+        $('[name="add_tipe_order"]').val('').trigger('change');
+        $('[name="add_status_cetak"]').val('').trigger('change');
+        $('[name="add_judul_buku"]').val('').trigger('change');
+        $('[name="add_platform_digital[]"]').val('').trigger('change');
+        $('[name="add_urgent"]').val('').trigger('change');
+        $('[name="add_isbn"]').val('').trigger('change');
+        $('[name="add_edisi]"]').val('').trigger('change');
+        $('[name="add_cetakan"]').val('').trigger('change');
+        $('[name="add_tanggal_terbit"]').val('').trigger('change');
+        $('[name="add_format_buku_1"]').val('').trigger('change');
+        $('[name="add_format_buku_2"]').val('').trigger('change');
 
-    // $('.custom-file-input').on('change',function(e){
-    //     var fileName = $(this).val().replace('C:\\fakepath\\', " ");
-    //     $(this).next('.custom-file-label').html(fileName);
-    // });
-
+        // $.ajax({
+        //     type: "GET",
+        //     url: "{{url('penerbitan/naskah')}}",
+        //     data: {request_: 'getKodeNaskah'},
+        //     success: function(data) {
+        //         $('[name="add_kode"]').val(data);
+        //     }
+        // });
+    }
     let addNaskah = jqueryValidation_('#fadd_Produksi', {
         add_tipe_order: {required: true},
         add_status_cetak: {required: true},
@@ -415,6 +432,8 @@ $(function() {
         add_edisi: {required: true},
         add_cetakan: {required: true},
         add_tanggal_terbit: {required: true},
+        add_format_buku_1: {required: true},
+        add_format_buku_2: {required: true},
     });
 
     function ajaxAddProduksi(data) {
