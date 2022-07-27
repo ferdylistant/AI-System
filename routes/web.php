@@ -61,8 +61,8 @@ Route::middleware(['auth'])->group(function() {
     Route::prefix('produksi')->group(function () {
         Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('produksi.view');
         Route::get('/order-cetak/detail', [ProduksiController::class, 'detailProduksi'])->name('produksi.detail');
-        Route::match(['get', 'post'], '/membuat-order-cetak-buku', [ProduksiController::class,'createProduksi'])->name('produksi.create');
-        Route::match(['get', 'post'], '/mengubah-order-cetak-buku/{id}', [ProduksiController::class,'updateProduksi'])->name('produksi.update');
+        Route::match(['get', 'post'], '/order-cetak/create', [ProduksiController::class,'createProduksi'])->name('produksi.create');
+        Route::match(['get', 'post'], '/order-cetak/edit', [ProduksiController::class,'updateProduksi'])->name('produksi.update');
         Route::post('/hapus-order-cetak-buku', [ProduksiController::class,'deleteProduksi'])->name('produksi.delete');
 
     });

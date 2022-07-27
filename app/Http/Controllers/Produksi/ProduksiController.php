@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
 class ProduksiController extends Controller
@@ -17,44 +18,8 @@ class ProduksiController extends Controller
             if($request->input('request_') === 'table-produksi') {
                 $data = DB::table('produksi_order_cetak as poc')
                     ->whereNull('deleted_at')
-                    ->select(
-                        'poc.id',
-                        'poc.tipe_order',
-                        'poc.status_cetak',
-                        'poc.urgent',
-                        'poc.judul_buku',
-                        'poc.sub_judul',
-                        'poc.penulis',
-                        'poc.penerbit',
-                        'poc.isbn',
-                        'poc.eisbn',
-                        'poc.imprint',
-                        'poc.platform_digital',
-                        'poc.status_buku',
-                        'poc.kelompok_buku',
-                        'poc.edisi_cetakan',
-                        'poc.format_buku',
-                        'poc.jumlah_halaman',
-                        'poc.kertas_isi',
-                        'poc.warna_isi',
-                        'poc.kertas_cover',
-                        'poc.warna_cover',
-                        'poc.efek_cover',
-                        'poc.jenis_cover',
-                        'poc.jahit_kawat',
-                        'poc.jahit_benang',
-                        'poc.bending',
-                        'poc.tanggal_terbit',
-                        'poc.buku_jadi',
-                        'poc.jumlah_cetak',
-                        'poc.buku_contoh',
-                        'poc.keterangan',
-                        'poc.perlengkapan',
-                        'poc.created_at',
-                        'poc.created_by',
-                    )
                     ->get();
-                // $update = Gate::allows('do_update', 'ubah-data-naskah');
+                $update = Gate::allows('do_update', 'update-produksi');
 
                 return DataTables::of($data)
                         ->addColumn('no_order', function($data) {
@@ -83,9 +48,6 @@ class ProduksiController extends Controller
                         ->addColumn('judul_buku', function($data) {
                             return $data->judul_buku;
                         })
-                        ->addColumn('sub_judul_buku', function($data) {
-                            return $data->sub_judul;
-                        })
                         ->addColumn('urgent', function($data) {
                             if ($data->urgent == 1) {
                                 $res = '<span class="badge badge-danger">Urgent</span>';
@@ -94,119 +56,21 @@ class ProduksiController extends Controller
                             }
                             return $res;
                         })
-                        ->addColumn('penulis', function($data) {
-                            return $data->penulis;
-                        })
                         ->addColumn('isbn', function($data) {
                             return $data->isbn;
                         })
                         ->addColumn('eisbn', function($data) {
                             return $data->eisbn;
                         })
-                        ->addColumn('penerbit', function($data) {
-                            return $data->penerbit;
-                        })
-                        ->addColumn('imprint', function($data) {
-                            return $data->imprint;
-                        })
-                        ->addColumn('platform_digital', function($data) {
-                            $array = explode(',', $data->platform_digital);
-                            return implode(', ', $array);
-                        })
-                        ->addColumn('status_buku', function($data){
-                            return $data->status_buku;
-                        })
-                        ->addColumn('kelompok_buku', function($data){
-                            return $data->kelompok_buku;
-                        })
-                        ->addColumn('edisi_cetakan', function($data){
-                            return $data->edisi_cetakan;
-                        })
-                        ->addColumn('format_buku', function($data){
-                            return $data->format_buku;
-                        })
-                        ->addColumn('jumlah_halaman', function($data){
-                            return $data->jumlah_halaman;
-                        })
-                        ->addColumn('kertas_isi', function($data){
-                            return $data->kertas_isi;
-                        })
-                        ->addColumn('warna_isi', function($data){
-                            return $data->warna_isi;
-                        })
-                        ->addColumn('kertas_cover', function($data){
-                            return $data->kertas_cover;
-                        })
-                        ->addColumn('warna_cover', function($data){
-                            return $data->warna_cover;
-                        })
-                        ->addColumn('efek_cover', function($data){
-                            return $data->efek_cover;
-                        })
-                        ->addColumn('jenis_cover', function($data){
-                            return $data->jenis_cover;
-                        })
-                        ->addColumn('jahit_kawat', function($data){
-                            if($data->jahit_kawat == 1) {
-                                $res = '<span class="badge badge-success">Ada</span>';
-                            } else {
-                                $res = '<span class="badge badge-danger">Tidak Ada</span>';
-                            }
-                            return $res;
-                        })
-                        ->addColumn('jahit_benang', function($data){
-                            if($data->jahit_benang == 1) {
-                                $res = '<span class="badge badge-success">Ada</span>';
-                            } else {
-                                $res = '<span class="badge badge-danger">Tidak Ada</span>';
-                            }
-                            return $res;
-                        })
-                        ->addColumn('bending', function($data){
-                            return $data->bending;
-                        })
-                        ->addColumn('tanggal_terbit', function($data){
-                            if (is_null($data->tanggal_terbit)) {
-                                $res = '-';
-                            } else {
-                                $res = Carbon::createFromFormat('Y-m-d',$data->tanggal_terbit)->format('d F Y');
-                            }
-                            return $res;
-                        })
-                        ->addColumn('buku_jadi', function($data){
-                            return $data->buku_jadi;
-                        })
-                        ->addColumn('jumlah_cetak', function($data){
-                            return $data->jumlah_cetak;
-                        })
-                        ->addColumn('jumlah_cetak', function($data){
-                            return $data->jumlah_cetak;
-                        })
-                        ->addColumn('buku_contoh', function($data){
-                            return $data->buku_contoh;
-                        })
-                        ->addColumn('keterangan', function($data){
-                            return $data->keterangan;
-                        })
-                        ->addColumn('perlengkapan', function($data){
-                            return $data->perlengkapan;
-                        })
-                        ->addColumn('created_at', function($data){
-                            return Carbon::createFromFormat('Y-m-d h:i:s',$data->created_at)->format('d F Y');
-                        })
-                        ->addColumn('created_by', function($data){
-                            $user = User::find($data->created_by);
-                            return $user->nama;
-                        })
-                        ->addColumn('action', function($data) {
+                        ->addColumn('action', function($data) use ($update) {
                             $btn = '<a href="'.url('produksi/order-cetak/detail?kode='.$data->id .'&author='.$data->created_by).'"
                                     class="btn btn-sm btn-primary btn-icon mr-1">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                            // if($update) {
-                            //     $btn .= '<a href="'.url('penerbitan/naskah/mengubah-naskah/'.$data->id).'"
-                            //         class="btn btn-sm btn-warning btn-icon mr-1">
-                            //         <div><i class="fas fa-edit"></i></div></a>';
-                            // }
+                            if($update) {
+                                $btn .= '<a href="'.url('produksi/order-cetak/edit?kode='.$data->id.'&author='.$data->created_by).'"
+                                    class="btn btn-sm btn-warning btn-icon mr-1">
+                                    <div><i class="fas fa-edit"></i></div></a>';
+                            }
                             return $btn;
                         })
                         ->rawColumns([
@@ -214,36 +78,9 @@ class ProduksiController extends Controller
                             'tipe_order',
                             'status_cetak',
                             'judul_buku',
-                            'sub_judul_buku',
                             'urgent',
-                            'penulis',
                             'isbn',
                             'eisbn',
-                            'penerbit',
-                            'imprint',
-                            'platform_digital',
-                            'status_buku',
-                            'kelompok_buku',
-                            'edisi_cetakan',
-                            'format_buku',
-                            'jumlah_halaman',
-                            'kertas_isi',
-                            'warna_isi',
-                            'kertas_cover',
-                            'warna_cover',
-                            'efek_cover',
-                            'jenis_cover',
-                            'jahit_kawat',
-                            'jahit_benang',
-                            'bending',
-                            'tanggal_terbit',
-                            'buku_jadi',
-                            'jumlah_cetak',
-                            'buku_contoh',
-                            'keterangan',
-                            'perlengkapan',
-                            'created_at',
-                            'created_by',
                             'action'
                             ])
                         ->make(true);
@@ -272,21 +109,73 @@ class ProduksiController extends Controller
                 ], [
                     'required' => 'This field is requried'
                 ]);
-                //BACKEND CODE
 
-            } else {
-                return abort('404');
+                $tipeOrder = $request->add_tipe_order;
+                foreach ($request->add_platform_digital as $key => $value) {
+                    $platformDigital[$key] = $value;
+                }
+                $getId = $this->getOrderId($tipeOrder);
+                DB::table('produksi_order_cetak')->insert([
+                    'id' => $getId,
+                    'tipe_order' => $tipeOrder,
+                    'status_cetak' => $request->add_status_cetak,
+                    'judul_buku' => $request->add_judul_buku,
+                    'sub_judul' => $request->add_sub_judul_buku,
+                    'platform_digital' => json_encode($platformDigital),
+                    'urgent' => $request->add_urgent,
+                    'penulis' => $request->add_penulis,
+                    'imprint' => $request->add_imprint,
+                    'isbn' => $request->add_isbn,
+                    'eisbn' => $request->add_eisbn,
+                    'edisi_cetakan' => $request->add_edisi.'/'.$request->add_cetakan,
+                    'format_buku' => $request->add_format_buku_1.' x '.$request->add_format_buku_2.' cm',
+                    'jumlah_halaman' => $request->add_jumlah_halaman_1.' + '.$request->add_jumlah_halaman_2,
+                    'kelompok_buku' => $request->add_kelompok_buku,
+                    'kertas_isi' => $request->add_kertas_isi,
+                    'warna_isi' => $request->add_warna_isi,
+                    'kertas_cover' => $request->add_kertas_cover,
+                    'warna_cover' => $request->add_warna_cover,
+                    'efek_cover' => $request->add_efek_cover,
+                    'jenis_cover' => $request->add_jenis_cover,
+                    'jahit_kawat' => $request->add_jahit_kawat,
+                    'jahit_benang' => $request->add_jahit_benang,
+                    'bending' => $request->add_bending,
+                    'tanggal_terbit' => Carbon::createFromFormat('d F Y', $request->add_tanggal_terbit)->format('Y-m-d'),
+                    'buku_jadi' => $request->add_buku_jadi,
+                    'jumlah_cetak' => $request->add_jumlah_cetak.'eks',
+                    'buku_contoh' => $request->add_buku_contoh,
+                    'keterangan' => $request->add_keterangan,
+                    'perlengkapan' => $request->add_perlengkapan,
+                    'created_by' => auth()->id()
+                ]);
             }
         }
-
+        $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani'], ['id' => 3,'name' => 'POD']);
+        $statusCetak = array(['id' => 1,'name' => 'Buku Baru'], ['id' => 2,'name' => 'Cetak Ulang Revisi'],
+        ['id' => 3,'name' => 'Cetak Ulang']);
+        $urgent = array(['id' => 0,'name' => 'Ya'],['id' => 1,'name' => 'Tidak']);
+        $imprint = array(
+            ['name' => 'Andi'],['name' => 'G-Media'],['name' => 'NAIN'],['name' => 'Nigtoon Cookery'],
+            ['name' => 'YesCom'],['name' => 'Rapha'],['name' => 'Rainbow'],['name' => 'Lautan Pustaka'],
+            ['name' => 'Sheila'],['name' => 'MOU Pro Literasi'],['name' => 'Rumah Baca'],['name' => 'NyoNyo'],
+            ['name' => 'Mou Perorangan'],['name' => 'PBMR Andi'],['name' => 'Garam Media'],['name' => 'Lily Publisher'],
+            ['name' => 'Sigma'],['name' => 'Pustaka Referensi'],['name' => 'Cahaya Harapan']);
+        $platformDigital = array(['name'=>'Moco'],['name'=>'Google Book'],['name'=>'Gramedia'],['name'=>'Esentral'],
+        ['name'=>'Bahanaflik'],['name'=> 'Indopustaka']);
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
                     ->get();
-        $user = DB::table('users')->get();
-
+        $jahitKawat = array(['id' => 0,'name' => 'Ya'],['id' => 1,'name' => 'Tidak']);
+        $jahitBenang = array(['id' => 0,'name' => 'Ya'],['id' => 1,'name' => 'Tidak']);
         return view('produksi.create_produksi', [
+            'title' => 'Order Cetak Buku',
+            'tipeOrd' => $tipeOrd,
+            'statusCetak' => $statusCetak,
+            'platformDigital' => $platformDigital,
+            'urgent' => $urgent,
             'kbuku' => $kbuku,
-            'user' => $user,
-            'title' => 'Menambah Data Produksi'
+            'imprint' => $imprint,
+            'jahitKawat' => $jahitKawat,
+            'jahitBenang' => $jahitBenang
         ]);
     }
 
@@ -298,9 +187,69 @@ class ProduksiController extends Controller
                     ->where('id', $kode)
                     ->where('created_by', $author)
                     ->first();
+        $author = DB::table('users')
+                    ->where('id', $author)
+                    ->first();
         return view('produksi.detail_produksi', [
             'title' => 'Detail Order Cetak Buku',
-            'data' => $data
+            'data' => $data,
+            'author' => $author
         ]);
+    }
+    public function ajaxRequest(Request $request, $cat){
+        switch($cat) {
+            case 'approval-pic':
+                return $this->approvalOrder($request);
+                break;
+            default:
+                abort(500);
+        }
+    }
+
+    protected function approvalOrder($request)
+    {
+
+    }
+
+    protected function getOrderId($tipeOrder)
+    {
+        $year = date('y');
+        switch($tipeOrder) {
+            case 1: $lastId = DB::table('produksi_order_cetak')
+                                ->where('id', 'like', $year.'-%')
+                                ->whereRaw("SUBSTRING_INDEX(id, '-', -1) >= 1000 and SUBSTRING_INDEX(id, '-', -1) <= 2999")
+                                ->orderBy('id', 'desc')->first();
+
+                    $firstId = '1000';
+            break;
+            case 2: $lastId = DB::table('produksi_order_cetak')
+                                ->where('id', 'like', $year.'-%')
+                                ->whereRaw("SUBSTRING_INDEX(id, '-', -1) >= 3000 and SUBSTRING_INDEX(id, '-', -1) <= 3999")
+                                ->orderBy('id', 'desc')->first();
+                    $firstId = '3000';
+            break;
+            case 3: $lastId = DB::table('produksi_order_cetak')
+                                ->where('id', 'like', $year.'-%')
+                                ->whereRaw("SUBSTRING_INDEX(id, '-', -1) >= 4000")
+                                ->orderBy('id', 'desc')->first();
+                    $firstId = '4000';
+            break;
+            default: abort(500);
+        }
+
+        if(is_null($lastId)) {
+            return $year.'-'.$firstId;
+        } else {
+            $lastId_ = (int)substr($lastId->id, 3);
+            if($lastId_ == 2999) {
+                abort(500);
+            } elseif($lastId_ == 3999) {
+                abort(500);
+            } else {
+
+                return $year.'-'.strval($lastId_+1);
+            }
+        }
+
     }
 }

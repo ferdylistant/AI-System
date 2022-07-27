@@ -48,7 +48,14 @@
     <div class="row">
         <div class="col-12">
             <div class="card pb-5" >
-                <h2 class="display-5">&nbsp;Selamat datang, {{ $userdata->nama}}.</h2>
+                <div>
+                    <div class="card-header">
+                        <h4><i class="fas fa-home"></i>&nbsp;{{$title}}</h4>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="text-monospace">&nbsp;Selamat datang, {{ $userdata->nama}}.</h4>
+                    </div>
+                </div>
 
             </div>
         </div>

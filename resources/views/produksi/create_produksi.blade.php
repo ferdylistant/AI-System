@@ -39,9 +39,9 @@
                                     </div>
                                     <select class="form-control select2" name="add_tipe_order" required>
                                         <option label="Pilih"></option>
-                                        <option value="1">Umum</option>
-                                        <option value="2">Rohani</option>
-                                        <option value="3">POD</option>
+                                        @foreach ($tipeOrd as $value)
+                                        <option value="{{ $value['id'] }}">{{ $value['name'] }}</option>
+                                        @endforeach
                                     </select>
                                     <div id="err_add_tipe_order"></div>
                                 </div>
@@ -54,9 +54,9 @@
                                     </div>
                                     <select class="form-control select2" name="add_status_cetak" required>
                                         <option label="Pilih"></option>
-                                        <option value="1">Buku Baru</option>
-                                        <option value="2">Cetak Ulang-Revisi</option>
-                                        <option value="3">Cetak Ulang</option>
+                                        @foreach ($statusCetak as $val)
+                                            <option value="{{ $val['id'] }}">{{ $val['name'] }}</option>
+                                        @endforeach
                                     </select>
                                     <div id="err_add_status_cetak"></div>
                                 </div>
@@ -83,38 +83,22 @@
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label class="d-block">Platform E-book: <span class="text-danger">*</span></label>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" id="Moco" name="add_platform_digital[]" val="Moco" >
-                                    <label class="form-check-label" for="Moco">Moco</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" id="googleBook" name="add_platform_digital[]" val="Google Book" >
-                                    <label class="form-check-label" for="googleBook">Google Book</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" id="Gramedia" name="add_platform_digital[]" val="Gramedia" >
-                                    <label class="form-check-label" for="Gramedia">Gramedia</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" id="Esentral" name="add_platform_digital[]" val="Esentral" >
-                                    <label class="form-check-label" for="Esentral">Esentral</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" id="Bahanaflik" name="add_platform_digital[]" val="Bahanaflik" >
-                                    <label class="form-check-label" for="Bahanaflik">Bahanaflik</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" id="Indopustaka" name="add_platform_digital[]" val="Indopustaka" >
-                                    <label class="form-check-label" for="Indopustaka">Indopustaka</label>
-                                </div>
+                                @foreach ($platformDigital as $pD)
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" id="{{ $pD['name'] }}" name="add_platform_digital[]" value="{{ $pD['name'] }}" >
+                                        <label class="form-check-label" for="{{ $pD['name'] }}">{{ $pD['name'] }}</label>
+                                    </div>
+                                @endforeach
+
                             </div>
                             <div class="form-group col-12 col-md-2 mb-4">
                                 <label>Urgent: <span class="text-danger">*</span></label>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="add_urgent" value="1" id="add_urgent_yes">
-                                    <label class="form-check-label mr-4" for="add_urgent_yes">Ada</label>
-                                    <input class="form-check-input" type="radio" name="add_urgent" value="0" id="add_urgent_no">
-                                    <label class="form-check-label" for="add_urgent_no">Tidak</label>
+                                    @foreach ($urgent as $urg)
+                                        <input class="form-check-input" type="radio" name="add_urgent" value="{{ $urg['id'] }}" id="add_urgent">
+                                        <label class="form-check-label mr-4" for="add_urgent">{{ $urg['name'] }}</label>
+                                    @endforeach
+
                                 </div>
                                 <div id="err_add_tentang_penulis" style="display: block;"></div>
                             </div>
@@ -167,25 +151,9 @@
                                     </div>
                                     <select class="form-control select2" name="add_imprint" required>
                                         <option label="Pilih"></option>
-                                        <option value="Andi">Andi</option>
-                                        <option value="G-Media">G-Media</option>
-                                        <option value="NAIN">NAIN</option>
-                                        <option value="Nigtoon Cookery">Nigtoon Cookery</option>
-                                        <option value="YesCom">YesCom</option>
-                                        <option value="Rapha">Rapha</option>
-                                        <option value="Rainbow">Rainbow</option>
-                                        <option value="Lautan Pustaka">Lautan Pustaka</option>
-                                        <option value="Sheila">Sheila</option>
-                                        <option value="MOU Pro Literasi">MOU Pro Literasi</option>
-                                        <option value="Rumah Baca">Rumah Baca</option>
-                                        <option value="NyoNyo">NyoNyo</option>
-                                        <option value="Mou Perorangan">Mou Perorangan</option>
-                                        <option value="PBMR Andi">PBMR Andi</option>
-                                        <option value="Garam Media">Garam Media</option>
-                                        <option value="Lily Publisher">Lily Publisher</option>
-                                        <option value="Sigma">Sigma</option>
-                                        <option value="Pustaka Referensi">Pustaka Referensi</option>
-                                        <option value="Cahaya Harapan">Cahaya Harapan</option>
+                                        @foreach ($imprint as $imp)
+                                            <option value="{{ $imp['name'] }}">{{ $imp['name'] }}</option>
+                                        @endforeach
                                     </select>
                                     <div id="err_add_imprint"></div>
                                 </div>
@@ -210,34 +178,33 @@
                                     <div id="err_add_cetakan"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-2 mb-4">
+                            <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Format Buku</label>
-                                <input type="number" min="1" class="form-control" name="add_format_buku_1" placeholder="Format angka">
-                                <div id="err_add_format_buku_1"></div>
-                            </div>
-                            <div class="col-12 col-md-1 mb-4">
-                                <br>
-                                <br>
-                                <center><span class="text-danger fa fa-times"></span></center>
-                            </div>
-                            <div class="form-group col-12 col-md-2 mb-4">
-                                <label>&nbsp;</label>
-                                    <input type="number" min="1" class="form-control" name="add_format_buku_2" placeholder="Format angka">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <input type="text" class="form-control" name="add_format_buku_1" placeholder="Format angka">
+                                        <div id="err_add_format_buku_1"></div>
+                                    </div>
+                                    <span class="input-group-text"><i class="fas fa-times"></i></span>
+                                    <input type="text" class="form-control" name="add_format_buku_2" placeholder="Format angka">
                                     <div id="err_add_format_buku_2"></div>
-                            </div>
-                            <div class="col-12 col-md-1 mb-4">
-                                <br>
-                                <br>
-                                <center><span class="font-weight-bold">cm</span></center>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><strong>cm</strong></span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Jumlah Halaman: </label>
-                                <div class="input-group">
+                                <label>Jumlah Halaman: <span class="text-danger">*</span></label>
+                                <div class="input-group mb-3">
                                     <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-copy"></i></div>
+                                        <input type="text" class="form-control" name="add_jumlah_halaman_1"  placeholder="Format Romawi" required>
+                                        <div id="err_add_jumlah_halaman_1"></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_jumlah_halaman"  placeholder="Jumlah halaman">
-                                    <div id="err_add_jumlah_halaman"></div>
+                                    <span class="input-group-text"><i class="fas fa-plus"></i></span>
+                                    <div class="input-group-append">
+                                        <input type="text" class="form-control" name="add_jumlah_halaman_2"  placeholder="Format Angka" required>
+                                        <div id="err_add_jumlah_halaman_2"></div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
@@ -318,20 +285,22 @@
                             <div class="form-group col-12 col-md-3 mb-4">
                                 <label>Jahit Kawat: </label>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="add_jahit_kawat" value="1" id="add_jahit_kawat_yes">
-                                    <label class="form-check-label mr-4" for="add_jahit_kawat_yes">Ada</label>
-                                    <input class="form-check-input" type="radio" name="add_jahit_kawat" value="0" id="add_jahit_kawat_no">
-                                    <label class="form-check-label" for="add_jahit_kawat_no">Tidak</label>
+                                    @foreach ($jahitKawat as $jk)
+                                        <input class="form-check-input" type="radio" name="add_jahit_kawat" value="{{ $jk['id'] }}" id="add_jahit_kawat">
+                                        <label class="form-check-label mr-4" for="add_jahit_kawat">{{ $jk['name'] }}</label>
+                                    @endforeach
+
                                 </div>
                                 <div id="err_add_tentang_penulis" style="display: block;"></div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
                                 <label>Jahit Benang: </label>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="add_jahit_benang" value="1" id="add_jahit_benang_yes">
-                                    <label class="form-check-label mr-4" for="add_jahit_benang_yes">Ada</label>
-                                    <input class="form-check-input" type="radio" name="add_jahit_benang" value="0" id="add_jahit_benang_no">
-                                    <label class="form-check-label" for="add_jahit_benang_no">Tidak</label>
+                                    @foreach ($jahitBenang as $jb)
+                                        <input class="form-check-input" type="radio" name="add_jahit_benang" value="{{ $jb['id'] }}" id="add_jahit_benang">
+                                        <label class="form-check-label mr-4" for="add_jahit_benang">{{ $jb['name'] }}</label>
+                                    @endforeach
+
                                 </div>
                                 <div id="err_add_tentang_penulis" style="display: block;"></div>
                             </div>
@@ -431,10 +400,10 @@ $(function() {
         format: 'dd MM yyyy'
     });
 
-    $('.custom-file-input').on('change',function(e){
-        var fileName = $(this).val().replace('C:\\fakepath\\', " ");
-        $(this).next('.custom-file-label').html(fileName);
-    });
+    // $('.custom-file-input').on('change',function(e){
+    //     var fileName = $(this).val().replace('C:\\fakepath\\', " ");
+    //     $(this).next('.custom-file-label').html(fileName);
+    // });
 
     let addNaskah = jqueryValidation_('#fadd_Produksi', {
         add_tipe_order: {required: true},
