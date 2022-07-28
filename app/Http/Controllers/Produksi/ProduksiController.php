@@ -96,7 +96,7 @@ class ProduksiController extends Controller
         if($request->ajax()) {
             if($request->isMethod('POST')) {
                 $request->validate([
-                    'add_tipe_order' => 'required',
+                    'up_tipe_order' => 'required',
                     'add_status_cetak' => 'required',
                     'add_judul_buku' => 'required',
                     'add_sub_judul_buku' => 'required',
@@ -142,7 +142,7 @@ class ProduksiController extends Controller
                     'bending' => $request->add_bending,
                     'tanggal_terbit' => Carbon::createFromFormat('d F Y', $request->add_tanggal_terbit)->format('Y-m-d'),
                     'buku_jadi' => $request->add_buku_jadi,
-                    'jumlah_cetak' => $request->add_jumlah_cetak.'eks',
+                    'jumlah_cetak' => $request->add_jumlah_cetak,
                     'buku_contoh' => $request->add_buku_contoh,
                     'keterangan' => $request->add_keterangan,
                     'perlengkapan' => $request->add_perlengkapan,
@@ -153,7 +153,7 @@ class ProduksiController extends Controller
         $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani'], ['id' => 3,'name' => 'POD']);
         $statusCetak = array(['id' => 1,'name' => 'Buku Baru'], ['id' => 2,'name' => 'Cetak Ulang Revisi'],
         ['id' => 3,'name' => 'Cetak Ulang']);
-        $urgent = array(['id' => 0,'name' => 'Ya'],['id' => 1,'name' => 'Tidak']);
+        $urgent = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
         $imprint = array(
             ['name' => 'Andi'],['name' => 'G-Media'],['name' => 'NAIN'],['name' => 'Nigtoon Cookery'],
             ['name' => 'YesCom'],['name' => 'Rapha'],['name' => 'Rainbow'],['name' => 'Lautan Pustaka'],
@@ -164,8 +164,8 @@ class ProduksiController extends Controller
         ['name'=>'Bahanaflik'],['name'=> 'Indopustaka']);
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
                     ->get();
-        $jahitKawat = array(['id' => 0,'name' => 'Ya'],['id' => 1,'name' => 'Tidak']);
-        $jahitBenang = array(['id' => 0,'name' => 'Ya'],['id' => 1,'name' => 'Tidak']);
+        $jahitKawat = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
+        $jahitBenang = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
         return view('produksi.create_produksi', [
             'title' => 'Order Cetak Buku',
             'tipeOrd' => $tipeOrd,
@@ -175,10 +175,133 @@ class ProduksiController extends Controller
             'kbuku' => $kbuku,
             'imprint' => $imprint,
             'jahitKawat' => $jahitKawat,
-            'jahitBenang' => $jahitBenang
+            'jahitBenang' => $jahitBenang,
         ]);
     }
+    public function updateProduksi(Request $request) {
+        if ($request->ajax()) {
+            if ($request->isMethod('POST')) {
+                $request->validate([
+                    'up_tipe_order' => 'required',
+                    'up_status_cetak' => 'required',
+                    'up_judul_buku' => 'required',
+                    'up_sub_judul_buku' => 'required',
+                    'up_platform_digital.*' => 'required',
+                    'up_urgent' => 'required',
+                    'up_isbn' => 'required',
+                    'up_edisi' => 'required|regex:/^[a-zA-Z]+$/u',
+                    'up_cetakan' => 'required|numeric',
+                    'up_tanggal_terbit' => 'required|date',
+                ], [
+                    'required' => 'This field is requried'
+                ]);
+                $tipeOrder = $request->up_tipe_order;
+                foreach ($request->up_platform_digital as $key => $value) {
+                    $platformDigital[$key] = $value;
+                }
+                if ($request->tipe_order == $tipeOrder)
+                {
+                    $getId = $request->id;
 
+                } else{
+                    $getId = $this->getOrderId($tipeOrder);
+                    DB::table('produksi_order_cetak')
+                        ->where('id', $request->id)
+                        ->delete();
+                    DB::table('produksi_order_cetak')->insert(['id'=> $getId]);
+                    $justId = DB::table('produksi_order_cetak')
+                        ->where('id', $getId)
+                        ->first();
+                    $getId = $justId->id;
+                }
+
+
+                DB::table('produksi_order_cetak')
+                    ->where('id', $getId)
+                    ->update([
+                    'tipe_order' => $tipeOrder,
+                    'status_cetak' => $request->up_status_cetak,
+                    'judul_buku' => $request->up_judul_buku,
+                    'sub_judul' => $request->up_sub_judul_buku,
+                    'platform_digital' => json_encode($platformDigital),
+                    'urgent' => $request->up_urgent,
+                    'penulis' => $request->up_penulis,
+                    'penerbit' => $request->up_penerbit,
+                    'imprint' => $request->up_imprint,
+                    'isbn' => $request->up_isbn,
+                    'eisbn' => $request->up_eisbn,
+                    'edisi_cetakan' => $request->up_edisi.'/'.$request->up_cetakan,
+                    'format_buku' => $request->up_format_buku_1.' x '.$request->up_format_buku_2.' cm',
+                    'jumlah_halaman' => $request->up_jumlah_halaman_1.' + '.$request->up_jumlah_halaman_2,
+                    'kelompok_buku' => $request->up_kelompok_buku,
+                    'kertas_isi' => $request->up_kertas_isi,
+                    'warna_isi' => $request->up_warna_isi,
+                    'kertas_cover' => $request->up_kertas_cover,
+                    'warna_cover' => $request->up_warna_cover,
+                    'efek_cover' => $request->up_efek_cover,
+                    'jenis_cover' => $request->up_jenis_cover,
+                    'jahit_kawat' => $request->up_jahit_kawat,
+                    'jahit_benang' => $request->up_jahit_benang,
+                    'bending' => $request->up_bending,
+                    'tanggal_terbit' => Carbon::createFromFormat('d F Y', $request->up_tanggal_terbit)->format('Y-m-d'),
+                    'buku_jadi' => $request->up_buku_jadi,
+                    'jumlah_cetak' => $request->up_jumlah_cetak,
+                    'buku_contoh' => $request->up_buku_contoh,
+                    'keterangan' => $request->up_keterangan,
+                    'perlengkapan' => $request->up_perlengkapan,
+                    'created_by' => auth()->id()
+                ]);
+                return response()->json(['route' => route('produksi.view')]);
+            }
+        }
+        $kodeOr = $request->get('kode');
+        $author = $request->get('author');
+        $data = DB::table('produksi_order_cetak')->join('users', 'produksi_order_cetak.created_by', '=', 'users.id')
+                    ->where('produksi_order_cetak.id', $kodeOr)
+                    ->where('users.id', $author)
+                    ->select('produksi_order_cetak.*', 'users.nama')
+                    ->first();
+        $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani'], ['id' => 3,'name' => 'POD']);
+        $statusCetak = array(['id' => 1,'name' => 'Buku Baru'], ['id' => 2,'name' => 'Cetak Ulang Revisi'],
+        ['id' => 3,'name' => 'Cetak Ulang']);
+        $urgent = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
+        $imprint = array(
+            ['name' => 'Andi'],['name' => 'G-Media'],['name' => 'NAIN'],['name' => 'Nigtoon Cookery'],
+            ['name' => 'YesCom'],['name' => 'Rapha'],['name' => 'Rainbow'],['name' => 'Lautan Pustaka'],
+            ['name' => 'Sheila'],['name' => 'MOU Pro Literasi'],['name' => 'Rumah Baca'],['name' => 'NyoNyo'],
+            ['name' => 'Mou Perorangan'],['name' => 'PBMR Andi'],['name' => 'Garam Media'],['name' => 'Lily Publisher'],
+            ['name' => 'Sigma'],['name' => 'Pustaka Referensi'],['name' => 'Cahaya Harapan']);
+        $platformDigital = array(['name'=>'Moco'],['name'=>'Google Book'],['name'=>'Gramedia'],['name'=>'Esentral'],
+        ['name'=>'Bahanaflik'],['name'=> 'Indopustaka']);
+        $kbuku = DB::table('penerbitan_m_kelompok_buku')
+                    ->get();
+        $jahitKawat = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
+        $jahitBenang = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
+        $edisi = Str::before($data->edisi_cetakan, '/');
+        $cetakan = Str::after($data->edisi_cetakan, '/');
+        $formatBuku1 = Str::before($data->format_buku, ' x');
+        $formatBuku2 = Str::between($data->format_buku, 'x ', ' cm');
+        $jmlHalaman1 = Str::before($data->jumlah_halaman, ' +');
+        $jmlHalaman2 = Str::after($data->jumlah_halaman, '+ ');
+        return view('produksi.update_produksi', [
+            'title' => 'Update Cetak Buku',
+            'tipeOrd' => $tipeOrd,
+            'statusCetak' => $statusCetak,
+            'platformDigital' => $platformDigital,
+            'urgent' => $urgent,
+            'kbuku' => $kbuku,
+            'imprint' => $imprint,
+            'jahitKawat' => $jahitKawat,
+            'jahitBenang' => $jahitBenang,
+            'data' => $data,
+            'edisi' => $edisi,
+            'cetakan' => $cetakan,
+            'formatBuku1' => $formatBuku1,
+            'formatBuku2' => $formatBuku2,
+            'jmlHalaman1' => $jmlHalaman1,
+            'jmlHalaman2' => $jmlHalaman2,
+        ]);
+    }
     public function detailProduksi(Request $request)
     {
         $kode = $request->get('kode');

@@ -45,7 +45,7 @@
 <section class="section">
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ url('penerbitan/naskah') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('produksi.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
         <h1>Detail Order Produksi</h1>
     </div>
@@ -174,7 +174,16 @@
                                         <p class="mb-1 text-monospace">{{ $data->buku_jadi }}</p>
                                     @endif
                                 </div>
-
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Perlengkapan</h6>
+                                    </div>
+                                    @if (is_null($data->perlengkapan))
+                                        <p class="mb-1 text-monospace">-</p>
+                                    @else
+                                        <p class="mb-1 text-monospace">{{ $data->perlengkapan }}</p>
+                                    @endif
+                                </div>
                             </div>
                             <div class="col-12 col-md-4">
                                 <div class="list-group-item flex-column align-items-start">
@@ -215,6 +224,16 @@
                                         <p class="mb-1 text-monospace">-</p>
                                     @else
                                         <p class="mb-1 text-monospace">{{ $data->penerbit }}</p>
+                                    @endif
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Imprint</h6>
+                                    </div>
+                                    @if (is_null($data->imprint))
+                                        <p class="mb-1 text-monospace">-</p>
+                                    @else
+                                        <p class="mb-1 text-monospace">{{ $data->imprint }}</p>
                                     @endif
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
@@ -265,17 +284,7 @@
                                     @if (is_null($data->jumlah_cetak))
                                         <p class="mb-1 text-monospace">-</p>
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->jumlah_cetak }}</p>
-                                    @endif
-                                </div>
-                                <div class="list-group-item flex-column align-items-start">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Perlengkapan</h6>
-                                    </div>
-                                    @if (is_null($data->perlengkapan))
-                                        <p class="mb-1 text-monospace">-</p>
-                                    @else
-                                        <p class="mb-1 text-monospace">{{ $data->perlengkapan }}</p>
+                                        <p class="mb-1 text-monospace">{{ $data->jumlah_cetak.' eks' }}</p>
                                     @endif
                                 </div>
                             </div>
