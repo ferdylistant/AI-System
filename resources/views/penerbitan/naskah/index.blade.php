@@ -64,11 +64,6 @@
                 sSearch: '',
                 lengthMenu: '_MENU_ items/page',
             },
-            columnDefs: [
-			{ orderable: false, className: 'control', targets: 0 },
-            { orderable: false, className: 'reorder', targets: 1 },
-            { orderable: false, targets: '_all' }
-        ],
             ajax: {
                 url: "{{ url('penerbitan/naskah') }}",
                 data: {"request_": "table-naskah"}

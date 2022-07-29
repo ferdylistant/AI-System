@@ -59,10 +59,25 @@
                     </div>
                     <div class="card-body">
                         <div class="row justify-content-between">
+                            @if (Gate::allows('do_approval', 'menyetujui-order'))
                             <div class="col-auto mr-auto">
                                 <div class="mb-4">
                                     <button type="button" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
                                     <button type="button" class="btn btn-danger" id="btn-decline"><i class="fas fa-times" data-id="" data-toggle="modal" data-target="#modalDecline"></i>&nbsp;Ditolak</button>
+                                </div>
+                            </div>
+                            @endif
+                            <div class="col-auto">
+                                <div class="mb-4">
+                                    Penyetujuan:
+                                    @if ($data->status_penyetujuan == '1')
+                                        <span class="badge badge-danger">Pending</span>
+                                    @elseif ($data->status_penyetujuan == '2')
+                                        <span class="badge badge-success">Disetujui</span>
+                                    @elseif ($data->status_penyetujuan == '3')
+                                        <span class="badge badge-dark">Ditolak</span>
+                                    @endif
+
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -77,7 +92,7 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Kode Order</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">{{ $data->id }}</p>
+                                    <p class="mb-1 text-monospace">{{ $data->kode_order }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
@@ -123,6 +138,18 @@
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Status Buku</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                        @if (is_null($data->status_buku))
+                                            <p class="mb-1 text-monospace">-</p>
+                                        @else
+                                            <p class="mb-1 text-monospace">{{ $data->status_buku }}</p>
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">ISBN</h6>
                                     </div>
                                     @if (is_null($data->isbn))
@@ -156,32 +183,24 @@
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Tanggal Permintaan Jadi</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                        @if (!is_null($data->tgl_permintaan_jadi))
+                                            {{ date('d F Y', strtotime($data->tgl_permintaan_jadi)) }}
+                                        @else
+                                            -
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Buku Contoh</h6>
                                     </div>
                                     @if (is_null($data->buku_contoh))
                                         <p class="mb-1 text-monospace">-</p>
                                     @else
                                         <p class="mb-1 text-monospace">{{ $data->buku_contoh }}</p>
-                                    @endif
-                                </div>
-                                <div class="list-group-item flex-column align-items-start">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Buku Jadi</h6>
-                                    </div>
-                                    @if (is_null($data->buku_jadi))
-                                        <p class="mb-1 text-monospace">-</p>
-                                    @else
-                                        <p class="mb-1 text-monospace">{{ $data->buku_jadi }}</p>
-                                    @endif
-                                </div>
-                                <div class="list-group-item flex-column align-items-start">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Perlengkapan</h6>
-                                    </div>
-                                    @if (is_null($data->perlengkapan))
-                                        <p class="mb-1 text-monospace">-</p>
-                                    @else
-                                        <p class="mb-1 text-monospace">{{ $data->perlengkapan }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -285,6 +304,16 @@
                                         <p class="mb-1 text-monospace">-</p>
                                     @else
                                         <p class="mb-1 text-monospace">{{ $data->jumlah_cetak.' eks' }}</p>
+                                    @endif
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Buku Jadi</h6>
+                                    </div>
+                                    @if (is_null($data->buku_jadi))
+                                        <p class="mb-1 text-monospace">-</p>
+                                    @else
+                                        <p class="mb-1 text-monospace">{{ $data->buku_jadi }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -394,6 +423,16 @@
                                         <p class="mb-1 text-monospace">{{ $data->keterangan }}</p>
                                     @endif
 
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Perlengkapan</h6>
+                                    </div>
+                                    @if (is_null($data->perlengkapan))
+                                        <p class="mb-1 text-monospace">-</p>
+                                    @else
+                                        <p class="mb-1 text-monospace">{{ $data->perlengkapan }}</p>
+                                    @endif
                                 </div>
                             </div>
 

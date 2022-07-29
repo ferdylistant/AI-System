@@ -49,6 +49,7 @@
 @endsection
 
 @section('jsNeeded')
+
 <script>
     $(function() {
          $('#tb_Produksi').DataTable({
@@ -63,11 +64,6 @@
                 sSearch: '',
                 lengthMenu: '_MENU_ items/page',
             },
-            columnDefs: [
-			{ orderable: false, className: 'control', targets: 0 },
-            { orderable: false, className: 'reorder', targets: 1 },
-            { orderable: false, targets: '_all' }
-        ],
             ajax: {
                 url: "{{ url('produksi/order-cetak') }}",
                 data: {"request_": "table-produksi"}
@@ -80,6 +76,7 @@
                 { data: 'urgent', name: 'urgent', title: 'Urgent'},
                 { data: 'isbn', name: 'isbn', title: 'ISBN'},
                 { data: 'eisbn', name: 'eisbn', title: 'E-ISBN'},
+                { data: 'status_penyetujuan', name: 'status_penyetujuan', title: 'Penyetujuan' },
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
             ]
         });

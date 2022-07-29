@@ -23,7 +23,7 @@ class ProduksiController extends Controller
 
                 return DataTables::of($data)
                         ->addColumn('no_order', function($data) {
-                            return $data->id;
+                            return $data->kode_order;
                         })
                         ->addColumn('tipe_order', function($data) {
                             if($data->tipe_order == 1) {
@@ -62,13 +62,23 @@ class ProduksiController extends Controller
                         ->addColumn('eisbn', function($data) {
                             return $data->eisbn;
                         })
+                        ->addColumn('status_penyetujuan', function($data) {
+                            if ($data->status_penyetujuan == 1) {
+                                $res = '<span class="badge badge-danger">Pending</span>';
+                            } elseif ($data->status_penyetujuan == 2) {
+                                $res = '<span class="badge badge-success">Disetujui</span>';
+                            } elseif ($data->status_penyetujuan == 3) {
+                                $res = '<span class="badge badge-dark">Ditolak</span>';
+                            }
+                            return $res;
+                        })
                         ->addColumn('action', function($data) use ($update) {
                             $btn = '<a href="'.url('produksi/order-cetak/detail?kode='.$data->id .'&author='.$data->created_by).'"
-                                    class="btn btn-sm btn-primary btn-icon mr-1">
+                                    class="d-flex btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if($update) {
                                 $btn .= '<a href="'.url('produksi/order-cetak/edit?kode='.$data->id.'&author='.$data->created_by).'"
-                                    class="btn btn-sm btn-warning btn-icon mr-1">
+                                    class="d-flex btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
                             return $btn;
@@ -81,6 +91,7 @@ class ProduksiController extends Controller
                             'urgent',
                             'isbn',
                             'eisbn',
+                            'status_penyetujuan',
                             'action'
                             ])
                         ->make(true);
@@ -96,7 +107,7 @@ class ProduksiController extends Controller
         if($request->ajax()) {
             if($request->isMethod('POST')) {
                 $request->validate([
-                    'up_tipe_order' => 'required',
+                    'add_tipe_order' => 'required',
                     'add_status_cetak' => 'required',
                     'add_judul_buku' => 'required',
                     'add_sub_judul_buku' => 'required',
@@ -105,7 +116,8 @@ class ProduksiController extends Controller
                     'add_isbn' => 'required',
                     'add_edisi' => 'required|regex:/^[a-zA-Z]+$/u',
                     'add_cetakan' => 'required|numeric',
-                    'add_tanggal_terbit' => 'required|date',
+                    'add_tahun_terbit' => 'required|year',
+                    'add_tgl_permintaan_jadi' => 'required|date',
                 ], [
                     'required' => 'This field is requried'
                 ]);
@@ -114,16 +126,20 @@ class ProduksiController extends Controller
                 foreach ($request->add_platform_digital as $key => $value) {
                     $platformDigital[$key] = $value;
                 }
+                $idO = Str::uuid()->getHex();
                 $getId = $this->getOrderId($tipeOrder);
                 DB::table('produksi_order_cetak')->insert([
-                    'id' => $getId,
+                    'id' => $idO,
+                    'kode_order' => $getId,
                     'tipe_order' => $tipeOrder,
                     'status_cetak' => $request->add_status_cetak,
                     'judul_buku' => $request->add_judul_buku,
                     'sub_judul' => $request->add_sub_judul_buku,
+                    'pilihan_terbit' => $request->add_pilihan_terbit,
                     'platform_digital' => json_encode($platformDigital),
                     'urgent' => $request->add_urgent,
                     'penulis' => $request->add_penulis,
+                    'penerbit' => $request->add_penerbit,
                     'imprint' => $request->add_imprint,
                     'isbn' => $request->add_isbn,
                     'eisbn' => $request->add_eisbn,
@@ -140,13 +156,27 @@ class ProduksiController extends Controller
                     'jahit_kawat' => $request->add_jahit_kawat,
                     'jahit_benang' => $request->add_jahit_benang,
                     'bending' => $request->add_bending,
-                    'tanggal_terbit' => Carbon::createFromFormat('d F Y', $request->add_tanggal_terbit)->format('Y-m-d'),
+                    'tahun_terbit' => Carbon::createFromFormat('Y', $request->add_tahun_terbit)->format('Y'),
+                    'tgl_permintaan_jadi' => Carbon::createFromFormat('d F Y', $request->add_tgl_permintaan_jadi)->format('Y-m-d'),
                     'buku_jadi' => $request->add_buku_jadi,
+                    'status_buku' => $request->add_status_buku,
                     'jumlah_cetak' => $request->add_jumlah_cetak,
                     'buku_contoh' => $request->add_buku_contoh,
                     'keterangan' => $request->add_keterangan,
                     'perlengkapan' => $request->add_perlengkapan,
                     'created_by' => auth()->id()
+                ]);
+                // if (($request->status_cetak == '1') ) OR ($request->status_cetak == '1')) { // Buku Baru
+                //     $data = DB::table('produksi_order_cetak')->where('id', $idO)->first();
+                //     $bu = $this->alurPenilaian($request->input('add_jalur_buku'), 'create-notif-from-naskah', [
+                //         'id_prodev' => $request->input('add_pic_prodev'),
+                //         'form_id' => $idN
+                //     ]);
+
+                // }
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data berhasil ditambahkan'
                 ]);
             }
         }
@@ -166,6 +196,8 @@ class ProduksiController extends Controller
                     ->get();
         $jahitKawat = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
         $jahitBenang = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
+        $pilihanTerbit = array(['id' => 1,'name' => 'Cetak Fisik'],['id' => 2,'name' => 'E-Book'],['id' => 3,'name' =>  'Cetak Fisik + E-Book']);
+        $statusBuku = array(['id' => '1','name' => 'Reguler'],['id' => '2','name' => 'MOU']);
         return view('produksi.create_produksi', [
             'title' => 'Order Cetak Buku',
             'tipeOrd' => $tipeOrd,
@@ -176,6 +208,8 @@ class ProduksiController extends Controller
             'imprint' => $imprint,
             'jahitKawat' => $jahitKawat,
             'jahitBenang' => $jahitBenang,
+            'pilihanTerbit' => $pilihanTerbit,
+            'statusBuku' => $statusBuku
         ]);
     }
     public function updateProduksi(Request $request) {
@@ -191,7 +225,7 @@ class ProduksiController extends Controller
                     'up_isbn' => 'required',
                     'up_edisi' => 'required|regex:/^[a-zA-Z]+$/u',
                     'up_cetakan' => 'required|numeric',
-                    'up_tanggal_terbit' => 'required|date',
+                    'up_tahun_terbit' => 'required|date',
                 ], [
                     'required' => 'This field is requried'
                 ]);
@@ -201,28 +235,21 @@ class ProduksiController extends Controller
                 }
                 if ($request->tipe_order == $tipeOrder)
                 {
-                    $getId = $request->id;
-
-                } else{
-                    $getId = $this->getOrderId($tipeOrder);
-                    DB::table('produksi_order_cetak')
-                        ->where('id', $request->id)
-                        ->delete();
-                    DB::table('produksi_order_cetak')->insert(['id'=> $getId]);
-                    $justId = DB::table('produksi_order_cetak')
-                        ->where('id', $getId)
-                        ->first();
-                    $getId = $justId->id;
+                    $getKode = $request->kode_order;
+                } else {
+                    $getKode = $this->getOrderId($tipeOrder);
                 }
 
 
                 DB::table('produksi_order_cetak')
-                    ->where('id', $getId)
+                    ->where('id', $request->id)
                     ->update([
+                    'kode_order' => $getKode,
                     'tipe_order' => $tipeOrder,
                     'status_cetak' => $request->up_status_cetak,
                     'judul_buku' => $request->up_judul_buku,
                     'sub_judul' => $request->up_sub_judul_buku,
+                    'pilihan_terbit' => $request->up_pilihan_terbit,
                     'platform_digital' => json_encode($platformDigital),
                     'urgent' => $request->up_urgent,
                     'penulis' => $request->up_penulis,
@@ -243,7 +270,8 @@ class ProduksiController extends Controller
                     'jahit_kawat' => $request->up_jahit_kawat,
                     'jahit_benang' => $request->up_jahit_benang,
                     'bending' => $request->up_bending,
-                    'tanggal_terbit' => Carbon::createFromFormat('d F Y', $request->up_tanggal_terbit)->format('Y-m-d'),
+                    'tahun_terbit' => Carbon::createFromFormat('Y', $request->up_tahun_terbit)->format('Y'),
+                    'tgl_permintaan_jadi' => Carbon::createFromFormat('d F Y', $request->up_tgl_permintaan_jadi)->format('Y-m-d'),
                     'buku_jadi' => $request->up_buku_jadi,
                     'jumlah_cetak' => $request->up_jumlah_cetak,
                     'buku_contoh' => $request->up_buku_contoh,

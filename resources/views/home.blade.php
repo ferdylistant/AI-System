@@ -54,6 +54,7 @@
                     </div>
                     <div class="card-body">
                         <h4 class="text-monospace">&nbsp;Selamat datang, {{ $userdata->nama}}.</h4>
+                        {{-- <p>{{$id}}</p> --}}
                     </div>
                 </div>
 

@@ -44,5 +44,11 @@ class AuthServiceProvider extends ServiceProvider
             return session('permissions')->where('raw', $raw)
                     ->isNotEmpty();
         });
+
+        Gate::define('do_approval', function ($user, $raw) {
+            return session('permissions')->where('raw', $raw)
+                    ->isNotEmpty();
+        });
+
     }
 }

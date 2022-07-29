@@ -152,7 +152,7 @@ class UsersController extends Controller
                         :$request->input('adduser_password');
         $id = Str::uuid()->getHex();
 
-        Storage::copy('users/avatars/default.jpg', 'users/'.$id.'/default.jpg');
+        Storage::copy("public/users/avatars/default.jpg", "public/users/".$id."/default.jpg");
 
         DB::table('users')->insert([
             'id' => $id,

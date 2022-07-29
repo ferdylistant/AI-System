@@ -38,6 +38,7 @@
                                         <div class="input-group-text"><i class="fas fa-boxes"></i></div>
                                     </div>
                                     <input type="hidden" name="id" value="{{$data->id}}">
+                                    <input type="hidden" name="kode_order" value="{{$data->kode_order}}">
                                     <input type="hidden" name="tipe_order" value="{{$data->tipe_order}}">
                                     <select class="form-control select2" name="up_tipe_order" required>
                                         <option label="Pilih" {{is_null($data->tipe_order)?'Selected':''}}></option>
@@ -316,7 +317,7 @@
                                     <div id="err_up_bending"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            <div class="form-group col-12 col-md-3 mb-4">
                                 <label>Tanggal Terbit: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -324,6 +325,16 @@
                                     </div>
                                     <input type="text" class="form-control datepicker" name="up_tanggal_terbit" value="{{ date('d F Y', strtotime($data->tanggal_terbit)) }}" placeholder="Hari Bulan Tahun">
                                     <div id="err_up_tanggal_terbit"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Tanggal Permintaan Jadi: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                    </div>
+                                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" value="{{ date('d F Y', strtotime($data->tgl_permintaan_jadi)) }}" placeholder="Hari Bulan Tahun">
+                                    <div id="err_up_tgl_permintaan_jadi"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
@@ -412,6 +423,7 @@ $(function() {
         $('[name="up_edisi]"]').val('').trigger('change');
         $('[name="up_cetakan"]').val('').trigger('change');
         $('[name="up_tanggal_terbit"]').val('').trigger('change');
+        $('[name="up_tgl_permintaan_jadi"]').val('').trigger('change');
         $('[name="up_format_buku_1"]').val('').trigger('change');
         $('[name="up_format_buku_2"]').val('').trigger('change');
 
@@ -434,6 +446,7 @@ $(function() {
         up_edisi: {required: true},
         up_cetakan: {required: true},
         up_tanggal_terbit: {required: true},
+        up_tgl_permintaan_jadi: {required: true},
         up_format_buku_1: {required: true},
         up_format_buku_2: {required: true},
     });

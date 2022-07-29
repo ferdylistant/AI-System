@@ -4,7 +4,7 @@
     <div id="treeview_container" class="hummingbird-treeview" >
         <ul id="treeview" class="hummingbird-base">
             <!-- Access-Bagian -->
-            @foreach($accBagian as $ab) 
+            @foreach($accBagian as $ab)
             <li>
                 <i class="fa fa-minus"></i>
                 <label>
@@ -37,6 +37,7 @@
                                         @case('Create') @php $iconld = 'fas fa-plus-square'; @endphp @break
                                         @case('Update') @php $iconld = 'fas fa-edit'; @endphp @break
                                         @case('Delete') @php $iconld = 'fas fa-trash-alt'; @endphp @break
+                                        @case('Approval') @php $iconld = 'fas fa-check-circle'; @endphp @break
                                         @default @php $iconld = 'fas fa-question-circle' @endphp
                                     @endswitch
                                     @if($ld->id == $p->access_id)
@@ -48,11 +49,11 @@
                                     </li>
                                     @endif
                                     @endforeach
-                                    
+
                                 </ul>
                             </li>
                             @endforeach
-                            
+
                         </ul>
                         @else
                         <ul>
@@ -63,6 +64,7 @@
                                 @case('Create') @php $iconls = 'fas fa-plus-square'; @endphp @break
                                 @case('Update') @php $iconls = 'fas fa-edit'; @endphp @break
                                 @case('Delete') @php $iconls = 'fas fa-trash-alt'; @endphp @break
+                                @case('Approval') @php $iconld = 'fas fa-check-circle'; @endphp @break
                                 @default @php $iconls = 'fas fa-question-circle' @endphp
                             @endswitch
                             @if($ls->id == $p->access_id)
@@ -74,7 +76,7 @@
                             </li>
                             @endif
                             @endforeach
-                            
+
                         </ul>
                         @endif
                     </li>

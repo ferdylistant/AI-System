@@ -37,7 +37,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-boxes"></i></div>
                                     </div>
-                                    <select class="form-control select2" name="add_tipe_order" required>
+                                    <select class="form-control select2" name="add_tipe_order" id="selTipeOrder" required>
                                         <option label="Pilih"></option>
                                         @foreach ($tipeOrd as $value)
                                         <option value="{{ $value['id'] }}">{{ $value['name'] }}</option>
@@ -67,7 +67,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-book"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_judul_buku"  placeholder="Judul buku">
+                                    <input type="text" class="form-control" name="add_judul_buku"  placeholder="Judul buku" required>
                                     <div id="err_add_judul_buku"></div>
                                 </div>
                             </div>
@@ -77,19 +77,34 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-book-open"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_sub_judul_buku"  placeholder="Sub-Judul buku">
+                                    <input type="text" class="form-control" name="add_sub_judul_buku"  placeholder="Sub-Judul buku" required>
                                     <div id="err_add_sub_judul_buku"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-4 mb-4">
+                            <div class="form-group col-12 col-md-6 mb-4" id="gridPlatformDigital">
                                 <label class="d-block">Platform E-book: <span class="text-danger">*</span></label>
                                 @foreach ($platformDigital as $pD)
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" id="{{ $pD['name'] }}" name="add_platform_digital[]" value="{{ $pD['name'] }}" >
+                                        <input class="form-check-input" type="checkbox" id="{{ $pD['name'] }}" name="add_platform_digital[]" value="{{ $pD['name'] }}" required>
                                         <label class="form-check-label" for="{{ $pD['name'] }}">{{ $pD['name'] }}</label>
                                     </div>
                                 @endforeach
 
+                            </div>
+                            <div class="form-group col-12 col-md-4 mb-4">
+                                <label>Pilihan Terbit: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fas fa-file"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="add_pilihan_terbit" required>
+                                        <option label="Pilih"></option>
+                                        @foreach ($pilihanTerbit as $val)
+                                            <option value="{{ $val['id'] }}">{{ $val['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div id="err_add_pilihan_terbit"></div>
+                                </div>
                             </div>
                             <div class="form-group col-12 col-md-2 mb-4">
                                 <label>Urgent: <span class="text-danger">*</span></label>
@@ -314,17 +329,27 @@
                                     <div id="err_add_bending"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Tanggal Terbit: <span class="text-danger">*</span></label>
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Tahun Terbit: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="add_tanggal_terbit" placeholder="Hari Bulan Tahun">
-                                    <div id="err_add_tanggal_terbit"></div>
+                                    <input type="text" class="form-control datepicker-year" name="add_tahun_terbit" placeholder="Tahun">
+                                    <div id="err_add_tahun_terbit"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Tanggal Permintaan Jadi: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                    </div>
+                                    <input type="text" class="form-control datepicker" name="add_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun">
+                                    <div id="err_add_tgl_permintaan_jadi"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-3 mb-4">
                                 <label>Buku Jadi: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -332,6 +357,21 @@
                                     </div>
                                     <input type="text" class="form-control" name="add_buku_jadi"  placeholder="Buku jadi">
                                     <div id="err_add_buku_jadi"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Status Buku: </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-check-circle"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="add_kelompok_buku" required>
+                                        <option label="Pilih"></option>
+                                        @foreach($statusBuku as $sb)
+                                            <option value="{{ $sb['id'] }}">{{ $sb['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div id="err_add_status_buku"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
@@ -342,6 +382,16 @@
                                     </div>
                                     <input type="number" class="form-control" name="add_jumlah_cetak" min="1" placeholder="Jumlah cetak">
                                     <div id="err_add_jumlah_cetak"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-6 mb-4">
+                                <label>SPP: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-copy"></i></div>
+                                    </div>
+                                    <input type="text" class="form-control" name="add_spp" placeholder="Surat Perjanjian Penulis">
+                                    <div id="err_add_spp"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-12 mb-4">
@@ -387,6 +437,16 @@
 
 @section('jsNeeded')
 <script>
+    $(document).ready(function() {
+        $('#selTipeOrder').on('change', function() {
+            var tipe = $(this).val();
+            if (tipe == '2') {
+                $('#gridPlatformDigital').hide();
+            } else {
+                $('#gridPlatformDigital').show();
+            }
+        });
+    });
 $(function() {
     $(".select2").select2({
         placeholder: 'Pilih',
@@ -396,6 +456,12 @@ $(function() {
         }
     });
 
+    $('.datepicker-year').datepicker({
+        format: 'yyyy',
+        viewMode: "years",
+        minViewMode: "years",
+        autoclose:true
+    });
     $('.datepicker').datepicker({
         format: 'dd MM yyyy'
     });
@@ -409,7 +475,8 @@ $(function() {
         $('[name="add_isbn"]').val('').trigger('change');
         $('[name="add_edisi]"]').val('').trigger('change');
         $('[name="add_cetakan"]').val('').trigger('change');
-        $('[name="add_tanggal_terbit"]').val('').trigger('change');
+        $('[name="add_tahun_terbit"]').val('').trigger('change');
+        $('[name="add_tgl_permintaan_jadi"]').val('').trigger('change');
         $('[name="add_format_buku_1"]').val('').trigger('change');
         $('[name="add_format_buku_2"]').val('').trigger('change');
 
@@ -431,7 +498,8 @@ $(function() {
         add_isbn: {required: true},
         add_edisi: {required: true},
         add_cetakan: {required: true},
-        add_tanggal_terbit: {required: true},
+        add_tahun_terbit: {required: true},
+        add_tgl_permintaan_jadi: {required: true},
         add_format_buku_1: {required: true},
         add_format_buku_2: {required: true},
     });
