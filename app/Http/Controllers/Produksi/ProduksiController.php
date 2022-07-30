@@ -198,6 +198,7 @@ class ProduksiController extends Controller
         $jahitBenang = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
         $pilihanTerbit = array(['id' => 1,'name' => 'Cetak Fisik'],['id' => 2,'name' => 'E-Book'],['id' => 3,'name' =>  'Cetak Fisik + E-Book']);
         $statusBuku = array(['id' => '1','name' => 'Reguler'],['id' => '2','name' => 'MOU']);
+        $jilid = array(['id'=>'1','name'=>'Bending'],['id'=>'2','name'=>'Jahit Benang'],['id'=>'3','name'=>'Jahit Kawat'],['id'=>'4','name'=>'Hardcover']);
         return view('produksi.create_produksi', [
             'title' => 'Order Cetak Buku',
             'tipeOrd' => $tipeOrd,
@@ -209,7 +210,8 @@ class ProduksiController extends Controller
             'jahitKawat' => $jahitKawat,
             'jahitBenang' => $jahitBenang,
             'pilihanTerbit' => $pilihanTerbit,
-            'statusBuku' => $statusBuku
+            'statusBuku' => $statusBuku,
+            'jilid' => $jilid,
         ]);
     }
     public function updateProduksi(Request $request) {

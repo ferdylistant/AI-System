@@ -297,36 +297,29 @@
                                     <div id="err_add_jenis_cover"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Jahit Kawat: </label>
-                                <div class="form-check">
-                                    @foreach ($jahitKawat as $jk)
-                                        <input class="form-check-input" type="radio" name="add_jahit_kawat" value="{{ $jk['id'] }}" id="add_jahit_kawat">
-                                        <label class="form-check-label mr-4" for="add_jahit_kawat">{{ $jk['name'] }}</label>
-                                    @endforeach
-
-                                </div>
-                                <div id="err_add_tentang_penulis" style="display: block;"></div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Jahit Benang: </label>
-                                <div class="form-check">
-                                    @foreach ($jahitBenang as $jb)
-                                        <input class="form-check-input" type="radio" name="add_jahit_benang" value="{{ $jb['id'] }}" id="add_jahit_benang">
-                                        <label class="form-check-label mr-4" for="add_jahit_benang">{{ $jb['name'] }}</label>
-                                    @endforeach
-
-                                </div>
-                                <div id="err_add_tentang_penulis" style="display: block;"></div>
-                            </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Bending: </label>
+                            <div class="form-group col-12 col-md-6 mb-4" id="formJilid">
+                                <label>Jilid: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-hand-spock"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_bending"  placeholder="Bending">
-                                    <div id="err_add_bending"></div>
+                                    <select class="form-control select2" name="add_jilid" id="jilidChange" required>
+                                        <option label="Pilih"></option>
+                                        @foreach($jilid as $j)
+                                            <option value="{{ $j['id'] }}">{{ $j['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div id="err_add_jilid"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-3 mb-4" id="ukuranBending">
+                                <label>Ukuran Bending: </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-hand-spock"></i></div>
+                                    </div>
+                                    <input type="text" class="form-control" name="add_ukuran_bending"  placeholder="Ukuran Bending">
+                                    <div id="err_add_ukuran_bending"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
@@ -444,6 +437,18 @@
                 $('#gridPlatformDigital').hide();
             } else {
                 $('#gridPlatformDigital').show();
+            }
+        });
+    });
+    $(document).ready(function() {
+        $('#jilidChange').on('change', function() {
+            var tipe = $(this).val();
+            if (tipe != '1') {
+                $('#formJilid').attr('class', 'form-group col-12 col-md-6 mb-4');
+                $('#ukuranBending').hide();
+            } else {
+                $('#formJilid').attr('class', 'form-group col-12 col-md-3 mb-4');
+                $('#ukuranBending').show();
             }
         });
     });
