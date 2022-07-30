@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ManWeb\UsersController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ManWeb\StrukturAoController;
+use App\Http\Controllers\ApiController;
 use App\Http\Controllers\Produksi\ProduksiController;
 use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController, TimelineController};
 
@@ -23,6 +24,11 @@ use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, Penila
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('do-login', [AuthController::class, 'doLogin']);
 Route::post('/logout', [AuthController::class, 'logout']);
+
+//API
+Route::get('/get-layout', [ApiController::class, 'getPosisiLayout']);
+Route::get('/list-dami', [ApiController::class, 'listDami']);
+Route::get('/list-format-buku', [ApiController::class, 'listFormatBuku']);
 
 Route::middleware(['auth'])->group(function() {
     Route::post('notification', [NotificationController::class, 'index']);

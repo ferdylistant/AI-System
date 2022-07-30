@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 30, 2022 at 04:53 PM
--- Server version: 10.4.19-MariaDB
--- PHP Version: 7.4.22
+-- Generation Time: Jul 30, 2022 at 10:53 PM
+-- Server version: 10.4.24-MariaDB
+-- PHP Version: 7.4.29
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -828,6 +828,8 @@ CREATE TABLE `produksi_order_cetak` (
   `status_buku` varchar(255) DEFAULT NULL,
   `kelompok_buku` varchar(255) DEFAULT NULL,
   `edisi_cetakan` varchar(255) DEFAULT NULL,
+  `posisi_layout` enum('1','2') DEFAULT NULL COMMENT '1= Potrait (Tegak),\r\n2= Landscape (Tidur)',
+  `dami` varchar(2) DEFAULT NULL COMMENT 'Isian tergantung pada posisi_layout',
   `format_buku` varchar(255) DEFAULT NULL,
   `jumlah_halaman` varchar(255) DEFAULT NULL,
   `kertas_isi` varchar(255) DEFAULT NULL,
@@ -836,9 +838,8 @@ CREATE TABLE `produksi_order_cetak` (
   `warna_cover` varchar(255) DEFAULT NULL,
   `efek_cover` varchar(255) DEFAULT NULL,
   `jenis_cover` varchar(255) DEFAULT NULL,
-  `jahit_kawat` enum('0','1') DEFAULT NULL COMMENT '0:Tidak | 1:Ya',
-  `jahit_benang` enum('0','1') DEFAULT NULL COMMENT '0:Tidak | 1:Ya',
   `jilid` enum('1','2','3','4') DEFAULT NULL COMMENT '1= Bending ,\r\n2= Jahit Kawat ,\r\n3= Jahit Benang,\r\n4= Hardcover',
+  `ukuran_jilid_bending` varchar(10) DEFAULT NULL COMMENT 'Terisi jika jilid nya adalah ''Bending'' (lihat kolom jilid)',
   `tahun_terbit` year(4) DEFAULT NULL,
   `buku_jadi` varchar(255) DEFAULT NULL,
   `jumlah_cetak` int(10) DEFAULT NULL,
@@ -856,6 +857,13 @@ CREATE TABLE `produksi_order_cetak` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `produksi_order_cetak`
+--
+
+INSERT INTO `produksi_order_cetak` (`id`, `kode_order`, `tipe_order`, `status_cetak`, `pilihan_terbit`, `urgent`, `judul_buku`, `sub_judul`, `penulis`, `isbn`, `eisbn`, `penerbit`, `imprint`, `platform_digital`, `status_buku`, `kelompok_buku`, `edisi_cetakan`, `posisi_layout`, `dami`, `format_buku`, `jumlah_halaman`, `kertas_isi`, `warna_isi`, `kertas_cover`, `warna_cover`, `efek_cover`, `jenis_cover`, `jilid`, `ukuran_jilid_bending`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status_penyetujuan`, `ket_penolakan`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
+('1048a7ec213c4a059cad5ebc768bdf59', '22-1000', '1', '1', '2', '1', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', 'Ferdyawan Listanto', '123112gdfgfsdfsd', 'asdasdasdasda', 'Andi', 'Lautan Pustaka', '[\"Google Book\",\"Gramedia\",\"Esentral\",\"Indopustaka\"]', '2', 'Ensiklopedi', 'i/1', '1', '16', '17,5 x 25 cm', 'vi + 325', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '1', NULL, 2022, 'wrapping', 5000, NULL, NULL, NULL, NULL, '2022-08-22', '1', NULL, '2022-07-30 20:51:13', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 

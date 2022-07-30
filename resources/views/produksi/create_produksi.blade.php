@@ -72,7 +72,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Sub Judul Buku: </label>
+                                <label>Sub Judul Buku: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-book-open"></i></div>
@@ -110,7 +110,7 @@
                                 <label>Urgent: <span class="text-danger">*</span></label>
                                 <div class="form-check">
                                     @foreach ($urgent as $urg)
-                                        <input class="form-check-input" type="radio" name="add_urgent" value="{{ $urg['id'] }}" id="add_urgent">
+                                        <input class="form-check-input" type="radio" name="add_urgent" value="{{ $urg['id'] }}" id="add_urgent" required>
                                         <label class="form-check-label mr-4" for="add_urgent">{{ $urg['name'] }}</label>
                                     @endforeach
 
@@ -123,7 +123,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-pen"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_penulis"  placeholder="Penulis">
+                                    <input type="text" class="form-control" name="add_penulis"  placeholder="Penulis" required>
                                     <div id="err_add_penulis"></div>
                                 </div>
                             </div>
@@ -134,27 +134,27 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-fingerprint"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_isbn"  placeholder="Kode ISBN">
+                                    <input type="text" class="form-control" name="add_isbn" placeholder="Kode ISBN" required>
                                     <div id="err_add_isbn"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>E-ISBN: </label>
+                                <label>E-ISBN: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-fingerprint"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_eisbn" placeholder="Kode E-ISBN">
+                                    <input type="text" class="form-control" name="add_eisbn" placeholder="Kode E-ISBN" required>
                                     <div id="err_add_eisbn"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Penerbit: </label>
+                                <label>Penerbit: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-user"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_penerbit"  placeholder="Nama penerbit">
+                                    <input type="text" class="form-control" name="add_penerbit"  placeholder="Nama penerbit" required>
                                     <div id="err_add_penerbit"></div>
                                 </div>
                             </div>
@@ -179,7 +179,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-bookmark"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_edisi" placeholder="Format romawi">
+                                    <input type="text" class="form-control" name="add_edisi" placeholder="Format romawi" required>
                                     <div id="err_add_edisi"></div>
                                 </div>
                             </div>
@@ -189,20 +189,44 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-print"></i></div>
                                     </div>
-                                    <input type="number" min="1" class="form-control" name="add_cetakan" placeholder="Format angka">
+                                    <input type="number" min="1" class="form-control" name="add_cetakan" placeholder="Format angka" required>
                                     <div id="err_add_cetakan"></div>
                                 </div>
                             </div>
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Posisi Layout <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-arrows-alt"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="add_posisi_layout" id="posisiLayout" required>
+                                        <option label="Pilih"></option>
+                                    </select>
+                                    <div id="err_add_posisi_layout"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Dami <span class="text-danger">* Data dari posisi layout </span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-quote-left"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="add_dami" id="dami" required>
+                                        <option label="Pilih"></option>
+                                    </select>
+                                    <div id="err_add_dami"></div>
+                                </div>
+                            </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Format Buku <span class="text-danger">*</span></label>
+                                <label>Format Buku <span class="text-danger">* Data dari dami</span></label>
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
-                                        <input type="text" class="form-control" name="add_format_buku_1" placeholder="Format angka">
-                                        <div id="err_add_format_buku_1"></div>
+                                        <div class="input-group-text"><i class="fa fa-ruler-combined"></i></div>
                                     </div>
-                                    <span class="input-group-text"><i class="fas fa-times"></i></span>
-                                    <input type="text" class="form-control" name="add_format_buku_2" placeholder="Format angka">
-                                    <div id="err_add_format_buku_2"></div>
+                                    <select class="form-control select2" name="add_format_buku" id="formatBuku" required>
+                                        <option label="Pilih"></option>
+                                    </select>
+                                    <div id="err_add_format_buku"></div>
                                     <div class="input-group-append">
                                         <span class="input-group-text"><strong>cm</strong></span>
                                     </div>
@@ -223,7 +247,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Kelompok Buku: </label>
+                                <label>Kelompok Buku: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-table"></i></div>
@@ -238,67 +262,67 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Kertas Isi: </label>
+                                <label>Kertas Isi: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-scroll"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_kertas_isi"  placeholder="Kertas isi">
+                                    <input type="text" class="form-control" name="add_kertas_isi"  placeholder="Kertas isi" required>
                                     <div id="err_add_kertas_isi"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Warna Isi: </label>
+                                <label>Warna Isi: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-palette"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_warna_isi"  placeholder="Warna isi">
+                                    <input type="text" class="form-control" name="add_warna_isi"  placeholder="Warna isi" required>
                                     <div id="err_add_warna_isi"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Kertas Cover: </label>
+                                <label>Kertas Cover: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-sticky-note"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_kertas_cover"  placeholder="Kertas cover">
+                                    <input type="text" class="form-control" name="add_kertas_cover"  placeholder="Kertas cover" required>
                                     <div id="err_add_kertas_cover"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Warna Cover: </label>
+                                <label>Warna Cover: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-palette"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_warna_cover"  placeholder="Warna cover">
+                                    <input type="text" class="form-control" name="add_warna_cover"  placeholder="Warna cover" required>
                                     <div id="err_add_warna_cover"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Efek Cover: </label>
+                                <label>Efek Cover: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-swatchbook"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_efek_cover"  placeholder="Efek cover">
+                                    <input type="text" class="form-control" name="add_efek_cover"  placeholder="Efek cover" required>
                                     <div id="err_add_efek_cover"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Jenis Cover: </label>
+                                <label>Jenis Cover: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-map"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_jenis_cover"  placeholder="Jenis cover">
+                                    <input type="text" class="form-control" name="add_jenis_cover" placeholder="Jenis cover" required>
                                     <div id="err_add_jenis_cover"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4" id="formJilid">
-                                <label>Jilid: </label>
+                                <label>Jilid: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-hand-spock"></i></div>
@@ -313,13 +337,16 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4" id="ukuranBending">
-                                <label>Ukuran Bending: </label>
+                                <label>Ukuran Bending: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-hand-spock"></i></div>
+                                        <div class="input-group-text"><i class="fa fa-ruler"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_ukuran_bending"  placeholder="Ukuran Bending">
+                                    <input type="text" class="form-control" name="add_ukuran_bending"  placeholder="Ukuran Bending" required>
                                     <div id="err_add_ukuran_bending"></div>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><strong>cm</strong></span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
@@ -328,7 +355,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker-year" name="add_tahun_terbit" placeholder="Tahun">
+                                    <input type="text" class="form-control datepicker-year" name="add_tahun_terbit" placeholder="Tahun" required>
                                     <div id="err_add_tahun_terbit"></div>
                                 </div>
                             </div>
@@ -338,27 +365,27 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="add_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun">
+                                    <input type="text" class="form-control datepicker" name="add_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" required>
                                     <div id="err_add_tgl_permintaan_jadi"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Buku Jadi: </label>
+                                <label>Buku Jadi: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-journal-whills"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_buku_jadi"  placeholder="Buku jadi">
+                                    <input type="text" class="form-control" name="add_buku_jadi"  placeholder="Buku jadi" required>
                                     <div id="err_add_buku_jadi"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Status Buku: </label>
+                                <label>Status Buku: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-check-circle"></i></div>
                                     </div>
-                                    <select class="form-control select2" name="add_kelompok_buku" required>
+                                    <select class="form-control select2" name="add_status_buku" required>
                                         <option label="Pilih"></option>
                                         @foreach($statusBuku as $sb)
                                             <option value="{{ $sb['id'] }}">{{ $sb['name'] }}</option>
@@ -368,17 +395,17 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Jumlah Cetak: </label>
+                                <label>Jumlah Cetak: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-copy"></i></div>
                                     </div>
-                                    <input type="number" class="form-control" name="add_jumlah_cetak" min="1" placeholder="Jumlah cetak">
+                                    <input type="number" class="form-control" name="add_jumlah_cetak" min="1" placeholder="Jumlah cetak" required>
                                     <div id="err_add_jumlah_cetak"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>SPP: <span class="text-danger">*</span></label>
+                                <label>SPP: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-copy"></i></div>
@@ -429,6 +456,65 @@
 
 
 @section('jsNeeded')
+<<script>
+
+$(document).ready(function(){
+    $.ajax({
+        type: 'GET',
+        url: "{{url('/get-layout')}}",
+        success:function(hasil)
+        {
+            var list = hasil;
+            if ( typeof(hasil) == "string" ){
+                list = JSON.parse(hasil);
+            }
+            $.each( hasil, function( index, data ){
+                $("#posisiLayout").append($("<option></option>").attr("value",data.value).text(data.label));
+            });
+        },
+        error:function(xhr, status, error){
+            console.log(xhr);
+            console.log(status);
+            console.log(error);
+        }
+    });
+    $("#posisiLayout").on("change", function(){
+        var val = $(this).val();
+        $.ajax({
+            url: "{{url('/list-dami')}}",
+            type:'GET',
+            data:'value='+val,
+            success:function(hasil)
+            {
+                $("#dami").empty();
+                $("#dami").html(hasil);
+            },
+            error:function(hasil)
+            {
+                $("#dami").empty();
+                $("#dami").html(hasil);
+            }
+        });
+    });
+    $("#dami").on("change", function(){
+        var valDam = $(this).val();
+        var valPos = $('#posisiLayout').val();
+        $.ajax({
+            url: "{{url('/list-format-buku')}}",
+            type:'GET',
+            data: 'dami='+valDam+'&posisi='+valPos,
+            success:function(hasil)
+            {
+                $("#formatBuku").html(hasil);
+            },
+            error:function(hasil)
+            {
+                $("#formatBuku").html(hasil);
+            }
+        });
+    });
+})
+</script>
 <script>
     $(document).ready(function() {
         $('#selTipeOrder').on('change', function() {
@@ -441,6 +527,7 @@
         });
     });
     $(document).ready(function() {
+        $('#ukuranBending').hide();
         $('#jilidChange').on('change', function() {
             var tipe = $(this).val();
             if (tipe != '1') {
@@ -482,32 +569,24 @@ $(function() {
         $('[name="add_cetakan"]').val('').trigger('change');
         $('[name="add_tahun_terbit"]').val('').trigger('change');
         $('[name="add_tgl_permintaan_jadi"]').val('').trigger('change');
-        $('[name="add_format_buku_1"]').val('').trigger('change');
-        $('[name="add_format_buku_2"]').val('').trigger('change');
-
-        // $.ajax({
-        //     type: "GET",
-        //     url: "{{url('penerbitan/naskah')}}",
-        //     data: {request_: 'getKodeNaskah'},
-        //     success: function(data) {
-        //         $('[name="add_kode"]').val(data);
-        //     }
-        // });
+        $('[name="add_jilid"]').val('').trigger('change');
+        $('[name="add_posisi_layout"]').val('').trigger('change');
+        $('[name="add_ukuran_bending"]').val('').trigger('change');
     }
-    let addNaskah = jqueryValidation_('#fadd_Produksi', {
-        add_tipe_order: {required: true},
-        add_status_cetak: {required: true},
-        add_judul_buku: {required: true},
-        add_platform_digital: {required: true},
-        add_urgent: {required: true},
-        add_isbn: {required: true},
-        add_edisi: {required: true},
-        add_cetakan: {required: true},
-        add_tahun_terbit: {required: true},
-        add_tgl_permintaan_jadi: {required: true},
-        add_format_buku_1: {required: true},
-        add_format_buku_2: {required: true},
-    });
+    // let addNaskah = jqueryValidation_('#fadd_Produksi', {
+    //     add_tipe_order: {required: true},
+    //     add_status_cetak: {required: true},
+    //     add_judul_buku: {required: true},
+    //     add_platform_digital: {required: true},
+    //     add_urgent: {required: true},
+    //     add_isbn: {required: true},
+    //     add_edisi: {required: true},
+    //     add_cetakan: {required: true},
+    //     add_tgl_permintaan_jadi: {required: true},
+    //     add_jilid : {required: true},
+    //     add_posisi_layout: {required: true},
+    //     add_ukuran_bending: {required: true},
+    // });
 
     function ajaxAddProduksi(data) {
         let el = data.get(0);
@@ -524,6 +603,7 @@ $(function() {
             success: function(result) {
                 resetFrom(data);
                 notifToast('success', 'Data produksi berhasil disimpan!');
+                location.href = result.redirect;
             },
             error: function(err) {
                 // console.log(err.responseJSON)
