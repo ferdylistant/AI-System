@@ -69,7 +69,7 @@
                             @endif
                             <div class="col-auto">
                                 <div class="mb-4">
-                                    Penyetujuan:
+                                    Persetujuan:
                                     @if ($data->status_penyetujuan == '1')
                                         <span class="badge badge-danger">Pending</span>
                                     @elseif ($data->status_penyetujuan == '2')
@@ -110,6 +110,21 @@
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Pilihan Terbit</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                        @if ($data->pilihan_terbit == '1')
+                                            Cetak Fisik
+                                        @elseif ($data->pilihan_terbit == '2')
+                                            E-Book
+                                        @elseif ($data->pilihan_terbit == '3')
+                                            Cetak Fisik + E-Book
+                                        @endif
+                                    </p>
+                                </div>
+                                @if ($data->tipe_order != '2')
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Platform Digital</h6>
                                     </div>
                                     <ul class="list-unstyled list-inline">
@@ -124,6 +139,7 @@
 
                                     </ul>
                                 </div>
+                                @endif
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Urgent</h6>
@@ -141,10 +157,10 @@
                                         <h6 class="mb-1">Status Buku</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
-                                        @if (is_null($data->status_buku))
-                                            <p class="mb-1 text-monospace">-</p>
+                                        @if ($data->status_buku == 1)
+                                            Reguler
                                         @else
-                                            <p class="mb-1 text-monospace">{{ $data->status_buku }}</p>
+                                            MOU
                                         @endif
                                     </p>
                                 </div>
@@ -152,32 +168,35 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">ISBN</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->isbn))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->isbn }}</p>
+                                        {{ $data->isbn }}
                                     @endif
-
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">E-ISBN</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->eisbn))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->eisbn }}</p>
+                                        {{ $data->eisbn }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Tanggal Terbit</h6>
+                                        <h6 class="mb-1">Tahun Terbit</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
-                                        @if (!is_null($data->tanggal_terbit))
-                                            {{ date('d F Y', strtotime($data->tanggal_terbit)) }}
-                                        @else
+                                        @if (is_null($data->tahun_terbit))
                                             -
+                                        @else
+                                            {{ $data->tahun_terbit }}
                                         @endif
                                     </p>
                                 </div>
@@ -197,11 +216,13 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Buku Contoh</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->buku_contoh))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->buku_contoh }}</p>
+                                        {{ $data->buku_contoh }}
                                     @endif
+                                    </p>
                                 </div>
                             </div>
                             <div class="col-12 col-md-4">
@@ -209,112 +230,145 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Judul Buku</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->judul_buku))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->judul_buku }}</p>
+                                        {{ $data->judul_buku }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Sub-Judul Buku</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->sub_judul))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->sub_judul }}</p>
+                                        {{ $data->sub_judul }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Penulis</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->penulis))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->penulis }}</p>
+                                        {{ $data->penulis }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Penerbit</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->penerbit))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->penerbit }}</p>
+                                        {{ $data->penerbit }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Imprint</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->imprint))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->imprint }}</p>
+                                        {{ $data->imprint }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Edisi/Cetakan</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->edisi_cetakan))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->edisi_cetakan }}</p>
+                                        {{ $data->edisi_cetakan }}
                                     @endif
-
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Kelompok Buku</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->kelompok_buku))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->kelompok_buku }}</p>
+                                        {{ $data->kelompok_buku }}
                                     @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Posisi Layout</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                    @if ($data->posisi_layout == '1')
+                                        Potrait
+                                    @elseif ($data->posisi_layout == '2')
+                                        Landscape
+                                    @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Dami</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                    @if (is_null($data->dami))
+                                        -
+                                    @else
+                                        {{ $data->dami }}
+                                    @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Format Buku</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->format_buku))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->format_buku }}</p>
+                                        {{ $data->format_buku }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Jumlah Halaman</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->jumlah_halaman))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->jumlah_halaman }}</p>
+                                        {{ $data->jumlah_halaman }}
                                     @endif
-                                </div>
-                                <div class="list-group-item flex-column align-items-start">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Jumlah Cetak</h6>
-                                    </div>
-                                    @if (is_null($data->jumlah_cetak))
-                                        <p class="mb-1 text-monospace">-</p>
-                                    @else
-                                        <p class="mb-1 text-monospace">{{ $data->jumlah_cetak.' eks' }}</p>
-                                    @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Buku Jadi</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->buku_jadi))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->buku_jadi }}</p>
+                                        {{ $data->buku_jadi }}
                                     @endif
+                                    </p>
                                 </div>
                             </div>
                             <div class="col-12 col-md-4">
@@ -322,117 +376,151 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Kertas Isi</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->kertas_isi))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->kertas_isi }}</p>
+                                        {{ $data->kertas_isi }}
                                     @endif
-
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Warna Isi</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->warna_isi))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->warna_isi }}</p>
+                                        {{ $data->warna_isi }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Kertas Cover</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->kertas_cover))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->kertas_cover }}</p>
+                                        {{ $data->kertas_cover }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Warna Cover</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->warna_cover))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->warna_cover }}</p>
+                                        {{ $data->warna_cover }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Efek Cover</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->efek_cover))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->efek_cover }}</p>
+                                        {{ $data->efek_cover }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Jenis Cover</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->jenis_cover))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->jenis_cover }}</p>
+                                        {{ $data->jenis_cover }}
                                     @endif
-                                </div>
-                                <div class="list-group-item flex-column align-items-start">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Jahit Kawat</h6>
-                                    </div>
-                                    <p class="mb-1 text-monospace">
-                                        @if($data->jahit_kawat == 1)
-                                            Iya
-                                        @else
-                                            Tidak
-                                        @endif
                                     </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Jahit Benang</h6>
+                                        <h6 class="mb-1">Jilid</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
-                                        @if($data->jahit_benang == 1)
-                                            Iya
-                                        @else
-                                            Tidak
+                                        @if($data->jilid == '1')
+                                            Bending
+                                        @elseif ($data->jilid == '2')
+                                            Jahit Kawat
+                                        @elseif ($data->jilid == '3')
+                                            Jahit Benang
+                                        @elseif ($data->jilid == '4')
+                                            Hardcover
                                         @endif
+                                    </p>
+                                </div>
+                                @if ($data->jilid == '1')
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Ukuran Jilid Bending</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                        @if(is_null($data->ukuran_jilid_bending))
+                                            -
+                                        @else
+                                            {{ $data->ukuran_jilid_bending }}
+                                        @endif
+                                    </p>
+                                </div>
+                                @endif
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Jumlah Cetak</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                    @if (is_null($data->jumlah_cetak))
+                                        -
+                                    @else
+                                        {{ $data->jumlah_cetak.' eks' }}
+                                    @endif
                                     </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Bending</h6>
+                                        <h6 class="mb-1">SPP</h6>
                                     </div>
-                                    @if (is_null($data->bending))
-                                        <p class="mb-1 text-monospace">-</p>
+                                    <p class="mb-1 text-monospace">
+                                    @if (is_null($data->spp))
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->bending }}</p>
+                                        {{ $data->spp }}
                                     @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Keterangan</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->keterangan))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->keterangan }}</p>
+                                        {{ $data->keterangan }}
                                     @endif
-
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Perlengkapan</h6>
                                     </div>
+                                    <p class="mb-1 text-monospace">
                                     @if (is_null($data->perlengkapan))
-                                        <p class="mb-1 text-monospace">-</p>
+                                        -
                                     @else
-                                        <p class="mb-1 text-monospace">{{ $data->perlengkapan }}</p>
+                                        {{ $data->perlengkapan }}
                                     @endif
+                                    </p>
                                 </div>
                             </div>
 

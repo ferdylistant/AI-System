@@ -29,6 +29,8 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/get-layout', [ApiController::class, 'getPosisiLayout']);
 Route::get('/list-dami', [ApiController::class, 'listDami']);
 Route::get('/list-format-buku', [ApiController::class, 'listFormatBuku']);
+Route::get('/list-status-buku', [ApiController::class, 'listStatusBuku']);
+Route::get('/list-pilihan-terbit', [ApiController::class, 'listPilihanTerbit']);
 
 Route::middleware(['auth'])->group(function() {
     Route::post('notification', [NotificationController::class, 'index']);

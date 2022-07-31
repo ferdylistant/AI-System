@@ -43,58 +43,60 @@
 
 @section('content')
 
-
-<div class="section-body">
-    <div class="row">
-        <div class="col-12">
-            <div class="card pb-5" >
-                <div>
-                    <div class="card-header">
-                        <h4><i class="fas fa-home"></i>&nbsp;{{$title}}</h4>
-                    </div>
-                    <div class="card-body">
-                        <h4 class="text-monospace">&nbsp;Selamat datang, {{ $userdata->nama}}.</h4>
-                        {{-- <p>{{$id}}</p> --}}
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <!-- <div class="col-12">
-            <div id="container_tb_naskah" class="card card-primary">
-                <div class="card-body">
-                    <div class="col-8 offset-2">
-                        <div class="row">
-                            <div class="col-6">
-                                <select class="form-control select2" name="tb_naskah_tahapan">
-                                    <option value="all">Semua</option>
-                                    <option value="naskah-masuk">Naskah Masuk</option>
-                                    <option value="penerbitan">Proses Penerbitan</option>
-                                    <option value="produksi">Proses Produksi</option>
-                                    <option value="buku-jadi">Buku Jadi</option>
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <input type="text" class="form-control drp-naskah" name="tb_naskah_tgl" placeholder="Tanggal">
-                            </div>
+<section class="section">
+    <div class="section-header">
+        <h1>Dashboard</h1>
+    </div>
+    <div class="section-body">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="hero text-white hero-bg-image hero-bg-parallax" style="background-image: url('images/background-home.avif');">
+                    <div class="hero-inner">
+                        <h2>Selamat datang, {{ $userdata->nama}}!</h2>
+                        <p class="lead">You almost arrived, complete the information about your account to complete registration.</p>
+                        <div class="mt-4">
+                        <a href="#" class="btn btn-outline-white btn-lg btn-icon icon-left"><i class="far fa-user"></i> Setup Account</a>
                         </div>
                     </div>
-                    <div class="col-12 table-responsive mt-3">
-                        <table class="table table-striped" id="tb_Naskah">
-                        </table>
+                </div>
+            </div>
+            <!-- <div class="col-12">
+                <div id="container_tb_naskah" class="card card-primary">
+                    <div class="card-body">
+                        <div class="col-8 offset-2">
+                            <div class="row">
+                                <div class="col-6">
+                                    <select class="form-control select2" name="tb_naskah_tahapan">
+                                        <option value="all">Semua</option>
+                                        <option value="naskah-masuk">Naskah Masuk</option>
+                                        <option value="penerbitan">Proses Penerbitan</option>
+                                        <option value="produksi">Proses Produksi</option>
+                                        <option value="buku-jadi">Buku Jadi</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control drp-naskah" name="tb_naskah_tgl" placeholder="Tanggal">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 table-responsive mt-3">
+                            <table class="table table-striped" id="tb_Naskah">
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-10 offset-1">
-            <div class="card card-secondary">
-                <div class="card-body">
-                    <div id='calendar'></div>
+            <div class="col-10 offset-1">
+                <div class="card card-secondary">
+                    <div class="card-body">
+                        <div id='calendar'></div>
+                    </div>
                 </div>
-            </div>
-        </div> -->
+            </div> -->
+        </div>
     </div>
-</div>
+</section>
+
 
 <div id="md_EventDetail" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered">

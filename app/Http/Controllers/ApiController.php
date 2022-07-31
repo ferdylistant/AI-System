@@ -209,4 +209,14 @@ class ApiController extends Controller
             echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
         }
     }
+    public function listStatusBuku()
+    {
+        $statusBuku = (object)[['value' => '1','label' => 'Reguler'],['value' => '2','label' => 'MOU']];
+        return response()->json($statusBuku);
+    }
+    public function listPilihanTerbit()
+    {
+        $pilihanTerbit = (object)[['value' => '1','label' => 'Cetak Fisik'],['value' => '2','label' => 'E-Book'],['value' => '3','label' =>  'Cetak Fisik + E-Book']];
+        return response()->json($pilihanTerbit);
+    }
 }

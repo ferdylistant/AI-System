@@ -117,99 +117,61 @@ class ProduksiController extends Controller
                     'add_edisi' => 'required|regex:/^[a-zA-Z]+$/u',
                     'add_cetakan' => 'required|numeric',
                     'add_tgl_permintaan_jadi' => 'required|date',
+                    'add_pilihan_terbit' => 'required',
                 ], [
                     'required' => 'This field is requried'
                 ]);
 
                 $tipeOrder = $request->add_tipe_order;
-                $add_jilid = $request->add_jilid;
-                foreach ($request->add_platform_digital as $key => $value) {
-                    $platformDigital[$key] = $value;
+                if ($tipeOrder != '2') {
+                    foreach ($request->add_platform_digital as $key => $value) {
+                        $platformDigital[$key] = $value;
+                    }
+                } else {
+                    $platformDigital = NULL;
                 }
                 $idO = Str::uuid()->getHex();
                 $getId = $this->getOrderId($tipeOrder);
-                if($add_jilid == '1') {
-                    DB::table('produksi_order_cetak')->insert([
-                        'id' => $idO,
-                        'kode_order' => $getId,
-                        'tipe_order' => $tipeOrder,
-                        'status_cetak' => $request->add_status_cetak,
-                        'judul_buku' => $request->add_judul_buku,
-                        'sub_judul' => $request->add_sub_judul_buku,
-                        'pilihan_terbit' => $request->add_pilihan_terbit,
-                        'platform_digital' => json_encode($platformDigital),
-                        'urgent' => $request->add_urgent,
-                        'penulis' => $request->add_penulis,
-                        'penerbit' => $request->add_penerbit,
-                        'imprint' => $request->add_imprint,
-                        'isbn' => $request->add_isbn,
-                        'eisbn' => $request->add_eisbn,
-                        'edisi_cetakan' => $request->add_edisi.'/'.$request->add_cetakan,
-                        'posisi_layout' => $request->add_posisi_layout,
-                        'dami' => $request->add_dami,
-                        'format_buku' => $request->add_format_buku.' cm',
-                        'jumlah_halaman' => $request->add_jumlah_halaman_1.' + '.$request->add_jumlah_halaman_2,
-                        'kelompok_buku' => $request->add_kelompok_buku,
-                        'kertas_isi' => $request->add_kertas_isi,
-                        'warna_isi' => $request->add_warna_isi,
-                        'kertas_cover' => $request->add_kertas_cover,
-                        'warna_cover' => $request->add_warna_cover,
-                        'efek_cover' => $request->add_efek_cover,
-                        'jenis_cover' => $request->add_jenis_cover,
-                        'tahun_terbit' => Carbon::createFromFormat('Y', $request->add_tahun_terbit)->format('Y'),
-                        'tgl_permintaan_jadi' => Carbon::createFromFormat('d F Y', $request->add_tgl_permintaan_jadi)->format('Y-m-d'),
-                        'buku_jadi' => $request->add_buku_jadi,
-                        'status_buku' => $request->add_status_buku,
-                        'jumlah_cetak' => $request->add_jumlah_cetak,
-                        'buku_contoh' => $request->add_buku_contoh,
-                        'jilid' => $add_jilid,
-                        'ukuran_jilid_bending' => $request->add_ukuran_jilid_bending,
-                        'spp' => $request->add_spp,
-                        'keterangan' => $request->add_keterangan,
-                        'perlengkapan' => $request->add_perlengkapan,
-                        'created_by' => auth()->id()
-                    ]);
-                } else {
-                    DB::table('produksi_order_cetak')->insert([
-                        'id' => $idO,
-                        'kode_order' => $getId,
-                        'tipe_order' => $tipeOrder,
-                        'status_cetak' => $request->add_status_cetak,
-                        'judul_buku' => $request->add_judul_buku,
-                        'sub_judul' => $request->add_sub_judul_buku,
-                        'pilihan_terbit' => $request->add_pilihan_terbit,
-                        'platform_digital' => json_encode($platformDigital),
-                        'urgent' => $request->add_urgent,
-                        'penulis' => $request->add_penulis,
-                        'penerbit' => $request->add_penerbit,
-                        'imprint' => $request->add_imprint,
-                        'isbn' => $request->add_isbn,
-                        'eisbn' => $request->add_eisbn,
-                        'edisi_cetakan' => $request->add_edisi.'/'.$request->add_cetakan,
-                        'posisi_layout' => $request->add_posisi_layout,
-                        'dami' => $request->add_dami,
-                        'format_buku' => $request->add_format_buku.' cm',
-                        'jumlah_halaman' => $request->add_jumlah_halaman_1.' + '.$request->add_jumlah_halaman_2,
-                        'kelompok_buku' => $request->add_kelompok_buku,
-                        'kertas_isi' => $request->add_kertas_isi,
-                        'warna_isi' => $request->add_warna_isi,
-                        'kertas_cover' => $request->add_kertas_cover,
-                        'warna_cover' => $request->add_warna_cover,
-                        'efek_cover' => $request->add_efek_cover,
-                        'jenis_cover' => $request->add_jenis_cover,
-                        'tahun_terbit' => Carbon::createFromFormat('Y', $request->add_tahun_terbit)->format('Y'),
-                        'tgl_permintaan_jadi' => Carbon::createFromFormat('d F Y', $request->add_tgl_permintaan_jadi)->format('Y-m-d'),
-                        'buku_jadi' => $request->add_buku_jadi,
-                        'status_buku' => $request->add_status_buku,
-                        'jumlah_cetak' => $request->add_jumlah_cetak,
-                        'buku_contoh' => $request->add_buku_contoh,
-                        'jilid' => $add_jilid,
-                        'spp' => $request->add_spp,
-                        'keterangan' => $request->add_keterangan,
-                        'perlengkapan' => $request->add_perlengkapan,
-                        'created_by' => auth()->id()
-                    ]);
-                }
+                DB::table('produksi_order_cetak')->insert([
+                    'id' => $idO,
+                    'kode_order' => $getId,
+                    'tipe_order' => $tipeOrder,
+                    'status_cetak' => $request->add_status_cetak,
+                    'judul_buku' => $request->add_judul_buku,
+                    'sub_judul' => $request->add_sub_judul_buku,
+                    'platform_digital' => json_encode($platformDigital),
+                    'pilihan_terbit' => $request->add_pilihan_terbit,
+                    'urgent' => $request->add_urgent,
+                    'penulis' => $request->add_penulis,
+                    'penerbit' => $request->add_penerbit,
+                    'imprint' => $request->add_imprint,
+                    'isbn' => $request->add_isbn,
+                    'eisbn' => $request->add_eisbn,
+                    'edisi_cetakan' => $request->add_edisi.'/'.$request->add_cetakan,
+                    'posisi_layout' => $request->add_posisi_layout,
+                    'dami' => $request->add_dami,
+                    'format_buku' => $request->add_format_buku.' cm',
+                    'jumlah_halaman' => $request->add_jumlah_halaman_1.' + '.$request->add_jumlah_halaman_2,
+                    'kelompok_buku' => $request->add_kelompok_buku,
+                    'kertas_isi' => $request->add_kertas_isi,
+                    'warna_isi' => $request->add_warna_isi,
+                    'kertas_cover' => $request->add_kertas_cover,
+                    'warna_cover' => $request->add_warna_cover,
+                    'efek_cover' => $request->add_efek_cover,
+                    'jenis_cover' => $request->add_jenis_cover,
+                    'tahun_terbit' => Carbon::createFromFormat('Y', $request->add_tahun_terbit)->format('Y'),
+                    'tgl_permintaan_jadi' => Carbon::createFromFormat('d F Y', $request->add_tgl_permintaan_jadi)->format('Y-m-d'),
+                    'buku_jadi' => $request->add_buku_jadi,
+                    'status_buku' => $request->add_status_buku,
+                    'jumlah_cetak' => $request->add_jumlah_cetak,
+                    'buku_contoh' => $request->add_buku_contoh,
+                    'jilid' => $request->add_jilid,
+                    'ukuran_jilid_bending' => $request->add_ukuran_bending.' cm',
+                    'spp' => $request->add_spp,
+                    'keterangan' => $request->add_keterangan,
+                    'perlengkapan' => $request->add_perlengkapan,
+                    'created_by' => auth()->id()
+                ]);
                 // if (($request->status_cetak == '1') ) OR ($request->status_cetak == '1')) { // Buku Baru
                 //     $data = DB::table('produksi_order_cetak')->where('id', $idO)->first();
                 //     $bu = $this->alurPenilaian($request->input('add_jalur_buku'), 'create-notif-from-naskah', [
@@ -239,8 +201,6 @@ class ProduksiController extends Controller
         ['name'=>'Bahanaflik'],['name'=> 'Indopustaka']);
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
                     ->get();
-        $pilihanTerbit = array(['id' => '1','name' => 'Cetak Fisik'],['id' => '2','name' => 'E-Book'],['id' => '3','name' =>  'Cetak Fisik + E-Book']);
-        $statusBuku = array(['id' => '1','name' => 'Reguler'],['id' => '2','name' => 'MOU']);
         $jilid = array(['id'=>'1','name'=>'Bending'],['id'=>'2','name'=>'Jahit Benang'],['id'=>'3','name'=>'Jahit Kawat'],['id'=>'4','name'=>'Hardcover']);
         return view('produksi.create_produksi', [
             'title' => 'Order Cetak Buku',
@@ -250,8 +210,6 @@ class ProduksiController extends Controller
             'urgent' => $urgent,
             'kbuku' => $kbuku,
             'imprint' => $imprint,
-            'pilihanTerbit' => $pilihanTerbit,
-            'statusBuku' => $statusBuku,
             'jilid' => $jilid,
         ]);
     }
@@ -410,22 +368,22 @@ class ProduksiController extends Controller
         $year = date('y');
         switch($tipeOrder) {
             case 1: $lastId = DB::table('produksi_order_cetak')
-                                ->where('id', 'like', $year.'-%')
-                                ->whereRaw("SUBSTRING_INDEX(id, '-', -1) >= 1000 and SUBSTRING_INDEX(id, '-', -1) <= 2999")
-                                ->orderBy('id', 'desc')->first();
+                                ->where('kode_order', 'like', $year.'-%')
+                                ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 1000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 2999")
+                                ->orderBy('kode_order', 'desc')->first();
 
                     $firstId = '1000';
             break;
             case 2: $lastId = DB::table('produksi_order_cetak')
-                                ->where('id', 'like', $year.'-%')
-                                ->whereRaw("SUBSTRING_INDEX(id, '-', -1) >= 3000 and SUBSTRING_INDEX(id, '-', -1) <= 3999")
-                                ->orderBy('id', 'desc')->first();
+                                ->where('kode_order', 'like', $year.'-%')
+                                ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 3000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 3999")
+                                ->orderBy('kode_order', 'desc')->first();
                     $firstId = '3000';
             break;
             case 3: $lastId = DB::table('produksi_order_cetak')
-                                ->where('id', 'like', $year.'-%')
-                                ->whereRaw("SUBSTRING_INDEX(id, '-', -1) >= 4000")
-                                ->orderBy('id', 'desc')->first();
+                                ->where('kode_order', 'like', $year.'-%')
+                                ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 4000")
+                                ->orderBy('kode_order', 'desc')->first();
                     $firstId = '4000';
             break;
             default: abort(500);
@@ -434,7 +392,7 @@ class ProduksiController extends Controller
         if(is_null($lastId)) {
             return $year.'-'.$firstId;
         } else {
-            $lastId_ = (int)substr($lastId->id, 3);
+            $lastId_ = (int)substr($lastId->kode_order, 3);
             if($lastId_ == 2999) {
                 abort(500);
             } elseif($lastId_ == 3999) {

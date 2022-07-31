@@ -97,11 +97,8 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-file"></i></div>
                                     </div>
-                                    <select class="form-control select2" name="add_pilihan_terbit" required>
+                                    <select class="form-control select2" name="add_pilihan_terbit" id="pilihanTerbit" required>
                                         <option label="Pilih"></option>
-                                        @foreach ($pilihanTerbit as $val)
-                                            <option value="{{ $val['id'] }}">{{ $val['name'] }}</option>
-                                        @endforeach
                                     </select>
                                     <div id="err_add_pilihan_terbit"></div>
                                 </div>
@@ -385,11 +382,8 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-check-circle"></i></div>
                                     </div>
-                                    <select class="form-control select2" name="add_status_buku" required>
+                                    <select class="form-control select2" name="add_status_buku" id="statusBuku" required>
                                         <option label="Pilih"></option>
-                                        @foreach($statusBuku as $sb)
-                                            <option value="{{ $sb['id'] }}">{{ $sb['name'] }}</option>
-                                        @endforeach
                                     </select>
                                     <div id="err_add_status_buku"></div>
                                 </div>
@@ -456,193 +450,5 @@
 
 
 @section('jsNeeded')
-<<script>
-
-$(document).ready(function(){
-    $.ajax({
-        type: 'GET',
-        url: "{{url('/get-layout')}}",
-        success:function(hasil)
-        {
-            var list = hasil;
-            if ( typeof(hasil) == "string" ){
-                list = JSON.parse(hasil);
-            }
-            $.each( hasil, function( index, data ){
-                $("#posisiLayout").append($("<option></option>").attr("value",data.value).text(data.label));
-            });
-        },
-        error:function(xhr, status, error){
-            console.log(xhr);
-            console.log(status);
-            console.log(error);
-        }
-    });
-    $("#posisiLayout").on("change", function(){
-        var val = $(this).val();
-        $.ajax({
-            url: "{{url('/list-dami')}}",
-            type:'GET',
-            data:'value='+val,
-            success:function(hasil)
-            {
-                $("#dami").empty();
-                $("#dami").html(hasil);
-            },
-            error:function(hasil)
-            {
-                $("#dami").empty();
-                $("#dami").html(hasil);
-            }
-        });
-    });
-    $("#dami").on("change", function(){
-        var valDam = $(this).val();
-        var valPos = $('#posisiLayout').val();
-        $.ajax({
-            url: "{{url('/list-format-buku')}}",
-            type:'GET',
-            data: 'dami='+valDam+'&posisi='+valPos,
-            success:function(hasil)
-            {
-                $("#formatBuku").html(hasil);
-            },
-            error:function(hasil)
-            {
-                $("#formatBuku").html(hasil);
-            }
-        });
-    });
-})
-</script>
-<script>
-    $(document).ready(function() {
-        $('#selTipeOrder').on('change', function() {
-            var tipe = $(this).val();
-            if (tipe == '2') {
-                $('#gridPlatformDigital').hide();
-            } else {
-                $('#gridPlatformDigital').show();
-            }
-        });
-    });
-    $(document).ready(function() {
-        $('#ukuranBending').hide();
-        $('#jilidChange').on('change', function() {
-            var tipe = $(this).val();
-            if (tipe != '1') {
-                $('#formJilid').attr('class', 'form-group col-12 col-md-6 mb-4');
-                $('#ukuranBending').hide();
-            } else {
-                $('#formJilid').attr('class', 'form-group col-12 col-md-3 mb-4');
-                $('#ukuranBending').show();
-            }
-        });
-    });
-$(function() {
-    $(".select2").select2({
-        placeholder: 'Pilih',
-    }).on('change', function(e) {
-        if(this.value) {
-            $(this).valid();
-        }
-    });
-
-    $('.datepicker-year').datepicker({
-        format: 'yyyy',
-        viewMode: "years",
-        minViewMode: "years",
-        autoclose:true
-    });
-    $('.datepicker').datepicker({
-        format: 'dd MM yyyy'
-    });
-    function resetFrom(form) {
-    form.trigger('reset');
-        $('[name="add_tipe_order"]').val('').trigger('change');
-        $('[name="add_status_cetak"]').val('').trigger('change');
-        $('[name="add_judul_buku"]').val('').trigger('change');
-        $('[name="add_platform_digital[]"]').val('').trigger('change');
-        $('[name="add_urgent"]').val('').trigger('change');
-        $('[name="add_isbn"]').val('').trigger('change');
-        $('[name="add_edisi]"]').val('').trigger('change');
-        $('[name="add_cetakan"]').val('').trigger('change');
-        $('[name="add_tahun_terbit"]').val('').trigger('change');
-        $('[name="add_tgl_permintaan_jadi"]').val('').trigger('change');
-        $('[name="add_jilid"]').val('').trigger('change');
-        $('[name="add_posisi_layout"]').val('').trigger('change');
-        $('[name="add_ukuran_bending"]').val('').trigger('change');
-    }
-    // let addNaskah = jqueryValidation_('#fadd_Produksi', {
-    //     add_tipe_order: {required: true},
-    //     add_status_cetak: {required: true},
-    //     add_judul_buku: {required: true},
-    //     add_platform_digital: {required: true},
-    //     add_urgent: {required: true},
-    //     add_isbn: {required: true},
-    //     add_edisi: {required: true},
-    //     add_cetakan: {required: true},
-    //     add_tgl_permintaan_jadi: {required: true},
-    //     add_jilid : {required: true},
-    //     add_posisi_layout: {required: true},
-    //     add_ukuran_bending: {required: true},
-    // });
-
-    function ajaxAddProduksi(data) {
-        let el = data.get(0);
-        $.ajax({
-            type: "POST",
-            url: "{{ route('produksi.create')}}",
-            data: new FormData(el),
-            processData: false,
-            contentType: false,
-            beforeSend: function() {
-                $('button[type="submit"]').prop('disabled', true).
-                    addClass('btn-progress')
-            },
-            success: function(result) {
-                resetFrom(data);
-                notifToast('success', 'Data produksi berhasil disimpan!');
-                location.href = result.redirect;
-            },
-            error: function(err) {
-                // console.log(err.responseJSON)
-                rs = err.responseJSON.errors;
-                if(rs != undefined) {
-                    err = {};
-                    Object.entries(rs).forEach(entry => {
-                        let [key, value] = entry;
-                        err[key] = value
-                    })
-                    addNaskah.showErrors(err);
-                }
-                notifToast('error', 'Data produksi gagal disimpan!');
-            },
-            complete: function() {
-                $('button[type="submit"]').prop('disabled', false).
-                    removeClass('btn-progress')
-            }
-        })
-    }
-
-    $('#fadd_Produksi').on('submit', function(e) {
-        e.preventDefault();
-        if($(this).valid()) {
-            let nama = $(this).find('[name="add_judul_buku"]').val();
-            swal({
-                text: 'Tambah data Produksi ('+nama+')?',
-                icon: 'warning',
-                buttons: true,
-                dangerMode: true,
-            })
-            .then((confirm_) => {
-                if (confirm_) {
-                    ajaxAddProduksi($(this))
-                }
-            });
-
-        }
-    })
-})
-</script>
+<script src="{{url('js/add_produksi.js')}}"></script>
 @endsection
