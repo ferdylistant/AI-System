@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 30, 2022 at 10:53 PM
+-- Generation Time: Jul 31, 2022 at 01:46 PM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 7.4.29
 
@@ -815,7 +815,7 @@ CREATE TABLE `produksi_order_cetak` (
   `kode_order` varchar(8) NOT NULL,
   `tipe_order` enum('1','2','3') NOT NULL COMMENT '1:Umum | 2:Rohani | 3:POD',
   `status_cetak` enum('1','2','3') NOT NULL COMMENT '1:Buku Baru | 2:Cetak Ulang Revisi | 3:Cetak Ulang',
-  `pilihan_terbit` enum('1','2') DEFAULT NULL COMMENT '1 = Cetak Fisik,\r\n2 = E-Book,\r\n3 = Cetak Fisik & E-Book',
+  `pilihan_terbit` enum('1','2','3') DEFAULT NULL COMMENT '1 = Cetak Fisik,\r\n2 = E-Book,\r\n3 = Cetak Fisik & E-Book',
   `urgent` enum('0','1') NOT NULL DEFAULT '0' COMMENT '0:Tidak | 1:Ya',
   `judul_buku` varchar(255) DEFAULT NULL,
   `sub_judul` varchar(255) DEFAULT NULL,
@@ -825,12 +825,12 @@ CREATE TABLE `produksi_order_cetak` (
   `penerbit` varchar(255) DEFAULT NULL,
   `imprint` varchar(255) DEFAULT NULL,
   `platform_digital` text DEFAULT NULL COMMENT 'array',
-  `status_buku` varchar(255) DEFAULT NULL,
+  `status_buku` enum('1','2') DEFAULT NULL COMMENT '1= Reguler,\r\n2= MOU',
   `kelompok_buku` varchar(255) DEFAULT NULL,
   `edisi_cetakan` varchar(255) DEFAULT NULL,
   `posisi_layout` enum('1','2') DEFAULT NULL COMMENT '1= Potrait (Tegak),\r\n2= Landscape (Tidur)',
   `dami` varchar(2) DEFAULT NULL COMMENT 'Isian tergantung pada posisi_layout',
-  `format_buku` varchar(255) DEFAULT NULL,
+  `format_buku` varchar(255) DEFAULT NULL COMMENT 'Isian tergantung pada data dami',
   `jumlah_halaman` varchar(255) DEFAULT NULL,
   `kertas_isi` varchar(255) DEFAULT NULL,
   `warna_isi` varchar(255) DEFAULT NULL,
@@ -863,7 +863,8 @@ CREATE TABLE `produksi_order_cetak` (
 --
 
 INSERT INTO `produksi_order_cetak` (`id`, `kode_order`, `tipe_order`, `status_cetak`, `pilihan_terbit`, `urgent`, `judul_buku`, `sub_judul`, `penulis`, `isbn`, `eisbn`, `penerbit`, `imprint`, `platform_digital`, `status_buku`, `kelompok_buku`, `edisi_cetakan`, `posisi_layout`, `dami`, `format_buku`, `jumlah_halaman`, `kertas_isi`, `warna_isi`, `kertas_cover`, `warna_cover`, `efek_cover`, `jenis_cover`, `jilid`, `ukuran_jilid_bending`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status_penyetujuan`, `ket_penolakan`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
-('1048a7ec213c4a059cad5ebc768bdf59', '22-1000', '1', '1', '2', '1', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', 'Ferdyawan Listanto', '123112gdfgfsdfsd', 'asdasdasdasda', 'Andi', 'Lautan Pustaka', '[\"Google Book\",\"Gramedia\",\"Esentral\",\"Indopustaka\"]', '2', 'Ensiklopedi', 'i/1', '1', '16', '17,5 x 25 cm', 'vi + 325', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '1', NULL, 2022, 'wrapping', 5000, NULL, NULL, NULL, NULL, '2022-08-22', '1', NULL, '2022-07-30 20:51:13', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
+('0b22a2ba6b4b40ec8ee833fe40cb6468', '22-1000', '1', '1', '3', '1', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', 'Ferdyawan Listanto', '12124sdsadse564444', 'dfsdfsdfs6687687', 'Andi', 'Pustaka Referensi', '[\"Moco\",\"Gramedia\",\"Esentral\",\"Indopustaka\"]', '1', 'Ensiklopedi', 'i/1', '1', '24', '19 x 23 cm', 'vi + 325', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '1', '2,5 cm', 2022, 'Wrapping', 500, NULL, NULL, NULL, NULL, '2022-08-30', '1', NULL, '2022-07-31 08:19:43', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('9d283eb9130746fb86680409c76bdb53', '22-3000', '2', '1', '1', '1', 'Rohani Dalam Jiwa', 'Termenung', 'Joko Jiwa', '2342323423', '213413fff445rGs', 'Andi', 'NAIN', 'null', '2', 'Studi Alkitab', 'vii/2', '1', '24', '19 x 23 cm', 'viii + 302', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '3', ' cm', 2022, 'wrapping', 350, NULL, NULL, NULL, NULL, '2022-08-31', '1', NULL, '2022-07-31 11:12:47', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
