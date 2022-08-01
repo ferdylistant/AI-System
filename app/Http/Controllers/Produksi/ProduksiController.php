@@ -128,7 +128,7 @@ class ProduksiController extends Controller
                         $platformDigital[$key] = $value;
                     }
                 } else {
-                    $platformDigital = NULL;
+                    $platformDigital = [];
                 }
                 $idO = Str::uuid()->getHex();
                 $getId = $this->getOrderId($tipeOrder);
@@ -304,14 +304,12 @@ class ProduksiController extends Controller
         ['name'=>'Bahanaflik'],['name'=> 'Indopustaka']);
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
                     ->get();
-        $jahitKawat = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
-        $jahitBenang = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
         $edisi = Str::before($data->edisi_cetakan, '/');
         $cetakan = Str::after($data->edisi_cetakan, '/');
-        $formatBuku1 = Str::before($data->format_buku, ' x');
-        $formatBuku2 = Str::between($data->format_buku, 'x ', ' cm');
+        $bending = Str::before($data->ukuran_jilid_bending, ' cm');
         $jmlHalaman1 = Str::before($data->jumlah_halaman, ' +');
         $jmlHalaman2 = Str::after($data->jumlah_halaman, '+ ');
+        $jilid = array(['id'=>'1','name'=>'Bending'],['id'=>'2','name'=>'Jahit Benang'],['id'=>'3','name'=>'Jahit Kawat'],['id'=>'4','name'=>'Hardcover']);
         return view('produksi.update_produksi', [
             'title' => 'Update Cetak Buku',
             'tipeOrd' => $tipeOrd,
@@ -320,15 +318,13 @@ class ProduksiController extends Controller
             'urgent' => $urgent,
             'kbuku' => $kbuku,
             'imprint' => $imprint,
-            'jahitKawat' => $jahitKawat,
-            'jahitBenang' => $jahitBenang,
             'data' => $data,
             'edisi' => $edisi,
             'cetakan' => $cetakan,
-            'formatBuku1' => $formatBuku1,
-            'formatBuku2' => $formatBuku2,
+            'bending' => $bending,
             'jmlHalaman1' => $jmlHalaman1,
             'jmlHalaman2' => $jmlHalaman2,
+            'jilid' => $jilid
         ]);
     }
     public function detailProduksi(Request $request)

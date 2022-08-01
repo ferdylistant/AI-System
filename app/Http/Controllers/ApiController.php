@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 class ApiController extends Controller
 {
@@ -46,7 +48,7 @@ class ApiController extends Controller
             echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
         }
     }
-    public function getPosisiLayout()
+    public function getPosisiLayout(Request $request)
     {
         $posisiLayout = (object)[
             [
@@ -58,7 +60,22 @@ class ApiController extends Controller
                 'label' => 'Landscape',
             ]
         ];
-        return response()->json($posisiLayout);
+        if ($request->has('id')) {
+            $id = $request->get('id');
+            $data = DB::table('produksi_order_cetak')->where('id', $id)->first();
+            echo '<option label="Pilih"></option>';
+            foreach ($posisiLayout as $key => $value) {
+                if ($data->posisi_layout == $value['value']) {
+                    echo '<option value="'.$value['value'].'" selected>'.$value['label'].'</option>';
+                }
+                else {
+                    echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+                }
+            }
+        }
+        else {
+            return response()->json($posisiLayout);
+        }
     }
     public function listFormatBuku(Request $request)
     {
@@ -214,9 +231,24 @@ class ApiController extends Controller
         $statusBuku = (object)[['value' => '1','label' => 'Reguler'],['value' => '2','label' => 'MOU']];
         return response()->json($statusBuku);
     }
-    public function listPilihanTerbit()
+    public function listPilihanTerbit(Request $request)
     {
         $pilihanTerbit = (object)[['value' => '1','label' => 'Cetak Fisik'],['value' => '2','label' => 'E-Book'],['value' => '3','label' =>  'Cetak Fisik + E-Book']];
-        return response()->json($pilihanTerbit);
+        if ($request->has('id')) {
+            $id = $request->get('id');
+            $data = DB::table('produksi_order_cetak')->where('id', $id)->first();
+            echo '<option label="Pilih"></option>';
+            foreach ($pilihanTerbit as $key => $value) {
+                if ($data->pilihan_terbit == $value['value']) {
+                    echo '<option value="'.$value['value'].'" selected>'.$value['label'].'</option>';
+                } else {
+                    echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+                }
+            }
+        } else {
+            return response()->json($pilihanTerbit);
+        }
+
+
     }
 }

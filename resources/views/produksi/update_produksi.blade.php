@@ -31,19 +31,17 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
+                                <input type="hidden" name="id" value="{{$data->id}}" id="idProd">
                             <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Tipe Order: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-boxes"></i></div>
                                     </div>
-                                    <input type="hidden" name="id" value="{{$data->id}}">
-                                    <input type="hidden" name="kode_order" value="{{$data->kode_order}}">
-                                    <input type="hidden" name="tipe_order" value="{{$data->tipe_order}}">
-                                    <select class="form-control select2" name="up_tipe_order" required>
-                                        <option label="Pilih" {{is_null($data->tipe_order)?'Selected':''}}></option>
+                                    <select class="form-control select2 tip-or" name="up_tipe_order" id="selTipeOrder" required>
+                                        <option label="Pilih"></option>
                                         @foreach ($tipeOrd as $value)
-                                        <option value="{{ $value['id'] }}"{{$data->tipe_order==$value['id']?'Selected':''}}>{{ $value['name'] }}</option>
+                                        <option value="{{ $value['id'] }}" {{$data->tipe_order==$value['id']?'Selected':''}}>{{ $value['name'] }}</option>
                                         @endforeach
                                     </select>
                                     <div id="err_up_tipe_order"></div>
@@ -56,9 +54,9 @@
                                         <div class="input-group-text"><i class="fas fa-file"></i></div>
                                     </div>
                                     <select class="form-control select2" name="up_status_cetak" required>
-                                        <option label="Pilih" {{is_null($data->status_cetak)?'Selected':''}}></option>
+                                        <option label="Pilih"></option>
                                         @foreach ($statusCetak as $val)
-                                            <option value="{{ $val['id'] }}"{{$data->status_cetak==$val['id']?'Selected':''}}>{{ $val['name'] }}</option>
+                                            <option value="{{ $val['id'] }}" {{$data->status_cetak==$val['id']?'Selected':''}}>{{ $val['name'] }}</option>
                                         @endforeach
                                     </select>
                                     <div id="err_up_status_cetak"></div>
@@ -70,35 +68,45 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-book"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_judul_buku" value="{{ is_null($data->judul_buku) ? '': $data->judul_buku }}" placeholder="Judul buku">
+                                    <input type="text" class="form-control" name="up_judul_buku" value="{{$data->judul_buku}}" placeholder="Judul buku" required>
                                     <div id="err_up_judul_buku"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Sub Judul Buku: </label>
+                                <label>Sub Judul Buku: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-book-open"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_sub_judul_buku" value="{{ is_null($data->sub_judul) ? '': $data->sub_judul }}" placeholder="Sub-Judul buku">
+                                    <input type="text" class="form-control" name="up_sub_judul_buku" value="{{$data->sub_judul}}" placeholder="Sub-Judul buku" required>
                                     <div id="err_up_sub_judul_buku"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-4 mb-4">
+                            <div class="form-group col-12 col-md-6 mb-4" id="gridPlatformDigital">
                                 <label class="d-block">Platform E-book: <span class="text-danger">*</span></label>
                                 @foreach ($platformDigital as $pD)
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" id="{{ $pD['name'] }}" name="up_platform_digital[]" value="{{ $pD['name'] }}" {{in_array($pD['name'], json_decode($data->platform_digital))?'checked':''}}>
+                                        <input class="form-check-input" type="checkbox" id="{{ $pD['name'] }}" name="up_platform_digital[]" value="{{ $pD['name'] }}" {{$data->platform_digital==[]?'':in_array($pD['name'], json_decode($data->platform_digital,true))?'checked':''}} required>
                                         <label class="form-check-label" for="{{ $pD['name'] }}">{{ $pD['name'] }}</label>
                                     </div>
                                 @endforeach
-
+                            </div>
+                            <div class="form-group col-12 col-md-4 mb-4">
+                                <label>Pilihan Terbit: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fas fa-file"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="up_pilihan_terbit" id="pilihanTerbit" required>
+                                    </select>
+                                    <div id="err_up_pilihan_terbit"></div>
+                                </div>
                             </div>
                             <div class="form-group col-12 col-md-2 mb-4">
                                 <label>Urgent: <span class="text-danger">*</span></label>
                                 <div class="form-check">
                                     @foreach ($urgent as $urg)
-                                        <input class="form-check-input" type="radio" name="up_urgent" value="{{ $urg['id'] }}" id="up_urgent"{{$data->urgent==$urg['id']?'Checked':''}}>
+                                        <input class="form-check-input" type="radio" name="up_urgent" value="{{ $urg['id'] }}" id="up_urgent" required {{$data->urgent==$urg['id']?'checked':''}}>
                                         <label class="form-check-label mr-4" for="up_urgent">{{ $urg['name'] }}</label>
                                     @endforeach
 
@@ -111,7 +119,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-pen"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_penulis" value="{{ $data->penulis }}" placeholder="Penulis">
+                                    <input type="text" class="form-control" name="up_penulis" value="{{$data->penulis}}" placeholder="Penulis" required>
                                     <div id="err_up_penulis"></div>
                                 </div>
                             </div>
@@ -122,27 +130,27 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-fingerprint"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_isbn" value="{{ $data->isbn }}" placeholder="Kode ISBN">
+                                    <input type="text" class="form-control" name="up_isbn" value="{{$data->isbn}}" placeholder="Kode ISBN" required>
                                     <div id="err_up_isbn"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>E-ISBN: </label>
+                                <label>E-ISBN: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-fingerprint"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_eisbn" value="{{ $data->eisbn }}" placeholder="Kode E-ISBN">
+                                    <input type="text" class="form-control" name="up_eisbn" value="{{$data->eisbn}}" placeholder="Kode E-ISBN" required>
                                     <div id="err_up_eisbn"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Penerbit: </label>
+                                <label>Penerbit: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-user"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_penerbit" value="{{ $data->penerbit }}" placeholder="Nama penerbit">
+                                    <input type="text" class="form-control" name="up_penerbit" value="{{$data->penerbit}}" placeholder="Nama penerbit" required>
                                     <div id="err_up_penerbit"></div>
                                 </div>
                             </div>
@@ -153,9 +161,9 @@
                                         <div class="input-group-text"><i class="fas fa-building"></i></div>
                                     </div>
                                     <select class="form-control select2" name="up_imprint" required>
-                                        <option label="Pilih" {{ is_null($data->imprint)?'Selected':'' }}></option>
+                                        <option label="Pilih"></option>
                                         @foreach ($imprint as $imp)
-                                            <option value="{{ $imp['name'] }}" {{ $data->imprint==$imp['name']?'Selected':'' }}>{{ $imp['name'] }}</option>
+                                            <option value="{{ $imp['name'] }}" {{$data->imprint==$imp['name']?'Selected':''}}>{{ $imp['name'] }}</option>
                                         @endforeach
                                     </select>
                                     <div id="err_up_imprint"></div>
@@ -167,7 +175,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-bookmark"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_edisi" value="{{ $edisi }}" placeholder="Format romawi">
+                                    <input type="text" class="form-control" name="up_edisi" placeholder="Format romawi" value="{{$edisi}}" required>
                                     <div id="err_up_edisi"></div>
                                 </div>
                             </div>
@@ -177,20 +185,44 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-print"></i></div>
                                     </div>
-                                    <input type="number" min="1" class="form-control" name="up_cetakan" value="{{ $cetakan }}" placeholder="Format angka">
+                                    <input type="number" min="1" class="form-control" name="up_cetakan" placeholder="Format angka" value="{{$cetakan}}" required>
                                     <div id="err_up_cetakan"></div>
                                 </div>
                             </div>
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Posisi Layout <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-arrows-alt"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="up_posisi_layout" id="posisiLayout" required>
+                                        <option label="Pilih"></option>
+                                    </select>
+                                    <div id="err_up_posisi_layout"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Dami <span class="text-danger">* Data dari posisi layout </span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-quote-left"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="up_dami" id="dami" required>
+                                        <option label="Pilih"></option>
+                                    </select>
+                                    <div id="err_up_dami"></div>
+                                </div>
+                            </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Format Buku <span class="text-danger">*</span></label>
+                                <label>Format Buku <span class="text-danger">* Data dari dami</span></label>
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
-                                        <input type="text" class="form-control" name="up_format_buku_1" value="{{ $formatBuku1 }}" placeholder="Format angka">
-                                        <div id="err_up_format_buku_1"></div>
+                                        <div class="input-group-text"><i class="fa fa-ruler-combined"></i></div>
                                     </div>
-                                    <span class="input-group-text"><i class="fas fa-times"></i></span>
-                                    <input type="text" class="form-control" name="up_format_buku_2" value="{{ $formatBuku2 }}" placeholder="Format angka">
-                                    <div id="err_up_format_buku_2"></div>
+                                    <select class="form-control select2" name="up_format_buku" id="formatBuku" required>
+                                        <option label="Pilih"></option>
+                                    </select>
+                                    <div id="err_up_format_buku"></div>
                                     <div class="input-group-append">
                                         <span class="input-group-text"><strong>cm</strong></span>
                                     </div>
@@ -200,131 +232,127 @@
                                 <label>Jumlah Halaman: <span class="text-danger">*</span></label>
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
-                                        <input type="text" class="form-control" name="up_jumlah_halaman_1" value="{{ $jmlHalaman1 }}" placeholder="Format Romawi" required>
+                                        <input type="text" class="form-control" name="up_jumlah_halaman_1" value="{{$jmlHalaman1}}" placeholder="Format Romawi" required>
                                         <div id="err_up_jumlah_halaman_1"></div>
                                     </div>
                                     <span class="input-group-text"><i class="fas fa-plus"></i></span>
                                     <div class="input-group-append">
-                                        <input type="text" class="form-control" name="up_jumlah_halaman_2" value="{{ $jmlHalaman2 }}" placeholder="Format Angka" required>
+                                        <input type="text" class="form-control" name="up_jumlah_halaman_2" value="{{$jmlHalaman2}}" placeholder="Format Angka" required>
                                         <div id="err_up_jumlah_halaman_2"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Kelompok Buku: </label>
+                                <label>Kelompok Buku: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-table"></i></div>
                                     </div>
                                     <select class="form-control select2" name="up_kelompok_buku" required>
-                                        <option label="Pilih" {{is_null($data->kelompok_buku)?'Selected':''}}></option>
+                                        <option label="Pilih"></option>
                                         @foreach($kbuku as $kb)
-                                            <option value="{{ $kb->nama }}" {{ $data->kelompok_buku==$kb->nama?'Selected':'' }}>{{ $kb->nama }}</option>
+                                            <option value="{{ $kb->nama }}" {{$data->kelompok_buku==$kb->nama?'Selected':''}}>{{ $kb->nama }}</option>
                                         @endforeach
                                     </select>
                                     <div id="err_up_kelompok_buku"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Kertas Isi: </label>
+                                <label>Kertas Isi: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-scroll"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_kertas_isi" value="{{ $data->kertas_isi }}" placeholder="Kertas isi">
+                                    <input type="text" class="form-control" name="up_kertas_isi" value="{{$data->kertas_isi}}" placeholder="Kertas isi" required>
                                     <div id="err_up_kertas_isi"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Warna Isi: </label>
+                                <label>Warna Isi: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-palette"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_warna_isi" value="{{ $data->warna_isi }}" placeholder="Warna isi">
+                                    <input type="text" class="form-control" name="up_warna_isi" value="{{$data->warna_isi}}" placeholder="Warna isi" required>
                                     <div id="err_up_warna_isi"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Kertas Cover: </label>
+                                <label>Kertas Cover: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-sticky-note"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_kertas_cover" value="{{ $data->kertas_cover }}" placeholder="Kertas cover">
+                                    <input type="text" class="form-control" name="up_kertas_cover" value="{{$data->kertas_cover}}" placeholder="Kertas cover" required>
                                     <div id="err_up_kertas_cover"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Warna Cover: </label>
+                                <label>Warna Cover: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-palette"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_warna_cover" value="{{ $data->warna_cover }}" placeholder="Warna cover">
+                                    <input type="text" class="form-control" name="up_warna_cover" value="{{$data->warna_cover}}" placeholder="Warna cover" required>
                                     <div id="err_up_warna_cover"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Efek Cover: </label>
+                                <label>Efek Cover: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-swatchbook"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_efek_cover" value="{{ $data->efek_cover }}" placeholder="Efek cover">
+                                    <input type="text" class="form-control" name="up_efek_cover" value="{{$data->efek_cover}}" placeholder="Efek cover" required>
                                     <div id="err_up_efek_cover"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Jenis Cover: </label>
+                                <label>Jenis Cover: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-map"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_jenis_cover" value="{{ $data->jenis_cover }}" placeholder="Jenis cover">
+                                    <input type="text" class="form-control" name="up_jenis_cover" value="{{$data->jenis_cover}}" placeholder="Jenis cover" required>
                                     <div id="err_up_jenis_cover"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Jahit Kawat: </label>
-                                <div class="form-check">
-                                    @foreach ($jahitKawat as $jk)
-                                        <input class="form-check-input" type="radio" name="up_jahit_kawat" value="{{ $jk['id'] }}" id="up_jahit_kawat" {{ $data->jahit_kawat==$jk['id']?'Checked':''}}>
-                                        <label class="form-check-label mr-4" for="up_jahit_kawat">{{ $jk['name'] }}</label>
-                                    @endforeach
-
-                                </div>
-                                <div id="err_up_tentang_penulis" style="display: block;"></div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Jahit Benang: </label>
-                                <div class="form-check">
-                                    @foreach ($jahitBenang as $jb)
-                                        <input class="form-check-input" type="radio" name="up_jahit_benang" value="{{ $jb['id'] }}" id="up_jahit_benang" {{ $data->jahit_benang==$jb['id']?'Checked':'' }}>
-                                        <label class="form-check-label mr-4" for="up_jahit_benang">{{ $jb['name'] }}</label>
-                                    @endforeach
-
-                                </div>
-                                <div id="err_up_tentang_penulis" style="display: block;"></div>
-                            </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Bending: </label>
+                            <div class="form-group col-12 col-md-6 mb-4" id="formJilid">
+                                <label>Jilid: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-hand-spock"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_bending" value="{{ $data->bending }}" placeholder="Bending">
-                                    <div id="err_up_bending"></div>
+                                    <select class="form-control select2" name="up_jilid" id="jilidChange" required>
+                                        <option label="Pilih"></option>
+                                        @foreach($jilid as $j)
+                                            <option value="{{ $j['id'] }}" {{$data->jilid==$j['id']?'Selected':''}}>{{ $j['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div id="err_up_jilid"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-3 mb-4" id="ukuranBending">
+                                <label>Ukuran Bending: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-ruler"></i></div>
+                                    </div>
+                                    <input type="text" class="form-control" name="up_ukuran_bending" value="{{$bending}}" placeholder="Ukuran Bending" required>
+                                    <div id="err_up_ukuran_bending"></div>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><strong>cm</strong></span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Tanggal Terbit: <span class="text-danger">*</span></label>
+                                <label>Tahun Terbit: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="up_tanggal_terbit" value="{{ date('d F Y', strtotime($data->tanggal_terbit)) }}" placeholder="Hari Bulan Tahun">
-                                    <div id="err_up_tanggal_terbit"></div>
+                                    <input type="text" class="form-control datepicker-year" name="up_tahun_terbit" value="{{$data->tahun_terbit}}" placeholder="Tahun" required>
+                                    <div id="err_up_tahun_terbit"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
@@ -333,52 +361,74 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" value="{{ date('d F Y', strtotime($data->tgl_permintaan_jadi)) }}" placeholder="Hari Bulan Tahun">
+                                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" value="{{date('d F Y',strtotime($data->tgl_permintaan_jadi))}}" required>
                                     <div id="err_up_tgl_permintaan_jadi"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Buku Jadi: </label>
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Buku Jadi: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-journal-whills"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_buku_jadi" value="{{ $data->buku_jadi }}" placeholder="Buku jadi">
+                                    <input type="text" class="form-control" name="up_buku_jadi" value="{{$data->buku_jadi}}" placeholder="Buku jadi" required>
                                     <div id="err_up_buku_jadi"></div>
                                 </div>
                             </div>
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Status Buku: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-check-circle"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="up_status_buku" id="statusBuku" required>
+                                        <option label="Pilih"></option>
+                                    </select>
+                                    <div id="err_up_status_buku"></div>
+                                </div>
+                            </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Jumlah Cetak: </label>
+                                <label>Jumlah Cetak: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-copy"></i></div>
                                     </div>
-                                    <input type="number" class="form-control" name="up_jumlah_cetak" min="0" value="{{ $data->jumlah_cetak }}" placeholder="Jumlah cetak">
+                                    <input type="number" class="form-control" name="up_jumlah_cetak" min="1" placeholder="Jumlah cetak" required>
                                     <div id="err_up_jumlah_cetak"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-6 mb-4">
+                                <label>SPP: </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-copy"></i></div>
+                                    </div>
+                                    <input type="text" class="form-control" name="up_spp" placeholder="Surat Perjanjian Penulis">
+                                    <div id="err_up_spp"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-12 mb-4">
                                 <label>Buku Contoh: </label>
-                                <textarea class="form-control" name="up_buku_contoh" placeholder="Buku contoh">{{ $data->buku_contoh }}</textarea>
+                                <textarea class="form-control" name="up_buku_contoh"  placeholder="Buku contoh"></textarea>
                                 <div id="err_up_jumlah_halaman"></div>
 
                             </div>
                             <div class="form-group col-12 col-md-12 mb-4">
                                 <label>Perlengkapan: </label>
-                                <textarea class="form-control" name="up_perlengkapan" placeholder="Perlengkapan">{{ $data->perlengkapan }}</textarea>
+                                <textarea class="form-control" name="up_perlengkapan"  placeholder="Perlengkapan"></textarea>
                                 <div id="err_up_perlengkapan"></div>
 
                             </div>
                             <div class="form-group col-12 col-md-12 mb-4">
                                 <label>Keterangan: </label>
-                                <textarea class="form-control" name="up_keterangan"  placeholder="Keterangan">{{ $data->keterangan }}</textarea>
+                                <textarea class="form-control" name="up_keterangan"  placeholder="Keterangan"></textarea>
                                 <div id="err_up_keterangan"></div>
 
                             </div>
                         </div>
                     </div>
                     <div class="card-footer text-right">
-                        <button type="submit" class="btn btn-success">Update</button>
+                        <button type="submit" class="btn btn-success">Simpan</button>
                     </div>
                     </form>
                 </div>
@@ -399,113 +449,5 @@
 
 
 @section('jsNeeded')
-<script>
-$(function() {
-    $(".select2").select2({
-        placeholder: 'Pilih',
-    }).on('change', function(e) {
-        if(this.value) {
-            $(this).valid();
-        }
-    });
-
-    $('.datepicker').datepicker({
-        format: 'dd MM yyyy'
-    });
-    function resetFrom(form) {
-    form.trigger('reset');
-        $('[name="up_tipe_order"]').val('').trigger('change');
-        $('[name="up_status_cetak"]').val('').trigger('change');
-        $('[name="up_judul_buku"]').val('').trigger('change');
-        $('[name="up_platform_digital[]"]').val('').trigger('change');
-        $('[name="up_urgent"]').val('').trigger('change');
-        $('[name="up_isbn"]').val('').trigger('change');
-        $('[name="up_edisi]"]').val('').trigger('change');
-        $('[name="up_cetakan"]').val('').trigger('change');
-        $('[name="up_tanggal_terbit"]').val('').trigger('change');
-        $('[name="up_tgl_permintaan_jadi"]').val('').trigger('change');
-        $('[name="up_format_buku_1"]').val('').trigger('change');
-        $('[name="up_format_buku_2"]').val('').trigger('change');
-
-        // $.ajax({
-        //     type: "GET",
-        //     url: "{{url('penerbitan/naskah')}}",
-        //     data: {request_: 'getKodeNaskah'},
-        //     success: function(data) {
-        //         $('[name="up_kode"]').val(data);
-        //     }
-        // });
-    }
-    let upNaskah = jqueryValidation_('#fup_Produksi', {
-        up_tipe_order: {required: true},
-        up_status_cetak: {required: true},
-        up_judul_buku: {required: true},
-        up_platform_digital: {required: true},
-        up_urgent: {required: true},
-        up_isbn: {required: true},
-        up_edisi: {required: true},
-        up_cetakan: {required: true},
-        up_tanggal_terbit: {required: true},
-        up_tgl_permintaan_jadi: {required: true},
-        up_format_buku_1: {required: true},
-        up_format_buku_2: {required: true},
-    });
-
-    function ajaxUpProduksi(data) {
-        let el = data.get(0);
-        $.ajax({
-            type: "POST",
-            url: "{{ route('produksi.update')}}",
-            data: new FormData(el),
-            processData: false,
-            contentType: false,
-            beforeSend: function() {
-                $('button[type="submit"]').prop('disabled', true).
-                    addClass('btn-progress')
-            },
-            success: function(result) {
-                resetFrom(data);
-                notifToast('success', 'Data produksi berhasil diubah!');
-                location.href = result.route;
-            },
-            error: function(err) {
-                console.log(err.responseJSON)
-                rs = err.responseJSON.errors;
-                if(rs != undefined) {
-                    err = {};
-                    Object.entries(rs).forEach(entry => {
-                        let [key, value] = entry;
-                        err[key] = value
-                    })
-                    upNaskah.showErrors(err);
-                }
-                notifToast('error', 'Data produksi gagal disimpan!');
-            },
-            complete: function() {
-                $('button[type="submit"]').prop('disabled', false).
-                    removeClass('btn-progress')
-            }
-        })
-    }
-
-    $('#fup_Produksi').on('submit', function(e) {
-        e.preventDefault();
-        if($(this).valid()) {
-            let nama = $(this).find('[name="up_judul_buku"]').val();
-            swal({
-                text: 'Ubah data Produksi ('+nama+')?',
-                icon: 'warning',
-                buttons: true,
-                dangerMode: true,
-            })
-            .then((confirm_) => {
-                if (confirm_) {
-                    ajaxUpProduksi($(this))
-                }
-            });
-
-        }
-    })
-})
-</script>
+<script src="{{ url('js/edit_produksi.js') }}"></script>
 @endsection
