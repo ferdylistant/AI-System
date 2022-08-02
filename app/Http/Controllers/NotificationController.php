@@ -39,7 +39,7 @@ class NotificationController extends Controller {
                                         <div class="time text-primary">'.$craetedAt.'</div>
                                     </div>
                                 </a>';
-                } 
+                }
             }
         }
 
@@ -48,7 +48,7 @@ class NotificationController extends Controller {
                             ->where('type', 'Penilaian Naskah')->whereNull('expired')
                             ->where('permission_id', '5d793b19c75046b9a4d75d067e8e33b2')->orderBy('form_id', 'desc')
                             ->select('permission_id', 'form_id', 'created_at as ndate')->get();
-            
+
             $idNaskah = [];
             $notifPenilaian = (object)collect($notifPenilaian)->map(function($item, $key) use(&$idNaskah) {
                                     $idNaskah[$key] = $item->form_id;
@@ -69,7 +69,7 @@ class NotificationController extends Controller {
                                         <div class="time text-primary">'.$craetedAt.'</div>
                                     </div>
                                 </a>';
-                } 
+                }
             }
         }
 
@@ -78,7 +78,7 @@ class NotificationController extends Controller {
                             ->where('type', 'Penilaian Naskah')->whereNull('expired')
                             ->where('permission_id', '33c3711d787d416082c0519356547b0c')->orderBy('form_id', 'desc')
                             ->select('permission_id', 'form_id', 'created_at as ndate')->get();
-            
+
             $idNaskah = [];
             $notifPenilaian = (object)collect($notifPenilaian)->map(function($item, $key) use(&$idNaskah) {
                                     $idNaskah[$key] = $item->form_id;
@@ -99,7 +99,7 @@ class NotificationController extends Controller {
                                         <div class="time text-primary">'.$craetedAt.'</div>
                                     </div>
                                 </a>';
-                } 
+                }
             }
         }
 
@@ -126,10 +126,10 @@ class NotificationController extends Controller {
                                         <div class="time text-primary">'.$craetedAt.'</div>
                                     </div>
                                 </a>';
-                } 
+                }
             }
         }
-        
+
         if(Gate::allows('do_update', 'naskah-pn-mpenerbitan')) {
             $notif = DB::table('notif as n')
                         ->join('penerbitan_naskah as pn', function($j) {
@@ -143,7 +143,7 @@ class NotificationController extends Controller {
                         ->whereNull('n.expired')
                         ->select(DB::raw('pns.tgl_pn_prodev as tgl_notif, pn.id, pn.judul_asli'))
                         ->get();
-                        
+
             if(!$notif->isEmpty()) {
                 foreach($notif as $n) {
                     $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
@@ -156,7 +156,7 @@ class NotificationController extends Controller {
                                         <div class="time text-primary">'.$craetedAt.'</div>
                                     </div>
                                 </a>';
-                } 
+                }
             }
         }
 
@@ -165,7 +165,7 @@ class NotificationController extends Controller {
                             ->where('type', 'Penilaian Naskah')->whereNull('expired')
                             ->where('permission_id', '8791f143a90e42e2a4d1d0d6b1254bad')->orderBy('form_id', 'desc')
                             ->select('permission_id', 'form_id', 'created_at as ndate')->get();
-            
+
             $idNaskah = [];
             $notifPenilaian = (object)collect($notifPenilaian)->map(function($item, $key) use(&$idNaskah) {
                                     $idNaskah[$key] = $item->form_id;
@@ -186,24 +186,80 @@ class NotificationController extends Controller {
                                         <div class="time text-primary">'.$craetedAt.'</div>
                                     </div>
                                 </a>';
-                } 
+                }
             }
         }
 
+        // if(Gate::allows('do_approval', 'persetujuan-manstok')) {
+        //     $notifPenyetujuan = DB::table('notif')
+        //                     ->where('type', 'Persetujuan Order Cetak Ulang')->whereNull('expired')
+        //                     ->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')->orderBy('form_id', 'desc')
+        //                     ->select('permission_id', 'form_id', 'created_at as ndate')->get();
+
+        //     $idProduksi = [];
+        //     $notifPenyetujuan = (object)collect($notifPenyetujuan)->map(function($item, $key) use(&$idProduksi) {
+        //                             $idProduksi[$key] = $item->form_id;
+        //                             return $item;
+        //                         })->all();
+
+        //     if(!is_null($notifPenyetujuan)) {
+        //         $naskah = DB::table('produksi_order_cetak')->whereIn('id', $idProduksi)->whereNull('deleted_at')
+        //                     ->orderBy('id', 'desc')->select('id', 'judul_asli')->get();
+        //         foreach($naskah as $key => $n) {
+        //             $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $notifPenyetujuan->{$key}->ndate, 'Asia/Jakarta')->diffForHumans();
+        //             $html .=    '<a href="'.url('penerbitan/naskah/melihat-naskah/'.$n->id).'" class="dropdown-item dropdown-item-unread">
+        //                             <div class="dropdown-item-icon bg-primary text-white">
+        //                                 <i class="fas fa-file-alt"></i>
+        //                             </div>
+        //                             <div class="dropdown-item-desc">
+        //                                 Naskah <strong><i>'.$n->judul_asli.'</i></strong> perlu dinilai (<strong>Direksi</strong>).
+        //                                 <div class="time text-primary">'.$craetedAt.'</div>
+        //                             </div>
+        //                         </a>';
+        //         }
+        //     }
+        // }
+        if(Gate::allows('do_approval', 'persetujuan-manstok')) {
+            $notif = DB::table('notif as n')
+                        ->join('produksi_order_cetak as po', function($j) {
+                            $j->on('n.form_id', '=', 'po.id')
+                                ->whereNull('deleted_at');
+                        })
+                        ->where('n.type', 'Persetujuan Order Cetak Ulang')
+                        ->where('n.permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                        ->whereNull('n.expired')
+                        ->select(DB::raw('nd.created_at as tgl_notif, po.id, po.created_by, po.kode_order','judul_buku'))
+                        ->get();
+
+            if(!$notif->isEmpty()) {
+                foreach($notif as $n) {
+                    $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
+                    $html .=    '<a href="'.url('produksi/order-cetak/edit?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                                    <div class="dropdown-item-icon bg-primary text-white">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="dropdown-item-desc">
+                                        Kode <strong><i>'.$n->kode_order.'</i></strong> perlu dinilai (<strong>Prodev</strong>).
+                                        <div class="time text-primary">'.$craetedAt.'</div>
+                                    </div>
+                                </a>';
+                }
+            }
+        }
         // if(Gate::allows('do_update', 'timeline-naskah-update-date')) {
         //     $notifTimeline = DB::table('notif as n')
         //                         ->leftJoin('notif_detail as nd', 'n.id', '=', 'nd.notif_id')
         //                         ->whereNull('n.expired')->where('n.permission_id', '8d9b1da4234f46eb858e1ea490da6348') // Date Timeline
         //                         ->where('nd.user_id', auth()->id())->where('nd.seen', '0')->orderBy('n.form_id', 'desc')
-        //                         ->select('n.permission_id', 'n.form_id', 'n.created_at as ndate', 
+        //                         ->select('n.permission_id', 'n.form_id', 'n.created_at as ndate',
         //                                 'nd.user_id', 'nd.created_at as nddate')->get();
-            
+
         //     $idNaskah = [];
         //     $notifTimeline = (object)$notifTimeline->map(function($item, $key) use(&$idNaskah) {
         //                             $idNaskah[$key] = $item->form_id;
         //                             return $item;
         //                         })->all();
-            
+
         //     if(!is_null($notifTimeline)) {
         //         $naskah = DB::table('penerbitan_naskah as pn')->join('timeline as t', 'pn.id', '=', 't.naskah_id')
         //                     ->whereIn('pn.id', $idNaskah)->whereNull('pn.deleted_at')
@@ -219,7 +275,7 @@ class NotificationController extends Controller {
         //                                 <div class="time text-primary">'.$craetedAt.'</div>
         //                             </div>
         //                         </a>';
-        //         } 
+        //         }
         //     }
         // }
 

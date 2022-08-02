@@ -172,14 +172,14 @@ class ProduksiController extends Controller
                     'perlengkapan' => $request->add_perlengkapan,
                     'created_by' => auth()->id()
                 ]);
-                // if (($request->status_cetak == '1') ) OR ($request->status_cetak == '1')) { // Buku Baru
-                //     $data = DB::table('produksi_order_cetak')->where('id', $idO)->first();
-                //     $bu = $this->alurPenilaian($request->input('add_jalur_buku'), 'create-notif-from-naskah', [
-                //         'id_prodev' => $request->input('add_pic_prodev'),
-                //         'form_id' => $idN
-                //     ]);
-
-                // }
+                $dd = $this->notifPersetujuan($request->add_status_cetak,'create-notif', [
+                        'form_id' => $idO
+                    ]);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data berhasil ditambahkan',
+                    'data' => $dd
+                ]);
                 return response()->json([
                     'success' => true,
                     'message' => 'Data berhasil ditambahkan',
@@ -226,13 +226,16 @@ class ProduksiController extends Controller
                     'up_isbn' => 'required',
                     'up_edisi' => 'required|regex:/^[a-zA-Z]+$/u',
                     'up_cetakan' => 'required|numeric',
-                    'up_tahun_terbit' => 'required|date',
                 ], [
                     'required' => 'This field is requried'
                 ]);
                 $tipeOrder = $request->up_tipe_order;
-                foreach ($request->up_platform_digital as $key => $value) {
-                    $platformDigital[$key] = $value;
+                if ($tipeOrder != '2') {
+                    foreach ($request->up_platform_digital as $key => $value) {
+                        $platformDigital[$key] = $value;
+                    }
+                } else {
+                    $platformDigital = [];
                 }
                 if ($request->tipe_order == $tipeOrder)
                 {
@@ -259,23 +262,26 @@ class ProduksiController extends Controller
                     'isbn' => $request->up_isbn,
                     'eisbn' => $request->up_eisbn,
                     'edisi_cetakan' => $request->up_edisi.'/'.$request->up_cetakan,
-                    'format_buku' => $request->up_format_buku_1.' x '.$request->up_format_buku_2.' cm',
                     'jumlah_halaman' => $request->up_jumlah_halaman_1.' + '.$request->up_jumlah_halaman_2,
                     'kelompok_buku' => $request->up_kelompok_buku,
+                    'posisi_layout' => $request->up_posisi_layout,
+                    'dami' => $request->up_dami,
+                    'format_buku' => $request->up_format_buku,
                     'kertas_isi' => $request->up_kertas_isi,
                     'warna_isi' => $request->up_warna_isi,
                     'kertas_cover' => $request->up_kertas_cover,
                     'warna_cover' => $request->up_warna_cover,
                     'efek_cover' => $request->up_efek_cover,
                     'jenis_cover' => $request->up_jenis_cover,
-                    'jahit_kawat' => $request->up_jahit_kawat,
-                    'jahit_benang' => $request->up_jahit_benang,
-                    'bending' => $request->up_bending,
+                    'jilid' => $request->up_jilid,
+                    'ukuran_jilid_bending' => empty($request->up_ukuran_bending)?$request->up_ukuran_bending:$request->up_ukuran_bending.' cm',
+                    'status_buku' => $request->up_status_buku,
                     'tahun_terbit' => Carbon::createFromFormat('Y', $request->up_tahun_terbit)->format('Y'),
                     'tgl_permintaan_jadi' => Carbon::createFromFormat('d F Y', $request->up_tgl_permintaan_jadi)->format('Y-m-d'),
                     'buku_jadi' => $request->up_buku_jadi,
                     'jumlah_cetak' => $request->up_jumlah_cetak,
                     'buku_contoh' => $request->up_buku_contoh,
+                    'spp' => $request->up_spp,
                     'keterangan' => $request->up_keterangan,
                     'perlengkapan' => $request->up_perlengkapan,
                     'created_by' => auth()->id()
@@ -331,16 +337,23 @@ class ProduksiController extends Controller
     {
         $kode = $request->get('kode');
         $author = $request->get('author');
-        $data = DB::table('produksi_order_cetak')
+        $prod = DB::table('produksi_order_cetak')
                     ->where('id', $kode)
                     ->where('created_by', $author)
                     ->first();
+        $prodPenyetujuan = DB::table('produksi_penyetujuan_order_cetak')
+                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
+                    ->join('jabatan', 'jabatan.id', '=', 'users.jabatan_id')
+                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama','jabatan.nama as jabatan')
+                    ->get();
         $author = DB::table('users')
                     ->where('id', $author)
                     ->first();
         return view('produksi.detail_produksi', [
             'title' => 'Detail Order Cetak Buku',
-            'data' => $data,
+            'data' => $prod,
+            'prod_penyetujuan' => $prodPenyetujuan,
             'author' => $author
         ]);
     }
@@ -353,7 +366,70 @@ class ProduksiController extends Controller
                 abort(500);
         }
     }
+    protected function notifPersetujuan($statusCetak,$action=null, $data=null){
+        /*
+    Persetujuan Direktur harus berurutan dari Operasional ke Utama.
+    Status Cetak (Buku Baru & Cetak Ulang Revisi) ::
+            M.Penerbit (bisa lewat langsung direktur) -> D.Operasional -> D.Keuangan -> D.Utama
+    Status Cetak (Cetak Ulang) ::
+            M.Stok (bisa lewat langsung direktur) -> D.Operasional -> D.Keuangan -> D.Utama
+    =============================================================================================
+            Manajer Penerbitan :: 1b842575174242cf83f949f262900570
+            Manajer Stok :: 09179170e6e643eca66b282e2ffae1f8
+            D.Operasional :: 2826b627ccc34fad84470c4b7534da0d
+            D.Keuangan:: 6b95b4e041e04d61a91422fe3d06fd8d
+            D.Utama :: 87f03d6f4cb54135b451528bc1a9d0f5
 
+        */
+
+        if($statusCetak=='1' OR $statusCetak=='2') {
+            if($action=='create-notif') {
+                $id_notif = Str::uuid()->getHex();
+                DB::table('notif')->insert([
+                    [   'id' => $id_notif,
+                        'section' => 'Produksi',
+                        'type' => 'Persetujuan Order '.$statusCetak=='1'?'Buku Baru':'Cetak Ulang Revisi',
+                        'permission_id' => '1b842575174242cf83f949f262900570', // manajer penerbitan
+                        'form_id' => $data['form_id'], ],
+                    [   'id' => Str::uuid()->getHex(),
+                        'section' => 'Produksi',
+                        'type' => 'Persetujuan Order '.$statusCetak=='1'?'Buku Baru':'Cetak Ulang Revisi',
+                        'permission_id' => '2826b627ccc34fad84470c4b7534da0d', // D.Operasional
+                        'form_id' => $data['form_id'], ],
+                ]);
+
+            } elseif($action=='update-notif-from-naskah') {
+                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', 'ebca07da8aad42c4aee304e3a6b81001') // Hanya untuk prodev
+                            ->where('form_id', $data['form_id'])->first();
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->insert([
+                    'notif_id' => $notif->id,
+                    'user_id' => $data['id_prodev']
+                ]);
+            }
+
+        } elseif($statusCetak == '3') {
+            if($action=='create-notif') {
+                DB::table('notif')->insert([
+                    [   'id' => Str::uuid()->getHex(),
+                        'section' => 'Produksi',
+                        'type' => 'Persetujuan Order Cetak Ulang',
+                        'permission_id' => '09179170e6e643eca66b282e2ffae1f8', // M.Stok
+                        'form_id' => $data['form_id'], ],
+                    [   'id' => Str::uuid()->getHex(),
+                        'section' => 'Produksi',
+                        'type' => 'Persetujuan Order Cetak Ulang',
+                        'permission_id' => '2826b627ccc34fad84470c4b7534da0d', // D.Operasional
+                        'form_id' => $data['form_id'], ],
+                ]);
+
+            } elseif($action=='update-notif-from-naskah') {
+
+            }
+
+        }
+    }
     protected function approvalOrder($request)
     {
 

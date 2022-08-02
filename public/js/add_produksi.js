@@ -184,6 +184,7 @@ function ajaxAddProduksi(data) {
             resetFrom(data);
             notifToast('success', 'Data produksi berhasil disimpan!');
             location.href = result.redirect;
+
         },
         error: function(err) {
             // console.log(err.responseJSON)
@@ -194,7 +195,7 @@ function ajaxAddProduksi(data) {
                     let [key, value] = entry;
                     err[key] = value
                 })
-                addNaskah.showErrors(err);
+                // addNaskah.showErrors(err);
             }
             notifToast('error', 'Data produksi gagal disimpan!');
         },

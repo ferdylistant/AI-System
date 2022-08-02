@@ -50,5 +50,9 @@ class AuthServiceProvider extends ServiceProvider
                     ->isNotEmpty();
         });
 
+        Gate::define('do_decline', function ($user, $raw) {
+            return session('permissions')->where('raw', $raw)
+                    ->isNotEmpty();
+        });
     }
 }

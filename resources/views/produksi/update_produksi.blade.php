@@ -32,6 +32,8 @@
                         <div class="card-body">
                             <div class="row">
                                 <input type="hidden" name="id" value="{{$data->id}}" id="idProd">
+                                <input type="hidden" name="kode_order" value="{{$data->kode_order}}">
+                                <input type="hidden" name="tipe_order" value="{{$data->tipe_order}}">
                             <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Tipe Order: <span class="text-danger">*</span></label>
                                 <div class="input-group">
@@ -208,7 +210,6 @@
                                         <div class="input-group-text"><i class="fa fa-quote-left"></i></div>
                                     </div>
                                     <select class="form-control select2" name="up_dami" id="dami" required>
-                                        <option label="Pilih"></option>
                                     </select>
                                     <div id="err_up_dami"></div>
                                 </div>
@@ -220,7 +221,6 @@
                                         <div class="input-group-text"><i class="fa fa-ruler-combined"></i></div>
                                     </div>
                                     <select class="form-control select2" name="up_format_buku" id="formatBuku" required>
-                                        <option label="Pilih"></option>
                                     </select>
                                     <div id="err_up_format_buku"></div>
                                     <div class="input-group-append">
@@ -393,7 +393,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-copy"></i></div>
                                     </div>
-                                    <input type="number" class="form-control" name="up_jumlah_cetak" min="1" placeholder="Jumlah cetak" required>
+                                    <input type="number" class="form-control" name="up_jumlah_cetak" min="1" value="{{$data->jumlah_cetak}}" placeholder="Jumlah cetak" required>
                                     <div id="err_up_jumlah_cetak"></div>
                                 </div>
                             </div>
@@ -403,32 +403,32 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-copy"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_spp" placeholder="Surat Perjanjian Penulis">
+                                    <input type="text" class="form-control" name="up_spp" value="{{$data->spp}}" placeholder="Surat Perjanjian Penulis">
                                     <div id="err_up_spp"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-12 mb-4">
                                 <label>Buku Contoh: </label>
-                                <textarea class="form-control" name="up_buku_contoh"  placeholder="Buku contoh"></textarea>
+                                <textarea class="form-control" name="up_buku_contoh" placeholder="Buku contoh">{{$data->buku_contoh}}</textarea>
                                 <div id="err_up_jumlah_halaman"></div>
 
                             </div>
                             <div class="form-group col-12 col-md-12 mb-4">
                                 <label>Perlengkapan: </label>
-                                <textarea class="form-control" name="up_perlengkapan"  placeholder="Perlengkapan"></textarea>
+                                <textarea class="form-control" name="up_perlengkapan"  placeholder="Perlengkapan">{{$data->perlengkapan}}</textarea>
                                 <div id="err_up_perlengkapan"></div>
 
                             </div>
                             <div class="form-group col-12 col-md-12 mb-4">
                                 <label>Keterangan: </label>
-                                <textarea class="form-control" name="up_keterangan"  placeholder="Keterangan"></textarea>
+                                <textarea class="form-control" name="up_keterangan"  placeholder="Keterangan">{{$data->keterangan}}</textarea>
                                 <div id="err_up_keterangan"></div>
 
                             </div>
                         </div>
                     </div>
                     <div class="card-footer text-right">
-                        <button type="submit" class="btn btn-success">Simpan</button>
+                        <button type="submit" class="btn btn-success">Update</button>
                     </div>
                     </form>
                 </div>

@@ -17,18 +17,14 @@ $(document).ready(function(){
     });
 });
 $(document).ready(function(){
+    var id = $('#idProd').val();
     $.ajax({
         type: 'GET',
         url: window.location.origin + '/list-status-buku',
+        data: 'id='+id,
         success:function(hasil)
         {
-            var list = hasil;
-            if ( typeof(hasil) == "string" ){
-                list = JSON.parse(hasil);
-            }
-            $.each( hasil, function( index, data ){
-                $("#statusBuku").append($("<option></option>").attr("value",data.value).text(data.label));
-            });
+            $("#statusBuku").html(hasil);
         },
         error:function(xhr, status, error){
             console.log(xhr);
@@ -100,6 +96,7 @@ $(document).ready(function() {
         if (tipe !== '2') {
             $('#gridPlatformDigital').show();
         } else {
+            $('input[type=checkbox]').prop('checked', false).val('');
             $('#gridPlatformDigital').hide();
         }
     });
@@ -115,9 +112,11 @@ $(document).ready(function() {
         var tipe = $(this).val();
         if (tipe != '1') {
             $('#formJilid').attr('class', 'form-group col-12 col-md-6 mb-4');
+            $('#ukuranBending').closest('form').find("input[name=up_ukuran_bending]").val("");
             $('#ukuranBending').hide();
         } else {
             $('#formJilid').attr('class', 'form-group col-12 col-md-3 mb-4');
+            // $('#ukuranBending').val('');
             $('#ukuranBending').show();
         }
     });
@@ -159,9 +158,7 @@ $(function() {
     //     up_isbn: {required: true},
     //     up_edisi: {required: true},
     //     up_cetakan: {required: true},
-    //     up_tanggal_terbit: {required: true},
     //     up_tgl_permintaan_jadi: {required: true},
-    //     up_format_buku_1: {required: true},
     // });
 
     function ajaxUpProduksi(data) {
@@ -190,7 +187,7 @@ $(function() {
                         let [key, value] = entry;
                         err[key] = value
                     })
-                    upNaskah.showErrors(err);
+                    // upNaskah.showErrors(err);
                 }
                 notifToast('error', 'Data produksi gagal disimpan!');
             },
@@ -217,6 +214,9 @@ $(function() {
                 }
             });
 
+        }
+        else {
+            notifToast('error', 'Periksa kembali form Anda!');
         }
     })
 })

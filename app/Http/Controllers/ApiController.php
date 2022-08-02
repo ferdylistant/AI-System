@@ -226,10 +226,26 @@ class ApiController extends Controller
             echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
         }
     }
-    public function listStatusBuku()
+    public function listStatusBuku(Request $request)
     {
         $statusBuku = (object)[['value' => '1','label' => 'Reguler'],['value' => '2','label' => 'MOU']];
-        return response()->json($statusBuku);
+        if ($request->has('id'))
+        {
+            $id = $request->get('id');
+            $data = DB::table('produksi_order_cetak')->where('id', $id)->first();
+            echo '<option label="Pilih"></option>';
+            foreach ($statusBuku as $key => $value) {
+                if ($data->status_buku == $value['value']) {
+                    echo '<option value="'.$value['value'].'" selected>'.$value['label'].'</option>';
+                }
+                else {
+                    echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+                }
+            }
+        }
+        else {
+            return response()->json($statusBuku);
+        }
     }
     public function listPilihanTerbit(Request $request)
     {
