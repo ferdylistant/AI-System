@@ -219,6 +219,36 @@ class NotificationController extends Controller {
         //         }
         //     }
         // }
+        if(Gate::allows('do_approval', 'persetujuan-manpen')) {
+            $notif = DB::table('notif as n')
+                        ->join('produksi_order_cetak as po', function($j) {
+                            $j->on('n.form_id', '=', 'po.id')
+                                ->whereNull('deleted_at');
+                        })
+                        ->where(function($q) {
+                            $q->where('n.type', 'Persetujuan Order Buku Baru')
+                                ->orWhere('n.type', 'Persetujuan Order Cetak Ulang Revisi');
+                        })
+                        ->where('n.permission_id', '1b842575174242cf83f949f262900570')
+                        ->whereNull('n.expired')
+                        ->select(DB::raw('n.created_at as tgl_notif, po.id, po.created_by, po.kode_order, po.judul_buku'))
+                        ->get();
+            // dd($notif);
+            if(!$notif->isEmpty()) {
+                foreach($notif as $n) {
+                    $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
+                    $html .=    '<a href="'.url('produksi/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                                    <div class="dropdown-item-icon bg-primary text-white">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="dropdown-item-desc">
+                                        Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" perlu Anda tanggapi (<strong>Manajer Penerbitan</strong>).
+                                        <div class="time text-primary">'.$craetedAt.'</div>
+                                    </div>
+                                </a>';
+                }
+            }
+        }
         if(Gate::allows('do_approval', 'persetujuan-manstok')) {
             $notif = DB::table('notif as n')
                         ->join('produksi_order_cetak as po', function($j) {
@@ -228,18 +258,111 @@ class NotificationController extends Controller {
                         ->where('n.type', 'Persetujuan Order Cetak Ulang')
                         ->where('n.permission_id', '09179170e6e643eca66b282e2ffae1f8')
                         ->whereNull('n.expired')
-                        ->select(DB::raw('nd.created_at as tgl_notif, po.id, po.created_by, po.kode_order','judul_buku'))
+                        ->select(DB::raw('n.created_at as tgl_notif, po.id, po.created_by, po.kode_order, po.judul_buku'))
                         ->get();
-
+            // dd($notif);
             if(!$notif->isEmpty()) {
                 foreach($notif as $n) {
                     $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
-                    $html .=    '<a href="'.url('produksi/order-cetak/edit?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                    $html .=    '<a href="'.url('produksi/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
                                     <div class="dropdown-item-icon bg-primary text-white">
                                         <i class="fas fa-file-alt"></i>
                                     </div>
                                     <div class="dropdown-item-desc">
-                                        Kode <strong><i>'.$n->kode_order.'</i></strong> perlu dinilai (<strong>Prodev</strong>).
+                                        Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" perlu Anda tanggapi (<strong>Manajer Stok</strong>).
+                                        <div class="time text-primary">'.$craetedAt.'</div>
+                                    </div>
+                                </a>';
+                }
+            }
+        }
+        if(Gate::allows('do_approval', 'persetujuan-dirop')) {
+            $notif = DB::table('notif as n')
+                        ->join('produksi_order_cetak as po', function($j) {
+                            $j->on('n.form_id', '=', 'po.id')
+                                ->whereNull('deleted_at');
+                        })
+                        ->where(function($q) {
+                            $q->where('n.type', 'Persetujuan Order Buku Baru')
+                                ->orWhere('n.type', 'Persetujuan Order Cetak Ulang Revisi')
+                                ->orWhere('n.type', 'Persetujuan Order Cetak Ulang');
+                        })
+                        ->where('n.permission_id', '2826b627ccc34fad84470c4b7534da0d')
+                        ->whereNull('n.expired')
+                        ->select(DB::raw('n.created_at as tgl_notif, po.id, po.created_by, po.kode_order, po.judul_buku'))
+                        ->get();
+            // dd($notif);
+            if(!$notif->isEmpty()) {
+                foreach($notif as $n) {
+                    $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
+                    $html .=    '<a href="'.url('produksi/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                                    <div class="dropdown-item-icon bg-primary text-white">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="dropdown-item-desc">
+                                        Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" perlu Anda tanggapi (<strong>Direktur Operasional</strong>).
+                                        <div class="time text-primary">'.$craetedAt.'</div>
+                                    </div>
+                                </a>';
+                }
+            }
+        }
+        if(Gate::allows('do_approval', 'persetujuan-dirke')) {
+            $notif = DB::table('notif as n')
+                        ->join('produksi_order_cetak as po', function($j) {
+                            $j->on('n.form_id', '=', 'po.id')
+                                ->whereNull('deleted_at');
+                        })
+                        ->where(function($q) {
+                            $q->where('n.type', 'Persetujuan Order Buku Baru')
+                                ->orWhere('n.type', 'Persetujuan Order Cetak Ulang Revisi')
+                                ->orWhere('n.type', 'Persetujuan Order Cetak Ulang');
+                        })
+                        ->where('n.permission_id', '6b95b4e041e04d61a91422fe3d06fd8d')
+                        ->whereNull('n.expired')
+                        ->select(DB::raw('n.created_at as tgl_notif, po.id, po.created_by, po.kode_order, po.judul_buku'))
+                        ->get();
+            // dd($notif);
+            if(!$notif->isEmpty()) {
+                foreach($notif as $n) {
+                    $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
+                    $html .=    '<a href="'.url('produksi/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                                    <div class="dropdown-item-icon bg-primary text-white">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="dropdown-item-desc">
+                                        Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" perlu Anda tanggapi (<strong>Direktur Keuangan</strong>).
+                                        <div class="time text-primary">'.$craetedAt.'</div>
+                                    </div>
+                                </a>';
+                }
+            }
+        }
+        if(Gate::allows('do_approval', 'persetujuan-dirut')) {
+            $notif = DB::table('notif as n')
+                        ->join('produksi_order_cetak as po', function($j) {
+                            $j->on('n.form_id', '=', 'po.id')
+                                ->whereNull('deleted_at');
+                        })
+                        ->where(function($q) {
+                            $q->where('n.type', 'Persetujuan Order Buku Baru')
+                                ->orWhere('n.type', 'Persetujuan Order Cetak Ulang Revisi')
+                                ->orWhere('n.type', 'Persetujuan Order Cetak Ulang');
+                        })
+                        ->where('n.permission_id', '87f03d6f4cb54135b451528bc1a9d0f5')
+                        ->whereNull('n.expired')
+                        ->select(DB::raw('n.created_at as tgl_notif, po.id, po.created_by, po.kode_order, po.judul_buku'))
+                        ->get();
+            // dd($notif);
+            if(!$notif->isEmpty()) {
+                foreach($notif as $n) {
+                    $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
+                    $html .=    '<a href="'.url('produksi/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                                    <div class="dropdown-item-icon bg-primary text-white">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="dropdown-item-desc">
+                                        Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" perlu Anda tanggapi (<strong>Direktur Keuangan</strong>).
                                         <div class="time text-primary">'.$craetedAt.'</div>
                                     </div>
                                 </a>';

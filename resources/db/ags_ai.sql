@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.0.3
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 31, 2022 at 01:46 PM
--- Server version: 10.4.24-MariaDB
--- PHP Version: 7.4.29
+-- Waktu pembuatan: 03 Agu 2022 pada 11.39
+-- Versi server: 10.1.38-MariaDB
+-- Versi PHP: 7.4.11
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `access`
+-- Struktur dari tabel `access`
 --
 
 CREATE TABLE `access` (
@@ -38,7 +38,7 @@ CREATE TABLE `access` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `access`
+-- Dumping data untuk tabel `access`
 --
 
 INSERT INTO `access` (`id`, `parent_id`, `bagian_id`, `level`, `url`, `icon`, `name`) VALUES
@@ -52,17 +52,17 @@ INSERT INTO `access` (`id`, `parent_id`, `bagian_id`, `level`, `url`, `icon`, `n
 -- --------------------------------------------------------
 
 --
--- Table structure for table `access_bagian`
+-- Struktur dari tabel `access_bagian`
 --
 
 CREATE TABLE `access_bagian` (
   `id` varchar(36) NOT NULL,
   `name` varchar(150) NOT NULL,
-  `order_ab` tinyint(4) UNSIGNED NOT NULL DEFAULT 0
+  `order_ab` tinyint(4) UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `access_bagian`
+-- Dumping data untuk tabel `access_bagian`
 --
 
 INSERT INTO `access_bagian` (`id`, `name`, `order_ab`) VALUES
@@ -74,7 +74,7 @@ INSERT INTO `access_bagian` (`id`, `name`, `order_ab`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cabang`
+-- Struktur dari tabel `cabang`
 --
 
 CREATE TABLE `cabang` (
@@ -82,17 +82,17 @@ CREATE TABLE `cabang` (
   `kode` varchar(5) NOT NULL,
   `nama` varchar(100) NOT NULL,
   `telp` varchar(20) DEFAULT NULL,
-  `alamat` text DEFAULT NULL,
+  `alamat` text,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `cabang`
+-- Dumping data untuk tabel `cabang`
 --
 
 INSERT INTO `cabang` (`id`, `kode`, `nama`, `telp`, `alamat`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
@@ -101,7 +101,7 @@ INSERT INTO `cabang` (`id`, `kode`, `nama`, `telp`, `alamat`, `created_by`, `upd
 -- --------------------------------------------------------
 
 --
--- Table structure for table `divisi`
+-- Struktur dari tabel `divisi`
 --
 
 CREATE TABLE `divisi` (
@@ -110,13 +110,13 @@ CREATE TABLE `divisi` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `divisi`
+-- Dumping data untuk tabel `divisi`
 --
 
 INSERT INTO `divisi` (`id`, `nama`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
@@ -128,7 +128,7 @@ INSERT INTO `divisi` (`id`, `nama`, `created_by`, `updated_by`, `deleted_by`, `c
 -- --------------------------------------------------------
 
 --
--- Table structure for table `jabatan`
+-- Struktur dari tabel `jabatan`
 --
 
 CREATE TABLE `jabatan` (
@@ -137,25 +137,29 @@ CREATE TABLE `jabatan` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `jabatan`
+-- Dumping data untuk tabel `jabatan`
 --
 
 INSERT INTO `jabatan` (`id`, `nama`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
 ('02c4dfedf83a43cd89ba0a83de8445ed', 'Staff', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-03-31 08:34:02', NULL, NULL),
+('58682ac96ef74d2187ae6bb6b87e3686', 'Direktur Keuangan', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-08-02 03:32:28', NULL, NULL),
 ('5cacae63f0f94a91931ba4779879eab1', 'Asisten Manager', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-03-31 08:34:30', NULL, NULL),
 ('765e0ac17c8e4cabae01582b06da410e', 'Manager', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-03-31 08:34:11', NULL, NULL),
-('a39f467d051f49db9508778f643fdd96', 'Direktur', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-03-31 08:34:45', NULL, NULL);
+('803d36a2d66442499e5411e536fd4201', 'Manajer Stok', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-08-02 03:33:55', NULL, NULL),
+('8badd0f20e2f434bb7d7a067e93d0e2e', 'Direktur Operasional', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-08-02 03:32:45', NULL, NULL),
+('9a51e94ea42c4f26ab1143468286013f', 'Manajer Penerbitan', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-08-02 03:35:28', NULL, NULL),
+('a39f467d051f49db9508778f643fdd96', 'Direktur Utama', 'be8d42fa88a14406ac201974963d9c1b', 'be8d42fa88a14406ac201974963d9c1b', NULL, '2022-03-31 08:34:45', '2022-08-02 03:29:01', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `mm_select`
+-- Struktur dari tabel `mm_select`
 --
 
 CREATE TABLE `mm_select` (
@@ -165,7 +169,7 @@ CREATE TABLE `mm_select` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `mm_select`
+-- Dumping data untuk tabel `mm_select`
 --
 
 INSERT INTO `mm_select` (`id`, `keyword`, `options`) VALUES
@@ -193,63 +197,50 @@ INSERT INTO `mm_select` (`id`, `keyword`, `options`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `notif`
+-- Struktur dari tabel `notif`
 --
 
 CREATE TABLE `notif` (
   `id` varchar(36) NOT NULL,
-  `section` enum('Penerbitan') NOT NULL,
-  `type` enum('Penilaian Naskah','Timeline Naskah') NOT NULL,
+  `section` enum('Penerbitan','Produksi') NOT NULL,
+  `type` enum('Penilaian Naskah','Timeline Naskah','Persetujuan Order Buku Baru','Persetujuan Order Cetak Ulang Revisi','Persetujuan Order Cetak Ulang') NOT NULL,
   `url` varchar(255) DEFAULT NULL,
-  `raw_data` text DEFAULT NULL,
+  `raw_data` text,
   `permission_id` varchar(36) NOT NULL,
   `form_id` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `expired` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `notif`
+-- Dumping data untuk tabel `notif`
 --
 
 INSERT INTO `notif` (`id`, `section`, `type`, `url`, `raw_data`, `permission_id`, `form_id`, `created_at`, `expired`) VALUES
-('13dd1db47c4e40e7b23a9b1f89647404', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, '12b852d92d284ab5a654c26e8856fffd', 'b9614d8eb16a40cb871a589f23507e19', '2022-07-27 08:23:22', NULL),
-('1d86aaabc4254854b6a4accac129ae31', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'ebca07da8aad42c4aee304e3a6b81001', '1a71b26e23094c39a62f6c8d62ec6665', '2022-07-22 02:32:45', '2022-07-22 03:13:39'),
-('25dd5547f92a4f51b1b7d664af480c3f', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, '9beba245308543ce821efe8a3ba965e3', 'b9614d8eb16a40cb871a589f23507e19', '2022-07-27 08:23:22', NULL),
-('4cfef58eb8a34b6cb64e072f9aeb0435', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'a213b689b8274f4dbe19b3fb24d66840', 'b9614d8eb16a40cb871a589f23507e19', '2022-07-27 08:23:22', NULL),
-('9437081c0e324c1799b5b667acae8409', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, '8791f143a90e42e2a4d1d0d6b1254bad', '1a71b26e23094c39a62f6c8d62ec6665', '2022-07-22 03:15:14', '2022-07-22 03:15:41'),
-('96b5aadca95841c09335bbd6039354c7', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'ebca07da8aad42c4aee304e3a6b81001', 'b9614d8eb16a40cb871a589f23507e19', '2022-07-27 08:23:22', NULL),
-('a12692b8f0f44c1490c848f84a43d6f3', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, '12b852d92d284ab5a654c26e8856fffd', '1a71b26e23094c39a62f6c8d62ec6665', '2022-07-22 02:32:45', '2022-07-22 03:15:14'),
-('b0c753d37e9e4e1e86a41f22c0129c96', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, '9beba245308543ce821efe8a3ba965e3', '1a71b26e23094c39a62f6c8d62ec6665', '2022-07-22 02:32:45', '2022-07-22 03:11:56'),
-('f5da33c2f628438abed5c1cf8045b86a', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'a213b689b8274f4dbe19b3fb24d66840', '1a71b26e23094c39a62f6c8d62ec6665', '2022-07-22 02:32:45', '2022-07-22 02:46:53');
+('76da840e92fa47139999235dc8f1a0e0', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '1b842575174242cf83f949f262900570', 'be76886e4e8b4e3fa5069509510f57ad', '2022-08-03 02:59:21', NULL),
+('899129af119a47188af019d0b7997ed2', 'Produksi', 'Persetujuan Order Cetak Ulang Revisi', NULL, NULL, '1b842575174242cf83f949f262900570', '4aecd59e99cd40788a8dc5248c1b6671', '2022-08-03 03:49:47', NULL),
+('899bb391cd454452afdc6eda312cdaf3', 'Produksi', 'Persetujuan Order Cetak Ulang Revisi', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', '4aecd59e99cd40788a8dc5248c1b6671', '2022-08-03 03:49:47', NULL),
+('8d667ec34b5245e98b4ab51189fab3a1', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', 'be76886e4e8b4e3fa5069509510f57ad', '2022-08-03 02:59:21', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `notif_detail`
+-- Struktur dari tabel `notif_detail`
 --
 
 CREATE TABLE `notif_detail` (
   `notif_id` varchar(36) NOT NULL,
   `user_id` varchar(36) NOT NULL,
   `seen` enum('1','0') NOT NULL DEFAULT '0' COMMENT 'if seen(1) update(null)::: updated by naskah',
-  `raw_data` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `raw_data` text,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `notif_detail`
---
-
-INSERT INTO `notif_detail` (`notif_id`, `user_id`, `seen`, `raw_data`, `created_at`, `updated_at`) VALUES
-('1d86aaabc4254854b6a4accac129ae31', 'e4ddf4d7c2b84cb69647f4dd63f9dbc2', '1', NULL, '2022-07-22 02:32:45', '2022-07-22 03:13:39'),
-('96b5aadca95841c09335bbd6039354c7', '4fc80f443bfb4969b9a0272d9be08ef2', '0', NULL, '2022-07-27 08:23:22', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_m_kelompok_buku`
+-- Struktur dari tabel `penerbitan_m_kelompok_buku`
 --
 
 CREATE TABLE `penerbitan_m_kelompok_buku` (
@@ -259,13 +250,13 @@ CREATE TABLE `penerbitan_m_kelompok_buku` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `penerbitan_m_kelompok_buku`
+-- Dumping data untuk tabel `penerbitan_m_kelompok_buku`
 --
 
 INSERT INTO `penerbitan_m_kelompok_buku` (`id`, `kode`, `nama`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
@@ -391,7 +382,7 @@ INSERT INTO `penerbitan_m_kelompok_buku` (`id`, `kode`, `nama`, `created_by`, `u
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_naskah`
+-- Struktur dari tabel `penerbitan_naskah`
 --
 
 CREATE TABLE `penerbitan_naskah` (
@@ -406,7 +397,7 @@ CREATE TABLE `penerbitan_naskah` (
   `hard_copy` enum('1','0') NOT NULL DEFAULT '0' COMMENT '1:Ya|0:Tidak',
   `soft_copy` enum('1','0') NOT NULL DEFAULT '0' COMMENT '1:Ya|0:Tidak',
   `cdqr_code` enum('1','0') NOT NULL DEFAULT '0' COMMENT '1:Ya|0:Tidak',
-  `keterangan` text DEFAULT NULL,
+  `keterangan` text,
   `pic_prodev` varchar(36) DEFAULT NULL,
   `penilaian_naskah` enum('1','0') DEFAULT NULL,
   `date_pic_prodev` timestamp NULL DEFAULT NULL,
@@ -421,13 +412,13 @@ CREATE TABLE `penerbitan_naskah` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `penerbitan_naskah`
+-- Dumping data untuk tabel `penerbitan_naskah`
 --
 
 INSERT INTO `penerbitan_naskah` (`id`, `kode`, `judul_asli`, `tanggal_masuk_naskah`, `email`, `kelompok_buku_id`, `jalur_buku`, `tentang_penulis`, `hard_copy`, `soft_copy`, `cdqr_code`, `keterangan`, `pic_prodev`, `penilaian_naskah`, `date_pic_prodev`, `penilaian_prodev`, `penilaian_editset`, `penilaian_pemasaran`, `penilaian_penerbitan`, `penilaian_direksi`, `selesai_penilaian`, `selesai_penilaian_tgl`, `status_penilaian`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
@@ -437,7 +428,7 @@ INSERT INTO `penerbitan_naskah` (`id`, `kode`, `judul_asli`, `tanggal_masuk_nask
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_naskah_files`
+-- Struktur dari tabel `penerbitan_naskah_files`
 --
 
 CREATE TABLE `penerbitan_naskah_files` (
@@ -448,13 +439,13 @@ CREATE TABLE `penerbitan_naskah_files` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `penerbitan_naskah_files`
+-- Dumping data untuk tabel `penerbitan_naskah_files`
 --
 
 INSERT INTO `penerbitan_naskah_files` (`id`, `naskah_id`, `kategori`, `file`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
@@ -465,7 +456,7 @@ INSERT INTO `penerbitan_naskah_files` (`id`, `naskah_id`, `kategori`, `file`, `c
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_naskah_penulis`
+-- Struktur dari tabel `penerbitan_naskah_penulis`
 --
 
 CREATE TABLE `penerbitan_naskah_penulis` (
@@ -474,7 +465,7 @@ CREATE TABLE `penerbitan_naskah_penulis` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `penerbitan_naskah_penulis`
+-- Dumping data untuk tabel `penerbitan_naskah_penulis`
 --
 
 INSERT INTO `penerbitan_naskah_penulis` (`penulis_id`, `naskah_id`) VALUES
@@ -484,7 +475,7 @@ INSERT INTO `penerbitan_naskah_penulis` (`penulis_id`, `naskah_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_penulis`
+-- Struktur dari tabel `penerbitan_penulis`
 --
 
 CREATE TABLE `penerbitan_penulis` (
@@ -493,18 +484,18 @@ CREATE TABLE `penerbitan_penulis` (
   `tanggal_lahir` date NOT NULL,
   `tempat_lahir` varchar(255) DEFAULT NULL,
   `kewarganegaraan` enum('WNI','WNA') DEFAULT NULL,
-  `alamat_domisili` text DEFAULT NULL,
+  `alamat_domisili` text,
   `ponsel_domisili` varchar(20) DEFAULT NULL,
   `telepon_domisili` varchar(20) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `nama_kantor` varchar(150) DEFAULT NULL,
   `jabatan_dikantor` varchar(150) DEFAULT NULL,
-  `alamat_kantor` text DEFAULT NULL,
+  `alamat_kantor` text,
   `telepon_kantor` varchar(20) DEFAULT NULL,
   `sosmed_fb` varchar(150) DEFAULT NULL COMMENT 'facebook',
   `sosmed_ig` varchar(150) DEFAULT NULL COMMENT 'instagram',
   `sosmed_tw` varchar(150) DEFAULT NULL COMMENT 'twitter',
-  `tentang_penulis` text DEFAULT NULL,
+  `tentang_penulis` text,
   `file_tentang_penulis` varchar(255) DEFAULT NULL,
   `foto_penulis` varchar(255) DEFAULT NULL,
   `bank` varchar(100) DEFAULT NULL,
@@ -517,13 +508,13 @@ CREATE TABLE `penerbitan_penulis` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `penerbitan_penulis`
+-- Dumping data untuk tabel `penerbitan_penulis`
 --
 
 INSERT INTO `penerbitan_penulis` (`id`, `nama`, `tanggal_lahir`, `tempat_lahir`, `kewarganegaraan`, `alamat_domisili`, `ponsel_domisili`, `telepon_domisili`, `email`, `nama_kantor`, `jabatan_dikantor`, `alamat_kantor`, `telepon_kantor`, `sosmed_fb`, `sosmed_ig`, `sosmed_tw`, `tentang_penulis`, `file_tentang_penulis`, `foto_penulis`, `bank`, `bank_atasnama`, `no_rekening`, `npwp`, `ktp`, `scan_npwp`, `scan_ktp`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
@@ -536,7 +527,7 @@ INSERT INTO `penerbitan_penulis` (`id`, `nama`, `tanggal_lahir`, `tempat_lahir`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_pn_direksi`
+-- Struktur dari tabel `penerbitan_pn_direksi`
 --
 
 CREATE TABLE `penerbitan_pn_direksi` (
@@ -545,15 +536,15 @@ CREATE TABLE `penerbitan_pn_direksi` (
   `judul_final` varchar(255) NOT NULL,
   `sub_judul_final` varchar(255) NOT NULL,
   `keputusan_final` enum('Reguler','eBook','Reguler-eBook','Revisi Minor','Revisi Mayor','Ditolak') DEFAULT NULL,
-  `catatan` text DEFAULT NULL,
+  `catatan` text,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `penerbitan_pn_direksi`
+-- Dumping data untuk tabel `penerbitan_pn_direksi`
 --
 
 INSERT INTO `penerbitan_pn_direksi` (`id`, `naskah_id`, `judul_final`, `sub_judul_final`, `keputusan_final`, `catatan`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
@@ -562,19 +553,19 @@ INSERT INTO `penerbitan_pn_direksi` (`id`, `naskah_id`, `judul_final`, `sub_judu
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_pn_editor_setter`
+-- Struktur dari tabel `penerbitan_pn_editor_setter`
 --
 
 CREATE TABLE `penerbitan_pn_editor_setter` (
   `id` varchar(36) NOT NULL,
   `naskah_id` varchar(36) NOT NULL,
-  `penilaian_editor_umum` text DEFAULT NULL,
+  `penilaian_editor_umum` text,
   `penilaian_bahasa` enum('Baik','Cukup','Kurang') DEFAULT NULL,
-  `catatan_bahasa` text DEFAULT NULL,
+  `catatan_bahasa` text,
   `penilaian_sistematika` enum('Baik','Cukup','Kurang') DEFAULT NULL,
-  `catatan_sistematika` text DEFAULT NULL,
+  `catatan_sistematika` text,
   `penilaian_konsistensi` enum('Baik','Cukup','Kurang') DEFAULT NULL,
-  `catatan_konsistensi` text DEFAULT NULL,
+  `catatan_konsistensi` text,
   `perlu_proses_edit` enum('Perlu','Tidak') DEFAULT NULL,
   `proses_editor` enum('Ringan','Sedang','Berat') DEFAULT NULL,
   `penilai_editing` varchar(36) DEFAULT NULL COMMENT 'Users_id',
@@ -590,7 +581,7 @@ CREATE TABLE `penerbitan_pn_editor_setter` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_pn_mm`
+-- Struktur dari tabel `penerbitan_pn_mm`
 --
 
 CREATE TABLE `penerbitan_pn_mm` (
@@ -600,7 +591,7 @@ CREATE TABLE `penerbitan_pn_mm` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `penerbitan_pn_mm`
+-- Dumping data untuk tabel `penerbitan_pn_mm`
 --
 
 INSERT INTO `penerbitan_pn_mm` (`keyword`, `id`, `options`) VALUES
@@ -644,26 +635,26 @@ INSERT INTO `penerbitan_pn_mm` (`keyword`, `id`, `options`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_pn_pemasaran`
+-- Struktur dari tabel `penerbitan_pn_pemasaran`
 --
 
 CREATE TABLE `penerbitan_pn_pemasaran` (
   `id` varchar(36) NOT NULL,
   `naskah_id` varchar(36) NOT NULL,
   `pic` enum('M','D') NOT NULL COMMENT 'M:Manager|D:Direksi',
-  `prospek_pasar` text DEFAULT NULL,
-  `potensi_dana` text DEFAULT NULL,
-  `ds_tb` text DEFAULT NULL,
-  `pilar` text DEFAULT NULL,
-  `potensi` text DEFAULT NULL,
+  `prospek_pasar` text,
+  `potensi_dana` text,
+  `ds_tb` text,
+  `pilar` text,
+  `potensi` text,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `penerbitan_pn_pemasaran`
+-- Dumping data untuk tabel `penerbitan_pn_pemasaran`
 --
 
 INSERT INTO `penerbitan_pn_pemasaran` (`id`, `naskah_id`, `pic`, `prospek_pasar`, `potensi_dana`, `ds_tb`, `pilar`, `potensi`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
@@ -674,25 +665,25 @@ INSERT INTO `penerbitan_pn_pemasaran` (`id`, `naskah_id`, `pic`, `prospek_pasar`
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_pn_penerbitan`
+-- Struktur dari tabel `penerbitan_pn_penerbitan`
 --
 
 CREATE TABLE `penerbitan_pn_penerbitan` (
   `id` varchar(36) NOT NULL,
   `naskah_id` varchar(36) NOT NULL,
-  `penilaian_umum` text DEFAULT NULL,
+  `penilaian_umum` text,
   `saran` enum('Diterima','Ditolak','Revisi','eBook') DEFAULT NULL,
-  `catatan` text DEFAULT NULL,
-  `potensi` text DEFAULT NULL,
-  `tanggapan_usulan_judul` text DEFAULT NULL,
+  `catatan` text,
+  `potensi` text,
+  `tanggapan_usulan_judul` text,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `penerbitan_pn_penerbitan`
+-- Dumping data untuk tabel `penerbitan_pn_penerbitan`
 --
 
 INSERT INTO `penerbitan_pn_penerbitan` (`id`, `naskah_id`, `penilaian_umum`, `saran`, `catatan`, `potensi`, `tanggapan_usulan_judul`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
@@ -701,7 +692,7 @@ INSERT INTO `penerbitan_pn_penerbitan` (`id`, `naskah_id`, `penilaian_umum`, `sa
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_pn_prodev`
+-- Struktur dari tabel `penerbitan_pn_prodev`
 --
 
 CREATE TABLE `penerbitan_pn_prodev` (
@@ -710,22 +701,22 @@ CREATE TABLE `penerbitan_pn_prodev` (
   `sistematika` enum('Baik','Cukup','Kurang') NOT NULL,
   `nilai_keilmuan` enum('Baik','Cukup','Kurang') NOT NULL,
   `kelompok_buku_id` varchar(36) DEFAULT NULL,
-  `isi_materi` text DEFAULT NULL,
-  `sasaran_keilmuan` text DEFAULT NULL,
-  `sasaran_pasar` text DEFAULT NULL,
-  `sumber_dana_pasar` text DEFAULT NULL,
+  `isi_materi` text,
+  `sasaran_keilmuan` text,
+  `sasaran_pasar` text,
+  `sumber_dana_pasar` text,
   `skala_penilaian` enum('Baik','Cukup','Kurang') NOT NULL,
   `saran` enum('Diterima','Ditolak','Revisi','eBook') NOT NULL,
-  `potensi` text DEFAULT NULL,
-  `usulan_judul` text DEFAULT NULL,
+  `potensi` text,
+  `usulan_judul` text,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `penerbitan_pn_prodev`
+-- Dumping data untuk tabel `penerbitan_pn_prodev`
 --
 
 INSERT INTO `penerbitan_pn_prodev` (`id`, `naskah_id`, `sistematika`, `nilai_keilmuan`, `kelompok_buku_id`, `isi_materi`, `sasaran_keilmuan`, `sasaran_pasar`, `sumber_dana_pasar`, `skala_penilaian`, `saran`, `potensi`, `usulan_judul`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
@@ -734,13 +725,13 @@ INSERT INTO `penerbitan_pn_prodev` (`id`, `naskah_id`, `sistematika`, `nilai_kei
 -- --------------------------------------------------------
 
 --
--- Table structure for table `penerbitan_pn_stts`
+-- Struktur dari tabel `penerbitan_pn_stts`
 --
 
 CREATE TABLE `penerbitan_pn_stts` (
   `id` varchar(36) NOT NULL,
   `naskah_id` varchar(36) NOT NULL,
-  `tgl_input_admin` datetime DEFAULT current_timestamp(),
+  `tgl_input_admin` datetime DEFAULT CURRENT_TIMESTAMP,
   `tgl_naskah_masuk` datetime DEFAULT NULL,
   `tgl_pn_prodev` datetime DEFAULT NULL,
   `tgl_pn_editor` datetime DEFAULT NULL,
@@ -753,7 +744,7 @@ CREATE TABLE `penerbitan_pn_stts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `penerbitan_pn_stts`
+-- Dumping data untuk tabel `penerbitan_pn_stts`
 --
 
 INSERT INTO `penerbitan_pn_stts` (`id`, `naskah_id`, `tgl_input_admin`, `tgl_naskah_masuk`, `tgl_pn_prodev`, `tgl_pn_editor`, `tgl_pn_setter`, `tgl_pn_m_pemasaran`, `tgl_pn_m_penerbitan`, `tgl_pn_d_pemasaran`, `tgl_pn_direksi`, `tgl_pn_selesai`) VALUES
@@ -763,28 +754,31 @@ INSERT INTO `penerbitan_pn_stts` (`id`, `naskah_id`, `tgl_input_admin`, `tgl_nas
 -- --------------------------------------------------------
 
 --
--- Table structure for table `permissions`
+-- Struktur dari tabel `permissions`
 --
 
 CREATE TABLE `permissions` (
   `id` varchar(36) NOT NULL,
   `access_id` varchar(36) NOT NULL,
   `url` varchar(200) NOT NULL,
-  `type` enum('Create','Read','Update','Delete','Approval') NOT NULL,
+  `type` enum('Create','Read','Update','Delete','Approval','Decline') NOT NULL,
   `raw` varchar(255) DEFAULT NULL COMMENT '!: Hardcode di script',
   `name` varchar(150) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `permissions`
+-- Dumping data untuk tabel `permissions`
 --
 
 INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALUES
+('09179170e6e643eca66b282e2ffae1f8', '70410774a1e0433bb213a9625aceb0bb', '', 'Approval', 'persetujuan-manstok', 'Persetujuan Manajer Stok'),
 ('1098a56970114e18898367d334658b47', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/mengubah-naskah', 'Update', 'ubah-data-naskah', 'Ubah Data Naskah'),
 ('12b852d92d284ab5a654c26e8856fffd', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-mpenerbitan', 'Penilaian M.Penerbitan'),
+('1b842575174242cf83f949f262900570', '70410774a1e0433bb213a9625aceb0bb', '', 'Approval', 'persetujuan-manpen', 'Persetujuan Manajer Penerbit'),
 ('1b89744217b04f79a8c1d7a967a46912', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis', 'Read', NULL, 'Lihat Data Penulis'),
 ('1c1940da68fa4f8ba2325e83c303c47c', '131899f9a9204e0baa1b23cd2eedff6a', 'manajemen-web/user', 'Update', 'ubah-data-user', 'Ubah Data User'),
 ('1f4e5b3752b8475cb5261940ef62532d', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis/membuat-penulis', 'Create', 'tambah-data-penulis', 'Buat Data Penulis'),
+('2826b627ccc34fad84470c4b7534da0d', '70410774a1e0433bb213a9625aceb0bb', '', 'Approval', 'persetujuan-dirop', 'Persetujuan Dir.Operasional'),
 ('33c3711d787d416082c0519356547b0c', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-setter', 'Penilaian Setter'),
 ('358a13267bcb4608a14c851c3010f79b', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/membuat-naskah', 'Create', 'tambah-data-naskah', 'Tambah Data Naskah'),
 ('38645f82ae7c468abad1ab191e7a8ad9', '131899f9a9204e0baa1b23cd2eedff6a', 'manajemen-web/users', 'Read', NULL, 'Lihat Data Users'),
@@ -792,22 +786,26 @@ INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALU
 ('4d64a842e08344b9aeec88ed9eb2eb72', '70410774a1e0433bb213a9625aceb0bb', '', 'Update', 'update-produksi', 'Mengubah Data Produksi Order Cetak'),
 ('5d793b19c75046b9a4d75d067e8e33b2', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-editor', 'Penilaian Editor'),
 ('6903e82e7e94478f87df3cf80de6b587', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah', 'Read', NULL, 'Lihat Data Naskah'),
-('6b95b4e041e04d61a91422fe3d06fd8d', '70410774a1e0433bb213a9625aceb0bb', '', 'Approval', 'menyetujui-order', 'Menyetujui Produksi Order Cetak'),
+('6b95b4e041e04d61a91422fe3d06fd8d', '70410774a1e0433bb213a9625aceb0bb', '', 'Approval', 'persetujuan-dirke', 'Persetujuan Dir.Keuangan'),
 ('8791f143a90e42e2a4d1d0d6b1254bad', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-direksi', 'Penilaian Direksi'),
+('87f03d6f4cb54135b451528bc1a9d0f5', '70410774a1e0433bb213a9625aceb0bb', '', 'Approval', 'persetujuan-dirut', 'Persetujuan Dir.Utama'),
 ('89bc4b0ef1dd4306a3217cbf24551071', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis/hapus-penulis', 'Delete', 'hapus-data-penulis', 'Hapus Data Penulis'),
 ('8d9b1da4234f46eb858e1ea490da6348', '583a723cf036449d80d3742dcf695e38', 'penerbitan/naskah/timeline', 'Update', 'timeline-naskah-update-date', 'Ubah Tanggal Timeline Naskah'),
+('9b4e52c30f974844ac7a050000a0ee6a', '70410774a1e0433bb213a9625aceb0bb', '', 'Decline', 'penolakan-dirut', 'Penolakan Dir.Utama'),
 ('9beba245308543ce821efe8a3ba965e3', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-dpemasaran', 'Penilaian D.Pemasaran'),
 ('a213b689b8274f4dbe19b3fb24d66840', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-mpemasaran', 'Penilaian M.Pemasaran'),
 ('a6034d814d7e4671b4cc8a98433f8fb2', '583a723cf036449d80d3742dcf695e38', 'penerbitan/naskah/timeline', 'Create', 'timeline-naskah-add', 'Buat Timeline Naskah'),
+('c02e7a0dfe06481cb2602606e85c180e', '70410774a1e0433bb213a9625aceb0bb', '', 'Decline', 'penolakan-dirke', 'Penolakan Dir.Keuangan'),
 ('c64802952e504f4ab25a6b1241232f85', '70410774a1e0433bb213a9625aceb0bb', 'produksi/order-cetak', 'Read', NULL, 'Lihat Data Order Cetak'),
 ('cc93223a47764195ac15aacf266673d9', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis/mengubah-penulis', 'Update', 'ubah-data-penulis', 'Ubah Data Penulis'),
 ('e0860766d564483e870b5974a601649c', '70410774a1e0433bb213a9625aceb0bb', '', 'Create', 'tambah-produksi-cetak', 'Membuat Data Order Cetak'),
-('ebca07da8aad42c4aee304e3a6b81001', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-prodev', 'Penilaian Prodev');
+('ebca07da8aad42c4aee304e3a6b81001', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-prodev', 'Penilaian Prodev'),
+('ee94fb3f8a354e1aa142a39f58569078', '70410774a1e0433bb213a9625aceb0bb', '', 'Decline', 'penolakan-dirop', 'Penolakan Dir.Operasional');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `produksi_order_cetak`
+-- Struktur dari tabel `produksi_order_cetak`
 --
 
 CREATE TABLE `produksi_order_cetak` (
@@ -824,7 +822,7 @@ CREATE TABLE `produksi_order_cetak` (
   `eisbn` varchar(255) DEFAULT NULL,
   `penerbit` varchar(255) DEFAULT NULL,
   `imprint` varchar(255) DEFAULT NULL,
-  `platform_digital` text DEFAULT NULL COMMENT 'array',
+  `platform_digital` text COMMENT 'array',
   `status_buku` enum('1','2') DEFAULT NULL COMMENT '1= Reguler,\r\n2= MOU',
   `kelompok_buku` varchar(255) DEFAULT NULL,
   `edisi_cetakan` varchar(255) DEFAULT NULL,
@@ -843,47 +841,48 @@ CREATE TABLE `produksi_order_cetak` (
   `tahun_terbit` year(4) DEFAULT NULL,
   `buku_jadi` varchar(255) DEFAULT NULL,
   `jumlah_cetak` int(10) DEFAULT NULL,
-  `buku_contoh` text DEFAULT NULL,
+  `buku_contoh` text,
   `spp` varchar(30) DEFAULT NULL,
-  `keterangan` text DEFAULT NULL,
-  `perlengkapan` text DEFAULT NULL,
+  `keterangan` text,
+  `perlengkapan` text,
   `tgl_permintaan_jadi` date DEFAULT NULL,
   `status_penyetujuan` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1 = Pending ~~\r\n2 = Disetujui ~~\r\n3 = Ditolak ~~',
-  `ket_penolakan` mediumtext DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `ket_penolakan` mediumtext,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `created_by` varchar(36) DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `produksi_order_cetak`
+-- Dumping data untuk tabel `produksi_order_cetak`
 --
 
 INSERT INTO `produksi_order_cetak` (`id`, `kode_order`, `tipe_order`, `status_cetak`, `pilihan_terbit`, `urgent`, `judul_buku`, `sub_judul`, `penulis`, `isbn`, `eisbn`, `penerbit`, `imprint`, `platform_digital`, `status_buku`, `kelompok_buku`, `edisi_cetakan`, `posisi_layout`, `dami`, `format_buku`, `jumlah_halaman`, `kertas_isi`, `warna_isi`, `kertas_cover`, `warna_cover`, `efek_cover`, `jenis_cover`, `jilid`, `ukuran_jilid_bending`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status_penyetujuan`, `ket_penolakan`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
-('0b22a2ba6b4b40ec8ee833fe40cb6468', '22-1000', '1', '1', '3', '1', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', 'Ferdyawan Listanto', '12124sdsadse564444', 'dfsdfsdfs6687687', 'Andi', 'Pustaka Referensi', '[\"Moco\",\"Gramedia\",\"Esentral\",\"Indopustaka\"]', '1', 'Ensiklopedi', 'i/1', '1', '24', '19 x 23 cm', 'vi + 325', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '1', '2,5 cm', 2022, 'Wrapping', 500, NULL, NULL, NULL, NULL, '2022-08-30', '1', NULL, '2022-07-31 08:19:43', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
-('9d283eb9130746fb86680409c76bdb53', '22-3000', '2', '1', '1', '1', 'Rohani Dalam Jiwa', 'Termenung', 'Joko Jiwa', '2342323423', '213413fff445rGs', 'Andi', 'NAIN', 'null', '2', 'Studi Alkitab', 'vii/2', '1', '24', '19 x 23 cm', 'viii + 302', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '3', ' cm', 2022, 'wrapping', 350, NULL, NULL, NULL, NULL, '2022-08-31', '1', NULL, '2022-07-31 11:12:47', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
+('4aecd59e99cd40788a8dc5248c1b6671', '22-3000', '2', '2', '2', '1', 'Rohani Dalam Jiwa', 'Termenung', 'Joko Jiwa', '12124sdsadse564444', '1212d', 'Andi', 'Nigtoon Cookery', '[]', '2', 'Home & Garden', 'I/1', '1', '16', '17,5 x 25 cm', 'vi + 325', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '4', ' cm', 2022, 'wrapper', 234, NULL, NULL, NULL, NULL, '2022-08-31', '1', NULL, '2022-08-03 03:49:47', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('be76886e4e8b4e3fa5069509510f57ad', '22-1000', '1', '1', '3', '0', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', 'Ferdyawan Listanto', '12124sdsadse564444', '213413fff445rGs', 'Andi', 'NAIN', '[\"Gramedia\",\"Esentral\"]', '1', 'Home & Garden', 'I/1', '1', '24', '21 x 21 cm', 'viii + 302', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '2', ' cm', 2022, '19 July 2022', 1, NULL, NULL, NULL, NULL, '2022-08-31', '1', NULL, '2022-08-03 02:59:21', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `produksi_penyetujuan_order_cetak`
+-- Struktur dari tabel `produksi_penyetujuan_order_cetak`
 --
 
 CREATE TABLE `produksi_penyetujuan_order_cetak` (
   `id` char(36) NOT NULL,
   `users_id` varchar(36) NOT NULL,
-  `produksi_order_cetak_id` varchar(8) NOT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `produksi_order_cetak_id` varchar(36) NOT NULL,
+  `action` enum('1','2') DEFAULT NULL COMMENT '1= Disetujui,\r\n2= Ditolak',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `timeline`
+-- Struktur dari tabel `timeline`
 --
 
 CREATE TABLE `timeline` (
@@ -897,14 +896,14 @@ CREATE TABLE `timeline` (
   `tgl_selesai_produksi` datetime DEFAULT NULL,
   `ttl_hari_produksi` int(10) UNSIGNED NOT NULL,
   `tgl_buku_jadi` datetime NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `created_by` varchar(36) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `timeline_sub`
+-- Struktur dari tabel `timeline_sub`
 --
 
 CREATE TABLE `timeline_sub` (
@@ -915,13 +914,13 @@ CREATE TABLE `timeline_sub` (
   `target` int(10) UNSIGNED NOT NULL COMMENT 'Total Hari',
   `tgl_mulai` datetime DEFAULT NULL COMMENT 'Input PIC',
   `tg_selesai` datetime DEFAULT NULL COMMENT 'Input PIC',
-  `catatan` text DEFAULT NULL COMMENT 'Input PIC'
+  `catatan` text COMMENT 'Input PIC'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Struktur dari tabel `users`
 --
 
 CREATE TABLE `users` (
@@ -933,7 +932,7 @@ CREATE TABLE `users` (
   `tanggal_lahir` date DEFAULT NULL,
   `tempat_lahir` varchar(255) DEFAULT NULL,
   `telepon` varchar(20) DEFAULT NULL,
-  `alamat` text DEFAULT NULL,
+  `alamat` text,
   `cabang_id` varchar(36) DEFAULT NULL,
   `divisi_id` varchar(36) DEFAULT NULL,
   `jabatan_id` varchar(36) DEFAULT NULL,
@@ -948,30 +947,33 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `users`
+-- Dumping data untuk tabel `users`
 --
 
 INSERT INTO `users` (`id`, `email`, `password`, `avatar`, `nama`, `tanggal_lahir`, `tempat_lahir`, `telepon`, `alamat`, `cabang_id`, `divisi_id`, `jabatan_id`, `status`, `super_admin`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
-('37aee684a9e447a6bef36cbf08222d5d', 'direksi@gmail.com', '$2y$10$fPZp4mpZP5VufCqUKVUFB.ykQ02vDbzA/fHbymBAE8Emkyhj8DpmK', 'Ii0LnFZo5WfCrLvcEO49sC4h8GLHARCBNWfByYWX.jpg', 'Direksi', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '646a4663aea14eb9915b718cbcc5e33b', 'a39f467d051f49db9508778f643fdd96', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-05-19 01:51:10', NULL),
+('37aee684a9e447a6bef36cbf08222d5d', 'dirut@gmail.com', '$2y$10$fPZp4mpZP5VufCqUKVUFB.ykQ02vDbzA/fHbymBAE8Emkyhj8DpmK', 'Ii0LnFZo5WfCrLvcEO49sC4h8GLHARCBNWfByYWX.jpg', 'Yehezkiel A', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '646a4663aea14eb9915b718cbcc5e33b', 'a39f467d051f49db9508778f643fdd96', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-08-02 03:38:40', NULL),
 ('3d8ae658b9c049f6b9b7633a6c0ef4f2', 'lorem@gmail.com', '$2y$10$piaLD4atKsjQtc9HRIEd/uVfCzShDpgrF911hY9svit0A9WOcyJJ.', 'default.jpg', 'lorem', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', 'd1946a0d285944488032d2dcd1a7882b', '02c4dfedf83a43cd89ba0a83de8445ed', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
 ('4c45b120510e43a08961ec4a712c4ccb', 'userdua@gmail.com', '$2y$10$Tj1e8PsLZKBGEFYjdSNuNOlnUWMXViK9gSAYlUtxAaddKLkOOQCEO', 'default.jpg', 'Admin Dua', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', 'd1946a0d285944488032d2dcd1a7882b', '02c4dfedf83a43cd89ba0a83de8445ed', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-05-19 01:18:17', NULL),
-('4fc80f443bfb4969b9a0272d9be08ef2', 'penerbitan@gmail.com', '$2y$10$otYXOmZAOToGukQ.t4na/u/czk5YiiX1S55/yUUUSoC/f30wkg5wi', 'default.jpg', 'Manager Penerbitan', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', 'd1946a0d285944488032d2dcd1a7882b', '765e0ac17c8e4cabae01582b06da410e', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
+('4fc80f443bfb4969b9a0272d9be08ef2', 'penerbitan@gmail.com', '$2y$10$otYXOmZAOToGukQ.t4na/u/czk5YiiX1S55/yUUUSoC/f30wkg5wi', 'default.jpg', 'Tjahjono Tri W', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '646a4663aea14eb9915b718cbcc5e33b', '9a51e94ea42c4f26ab1143468286013f', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-08-02 03:49:00', NULL),
 ('5090c6d9e50449449b2edf23db64cdf5', 'mpemasaran@gmail.com', '$2y$10$AYprSWSQaMLIDDE5e/GAoumsZgIp8uvyRxL/aUw10xSXYyNRIEOyW', 'default.jpg', 'Manager Pemasran', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', 'df719b3e9de442b3ba21b1b414887ec7', '5cacae63f0f94a91931ba4779879eab1', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
 ('5960036aa4fe43c582015d8d812e901c', 'usersatu@gmail.com', '$2y$10$IaVZTOnvB6cj3atB7rDZYOzOPCTSGfJIx8KI0BPReePQEb15YvwO.', 'default.jpg', 'User Satu', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '821ac200b1de45fdad7d533ce0190492', '02c4dfedf83a43cd89ba0a83de8445ed', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
-('5c6b749331b847e38ee5f8b5b9e2f159', 'm.stock@gmail.com', '$2y$10$2/Ilzsvw8mbST51WjAMHnOeZFql1KW5U2kt1RscGoj/HEvHNMrHby', 'default.jpg', 'Manajer Stok', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', 'd1946a0d285944488032d2dcd1a7882b', '765e0ac17c8e4cabae01582b06da410e', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
+('59cb3d41a58141c3a3518a2e78c84221', 'manajerstok@gmail.com', '$2y$10$/Ayl2zUmD0PImMjeSt5Nle63Bj0ZH3HdRKdTHWpEcxKZ0Ak449USC', 'default.jpg', 'Astito Nining P', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '821ac200b1de45fdad7d533ce0190492', '803d36a2d66442499e5411e536fd4201', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
+('5c6b749331b847e38ee5f8b5b9e2f159', 'm.stock@gmail.com', '$2y$10$2/Ilzsvw8mbST51WjAMHnOeZFql1KW5U2kt1RscGoj/HEvHNMrHby', 'default.jpg', 'Manajer Stok', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', 'd1946a0d285944488032d2dcd1a7882b', '765e0ac17c8e4cabae01582b06da410e', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-08-02 03:46:30'),
 ('8ce9a0324f524e8fba4f67e052f7c4c4', 'prodevdua@gmail.com', '$2y$10$o0huqa2lV9s8sdp0362JWu8cdCOp8ZQ4It58GLCxfpQPcIoB3pV/K', 'default.jpg', 'Prodev Dua', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '821ac200b1de45fdad7d533ce0190492', '02c4dfedf83a43cd89ba0a83de8445ed', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
 ('909c0ff670d94102a8cc33d8fcae8993', 'editor@gmail.com', '$2y$10$HzjCB.XrexFHRzgj1NK77OpS50Gb9BIsIyzcVMzt1grt/ZMT6JDTW', 'default.jpg', 'Editor', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '821ac200b1de45fdad7d533ce0190492', '02c4dfedf83a43cd89ba0a83de8445ed', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
 ('ba7f70e69bf74fc29fe3154980f5f53e', 'hendra@gmail.com', '$2y$10$ZcWsK4B9Z5XmHzDnsXRCG.zXbP3TnNcV233iObcIQWqO8M2eT8YSW', 'Tn5fjMQOA1BrHKzudsbtj9U9HxC01tvKNTFDCGR8.jpg', 'hendra', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '646a4663aea14eb9915b718cbcc5e33b', 'a39f467d051f49db9508778f643fdd96', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', 'ba7f70e69bf74fc29fe3154980f5f53e', NULL, NULL, '2022-05-19 04:52:09', NULL),
 ('be8d42fa88a14406ac201974963d9c1b', 'admin@gmail.com', '$2y$10$JfdI4rvmfegdd97t9xvgB.YWs5PQhfN4IlkOzgLoWrDeZaYDvL6Lu', 'default.jpg', 'Super Admin', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1', '1', NULL, NULL, NULL, NULL, NULL, NULL),
+('c62658af71bf4c5692b041c9384d068b', 'dirke@gmail.com', '$2y$10$xRUfhTDRlq6o3e.TTHYBIeO9.j/HW/V3kzdiq/Tnwdm8zfqaz1imi', 'default.jpg', 'Dra. Lanita H', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '646a4663aea14eb9915b718cbcc5e33b', '58682ac96ef74d2187ae6bb6b87e3686', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
 ('cf9361d1274c44cbbb42c8d6383d0dad', 'mstock@gmail.com', '$2y$10$kTG9kuumxpdrAkMTG9SS1.bmt0Aflp88S7BqKNv3vmShiyvE.Nbry', 'default.jpg', 'Manajer Stok', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', 'd1946a0d285944488032d2dcd1a7882b', '765e0ac17c8e4cabae01582b06da410e', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-07-29 06:43:41'),
 ('e4ddf4d7c2b84cb69647f4dd63f9dbc2', 'prodevsatu@gmail.com', '$2y$10$fz6rEqhT/ZsYfZfpv2As0elZCxq7IUlDTaGtLus3wVdm0fqg/f5Au', 'default.jpg', 'Prodev Satu', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '821ac200b1de45fdad7d533ce0190492', '02c4dfedf83a43cd89ba0a83de8445ed', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
 ('ec563464e9214fcbae2a0cc805ec2577', 'setter@gmail.com', '$2y$10$kPH1u6iWvU/HKYt020x2H.dFGy7x6u5/U6qjcIS6qi6kMfj8UTkau', 'default.jpg', 'Setter', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '821ac200b1de45fdad7d533ce0190492', '02c4dfedf83a43cd89ba0a83de8445ed', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
-('ef171a1a7bba4b81abdfe10ef8c6c0f8', 'dpemasaran@gmail.com', '$2y$10$qsv/NY6w9Y4w4.JATrFRFOS.UFpPINzoUgHwPf5RZugIy20hXH342', 'default.jpg', 'Direktur Pemasaran', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', 'df719b3e9de442b3ba21b1b414887ec7', 'a39f467d051f49db9508778f643fdd96', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL);
+('ef171a1a7bba4b81abdfe10ef8c6c0f8', 'dpemasaran@gmail.com', '$2y$10$qsv/NY6w9Y4w4.JATrFRFOS.UFpPINzoUgHwPf5RZugIy20hXH342', 'default.jpg', 'Direktur Pemasaran', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', 'df719b3e9de442b3ba21b1b414887ec7', 'a39f467d051f49db9508778f643fdd96', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL),
+('fd035809e2c045098770a7e9dfccddf9', 'dirop@gmail.com', '$2y$10$FfHSdH./FQoCIHKkeKkpQeMDeuC/jidSYseE1c45StbINnwT6ezB6', 'default.jpg', 'Adi Kristianto', NULL, NULL, NULL, NULL, 'ada2962f70ce45fd8b930f1babafeba8', '646a4663aea14eb9915b718cbcc5e33b', '8badd0f20e2f434bb7d7a067e93d0e2e', '1', '0', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user_permission`
+-- Struktur dari tabel `user_permission`
 --
 
 CREATE TABLE `user_permission` (
@@ -980,7 +982,7 @@ CREATE TABLE `user_permission` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `user_permission`
+-- Dumping data untuk tabel `user_permission`
 --
 
 INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
@@ -988,11 +990,6 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('8ce9a0324f524e8fba4f67e052f7c4c4', 'ebca07da8aad42c4aee304e3a6b81001'),
 ('5960036aa4fe43c582015d8d812e901c', '5d793b19c75046b9a4d75d067e8e33b2'),
 ('5960036aa4fe43c582015d8d812e901c', '6903e82e7e94478f87df3cf80de6b587'),
-('4fc80f443bfb4969b9a0272d9be08ef2', '12b852d92d284ab5a654c26e8856fffd'),
-('4fc80f443bfb4969b9a0272d9be08ef2', '6903e82e7e94478f87df3cf80de6b587'),
-('37aee684a9e447a6bef36cbf08222d5d', '6903e82e7e94478f87df3cf80de6b587'),
-('37aee684a9e447a6bef36cbf08222d5d', '8791f143a90e42e2a4d1d0d6b1254bad'),
-('37aee684a9e447a6bef36cbf08222d5d', '8d9b1da4234f46eb858e1ea490da6348'),
 ('909c0ff670d94102a8cc33d8fcae8993', '5d793b19c75046b9a4d75d067e8e33b2'),
 ('909c0ff670d94102a8cc33d8fcae8993', '6903e82e7e94478f87df3cf80de6b587'),
 ('ec563464e9214fcbae2a0cc805ec2577', '33c3711d787d416082c0519356547b0c'),
@@ -1014,8 +1011,6 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('ba7f70e69bf74fc29fe3154980f5f53e', 'a213b689b8274f4dbe19b3fb24d66840'),
 ('ba7f70e69bf74fc29fe3154980f5f53e', 'ebca07da8aad42c4aee304e3a6b81001'),
 ('ba7f70e69bf74fc29fe3154980f5f53e', '1b89744217b04f79a8c1d7a967a46912'),
-('3d8ae658b9c049f6b9b7633a6c0ef4f2', '6903e82e7e94478f87df3cf80de6b587'),
-('3d8ae658b9c049f6b9b7633a6c0ef4f2', 'a213b689b8274f4dbe19b3fb24d66840'),
 ('be8d42fa88a14406ac201974963d9c1b', '1098a56970114e18898367d334658b47'),
 ('be8d42fa88a14406ac201974963d9c1b', '358a13267bcb4608a14c851c3010f79b'),
 ('be8d42fa88a14406ac201974963d9c1b', '6903e82e7e94478f87df3cf80de6b587'),
@@ -1024,166 +1019,185 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', '1b89744217b04f79a8c1d7a967a46912'),
 ('be8d42fa88a14406ac201974963d9c1b', '1f4e5b3752b8475cb5261940ef62532d'),
 ('be8d42fa88a14406ac201974963d9c1b', '4d64a842e08344b9aeec88ed9eb2eb72'),
-('be8d42fa88a14406ac201974963d9c1b', '6b95b4e041e04d61a91422fe3d06fd8d'),
 ('be8d42fa88a14406ac201974963d9c1b', 'c64802952e504f4ab25a6b1241232f85'),
 ('be8d42fa88a14406ac201974963d9c1b', 'e0860766d564483e870b5974a601649c'),
 ('be8d42fa88a14406ac201974963d9c1b', '1c1940da68fa4f8ba2325e83c303c47c'),
 ('be8d42fa88a14406ac201974963d9c1b', '38645f82ae7c468abad1ab191e7a8ad9'),
-('be8d42fa88a14406ac201974963d9c1b', '4bb845580b464d7db3d7c3b3e4fd213b');
+('be8d42fa88a14406ac201974963d9c1b', '4bb845580b464d7db3d7c3b3e4fd213b'),
+('3d8ae658b9c049f6b9b7633a6c0ef4f2', '6b95b4e041e04d61a91422fe3d06fd8d'),
+('3d8ae658b9c049f6b9b7633a6c0ef4f2', 'c64802952e504f4ab25a6b1241232f85'),
+('37aee684a9e447a6bef36cbf08222d5d', '6903e82e7e94478f87df3cf80de6b587'),
+('37aee684a9e447a6bef36cbf08222d5d', '8791f143a90e42e2a4d1d0d6b1254bad'),
+('37aee684a9e447a6bef36cbf08222d5d', '8d9b1da4234f46eb858e1ea490da6348'),
+('37aee684a9e447a6bef36cbf08222d5d', '87f03d6f4cb54135b451528bc1a9d0f5'),
+('37aee684a9e447a6bef36cbf08222d5d', '9b4e52c30f974844ac7a050000a0ee6a'),
+('37aee684a9e447a6bef36cbf08222d5d', 'c64802952e504f4ab25a6b1241232f85'),
+('c62658af71bf4c5692b041c9384d068b', '6b95b4e041e04d61a91422fe3d06fd8d'),
+('c62658af71bf4c5692b041c9384d068b', 'c02e7a0dfe06481cb2602606e85c180e'),
+('c62658af71bf4c5692b041c9384d068b', 'c64802952e504f4ab25a6b1241232f85'),
+('fd035809e2c045098770a7e9dfccddf9', '2826b627ccc34fad84470c4b7534da0d'),
+('fd035809e2c045098770a7e9dfccddf9', 'c64802952e504f4ab25a6b1241232f85'),
+('fd035809e2c045098770a7e9dfccddf9', 'ee94fb3f8a354e1aa142a39f58569078'),
+('4fc80f443bfb4969b9a0272d9be08ef2', '12b852d92d284ab5a654c26e8856fffd'),
+('4fc80f443bfb4969b9a0272d9be08ef2', '6903e82e7e94478f87df3cf80de6b587'),
+('4fc80f443bfb4969b9a0272d9be08ef2', '1b842575174242cf83f949f262900570'),
+('4fc80f443bfb4969b9a0272d9be08ef2', 'c64802952e504f4ab25a6b1241232f85'),
+('59cb3d41a58141c3a3518a2e78c84221', '09179170e6e643eca66b282e2ffae1f8'),
+('59cb3d41a58141c3a3518a2e78c84221', 'c64802952e504f4ab25a6b1241232f85');
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `access`
+-- Indeks untuk tabel `access`
 --
 ALTER TABLE `access`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `access_bagian`
+-- Indeks untuk tabel `access_bagian`
 --
 ALTER TABLE `access_bagian`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `cabang`
+-- Indeks untuk tabel `cabang`
 --
 ALTER TABLE `cabang`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `kode` (`kode`);
 
 --
--- Indexes for table `divisi`
+-- Indeks untuk tabel `divisi`
 --
 ALTER TABLE `divisi`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `nama` (`nama`);
 
 --
--- Indexes for table `jabatan`
+-- Indeks untuk tabel `jabatan`
 --
 ALTER TABLE `jabatan`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `nama` (`nama`);
 
 --
--- Indexes for table `mm_select`
+-- Indeks untuk tabel `mm_select`
 --
 ALTER TABLE `mm_select`
   ADD UNIQUE KEY `keyword` (`keyword`,`options`),
   ADD UNIQUE KEY `id` (`id`);
 
 --
--- Indexes for table `notif`
+-- Indeks untuk tabel `notif`
 --
 ALTER TABLE `notif`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `penerbitan_m_kelompok_buku`
+-- Indeks untuk tabel `penerbitan_m_kelompok_buku`
 --
 ALTER TABLE `penerbitan_m_kelompok_buku`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `kode` (`kode`);
 
 --
--- Indexes for table `penerbitan_naskah`
+-- Indeks untuk tabel `penerbitan_naskah`
 --
 ALTER TABLE `penerbitan_naskah`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `kode` (`kode`);
 
 --
--- Indexes for table `penerbitan_naskah_files`
+-- Indeks untuk tabel `penerbitan_naskah_files`
 --
 ALTER TABLE `penerbitan_naskah_files`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `penerbitan_penulis`
+-- Indeks untuk tabel `penerbitan_penulis`
 --
 ALTER TABLE `penerbitan_penulis`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `ktp` (`ktp`);
 
 --
--- Indexes for table `penerbitan_pn_direksi`
+-- Indeks untuk tabel `penerbitan_pn_direksi`
 --
 ALTER TABLE `penerbitan_pn_direksi`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `penerbitan_pn_editor_setter`
+-- Indeks untuk tabel `penerbitan_pn_editor_setter`
 --
 ALTER TABLE `penerbitan_pn_editor_setter`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `penerbitan_pn_mm`
+-- Indeks untuk tabel `penerbitan_pn_mm`
 --
 ALTER TABLE `penerbitan_pn_mm`
   ADD UNIQUE KEY `id` (`id`);
 
 --
--- Indexes for table `penerbitan_pn_pemasaran`
+-- Indeks untuk tabel `penerbitan_pn_pemasaran`
 --
 ALTER TABLE `penerbitan_pn_pemasaran`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `penerbitan_pn_penerbitan`
+-- Indeks untuk tabel `penerbitan_pn_penerbitan`
 --
 ALTER TABLE `penerbitan_pn_penerbitan`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `penerbitan_pn_prodev`
+-- Indeks untuk tabel `penerbitan_pn_prodev`
 --
 ALTER TABLE `penerbitan_pn_prodev`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `penerbitan_pn_stts`
+-- Indeks untuk tabel `penerbitan_pn_stts`
 --
 ALTER TABLE `penerbitan_pn_stts`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `permissions`
+-- Indeks untuk tabel `permissions`
 --
 ALTER TABLE `permissions`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `raw` (`raw`);
 
 --
--- Indexes for table `produksi_order_cetak`
+-- Indeks untuk tabel `produksi_order_cetak`
 --
 ALTER TABLE `produksi_order_cetak`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `kode_order` (`kode_order`);
 
 --
--- Indexes for table `produksi_penyetujuan_order_cetak`
+-- Indeks untuk tabel `produksi_penyetujuan_order_cetak`
 --
 ALTER TABLE `produksi_penyetujuan_order_cetak`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `timeline`
+-- Indeks untuk tabel `timeline`
 --
 ALTER TABLE `timeline`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `timeline_sub`
+-- Indeks untuk tabel `timeline_sub`
 --
 ALTER TABLE `timeline_sub`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `users`
+-- Indeks untuk tabel `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);

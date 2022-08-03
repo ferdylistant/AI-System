@@ -172,14 +172,14 @@ class ProduksiController extends Controller
                     'perlengkapan' => $request->add_perlengkapan,
                     'created_by' => auth()->id()
                 ]);
-                $dd = $this->notifPersetujuan($request->add_status_cetak,'create-notif', [
+                $this->notifPersetujuan($request->add_status_cetak,'create-notif', [
                         'form_id' => $idO
                     ]);
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Data berhasil ditambahkan',
-                    'data' => $dd
-                ]);
+                // return response()->json([
+                //     'success' => true,
+                //     'message' => 'Data berhasil ditambahkan',
+                //     'data' => $dd
+                // ]);
                 return response()->json([
                     'success' => true,
                     'message' => 'Data berhasil ditambahkan',
@@ -343,18 +343,97 @@ class ProduksiController extends Controller
                     ->first();
         $prodPenyetujuan = DB::table('produksi_penyetujuan_order_cetak')
                     ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
-                    ->join('jabatan', 'jabatan.id', '=', 'users.jabatan_id')
                     ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
-                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama','jabatan.nama as jabatan')
+                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
                     ->get();
         $author = DB::table('users')
                     ->where('id', $author)
+                    ->first();
+        $m_stok = DB::table('users as u')
+                    ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                    ->where('j.nama', 'LIKE', '%Manajer Stok%')
+                    ->select('u.nama', 'u.id as id')
+                    ->first();
+        if(is_null($m_stok)){
+            $m_stok = '';
+        }
+        $p_mstok = DB::table('produksi_penyetujuan_order_cetak')
+                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_cetak.users_id','=', $m_stok->id)
+                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
+                    ->first();
+        $m_penerbitan = DB::table('users as u')
+                    ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                    ->where('j.nama', 'LIKE', '%Manajer Penerbitan%')
+                    ->select('u.nama', 'u.id as id')
+                    ->first();
+        if(is_null($m_penerbitan)){
+            $m_penerbitan = '';
+        }
+        $p_mp = DB::table('produksi_penyetujuan_order_cetak')
+                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_cetak.users_id','=', $m_penerbitan->id)
+                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
+                    ->first();
+        $dirop = DB::table('users as u')
+                    ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                    ->where('j.nama', 'LIKE', '%Direktur Operasional%')
+                    ->select('u.nama', 'u.id as id')
+                    ->first();
+        if(is_null($dirop)){
+            $dirop = '';
+        }
+        $p_dirop = DB::table('produksi_penyetujuan_order_cetak')
+                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_cetak.users_id','=', $dirop->id)
+                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
+                    ->first();
+        $dirke = DB::table('users as u')
+                    ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                    ->where('j.nama', 'LIKE', '%Direktur Keuangan%')
+                    ->select('u.nama', 'u.id as id')
+                    ->first();
+        if(is_null($dirke)){
+            $dirke = '';
+        }
+        $p_dirke = DB::table('produksi_penyetujuan_order_cetak')
+                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_cetak.users_id','=', $dirke->id)
+                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
+                    ->first();
+        $dirut = DB::table('users as u')
+                    ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                    ->where('j.nama', 'LIKE', '%Direktur Utama%')
+                    ->select('u.nama', 'u.id as id')
+                    ->first();
+        if(is_null($dirut)){
+            $dirut = '';
+        }
+        $p_dirut = DB::table('produksi_penyetujuan_order_cetak')
+                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_cetak.users_id','=', $dirut->id)
+                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
                     ->first();
         return view('produksi.detail_produksi', [
             'title' => 'Detail Order Cetak Buku',
             'data' => $prod,
             'prod_penyetujuan' => $prodPenyetujuan,
-            'author' => $author
+            'author' => $author,
+            'm_stok' => $m_stok,
+            'm_penerbitan' => $m_penerbitan,
+            'dirop' => $dirop,
+            'dirke' => $dirke,
+            'dirut' => $dirut,
+            'p_mstok' => $p_mstok,
+            'p_mp' => $p_mp,
+            'p_dirop' => $p_dirop,
+            'p_dirke' => $p_dirke,
+            'p_dirut' => $p_dirut,
         ]);
     }
     public function ajaxRequest(Request $request, $cat){
@@ -385,19 +464,20 @@ class ProduksiController extends Controller
         if($statusCetak=='1' OR $statusCetak=='2') {
             if($action=='create-notif') {
                 $id_notif = Str::uuid()->getHex();
+                $sC = $statusCetak=='1'?'Persetujuan Order Buku Baru':'Persetujuan Order Cetak Ulang Revisi';
                 DB::table('notif')->insert([
                     [   'id' => $id_notif,
                         'section' => 'Produksi',
-                        'type' => 'Persetujuan Order '.$statusCetak=='1'?'Buku Baru':'Cetak Ulang Revisi',
+                        'type' => $sC,
                         'permission_id' => '1b842575174242cf83f949f262900570', // manajer penerbitan
                         'form_id' => $data['form_id'], ],
                     [   'id' => Str::uuid()->getHex(),
                         'section' => 'Produksi',
-                        'type' => 'Persetujuan Order '.$statusCetak=='1'?'Buku Baru':'Cetak Ulang Revisi',
+                        'type' => $sC,
                         'permission_id' => '2826b627ccc34fad84470c4b7534da0d', // D.Operasional
                         'form_id' => $data['form_id'], ],
                 ]);
-
+                return;
             } elseif($action=='update-notif-from-naskah') {
                 $notif = DB::table('notif')->whereNull('expired')->where('permission_id', 'ebca07da8aad42c4aee304e3a6b81001') // Hanya untuk prodev
                             ->where('form_id', $data['form_id'])->first();
@@ -407,6 +487,7 @@ class ProduksiController extends Controller
                     'notif_id' => $notif->id,
                     'user_id' => $data['id_prodev']
                 ]);
+                return;
             }
 
         } elseif($statusCetak == '3') {
@@ -423,9 +504,7 @@ class ProduksiController extends Controller
                         'permission_id' => '2826b627ccc34fad84470c4b7534da0d', // D.Operasional
                         'form_id' => $data['form_id'], ],
                 ]);
-
-            } elseif($action=='update-notif-from-naskah') {
-
+                return;
             }
 
         }

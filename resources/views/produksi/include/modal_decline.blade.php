@@ -11,7 +11,9 @@
       <div class="modal-body">
         <form method="post" id="formDecline">
           @csrf
-          <input type="hidden" name="id" id="id" value="">
+          <input type="text" name="id" id="id_" value="">
+          <h1 id="id_">sdasd</h1>
+
           <div class="form-group">
             <label for="keterangan">Alasan</label>
             <textarea class="form-control" id="keterangan" name="keterangan" rows="3"></textarea>

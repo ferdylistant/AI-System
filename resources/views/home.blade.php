@@ -53,9 +53,9 @@
                 <div class="hero text-white hero-bg-image hero-bg-parallax" style="background-image: url('images/background-home.avif');">
                     <div class="hero-inner">
                         <h2>Selamat datang, {{ $userdata->nama}}!</h2>
-                        <p class="lead">You almost arrived, complete the information about your account to complete registration. {{$id}}</p>
+                        <p class="lead">You almost arrived, complete the information about your account to complete registration.</p>
                         <div class="mt-4">
-                        <a href="#" class="btn btn-outline-white btn-lg btn-icon icon-left"><i class="far fa-user"></i> Setup Account</a>
+                        <a href="{{url('manajemen-web/user/'.Auth::id())}}" class="btn btn-outline-white btn-lg btn-icon icon-left"><i class="far fa-user"></i> Setup Account</a>
                         </div>
                     </div>
                 </div>
@@ -147,7 +147,7 @@
 
 
 @section('jsNeeded')
-<script>
+{{-- <script>
     $(document).ready(function() {
         const url = window.location.href;
         const csrf = document.querySelector('meta[name="csrf-token"]').content;
@@ -329,12 +329,12 @@
 
         calendar.render();
     })
-</script>
-<style>
+</script> --}}
+{{-- <style>
 
   #calendar a.fc-event {
     color: #fff; /* bootstrap default styles make it black. undo */
   }
 
-</style>
+</style> --}}
 @endsection
