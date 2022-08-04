@@ -72,7 +72,7 @@ Route::middleware(['auth'])->group(function() {
         Route::match(['get', 'post'], '/order-cetak/create', [ProduksiController::class,'createProduksi'])->name('produksi.create');
         Route::match(['get', 'post'], '/order-cetak/edit', [ProduksiController::class,'updateProduksi'])->name('produksi.update');
         Route::post('/hapus-order-cetak-buku', [ProduksiController::class,'deleteProduksi'])->name('produksi.delete');
-
+        Route::post('/order-cetak/ajax/{cat}', [ProduksiController::class, 'ajaxRequest']);
     });
 
 });

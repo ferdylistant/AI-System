@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Produksi;
 
 use Carbon\Carbon;
 use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Ramsey\Uuid\Rfc4122\UuidV4;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
 class ProduksiController extends Controller
@@ -344,6 +346,10 @@ class ProduksiController extends Controller
         $prodPenyetujuan = DB::table('produksi_penyetujuan_order_cetak')
                     ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
                     ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
+                    ->where(function ($query) {
+                        $query->where('produksi_penyetujuan_order_cetak.action', '=', '1')
+                            ->orWhere('produksi_penyetujuan_order_cetak.action', '=', '2');
+                    })
                     ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
                     ->get();
         $author = DB::table('users')
@@ -438,8 +444,11 @@ class ProduksiController extends Controller
     }
     public function ajaxRequest(Request $request, $cat){
         switch($cat) {
-            case 'approval-pic':
+            case 'approval':
                 return $this->approvalOrder($request);
+                break;
+            case 'decline':
+                return $this->declineOrder($request);
                 break;
             default:
                 abort(500);
@@ -498,11 +507,6 @@ class ProduksiController extends Controller
                         'type' => 'Persetujuan Order Cetak Ulang',
                         'permission_id' => '09179170e6e643eca66b282e2ffae1f8', // M.Stok
                         'form_id' => $data['form_id'], ],
-                    [   'id' => Str::uuid()->getHex(),
-                        'section' => 'Produksi',
-                        'type' => 'Persetujuan Order Cetak Ulang',
-                        'permission_id' => '2826b627ccc34fad84470c4b7534da0d', // D.Operasional
-                        'form_id' => $data['form_id'], ],
                 ]);
                 return;
             }
@@ -512,6 +516,62 @@ class ProduksiController extends Controller
     protected function approvalOrder($request)
     {
 
+    }
+
+    protected function declineOrder($request)
+    {
+        $dataDb = DB::table('produksi_penyetujuan_order_cetak as pny')
+        ->where('pny.produksi_order_cetak_id', $request->id)
+        ->where('action', '2')
+        ->first();
+
+        if(is_null($dataDb)) {
+            $dataUser = DB::table('users as u', 'u.id', '=', 'pny.users_id')
+            ->join('jabatan as j', 'j.id', '=', 'u.jabatan_id')
+            ->where('u.id', auth()->user()->id)
+            ->select('u.nama as nama_user', 'j.nama as jabatan')
+            ->first();
+            if(is_null($dataUser)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda tidak memiliki jabatan yang dapat mengakses fitur ini'
+                ]);
+            }
+            elseif($dataUser->jabatan == 'Direktur Operasional') {
+                $id = Uuid::uuid4()->toString();
+                DB::table('produksi_penyetujuan_order_cetak')->insert([
+                    'id' => $id,
+                    'produksi_order_cetak_id' => $request->id,
+                    'users_id' => auth()->user()->id,
+                    'action' => '2',
+                    'ket_penolakan' => $request->keterangan,
+                ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Produksi Order Cetak Berhasil Ditolak'
+                ]);
+            } elseif($dataUser->jabatan == 'Direktur Keuangan') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Direktur Operasional belum menyetujui atau menolak produksi order cetak'
+                ]);
+            } elseif($dataUser->jabatan == 'Direktur Utama') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Direktur Keuanangan belum menyetujui atau menolak produksi order cetak'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Jabatan tidak dikenal'
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda tidak bisa menolak produksi order cetak yang sudah ditolak sebelumnya!'
+            ]);
+        }
     }
 
     protected function getOrderId($tipeOrder)

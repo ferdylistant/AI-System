@@ -97,116 +97,56 @@
             <div class="col-12 col-md-12">
                 <div class="card card-primary">
                     <div class="card-header">
-                        <h4>Data Order Produksi</h4>
+                        <h4>Data Order Produksi&nbsp;
+                            <span class="text-danger">
+                                @if ($data->status_cetak == '3')
+                                    @if (Gate::allows('do_approval', 'persetujuan-manpen'))
+                                    *Jabatan Anda tidak memiliki akses untuk data ini.
+                                    @endif
+                                @else
+                                    @if (Gate::allows('do_approval', 'persetujuan-manstok'))
+                                    *Jabatan Anda tidak memiliki akses untuk data ini.
+                                    @endif
+                                @endif
+                            </span>
+                        </h4>
                     </div>
                     <div class="card-body">
                         <div class="row justify-content-between">
                             <div class="col-auto mr-auto">
                                 <div class="mb-4">
-                            {{-- APPROVAL ORDER PRODUKSI --}}
-                            @if (Gate::allows('do_approval', 'persetujuan-manpen'))
-                                @if ($prod_penyetujuan != [])
-                                    @foreach ($prod_penyetujuan as $pp)
-                                        @if ($pp->users_id == Auth::user()->id)
-                                            @if ($pp->action == '1')
-                                                <span class="text-success"><i class="fas fa-check-circle"></i>&nbsp;Telah anda setujui</span>
-                                            @elseif ($pp->action == '2')
-                                                <span class="text-danger"><i class="fas fa-times-circle"></i>&nbsp;Telah anda tolak</span>
-                                                <span class="text-monospace">-Keterangan:&nbsp;{{$data->ket_penolakan}}</span>
-                                            @endif
+                                {{-- APPROVAL ORDER PRODUKSI --}}
+                                @if ($prod_penyetujuan->isEmpty())
+                                    @if ($data->status_cetak == '1' OR $data->status_cetak == '2')
+                                        @if (Gate::allows('do_approval', 'persetujuan-manpen'))
+                                        <button type="button" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
                                         @endif
-                                    @endforeach
-                                @endif
-                                <button type="button" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
-                            @elseif (Gate::allows('do_approval', 'persetujuan-manstok'))
-                                @if ($prod_penyetujuan != [])
-                                    @foreach ($prod_penyetujuan as $pp)
-                                        @if ($pp->users_id == Auth::user()->id)
-                                            @if ($pp->action == '1')
-                                                <span class="text-success"><i class="fas fa-check-circle"></i>&nbsp;Telah anda setujui</span>
-                                            @elseif ($pp->action == '2')
-                                                <span class="text-danger"><i class="fas fa-times-circle"></i>&nbsp;Telah anda tolak</span>
-                                                <span class="text-monospace">-Keterangan:&nbsp;{{$data->ket_penolakan}}</span>
-                                            @endif
+                                    @elseif ($data->status_cetak == '3')
+                                        @if (Gate::allows('do_approval', 'persetujuan-manstok'))
+                                            <button type="button" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
                                         @endif
-                                    @endforeach
+                                    @endif
+                                    @if (Gate::allows('do_approval', 'persetujuan-dirop'))
+                                        <button type="button" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
+                                    @elseif (Gate::allows('do_approval', 'persetujuan-dirke'))
+                                        <button type="button" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
+                                    @elseif (Gate::allows('do_approval', 'persetujuan-dirut'))
+                                        <button type="button" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
+                                    @endif
                                 @endif
-                                <button type="button" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
-                            @elseif (Gate::allows('do_approval', 'persetujuan-dirop'))
-                                @if ($prod_penyetujuan != [])
-                                    @foreach ($prod_penyetujuan as $pp)
-                                        @if ($pp->users_id == Auth::user()->id)
-                                            @if ($pp->action == '1')
-                                                <span class="text-success"><i class="fas fa-check-circle"></i>&nbsp;Telah anda setujui</span>
-                                            @elseif ($pp->action == '2')
-                                                <span class="text-danger"><i class="fas fa-times-circle"></i>&nbsp;Telah anda tolak</span>
-                                                <span class="text-monospace">-Keterangan:&nbsp;{{$data->ket_penolakan}}</span>
-                                            @endif
-                                        @endif
-                                    @endforeach
+                                {{-- Decline ORDER PRODUKSI --}}
+                                @if ($prod_penyetujuan->isEmpty())
+                                    @if (Gate::allows('do_decline', 'penolakan-dirop'))
+                                        <button type="button" class="btn btn-danger" id="btn-decline"><i class="fas fa-times" data-toggle="modal" data-target="#modalDecline"></i>&nbsp;Ditolak</button>
+                                    @elseif (Gate::allows('do_decline', 'penolakan-dirke'))
+                                        <button type="button" class="btn btn-danger" id="btn-decline"><i class="fas fa-times" data-toggle="modal" data-target="#modalDecline"></i>&nbsp;Ditolak</button>
+                                    @elseif (Gate::allows('do_decline', 'penolakan-dirut'))
+                                        <button type="button" class="btn btn-danger" id="btn-decline"><i class="fas fa-times" data-toggle="modal" data-target="#modalDecline"></i>&nbsp;Ditolak</button>
+                                    @endif
                                 @endif
-                                <button type="button" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
-                            @elseif (Gate::allows('do_approval', 'persetujuan-dirke'))
-                                @if ($prod_penyetujuan != [])
-                                    @foreach ($prod_penyetujuan as $pp)
-                                        @if ($pp->users_id == Auth::user()->id)
-                                            @if ($pp->action == '1')
-                                                <span class="text-success"><i class="fas fa-check-circle"></i>&nbsp;Telah anda setujui</span>
-                                            @elseif ($pp->action == '2')
-                                                <span class="text-danger"><i class="fas fa-times-circle"></i>&nbsp;Telah anda tolak</span>
-                                                <span class="text-monospace">-Keterangan:&nbsp;{{$data->ket_penolakan}}</span>
-                                            @endif
-                                        @endif
-                                    @endforeach
-                                @endif
-                                <button type="button" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
-                            @elseif (Gate::allows('do_approval', 'persetujuan-dirut'))
-                                @if ($prod_penyetujuan != [])
-                                    @foreach ($prod_penyetujuan as $pp)
-                                        @if ($pp->users_id == Auth::user()->id)
-                                            @if ($pp->action == '1')
-                                                <span class="text-success"><i class="fas fa-check-circle"></i>&nbsp;Telah anda setujui</span>
-                                            @elseif ($pp->action == '2')
-                                                <span class="text-danger"><i class="fas fa-times-circle"></i>&nbsp;Telah anda tolak</span>
-                                                <span class="text-monospace">-Keterangan:&nbsp;{{$data->ket_penolakan}}</span>
-                                            @endif
-                                        @endif
-                                    @endforeach
-                                @endif
-                                <button type="button" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
-                            @endif
-                            {{-- DECLINE ORDER PRODUKSI --}}
-                            @if (Gate::allows('do_decline', 'penolakan-dirop'))
-                                @if ($prod_penyetujuan != [])
-                                    @foreach ($prod_penyetujuan as $pp)
-                                        @if ($pp->users_id == Auth::user()->id)
-                                            @if ($pp->action == '1')
-                                                <span class="text-success"><i class="fas fa-check-circle"></i>&nbsp;Telah anda setujui</span>
-                                            @elseif ($pp->action == '2')
-                                                <span class="text-danger"><i class="fas fa-times-circle"></i>&nbsp;Telah anda tolak</span>
-                                                <span class="text-monospace">-Keterangan:&nbsp;{{$data->ket_penolakan}}</span>
-                                            @endif
-                                        @endif
-                                    @endforeach
-                                @endif
-                                <button type="button" class="btn btn-danger" id="btn-decline"><i class="fas fa-times" data-toggle="modal" data-target="#modalDecline"></i>&nbsp;Ditolak</button>
-                            @endif
                                 </div>
                             </div>
-                            {{-- <div class="col-auto">
-                                <div class="mb-4">
-                                    Persetujuan:
-                                    @if ($data->status_penyetujuan == '1')
-                                        <span class="badge badge-danger">Pending</span>
-                                    @elseif ($data->status_penyetujuan == '2')
-                                        <span class="badge badge-success">Disetujui</span>
-                                    @elseif ($data->status_penyetujuan == '3')
-                                        <span class="badge badge-dark">Ditolak</span>
-                                    @endif
-
-                                </div>
-                            </div> --}}
-                            <div class="col-auto">
+                            <div class="col-auto mr-auto">
                                 <div class="mb-4">
                                     <div class="user-item">
                                         <div class="user-details">
@@ -243,7 +183,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-auto">
+                            <div class="col-auto mr-auto">
                                 <div class="mb-4">
                                     <div class="user-item">
                                         <div class="user-details">
@@ -263,7 +203,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div><div class="col-auto">
+                            </div><div class="col-auto mr-auto">
                                 <div class="mb-4">
                                     <div class="user-item">
                                         <div class="user-details">
@@ -283,7 +223,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div><div class="col-auto">
+                            </div><div class="col-auto mr-auto">
                                 <div class="mb-4">
                                     <div class="user-item">
                                         <div class="user-details">
@@ -312,6 +252,7 @@
                                         <h6 class="mb-1">Kode Order</h6>
                                     </div>
                                     <input type="hidden" id="id" value="{{ $data->id }}">
+                                    <input type="hidden" id="kode_order" value="{{ $data->kode_order }}">
                                     <p class="mb-1 text-monospace">{{ $data->kode_order }}</p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
@@ -450,6 +391,7 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Judul Buku</h6>
                                     </div>
+                                    <input type="hidden" id="judul_buku" value="{{$data->judul_buku}}">
                                     <p class="mb-1 text-monospace">
                                     @if (is_null($data->judul_buku))
                                         -
