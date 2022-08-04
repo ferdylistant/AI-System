@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 03 Agu 2022 pada 11.39
+-- Waktu pembuatan: 04 Agu 2022 pada 11.50
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -217,10 +217,12 @@ CREATE TABLE `notif` (
 --
 
 INSERT INTO `notif` (`id`, `section`, `type`, `url`, `raw_data`, `permission_id`, `form_id`, `created_at`, `expired`) VALUES
+('1a4158ea31a1428e9af2ef40547a6beb', 'Produksi', 'Persetujuan Order Cetak Ulang', NULL, NULL, '09179170e6e643eca66b282e2ffae1f8', '5494fc15eac44667a05b4e535be117b9', '2022-08-04 08:08:35', NULL),
 ('76da840e92fa47139999235dc8f1a0e0', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '1b842575174242cf83f949f262900570', 'be76886e4e8b4e3fa5069509510f57ad', '2022-08-03 02:59:21', NULL),
 ('899129af119a47188af019d0b7997ed2', 'Produksi', 'Persetujuan Order Cetak Ulang Revisi', NULL, NULL, '1b842575174242cf83f949f262900570', '4aecd59e99cd40788a8dc5248c1b6671', '2022-08-03 03:49:47', NULL),
 ('899bb391cd454452afdc6eda312cdaf3', 'Produksi', 'Persetujuan Order Cetak Ulang Revisi', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', '4aecd59e99cd40788a8dc5248c1b6671', '2022-08-03 03:49:47', NULL),
-('8d667ec34b5245e98b4ab51189fab3a1', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', 'be76886e4e8b4e3fa5069509510f57ad', '2022-08-03 02:59:21', NULL);
+('8d667ec34b5245e98b4ab51189fab3a1', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', 'be76886e4e8b4e3fa5069509510f57ad', '2022-08-03 02:59:21', NULL),
+('ad7da237ea7d42ad9945d3e7d8b311b3', 'Produksi', 'Persetujuan Order Cetak Ulang', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', '5494fc15eac44667a05b4e535be117b9', '2022-08-04 08:08:35', NULL);
 
 -- --------------------------------------------------------
 
@@ -847,7 +849,6 @@ CREATE TABLE `produksi_order_cetak` (
   `perlengkapan` text,
   `tgl_permintaan_jadi` date DEFAULT NULL,
   `status_penyetujuan` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1 = Pending ~~\r\n2 = Disetujui ~~\r\n3 = Ditolak ~~',
-  `ket_penolakan` mediumtext,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -860,9 +861,10 @@ CREATE TABLE `produksi_order_cetak` (
 -- Dumping data untuk tabel `produksi_order_cetak`
 --
 
-INSERT INTO `produksi_order_cetak` (`id`, `kode_order`, `tipe_order`, `status_cetak`, `pilihan_terbit`, `urgent`, `judul_buku`, `sub_judul`, `penulis`, `isbn`, `eisbn`, `penerbit`, `imprint`, `platform_digital`, `status_buku`, `kelompok_buku`, `edisi_cetakan`, `posisi_layout`, `dami`, `format_buku`, `jumlah_halaman`, `kertas_isi`, `warna_isi`, `kertas_cover`, `warna_cover`, `efek_cover`, `jenis_cover`, `jilid`, `ukuran_jilid_bending`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status_penyetujuan`, `ket_penolakan`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
-('4aecd59e99cd40788a8dc5248c1b6671', '22-3000', '2', '2', '2', '1', 'Rohani Dalam Jiwa', 'Termenung', 'Joko Jiwa', '12124sdsadse564444', '1212d', 'Andi', 'Nigtoon Cookery', '[]', '2', 'Home & Garden', 'I/1', '1', '16', '17,5 x 25 cm', 'vi + 325', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '4', ' cm', 2022, 'wrapper', 234, NULL, NULL, NULL, NULL, '2022-08-31', '1', NULL, '2022-08-03 03:49:47', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
-('be76886e4e8b4e3fa5069509510f57ad', '22-1000', '1', '1', '3', '0', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', 'Ferdyawan Listanto', '12124sdsadse564444', '213413fff445rGs', 'Andi', 'NAIN', '[\"Gramedia\",\"Esentral\"]', '1', 'Home & Garden', 'I/1', '1', '24', '21 x 21 cm', 'viii + 302', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '2', ' cm', 2022, '19 July 2022', 1, NULL, NULL, NULL, NULL, '2022-08-31', '1', NULL, '2022-08-03 02:59:21', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
+INSERT INTO `produksi_order_cetak` (`id`, `kode_order`, `tipe_order`, `status_cetak`, `pilihan_terbit`, `urgent`, `judul_buku`, `sub_judul`, `penulis`, `isbn`, `eisbn`, `penerbit`, `imprint`, `platform_digital`, `status_buku`, `kelompok_buku`, `edisi_cetakan`, `posisi_layout`, `dami`, `format_buku`, `jumlah_halaman`, `kertas_isi`, `warna_isi`, `kertas_cover`, `warna_cover`, `efek_cover`, `jenis_cover`, `jilid`, `ukuran_jilid_bending`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status_penyetujuan`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
+('4aecd59e99cd40788a8dc5248c1b6671', '22-3000', '2', '2', '2', '1', 'Rohani Dalam Jiwa', 'Termenung', 'Joko Jiwa', '12124sdsadse564444', '1212d', 'Andi', 'Nigtoon Cookery', '[]', '2', 'Home & Garden', 'I/1', '1', '16', '17,5 x 25 cm', 'vi + 325', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '4', ' cm', 2022, 'wrapper', 234, NULL, NULL, NULL, NULL, '2022-08-31', '1', '2022-08-03 03:49:47', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('5494fc15eac44667a05b4e535be117b9', '22-4000', '3', '3', '2', '1', 'adadadadad', 'Termenung', 'Joko Jiwa', '123112gdfgfsdfsd', '213413fff445rGs', 'Andi', 'NAIN', '[\"Moco\"]', '2', 'Home & Garden', 'I/1', '1', '24', '19 x 23 cm', 'viii + 302', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '1', '2,5 cm', 2022, 'wraping', 342, NULL, NULL, NULL, NULL, '2022-08-31', '1', '2022-08-04 08:08:35', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('be76886e4e8b4e3fa5069509510f57ad', '22-1000', '1', '1', '3', '0', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', 'Ferdyawan Listanto', '12124sdsadse564444', '213413fff445rGs', 'Andi', 'NAIN', '[\"Gramedia\",\"Esentral\"]', '1', 'Home & Garden', 'I/1', '1', '24', '21 x 21 cm', 'viii + 302', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '2', ' cm', 2022, '19 July 2022', 1, NULL, NULL, NULL, NULL, '2022-08-31', '1', '2022-08-03 02:59:21', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -875,6 +877,9 @@ CREATE TABLE `produksi_penyetujuan_order_cetak` (
   `users_id` varchar(36) NOT NULL,
   `produksi_order_cetak_id` varchar(36) NOT NULL,
   `action` enum('1','2') DEFAULT NULL COMMENT '1= Disetujui,\r\n2= Ditolak',
+  `tgl_permintaan_jadi_update` date DEFAULT NULL,
+  `jumlah_cetak_update` int(10) DEFAULT NULL,
+  `ket_penolakan` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
