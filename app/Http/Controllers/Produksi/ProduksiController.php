@@ -343,6 +343,10 @@ class ProduksiController extends Controller
                     ->where('id', $kode)
                     ->where('created_by', $author)
                     ->first();
+        $dataPenolakan = DB::table('produksi_penyetujuan_order_cetak as pny')
+        ->where('pny.produksi_order_cetak_id', $kode)
+        ->where('action', '2')
+        ->first();
         $prodPenyetujuan = DB::table('produksi_penyetujuan_order_cetak')
                     ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
                     ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
@@ -429,6 +433,7 @@ class ProduksiController extends Controller
             'title' => 'Detail Order Cetak Buku',
             'data' => $prod,
             'prod_penyetujuan' => $prodPenyetujuan,
+            'data_penolakan' => $dataPenolakan,
             'author' => $author,
             'm_stok' => $m_stok,
             'm_penerbitan' => $m_penerbitan,
@@ -538,6 +543,12 @@ class ProduksiController extends Controller
                 ]);
             }
             elseif($dataUser->jabatan == 'Direktur Operasional') {
+                if($request->status_cetak == '3') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Manajer Stok belum menyetujui order cetak ulang.'
+                    ]);
+                }
                 $id = Uuid::uuid4()->toString();
                 DB::table('produksi_penyetujuan_order_cetak')->insert([
                     'id' => $id,
@@ -558,12 +569,12 @@ class ProduksiController extends Controller
             } elseif($dataUser->jabatan == 'Direktur Utama') {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Direktur Keuanangan belum menyetujui atau menolak produksi order cetak'
+                    'message' => 'Direktur Keuangangan belum menyetujui atau menolak produksi order cetak'
                 ]);
             } else {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Jabatan tidak dikenal'
+                    'message' => 'Jabatan tidak dikenali untuk mengakses fitur ini'
                 ]);
             }
         } else {

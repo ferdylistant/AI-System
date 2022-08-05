@@ -115,6 +115,9 @@
                         <div class="row justify-content-between">
                             <div class="col-auto mr-auto">
                                 <div class="mb-4">
+                                    @if (!is_null($data_penolakan))
+                                        <input type="hidden" id="ketVal" value="{{$data_penolakan->ket_penolakan}}">
+                                    @endif
                                 {{-- APPROVAL ORDER PRODUKSI --}}
                                 @if ($prod_penyetujuan->isEmpty())
                                     @if ($data->status_cetak == '1' OR $data->status_cetak == '2')
@@ -152,29 +155,37 @@
                                         <div class="user-details">
                                         @if ($data->status_cetak == '3')
                                             <div class="user-name">Manajer Stok:</div>
-                                            <div class="text-job text-muted">
                                                 @if(is_null($p_mstok))
+                                                <div class="text-job text-muted">
                                                 &nbsp;
+                                                </div>
                                                 @elseif($p_mstok->action == '1')
+                                                <div class="text-job text-success">
                                                     <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
+                                                </div>
                                                 @elseif($p_mstok->action == '2')
+                                                <div class="text-job text-danger">
                                                     <i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak
+                                                </div>
                                                 @endif
-                                            </div>
                                             <div class="user-cta">
-                                                <span><u>{{ $dirut->nama }}</u></span>
+                                                <span><u>{{ $m_stok->nama }}</u></span>
                                             </div>
                                         @else
                                             <div class="user-name">Manajer Penerbitan:</div>
-                                            <div class="text-job text-muted">
                                                 @if (is_null($p_mp))
+                                                <div class="text-job text-muted">
                                                     &nbsp;
+                                                </div>
                                                 @elseif($p_mp->action == '1')
+                                                <div class="text-job text-success">
                                                     <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
+                                                </div>
                                                 @elseif($p_mp->action == '2')
+                                                <div class="text-job text-danger">
                                                     <i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak
+                                                </div>
                                                 @endif
-                                            </div>
                                             <div class="user-cta">
                                                 <span class="text-underline"><u>{{ $m_penerbitan->nama }}</u></span>
                                             </div>
@@ -188,15 +199,19 @@
                                     <div class="user-item">
                                         <div class="user-details">
                                           <div class="user-name">Direktur Operasional:</div>
-                                          <div class="text-job text-muted">
                                             @if(is_null($p_dirop))
+                                            <div class="text-job text-muted">
                                                 &nbsp;
+                                            </div>
                                             @elseif($p_dirop->action == '1')
+                                            <div class="text-job text-success">
                                                 <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
+                                            </div>
                                             @elseif($p_dirop->action == '2')
-                                                <i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak
+                                            <div class="text-job text-muted">
+                                                <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak</a>
+                                            </div>
                                             @endif
-                                          </div>
                                           <div class="user-cta">
                                             <span><u>{{ $dirop->nama }}</u></span>
                                           </div>
@@ -208,15 +223,19 @@
                                     <div class="user-item">
                                         <div class="user-details">
                                           <div class="user-name">Direktur Keuangan:</div>
-                                          <div class="text-job text-muted">
                                             @if(is_null($p_dirke))
+                                            <div class="text-job text-muted">
                                                 &nbsp;
+                                            </div>
                                             @elseif($p_dirke->action == '1')
+                                            <div class="text-job text-success">
                                                 <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
+                                            </div>
                                             @elseif($p_dirke->action == '2')
-                                                <i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak
+                                            <div class="text-job text-muted">
+                                                <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak</a>
+                                            </div>
                                             @endif
-                                          </div>
                                           <div class="user-cta">
                                             <span><u>{{ $dirke->nama }}</u></span>
                                           </div>
@@ -228,15 +247,19 @@
                                     <div class="user-item">
                                         <div class="user-details">
                                           <div class="user-name">Direktur Utama:</div>
-                                          <div class="text-job text-muted">
                                             @if(is_null($p_dirut))
+                                            <div class="text-job text-muted">
                                                 &nbsp;
+                                            </div>
                                             @elseif($p_dirut->action == '1')
+                                            <div class="text-job text-success">
                                                 <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
+                                            </div>
                                             @elseif($p_dirut->action == '2')
-                                                <i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak
+                                            <div class="text-job text-muted">
+                                                <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak</a>
+                                            </div>
                                             @endif
-                                          </div>
                                           <div class="user-cta">
                                             <span><u>{{ $dirut->nama }}</u></span>
                                           </div>
@@ -260,6 +283,7 @@
                                         <h6 class="mb-1">Status Cetak</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
+                                        <input type="hidden" id="statusCetak" value="{{$data->status_cetak}}">
                                         @if ($data->status_cetak == 1)
                                             Buku Baru
                                         @elseif ($data->status_cetak == 2)

@@ -14,15 +14,13 @@
                 <input type="hidden" name="id" id="id_" value="">
                 <input type="hidden" name="kode_order" id="kode_Order" value="">
                 <input type="hidden" name="judul_buku" id="judul_Buku" value="">
-                <div class="form-group">
-                    {{-- <p class="lead" id="judulBuku"></p> --}}
-                    <label for="keterangan">Alasan</label>
-                    <textarea class="form-control" id="keterangan" name="keterangan" rows="4"></textarea>
+                <input type="hidden" name="status_cetak" id="status_cetak" value="">
+                <div class="form-group" id="contentData">
+
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Konfirmasi</button>
+            <div class="modal-footer" id="footerDecline">
+
             </div>
         </form>
     </div>

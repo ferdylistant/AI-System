@@ -2,13 +2,22 @@ $(document).ready(function() {
     var id = $('#id').val();
     var jb = $('#judul_buku').val();
     var ko = $('#kode_order').val();
-
+    var sc = $('#statusCetak').val();
+    var kp = $('#ketVal').val();
     $('#btn-decline').on('click', function() {
         $('#titleModal').html('Konfirmasi Penolakan');
         $('#id_').val(id);
         $('#kode_Order').val(ko);
         $('#judul_Buku').val(jb);
         $('#judulBuku').text('#'+ko+'-'+jb);
+        $('#status_cetak').val(sc);
+        if(!kp){
+            $('#contentData').html("<label for='keterangan'>Alasan</label><textarea class='form-control' name='keterangan' rows='4'></textarea>");
+            $('#footerDecline').html('<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="submit" class="btn btn-primary">Konfirmasi</button>');
+        } else {
+            $('#contentData').html("<label for='keterangan'>Alasan</label><p>"+kp+"</p>");
+            $('#footerDecline').html('<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>');
+        }
         $('#modalDecline').modal('show');
     });
 });
@@ -35,7 +44,15 @@ function resetFrom(form) {
             },
             success: function(result) {
                 resetFrom(data);
-                notifToast(result.status, result.message);
+                if(result.status == 'success') {
+                    notifToast('success', 'Data produksi berhasil ditolak!');
+                    location.reload();
+                } else {
+                    $('#modalDecline').modal('hide');
+                    notifToast(result.status, result.message);
+                }
+                // $('#modalDecline').modal('hide');
+                // ajax.reload();
                 // location.href = result.redirect;
 
             },
