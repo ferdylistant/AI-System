@@ -53,7 +53,7 @@
                 <div class="hero text-white hero-bg-image hero-bg-parallax" style="background-image: url('images/background-home.avif');">
                     <div class="hero-inner">
                         <h2>Selamat datang, {{ $userdata->nama}}!</h2>
-                        <p class="lead">You almost arrived, complete the information about your account to complete registration.</p>
+                        <p class="lead">You almost arrived, complete the information about your account to complete registration. {{$id}}</p>
                         <div class="mt-4">
                         <a href="{{url('manajemen-web/user/'.Auth::id())}}" class="btn btn-outline-white btn-lg btn-icon icon-left"><i class="far fa-user"></i> Setup Account</a>
                         </div>

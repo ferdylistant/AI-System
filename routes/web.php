@@ -8,7 +8,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ManWeb\StrukturAoController;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\Produksi\ProduksiController;
-use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController, TimelineController};
+use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController, ImprintController, TimelineController};
 
 /*
 |--------------------------------------------------------------------------
@@ -42,20 +42,6 @@ Route::middleware(['auth'])->group(function() {
     Route::post('home/penerbitan/{cat}', [HomeController::class, 'ajaxPenerbitan']);
     Route::post('public/penerbitan/fullcalendar/{cat}', [NaskahController::class, 'ajaxFromCalendar']);
 
-    Route::get('penerbitan/penulis', [PenulisController::class, 'index']);
-    Route::match(['get', 'post'], 'penerbitan/penulis/membuat-penulis', [PenulisController::class, 'createPenulis']);
-    Route::match(['get', 'post'], 'penerbitan/penulis/mengubah-penulis/{id}', [PenulisController::class, 'updatePenulis']);
-    Route::match(['get', 'post'], 'penerbitan/penulis/detail-penulis/{id}', [PenulisController::class, 'detailPenulis']);
-    Route::post('penerbitan/penulis/hapus-penulis', [PenulisController::class, 'deletePenulis']);
-
-    Route::get('penerbitan/naskah', [NaskahController::class, 'index']);
-    Route::get('penerbitan/naskah/ajax-call-page/{page}', [NaskahController::class, 'ajaxCallPage']);
-    Route::match(['get', 'post'], 'penerbitan/naskah/melihat-naskah/{id}', [NaskahController::class, 'viewNaskah']);
-    Route::match(['get', 'post'], 'penerbitan/naskah/membuat-naskah', [NaskahController::class, 'createNaskah']);
-    Route::match(['get', 'post'], 'penerbitan/naskah/mengubah-naskah/{id}', [NaskahController::class, 'updateNaskah']);
-    Route::post('penerbitan/naskah/penilaian/{cat}', [PenilaianNaskahController::class, 'index']);
-    Route::post('penerbitan/naskah/timeline/{cat}', [TimelineController::class, 'index']);
-
     Route::get('manajemen-web/users', [UsersController::class, 'index']);
     Route::match(['get', 'post'], 'manajemen-web/user/ajax/{act}/{id?}', [UsersController::class, 'ajaxUser']);
     Route::get('manajemen-web/user/{id}', [UsersController::class, 'selectUser']);
@@ -65,6 +51,27 @@ Route::middleware(['auth'])->group(function() {
     Route::get('manajemen-web/struktur-ao', [StrukturAoController::class, 'index']);
     Route::match(['get', 'post'], 'manajemen-web/struktur-ao/{act}/{type}/{id?}', [StrukturAoController::class, 'crudSO']);
 
+    //Penerbitan
+    Route::prefix('penerbitan')->group(function () {
+        //Penulis
+        Route::get('/penulis', [PenulisController::class, 'index']);
+        Route::match(['get', 'post'], '/penulis/membuat-penulis', [PenulisController::class, 'createPenulis']);
+        Route::match(['get', 'post'], '/penulis/mengubah-penulis/{id}', [PenulisController::class, 'updatePenulis']);
+        Route::match(['get', 'post'], '/penulis/detail-penulis/{id}', [PenulisController::class, 'detailPenulis']);
+        Route::post('/penulis/hapus-penulis', [PenulisController::class, 'deletePenulis']);
+        //Naskah
+        Route::get('/naskah', [NaskahController::class, 'index']);
+        Route::get('/naskah/ajax-call-page/{page}', [NaskahController::class, 'ajaxCallPage']);
+        Route::match(['get', 'post'], '/naskah/melihat-naskah/{id}', [NaskahController::class, 'viewNaskah']);
+        Route::match(['get', 'post'], '/naskah/membuat-naskah', [NaskahController::class, 'createNaskah']);
+        Route::match(['get', 'post'], '/naskah/mengubah-naskah/{id}', [NaskahController::class, 'updateNaskah']);
+        Route::post('/naskah/penilaian/{cat}', [PenilaianNaskahController::class, 'index']);
+        Route::post('/naskah/timeline/{cat}', [TimelineController::class, 'index']);
+        //Imprint
+        Route::get('/imprint', [ImprintController::class, 'index'])->name('imprint.view');
+        Route::match(['get', 'post'], '/imprint/tambah-imprint', [ImprintController::class, 'createImprint'])->name('imprint.create');
+        Route::match(['get', 'post'], '/imprint/ubah-imprint', [ImprintController::class, 'updateImprint'])->name('imprint.update');
+    });
     //Produksi
     Route::prefix('produksi')->group(function () {
         Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('produksi.view');

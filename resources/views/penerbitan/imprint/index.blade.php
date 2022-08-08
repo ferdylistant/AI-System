@@ -12,10 +12,10 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1>Data Produksi Order Cetak</h1>
-        @if(Gate::allows('do_create', 'tambah-produksi-cetak'))
+        <h1>Data Imprint</h1>
+        @if(Gate::allows('do_create', 'tambah-data-imprint'))
         <div class="section-header-button">
-            <a href="{{ route('produksi.create')}}" class="btn btn-success">Tambah</a>
+            <a href="{{ route('imprint.create')}}" class="btn btn-success">Tambah</a>
         </div>
         @endif
     </div>
@@ -26,7 +26,7 @@
                 <div class="card card-primary">
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_Produksi" style="width:100%">
+                            <table class="table table-striped" id="tb_Imprint" style="width:100%">
                             </table>
                         </div>
                     </div>
@@ -52,7 +52,7 @@
 
 <script>
     $(function() {
-         $('#tb_Produksi').DataTable({
+         $('#tb_Imprint').DataTable({
             responsive: true,
             rowReorder: {
                 selector: 'td:nth-child(2)'
@@ -65,18 +65,16 @@
                 lengthMenu: '_MENU_ items/page',
             },
             ajax: {
-                url: "{{ url('produksi/order-cetak') }}",
-                data: {"request_": "table-produksi"}
+                url: "{{ url('penerbitan/imprint') }}",
+                data: {"request_": "table-imprint"}
             },
             columns: [
-                { data: 'no_order', name: 'no_order', title: 'Kode Order' },
-                { data: 'pilihan_terbit', name: 'pilihan_terbit', title: 'pilihan_terbit' },
-                { data: 'tipe_order', name: 'tipe_order', title: 'Tipe Order' },
-                { data: 'status_cetak', name: 'status_cetak', title: 'Status Cetak' },
-                { data: 'judul_buku', name: 'judul_buku', title: 'Judul Buku'},
-                { data: 'urgent', name: 'urgent', title: 'Urgent'},
-                { data: 'isbn', name: 'isbn', title: 'ISBN'},
-                { data: 'status_penyetujuan', name: 'status_penyetujuan', title: 'Penyetujuan' },
+                { data: 'no', name: 'no', title: 'No' },
+                { data: 'nama_imprint', name: 'nama_imprint', title: 'Nama Imprint' },
+                { data: 'tgl_dibuat', name: 'tgl_dibuat', title: 'Tanggal Dibuat' },
+                { data: 'dibuat_oleh', name: 'dibuat_oleh', title: 'Dibuat Oleh'},
+                { data: 'diubah_terakhir', name: 'diubah_terakhir', title: 'Diubah Terakhir' },
+                { data: 'diubah_oleh', name: 'diubah_oleh', title: 'Diubah Oleh' },
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
             ]
         });

@@ -249,7 +249,7 @@ class ApiController extends Controller
     }
     public function listPilihanTerbit(Request $request)
     {
-        $pilihanTerbit = (object)[['value' => '1','label' => 'Cetak Fisik'],['value' => '2','label' => 'E-Book'],['value' => '3','label' =>  'Cetak Fisik + E-Book']];
+        $pilihanTerbit = (object)[['value' => '1','label' => 'Cetak Fisik'],['value' => '2','label' =>  'Cetak Fisik + E-Book']];
         if ($request->has('id')) {
             $id = $request->get('id');
             $data = DB::table('produksi_order_cetak')->where('id', $id)->first();

@@ -27,13 +27,14 @@ class ProduksiController extends Controller
                         ->addColumn('no_order', function($data) {
                             return $data->kode_order;
                         })
+                        ->addColumn('pilihan_terbit', function($data) {
+                            return $data->pilihan_terbit;
+                        })
                         ->addColumn('tipe_order', function($data) {
                             if($data->tipe_order == 1) {
                                 $res = 'Umum';
                             } elseif($data->tipe_order == 2) {
                                 $res = 'Rohani';
-                            } elseif($data->tipe_order == 3) {
-                                $res = 'POD';
                             }
                             return $res;
                         })
@@ -61,9 +62,6 @@ class ProduksiController extends Controller
                         ->addColumn('isbn', function($data) {
                             return $data->isbn;
                         })
-                        ->addColumn('eisbn', function($data) {
-                            return $data->eisbn;
-                        })
                         ->addColumn('status_penyetujuan', function($data) {
                             if ($data->status_penyetujuan == 1) {
                                 $res = '<span class="badge badge-danger">Pending</span>';
@@ -87,12 +85,12 @@ class ProduksiController extends Controller
                         })
                         ->rawColumns([
                             'no_order',
+                            'pilihan_terbit',
                             'tipe_order',
                             'status_cetak',
                             'judul_buku',
                             'urgent',
                             'isbn',
-                            'eisbn',
                             'status_penyetujuan',
                             'action'
                             ])
@@ -189,16 +187,12 @@ class ProduksiController extends Controller
                 ]);
             }
         }
-        $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani'], ['id' => 3,'name' => 'POD']);
+        $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani']);
         $statusCetak = array(['id' => 1,'name' => 'Buku Baru'], ['id' => 2,'name' => 'Cetak Ulang Revisi'],
         ['id' => 3,'name' => 'Cetak Ulang']);
         $urgent = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
-        $imprint = array(
-            ['name' => 'Andi'],['name' => 'G-Media'],['name' => 'NAIN'],['name' => 'Nigtoon Cookery'],
-            ['name' => 'YesCom'],['name' => 'Rapha'],['name' => 'Rainbow'],['name' => 'Lautan Pustaka'],
-            ['name' => 'Sheila'],['name' => 'MOU Pro Literasi'],['name' => 'Rumah Baca'],['name' => 'NyoNyo'],
-            ['name' => 'Mou Perorangan'],['name' => 'PBMR Andi'],['name' => 'Garam Media'],['name' => 'Lily Publisher'],
-            ['name' => 'Sigma'],['name' => 'Pustaka Referensi'],['name' => 'Cahaya Harapan']);
+        $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
+        $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
         $platformDigital = array(['name'=>'Moco'],['name'=>'Google Book'],['name'=>'Gramedia'],['name'=>'Esentral'],
         ['name'=>'Bahanaflik'],['name'=> 'Indopustaka']);
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
@@ -212,6 +206,7 @@ class ProduksiController extends Controller
             'urgent' => $urgent,
             'kbuku' => $kbuku,
             'imprint' => $imprint,
+            'penulis' => $penulis,
             'jilid' => $jilid,
         ]);
     }

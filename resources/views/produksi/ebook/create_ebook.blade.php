@@ -62,18 +62,6 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Pilihan Terbit: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fas fa-file"></i></div>
-                                    </div>
-                                    <select class="form-control select2" name="add_pilihan_terbit" id="pilihanTerbit" required>
-                                        <option label="Pilih"></option>
-                                    </select>
-                                    <div id="err_add_pilihan_terbit"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Judul Buku: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -93,7 +81,7 @@
                                     <div id="err_add_sub_judul_buku"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-4 mb-4" id="gridPlatformDigital">
+                            <div class="form-group col-12 col-md-6 mb-4" id="gridPlatformDigital">
                                 <label class="d-block">Platform E-book: <span class="text-danger">*</span></label>
                                 @foreach ($platformDigital as $pD)
                                     <div class="form-check form-check-inline">
@@ -102,6 +90,18 @@
                                     </div>
                                 @endforeach
 
+                            </div>
+                            <div class="form-group col-12 col-md-4 mb-4">
+                                <label>Pilihan Terbit: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fas fa-file"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="add_pilihan_terbit" id="pilihanTerbit" required>
+                                        <option label="Pilih"></option>
+                                    </select>
+                                    <div id="err_add_pilihan_terbit"></div>
+                                </div>
                             </div>
                             <div class="form-group col-12 col-md-2 mb-4">
                                 <label>Urgent: <span class="text-danger">*</span></label>
@@ -120,12 +120,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-pen"></i></div>
                                     </div>
-                                    <select class="form-control select2" name="add_penulis[]">
-                                        @foreach ($penulis as $pen)
-                                            <option label="Pilih"></option>
-                                            <option value="{{ $pen->id }}">{{ $pen->nama }}</option>
-                                        @endforeach
-                                    </select>
+                                    <input type="text" class="form-control" name="add_penulis"  placeholder="Penulis" required>
                                     <div id="err_add_penulis"></div>
                                 </div>
                             </div>
@@ -169,7 +164,7 @@
                                     <select class="form-control select2" name="add_imprint" required>
                                         <option label="Pilih"></option>
                                         @foreach ($imprint as $imp)
-                                            <option value="{{ $imp->id }}">{{ $imp->nama }}</option>
+                                            <option value="{{ $imp['name'] }}">{{ $imp['name'] }}</option>
                                         @endforeach
                                     </select>
                                     <div id="err_add_imprint"></div>

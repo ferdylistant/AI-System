@@ -12,7 +12,7 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1>Data Produksi Order Cetak</h1>
+        <h1>Data Produksi</h1>
         @if(Gate::allows('do_create', 'tambah-produksi-cetak'))
         <div class="section-header-button">
             <a href="{{ route('produksi.create')}}" class="btn btn-success">Tambah</a>
@@ -70,12 +70,12 @@
             },
             columns: [
                 { data: 'no_order', name: 'no_order', title: 'Kode Order' },
-                { data: 'pilihan_terbit', name: 'pilihan_terbit', title: 'pilihan_terbit' },
                 { data: 'tipe_order', name: 'tipe_order', title: 'Tipe Order' },
                 { data: 'status_cetak', name: 'status_cetak', title: 'Status Cetak' },
                 { data: 'judul_buku', name: 'judul_buku', title: 'Judul Buku'},
                 { data: 'urgent', name: 'urgent', title: 'Urgent'},
                 { data: 'isbn', name: 'isbn', title: 'ISBN'},
+                { data: 'eisbn', name: 'eisbn', title: 'E-ISBN'},
                 { data: 'status_penyetujuan', name: 'status_penyetujuan', title: 'Penyetujuan' },
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
             ]
