@@ -401,7 +401,7 @@
                                 <label>SPP: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-copy"></i></div>
+                                        <div class="input-group-text"><i class="fa fa-pen-square"></i></div>
                                     </div>
                                     <input type="text" class="form-control" name="up_spp" value="{{$data->spp}}" placeholder="Surat Perjanjian Penulis">
                                     <div id="err_up_spp"></div>

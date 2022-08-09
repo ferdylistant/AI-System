@@ -11,13 +11,18 @@
 
 @section('content')
 <section class="section">
-    <div class="section-header">
+    <div class="section-header justify-content-between">
         <h1>Data Produksi Order Cetak</h1>
         @if(Gate::allows('do_create', 'tambah-produksi-cetak'))
         <div class="section-header-button">
             <a href="{{ route('produksi.create')}}" class="btn btn-success">Tambah</a>
         </div>
         @endif
+        <div class="card card-primary">
+            <div class="card-body">
+                asdasdadfasd
+            </div>
+        </div>
     </div>
 
     <div class="section-body">
@@ -70,8 +75,8 @@
             },
             columns: [
                 { data: 'no_order', name: 'no_order', title: 'Kode Order' },
-                { data: 'pilihan_terbit', name: 'pilihan_terbit', title: 'pilihan_terbit' },
                 { data: 'tipe_order', name: 'tipe_order', title: 'Tipe Order' },
+                { data: 'pilihan_terbit', name: 'pilihan_terbit', title: 'Pilihan Terbit' },
                 { data: 'status_cetak', name: 'status_cetak', title: 'Status Cetak' },
                 { data: 'judul_buku', name: 'judul_buku', title: 'Judul Buku'},
                 { data: 'urgent', name: 'urgent', title: 'Urgent'},

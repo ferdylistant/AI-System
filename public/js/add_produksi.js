@@ -1,6 +1,26 @@
 $(document).ready(function(){
     $.ajax({
         type: 'GET',
+        url: window.location.origin + '/list-jenis-mesin',
+        success:function(hasil)
+        {
+            var list = hasil;
+            if ( typeof(hasil) == "string" ){
+                list = JSON.parse(hasil);
+            }
+            $.each( hasil, function( index, data ){
+                $("#jenisMesin").append($("<option></option>").attr("value",data.value).text(data.label));
+            });
+        },
+        error:function(xhr, status, error){
+            console.log(xhr);
+            console.log(status);
+            console.log(error);
+        }
+    });
+});$(document).ready(function(){
+    $.ajax({
+        type: 'GET',
         url: window.location.origin + '/list-pilihan-terbit',
         success:function(hasil)
         {
@@ -16,6 +36,37 @@ $(document).ready(function(){
             console.log(xhr);
             console.log(status);
             console.log(error);
+        }
+    });
+});
+$(document).ready(function() {
+    $('#gridPlatformDigital').hide();
+    $('#eISBN').hide();
+    $('#pilihanTerbit').change(function(){
+        var tipe = $(this).val();
+        $.ajax({
+            url: window.location.origin + '/list-status-cetak',
+            type:'GET',
+            data:'value='+tipe,
+            success:function(hasil)
+            {
+                $("#statusCetak").empty();
+                $("#statusCetak").html(hasil);
+            },
+            error:function(hasil)
+            {
+                $("#statusCetak").empty();
+                $("#statusCetak").html(hasil);
+            }
+        });
+        if (tipe == '1') {
+            $('#penulis').attr('class', 'form-group col-12 col-md-4 mb-4');
+            $('#gridPlatformDigital').hide();
+            $('#eISBN').hide();
+        } else {
+            $('#penulis').attr('class', 'form-group col-12 col-md-6 mb-4');
+            $('#gridPlatformDigital').show();
+            $('#eISBN').show();
         }
     });
 });
@@ -97,16 +148,6 @@ $(document).ready(function(){
     });
 })
 $(document).ready(function() {
-    $('#selTipeOrder').on('change', function() {
-        var tipe = $(this).val();
-        if (tipe == '2') {
-            $('#gridPlatformDigital').hide();
-        } else {
-            $('#gridPlatformDigital').show();
-        }
-    });
-});
-$(document).ready(function() {
     $('#ukuranBending').hide();
     $('#jilidChange').on('change', function() {
         var tipe = $(this).val();
@@ -135,7 +176,8 @@ $('.datepicker-year').datepicker({
     autoclose:true
 });
 $('.datepicker').datepicker({
-    format: 'dd MM yyyy'
+    format: 'dd MM yyyy',
+    autoclose:true
 });
 function resetFrom(form) {
 form.trigger('reset');
@@ -182,7 +224,7 @@ function ajaxAddProduksi(data) {
         },
         success: function(result) {
             resetFrom(data);
-            notifToast('success', 'Data produksi berhasil disimpan!');
+            notifToast(result.status, result.message);
             location.href = result.redirect;
 
         },

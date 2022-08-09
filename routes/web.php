@@ -31,6 +31,8 @@ Route::get('/list-dami', [ApiController::class, 'listDami']);
 Route::get('/list-format-buku', [ApiController::class, 'listFormatBuku']);
 Route::get('/list-status-buku', [ApiController::class, 'listStatusBuku']);
 Route::get('/list-pilihan-terbit', [ApiController::class, 'listPilihanTerbit']);
+Route::get('/list-status-cetak', [ApiController::class, 'listStatusCetak']);
+Route::get('/list-jenis-mesin', [ApiController::class, 'listJenisMesin']);
 
 Route::middleware(['auth'])->group(function() {
     Route::post('notification', [NotificationController::class, 'index']);

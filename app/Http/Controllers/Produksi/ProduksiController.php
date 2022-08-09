@@ -19,7 +19,22 @@ class ProduksiController extends Controller
         if($request->ajax()) {
             if($request->input('request_') === 'table-produksi') {
                 $data = DB::table('produksi_order_cetak as poc')
-                    ->whereNull('deleted_at')
+                    ->join('produksi_penyetujuan_order_cetak as pyoc', 'pyoc.produksi_order_cetak_id', '=', 'poc.id')
+                    ->whereNull('poc.deleted_at')
+                    ->select(
+                        'poc.*',
+                        'pyoc.m_penerbitan',
+                        'pyoc.m_stok',
+                        'pyoc.d_operasional',
+                        'pyoc.d_keuangan',
+                        'pyoc.d_utama',
+                        'pyoc.m_penerbitan_act',
+                        'pyoc.m_stok_act',
+                        'pyoc.d_operasional_act',
+                        'pyoc.d_keuangan_act',
+                        'pyoc.d_utama_act',
+                        'pyoc.status_general'
+                        )
                     ->get();
                 $update = Gate::allows('do_update', 'update-produksi');
 
@@ -28,7 +43,12 @@ class ProduksiController extends Controller
                             return $data->kode_order;
                         })
                         ->addColumn('pilihan_terbit', function($data) {
-                            return $data->pilihan_terbit;
+                            if($data->pilihan_terbit == '1') {
+                                $res = 'Cetak Fisik';
+                            } else {
+                                $res = 'Cetak Fisik + E-Book';
+                            }
+                            return $res;
                         })
                         ->addColumn('tipe_order', function($data) {
                             if($data->tipe_order == 1) {
@@ -62,15 +82,85 @@ class ProduksiController extends Controller
                         ->addColumn('isbn', function($data) {
                             return $data->isbn;
                         })
-                        ->addColumn('status_penyetujuan', function($data) {
-                            if ($data->status_penyetujuan == 1) {
-                                $res = '<span class="badge badge-danger">Pending</span>';
-                            } elseif ($data->status_penyetujuan == 2) {
-                                $res = '<span class="badge badge-success">Disetujui</span>';
-                            } elseif ($data->status_penyetujuan == 3) {
-                                $res = '<span class="badge badge-dark">Ditolak</span>';
+                        ->addColumn('status_penyetujuan', function($data)  {
+                            $badge = '';
+                            if(in_array($data->status_cetak, ['1', '2'])) {
+                                if(!is_null($data->status_general)) {
+                                    $badge .= '<span class="badge badge-primary">Selesai</span>';
+                                } else {
+                                    //Manajer Penerbitan
+                                    if($data->m_penerbitan_act == '1') {
+                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
+                                    } elseif($data->m_penerbitan_act == '2') {
+                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
+                                    } elseif($data->m_penerbitan_act == '3') {
+                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
+                                    }
+                                    //Direksi Operasional
+                                    if($data->d_operasional_act == '1') {
+                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                    } elseif($data->d_operasional_act == '2') {
+                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                    } elseif($data->d_operasional_act == '3') {
+                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                    }
+                                    //Direksi Keuangan
+                                    if($data->d_keuangan_act == '1') {
+                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
+                                    } elseif($data->d_keuangan_act == '2') {
+                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
+                                    } elseif($data->d_keuangan_act == '3') {
+                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
+                                    }
+                                    //Direksi Utama
+                                    if($data->d_utama_act == '1') {
+                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+                                    } elseif($data->d_utama_act == '2') {
+                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+                                    } elseif($data->d_utama_act == '3') {
+                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+                                    }
+                                }
+                            } elseif($data->status_cetak == '3') {
+                                if(!is_null($data->status_general)) {
+                                    $badge .= '<span class="badge badge-primary">Selesai</span>';
+                                } else {
+                                    //Manajer Stok
+                                    if($data->m_stok_act == '1') {
+                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> M.Stok</div>';
+                                    } elseif($data->m_stok_act == '2') {
+                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> M.Stok</div>';
+                                    } elseif($data->m_stok_act == '3') {
+                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> M.Stok</div>';
+                                    }
+                                    //Direksi Operasional
+                                    if($data->d_operasional_act == '1') {
+                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                    } elseif($data->d_operasional_act == '2') {
+                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                    } elseif($data->d_operasional_act == '3') {
+                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                    }
+                                    //Direksi Keuangan
+                                    if($data->d_keuangan_act == '1') {
+                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
+                                    } elseif($data->d_keuangan_act == '2') {
+                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
+                                    } elseif($data->d_keuangan_act == '3') {
+                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
+                                    }
+                                    //Direksi Utama
+                                    if($data->d_utama_act == '1') {
+                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+                                    } elseif($data->d_utama_act == '2') {
+                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+                                    } elseif($data->d_utama_act == '3') {
+                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+                                    }
+                                }
                             }
-                            return $res;
+
+                            return $badge;
                         })
                         ->addColumn('action', function($data) use ($update) {
                             $btn = '<a href="'.url('produksi/order-cetak/detail?kode='.$data->id .'&author='.$data->created_by).'"
@@ -121,30 +211,39 @@ class ProduksiController extends Controller
                 ], [
                     'required' => 'This field is requried'
                 ]);
-
+                $jenisMesin = $request->add_jenis_mesin;
                 $tipeOrder = $request->add_tipe_order;
-                if ($tipeOrder != '2') {
+                if ($jenisMesin != '2') {
                     foreach ($request->add_platform_digital as $key => $value) {
                         $platformDigital[$key] = $value;
                     }
                 } else {
                     $platformDigital = [];
                 }
+                $imprintName = DB::table('imprint')
+                    ->where('id', $request->add_imprint)
+                    ->whereNull('deleted_at')
+                    ->first();
+                $penulisName = DB::table('penerbitan_penulis')
+                    ->where('id', $request->add_penulis)
+                    ->whereNull('deleted_at')
+                    ->first();
                 $idO = Str::uuid()->getHex();
                 $getId = $this->getOrderId($tipeOrder);
                 DB::table('produksi_order_cetak')->insert([
                     'id' => $idO,
                     'kode_order' => $getId,
                     'tipe_order' => $tipeOrder,
+                    'jenis_mesin' => $jenisMesin,
                     'status_cetak' => $request->add_status_cetak,
                     'judul_buku' => $request->add_judul_buku,
                     'sub_judul' => $request->add_sub_judul_buku,
                     'platform_digital' => json_encode($platformDigital),
                     'pilihan_terbit' => $request->add_pilihan_terbit,
                     'urgent' => $request->add_urgent,
-                    'penulis' => $request->add_penulis,
+                    'penulis' => $penulisName->nama,
                     'penerbit' => $request->add_penerbit,
-                    'imprint' => $request->add_imprint,
+                    'imprint' => $imprintName->nama,
                     'isbn' => $request->add_isbn,
                     'eisbn' => $request->add_eisbn,
                     'edisi_cetakan' => $request->add_edisi.'/'.$request->add_cetakan,
@@ -172,6 +271,10 @@ class ProduksiController extends Controller
                     'perlengkapan' => $request->add_perlengkapan,
                     'created_by' => auth()->id()
                 ]);
+                DB::table('produksi_penyetujuan_order_cetak')->insert([
+                    'id' => Uuid::uuid4()->toString(),
+                    'produksi_order_cetak_id' => $idO,
+                ]);
                 $this->notifPersetujuan($request->add_status_cetak,'create-notif', [
                         'form_id' => $idO
                     ]);
@@ -181,15 +284,13 @@ class ProduksiController extends Controller
                 //     'data' => $dd
                 // ]);
                 return response()->json([
-                    'success' => true,
+                    'status' => 'success',
                     'message' => 'Data berhasil ditambahkan',
                     'redirect' => route('produksi.view')
                 ]);
             }
         }
         $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani']);
-        $statusCetak = array(['id' => 1,'name' => 'Buku Baru'], ['id' => 2,'name' => 'Cetak Ulang Revisi'],
-        ['id' => 3,'name' => 'Cetak Ulang']);
         $urgent = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
         $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
         $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
@@ -201,7 +302,6 @@ class ProduksiController extends Controller
         return view('produksi.create_produksi', [
             'title' => 'Order Cetak Buku',
             'tipeOrd' => $tipeOrd,
-            'statusCetak' => $statusCetak,
             'platformDigital' => $platformDigital,
             'urgent' => $urgent,
             'kbuku' => $kbuku,

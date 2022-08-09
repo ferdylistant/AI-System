@@ -267,4 +267,35 @@ class ApiController extends Controller
 
 
     }
+    public function listStatusCetak(Request $request)
+    {
+        $val = $request->input('value');
+        if ($val == '2') {
+            $data = (object)[['value' => 1,'label' => 'Buku Baru'], ['value' => 2,'label' => 'Cetak Ulang Revisi']];
+        } elseif ($val == '1') {
+            $data = (object)[['value' => 1,'label' => 'Buku Baru'],['value' => 3,'label' => 'Cetak Ulang']];
+        }
+        echo '<option label="Pilih"></option>';
+        foreach ($data as $value) {
+            echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+        }
+    }
+    public function listJenisMesin(Request $request)
+    {
+        $jenisMesin = (object)[['value' => '1','label' => 'POD'],['value' => '2','label' => 'Mesin Besar']];
+        if ($request->has('id')) {
+            $id = $request->get('id');
+            $data = DB::table('produksi_order_cetak')->where('id', $id)->first();
+            echo '<option label="Pilih"></option>';
+            foreach ($jenisMesin as $key => $value) {
+                if ($data->jenis_mesin == $value['value']) {
+                    echo '<option value="'.$value['value'].'" selected>'.$value['label'].'</option>';
+                } else {
+                    echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+                }
+            }
+        } else {
+            return response()->json($jenisMesin);
+        }
+    }
 }

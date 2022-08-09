@@ -47,30 +47,38 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Status Cetak: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fas fa-file"></i></div>
-                                    </div>
-                                    <select class="form-control select2" name="add_status_cetak" required>
-                                        <option label="Pilih"></option>
-                                        @foreach ($statusCetak as $val)
-                                            <option value="{{ $val['id'] }}">{{ $val['name'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div id="err_add_status_cetak"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Pilihan Terbit: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fas fa-file"></i></div>
+                                        <div class="input-group-text"><i class="fas fa-truck-loading"></i></div>
                                     </div>
                                     <select class="form-control select2" name="add_pilihan_terbit" id="pilihanTerbit" required>
                                         <option label="Pilih"></option>
                                     </select>
                                     <div id="err_add_pilihan_terbit"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-6 mb-4">
+                                <label>Status Cetak: <span class="text-danger">*isi pilihan terbit dahulu</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fas fa-file"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="add_status_cetak" id="statusCetak" required>
+                                    </select>
+                                    <div id="err_add_status_cetak"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-6 mb-4">
+                                <label>Jenis Mesin: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fas fa-hdd"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="add_jenis_mesin" id="jenisMesin" required>
+                                        <option label="Pilih"></option>
+                                    </select>
+                                    <div id="err_add_jenis_mesin"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
@@ -114,8 +122,8 @@
                                 </div>
                                 <div id="err_add_tentang_penulis" style="display: block;"></div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Penulis: </label>
+                            <div class="form-group col-12 col-md-4 mb-4" id="penulis">
+                                <label>Penulis: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-pen"></i></div>
@@ -140,7 +148,7 @@
                                     <div id="err_add_isbn"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            <div class="form-group col-12 col-md-6 mb-4" id="eISBN">
                                 <label>E-ISBN: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -407,7 +415,7 @@
                                 <label>SPP: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-copy"></i></div>
+                                        <div class="input-group-text"><i class="fa fa-pen-square"></i></div>
                                     </div>
                                     <input type="text" class="form-control" name="add_spp" placeholder="Surat Perjanjian Penulis">
                                     <div id="err_add_spp"></div>
