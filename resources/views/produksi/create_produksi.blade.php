@@ -129,8 +129,8 @@
                                         <div class="input-group-text"><i class="fas fa-pen"></i></div>
                                     </div>
                                     <select class="form-control select2" name="add_penulis[]">
+                                        <option label="Pilih"></option>
                                         @foreach ($penulis as $pen)
-                                            <option label="Pilih"></option>
                                             <option value="{{ $pen->id }}">{{ $pen->nama }}</option>
                                         @endforeach
                                     </select>
@@ -411,7 +411,7 @@
                                     <div id="err_add_jumlah_cetak"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            <div class="form-group col-12 col-md-12 mb-4" id="sPP">
                                 <label>SPP: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">

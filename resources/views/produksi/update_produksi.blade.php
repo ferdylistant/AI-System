@@ -50,7 +50,18 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Status Cetak: <span class="text-danger">*</span></label>
+                                <label>Pilihan Terbit: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fas fa-truck-loading"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="up_pilihan_terbit" id="pilihanTerbit" required>
+                                    </select>
+                                    <div id="err_up_pilihan_terbit"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-6 mb-4">
+                                <label>Status Cetak: <span class="text-danger">*isi pilihan terbit dahulu</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-file"></i></div>
@@ -62,6 +73,18 @@
                                         @endforeach
                                     </select>
                                     <div id="err_up_status_cetak"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-6 mb-4">
+                                <label>Jenis Mesin: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fas fa-hdd"></i></div>
+                                    </div>
+                                    <select class="form-control select2" name="up_jenis_mesin" id="jenisMesin" required>
+                                        <option label="Pilih"></option>
+                                    </select>
+                                    <div id="err_up_jenis_mesin"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
@@ -84,7 +107,7 @@
                                     <div id="err_up_sub_judul_buku"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4" id="gridPlatformDigital">
+                            <div class="form-group col-12 col-md-4 mb-4" id="gridPlatformDigital">
                                 <label class="d-block">Platform E-book: <span class="text-danger">*</span></label>
                                 @foreach ($platformDigital as $pD)
                                     <div class="form-check form-check-inline">
@@ -92,17 +115,6 @@
                                         <label class="form-check-label" for="{{ $pD['name'] }}">{{ $pD['name'] }}</label>
                                     </div>
                                 @endforeach
-                            </div>
-                            <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Pilihan Terbit: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fas fa-file"></i></div>
-                                    </div>
-                                    <select class="form-control select2" name="up_pilihan_terbit" id="pilihanTerbit" required>
-                                    </select>
-                                    <div id="err_up_pilihan_terbit"></div>
-                                </div>
                             </div>
                             <div class="form-group col-12 col-md-2 mb-4">
                                 <label>Urgent: <span class="text-danger">*</span></label>
@@ -115,13 +127,18 @@
                                 </div>
                                 <div id="err_up_tentang_penulis" style="display: block;"></div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            <div class="form-group col-12 col-md-6 mb-4" id="penulis">
                                 <label>Penulis: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-pen"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="up_penulis" value="{{$data->penulis}}" placeholder="Penulis" required>
+                                    <select class="form-control select2" name="up_penulis" required>
+                                        <option label="Pilih"></option>
+                                        @foreach ($penulis as $pen)
+                                            <option value="{{ $pen->id }}" {{$data->penulis==$pen->nama?'Selected':''}}>{{ $pen->nama }}</option>
+                                        @endforeach
+                                    </select>
                                     <div id="err_up_penulis"></div>
                                 </div>
                             </div>
@@ -136,7 +153,7 @@
                                     <div id="err_up_isbn"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            <div class="form-group col-12 col-md-6 mb-4" id="eISBN">
                                 <label>E-ISBN: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -165,7 +182,7 @@
                                     <select class="form-control select2" name="up_imprint" required>
                                         <option label="Pilih"></option>
                                         @foreach ($imprint as $imp)
-                                            <option value="{{ $imp['name'] }}" {{$data->imprint==$imp['name']?'Selected':''}}>{{ $imp['name'] }}</option>
+                                            <option value="{{ $imp->id }}" {{$data->imprint==$imp->nama?'Selected':''}}>{{ $imp->nama }}</option>
                                         @endforeach
                                     </select>
                                     <div id="err_up_imprint"></div>
@@ -397,7 +414,7 @@
                                     <div id="err_up_jumlah_cetak"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            <div class="form-group col-12 col-md-6 mb-4" id="sPP">
                                 <label>SPP: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">

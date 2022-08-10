@@ -90,7 +90,7 @@ class ProduksiController extends Controller
                                 } else {
                                     //Manajer Penerbitan
                                     if($data->m_penerbitan_act == '1') {
-                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
+                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
                                     } elseif($data->m_penerbitan_act == '2') {
                                         $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
                                     } elseif($data->m_penerbitan_act == '3') {
@@ -98,15 +98,15 @@ class ProduksiController extends Controller
                                     }
                                     //Direksi Operasional
                                     if($data->d_operasional_act == '1') {
-                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
                                     } elseif($data->d_operasional_act == '2') {
                                         $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
                                     } elseif($data->d_operasional_act == '3') {
-                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
                                     }
                                     //Direksi Keuangan
                                     if($data->d_keuangan_act == '1') {
-                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
+                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
                                     } elseif($data->d_keuangan_act == '2') {
                                         $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
                                     } elseif($data->d_keuangan_act == '3') {
@@ -114,7 +114,7 @@ class ProduksiController extends Controller
                                     }
                                     //Direksi Utama
                                     if($data->d_utama_act == '1') {
-                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
                                     } elseif($data->d_utama_act == '2') {
                                         $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
                                     } elseif($data->d_utama_act == '3') {
@@ -127,7 +127,7 @@ class ProduksiController extends Controller
                                 } else {
                                     //Manajer Stok
                                     if($data->m_stok_act == '1') {
-                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> M.Stok</div>';
+                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> M.Stok</div>';
                                     } elseif($data->m_stok_act == '2') {
                                         $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> M.Stok</div>';
                                     } elseif($data->m_stok_act == '3') {
@@ -135,7 +135,7 @@ class ProduksiController extends Controller
                                     }
                                     //Direksi Operasional
                                     if($data->d_operasional_act == '1') {
-                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
                                     } elseif($data->d_operasional_act == '2') {
                                         $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
                                     } elseif($data->d_operasional_act == '3') {
@@ -143,7 +143,7 @@ class ProduksiController extends Controller
                                     }
                                     //Direksi Keuangan
                                     if($data->d_keuangan_act == '1') {
-                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
+                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
                                     } elseif($data->d_keuangan_act == '2') {
                                         $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
                                     } elseif($data->d_keuangan_act == '3') {
@@ -151,7 +151,7 @@ class ProduksiController extends Controller
                                     }
                                     //Direksi Utama
                                     if($data->d_utama_act == '1') {
-                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
                                     } elseif($data->d_utama_act == '2') {
                                         $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
                                     } elseif($data->d_utama_act == '3') {
@@ -396,13 +396,9 @@ class ProduksiController extends Controller
         $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani'], ['id' => 3,'name' => 'POD']);
         $statusCetak = array(['id' => 1,'name' => 'Buku Baru'], ['id' => 2,'name' => 'Cetak Ulang Revisi'],
         ['id' => 3,'name' => 'Cetak Ulang']);
+        $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
+        $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
         $urgent = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
-        $imprint = array(
-            ['name' => 'Andi'],['name' => 'G-Media'],['name' => 'NAIN'],['name' => 'Nigtoon Cookery'],
-            ['name' => 'YesCom'],['name' => 'Rapha'],['name' => 'Rainbow'],['name' => 'Lautan Pustaka'],
-            ['name' => 'Sheila'],['name' => 'MOU Pro Literasi'],['name' => 'Rumah Baca'],['name' => 'NyoNyo'],
-            ['name' => 'Mou Perorangan'],['name' => 'PBMR Andi'],['name' => 'Garam Media'],['name' => 'Lily Publisher'],
-            ['name' => 'Sigma'],['name' => 'Pustaka Referensi'],['name' => 'Cahaya Harapan']);
         $platformDigital = array(['name'=>'Moco'],['name'=>'Google Book'],['name'=>'Gramedia'],['name'=>'Esentral'],
         ['name'=>'Bahanaflik'],['name'=> 'Indopustaka']);
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
@@ -417,10 +413,11 @@ class ProduksiController extends Controller
             'title' => 'Update Cetak Buku',
             'tipeOrd' => $tipeOrd,
             'statusCetak' => $statusCetak,
+            'imprint' => $imprint,
+            'penulis' => $penulis,
             'platformDigital' => $platformDigital,
             'urgent' => $urgent,
             'kbuku' => $kbuku,
-            'imprint' => $imprint,
             'data' => $data,
             'edisi' => $edisi,
             'cetakan' => $cetakan,
@@ -440,16 +437,23 @@ class ProduksiController extends Controller
                     ->first();
         $dataPenolakan = DB::table('produksi_penyetujuan_order_cetak as pny')
         ->where('pny.produksi_order_cetak_id', $kode)
-        ->where('action', '2')
+        ->where(function($query) {
+            $query->where('pny.d_operasional_act', '=', '2')
+                  ->orWhere('pny.d_keuangan_act', '=', '2')
+                  ->orWhere('pny.d_utama_act', '=', '2');
+        })
+        ->whereNull('pny.pending_sampai')
         ->first();
         $prodPenyetujuan = DB::table('produksi_penyetujuan_order_cetak')
-                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
                     ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
                     ->where(function ($query) {
-                        $query->where('produksi_penyetujuan_order_cetak.action', '=', '1')
-                            ->orWhere('produksi_penyetujuan_order_cetak.action', '=', '2');
+                        $query->where('produksi_penyetujuan_order_cetak.m_penerbitan_act', '=', '3')
+                            ->orWhere('produksi_penyetujuan_order_cetak.m_stok_act', '=', '3')
+                            ->orWhere('produksi_penyetujuan_order_cetak.d_operasional_act', '=', '3')
+                            ->orWhere('produksi_penyetujuan_order_cetak.d_keuangan_act', '=', '3')
+                            ->orWhere('produksi_penyetujuan_order_cetak.d_utama_act', '=', '3');
                     })
-                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
+                    ->select('produksi_penyetujuan_order_cetak.*')
                     ->get();
         $author = DB::table('users')
                     ->where('id', $author)
@@ -462,12 +466,6 @@ class ProduksiController extends Controller
         if(is_null($m_stok)){
             $m_stok = '';
         }
-        $p_mstok = DB::table('produksi_penyetujuan_order_cetak')
-                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
-                    ->where('produksi_penyetujuan_order_cetak.users_id','=', $m_stok->id)
-                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
-                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
-                    ->first();
         $m_penerbitan = DB::table('users as u')
                     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
                     ->where('j.nama', 'LIKE', '%Manajer Penerbitan%')
@@ -476,12 +474,6 @@ class ProduksiController extends Controller
         if(is_null($m_penerbitan)){
             $m_penerbitan = '';
         }
-        $p_mp = DB::table('produksi_penyetujuan_order_cetak')
-                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
-                    ->where('produksi_penyetujuan_order_cetak.users_id','=', $m_penerbitan->id)
-                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
-                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
-                    ->first();
         $dirop = DB::table('users as u')
                     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
                     ->where('j.nama', 'LIKE', '%Direktur Operasional%')
@@ -490,12 +482,6 @@ class ProduksiController extends Controller
         if(is_null($dirop)){
             $dirop = '';
         }
-        $p_dirop = DB::table('produksi_penyetujuan_order_cetak')
-                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
-                    ->where('produksi_penyetujuan_order_cetak.users_id','=', $dirop->id)
-                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
-                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
-                    ->first();
         $dirke = DB::table('users as u')
                     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
                     ->where('j.nama', 'LIKE', '%Direktur Keuangan%')
@@ -504,12 +490,6 @@ class ProduksiController extends Controller
         if(is_null($dirke)){
             $dirke = '';
         }
-        $p_dirke = DB::table('produksi_penyetujuan_order_cetak')
-                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
-                    ->where('produksi_penyetujuan_order_cetak.users_id','=', $dirke->id)
-                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
-                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
-                    ->first();
         $dirut = DB::table('users as u')
                     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
                     ->where('j.nama', 'LIKE', '%Direktur Utama%')
@@ -518,9 +498,46 @@ class ProduksiController extends Controller
         if(is_null($dirut)){
             $dirut = '';
         }
+        DB::table('produksi_penyetujuan_order_cetak')
+            ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id', $prod->id)
+            ->update([
+                'm_stok' => $m_stok->id,
+                'm_penerbitan' => $m_penerbitan->id,
+                'd_operasional' => $dirop->id,
+                'd_keuangan' => $dirke->id,
+                'd_utama' => $dirut->id
+            ]);
+        $p_mstok = DB::table('produksi_penyetujuan_order_cetak')
+                    ->join('users', 'produksi_penyetujuan_order_cetak.m_stok', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_cetak.m_stok','=', $m_stok->id)
+                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
+                    ->first();
+
+        $p_mp = DB::table('produksi_penyetujuan_order_cetak')
+                    ->join('users', 'produksi_penyetujuan_order_cetak.m_penerbitan', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_cetak.m_penerbitan','=', $m_penerbitan->id)
+                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
+                    ->first();
+
+        $p_dirop = DB::table('produksi_penyetujuan_order_cetak')
+                    ->join('users', 'produksi_penyetujuan_order_cetak.d_operasional', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_cetak.d_operasional','=', $dirop->id)
+                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
+                    ->first();
+
+        $p_dirke = DB::table('produksi_penyetujuan_order_cetak')
+                    ->join('users', 'produksi_penyetujuan_order_cetak.d_keuangan', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_cetak.d_keuangan','=', $dirke->id)
+                    ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
+                    ->first();
+
         $p_dirut = DB::table('produksi_penyetujuan_order_cetak')
-                    ->join('users', 'produksi_penyetujuan_order_cetak.users_id', '=', 'users.id')
-                    ->where('produksi_penyetujuan_order_cetak.users_id','=', $dirut->id)
+                    ->join('users', 'produksi_penyetujuan_order_cetak.d_utama', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_cetak.d_utama','=', $dirut->id)
                     ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
                     ->select('produksi_penyetujuan_order_cetak.*', 'users.nama')
                     ->first();

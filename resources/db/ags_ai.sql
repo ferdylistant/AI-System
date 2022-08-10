@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 09 Agu 2022 pada 11.30
+-- Waktu pembuatan: 10 Agu 2022 pada 11.29
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -932,8 +932,8 @@ CREATE TABLE `produksi_penyetujuan_order_cetak` (
   `d_operasional` varchar(36) DEFAULT NULL,
   `d_keuangan` varchar(36) DEFAULT NULL,
   `d_utama` varchar(36) DEFAULT NULL,
-  `m_penerbitan_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
-  `m_stok_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
+  `m_penerbitan_act` enum('1','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 3= Setuju',
+  `m_stok_act` enum('1','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 3= Setuju',
   `d_operasional_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
   `d_keuangan_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
   `d_utama_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
@@ -952,7 +952,7 @@ CREATE TABLE `produksi_penyetujuan_order_cetak` (
 --
 
 INSERT INTO `produksi_penyetujuan_order_cetak` (`id`, `produksi_order_cetak_id`, `m_penerbitan`, `m_stok`, `d_operasional`, `d_keuangan`, `d_utama`, `m_penerbitan_act`, `m_stok_act`, `d_operasional_act`, `d_keuangan_act`, `d_utama_act`, `tgl_permintaan_jadi_update`, `jumlah_cetak_update`, `diubah_oleh`, `ket_pending`, `pending_sampai`, `status_general`, `created_at`, `updated_at`) VALUES
-('74df91f8-243d-4795-a196-e45db2ddfb2d', '51f0d8f725094114986a93ade0d7a8e6', NULL, NULL, NULL, NULL, NULL, '1', '1', '1', '1', '1', NULL, NULL, NULL, NULL, NULL, NULL, '2022-08-09 08:49:30', '2022-08-09 08:49:30');
+('74df91f8-243d-4795-a196-e45db2ddfb2d', '51f0d8f725094114986a93ade0d7a8e6', '4fc80f443bfb4969b9a0272d9be08ef2', '59cb3d41a58141c3a3518a2e78c84221', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '1', '1', '1', NULL, NULL, NULL, NULL, NULL, NULL, '2022-08-09 08:49:30', '2022-08-10 02:45:36');
 
 -- --------------------------------------------------------
 

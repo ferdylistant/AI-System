@@ -155,17 +155,17 @@
                                         <div class="user-details">
                                         @if ($data->status_cetak == '3')
                                             <div class="user-name">Manajer Stok:</div>
-                                                @if(is_null($p_mstok))
+                                                @if($p_mstok->m_stok_act == '1')
                                                 <div class="text-job text-muted">
-                                                &nbsp;
+                                                <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
                                                 </div>
-                                                @elseif($p_mstok->action == '1')
+                                                @elseif($p_mstok->m_stok_act == '3')
                                                 <div class="text-job text-success">
                                                     <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
                                                 </div>
-                                                @elseif($p_mstok->action == '2')
+                                                @elseif($p_mstok->m_stok_act == '2')
                                                 <div class="text-job text-danger">
-                                                    <i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak
+                                                    <i class="fas fa-minus-circle"></i>&nbsp;Dipending
                                                 </div>
                                                 @endif
                                             <div class="user-cta">
@@ -173,17 +173,13 @@
                                             </div>
                                         @else
                                             <div class="user-name">Manajer Penerbitan:</div>
-                                                @if (is_null($p_mp))
+                                                @if ($p_mp->m_penerbitan_act == '1')
                                                 <div class="text-job text-muted">
-                                                    &nbsp;
+                                                    <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
                                                 </div>
-                                                @elseif($p_mp->action == '1')
+                                                @elseif($p_mp->m_penerbitan_act == '3')
                                                 <div class="text-job text-success">
                                                     <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
-                                                </div>
-                                                @elseif($p_mp->action == '2')
-                                                <div class="text-job text-danger">
-                                                    <i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak
                                                 </div>
                                                 @endif
                                             <div class="user-cta">
@@ -199,17 +195,17 @@
                                     <div class="user-item">
                                         <div class="user-details">
                                           <div class="user-name">Direktur Operasional:</div>
-                                            @if(is_null($p_dirop))
+                                            @if($p_dirop->d_operasional_act == '1')
                                             <div class="text-job text-muted">
-                                                &nbsp;
+                                                <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
                                             </div>
-                                            @elseif($p_dirop->action == '1')
+                                            @elseif($p_dirop->d_operasional_act == '3')
                                             <div class="text-job text-success">
                                                 <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
                                             </div>
-                                            @elseif($p_dirop->action == '2')
+                                            @elseif($p_dirop->d_operasional_act == '2')
                                             <div class="text-job text-muted">
-                                                <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak</a>
+                                                <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-minus-circle"></i>&nbsp;Dipending</a>
                                             </div>
                                             @endif
                                           <div class="user-cta">
@@ -223,17 +219,17 @@
                                     <div class="user-item">
                                         <div class="user-details">
                                           <div class="user-name">Direktur Keuangan:</div>
-                                            @if(is_null($p_dirke))
+                                            @if($p_dirke->d_keuangan_act == '1')
                                             <div class="text-job text-muted">
-                                                &nbsp;
+                                                <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
                                             </div>
-                                            @elseif($p_dirke->action == '1')
+                                            @elseif($p_dirke->d_keuangan_act == '3')
                                             <div class="text-job text-success">
                                                 <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
                                             </div>
-                                            @elseif($p_dirke->action == '2')
+                                            @elseif($p_dirke->d_keuangan_act == '2')
                                             <div class="text-job text-muted">
-                                                <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak</a>
+                                                <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-minus-circle"></i>&nbsp;Dipending</a>
                                             </div>
                                             @endif
                                           <div class="user-cta">
@@ -247,17 +243,17 @@
                                     <div class="user-item">
                                         <div class="user-details">
                                           <div class="user-name">Direktur Utama:</div>
-                                            @if(is_null($p_dirut))
+                                            @if($p_dirut->d_utama_act == '1')
                                             <div class="text-job text-muted">
-                                                &nbsp;
+                                                <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
                                             </div>
-                                            @elseif($p_dirut->action == '1')
+                                            @elseif($p_dirut->d_utama_act == '3')
                                             <div class="text-job text-success">
                                                 <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
                                             </div>
-                                            @elseif($p_dirut->action == '2')
+                                            @elseif($p_dirut->d_utama_act == '2')
                                             <div class="text-job text-muted">
-                                                <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-times-circle"></i>&nbsp;Telah Ditolak</a>
+                                                <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-minus-circle"></i>&nbsp;Dipending</a>
                                             </div>
                                             @endif
                                           <div class="user-cta">
@@ -277,6 +273,32 @@
                                     <input type="hidden" id="id" value="{{ $data->id }}">
                                     <input type="hidden" id="kode_order" value="{{ $data->kode_order }}">
                                     <p class="mb-1 text-monospace">{{ $data->kode_order }}</p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Pilihan Terbit</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                        @if ($data->pilihan_terbit == '1')
+                                            Cetak Fisik
+                                        @elseif ($data->pilihan_terbit == '2')
+                                            E-Book
+                                        @elseif ($data->pilihan_terbit == '3')
+                                            Cetak Fisik + E-Book
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Jenis Mesin</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                        @if ($data->jenis_mesin == '1')
+                                            POD
+                                        @elseif ($data->jenis_mesin == '2')
+                                            Mesin Besar
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
@@ -301,13 +323,11 @@
                                         @if ($data->pilihan_terbit == '1')
                                             Cetak Fisik
                                         @elseif ($data->pilihan_terbit == '2')
-                                            E-Book
-                                        @elseif ($data->pilihan_terbit == '3')
                                             Cetak Fisik + E-Book
                                         @endif
                                     </p>
                                 </div>
-                                @if ($data->tipe_order != '2')
+                                @if ($data->pilihan_terbit != '1')
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Platform Digital</h6>
@@ -361,6 +381,7 @@
                                     @endif
                                     </p>
                                 </div>
+                                @if ($data->pilihan_terbit != '1')
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">E-ISBN</h6>
@@ -373,6 +394,7 @@
                                     @endif
                                     </p>
                                 </div>
+                                @endif
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Tahun Terbit</h6>

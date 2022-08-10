@@ -8,6 +8,46 @@ $(document).ready(function(){
         success:function(hasil)
         {
             $("#pilihanTerbit").html(hasil);
+            var pilTerbit = $('select[name=up_pilihan_terbit] option').filter(':Selected').val();
+            if(pilTerbit == '1'){
+                $('#gridPlatformDigital').hide();
+                $('#eISBN').hide();
+                $('#penulis').attr('class', 'form-group col-12 col-md-4 mb-4');
+                $('#sPP').attr('class', 'form-group col-12 col-md-12 mb-4');
+            }
+            $('#pilihanTerbit').on('change', function() {
+                var tipe = $(this).val();
+                if (tipe == '2') {
+                    $('#gridPlatformDigital').show();
+                    $('#eISBN').show();
+                    $('#penulis').attr('class', 'form-group col-12 col-md-6 mb-4');
+                    $('#sPP').attr('class', 'form-group col-12 col-md-6 mb-4');
+                } else{
+                    $('input[type=checkbox]').prop('checked', false).val('');
+                    $('#gridPlatformDigital').hide();
+                    $('#eISBN').hide();
+                    $('#penulis').attr('class', 'form-group col-12 col-md-4 mb-4');
+                    $('#sPP').attr('class', 'form-group col-12 col-md-12 mb-4');
+                }
+            });
+        },
+        error:function(xhr, status, error){
+            console.log(xhr);
+            console.log(status);
+            console.log(error);
+        }
+    });
+});
+$(document).ready(function(){
+    var id = $('#idProd').val();
+    // console.log(id);
+    $.ajax({
+        type: 'GET',
+        url: window.location.origin + '/list-jenis-mesin',
+        data: 'id='+ id,
+        success:function(hasil)
+        {
+            $("#jenisMesin").html(hasil);
         },
         error:function(xhr, status, error){
             console.log(xhr);
@@ -85,22 +125,25 @@ $(document).ready(function(){
         });
     });
 })
-$(document).ready(function() {
-    // e.preventDefault();
-    var tipeAwal = $('select[name=up_tipe_order] option').filter(':Selected').val();
-    if(tipeAwal == '2'){
-        $('#gridPlatformDigital').hide();
-    }
-    $('#selTipeOrder').on('change', function() {
-        var tipe = $(this).val();
-        if (tipe !== '2') {
-            $('#gridPlatformDigital').show();
-        } else {
-            $('input[type=checkbox]').prop('checked', false).val('');
-            $('#gridPlatformDigital').hide();
-        }
-    });
-});
+// $(document).ready(function() {
+//     // e.preventDefault();
+//     var pilTerbit = $('select[name=up_pilihan_terbit] option').filter(':Selected').val();
+//     if(pilTerbit == '1'){
+//         $('#gridPlatformDigital').hide();
+//         $('#eISBN').hide();
+//     }
+//     $('#pilihanTerbit').on('change', function() {
+//         var tipe = $(this).val();
+//         if (tipe == '2') {
+//             $('#gridPlatformDigital').show();
+//             $('#eISBN').show();
+//         } else {
+//             $('input[type=checkbox]').prop('checked', false).val('');
+//             $('#gridPlatformDigital').hide();
+//             $('#eISBN').hide();
+//         }
+//     });
+// });
 $(document).ready(function() {
     $('#ukuranBending').hide();
     var tipeAwal = $('select[name=up_jilid] option').filter(':Selected').val();
@@ -136,6 +179,7 @@ $(function() {
     function resetFrom(form) {
     form.trigger('reset');
         $('[name="up_tipe_order"]').val('').trigger('change');
+        $('[name="up_jenis_mesin"]').val('').trigger('change');
         $('[name="up_status_cetak"]').val('').trigger('change');
         $('[name="up_judul_buku"]').val('').trigger('change');
         $('[name="up_platform_digital[]"]').val('').trigger('change');
@@ -175,7 +219,7 @@ $(function() {
             },
             success: function(result) {
                 resetFrom(data);
-                notifToast('success', 'Data produksi berhasil diubah!');
+                notifToast(result.status, result.message);
                 location.href = result.route;
             },
             error: function(err) {
