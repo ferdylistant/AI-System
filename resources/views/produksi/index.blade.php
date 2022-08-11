@@ -22,7 +22,7 @@
     <div class="section-body">
         <div class="row">
             <div class="col-12">
-                <div class="card card-primary">
+                <div class="card card-warning">
                     <div class="card-body">
                         <div class="col-12 table-responsive">
                             <table class="table table-striped" id="tb_Produksi" style="width:100%">

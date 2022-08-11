@@ -327,7 +327,8 @@ class ProduksiController extends Controller
                     'required' => 'This field is requried'
                 ]);
                 $tipeOrder = $request->up_tipe_order;
-                if ($tipeOrder != '2') {
+                $pilihanTerbit = $request->up_pilihan_terbit;
+                if ($pilihanTerbit != '1') {
                     foreach ($request->up_platform_digital as $key => $value) {
                         $platformDigital[$key] = $value;
                     }
@@ -340,7 +341,14 @@ class ProduksiController extends Controller
                 } else {
                     $getKode = $this->getOrderId($tipeOrder);
                 }
-
+                $imprintName = DB::table('imprint')
+                    ->where('id', $request->up_imprint)
+                    ->whereNull('deleted_at')
+                    ->first();
+                $penulisName = DB::table('penerbitan_penulis')
+                    ->where('id', $request->up_penulis)
+                    ->whereNull('deleted_at')
+                    ->first();
 
                 DB::table('produksi_order_cetak')
                     ->where('id', $request->id)
@@ -350,12 +358,13 @@ class ProduksiController extends Controller
                     'status_cetak' => $request->up_status_cetak,
                     'judul_buku' => $request->up_judul_buku,
                     'sub_judul' => $request->up_sub_judul_buku,
-                    'pilihan_terbit' => $request->up_pilihan_terbit,
+                    'pilihan_terbit' => $pilihanTerbit,
+                    'jenis_mesin' => $request->up_jenis_mesin,
                     'platform_digital' => json_encode($platformDigital),
                     'urgent' => $request->up_urgent,
-                    'penulis' => $request->up_penulis,
+                    'penulis' => $penulisName->nama,
                     'penerbit' => $request->up_penerbit,
-                    'imprint' => $request->up_imprint,
+                    'imprint' => $imprintName->nama,
                     'isbn' => $request->up_isbn,
                     'eisbn' => $request->up_eisbn,
                     'edisi_cetakan' => $request->up_edisi.'/'.$request->up_cetakan,
@@ -381,9 +390,13 @@ class ProduksiController extends Controller
                     'spp' => $request->up_spp,
                     'keterangan' => $request->up_keterangan,
                     'perlengkapan' => $request->up_perlengkapan,
-                    'created_by' => auth()->id()
+                    'updated_by' => auth()->id()
                 ]);
-                return response()->json(['route' => route('produksi.view')]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data berhasil diubah',
+                    'route' => route('produksi.view')
+                ]);
             }
         }
         $kodeOr = $request->get('kode');
@@ -393,7 +406,7 @@ class ProduksiController extends Controller
                     ->where('users.id', $author)
                     ->select('produksi_order_cetak.*', 'users.nama')
                     ->first();
-        $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani'], ['id' => 3,'name' => 'POD']);
+        $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani']);
         $statusCetak = array(['id' => 1,'name' => 'Buku Baru'], ['id' => 2,'name' => 'Cetak Ulang Revisi'],
         ['id' => 3,'name' => 'Cetak Ulang']);
         $imprint = DB::table('imprint')->whereNull('deleted_at')->get();

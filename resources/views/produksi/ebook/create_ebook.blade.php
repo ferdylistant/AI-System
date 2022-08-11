@@ -16,7 +16,7 @@
 <section class="section">
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('produksi.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('ebook.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
         <h1>Buat Order Produksi</h1>
     </div>
@@ -27,7 +27,7 @@
                 <div class="card card-success">
                     <form id="fadd_Produksi">
                         <div class="card-header">
-                            <h4>Form Produksi</h4>
+                            <h4>Form Produksi Order Ebook</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -47,19 +47,14 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Status Cetak: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fas fa-file"></i></div>
+                                <label class="d-block">Platform E-book: <span class="text-danger">*</span></label>
+                                @foreach ($platformDigital as $pD)
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" id="{{ $pD['name'] }}" name="add_platform_digital[]" value="{{ $pD['name'] }}" required>
+                                        <label class="form-check-label" for="{{ $pD['name'] }}">{{ $pD['name'] }}</label>
                                     </div>
-                                    <select class="form-control select2" name="add_status_cetak" required>
-                                        <option label="Pilih"></option>
-                                        @foreach ($statusCetak as $val)
-                                            <option value="{{ $val['id'] }}">{{ $val['name'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div id="err_add_status_cetak"></div>
-                                </div>
+                                @endforeach
+
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Judul Buku: <span class="text-danger">*</span></label>
@@ -81,61 +76,22 @@
                                     <div id="err_add_sub_judul_buku"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4" id="gridPlatformDigital">
-                                <label class="d-block">Platform E-book: <span class="text-danger">*</span></label>
-                                @foreach ($platformDigital as $pD)
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" id="{{ $pD['name'] }}" name="add_platform_digital[]" value="{{ $pD['name'] }}" required>
-                                        <label class="form-check-label" for="{{ $pD['name'] }}">{{ $pD['name'] }}</label>
-                                    </div>
-                                @endforeach
-
-                            </div>
-                            <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Pilihan Terbit: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fas fa-file"></i></div>
-                                    </div>
-                                    <select class="form-control select2" name="add_pilihan_terbit" id="pilihanTerbit" required>
-                                        <option label="Pilih"></option>
-                                    </select>
-                                    <div id="err_add_pilihan_terbit"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-2 mb-4">
-                                <label>Urgent: <span class="text-danger">*</span></label>
-                                <div class="form-check">
-                                    @foreach ($urgent as $urg)
-                                        <input class="form-check-input" type="radio" name="add_urgent" value="{{ $urg['id'] }}" id="add_urgent" required>
-                                        <label class="form-check-label mr-4" for="add_urgent">{{ $urg['name'] }}</label>
-                                    @endforeach
-
-                                </div>
-                                <div id="err_add_tentang_penulis" style="display: block;"></div>
-                            </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Penulis: </label>
+                                <label>Penulis: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-pen"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_penulis"  placeholder="Penulis" required>
+                                    <select class="form-control select2" name="add_penulis[]">
+                                        <option label="Pilih"></option>
+                                        @foreach ($penulis as $pen)
+                                            <option value="{{ $pen->id }}">{{ $pen->nama }}</option>
+                                        @endforeach
+                                    </select>
                                     <div id="err_add_penulis"></div>
                                 </div>
                             </div>
-
-                            <div class="form-group col-12 col-md-6 mb-4">
-                                <label>ISBN: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fas fa-fingerprint"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="add_isbn" placeholder="Kode ISBN" required>
-                                    <div id="err_add_isbn"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            <div class="form-group col-12 col-md-6 mb-4" id="eISBN">
                                 <label>E-ISBN: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -164,7 +120,7 @@
                                     <select class="form-control select2" name="add_imprint" required>
                                         <option label="Pilih"></option>
                                         @foreach ($imprint as $imp)
-                                            <option value="{{ $imp['name'] }}">{{ $imp['name'] }}</option>
+                                            <option value="{{ $imp->id }}">{{ $imp->nama }}</option>
                                         @endforeach
                                     </select>
                                     <div id="err_add_imprint"></div>
@@ -188,45 +144,6 @@
                                     </div>
                                     <input type="number" min="1" class="form-control" name="add_cetakan" placeholder="Format angka" required>
                                     <div id="err_add_cetakan"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Posisi Layout <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-arrows-alt"></i></div>
-                                    </div>
-                                    <select class="form-control select2" name="add_posisi_layout" id="posisiLayout" required>
-                                        <option label="Pilih"></option>
-                                    </select>
-                                    <div id="err_add_posisi_layout"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Dami <span class="text-danger">* Data dari posisi layout </span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-quote-left"></i></div>
-                                    </div>
-                                    <select class="form-control select2" name="add_dami" id="dami" required>
-                                        <option label="Pilih"></option>
-                                    </select>
-                                    <div id="err_add_dami"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Format Buku <span class="text-danger">* Data dari dami</span></label>
-                                <div class="input-group mb-3">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-ruler-combined"></i></div>
-                                    </div>
-                                    <select class="form-control select2" name="add_format_buku" id="formatBuku" required>
-                                        <option label="Pilih"></option>
-                                    </select>
-                                    <div id="err_add_format_buku"></div>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text"><strong>cm</strong></span>
-                                    </div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
@@ -259,94 +176,6 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Kertas Isi: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-scroll"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="add_kertas_isi"  placeholder="Kertas isi" required>
-                                    <div id="err_add_kertas_isi"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Warna Isi: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-palette"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="add_warna_isi"  placeholder="Warna isi" required>
-                                    <div id="err_add_warna_isi"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Kertas Cover: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-sticky-note"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="add_kertas_cover"  placeholder="Kertas cover" required>
-                                    <div id="err_add_kertas_cover"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Warna Cover: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-palette"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="add_warna_cover"  placeholder="Warna cover" required>
-                                    <div id="err_add_warna_cover"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Efek Cover: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-swatchbook"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="add_efek_cover"  placeholder="Efek cover" required>
-                                    <div id="err_add_efek_cover"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Jenis Cover: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-map"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="add_jenis_cover" placeholder="Jenis cover" required>
-                                    <div id="err_add_jenis_cover"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-6 mb-4" id="formJilid">
-                                <label>Jilid: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-hand-spock"></i></div>
-                                    </div>
-                                    <select class="form-control select2" name="add_jilid" id="jilidChange" required>
-                                        <option label="Pilih"></option>
-                                        @foreach($jilid as $j)
-                                            <option value="{{ $j['id'] }}">{{ $j['name'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div id="err_add_jilid"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4" id="ukuranBending">
-                                <label>Ukuran Bending: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-ruler"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="add_ukuran_bending"  placeholder="Ukuran Bending" required>
-                                    <div id="err_add_ukuran_bending"></div>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text"><strong>cm</strong></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
                                 <label>Tahun Terbit: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -354,26 +183,6 @@
                                     </div>
                                     <input type="text" class="form-control datepicker-year" name="add_tahun_terbit" placeholder="Tahun" required>
                                     <div id="err_add_tahun_terbit"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Tanggal Permintaan Jadi: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control datepicker" name="add_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" required>
-                                    <div id="err_add_tgl_permintaan_jadi"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Buku Jadi: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-journal-whills"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="add_buku_jadi"  placeholder="Buku jadi" required>
-                                    <div id="err_add_buku_jadi"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
@@ -389,30 +198,14 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Jumlah Cetak: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-copy"></i></div>
-                                    </div>
-                                    <input type="number" class="form-control" name="add_jumlah_cetak" min="1" placeholder="Jumlah cetak" required>
-                                    <div id="err_add_jumlah_cetak"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
                                 <label>SPP: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-copy"></i></div>
+                                        <div class="input-group-text"><i class="fa fa-pen-square"></i></div>
                                     </div>
                                     <input type="text" class="form-control" name="add_spp" placeholder="Surat Perjanjian Penulis">
                                     <div id="err_add_spp"></div>
                                 </div>
-                            </div>
-                            <div class="form-group col-12 col-md-12 mb-4">
-                                <label>Buku Contoh: </label>
-                                <textarea class="form-control" name="add_buku_contoh"  placeholder="Buku contoh"></textarea>
-                                <div id="err_add_jumlah_halaman"></div>
-
                             </div>
                             <div class="form-group col-12 col-md-12 mb-4">
                                 <label>Perlengkapan: </label>
