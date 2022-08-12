@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 11 Agu 2022 pada 11.35
+-- Waktu pembuatan: 12 Agu 2022 pada 11.30
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -921,7 +921,7 @@ CREATE TABLE `produksi_order_cetak` (
 --
 
 INSERT INTO `produksi_order_cetak` (`id`, `kode_order`, `tipe_order`, `jenis_mesin`, `status_cetak`, `pilihan_terbit`, `urgent`, `judul_buku`, `sub_judul`, `penulis`, `isbn`, `eisbn`, `penerbit`, `imprint`, `platform_digital`, `status_buku`, `kelompok_buku`, `edisi_cetakan`, `posisi_layout`, `dami`, `format_buku`, `jumlah_halaman`, `kertas_isi`, `warna_isi`, `kertas_cover`, `warna_cover`, `efek_cover`, `jenis_cover`, `jilid`, `ukuran_jilid_bending`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status_penyetujuan`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
-('51f0d8f725094114986a93ade0d7a8e6', '22-1000', '1', '2', '1', '1', '0', 'Di Balik Mata Kaca', 'Termenung', 'Yohanes Hendra', '12124sdsadse564444', NULL, 'Andi', 'Pustaka Referensi', '[]', '1', 'Ensiklopedi', 'I/1', '2', '16', '25 x 20', 'viii + 302', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV, embos', 'Biasa', '3', NULL, 2022, 'wrapping', 234, NULL, NULL, NULL, NULL, '2022-08-31', '1', '2022-08-09 08:49:30', 'be8d42fa88a14406ac201974963d9c1b', '2022-08-11 03:59:14', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL);
+('51f0d8f725094114986a93ade0d7a8e6', '22-1000', '1', '2', '3', '1', '1', 'Di Balik Mata Kaca', 'Termenung', 'Yohanes Hendra', '12124sdsadse564444', NULL, 'Andi', 'Pustaka Referensi', '[]', '1', 'Ensiklopedi', 'I/1', '2', '16', '29,5 x 20,5', 'viii + 302', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV, embos', 'Biasa', '3', NULL, 2022, 'wrapping', 234, NULL, NULL, NULL, NULL, '2022-08-31', '1', '2022-08-09 08:49:30', 'be8d42fa88a14406ac201974963d9c1b', '2022-08-12 09:19:54', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -948,6 +948,7 @@ CREATE TABLE `produksi_order_ebook` (
   `spp` varchar(25) DEFAULT NULL,
   `perlengkapan` text,
   `keterangan` text,
+  `tgl_upload` datetime DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -955,6 +956,13 @@ CREATE TABLE `produksi_order_ebook` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data untuk tabel `produksi_order_ebook`
+--
+
+INSERT INTO `produksi_order_ebook` (`id`, `kode_order`, `tipe_order`, `judul_buku`, `sub_judul`, `platform_digital`, `penulis`, `eisbn`, `penerbit`, `imprint`, `edisi_cetakan`, `jumlah_halaman`, `kelompok_buku`, `tahun_terbit`, `status_buku`, `spp`, `perlengkapan`, `keterangan`, `tgl_upload`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
+('f9c0c7c9-3fb2-44ed-b704-c24e1a7aabdd', 'E22-1000', '1', 'Di Balik Mata Kaca', 'Termenung', '[\"Google Book\",\"Gramedia\",\"Bahanaflik\",\"Indopustaka\"]', 'Lorem Ipsum', '34534434wefgsd', 'Andi', 'PBMR Andi', 'I/3', 'viii + 325', 'Aplikasi Game', 2022, '1', NULL, NULL, NULL, '2022-08-13 15:12:11', '2022-08-12 03:20:41', 'be8d42fa88a14406ac201974963d9c1b', '2022-08-12 08:12:11', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1015,6 +1023,15 @@ CREATE TABLE `produksi_penyetujuan_order_ebook` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data untuk tabel `produksi_penyetujuan_order_ebook`
+--
+
+INSERT INTO `produksi_penyetujuan_order_ebook` (`id`, `produksi_order_ebook_id`, `m_penerbitan`, `d_operasional`, `d_keuangan`, `d_utama`, `m_penerbitan_act`, `d_operasional_act`, `d_keuangan_act`, `d_utama_act`, `ket_pending`, `pending_sampai`, `status_general`, `created_at`, `updated_at`) VALUES
+('5f4e567e-f1b4-426e-b12a-36a4e0b08a1b', 'f9c0c7c9-3fb2-44ed-b704-c24e1a7aabdd', NULL, NULL, NULL, NULL, '1', '1', '1', '1', '', NULL, NULL, '2022-08-12 03:20:41', NULL),
+('68b40549-2b66-4fad-90bd-55387556ddeb', '600fde42-37ec-4d6e-a5ba-bf8cea7c2c87', NULL, NULL, NULL, NULL, '1', '1', '1', '1', '', NULL, NULL, '2022-08-12 02:50:57', NULL),
+('c7622b2d-732c-4bf6-a6ac-2814ffb1047c', '8946e56f-6b88-44b6-bed9-1873cccf2b6b', NULL, NULL, NULL, NULL, '1', '1', '1', '1', '', NULL, NULL, '2022-08-12 03:16:21', NULL);
 
 -- --------------------------------------------------------
 

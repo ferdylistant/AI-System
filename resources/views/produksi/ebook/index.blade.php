@@ -73,7 +73,8 @@
                 { data: 'tipe_order', name: 'tipe_order', title: 'Tipe Order' },
                 { data: 'judul_buku', name: 'judul_buku', title: 'Judul Buku'},
                 { data: 'eisbn', name: 'eisbn', title: 'E-ISBN'},
-                { data: 'tahun_terbit', name: 'tahun_terbit', title: 'Tahun Terbit',},
+                { data: 'tahun_terbit', name: 'tahun_terbit', title: 'Tahun Terbit'},
+                { data: 'tgl_upload', name: 'tgl_upload', title: 'Tanggal Upload'},
                 { data: 'status_penyetujuan', name: 'status_penyetujuan', title: 'Penyetujuan' },
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
             ]

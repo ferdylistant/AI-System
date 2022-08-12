@@ -30,6 +30,7 @@ Route::get('/get-layout', [ApiController::class, 'getPosisiLayout']);
 Route::get('/list-dami', [ApiController::class, 'listDami']);
 Route::get('/list-format-buku', [ApiController::class, 'listFormatBuku']);
 Route::get('/list-status-buku', [ApiController::class, 'listStatusBuku']);
+Route::get('/list-status-buku-ebook', [ApiController::class, 'listStatusBukuEbook']);
 Route::get('/list-pilihan-terbit', [ApiController::class, 'listPilihanTerbit']);
 Route::get('/list-status-cetak', [ApiController::class, 'listStatusCetak']);
 Route::get('/list-jenis-mesin', [ApiController::class, 'listJenisMesin']);

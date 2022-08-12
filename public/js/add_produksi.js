@@ -173,11 +173,15 @@ $('.datepicker-year').datepicker({
     format: 'yyyy',
     viewMode: "years",
     minViewMode: "years",
-    autoclose:true
+    autoclose:true,
+    clearBtn: true
 });
 $('.datepicker').datepicker({
     format: 'dd MM yyyy',
-    autoclose:true
+    startDate: '-10d',
+    autoclose:true,
+    clearBtn: true,
+    todayHighlight: true
 });
 function resetFrom(form) {
 form.trigger('reset');

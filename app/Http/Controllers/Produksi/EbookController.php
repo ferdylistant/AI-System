@@ -52,12 +52,15 @@ class EbookController extends Controller
                             return $data->judul_buku;
                         })
                         ->addColumn('tahun_terbit', function($data) {
-                            if (is_null($data->tahun_terbit)) {
+                            if (!is_null($data->tahun_terbit)) {
                                 $res = $data->tahun_terbit;
                             } else {
                                 $res = '-';
                             }
                             return $res;
+                        })
+                        ->addColumn('tgl_upload', function($data) {
+                            return date('d F Y', strtotime($data->tgl_upload));
                         })
                         ->addColumn('eisbn', function($data) {
                             if(is_null($data->eisbn)) {
@@ -121,6 +124,7 @@ class EbookController extends Controller
                             'tipe_order',
                             'judul_buku',
                             'tahun_terbit',
+                            'tgl_upload',
                             'eisbn',
                             'status_penyetujuan',
                             'action'
@@ -175,6 +179,7 @@ class EbookController extends Controller
                     'jumlah_halaman' => $request->add_jumlah_halaman_1.' + '.$request->add_jumlah_halaman_2,
                     'kelompok_buku' => $request->add_kelompok_buku,
                     'tahun_terbit' => Carbon::createFromFormat('Y', $request->add_tahun_terbit)->format('Y'),
+                    'tgl_upload' => Carbon::createFromFormat('d F Y', $request->add_tgl_upload)->format('Y-m-d H:i:s'),
                     'status_buku' => $request->add_status_buku,
                     'spp' => $request->add_spp,
                     'keterangan' => $request->add_keterangan,
@@ -203,12 +208,143 @@ class EbookController extends Controller
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
                     ->get();
         return view('produksi.ebook.create_ebook', [
-            'title' => 'Order Cetak Buku',
+            'title' => 'Order E-book',
             'tipeOrd' => $tipeOrd,
             'platformDigital' => $platformDigital,
             'kbuku' => $kbuku,
             'imprint' => $imprint,
             'penulis' => $penulis,
         ]);
+    }
+    public function updateProduksi(Request $request) {
+        if ($request->ajax()) {
+            if ($request->isMethod('POST')) {
+                $request->validate([
+                    'up_tipe_order' => 'required',
+                    'up_judul_buku' => 'required',
+                    'up_sub_judul_buku' => 'required',
+                    'up_platform_digital.*' => 'required',
+                    'up_edisi' => 'required|regex:/^[a-zA-Z]+$/u',
+                    'up_cetakan' => 'required|numeric',
+                ], [
+                    'required' => 'This field is requried'
+                ]);
+                $tipeOrder = $request->up_tipe_order;
+                foreach ($request->up_platform_digital as $key => $value) {
+                    $platformDigital[$key] = $value;
+                }
+                if ($request->tipe_order == $tipeOrder)
+                {
+                    $getKode = $request->kode_order;
+                } else {
+                    $getKode = $this->getOrderId($tipeOrder);
+                }
+                $imprintName = DB::table('imprint')
+                    ->where('id', $request->up_imprint)
+                    ->whereNull('deleted_at')
+                    ->first();
+                $penulisName = DB::table('penerbitan_penulis')
+                    ->where('id', $request->up_penulis)
+                    ->whereNull('deleted_at')
+                    ->first();
+
+                DB::table('produksi_order_ebook')
+                    ->where('id', $request->id)
+                    ->update([
+                    'kode_order' => $getKode,
+                    'tipe_order' => $tipeOrder,
+                    'judul_buku' => $request->up_judul_buku,
+                    'sub_judul' => $request->up_sub_judul_buku,
+                    'platform_digital' => json_encode($platformDigital),
+                    'penulis' => $penulisName->nama,
+                    'penerbit' => $request->up_penerbit,
+                    'imprint' => $imprintName->nama,
+                    'eisbn' => $request->up_eisbn,
+                    'edisi_cetakan' => $request->up_edisi.'/'.$request->up_cetakan,
+                    'jumlah_halaman' => $request->up_jumlah_halaman_1.' + '.$request->up_jumlah_halaman_2,
+                    'kelompok_buku' => $request->up_kelompok_buku,
+                    'status_buku' => $request->up_status_buku,
+                    'tahun_terbit' => Carbon::createFromFormat('Y', $request->up_tahun_terbit)->format('Y'),
+                    'tgl_upload' => Carbon::createFromFormat('d F Y', $request->up_tgl_upload)->format('Y-m-d H:i:s'),
+                    'spp' => $request->up_spp,
+                    'keterangan' => $request->up_keterangan,
+                    'perlengkapan' => $request->up_perlengkapan,
+                    'updated_by' => auth()->id()
+                ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data e-book berhasil diubah',
+                    'route' => route('ebook.view')
+                ]);
+            }
+        }
+        $kodeOr = $request->get('kode');
+        $author = $request->get('author');
+        $data = DB::table('produksi_order_ebook')->join('users', 'produksi_order_ebook.created_by', '=', 'users.id')
+                    ->where('produksi_order_ebook.id', $kodeOr)
+                    ->where('users.id', $author)
+                    ->select('produksi_order_ebook.*', 'users.nama')
+                    ->first();
+        $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani']);
+        $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
+        $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
+        $platformDigital = array(['name'=>'Moco'],['name'=>'Google Book'],['name'=>'Gramedia'],['name'=>'Esentral'],
+        ['name'=>'Bahanaflik'],['name'=> 'Indopustaka']);
+        $kbuku = DB::table('penerbitan_m_kelompok_buku')
+                    ->get();
+        return view('produksi.ebook.update_ebook', [
+            'title' => 'Update E-book',
+            'tipeOrd' => $tipeOrd,
+            'imprint' => $imprint,
+            'penulis' => $penulis,
+            'platformDigital' => $platformDigital,
+            'kbuku' => $kbuku,
+            'data' => $data,
+            'edisi' => Str::before($data->edisi_cetakan, '/'),
+            'cetakan' => Str::after($data->edisi_cetakan, '/'),
+            'jmlHalaman1' => Str::before($data->jumlah_halaman, ' +'),
+            'jmlHalaman2' => Str::after($data->jumlah_halaman, '+ '),
+        ]);
+    }
+    protected function getOrderId($tipeOrder)
+    {
+        $year = date('y');
+        switch($tipeOrder) {
+            case 1: $lastId = DB::table('produksi_order_ebook')
+                                ->where('kode_order', 'like', $year.'-%')
+                                ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 1000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 2999")
+                                ->orderBy('kode_order', 'desc')->first();
+
+                    $firstId = '1000';
+            break;
+            case 2: $lastId = DB::table('produksi_order_ebook')
+                                ->where('kode_order', 'like', $year.'-%')
+                                ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 3000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 3999")
+                                ->orderBy('kode_order', 'desc')->first();
+                    $firstId = '3000';
+            break;
+            case 3: $lastId = DB::table('produksi_order_ebook')
+                                ->where('kode_order', 'like', $year.'-%')
+                                ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 4000")
+                                ->orderBy('kode_order', 'desc')->first();
+                    $firstId = '4000';
+            break;
+            default: abort(500);
+        }
+
+        if(is_null($lastId)) {
+            return 'E'.$year.'-'.$firstId;
+        } else {
+            $lastId_ = (int)substr($lastId->kode_order, 3);
+            if($lastId_ == 2999) {
+                abort(500);
+            } elseif($lastId_ == 3999) {
+                abort(500);
+            } else {
+
+                return 'E'.$year.'-'.strval($lastId_+1);
+            }
+        }
+
     }
 }

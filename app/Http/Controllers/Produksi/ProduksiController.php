@@ -372,7 +372,7 @@ class ProduksiController extends Controller
                     'kelompok_buku' => $request->up_kelompok_buku,
                     'posisi_layout' => $request->up_posisi_layout,
                     'dami' => $request->up_dami,
-                    'format_buku' => $request->up_format_buku,
+                    'format_buku' => $request->up_format_buku.' cm',
                     'kertas_isi' => $request->up_kertas_isi,
                     'warna_isi' => $request->up_warna_isi,
                     'kertas_cover' => $request->up_kertas_cover,

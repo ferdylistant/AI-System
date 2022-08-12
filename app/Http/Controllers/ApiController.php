@@ -247,6 +247,27 @@ class ApiController extends Controller
             return response()->json($statusBuku);
         }
     }
+    public function listStatusBukuEbook(Request $request)
+    {
+        $statusBuku = (object)[['value' => '1','label' => 'Reguler'],['value' => '2','label' => 'MOU']];
+        if ($request->has('id'))
+        {
+            $id = $request->get('id');
+            $data = DB::table('produksi_order_ebook')->where('id', $id)->first();
+            echo '<option label="Pilih"></option>';
+            foreach ($statusBuku as $key => $value) {
+                if ($data->status_buku == $value['value']) {
+                    echo '<option value="'.$value['value'].'" selected>'.$value['label'].'</option>';
+                }
+                else {
+                    echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+                }
+            }
+        }
+        else {
+            return response()->json($statusBuku);
+        }
+    }
     public function listPilihanTerbit(Request $request)
     {
         $pilihanTerbit = (object)[['value' => '1','label' => 'Cetak Fisik'],['value' => '2','label' =>  'Cetak Fisik + E-Book']];

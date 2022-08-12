@@ -25,7 +25,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card card-success">
-                    <form id="fadd_Produksi">
+                    <form id="fadd_Ebook">
                         <div class="card-header">
                             <h4>Form Produksi Order Ebook</h4>
                         </div>
@@ -175,17 +175,7 @@
                                     <div id="err_add_kelompok_buku"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
-                                <label>Tahun Terbit: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control datepicker-year" name="add_tahun_terbit" placeholder="Tahun" required>
-                                    <div id="err_add_tahun_terbit"></div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-md-3 mb-4">
+                            <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Status Buku: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -205,6 +195,26 @@
                                     </div>
                                     <input type="text" class="form-control" name="add_spp" placeholder="Surat Perjanjian Penulis">
                                     <div id="err_add_spp"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Tahun Terbit: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                    </div>
+                                    <input type="text" class="form-control datepicker-year" name="add_tahun_terbit" placeholder="Tahun" required>
+                                    <div id="err_add_tahun_terbit"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Tanggal Upload: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                    </div>
+                                    <input type="text" class="form-control datepicker" name="add_tgl_upload" placeholder="Tanggal Upload" required>
+                                    <div id="err_add_tgl_upload"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-12 mb-4">
@@ -243,5 +253,5 @@
 
 
 @section('jsNeeded')
-<script src="{{url('js/add_produksi.js')}}"></script>
+<script src="{{url('js/add_ebook.js')}}"></script>
 @endsection
