@@ -15,9 +15,7 @@
                 <input type="hidden" name="kode_order" id="kode_Order" value="">
                 <input type="hidden" name="judul_buku" id="judul_Buku" value="">
                 <input type="hidden" name="status_cetak" id="status_cetak" value="">
-                <div class="form-group" id="contentData">
-
-                </div>
+                    <div id="contentData"></div>
             </div>
             <div class="modal-footer" id="footerDecline">
 

@@ -31,6 +31,7 @@ class EbookController extends Controller
                         'pyoc.d_operasional_act',
                         'pyoc.d_keuangan_act',
                         'pyoc.d_utama_act',
+                        'pyoc.pending_sampai',
                         'pyoc.status_general'
                         )
                     ->get();
@@ -326,7 +327,7 @@ class EbookController extends Controller
                   ->orWhere('pny.d_keuangan_act', '=', '2')
                   ->orWhere('pny.d_utama_act', '=', '2');
         })
-        ->whereNull('pny.pending_sampai')
+        ->whereNotNull('pny.pending_sampai')
         ->first();
         $prodPenyetujuan = DB::table('produksi_penyetujuan_order_ebook')
                     ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id','=', $prod->id)
@@ -426,7 +427,7 @@ class EbookController extends Controller
                 return $this->approvalOrder($request);
                 break;
             case 'pending':
-                return $this->declineOrder($request);
+                return $this->pendingOrder($request);
                 break;
             default:
                 abort(500);
@@ -523,6 +524,7 @@ class EbookController extends Controller
                         ->where('produksi_order_ebook_id', $request->id)
                         ->update([
                             'd_utama_act' => '3',
+                            'status_general' => 'Selesai',
                         ]);
                     return response()->json([
                         'status' => 'success',
@@ -536,6 +538,90 @@ class EbookController extends Controller
                 ]);
             }
         } catch(\Exception $e){
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function pendingOrder($request)
+    {
+        try {
+            $dataUser = DB::table('users')
+                        ->where('id', auth()->id())
+                        ->first();
+            $dataPenyetujuan = DB::table('produksi_penyetujuan_order_ebook')
+                ->where('produksi_order_ebook_id', $request->id)
+                ->select('produksi_penyetujuan_order_ebook.*')
+                ->first();
+            if ($dataPenyetujuan->status_general == 'Selesai') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data sudah selesai di Approve'
+                ]);
+            } elseif ($dataPenyetujuan->status_general == 'Pending') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data di Pending sampai '.date('d F Y', strtotime($dataPenyetujuan->pending_sampai))
+                ]);
+            }
+            if ($dataUser->id == $dataPenyetujuan->d_operasional) {
+                if ($dataPenyetujuan->d_operasional_act == '2') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah Anda Pending'
+                    ]);
+                } elseif ($dataPenyetujuan->d_operasional_act == '3') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah di Approve'
+                    ]);
+                }
+                DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_order_ebook_id', $request->id)
+                    ->update([
+                        'd_operasional_act' => '2',
+                        'ket_pending' => $request->keterangan,
+                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
+                        'status_general' => 'Pending',
+                    ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data berhasil dipending'
+                ]);
+            } elseif ($dataUser->id == $dataPenyetujuan->d_keuangan) {
+                DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_order_ebook_id', $request->id)
+                    ->update([
+                        'd_keuangan_act' => '2',
+                        'ket_pending' => $request->keterangan,
+                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
+                        'status_general' => 'Pending',
+                    ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data berhasil dipending'
+                ]);
+            } elseif ($dataUser->id == $dataPenyetujuan->d_utama) {
+                DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_order_ebook_id', $request->id)
+                    ->update([
+                        'd_utama_act' => '2',
+                        'ket_pending' => $request->keterangan,
+                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
+                        'status_general' => 'Pending',
+                    ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data berhasil dipending'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda tidak memiliki akses'
+                ]);
+            }
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

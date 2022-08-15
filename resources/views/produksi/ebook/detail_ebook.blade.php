@@ -1,16 +1,4 @@
 @extends('layouts.app')
-<?php
-    /* #################### Catatan #####################
-    keyword [
-        pn1 = Penilaian Prodev,
-        pn2 = Penilaian Editor/Setter (if requried)
-        pn3 = Penilaian Pemasaran,
-        pn4 = Penilaian Operasional
-    ]
-    ##################################################### */
-
-    // $arrPilihan_ = ["Baik", "Cukup", "Kurang"];
-?>
 @section('cssRequired')
 <link rel="stylesheet" href="{{url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css')}}">
 <link rel="stylesheet" href="{{url('vendors/izitoast/dist/css/iziToast.min.css')}}">
@@ -107,38 +95,47 @@
                                 <div class="col-auto mr-auto">
                                     <div class="mb-4">
                                         @if (!is_null($data_penolakan))
-                                            <input type="hidden" id="ketVal" value="{{$data_penolakan->ket_penolakan}}">
+                                            <input type="hidden" id="ketVal" value="{{$data_penolakan->ket_pending}}">
+                                            <input type="hidden" id="pendingSampai" value="{{date('d F Y', strtotime($data_penolakan->pending_sampai))}}">
                                         @endif
                                     {{-- APPROVAL ORDER PRODUKSI --}}
                                     @if (Gate::allows('do_approval', 'persetujuan-order-ebook'))
                                         @if ($prod_penyetujuan->status_general == 'Proses')
                                             @if ($prod_penyetujuan->m_penerbitan == auth()->id())
                                                 @if ($prod_penyetujuan->m_penerbitan_act == '1')
-                                                    <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
+                                                    <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Setujui</button>
                                                 @endif
                                             @elseif ($prod_penyetujuan->d_operasional == auth()->id())
                                                 @if ($prod_penyetujuan->d_operasional_act == '1')
-                                                    <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
+                                                    <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Setujui</button>
                                                 @endif
                                             @elseif ($prod_penyetujuan->d_keuangan == auth()->id())
                                                  @if ($prod_penyetujuan->d_keuangan_act == '1')
-                                                    <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
+                                                    <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Setujui</button>
                                                 @endif
                                             @elseif ($prod_penyetujuan->d_utama == auth()->id())
                                                 @if ($prod_penyetujuan->d_utama_act == '1')
-                                                   <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Disetujui</button>
+                                                   <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Setujui</button>
                                                @endif
                                             @endif
                                         @endif
                                     @endif
-                                    {{-- Decline ORDER PRODUKSI --}}
-                                    @if (is_null($prod_penyetujuan))
-                                        @if (Gate::allows('do_decline', 'penolakan-dirop'))
-                                            <button type="button" class="btn btn-danger" id="btn-decline"><i class="fas fa-times" data-toggle="modal" data-target="#modalDecline"></i>&nbsp;Ditolak</button>
-                                        @elseif (Gate::allows('do_decline', 'penolakan-dirke'))
-                                            <button type="button" class="btn btn-danger" id="btn-decline"><i class="fas fa-times" data-toggle="modal" data-target="#modalDecline"></i>&nbsp;Ditolak</button>
-                                        @elseif (Gate::allows('do_decline', 'penolakan-dirut'))
-                                            <button type="button" class="btn btn-danger" id="btn-decline"><i class="fas fa-times" data-toggle="modal" data-target="#modalDecline"></i>&nbsp;Ditolak</button>
+                                    {{-- PENDING ORDER PRODUKSI --}}
+                                    @if (Gate::allows('do_decline', 'persetujuan-pending'))
+                                        @if ($prod_penyetujuan->status_general == 'Proses')
+                                            @if ($prod_penyetujuan->d_operasional == auth()->id())
+                                                @if ($prod_penyetujuan->d_operasional_act == '1')
+                                                    <button type="button" class="btn btn-danger" id="btn-pending"><i class="fas fa-hourglass-start" data-toggle="modal" data-target="#modalPending"></i>&nbsp;Pending</button>
+                                                @endif
+                                            @elseif ($prod_penyetujuan->d_keuangan == auth()->id())
+                                                @if ($prod_penyetujuan->d_keuangan_act == '1')
+                                                    <button type="button" class="btn btn-danger" id="btn-pending"><i class="fas fa-hourglass-start" data-toggle="modal" data-target="#modalPending"></i>&nbsp;Pending</button>
+                                                @endif
+                                            @elseif ($prod_penyetujuan->d_utama == auth()->id())
+                                                @if ($prod_penyetujuan->d_utama_act == '1')
+                                                    <button type="button" class="btn btn-danger" id="btn-pending"><i class="fas fa-hourglass-start" data-toggle="modal" data-target="#modalPending"></i>&nbsp;Pending</button>
+                                                @endif
+                                            @endif
                                         @endif
                                     @endif
                                     </div>
@@ -179,7 +176,7 @@
                                                 </div>
                                                 @elseif($p_dirop->d_operasional_act == '2')
                                                 <div class="text-job text-muted">
-                                                    <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-minus-circle"></i>&nbsp;Dipending</a>
+                                                    <a href="javascript:void(0)" id="btn-pending" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-minus-circle"></i>&nbsp;Dipending</a>
                                                 </div>
                                                 @endif
                                             <div class="user-cta">
@@ -203,7 +200,7 @@
                                                 </div>
                                                 @elseif($p_dirke->d_keuangan_act == '2')
                                                 <div class="text-job text-muted">
-                                                    <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-minus-circle"></i>&nbsp;Dipending</a>
+                                                    <a href="javascript:void(0)" id="btn-pending" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-minus-circle"></i>&nbsp;Dipending</a>
                                                 </div>
                                                 @endif
                                             <div class="user-cta">
@@ -227,7 +224,7 @@
                                                 </div>
                                                 @elseif($p_dirut->d_utama_act == '2')
                                                 <div class="text-job text-muted">
-                                                    <a href="javascript:void(0)" id="btn-decline" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-minus-circle"></i>&nbsp;Dipending</a>
+                                                    <a href="javascript:void(0)" id="btn-pending" class="text-danger" data-toggle="modal" data-target="#modalDecline"><i class="fas fa-minus-circle"></i>&nbsp;Dipending</a>
                                                 </div>
                                                 @endif
                                             <div class="user-cta">
@@ -267,7 +264,7 @@
                                             @foreach (json_decode($data->platform_digital) as $pDigital)
                                                 <li class="list-inline-item">
                                                 <p class="mb-1 text-monospace">
-                                                    <i class="fas fa-check text-success"></i>
+                                                    <i class="fas fa-check text-dark"></i>
                                                     <span>{{ $pDigital }}</span>
                                                 </p>
                                                 </li>
@@ -296,8 +293,8 @@
                                         <p class="mb-1 text-monospace">
                                             @if (!is_null($data->tgl_upload))
                                                 @if (Gate::allows('do_decline', 'persetujuan-pending'))
-
-                                                    <a href="javascript:void(0)" id="btn-edit-tgl-upload" class="text-primary">{{ date('d F Y, H:i', strtotime($data->tgl_upload)) }}</a>
+                                                    @if ($prod_penyetujuan->status_general == 'Proses')
+                                                    <a href="javascript:void(0)" id="btn-edit-tgl-upload" class="text-info">{{ date('d F Y', strtotime($data->tgl_upload)) }}</a>
                                                     <div class="input-group" id="edit-tgl-upload" style="display: none;">
                                                         <div class="input-group-prepend">
                                                             <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
@@ -310,8 +307,11 @@
 
                                                         </button>
                                                     </div>
+                                                    @else
+                                                    {{ date('d F Y', strtotime($data->tgl_upload)) }}
+                                                    @endif
                                                 @else
-                                                {{ date('d F Y, H:i', strtotime($data->tgl_upload)) }}
+                                                {{ date('d F Y', strtotime($data->tgl_upload)) }}
                                                 @endif
                                             @else
                                                 -
@@ -505,7 +505,8 @@
 @endsection
 
 @section('jsNeeded')
-<script src="{{url('js/approval_order.js')}}"></script>
+<script src="{{url('js/approval_ebook.js')}}"></script>
+<script src="{{url('js/pending_ebook.js')}}"></script>
 @endsection
 
 @yield('jsNeededForm')
