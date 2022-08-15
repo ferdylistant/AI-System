@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 12 Agu 2022 pada 11.30
+-- Waktu pembuatan: 15 Agu 2022 pada 11.29
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -826,6 +826,7 @@ INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALU
 ('09179170e6e643eca66b282e2ffae1f8', '70410774a1e0433bb213a9625aceb0bb', '', 'Approval', 'persetujuan-manstok', 'Persetujuan Manajer Stok'),
 ('1098a56970114e18898367d334658b47', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/mengubah-naskah', 'Update', 'ubah-data-naskah', 'Ubah Data Naskah'),
 ('12b852d92d284ab5a654c26e8856fffd', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-mpenerbitan', 'Penilaian M.Penerbitan'),
+('171e6210418440a8bf4d689841d0f32c', 'bfb8b970f85c4a42bac1dc56181dc96b', '', 'Approval', 'persetujuan-order-ebook', 'Persetujuan E-Book'),
 ('1b842575174242cf83f949f262900570', '70410774a1e0433bb213a9625aceb0bb', '', 'Approval', 'persetujuan-manpen', 'Persetujuan Manajer Penerbit'),
 ('1b89744217b04f79a8c1d7a967a46912', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis', 'Read', NULL, 'Lihat Data Penulis'),
 ('1c1940da68fa4f8ba2325e83c303c47c', '131899f9a9204e0baa1b23cd2eedff6a', 'manajemen-web/user', 'Update', 'ubah-data-user', 'Ubah Data User'),
@@ -842,6 +843,7 @@ INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALU
 ('60b2f2ca-16f5-11ed-ae5c-1078d2a38ee5', 'c60c554c-16f3-11ed-ae5c-1078d2a38ee5', '', 'Update', 'ubah-data-imprint', 'Ubah Data Imprint'),
 ('6903e82e7e94478f87df3cf80de6b587', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah', 'Read', NULL, 'Lihat Data Naskah'),
 ('6b95b4e041e04d61a91422fe3d06fd8d', '70410774a1e0433bb213a9625aceb0bb', '', 'Approval', 'persetujuan-dirke', 'Persetujuan Dir.Keuangan'),
+('78712deb909d4d88af7f098c0fcf6857', 'bfb8b970f85c4a42bac1dc56181dc96b', '', 'Decline', 'persetujuan-pending', 'Persetujuan Pending'),
 ('8791f143a90e42e2a4d1d0d6b1254bad', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-direksi', 'Penilaian Direksi'),
 ('87f03d6f4cb54135b451528bc1a9d0f5', '70410774a1e0433bb213a9625aceb0bb', '', 'Approval', 'persetujuan-dirut', 'Persetujuan Dir.Utama'),
 ('89bc4b0ef1dd4306a3217cbf24551071', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis/hapus-penulis', 'Delete', 'hapus-data-penulis', 'Hapus Data Penulis'),
@@ -962,7 +964,7 @@ CREATE TABLE `produksi_order_ebook` (
 --
 
 INSERT INTO `produksi_order_ebook` (`id`, `kode_order`, `tipe_order`, `judul_buku`, `sub_judul`, `platform_digital`, `penulis`, `eisbn`, `penerbit`, `imprint`, `edisi_cetakan`, `jumlah_halaman`, `kelompok_buku`, `tahun_terbit`, `status_buku`, `spp`, `perlengkapan`, `keterangan`, `tgl_upload`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
-('f9c0c7c9-3fb2-44ed-b704-c24e1a7aabdd', 'E22-1000', '1', 'Di Balik Mata Kaca', 'Termenung', '[\"Google Book\",\"Gramedia\",\"Bahanaflik\",\"Indopustaka\"]', 'Lorem Ipsum', '34534434wefgsd', 'Andi', 'PBMR Andi', 'I/3', 'viii + 325', 'Aplikasi Game', 2022, '1', NULL, NULL, NULL, '2022-08-13 15:12:11', '2022-08-12 03:20:41', 'be8d42fa88a14406ac201974963d9c1b', '2022-08-12 08:12:11', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL);
+('1b4cce37-cd48-4495-ad3a-903221e2555d', 'E22-1000', '1', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', '[\"Moco\",\"Indopustaka\"]', 'Lorem Ipsum', '213413fff445rGs', 'Andi', 'PBMR Andi', 'I/2', 'xiv + 325', 'Computing & Internet', 2022, '1', NULL, NULL, NULL, '2022-08-23 14:51:18', '2022-08-15 07:51:18', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1017,9 +1019,10 @@ CREATE TABLE `produksi_penyetujuan_order_ebook` (
   `d_operasional_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
   `d_keuangan_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
   `d_utama_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
+  `tgl_upload_history` datetime DEFAULT NULL,
   `ket_pending` text NOT NULL,
   `pending_sampai` date DEFAULT NULL,
-  `status_general` datetime DEFAULT NULL,
+  `status_general` enum('Proses','Pending','Selesai') DEFAULT 'Proses',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1028,10 +1031,8 @@ CREATE TABLE `produksi_penyetujuan_order_ebook` (
 -- Dumping data untuk tabel `produksi_penyetujuan_order_ebook`
 --
 
-INSERT INTO `produksi_penyetujuan_order_ebook` (`id`, `produksi_order_ebook_id`, `m_penerbitan`, `d_operasional`, `d_keuangan`, `d_utama`, `m_penerbitan_act`, `d_operasional_act`, `d_keuangan_act`, `d_utama_act`, `ket_pending`, `pending_sampai`, `status_general`, `created_at`, `updated_at`) VALUES
-('5f4e567e-f1b4-426e-b12a-36a4e0b08a1b', 'f9c0c7c9-3fb2-44ed-b704-c24e1a7aabdd', NULL, NULL, NULL, NULL, '1', '1', '1', '1', '', NULL, NULL, '2022-08-12 03:20:41', NULL),
-('68b40549-2b66-4fad-90bd-55387556ddeb', '600fde42-37ec-4d6e-a5ba-bf8cea7c2c87', NULL, NULL, NULL, NULL, '1', '1', '1', '1', '', NULL, NULL, '2022-08-12 02:50:57', NULL),
-('c7622b2d-732c-4bf6-a6ac-2814ffb1047c', '8946e56f-6b88-44b6-bed9-1873cccf2b6b', NULL, NULL, NULL, NULL, '1', '1', '1', '1', '', NULL, NULL, '2022-08-12 03:16:21', NULL);
+INSERT INTO `produksi_penyetujuan_order_ebook` (`id`, `produksi_order_ebook_id`, `m_penerbitan`, `d_operasional`, `d_keuangan`, `d_utama`, `m_penerbitan_act`, `d_operasional_act`, `d_keuangan_act`, `d_utama_act`, `tgl_upload_history`, `ket_pending`, `pending_sampai`, `status_general`, `created_at`, `updated_at`) VALUES
+('0dfa4f8b-c214-4e89-9f23-5b3af762b9fb', '1b4cce37-cd48-4495-ad3a-903221e2555d', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '3', '3', '1', '1', NULL, '', NULL, 'Proses', '2022-08-15 07:51:19', '2022-08-15 09:10:31');
 
 -- --------------------------------------------------------
 
@@ -1167,22 +1168,6 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('ba7f70e69bf74fc29fe3154980f5f53e', '1b89744217b04f79a8c1d7a967a46912'),
 ('3d8ae658b9c049f6b9b7633a6c0ef4f2', '6b95b4e041e04d61a91422fe3d06fd8d'),
 ('3d8ae658b9c049f6b9b7633a6c0ef4f2', 'c64802952e504f4ab25a6b1241232f85'),
-('37aee684a9e447a6bef36cbf08222d5d', '6903e82e7e94478f87df3cf80de6b587'),
-('37aee684a9e447a6bef36cbf08222d5d', '8791f143a90e42e2a4d1d0d6b1254bad'),
-('37aee684a9e447a6bef36cbf08222d5d', '8d9b1da4234f46eb858e1ea490da6348'),
-('37aee684a9e447a6bef36cbf08222d5d', '87f03d6f4cb54135b451528bc1a9d0f5'),
-('37aee684a9e447a6bef36cbf08222d5d', '9b4e52c30f974844ac7a050000a0ee6a'),
-('37aee684a9e447a6bef36cbf08222d5d', 'c64802952e504f4ab25a6b1241232f85'),
-('c62658af71bf4c5692b041c9384d068b', '6b95b4e041e04d61a91422fe3d06fd8d'),
-('c62658af71bf4c5692b041c9384d068b', 'c02e7a0dfe06481cb2602606e85c180e'),
-('c62658af71bf4c5692b041c9384d068b', 'c64802952e504f4ab25a6b1241232f85'),
-('fd035809e2c045098770a7e9dfccddf9', '2826b627ccc34fad84470c4b7534da0d'),
-('fd035809e2c045098770a7e9dfccddf9', 'c64802952e504f4ab25a6b1241232f85'),
-('fd035809e2c045098770a7e9dfccddf9', 'ee94fb3f8a354e1aa142a39f58569078'),
-('4fc80f443bfb4969b9a0272d9be08ef2', '12b852d92d284ab5a654c26e8856fffd'),
-('4fc80f443bfb4969b9a0272d9be08ef2', '6903e82e7e94478f87df3cf80de6b587'),
-('4fc80f443bfb4969b9a0272d9be08ef2', '1b842575174242cf83f949f262900570'),
-('4fc80f443bfb4969b9a0272d9be08ef2', 'c64802952e504f4ab25a6b1241232f85'),
 ('59cb3d41a58141c3a3518a2e78c84221', '09179170e6e643eca66b282e2ffae1f8'),
 ('59cb3d41a58141c3a3518a2e78c84221', 'c64802952e504f4ab25a6b1241232f85'),
 ('be8d42fa88a14406ac201974963d9c1b', '1098a56970114e18898367d334658b47'),
@@ -1205,7 +1190,34 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', 'c21495eca0d44776aeacf431dc9fb0e1'),
 ('be8d42fa88a14406ac201974963d9c1b', '1c1940da68fa4f8ba2325e83c303c47c'),
 ('be8d42fa88a14406ac201974963d9c1b', '38645f82ae7c468abad1ab191e7a8ad9'),
-('be8d42fa88a14406ac201974963d9c1b', '4bb845580b464d7db3d7c3b3e4fd213b');
+('be8d42fa88a14406ac201974963d9c1b', '4bb845580b464d7db3d7c3b3e4fd213b'),
+('37aee684a9e447a6bef36cbf08222d5d', '6903e82e7e94478f87df3cf80de6b587'),
+('37aee684a9e447a6bef36cbf08222d5d', '8791f143a90e42e2a4d1d0d6b1254bad'),
+('37aee684a9e447a6bef36cbf08222d5d', '8d9b1da4234f46eb858e1ea490da6348'),
+('37aee684a9e447a6bef36cbf08222d5d', '87f03d6f4cb54135b451528bc1a9d0f5'),
+('37aee684a9e447a6bef36cbf08222d5d', '9b4e52c30f974844ac7a050000a0ee6a'),
+('37aee684a9e447a6bef36cbf08222d5d', 'c64802952e504f4ab25a6b1241232f85'),
+('37aee684a9e447a6bef36cbf08222d5d', '171e6210418440a8bf4d689841d0f32c'),
+('37aee684a9e447a6bef36cbf08222d5d', '78712deb909d4d88af7f098c0fcf6857'),
+('37aee684a9e447a6bef36cbf08222d5d', '9d69d18ff5184804990bc21cb1005ab7'),
+('4fc80f443bfb4969b9a0272d9be08ef2', '12b852d92d284ab5a654c26e8856fffd'),
+('4fc80f443bfb4969b9a0272d9be08ef2', '6903e82e7e94478f87df3cf80de6b587'),
+('4fc80f443bfb4969b9a0272d9be08ef2', '1b842575174242cf83f949f262900570'),
+('4fc80f443bfb4969b9a0272d9be08ef2', 'c64802952e504f4ab25a6b1241232f85'),
+('4fc80f443bfb4969b9a0272d9be08ef2', '171e6210418440a8bf4d689841d0f32c'),
+('4fc80f443bfb4969b9a0272d9be08ef2', '9d69d18ff5184804990bc21cb1005ab7'),
+('c62658af71bf4c5692b041c9384d068b', '6b95b4e041e04d61a91422fe3d06fd8d'),
+('c62658af71bf4c5692b041c9384d068b', 'c02e7a0dfe06481cb2602606e85c180e'),
+('c62658af71bf4c5692b041c9384d068b', 'c64802952e504f4ab25a6b1241232f85'),
+('c62658af71bf4c5692b041c9384d068b', '171e6210418440a8bf4d689841d0f32c'),
+('c62658af71bf4c5692b041c9384d068b', '78712deb909d4d88af7f098c0fcf6857'),
+('c62658af71bf4c5692b041c9384d068b', '9d69d18ff5184804990bc21cb1005ab7'),
+('fd035809e2c045098770a7e9dfccddf9', '2826b627ccc34fad84470c4b7534da0d'),
+('fd035809e2c045098770a7e9dfccddf9', 'c64802952e504f4ab25a6b1241232f85'),
+('fd035809e2c045098770a7e9dfccddf9', 'ee94fb3f8a354e1aa142a39f58569078'),
+('fd035809e2c045098770a7e9dfccddf9', '171e6210418440a8bf4d689841d0f32c'),
+('fd035809e2c045098770a7e9dfccddf9', '78712deb909d4d88af7f098c0fcf6857'),
+('fd035809e2c045098770a7e9dfccddf9', '9d69d18ff5184804990bc21cb1005ab7');
 
 --
 -- Indexes for dumped tables

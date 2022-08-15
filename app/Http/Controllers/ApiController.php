@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Illuminate\Support\Facades\{Auth, DB};
 
 class ApiController extends Controller
 {
@@ -318,5 +319,24 @@ class ApiController extends Controller
         } else {
             return response()->json($jenisMesin);
         }
+    }
+    public function updateTanggalUploadEbook(Request $request)
+    {
+        $id = $request->id;
+        $tanggalUpload = $request->value;
+        $history_tanggal = $request->history;
+        $ebook = DB::table('produksi_order_ebook')->where('id', $id)
+            ->update([
+                'tgl_upload' => Carbon::createFromFormat('d F Y', $tanggalUpload)->format('Y-m-d H:i:s'),
+                'updated_by' => Auth::user()->id,
+            ]);
+        $penyetujuan = DB::table('produksi_penyetujuan_order_ebook')->where('produksi_order_ebook_id', $id)->update([
+                'tgl_upload_history' => $history_tanggal,
+            ]);
+        $data = [
+            'status' => 'success',
+            'message' => 'Berhasil mengubah tanggal upload ebook',
+        ];
+        return response()->json($data);
     }
 }

@@ -72,9 +72,12 @@ class EbookController extends Controller
                         })
                         ->addColumn('status_penyetujuan', function($data)  {
                             $badge = '';
-                            if(!is_null($data->status_general)) {
+                            if($data->status_general == 'Selesai') {
                                 $badge .= '<span class="badge badge-primary">Selesai</span>';
-                            } else {
+                            } elseif($data->status_general == 'Pending') {
+                                $badge .= '<span class="badge badge-warning">Pending sampai '.date('d F Y', strtotime($data->pending_sampai)).'</span>';
+                            }
+                            else {
                                 //Manajer Penerbitan
                                 if($data->m_penerbitan_act == '1') {
                                     $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
@@ -87,7 +90,7 @@ class EbookController extends Controller
                                 } elseif($data->d_operasional_act == '2') {
                                     $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
                                 } elseif($data->d_operasional_act == '3') {
-                                    $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                    $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
                                 }
                                 //Direksi Keuangan
                                 if($data->d_keuangan_act == '1') {
@@ -305,6 +308,239 @@ class EbookController extends Controller
             'jmlHalaman1' => Str::before($data->jumlah_halaman, ' +'),
             'jmlHalaman2' => Str::after($data->jumlah_halaman, '+ '),
         ]);
+    }
+    public function detailProduksi(Request $request) {
+        $kode = $request->get('kode');
+        $author = $request->get('author');
+        $prod = DB::table('produksi_order_ebook')
+                    ->where('id', $kode)
+                    ->where('created_by', $author)
+                    ->first();
+        if(is_null($prod)) {
+            return redirect()->route('ebook.view');
+        }
+        $dataPenolakan = DB::table('produksi_penyetujuan_order_ebook as pny')
+        ->where('pny.produksi_order_ebook_id', $kode)
+        ->where(function($query) {
+            $query->where('pny.d_operasional_act', '=', '2')
+                  ->orWhere('pny.d_keuangan_act', '=', '2')
+                  ->orWhere('pny.d_utama_act', '=', '2');
+        })
+        ->whereNull('pny.pending_sampai')
+        ->first();
+        $prodPenyetujuan = DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_ebook.*')
+                    ->first();
+        $author = DB::table('users')
+                    ->where('id', $author)
+                    ->first();
+        $m_penerbitan = DB::table('users as u')
+                    ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                    ->where('j.nama', 'LIKE', '%Manajer Penerbitan%')
+                    ->select('u.nama', 'u.id as id')
+                    ->first();
+        if(is_null($m_penerbitan)){
+            $m_penerbitan = '';
+        }
+        $dirop = DB::table('users as u')
+                    ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                    ->where('j.nama', 'LIKE', '%Direktur Operasional%')
+                    ->select('u.nama', 'u.id as id')
+                    ->first();
+        if(is_null($dirop)){
+            $dirop = '';
+        }
+        $dirke = DB::table('users as u')
+                    ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                    ->where('j.nama', 'LIKE', '%Direktur Keuangan%')
+                    ->select('u.nama', 'u.id as id')
+                    ->first();
+        if(is_null($dirke)){
+            $dirke = '';
+        }
+        $dirut = DB::table('users as u')
+                    ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                    ->where('j.nama', 'LIKE', '%Direktur Utama%')
+                    ->select('u.nama', 'u.id as id')
+                    ->first();
+        if(is_null($dirut)){
+            $dirut = '';
+        }
+        DB::table('produksi_penyetujuan_order_ebook')
+            ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id', $prod->id)
+            ->update([
+                'm_penerbitan' => $m_penerbitan->id,
+                'd_operasional' => $dirop->id,
+                'd_keuangan' => $dirke->id,
+                'd_utama' => $dirut->id
+            ]);
+
+        $p_mp = DB::table('produksi_penyetujuan_order_ebook')
+                    ->join('users', 'produksi_penyetujuan_order_ebook.m_penerbitan', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_ebook.m_penerbitan','=', $m_penerbitan->id)
+                    ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_ebook.*', 'users.nama')
+                    ->first();
+
+        $p_dirop = DB::table('produksi_penyetujuan_order_ebook')
+                    ->join('users', 'produksi_penyetujuan_order_ebook.d_operasional', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_ebook.d_operasional','=', $dirop->id)
+                    ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_ebook.*', 'users.nama')
+                    ->first();
+
+        $p_dirke = DB::table('produksi_penyetujuan_order_ebook')
+                    ->join('users', 'produksi_penyetujuan_order_ebook.d_keuangan', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_ebook.d_keuangan','=', $dirke->id)
+                    ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_ebook.*', 'users.nama')
+                    ->first();
+
+        $p_dirut = DB::table('produksi_penyetujuan_order_ebook')
+                    ->join('users', 'produksi_penyetujuan_order_ebook.d_utama', '=', 'users.id')
+                    ->where('produksi_penyetujuan_order_ebook.d_utama','=', $dirut->id)
+                    ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id','=', $prod->id)
+                    ->select('produksi_penyetujuan_order_ebook.*', 'users.nama')
+                    ->first();
+        return view('produksi.ebook.detail_ebook', [
+            'title' => 'Detail Order E-Book',
+            'data' => $prod,
+            'id' => $kode,
+            'prod_penyetujuan' => $prodPenyetujuan,
+            'data_penolakan' => $dataPenolakan,
+            'author' => $author,
+            'm_penerbitan' => $m_penerbitan,
+            'dirop' => $dirop,
+            'dirke' => $dirke,
+            'dirut' => $dirut,
+            'p_mp' => $p_mp,
+            'p_dirop' => $p_dirop,
+            'p_dirke' => $p_dirke,
+            'p_dirut' => $p_dirut,
+        ]);
+    }
+    public function ajaxRequest(Request $request, $cat){
+        switch($cat) {
+            case 'approve':
+                return $this->approvalOrder($request);
+                break;
+            case 'pending':
+                return $this->declineOrder($request);
+                break;
+            default:
+                abort(500);
+        }
+    }
+    protected function approvalOrder($request)
+    {
+        try{
+            $dataUser = DB::table('users')
+                        ->where('id', auth()->id())
+                        ->first();
+            $dataPenyetujuan = DB::table('produksi_penyetujuan_order_ebook')
+                ->where('produksi_order_ebook_id', $request->id)
+                ->select('produksi_penyetujuan_order_ebook.*')
+                ->first();
+            if($dataPenyetujuan->status_general == 'Selesai'){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data sudah selesai di Approve'
+                ]);
+            } elseif($dataPenyetujuan->status_general == 'Pending'){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data di Pending sampai '.date('d F Y',strtotime($dataPenyetujuan->pending_sampai))
+                ]);
+            }
+            if($dataUser->id == $dataPenyetujuan->m_penerbitan) {
+                if($dataPenyetujuan->m_penerbitan_act == '3'){
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah Anda Approve'
+                    ]);
+                } elseif($dataPenyetujuan->m_penerbitan_act == '2'){
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah dipending sampai '.date('d F Y',strtotime($dataPenyetujuan->pending_sampai))
+                    ]);
+                }
+                DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_order_ebook_id', $request->id)
+                    ->update([
+                        'm_penerbitan_act' => '3',
+                    ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data berhasil diupdate'
+                ]);
+            } elseif($dataUser->id == $dataPenyetujuan->d_operasional) {
+                DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_order_ebook_id', $request->id)
+                    ->update([
+                        'd_operasional_act' => '3',
+                    ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data berhasil diupdate'
+                ]);
+            } elseif($dataUser->id == $dataPenyetujuan->d_keuangan) {
+                if($dataPenyetujuan->d_operasional_act == '3'){
+                    DB::table('produksi_penyetujuan_order_ebook')
+                        ->where('produksi_order_ebook_id', $request->id)
+                        ->update([
+                            'd_keuangan_act' => '3',
+                        ]);
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data berhasil diupdate'
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data belum di Approve oleh Direktur Operasional'
+                    ]);
+                }
+            } elseif($dataUser->id == $dataPenyetujuan->d_utama) {
+                if($dataPenyetujuan->d_operasional_act == '1') {
+                    if($dataPenyetujuan->d_keuangan_act == '1') {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data belum di Approve oleh Direktur Operasional dan Direktur Keuangan'
+                        ]);
+                    }
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data belum di Approve oleh Direktur Operasional'
+                    ]);
+                } elseif($dataPenyetujuan->d_keuangan_act == '1'){
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data belum di Approve oleh Direktur Keuangan'
+                    ]);
+                } else {
+                    DB::table('produksi_penyetujuan_order_ebook')
+                        ->where('produksi_order_ebook_id', $request->id)
+                        ->update([
+                            'd_utama_act' => '3',
+                        ]);
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data berhasil diupdate'
+                    ]);
+                }
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda tidak memiliki akses'
+                ]);
+            }
+        } catch(\Exception $e){
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
     protected function getOrderId($tipeOrder)
     {

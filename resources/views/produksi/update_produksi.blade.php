@@ -368,7 +368,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker-year" name="up_tahun_terbit" value="{{$data->tahun_terbit}}" placeholder="Tahun" required>
+                                    <input type="text" class="form-control datepicker-year" name="up_tahun_terbit" value="{{$data->tahun_terbit}}" placeholder="Tahun" readonly required>
                                     <div id="err_up_tahun_terbit"></div>
                                 </div>
                             </div>
@@ -378,7 +378,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" value="{{date('d F Y',strtotime($data->tgl_permintaan_jadi))}}" required>
+                                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" value="{{date('d F Y',strtotime($data->tgl_permintaan_jadi))}}" readonly required>
                                     <div id="err_up_tgl_permintaan_jadi"></div>
                                 </div>
                             </div>

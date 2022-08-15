@@ -34,6 +34,7 @@ Route::get('/list-status-buku-ebook', [ApiController::class, 'listStatusBukuEboo
 Route::get('/list-pilihan-terbit', [ApiController::class, 'listPilihanTerbit']);
 Route::get('/list-status-cetak', [ApiController::class, 'listStatusCetak']);
 Route::get('/list-jenis-mesin', [ApiController::class, 'listJenisMesin']);
+Route::post('/update-tanggal-upload-ebook', [ApiController::class, 'updateTanggalUploadEbook']);
 
 Route::middleware(['auth'])->group(function() {
     Route::post('notification', [NotificationController::class, 'index']);

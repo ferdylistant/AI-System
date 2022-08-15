@@ -203,7 +203,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker-year" name="add_tahun_terbit" placeholder="Tahun" required>
+                                    <input type="text" class="form-control datepicker-year" name="add_tahun_terbit" placeholder="Tahun" readonly required>
                                     <div id="err_add_tahun_terbit"></div>
                                 </div>
                             </div>
@@ -213,7 +213,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="add_tgl_upload" placeholder="Tanggal Upload" required>
+                                    <input type="text" class="form-control datepicker" name="add_tgl_upload" placeholder="Tanggal Upload" readonly required>
                                     <div id="err_add_tgl_upload"></div>
                                 </div>
                             </div>

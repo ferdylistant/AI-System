@@ -89,7 +89,7 @@
         <div class="section-header-back">
             <a href="{{ route('produksi.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
-        <h1>Detail Order Produksi</h1>
+        <h1>Detail Order Produksi Cetak</h1>
     </div>
 
     <div class="section-body">
@@ -276,15 +276,13 @@
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Pilihan Terbit</h6>
+                                        <h6 class="mb-1">Tipe Order</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
-                                        @if ($data->pilihan_terbit == '1')
-                                            Cetak Fisik
-                                        @elseif ($data->pilihan_terbit == '2')
-                                            E-Book
-                                        @elseif ($data->pilihan_terbit == '3')
-                                            Cetak Fisik + E-Book
+                                        @if ($data->tipe_order == '1')
+                                            Buku Umum
+                                        @elseif ($data->tipe_order == '2')
+                                            Buku Rohani
                                         @endif
                                     </p>
                                 </div>
