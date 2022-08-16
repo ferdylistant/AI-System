@@ -55,7 +55,7 @@ $(function() {
                 success: function(result) {
                     resetFrom(data);
                     if(result.status == 'success') {
-                        notifToast('success', 'Data produksi berhasil dipending!');
+                        notifToast(result.status, result.message);
                         location.reload();
                     } else {
                         $('#modalPending').modal('hide');

@@ -339,4 +339,23 @@ class ApiController extends Controller
         ];
         return response()->json($data);
     }
+    public function updateTanggalJadiCetak(Request $request)
+    {
+        $id = $request->id;
+        $tanggalUpload = $request->value;
+        $history_tanggal = $request->history;
+        $ebook = DB::table('produksi_order_cetak')->where('id', $id)
+            ->update([
+                'tgl_permintaan_jadi' => Carbon::createFromFormat('d F Y', $tanggalUpload)->format('Y-m-d'),
+                'updated_by' => Auth::user()->id,
+            ]);
+        $penyetujuan = DB::table('produksi_penyetujuan_order_cetak')->where('produksi_order_cetak_id', $id)->update([
+                'tgl_permintaan_jadi_history' => $history_tanggal,
+            ]);
+        $data = [
+            'status' => 'success',
+            'message' => 'Berhasil mengubah tanggal permintaan jadi cetak',
+        ];
+        return response()->json($data);
+    }
 }

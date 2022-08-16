@@ -4,29 +4,39 @@ $(document).ready(function() {
     var ko = $('#kode_order').val();
     var sc = $('#statusCetak').val();
     var kp = $('#ketVal').val();
-    $('#btn-decline').on('click', function() {
-        $('#titleModal').html('Konfirmasi Penolakan');
+    var ps = $('#pendingSampai').val();
+    $('#btn-pending').on('click', function() {
+        $('#titleModal').html('Konfirmasi Persetujuan Pending');
         $('#id_').val(id);
         $('#kode_Order').val(ko);
         $('#judul_Buku').val(jb);
         $('#judulBuku').text('#'+ko+'-'+jb);
         $('#status_cetak').val(sc);
-        if(!kp){
-            $('#contentData').html("<label for='keterangan'>Alasan</label><textarea class='form-control' name='keterangan' rows='4'></textarea>");
+        if(!kp || !ps){
+            $('#contentData').html("<div class='form-group mb-4'><label for='pending_sampai' class='col-form-label'>Pending Sampai Tanggal</label><div class='input-group'><div class='input-group-prepend'><div class='input-group-text'><i class='fas fa-calendar-alt'></i></div></div><input type='text' class='form-control datepicker' id='pending_sampai' name='pending_sampai' readonly required></div><div class='form-group'><label for='keterangan' class='col-form-label'>Alasan</label><textarea class='form-control' name='keterangan' id='keterangan' rows='4'></textarea></div>");
             $('#footerDecline').html('<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="submit" class="btn btn-primary">Konfirmasi</button>');
         } else {
-            $('#contentData').html("<label for='keterangan'>Alasan</label><p>"+kp+"</p>");
+            $('#contentData').html("<div class='form-group mb-4'><label for='pending_sampai'>Pending Sampai Tanggal:</label><p id='pending_sampai'>"+ps+"</p></div><div class='form-group mb-4'><label for='keterangan'>Alasan:</label><p id='keterangan'>"+kp+"</p></div>");
             $('#footerDecline').html('<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>');
         }
+        $('.datepicker').datepicker({
+            format: 'dd MM yyyy',
+            startDate: '-10d',
+            autoclose:true,
+            clearBtn: true,
+            todayHighlight: true
+        });
         $('#modalDecline').modal('show');
     });
 });
 $(function() {
 function resetFrom(form) {
     form.trigger('reset');
+        $('[name="pending_sampai"]').val('').trigger('change');
         $('[name="keterangan"]').val('').trigger('change');
     }
     let addForm = jqueryValidation_('#fadd_Keterangan', {
+        pending_sampai: {required: true},
         keterangan: {required: true},
     });
 
@@ -34,7 +44,7 @@ function resetFrom(form) {
         let el = data.get(0);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/produksi/order-cetak/ajax/decline",
+            url: window.location.origin + "/produksi/order-cetak/ajax/pending",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -45,16 +55,12 @@ function resetFrom(form) {
             success: function(result) {
                 resetFrom(data);
                 if(result.status == 'success') {
-                    notifToast('success', 'Data produksi berhasil ditolak!');
+                    notifToast(result.status, result.message);
                     location.reload();
                 } else {
-                    $('#modalDecline').modal('hide');
+                    $('#modalPending').modal('hide');
                     notifToast(result.status, result.message);
                 }
-                // $('#modalDecline').modal('hide');
-                // ajax.reload();
-                // location.href = result.redirect;
-
             },
             error: function(err) {
                 // console.log(err.responseJSON)
@@ -82,11 +88,11 @@ function resetFrom(form) {
             let kode = $(this).find('[name="kode_order"]').val();
             let judul = $(this).find('[name="judul_buku"]').val();
             swal({
-                title: 'Yakin menolak produksi #'+kode+'-'+judul+'?',
-                text: 'Setelah menolak, Anda tidak dapat mengubah kembali data yang sudah Anda tolak!',
-                icon: 'warning',
-                buttons: true,
-                dangerMode: true,
+                title: 'Yakin produksi cetak #'+kode+'-'+judul+' dipending?',
+                    text: 'Setelah tanggal dipending selesai, Anda dapat menyetujui kembali data yang sudah Anda pending',
+                    icon: 'warning',
+                    buttons: true,
+                    dangerMode: true,
             })
             .then((confirm_) => {
                 if (confirm_) {

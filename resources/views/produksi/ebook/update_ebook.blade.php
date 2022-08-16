@@ -215,7 +215,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="up_tgl_upload" value="{{date('d F Y',strtotime($data->tgl_upload))}}" placeholder="Tanggal Upload" readonly required>
+                                    <input type="text" class="form-control datepicker" name="up_tgl_upload" value="{{Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y')}}" placeholder="Tanggal Upload" readonly required>
                                     <div id="err_up_tgl_upload"></div>
                                 </div>
                             </div>

@@ -86,7 +86,7 @@
                 <div class="card card-primary">
                     <div class="card-header">
                         <h4>Data Order Produksi&nbsp;
-                            - {{date('d F Y', strtotime($data->created_at))}}
+                            - {{Carbon\Carbon::parse($data->created_at)->translatedFormat('d F Y')}}
                         </h4>
                     </div>
                     <div class="card-body">
@@ -96,7 +96,7 @@
                                     <div class="mb-4">
                                         @if (!is_null($data_penolakan))
                                             <input type="hidden" id="ketVal" value="{{$data_penolakan->ket_pending}}">
-                                            <input type="hidden" id="pendingSampai" value="{{date('d F Y', strtotime($data_penolakan->pending_sampai))}}">
+                                            <input type="hidden" id="pendingSampai" value="{{Carbon\Carbon::parse($data_penolakan->pending_sampai)->translatedFormat('d F Y')}}">
                                         @endif
                                     {{-- APPROVAL ORDER PRODUKSI --}}
                                     @if (Gate::allows('do_approval', 'persetujuan-order-ebook'))
@@ -294,13 +294,13 @@
                                             @if (!is_null($data->tgl_upload))
                                                 @if (Gate::allows('do_decline', 'persetujuan-pending'))
                                                     @if ($prod_penyetujuan->status_general == 'Proses')
-                                                    <a href="javascript:void(0)" id="btn-edit-tgl-upload" class="text-info">{{ date('d F Y', strtotime($data->tgl_upload)) }}</a>
+                                                    <a href="javascript:void(0)" id="btn-edit-tgl-upload" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}</a>
                                                     <div class="input-group" id="edit-tgl-upload" style="display: none;">
                                                         <div class="input-group-prepend">
                                                             <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                                         </div>
                                                         <input type="hidden" id="historyTgl" value="{{$data->tgl_upload}}">
-                                                        <input type="text" class="form-control datepicker" id="upTglUpload" value="{{ date('d F Y', strtotime($data->tgl_upload)) }}" placeholder="Tanggal Upload" readonly required>
+                                                        <input type="text" class="form-control datepicker" id="upTglUpload" value="{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
                                                         <button type="button" class="close" aria-label="Close">
 
                                                             <span aria-hidden="true">&times;</span>
@@ -308,10 +308,10 @@
                                                         </button>
                                                     </div>
                                                     @else
-                                                    {{ date('d F Y', strtotime($data->tgl_upload)) }}
+                                                    {{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}
                                                     @endif
                                                 @else
-                                                {{ date('d F Y', strtotime($data->tgl_upload)) }}
+                                                {{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}
                                                 @endif
                                             @else
                                                 -

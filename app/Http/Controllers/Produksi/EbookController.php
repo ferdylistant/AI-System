@@ -61,7 +61,7 @@ class EbookController extends Controller
                             return $res;
                         })
                         ->addColumn('tgl_upload', function($data) {
-                            return date('d F Y', strtotime($data->tgl_upload));
+                            return Carbon::parse($data->tgl_upload)->translatedFormat('d F Y');
                         })
                         ->addColumn('eisbn', function($data) {
                             if(is_null($data->eisbn)) {
@@ -76,7 +76,7 @@ class EbookController extends Controller
                             if($data->status_general == 'Selesai') {
                                 $badge .= '<span class="badge badge-primary">Selesai</span>';
                             } elseif($data->status_general == 'Pending') {
-                                $badge .= '<span class="badge badge-warning">Pending sampai '.date('d F Y', strtotime($data->pending_sampai)).'</span>';
+                                $badge .= '<span class="badge badge-warning">Pending sampai '.Carbon::parse($data->pending_sampai)->translatedFormat('d M Y').'</span>';
                             }
                             else {
                                 //Manajer Penerbitan
@@ -329,6 +329,43 @@ class EbookController extends Controller
         })
         ->whereNotNull('pny.pending_sampai')
         ->first();
+
+        if(!is_null($dataPenolakan)){
+            $bool = $dataPenolakan->pending_sampai<=Carbon::now('Asia/Jakarta')->format('Y-m-d')?true:false;
+            if($bool == true){
+                if($dataPenolakan->d_operasional_act == '2'){
+                    DB::table('produksi_penyetujuan_order_ebook')
+                        ->where('produksi_order_ebook_id', $kode)
+                        ->where('d_operasional_act', '2')
+                        ->update([
+                            'd_operasional_act' => '1',
+                            'status_general' => 'Proses',
+                            'ket_pending' => NULL,
+                            'pending_sampai' => NULL,
+                        ]);
+                } elseif($dataPenolakan->d_keuangan_act == '2'){
+                    DB::table('produksi_penyetujuan_order_ebook')
+                        ->where('produksi_order_ebook_id', $kode)
+                        ->where('d_keuangan_act', '2')
+                        ->update([
+                            'd_keuangan_act' => '1',
+                            'status_general' => 'Proses',
+                            'ket_pending' => NULL,
+                            'pending_sampai' => NULL,
+                        ]);
+                } elseif($dataPenolakan->d_utama_act == '2'){
+                    DB::table('produksi_penyetujuan_order_ebook')
+                        ->where('produksi_order_ebook_id', $kode)
+                        ->where('d_operasional_act', '2')
+                        ->update([
+                            'd_keuangan_act' => '1',
+                            'status_general' => 'Proses',
+                            'ket_pending' => NULL,
+                            'pending_sampai' => NULL,
+                    ]);
+                }
+            }
+        }
         $prodPenyetujuan = DB::table('produksi_penyetujuan_order_ebook')
                     ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id','=', $prod->id)
                     ->select('produksi_penyetujuan_order_ebook.*')
@@ -562,7 +599,7 @@ class EbookController extends Controller
             } elseif ($dataPenyetujuan->status_general == 'Pending') {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Data di Pending sampai '.date('d F Y', strtotime($dataPenyetujuan->pending_sampai))
+                    'message' => 'Data di Pending sampai '.Carbon::parse($dataPenyetujuan->pending_sampai)->translatedFormat('d F Y')
                 ]);
             }
             if ($dataUser->id == $dataPenyetujuan->d_operasional) {
@@ -590,6 +627,22 @@ class EbookController extends Controller
                     'message' => 'Data berhasil dipending'
                 ]);
             } elseif ($dataUser->id == $dataPenyetujuan->d_keuangan) {
+                if ($dataPenyetujuan->d_operasional_act == '1') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data belum di Approve oleh Direktur Operasional'
+                    ]);
+                } elseif ($dataPenyetujuan->d_keuangan_act == '2') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah Anda Pending'
+                    ]);
+                } elseif ($dataPenyetujuan->d_keuangan_act == '3') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah di Approve'
+                    ]);
+                }
                 DB::table('produksi_penyetujuan_order_ebook')
                     ->where('produksi_order_ebook_id', $request->id)
                     ->update([
@@ -603,6 +656,18 @@ class EbookController extends Controller
                     'message' => 'Data berhasil dipending'
                 ]);
             } elseif ($dataUser->id == $dataPenyetujuan->d_utama) {
+                if ($dataPenyetujuan->d_operasional_act == '1') {
+                    if ($dataPenyetujuan->d_keuangan_act == '1') {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data belum di Approve oleh Direktur Operasional dan Direktur Keuangan'
+                        ]);
+                    }
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data belum di Approve oleh Direktur Operasional'
+                    ]);
+                }
                 DB::table('produksi_penyetujuan_order_ebook')
                     ->where('produksi_order_ebook_id', $request->id)
                     ->update([

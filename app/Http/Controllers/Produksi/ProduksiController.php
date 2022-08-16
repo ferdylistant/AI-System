@@ -33,6 +33,7 @@ class ProduksiController extends Controller
                         'pyoc.d_operasional_act',
                         'pyoc.d_keuangan_act',
                         'pyoc.d_utama_act',
+                        'pyoc.pending_sampai',
                         'pyoc.status_general'
                         )
                     ->get();
@@ -85,14 +86,15 @@ class ProduksiController extends Controller
                         ->addColumn('status_penyetujuan', function($data)  {
                             $badge = '';
                             if(in_array($data->status_cetak, ['1', '2'])) {
-                                if(!is_null($data->status_general)) {
+                                if($data->status_general == 'Selesai') {
                                     $badge .= '<span class="badge badge-primary">Selesai</span>';
-                                } else {
+                                } elseif($data->status_general == 'Pending') {
+                                    $badge .= '<span class="badge badge-warning">Pending sampai '.Carbon::parse($data->pending_sampai)->translatedFormat('d M Y').'</span>';
+                                }
+                                else {
                                     //Manajer Penerbitan
                                     if($data->m_penerbitan_act == '1') {
                                         $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
-                                    } elseif($data->m_penerbitan_act == '2') {
-                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
                                     } elseif($data->m_penerbitan_act == '3') {
                                         $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
                                     }
@@ -102,7 +104,7 @@ class ProduksiController extends Controller
                                     } elseif($data->d_operasional_act == '2') {
                                         $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
                                     } elseif($data->d_operasional_act == '3') {
-                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
                                     }
                                     //Direksi Keuangan
                                     if($data->d_keuangan_act == '1') {
@@ -122,8 +124,10 @@ class ProduksiController extends Controller
                                     }
                                 }
                             } elseif($data->status_cetak == '3') {
-                                if(!is_null($data->status_general)) {
+                                if($data->status_general == 'Selesai') {
                                     $badge .= '<span class="badge badge-primary">Selesai</span>';
+                                } elseif($data->status_general == 'Pending') {
+                                    $badge .= '<span class="badge badge-warning">Pending sampai '.Carbon::parse($data->pending_sampai)->translatedFormat('d M Y').'</span>';
                                 } else {
                                     //Manajer Stok
                                     if($data->m_stok_act == '1') {
@@ -139,7 +143,7 @@ class ProduksiController extends Controller
                                     } elseif($data->d_operasional_act == '2') {
                                         $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
                                     } elseif($data->d_operasional_act == '3') {
-                                        $badge .= '<div class="text-warning text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
                                     }
                                     //Direksi Keuangan
                                     if($data->d_keuangan_act == '1') {
@@ -213,7 +217,7 @@ class ProduksiController extends Controller
                 ]);
                 $jenisMesin = $request->add_jenis_mesin;
                 $tipeOrder = $request->add_tipe_order;
-                if ($jenisMesin != '2') {
+                if ($request->add_pilihan_terbit == '2') {
                     foreach ($request->add_platform_digital as $key => $value) {
                         $platformDigital[$key] = $value;
                     }
@@ -445,29 +449,59 @@ class ProduksiController extends Controller
         $kode = $request->get('kode');
         $author = $request->get('author');
         $prod = DB::table('produksi_order_cetak')
-                    ->where('id', $kode)
-                    ->where('created_by', $author)
-                    ->first();
+                ->where('id', $kode)
+                ->where('created_by', $author)
+                ->first();
         $dataPenolakan = DB::table('produksi_penyetujuan_order_cetak as pny')
-        ->where('pny.produksi_order_cetak_id', $kode)
-        ->where(function($query) {
-            $query->where('pny.d_operasional_act', '=', '2')
-                  ->orWhere('pny.d_keuangan_act', '=', '2')
-                  ->orWhere('pny.d_utama_act', '=', '2');
-        })
-        ->whereNull('pny.pending_sampai')
-        ->first();
+                ->where('pny.produksi_order_cetak_id', $kode)
+                ->where(function($query) {
+                    $query->where('pny.d_operasional_act', '=', '2')
+                            ->orWhere('pny.d_keuangan_act', '=', '2')
+                            ->orWhere('pny.d_utama_act', '=', '2');
+                })
+                ->whereNotNull('pny.pending_sampai')
+                ->first();
+
+        if(!is_null($dataPenolakan)){
+            $bool = $dataPenolakan->pending_sampai<=Carbon::now('Asia/Jakarta')->format('Y-m-d')?true:false;
+            if($bool == true){
+                if($dataPenolakan->d_operasional_act == '2'){
+                    DB::table('produksi_penyetujuan_order_cetak')
+                        ->where('produksi_order_cetak_id', $kode)
+                        ->where('d_operasional_act', '2')
+                        ->update([
+                            'd_operasional_act' => '1',
+                            'status_general' => 'Proses',
+                            'ket_pending' => NULL,
+                            'pending_sampai' => NULL,
+                        ]);
+                } elseif($dataPenolakan->d_keuangan_act == '2'){
+                    DB::table('produksi_penyetujuan_order_cetak')
+                        ->where('produksi_order_cetak_id', $kode)
+                        ->where('d_keuangan_act', '2')
+                        ->update([
+                            'd_keuangan_act' => '1',
+                            'status_general' => 'Proses',
+                            'ket_pending' => NULL,
+                            'pending_sampai' => NULL,
+                        ]);
+                } elseif($dataPenolakan->d_utama_act == '2'){
+                    DB::table('produksi_penyetujuan_order_cetak')
+                        ->where('produksi_order_cetak_id', $kode)
+                        ->where('d_operasional_act', '2')
+                        ->update([
+                            'd_keuangan_act' => '1',
+                            'status_general' => 'Proses',
+                            'ket_pending' => NULL,
+                            'pending_sampai' => NULL,
+                    ]);
+                }
+            }
+        }
         $prodPenyetujuan = DB::table('produksi_penyetujuan_order_cetak')
                     ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id','=', $prod->id)
-                    ->where(function ($query) {
-                        $query->where('produksi_penyetujuan_order_cetak.m_penerbitan_act', '=', '3')
-                            ->orWhere('produksi_penyetujuan_order_cetak.m_stok_act', '=', '3')
-                            ->orWhere('produksi_penyetujuan_order_cetak.d_operasional_act', '=', '3')
-                            ->orWhere('produksi_penyetujuan_order_cetak.d_keuangan_act', '=', '3')
-                            ->orWhere('produksi_penyetujuan_order_cetak.d_utama_act', '=', '3');
-                    })
                     ->select('produksi_penyetujuan_order_cetak.*')
-                    ->get();
+                    ->first();
         $author = DB::table('users')
                     ->where('id', $author)
                     ->first();
@@ -557,6 +591,7 @@ class ProduksiController extends Controller
         return view('produksi.detail_produksi', [
             'title' => 'Detail Order Cetak Buku',
             'data' => $prod,
+            'id' => $kode,
             'prod_penyetujuan' => $prodPenyetujuan,
             'data_penolakan' => $dataPenolakan,
             'author' => $author,
@@ -577,8 +612,8 @@ class ProduksiController extends Controller
             case 'approval':
                 return $this->approvalOrder($request);
                 break;
-            case 'decline':
-                return $this->declineOrder($request);
+            case 'pending':
+                return $this->pendingOrder($request);
                 break;
             default:
                 abort(500);
@@ -645,67 +680,325 @@ class ProduksiController extends Controller
     }
     protected function approvalOrder($request)
     {
-
-    }
-
-    protected function declineOrder($request)
-    {
-        $dataDb = DB::table('produksi_penyetujuan_order_cetak as pny')
-        ->where('pny.produksi_order_cetak_id', $request->id)
-        ->where('action', '2')
-        ->first();
-
-        if(is_null($dataDb)) {
-            $dataUser = DB::table('users as u', 'u.id', '=', 'pny.users_id')
-            ->join('jabatan as j', 'j.id', '=', 'u.jabatan_id')
-            ->where('u.id', auth()->user()->id)
-            ->select('u.nama as nama_user', 'j.nama as jabatan')
-            ->first();
-            if(is_null($dataUser)) {
+        try{
+            $dataUser = DB::table('users')
+                        ->where('id', auth()->id())
+                        ->first();
+            $dataPenyetujuan = DB::table('produksi_penyetujuan_order_cetak')
+                ->where('produksi_order_cetak_id', $request->id)
+                ->select('produksi_penyetujuan_order_cetak.*')
+                ->first();
+            if($dataPenyetujuan->status_general == 'Selesai'){
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Anda tidak memiliki jabatan yang dapat mengakses fitur ini'
+                    'message' => 'Data sudah selesai di Approve'
+                ]);
+            } elseif($dataPenyetujuan->status_general == 'Pending'){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data di Pending sampai '.date('d F Y',strtotime($dataPenyetujuan->pending_sampai))
                 ]);
             }
-            elseif($dataUser->jabatan == 'Direktur Operasional') {
-                if($request->status_cetak == '3') {
+            if($request->status_cetak == '3'){
+                if($dataUser->id == $dataPenyetujuan->m_stok) {
+                    if($dataPenyetujuan->m_stok_act == '3'){
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data sudah Anda Approve'
+                        ]);
+                    } elseif($dataPenyetujuan->m_stok_act == '2'){
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data sudah dipending sampai '.date('d F Y',strtotime($dataPenyetujuan->pending_sampai))
+                        ]);
+                    }
+                    DB::table('produksi_penyetujuan_order_cetak')
+                        ->where('produksi_order_cetak_id', $request->id)
+                        ->update([
+                            'm_stok_act' => '3',
+                        ]);
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data berhasil diupdate'
+                    ]);
+                } elseif($dataUser->id == $dataPenyetujuan->d_operasional) {
+                    if($dataPenyetujuan->m_stok_act == '1'){
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Manajer Stok belum melakukan persetujuan'
+                        ]);
+                    }
+                    DB::table('produksi_penyetujuan_order_cetak')
+                        ->where('produksi_order_cetak_id', $request->id)
+                        ->update([
+                            'd_operasional_act' => '3',
+                        ]);
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data berhasil diupdate'
+                    ]);
+                } elseif($dataUser->id == $dataPenyetujuan->d_keuangan) {
+                    if($dataPenyetujuan->d_operasional_act == '3'){
+                        DB::table('produksi_penyetujuan_order_cetak')
+                            ->where('produksi_order_cetak_id', $request->id)
+                            ->update([
+                                'd_keuangan_act' => '3',
+                            ]);
+                        return response()->json([
+                            'status' => 'success',
+                            'message' => 'Data berhasil diupdate'
+                        ]);
+                    } else {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data belum di Approve oleh Direktur Operasional'
+                        ]);
+                    }
+                } elseif($dataUser->id == $dataPenyetujuan->d_utama) {
+                    if($dataPenyetujuan->d_operasional_act == '1') {
+                        if($dataPenyetujuan->d_keuangan_act == '1') {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Data belum di Approve oleh Direktur Operasional dan Direktur Keuangan'
+                            ]);
+                        }
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data belum di Approve oleh Direktur Operasional'
+                        ]);
+                    } elseif($dataPenyetujuan->d_keuangan_act == '1'){
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data belum di Approve oleh Direktur Keuangan'
+                        ]);
+                    } else {
+                        DB::table('produksi_penyetujuan_order_cetak')
+                            ->where('produksi_order_cetak_id', $request->id)
+                            ->update([
+                                'd_utama_act' => '3',
+                                'status_general' => 'Selesai',
+                            ]);
+                        return response()->json([
+                            'status' => 'success',
+                            'message' => 'Data berhasil diupdate'
+                        ]);
+                    }
+                } else {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Manajer Stok belum menyetujui order cetak ulang.'
+                        'message' => 'Anda tidak memiliki akses'
                     ]);
                 }
-                $id = Uuid::uuid4()->toString();
-                DB::table('produksi_penyetujuan_order_cetak')->insert([
-                    'id' => $id,
-                    'produksi_order_cetak_id' => $request->id,
-                    'users_id' => auth()->user()->id,
-                    'action' => '2',
-                    'ket_penolakan' => $request->keterangan,
+            } else{
+                if($dataUser->id == $dataPenyetujuan->m_penerbitan) {
+                    if($dataPenyetujuan->m_penerbitan_act == '3'){
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data sudah Anda Approve'
+                        ]);
+                    } elseif($dataPenyetujuan->m_penerbitan_act == '2'){
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data sudah dipending sampai '.date('d F Y',strtotime($dataPenyetujuan->pending_sampai))
+                        ]);
+                    }
+                    DB::table('produksi_penyetujuan_order_cetak')
+                        ->where('produksi_order_cetak_id', $request->id)
+                        ->update([
+                            'm_penerbitan_act' => '3',
+                        ]);
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data berhasil diupdate'
+                    ]);
+                } elseif($dataUser->id == $dataPenyetujuan->d_operasional) {
+                    DB::table('produksi_penyetujuan_order_cetak')
+                        ->where('produksi_order_cetak_id', $request->id)
+                        ->update([
+                            'd_operasional_act' => '3',
+                        ]);
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data berhasil diupdate'
+                    ]);
+                } elseif($dataUser->id == $dataPenyetujuan->d_keuangan) {
+                    if($dataPenyetujuan->d_operasional_act == '3'){
+                        DB::table('produksi_penyetujuan_order_cetak')
+                            ->where('produksi_order_cetak_id', $request->id)
+                            ->update([
+                                'd_keuangan_act' => '3',
+                            ]);
+                        return response()->json([
+                            'status' => 'success',
+                            'message' => 'Data berhasil diupdate'
+                        ]);
+                    } else {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data belum di Approve oleh Direktur Operasional'
+                        ]);
+                    }
+                } elseif($dataUser->id == $dataPenyetujuan->d_utama) {
+                    if($dataPenyetujuan->d_operasional_act == '1') {
+                        if($dataPenyetujuan->d_keuangan_act == '1') {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Data belum di Approve oleh Direktur Operasional dan Direktur Keuangan'
+                            ]);
+                        }
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data belum di Approve oleh Direktur Operasional'
+                        ]);
+                    } elseif($dataPenyetujuan->d_keuangan_act == '1'){
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data belum di Approve oleh Direktur Keuangan'
+                        ]);
+                    } else {
+                        DB::table('produksi_penyetujuan_order_cetak')
+                            ->where('produksi_order_cetak_id', $request->id)
+                            ->update([
+                                'd_utama_act' => '3',
+                                'status_general' => 'Selesai',
+                            ]);
+                        return response()->json([
+                            'status' => 'success',
+                            'message' => 'Data berhasil diupdate'
+                        ]);
+                    }
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Anda tidak memiliki akses'
+                    ]);
+                }
+            }
+        } catch(\Exception $e){
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    protected function pendingOrder($request)
+    {
+        try {
+            $dataUser = DB::table('users')
+                        ->where('id', auth()->id())
+                        ->first();
+            $dataPenyetujuan = DB::table('produksi_penyetujuan_order_cetak')
+                ->where('produksi_order_cetak_id', $request->id)
+                ->select('produksi_penyetujuan_order_cetak.*')
+                ->first();
+            if ($request->status_cetak == '3') {
+                if ($dataPenyetujuan->m_stok_act == '1'){
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Manajer Stok belum melakukan persetujuan'
+                    ]);
+                }
+            }
+            if ($dataPenyetujuan->status_general == 'Selesai') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data sudah selesai di Approve'
                 ]);
+            } elseif ($dataPenyetujuan->status_general == 'Pending') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data dipending sampai '.Carbon::parse($dataPenyetujuan->pending_sampai)->translatedFormat('d F Y')
+                ]);
+            }
+            if ($dataUser->id == $dataPenyetujuan->d_operasional) {
+                if ($dataPenyetujuan->d_operasional_act == '2') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah Anda Pending'
+                    ]);
+                } elseif ($dataPenyetujuan->d_operasional_act == '3') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah di Approve'
+                    ]);
+                }
+                DB::table('produksi_penyetujuan_order_cetak')
+                    ->where('produksi_order_cetak_id', $request->id)
+                    ->update([
+                        'd_operasional_act' => '2',
+                        'ket_pending' => $request->keterangan,
+                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
+                        'status_general' => 'Pending',
+                    ]);
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'Produksi Order Cetak Berhasil Ditolak'
+                    'message' => 'Data berhasil dipending'
                 ]);
-            } elseif($dataUser->jabatan == 'Direktur Keuangan') {
+            } elseif ($dataUser->id == $dataPenyetujuan->d_keuangan) {
+                if ($dataPenyetujuan->d_operasional_act == '1') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data belum di Approve oleh Direktur Operasional'
+                    ]);
+                } elseif ($dataPenyetujuan->d_keuangan_act == '2') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah Anda Pending'
+                    ]);
+                } elseif ($dataPenyetujuan->d_keuangan_act == '3') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah di Approve'
+                    ]);
+                }
+                DB::table('produksi_penyetujuan_order_cetak')
+                    ->where('produksi_order_cetak_id', $request->id)
+                    ->update([
+                        'd_keuangan_act' => '2',
+                        'ket_pending' => $request->keterangan,
+                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
+                        'status_general' => 'Pending',
+                    ]);
                 return response()->json([
-                    'status' => 'error',
-                    'message' => 'Direktur Operasional belum menyetujui atau menolak produksi order cetak'
+                    'status' => 'success',
+                    'message' => 'Data berhasil dipending'
                 ]);
-            } elseif($dataUser->jabatan == 'Direktur Utama') {
+            } elseif ($dataUser->id == $dataPenyetujuan->d_utama) {
+                if ($dataPenyetujuan->d_operasional_act == '1') {
+                    if ($dataPenyetujuan->d_keuangan_act == '1') {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data belum di Approve oleh Direktur Operasional dan Direktur Keuangan'
+                        ]);
+                    }
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data belum di Approve oleh Direktur Operasional'
+                    ]);
+                }
+                DB::table('produksi_penyetujuan_order_cetak')
+                    ->where('produksi_order_cetak_id', $request->id)
+                    ->update([
+                        'd_utama_act' => '2',
+                        'ket_pending' => $request->keterangan,
+                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
+                        'status_general' => 'Pending',
+                    ]);
                 return response()->json([
-                    'status' => 'error',
-                    'message' => 'Direktur Keuangangan belum menyetujui atau menolak produksi order cetak'
+                    'status' => 'success',
+                    'message' => 'Data berhasil dipending'
                 ]);
             } else {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Jabatan tidak dikenali untuk mengakses fitur ini'
+                    'message' => 'Anda tidak memiliki akses'
                 ]);
             }
-        } else {
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda tidak bisa menolak produksi order cetak yang sudah ditolak sebelumnya!'
+                'message' => $e->getMessage()
             ]);
         }
     }
