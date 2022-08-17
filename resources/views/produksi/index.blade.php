@@ -12,17 +12,17 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1>Data Produksi Order Cetak</h1>
+        <h1>Data Penerbitan Order Cetak</h1>
         @if(Gate::allows('do_create', 'tambah-produksi-cetak'))
         <div class="section-header-button">
-            <a href="{{ route('produksi.create')}}" class="btn btn-success">Tambah</a>
+            <a href="{{ route('cetak.create')}}" class="btn btn-success">Tambah</a>
         </div>
         @endif
     </div>
     <div class="section-body">
         <div class="row">
             <div class="col-12">
-                <div class="card card-warning">
+                <div class="card card-primary">
                     <div class="card-body">
                         <div class="col-12 table-responsive">
                             <table class="table table-striped" id="tb_Produksi" style="width:100%">
@@ -64,7 +64,7 @@
                 lengthMenu: '_MENU_ items/page',
             },
             ajax: {
-                url: "{{ url('produksi/order-cetak') }}",
+                url: "{{ url('penerbitan/order-cetak') }}",
                 data: {"request_": "table-produksi"}
             },
             columns: [

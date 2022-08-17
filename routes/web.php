@@ -23,21 +23,22 @@ use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, Penila
 
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('do-login', [AuthController::class, 'doLogin']);
-Route::post('/logout', [AuthController::class, 'logout']);
-
-//API
-Route::get('/get-layout', [ApiController::class, 'getPosisiLayout']);
-Route::get('/list-dami', [ApiController::class, 'listDami']);
-Route::get('/list-format-buku', [ApiController::class, 'listFormatBuku']);
-Route::get('/list-status-buku', [ApiController::class, 'listStatusBuku']);
-Route::get('/list-status-buku-ebook', [ApiController::class, 'listStatusBukuEbook']);
-Route::get('/list-pilihan-terbit', [ApiController::class, 'listPilihanTerbit']);
-Route::get('/list-status-cetak', [ApiController::class, 'listStatusCetak']);
-Route::get('/list-jenis-mesin', [ApiController::class, 'listJenisMesin']);
-Route::post('/update-tanggal-upload-ebook', [ApiController::class, 'updateTanggalUploadEbook']);
-Route::post('/update-tanggal-jadi-cetak', [ApiController::class, 'updateTanggalJadiCetak']);
-
 Route::middleware(['auth'])->group(function() {
+    //API
+    Route::get('/get-layout', [ApiController::class, 'getPosisiLayout']);
+    Route::get('/list-dami', [ApiController::class, 'listDami']);
+    Route::get('/list-format-buku', [ApiController::class, 'listFormatBuku']);
+    Route::get('/list-status-buku', [ApiController::class, 'listStatusBuku']);
+    Route::get('/list-status-buku-ebook', [ApiController::class, 'listStatusBukuEbook']);
+    Route::get('/list-pilihan-terbit', [ApiController::class, 'listPilihanTerbit']);
+    Route::get('/list-status-cetak', [ApiController::class, 'listStatusCetak']);
+    Route::get('/list-jenis-mesin', [ApiController::class, 'listJenisMesin']);
+    Route::post('/update-tanggal-upload-ebook', [ApiController::class, 'updateTanggalUploadEbook']);
+    Route::post('/update-tanggal-jadi-cetak', [ApiController::class, 'updateTanggalJadiCetak']);
+    Route::post('/update-jumlah-cetak', [ApiController::class, 'updateJumlahCetak']);
+    Route::get('/batal/pending/order-cetak/{id}', [ProduksiController::class, 'batalPendingOrderCetak']);
+    Route::get('/batal/pending/order-ebook/{id}', [EbookController::class, 'batalPendingOrderEbook']);
+    Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('notification', [NotificationController::class, 'index']);
     Route::get('/', [HomeController::class, 'index']);
     Route::post('import-db', [HomeController::class, 'importDB']);
@@ -76,15 +77,12 @@ Route::middleware(['auth'])->group(function() {
         Route::get('/imprint', [ImprintController::class, 'index'])->name('imprint.view');
         Route::match(['get', 'post'], '/imprint/tambah-imprint', [ImprintController::class, 'createImprint'])->name('imprint.create');
         Route::match(['get', 'post'], '/imprint/ubah-imprint', [ImprintController::class, 'updateImprint'])->name('imprint.update');
-    });
-    //Produksi
-    Route::prefix('produksi')->group(function () {
         //Order Cetak
-        Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('produksi.view');
-        Route::get('/order-cetak/detail', [ProduksiController::class, 'detailProduksi'])->name('produksi.detail');
-        Route::match(['get', 'post'], '/order-cetak/create', [ProduksiController::class,'createProduksi'])->name('produksi.create');
-        Route::match(['get', 'post'], '/order-cetak/edit', [ProduksiController::class,'updateProduksi'])->name('produksi.update');
-        Route::post('/hapus-order-cetak-buku', [ProduksiController::class,'deleteProduksi'])->name('produksi.delete');
+        Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('cetak.view');
+        Route::get('/order-cetak/detail', [ProduksiController::class, 'detailProduksi'])->name('cetak.detail');
+        Route::match(['get', 'post'], '/order-cetak/create', [ProduksiController::class,'createProduksi'])->name('cetak.create');
+        Route::match(['get', 'post'], '/order-cetak/edit', [ProduksiController::class,'updateProduksi'])->name('cetak.update');
+        Route::post('/hapus-order-cetak-buku', [ProduksiController::class,'deleteProduksi'])->name('cetak.delete');
         Route::post('/order-cetak/ajax/{cat}', [ProduksiController::class, 'ajaxRequest']);
         //Order Ebook
         Route::get('/order-ebook', [EbookController::class, 'index'])->name('ebook.view');
@@ -93,6 +91,10 @@ Route::middleware(['auth'])->group(function() {
         Route::match(['get', 'post'], '/order-ebook/edit', [EbookController::class,'updateProduksi'])->name('ebook.update');
         Route::post('/hapus-order-ebook-buku', [EbookController::class,'deleteProduksi'])->name('ebook.delete');
         Route::post('/order-ebook/ajax/{cat}', [EbookController::class, 'ajaxRequest']);
+    });
+    //Produksi
+    Route::prefix('produksi')->group(function () {
+
     });
 
 });

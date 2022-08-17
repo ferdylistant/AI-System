@@ -75,9 +75,9 @@
 <section class="section">
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('produksi.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('cetak.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
-        <h1>Detail Order Produksi Cetak</h1>
+        <h1>Detail Penerbitan Order Cetak</h1>
     </div>
 
     <div class="section-body">
@@ -85,7 +85,7 @@
             <div class="col-12 col-md-12">
                 <div class="card card-primary">
                     <div class="card-header">
-                        <h4>Data Order Produksi&nbsp;
+                        <h4>Data Order Cetak&nbsp;
                             - {{Carbon\Carbon::parse($data->created_at)->translatedFormat('d F Y')}}
                             <span class="text-danger">
                                 @if ($data->status_cetak == '3')
@@ -172,7 +172,7 @@
                                                 <div class="user-name">Manajer Stok:</div>
                                                     @if($p_mstok->m_stok_act == '1')
                                                     <div class="text-job text-muted">
-                                                    <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
+                                                    &nbsp;
                                                     </div>
                                                     @elseif($p_mstok->m_stok_act == '3')
                                                     <div class="text-job text-success">
@@ -190,7 +190,7 @@
                                                 <div class="user-name">Manajer Penerbitan:</div>
                                                     @if ($p_mp->m_penerbitan_act == '1')
                                                     <div class="text-job text-muted">
-                                                        <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
+                                                        &nbsp;
                                                     </div>
                                                     @elseif($p_mp->m_penerbitan_act == '3')
                                                     <div class="text-job text-success">
@@ -212,7 +212,7 @@
                                             <div class="user-name">Direktur Operasional:</div>
                                                 @if($p_dirop->d_operasional_act == '1')
                                                 <div class="text-job text-muted">
-                                                    <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
+                                                    &nbsp;
                                                 </div>
                                                 @elseif($p_dirop->d_operasional_act == '3')
                                                 <div class="text-job text-success">
@@ -236,7 +236,7 @@
                                             <div class="user-name">Direktur Keuangan:</div>
                                                 @if($p_dirke->d_keuangan_act == '1')
                                                 <div class="text-job text-muted">
-                                                    <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
+                                                    &nbsp;
                                                 </div>
                                                 @elseif($p_dirke->d_keuangan_act == '3')
                                                 <div class="text-job text-success">
@@ -260,7 +260,7 @@
                                             <div class="user-name">Direktur Utama:</div>
                                                 @if($p_dirut->d_utama_act == '1')
                                                 <div class="text-job text-muted">
-                                                    <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
+                                                    &nbsp;
                                                 </div>
                                                 @elseif($p_dirut->d_utama_act == '3')
                                                 <div class="text-job text-success">
@@ -725,25 +725,64 @@
                                         @else
                                             @if (Gate::allows('do_decline', 'persetujuan-pending'))
                                                 @if ($prod_penyetujuan->status_general == 'Proses')
-                                                <a href="javascript:void(0)" id="btn-edit-jml-cetak" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ $data->jumlah_cetak . ' eks' }}</a>
-                                                <div class="input-group" id="edit-jml-cetak" style="display: none;">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text"><i class="fas fa-copy"></i></div>
-                                                    </div>
-                                                    <input type="hidden" id="historyJumlahCetak" value="{{$data->jumlah_cetak}}">
-                                                    <input type="number" class="form-control" min="1" id="upTglJadi" value="{{ $data->jumlah_cetak }}" placeholder="Jumlah cetak" required>
-                                                    <div class="input-group-append">
-                                                        <span class="input-group-text"><button type="button" class="close" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button></span>
-                                                    </div>
-
-                                                </div>
+                                                    @if (auth()->id() == $prod_penyetujuan->d_operasional)
+                                                        <a href="javascript:void(0)" id="btn-edit-jml-cetak" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ $data->jumlah_cetak . ' eks' }}</a>
+                                                        <div class="input-group" id="edit-jml-cetak" style="display: none;">
+                                                            <div class="input-group-prepend">
+                                                                <div class="input-group-text"><i class="fas fa-copy"></i></div>
+                                                            </div>
+                                                            <input type="hidden" id="historyJumlahCetak" value="{{$data->jumlah_cetak}}">
+                                                            <input type="number" class="form-control" min="1" id="upJmlCetak" value="{{ $data->jumlah_cetak }}" placeholder="Jumlah cetak" required>
+                                                            <div class="input-group-append">
+                                                                <span class="input-group-text"><button type="button" class="close" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button></span>
+                                                            </div>
+                                                        </div>
+                                                    @elseif (auth()->id() == $prod_penyetujuan->d_keuangan)
+                                                        if($prod_penyetujuan->d_operasional_act == '1')
+                                                            {{ $data->jumlah_cetak . ' eks' }}
+                                                        @else
+                                                            <a href="javascript:void(0)" id="btn-edit-jml-cetak" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ $data->jumlah_cetak . ' eks' }}</a>
+                                                            <div class="input-group" id="edit-jml-cetak" style="display: none;">
+                                                                <div class="input-group-prepend">
+                                                                    <div class="input-group-text"><i class="fas fa-copy"></i></div>
+                                                                </div>
+                                                                <input type="hidden" id="historyJumlahCetak" value="{{$data->jumlah_cetak}}">
+                                                                <input type="number" class="form-control" min="1" id="upJmlCetak" value="{{ $data->jumlah_cetak }}" placeholder="Jumlah cetak" required>
+                                                                <div class="input-group-append">
+                                                                    <span class="input-group-text"><button type="button" class="close" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button></span>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    @elseif (auth()->id() == $prod_penyetujuan->d_utama)
+                                                        @if (($prod_penyetujuan->d_operasional_act == '1') || ($prod_penyetujuan->d_keuangan_act == '1'))
+                                                            {{ $data->jumlah_cetak . ' eks' }}
+                                                        @else
+                                                            <a href="javascript:void(0)" id="btn-edit-jml-cetak" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ $data->jumlah_cetak . ' eks' }}</a>
+                                                            <div class="input-group" id="edit-jml-cetak" style="display: none;">
+                                                                <div class="input-group-prepend">
+                                                                    <div class="input-group-text"><i class="fas fa-copy"></i></div>
+                                                                </div>
+                                                                <input type="hidden" id="historyJumlahCetak" value="{{$data->jumlah_cetak}}">
+                                                                <input type="number" class="form-control" min="1" id="upJmlCetak" value="{{ $data->jumlah_cetak }}" placeholder="Jumlah cetak" required>
+                                                                <div class="input-group-append">
+                                                                    <span class="input-group-text"><button type="button" class="close" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button></span>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    @else
+                                                        {{ $data->jumlah_cetak . ' eks' }}
+                                                    @endif
                                                 @else
-                                                {{ $data->jumlah_cetak.' eks' }}
+                                                    {{ $data->jumlah_cetak.' eks' }}
                                                 @endif
                                             @else
-                                            {{ $data->jumlah_cetak.' eks' }}
+                                                {{ $data->jumlah_cetak.' eks' }}
                                             @endif
                                         @endif
                                         </p>

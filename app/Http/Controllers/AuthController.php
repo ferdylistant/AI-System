@@ -30,6 +30,7 @@ class AuthController extends Controller
                     FROM user_permission AS up JOIN permissions AS p ON up.permission_id = p.id
                     JOIN access AS a ON p.access_id=a.id
                     WHERE up.user_id = '".Auth::id()."' AND p.`type` = 'Read'
+
                 ) AS a2 ON a.id = a2.id
                 LEFT JOIN access_bagian AS ab ON a.bagian_id = ab.id
                 UNION
@@ -39,6 +40,7 @@ class AuthController extends Controller
                     FROM user_permission AS up JOIN permissions AS p ON up.permission_id = p.id
                     JOIN access AS a ON p.access_id=a.id
                     WHERE up.user_id = '".Auth::id()."' AND p.`type` = 'Read' AND a.`level` = 2
+                    ORDER BY a.name ASC
                 ) AS a3 ON a.id = a3.id
                 LEFT JOIN access_bagian AS ab ON a.bagian_id = ab.id
                 ORDER BY order_ab, `level` ASC

@@ -113,11 +113,11 @@ class EbookController extends Controller
                             return $badge;
                         })
                         ->addColumn('action', function($data) use ($update) {
-                            $btn = '<a href="'.url('produksi/order-ebook/detail?kode='.$data->id .'&author='.$data->created_by).'"
+                            $btn = '<a href="'.url('penerbitan/order-ebook/detail?kode='.$data->id .'&author='.$data->created_by).'"
                                     class="d-flex btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if($update) {
-                                $btn .= '<a href="'.url('produksi/order-ebook/edit?kode='.$data->id.'&author='.$data->created_by).'"
+                                $btn .= '<a href="'.url('penerbitan/order-ebook/edit?kode='.$data->id.'&author='.$data->created_by).'"
                                     class="d-flex btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
@@ -733,5 +733,64 @@ class EbookController extends Controller
             }
         }
 
+    }
+    public function batalPendingOrderEbook($id)
+    {
+        try{
+            $dataEbook = DB::table('produksi_order_ebook')
+                            ->where('id', $id)
+                            ->first();
+            $dataPenyetujuan = DB::table('produksi_penyetujuan_order_ebook')
+                ->where('produksi_order_ebook_id', $id)
+                ->where('status_general','=', 'Pending')
+                ->first();
+            if(is_null($dataPenyetujuan)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Mungkin data sudah di Approve'
+                ]);
+            }
+            $dataUser = auth()->id();
+            if($dataUser == $dataPenyetujuan->d_operasional) {
+                DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_order_ebook_id', $id)
+                    ->update([
+                        'd_operasional_act' => '1',
+                        'ket_pending' => NULL,
+                        'pending_sampai' => NULL,
+                        'status_general' => 'Proses'
+                    ]);
+                return redirect()->to('/penerbitan/order-ebook/detail?kode='.$dataEbook->id.'&author='.$dataEbook->created_by);
+            } elseif($dataUser == $dataPenyetujuan->d_keuangan) {
+                DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_order_ebook_id', $id)
+                    ->update([
+                        'd_keuangan_act' => '1',
+                        'ket_pending' => NULL,
+                        'pending_sampai' => NULL,
+                        'status_general' => 'Proses'
+                    ]);
+                return redirect()->to('/penerbitan/order-ebook/detail?kode='.$dataEbook->id.'&author='.$dataEbook->created_by);
+            } elseif($dataUser == $dataPenyetujuan->d_utama) {
+                DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_order_ebook_id', $id)
+                    ->update([
+                        'd_utama_act' => '1',
+                        'ket_pending' => NULL,
+                        'pending_sampai' => NULL,
+                        'status_general' => 'Proses'
+                    ]);
+                return redirect()->to('/penerbitan/order-ebook/detail?kode='.$dataEbook->id.'&author='.$dataEbook->created_by);
+            }
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda tidak memiliki akses'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }

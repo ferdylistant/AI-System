@@ -12,7 +12,7 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1>Data Produksi Order E-Book</h1>
+        <h1>Data Penerbitan Order E-Book</h1>
         @if(Gate::allows('do_create', 'tambah-produksi-ebook'))
         <div class="section-header-button">
             <a href="{{ route('ebook.create')}}" class="btn btn-success">Tambah</a>
@@ -23,7 +23,7 @@
     <div class="section-body">
         <div class="row">
             <div class="col-12">
-                <div class="card card-warning">
+                <div class="card card-primary">
                     <div class="card-body">
                         <div class="col-12 table-responsive">
                             <table class="table table-striped" id="tb_Ebook" style="width:100%">
@@ -65,7 +65,7 @@
                 lengthMenu: '_MENU_ items/page',
             },
             ajax: {
-                url: "{{ url('produksi/order-ebook') }}",
+                url: "{{ url('penerbitan/order-ebook') }}",
                 data: {"request_": "table-produksi-ebook"}
             },
             columns: [

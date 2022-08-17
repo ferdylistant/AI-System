@@ -218,7 +218,7 @@ function ajaxAddProduksi(data) {
     let el = data.get(0);
     $.ajax({
         type: "POST",
-        url: window.location.origin + "/produksi/order-cetak/create",
+        url: window.location.origin + "/penerbitan/order-cetak/create",
         data: new FormData(el),
         processData: false,
         contentType: false,
@@ -243,7 +243,7 @@ function ajaxAddProduksi(data) {
                 })
                 // addNaskah.showErrors(err);
             }
-            notifToast('error', 'Data produksi gagal disimpan!');
+            notifToast('error', 'Data order cetak gagal disimpan!');
         },
         complete: function() {
             $('button[type="submit"]').prop('disabled', false).
@@ -257,7 +257,7 @@ $('#fadd_Produksi').on('submit', function(e) {
     if($(this).valid()) {
         let nama = $(this).find('[name="add_judul_buku"]').val();
         swal({
-            text: 'Tambah data Produksi ('+nama+')?',
+            text: 'Tambah data order cetak, ('+nama+')?',
             icon: 'warning',
             buttons: true,
             dangerMode: true,

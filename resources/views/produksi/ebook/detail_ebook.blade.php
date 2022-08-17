@@ -75,9 +75,9 @@
 <section class="section">
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('produksi.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('ebook.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
-        <h1>Detail Order Produksi E-Book</h1>
+        <h1>Detail Penerbitan Order E-Book</h1>
     </div>
 
     <div class="section-body">
@@ -85,7 +85,7 @@
             <div class="col-12 col-md-12">
                 <div class="card card-primary">
                     <div class="card-header">
-                        <h4>Data Order Produksi&nbsp;
+                        <h4>Data Order E-book&nbsp;
                             - {{Carbon\Carbon::parse($data->created_at)->translatedFormat('d F Y')}}
                         </h4>
                     </div>
@@ -95,6 +95,13 @@
                                 <div class="col-auto mr-auto">
                                     <div class="mb-4">
                                         @if (!is_null($data_penolakan))
+                                            <input type="hidden" id="authSession" value="{{ auth()->id() }}">
+                                            <input type="hidden" id="dirop" value="{{$data_penolakan->d_operasional}}">
+                                            <input type="hidden" id="dirke" value="{{$data_penolakan->d_keuangan}}">
+                                            <input type="hidden" id="dirut" value="{{$data_penolakan->d_utama}}">
+                                            <input type="hidden" id="dirop_act" value="{{$data_penolakan->d_operasional_act}}">
+                                            <input type="hidden" id="dirke_act" value="{{$data_penolakan->d_keuangan_act}}">
+                                            <input type="hidden" id="dirut_act" value="{{$data_penolakan->d_utama_act}}">
                                             <input type="hidden" id="ketVal" value="{{$data_penolakan->ket_pending}}">
                                             <input type="hidden" id="pendingSampai" value="{{Carbon\Carbon::parse($data_penolakan->pending_sampai)->translatedFormat('d F Y')}}">
                                         @endif
@@ -147,7 +154,7 @@
                                                 <div class="user-name">Manajer Penerbitan:</div>
                                                     @if ($p_mp->m_penerbitan_act == '1')
                                                     <div class="text-job text-muted">
-                                                        <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
+                                                        &nbsp;
                                                     </div>
                                                     @elseif($p_mp->m_penerbitan_act == '3')
                                                     <div class="text-job text-success">
@@ -168,7 +175,7 @@
                                             <div class="user-name">Direktur Operasional:</div>
                                                 @if($p_dirop->d_operasional_act == '1')
                                                 <div class="text-job text-muted">
-                                                    <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
+                                                    &nbsp;
                                                 </div>
                                                 @elseif($p_dirop->d_operasional_act == '3')
                                                 <div class="text-job text-success">
@@ -192,7 +199,7 @@
                                             <div class="user-name">Direktur Keuangan:</div>
                                                 @if($p_dirke->d_keuangan_act == '1')
                                                 <div class="text-job text-muted">
-                                                    <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
+                                                    &nbsp;
                                                 </div>
                                                 @elseif($p_dirke->d_keuangan_act == '3')
                                                 <div class="text-job text-success">
@@ -216,7 +223,7 @@
                                             <div class="user-name">Direktur Utama:</div>
                                                 @if($p_dirut->d_utama_act == '1')
                                                 <div class="text-job text-muted">
-                                                    <i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada tanggapan
+                                                    &nbsp;
                                                 </div>
                                                 @elseif($p_dirut->d_utama_act == '3')
                                                 <div class="text-job text-success">

@@ -16,9 +16,9 @@
 <section class="section">
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('produksi.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('cetak.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
-        <h1>Buat Order Produksi</h1>
+        <h1>Buat Order Cetak</h1>
     </div>
 
     <div class="section-body">
@@ -27,7 +27,7 @@
                 <div class="card card-success">
                     <form id="fadd_Produksi">
                         <div class="card-header">
-                            <h4>Form Produksi Order Cetak</h4>
+                            <h4>Form Penerbitan Order Cetak</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">

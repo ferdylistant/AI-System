@@ -16,7 +16,27 @@ $(document).ready(function() {
             $('#contentData').html("<div class='form-group mb-4'><label for='pending_sampai' class='col-form-label'>Pending Sampai Tanggal</label><div class='input-group'><div class='input-group-prepend'><div class='input-group-text'><i class='fas fa-calendar-alt'></i></div></div><input type='text' class='form-control datepicker' id='pending_sampai' name='pending_sampai' readonly required></div><div class='form-group'><label for='keterangan' class='col-form-label'>Alasan</label><textarea class='form-control' name='keterangan' id='keterangan' rows='4'></textarea></div>");
             $('#footerDecline').html('<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="submit" class="btn btn-primary">Konfirmasi</button>');
         } else {
-            $('#contentData').html("<div class='form-group mb-4'><label for='pending_sampai'>Pending Sampai Tanggal:</label><p id='pending_sampai'>"+ps+"</p></div><div class='form-group mb-4'><label for='keterangan'>Alasan:</label><p id='keterangan'>"+kp+"</p></div>");
+            if(authSess == dirop){
+                if(dirop_act == '2'){
+                    $('#contentData').html("<div class='form-group mb-4'><label for='pending_sampai'>Pending Sampai Tanggal:</label><p id='pending_sampai'>"+ps+"</p></div><div class='form-group mb-4'><label for='keterangan'>Alasan:</label><p id='keterangan'>"+kp+"</p></div><div class='form-group mb-4'><a href='"+window.location.origin+"/batal/pending/order-cetak/"+id+"' id='batalkan-pending' class='btn btn-danger'>Batalkan Pending</a></div>");
+                } else {
+                    $('#contentData').html("<div class='form-group mb-4'><label for='pending_sampai'>Pending Sampai Tanggal:</label><p id='pending_sampai'>"+ps+"</p></div><div class='form-group mb-4'><label for='keterangan'>Alasan:</label><p id='keterangan'>"+kp+"</p></div>");
+                }
+            } else if(authSess == dirke){
+                if(dirke_act == '2'){
+                    $('#contentData').html("<div class='form-group mb-4'><label for='pending_sampai'>Pending Sampai Tanggal:</label><p id='pending_sampai'>"+ps+"</p></div><div class='form-group mb-4'><label for='keterangan'>Alasan:</label><p id='keterangan'>"+kp+"</p></div><div class='form-group mb-4'><a href='"+window.location.origin+"/batal/pending/order-cetak/"+id+"' id='batalkan-pending' class='btn btn-danger'>Batalkan Pending</a></div>");
+                } else {
+                    $('#contentData').html("<div class='form-group mb-4'><label for='pending_sampai'>Pending Sampai Tanggal:</label><p id='pending_sampai'>"+ps+"</p></div><div class='form-group mb-4'><label for='keterangan'>Alasan:</label><p id='keterangan'>"+kp+"</p></div>");
+                }
+            } else if(authSess == dirut){
+                if(dirut_act == '2'){
+                    $('#contentData').html("<div class='form-group mb-4'><label for='pending_sampai'>Pending Sampai Tanggal:</label><p id='pending_sampai'>"+ps+"</p></div><div class='form-group mb-4'><label for='keterangan'>Alasan:</label><p id='keterangan'>"+kp+"</p></div><div class='form-group mb-4'><a href='"+window.location.origin+"/batal/pending/order-cetak/"+id+"' id='batalkan-pending' class='btn btn-danger'>Batalkan Pending</a></div>");
+                } else {
+                    $('#contentData').html("<div class='form-group mb-4'><label for='pending_sampai'>Pending Sampai Tanggal:</label><p id='pending_sampai'>"+ps+"</p></div><div class='form-group mb-4'><label for='keterangan'>Alasan:</label><p id='keterangan'>"+kp+"</p></div>");
+                }
+            } else {
+                $('#contentData').html("<div class='form-group mb-4'><label for='pending_sampai'>Pending Sampai Tanggal:</label><p id='pending_sampai'>"+ps+"</p></div><div class='form-group mb-4'><label for='keterangan'>Alasan:</label><p id='keterangan'>"+kp+"</p></div>");
+            }
             $('#footerDecline').html('<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>');
         }
         $('.datepicker').datepicker({
@@ -27,6 +47,24 @@ $(document).ready(function() {
             todayHighlight: true
         });
         $('#modalDecline').modal('show');
+        $(document).on('click', '#batalkan-pending',function(e){
+            e.preventDefault();
+            var getLink = $(this).attr('href');
+            swal({
+                title: 'Apakah anda yakin?',
+                text:  'Pembatalan pending akan meneruskan proses penyetujuan',
+                type: 'warning',
+                html: true,
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((confirm_) => {
+                if (confirm_) {
+                    window.location.href = getLink
+                }
+            });
+        });
     });
 });
 $(function() {
@@ -44,7 +82,7 @@ function resetFrom(form) {
         let el = data.get(0);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/produksi/order-cetak/ajax/pending",
+            url: window.location.origin + "/penerbitan/order-cetak/ajax/pending",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -88,7 +126,7 @@ function resetFrom(form) {
             let kode = $(this).find('[name="kode_order"]').val();
             let judul = $(this).find('[name="judul_buku"]').val();
             swal({
-                title: 'Yakin produksi cetak #'+kode+'-'+judul+' dipending?',
+                title: 'Yakin order cetak #'+kode+'-'+judul+' dipending?',
                     text: 'Setelah tanggal dipending selesai, Anda dapat menyetujui kembali data yang sudah Anda pending',
                     icon: 'warning',
                     buttons: true,

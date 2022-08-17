@@ -58,7 +58,7 @@ function ajaxAddProduksiEbook(data) {
     let el = data.get(0);
     $.ajax({
         type: "POST",
-        url: window.location.origin + "/produksi/order-ebook/create",
+        url: window.location.origin + "/penerbitan/order-ebook/create",
         data: new FormData(el),
         processData: false,
         contentType: false,
@@ -83,7 +83,7 @@ function ajaxAddProduksiEbook(data) {
                 })
                 // addNaskah.showErrors(err);
             }
-            notifToast('error', 'Data produksi e-book gagal disimpan!');
+            notifToast('error', 'Data order e-book gagal disimpan!');
         },
         complete: function() {
             $('button[type="submit"]').prop('disabled', false).
@@ -97,7 +97,7 @@ $('#fadd_Ebook').on('submit', function(e) {
     if($(this).valid()) {
         let nama = $(this).find('[name="add_judul_buku"]').val();
         swal({
-            text: 'Tambah data produksi E-book ('+nama+')?',
+            text: 'Tambah data order e-book ('+nama+')?',
             icon: 'warning',
             buttons: true,
             dangerMode: true,

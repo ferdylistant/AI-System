@@ -18,7 +18,7 @@
         <div class="section-header-back">
             <a href="{{ route('ebook.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
-        <h1>Buat Order Produksi</h1>
+        <h1>Buat Order E-book</h1>
     </div>
 
     <div class="section-body">
@@ -27,7 +27,7 @@
                 <div class="card card-success">
                     <form id="fadd_Ebook">
                         <div class="card-header">
-                            <h4>Form Produksi Order Ebook</h4>
+                            <h4>Form Penerbitan Order E-book</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">

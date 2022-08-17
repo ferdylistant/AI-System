@@ -48,7 +48,7 @@ $(function(){
         // console.log(el);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/produksi/order-ebook/ajax/approve",
+            url: window.location.origin + "/penerbitan/order-ebook/ajax/approve",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -91,7 +91,7 @@ $(function(){
             let kode = $(this).find('[name="kode_order"]').val();
             let judul = $(this).find('[name="judul_buku"]').val();
             swal({
-                title: 'Yakin menyetujui produksi #'+kode+'-'+judul+'?',
+                title: 'Yakin menyetujui order e-book #'+kode+'-'+judul+'?',
                 text: 'Setelah menyetujui, Anda tidak dapat mengubah kembali data yang sudah Anda setujui!',
                 icon: 'warning',
                 buttons: true,

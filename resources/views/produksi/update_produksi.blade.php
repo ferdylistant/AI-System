@@ -16,9 +16,9 @@
 <section class="section">
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('produksi.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('cetak.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
-        <h1>Edit Order Produksi</h1>
+        <h1>Edit Order Cetak</h1>
     </div>
 
     <div class="section-body">
@@ -27,7 +27,7 @@
                 <div class="card card-success">
                     <form id="fup_Produksi">
                         <div class="card-header">
-                            <h4>Form Produksi</h4>
+                            <h4>Form Penerbitan Order Cetak</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -378,7 +378,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" value="{{date('d F Y',strtotime($data->tgl_permintaan_jadi))}}" readonly required>
+                                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" value="{{Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y')}}" readonly required>
                                     <div id="err_up_tgl_permintaan_jadi"></div>
                                 </div>
                             </div>

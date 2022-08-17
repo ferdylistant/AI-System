@@ -220,7 +220,7 @@ $(function() {
         let el = data.get(0);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/produksi/order-cetak/edit",
+            url: window.location.origin + "/penerbitan/order-cetak/edit",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -244,7 +244,7 @@ $(function() {
                     })
                     // upNaskah.showErrors(err);
                 }
-                notifToast('error', 'Data produksi gagal disimpan!');
+                notifToast('error', 'Data order cetak gagal disimpan!');
             },
             complete: function() {
                 $('button[type="submit"]').prop('disabled', false).
@@ -258,7 +258,7 @@ $(function() {
         if($(this).valid()) {
             let nama = $(this).find('[name="up_judul_buku"]').val();
             swal({
-                text: 'Ubah data Produksi ('+nama+')?',
+                text: 'Ubah data order cetak, ('+nama+')?',
                 icon: 'warning',
                 buttons: true,
                 dangerMode: true,

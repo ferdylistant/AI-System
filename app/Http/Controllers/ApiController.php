@@ -358,4 +358,23 @@ class ApiController extends Controller
         ];
         return response()->json($data);
     }
+    public function updateJumlahCetak(Request $request)
+    {
+        $id = $request->id;
+        $jumlah = $request->value;
+        $history_jumlah = $request->history;
+        $cetak = DB::table('produksi_order_cetak')->where('id', $id)
+            ->update([
+                'jumlah_cetak' => $jumlah,
+                'updated_by' => Auth::user()->id,
+            ]);
+        $penyetujuan = DB::table('produksi_penyetujuan_order_cetak')->where('produksi_order_cetak_id', $id)->update([
+                'jumlah_cetak_history' => $history_jumlah,
+            ]);
+        $data = [
+            'status' => 'success',
+            'message' => 'Berhasil mengubah jumlah cetak',
+        ];
+        return response()->json($data);
+    }
 }

@@ -167,11 +167,11 @@ class ProduksiController extends Controller
                             return $badge;
                         })
                         ->addColumn('action', function($data) use ($update) {
-                            $btn = '<a href="'.url('produksi/order-cetak/detail?kode='.$data->id .'&author='.$data->created_by).'"
+                            $btn = '<a href="'.url('penerbitan/order-cetak/detail?kode='.$data->id .'&author='.$data->created_by).'"
                                     class="d-flex btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if($update) {
-                                $btn .= '<a href="'.url('produksi/order-cetak/edit?kode='.$data->id.'&author='.$data->created_by).'"
+                                $btn .= '<a href="'.url('penerbitan/order-cetak/edit?kode='.$data->id.'&author='.$data->created_by).'"
                                     class="d-flex btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
@@ -290,7 +290,7 @@ class ProduksiController extends Controller
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil ditambahkan',
-                    'redirect' => route('produksi.view')
+                    'redirect' => route('cetak.view')
                 ]);
             }
         }
@@ -641,12 +641,12 @@ class ProduksiController extends Controller
                 $sC = $statusCetak=='1'?'Persetujuan Order Buku Baru':'Persetujuan Order Cetak Ulang Revisi';
                 DB::table('notif')->insert([
                     [   'id' => $id_notif,
-                        'section' => 'Produksi',
+                        'section' => 'Order Cetak Buku',
                         'type' => $sC,
                         'permission_id' => '1b842575174242cf83f949f262900570', // manajer penerbitan
                         'form_id' => $data['form_id'], ],
                     [   'id' => Str::uuid()->getHex(),
-                        'section' => 'Produksi',
+                        'section' => 'Order Cetak Buku',
                         'type' => $sC,
                         'permission_id' => '2826b627ccc34fad84470c4b7534da0d', // D.Operasional
                         'form_id' => $data['form_id'], ],
@@ -668,7 +668,7 @@ class ProduksiController extends Controller
             if($action=='create-notif') {
                 DB::table('notif')->insert([
                     [   'id' => Str::uuid()->getHex(),
-                        'section' => 'Produksi',
+                        'section' => 'Order Cetak Buku',
                         'type' => 'Persetujuan Order Cetak Ulang',
                         'permission_id' => '09179170e6e643eca66b282e2ffae1f8', // M.Stok
                         'form_id' => $data['form_id'], ],
