@@ -296,6 +296,7 @@ class ProduksiController extends Controller
         }
         $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani']);
         $urgent = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
+        $buku_jadi = array(['value' => 'Wrapping','label' => 'Wrapping'],['value' => 'Tidak Wrapping','label' => 'Tidak Wrapping']);
         $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
         $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
         $platformDigital = array(['name'=>'Moco'],['name'=>'Google Book'],['name'=>'Gramedia'],['name'=>'Esentral'],
@@ -308,6 +309,7 @@ class ProduksiController extends Controller
             'tipeOrd' => $tipeOrd,
             'platformDigital' => $platformDigital,
             'urgent' => $urgent,
+            'buku_jadi' => $buku_jadi,
             'kbuku' => $kbuku,
             'imprint' => $imprint,
             'penulis' => $penulis,
@@ -416,6 +418,7 @@ class ProduksiController extends Controller
         $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
         $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
         $urgent = array(['id' => 1,'name' => 'Ya'],['id' => 0,'name' => 'Tidak']);
+        $buku_jadi = array(['value' => 'Wrapping','label' => 'Wrapping'],['value' => 'Tidak Wrapping','label' => 'Tidak Wrapping']);
         $platformDigital = array(['name'=>'Moco'],['name'=>'Google Book'],['name'=>'Gramedia'],['name'=>'Esentral'],
         ['name'=>'Bahanaflik'],['name'=> 'Indopustaka']);
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
@@ -434,6 +437,7 @@ class ProduksiController extends Controller
             'penulis' => $penulis,
             'platformDigital' => $platformDigital,
             'urgent' => $urgent,
+            'buku_jadi' => $buku_jadi,
             'kbuku' => $kbuku,
             'data' => $data,
             'edisi' => $edisi,
@@ -452,6 +456,9 @@ class ProduksiController extends Controller
                 ->where('id', $kode)
                 ->where('created_by', $author)
                 ->first();
+        if(is_null($prod)) {
+            return redirect()->route('cetak.view');
+        }
         $dataPenolakan = DB::table('produksi_penyetujuan_order_cetak as pny')
                 ->where('pny.produksi_order_cetak_id', $kode)
                 ->where(function($query) {
@@ -778,6 +785,10 @@ class ProduksiController extends Controller
                                 'd_utama_act' => '3',
                                 'status_general' => 'Selesai',
                             ]);
+                        DB::table('proses_produksi_cetak')->insert([
+                            'id' => Uuid::uuid4()->toString(),
+                            'order_cetak_id' => $request->id,
+                        ]);
                         return response()->json([
                             'status' => 'success',
                             'message' => 'Data berhasil diupdate'
@@ -862,6 +873,10 @@ class ProduksiController extends Controller
                                 'd_utama_act' => '3',
                                 'status_general' => 'Selesai',
                             ]);
+                        DB::table('proses_produksi_cetak')->insert([
+                            'id' => Uuid::uuid4()->toString(),
+                            'order_cetak_id' => $request->id,
+                        ]);
                         return response()->json([
                             'status' => 'success',
                             'message' => 'Data berhasil diupdate'

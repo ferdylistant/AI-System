@@ -7,7 +7,7 @@ use App\Http\Controllers\ManWeb\UsersController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ManWeb\StrukturAoController;
 use App\Http\Controllers\ApiController;
-use App\Http\Controllers\Produksi\{ProduksiController, EbookController};
+use App\Http\Controllers\Produksi\{ProduksiController, EbookController,ProsesProduksiController};
 use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController, ImprintController, TimelineController};
 
 /*
@@ -94,7 +94,8 @@ Route::middleware(['auth'])->group(function() {
     });
     //Produksi
     Route::prefix('produksi')->group(function () {
-
+        Route::get('/proses/cetak', [ProsesProduksiController::class, 'index'])->name('proses.cetak.view');
+        Route::get('/proses/cetak/detail', [ProsesProduksiController::class, 'detailProduksi'])->name('proses.cetak.detail');
     });
 
 });

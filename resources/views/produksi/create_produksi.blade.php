@@ -381,13 +381,13 @@
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
                                 <label>Buku Jadi: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-journal-whills"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="add_buku_jadi"  placeholder="Buku jadi" required>
-                                    <div id="err_add_buku_jadi"></div>
+                                <div class="form-check">
+                                    @foreach ($buku_jadi as $bj)
+                                        <input class="form-check-input" type="radio" name="add_buku_jadi" value="{{ $bj['value'] }}" id="add_buku_jadi" required>
+                                        <label class="form-check-label mr-4" for="add_buku_jadi">{{ $bj['label'] }}</label><br>
+                                    @endforeach
                                 </div>
+                                <div id="err_add_buku_jadi" style="display: block;"></div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
                                 <label>Status Buku: <span class="text-danger">*</span></label>

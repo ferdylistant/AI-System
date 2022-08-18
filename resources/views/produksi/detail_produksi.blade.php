@@ -428,19 +428,89 @@
                                             @if (!is_null($data->tgl_permintaan_jadi))
                                                 @if (Gate::allows('do_decline', 'persetujuan-pending'))
                                                     @if ($prod_penyetujuan->status_general == 'Proses')
-                                                    <a href="javascript:void(0)" id="btn-edit-tgl-jadi" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}</a>
-                                                    <div class="input-group" id="edit-tgl-jadi" style="display: none;">
-                                                        <div class="input-group-prepend">
-                                                            <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
-                                                        </div>
-                                                        <input type="hidden" id="historyTgl" value="{{$data->tgl_permintaan_jadi}}">
-                                                        <input type="text" class="form-control datepicker" id="upTglJadi" value="{{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
-                                                        <button type="button" class="close" aria-label="Close">
+                                                        @if (auth()->id() == $prod_penyetujuan->d_operasional)
+                                                            @if ($prod_penyetujuan->d_operasional_act == '1')
+                                                                @if ($data->status_cetak == '3')
+                                                                    @if ($prod_penyetujuan->m_stok_act == '1')
+                                                                    {{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}
+                                                                    @else
+                                                                    <a href="javascript:void(0)" id="btn-edit-tgl-jadi" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}</a>
+                                                                        <div class="input-group" id="edit-tgl-jadi" style="display: none;">
+                                                                            <div class="input-group-prepend">
+                                                                                <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                                                            </div>
+                                                                            <input type="hidden" id="historyTgl" value="{{$data->tgl_permintaan_jadi}}">
+                                                                            <input type="text" class="form-control datepicker" id="upTglJadi" value="{{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
+                                                                            <button type="button" class="close" aria-label="Close">
 
-                                                            <span aria-hidden="true">&times;</span>
+                                                                                <span aria-hidden="true">&times;</span>
 
-                                                        </button>
-                                                    </div>
+                                                                            </button>
+                                                                        </div>
+                                                                    @endif
+                                                                @else
+                                                                    <a href="javascript:void(0)" id="btn-edit-tgl-jadi" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}</a>
+                                                                    <div class="input-group" id="edit-tgl-jadi" style="display: none;">
+                                                                        <div class="input-group-prepend">
+                                                                            <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                                                        </div>
+                                                                        <input type="hidden" id="historyTgl" value="{{$data->tgl_permintaan_jadi}}">
+                                                                        <input type="text" class="form-control datepicker" id="upTglJadi" value="{{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
+                                                                        <button type="button" class="close" aria-label="Close">
+
+                                                                            <span aria-hidden="true">&times;</span>
+
+                                                                        </button>
+                                                                    </div>
+                                                                @endif
+                                                            @else
+                                                                {{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}
+                                                            @endif
+                                                        @elseif (auth()->id() == $prod_penyetujuan->d_keuangan)
+                                                            @if ($prod_penyetujuan->d_operasional_act == '1')
+                                                            {{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}
+                                                            @else
+                                                                @if ($prod_penyetujuan->d_keuangan_act == '1')
+                                                                <a href="javascript:void(0)" id="btn-edit-tgl-jadi" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}</a>
+                                                                <div class="input-group" id="edit-tgl-jadi" style="display: none;">
+                                                                    <div class="input-group-prepend">
+                                                                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                                                    </div>
+                                                                    <input type="hidden" id="historyTgl" value="{{$data->tgl_permintaan_jadi}}">
+                                                                    <input type="text" class="form-control datepicker" id="upTglJadi" value="{{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
+                                                                    <button type="button" class="close" aria-label="Close">
+
+                                                                        <span aria-hidden="true">&times;</span>
+
+                                                                    </button>
+                                                                </div>
+                                                                @else
+                                                                {{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}
+                                                                @endif
+                                                            @endif
+                                                        @elseif (auth()->id() == $prod_penyetujuan->d_utama)
+                                                            @if (($prod_penyetujuan->d_operasional_act == '1') || ($prod_penyetujuan->d_keuangan_act == '1'))
+                                                            {{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}
+                                                            @else
+                                                                @if ($prod_penyetujuan->d_utama_act == '1')
+                                                                <a href="javascript:void(0)" id="btn-edit-tgl-jadi" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}</a>
+                                                                <div class="input-group" id="edit-tgl-jadi" style="display: none;">
+                                                                    <div class="input-group-prepend">
+                                                                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                                                    </div>
+                                                                    <input type="hidden" id="historyTgl" value="{{$data->tgl_permintaan_jadi}}">
+                                                                    <input type="text" class="form-control datepicker" id="upTglJadi" value="{{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
+                                                                    <button type="button" class="close" aria-label="Close">
+
+                                                                        <span aria-hidden="true">&times;</span>
+
+                                                                    </button>
+                                                                </div>
+                                                                @else
+                                                                {{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}
+                                                                @endif
+                                                            @endif
+                                                        @endif
                                                     @else
                                                     {{ Carbon\Carbon::parse($data->tgl_permintaan_jadi)->translatedFormat('d F Y') }}
                                                     @endif
@@ -583,7 +653,7 @@
                                         @if (is_null($data->format_buku))
                                             -
                                         @else
-                                            {{ $data->format_buku }} cm
+                                            {{ $data->format_buku }}
                                         @endif
                                         </p>
                                     </div>
@@ -726,23 +796,26 @@
                                             @if (Gate::allows('do_decline', 'persetujuan-pending'))
                                                 @if ($prod_penyetujuan->status_general == 'Proses')
                                                     @if (auth()->id() == $prod_penyetujuan->d_operasional)
-                                                        <a href="javascript:void(0)" id="btn-edit-jml-cetak" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ $data->jumlah_cetak . ' eks' }}</a>
-                                                        <div class="input-group" id="edit-jml-cetak" style="display: none;">
-                                                            <div class="input-group-prepend">
-                                                                <div class="input-group-text"><i class="fas fa-copy"></i></div>
-                                                            </div>
-                                                            <input type="hidden" id="historyJumlahCetak" value="{{$data->jumlah_cetak}}">
-                                                            <input type="number" class="form-control" min="1" id="upJmlCetak" value="{{ $data->jumlah_cetak }}" placeholder="Jumlah cetak" required>
-                                                            <div class="input-group-append">
-                                                                <span class="input-group-text"><button type="button" class="close" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button></span>
-                                                            </div>
-                                                        </div>
-                                                    @elseif (auth()->id() == $prod_penyetujuan->d_keuangan)
-                                                        if($prod_penyetujuan->d_operasional_act == '1')
-                                                            {{ $data->jumlah_cetak . ' eks' }}
-                                                        @else
+                                                        @if ($prod_penyetujuan->d_operasional_act == '1')
+                                                            @if ($data->status_cetak == '3')
+                                                                @if ($prod_penyetujuan->m_stok_act == '1')
+                                                                    {{ $data->jumlah_cetak.' eks' }}
+                                                                @else
+                                                                <a href="javascript:void(0)" id="btn-edit-jml-cetak" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ $data->jumlah_cetak . ' eks' }}</a>
+                                                                <div class="input-group" id="edit-jml-cetak" style="display: none;">
+                                                                    <div class="input-group-prepend">
+                                                                        <div class="input-group-text"><i class="fas fa-copy"></i></div>
+                                                                    </div>
+                                                                    <input type="hidden" id="historyJumlahCetak" value="{{$data->jumlah_cetak}}">
+                                                                    <input type="number" class="form-control" min="1" id="upJmlCetak" value="{{ $data->jumlah_cetak }}" placeholder="Jumlah cetak" required>
+                                                                    <div class="input-group-append">
+                                                                        <span class="input-group-text"><button type="button" class="close" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button></span>
+                                                                    </div>
+                                                                </div>
+                                                                @endif
+                                                            @else
                                                             <a href="javascript:void(0)" id="btn-edit-jml-cetak" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ $data->jumlah_cetak . ' eks' }}</a>
                                                             <div class="input-group" id="edit-jml-cetak" style="display: none;">
                                                                 <div class="input-group-prepend">
@@ -756,11 +829,37 @@
                                                                     </button></span>
                                                                 </div>
                                                             </div>
+                                                            @endif
+                                                        @else
+                                                            {{ $data->jumlah_cetak.' eks' }}
+                                                        @endif
+                                                    @elseif (auth()->id() == $prod_penyetujuan->d_keuangan)
+                                                        @if($prod_penyetujuan->d_operasional_act == '1')
+                                                            {{ $data->jumlah_cetak . ' eks' }}
+                                                        @else
+                                                            @if ($prod_penyetujuan->d_keuangan_act == '1')
+                                                            <a href="javascript:void(0)" id="btn-edit-jml-cetak" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ $data->jumlah_cetak . ' eks' }}</a>
+                                                            <div class="input-group" id="edit-jml-cetak" style="display: none;">
+                                                                <div class="input-group-prepend">
+                                                                    <div class="input-group-text"><i class="fas fa-copy"></i></div>
+                                                                </div>
+                                                                <input type="hidden" id="historyJumlahCetak" value="{{$data->jumlah_cetak}}">
+                                                                <input type="number" class="form-control" min="1" id="upJmlCetak" value="{{ $data->jumlah_cetak }}" placeholder="Jumlah cetak" required>
+                                                                <div class="input-group-append">
+                                                                    <span class="input-group-text"><button type="button" class="close" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button></span>
+                                                                </div>
+                                                            </div>
+                                                            @else
+                                                            {{ $data->jumlah_cetak . ' eks' }}
+                                                            @endif
                                                         @endif
                                                     @elseif (auth()->id() == $prod_penyetujuan->d_utama)
                                                         @if (($prod_penyetujuan->d_operasional_act == '1') || ($prod_penyetujuan->d_keuangan_act == '1'))
                                                             {{ $data->jumlah_cetak . ' eks' }}
                                                         @else
+                                                            @if ($prod_penyetujuan->d_utama_act == '1')
                                                             <a href="javascript:void(0)" id="btn-edit-jml-cetak" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ $data->jumlah_cetak . ' eks' }}</a>
                                                             <div class="input-group" id="edit-jml-cetak" style="display: none;">
                                                                 <div class="input-group-prepend">
@@ -774,9 +873,10 @@
                                                                     </button></span>
                                                                 </div>
                                                             </div>
+                                                            @else
+                                                            {{ $data->jumlah_cetak . ' eks' }}
+                                                            @endif
                                                         @endif
-                                                    @else
-                                                        {{ $data->jumlah_cetak . ' eks' }}
                                                     @endif
                                                 @else
                                                     {{ $data->jumlah_cetak.' eks' }}
