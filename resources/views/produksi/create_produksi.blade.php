@@ -43,8 +43,8 @@
                                         <option value="{{ $value['id'] }}">{{ $value['name'] }}</option>
                                         @endforeach
                                     </select>
-                                    <div id="err_add_tipe_order"></div>
                                 </div>
+                                <div id="err_add_tipe_order"></div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Pilihan Terbit: <span class="text-danger">*</span></label>
@@ -55,8 +55,8 @@
                                     <select class="form-control select2" name="add_pilihan_terbit" id="pilihanTerbit" required>
                                         <option label="Pilih"></option>
                                     </select>
-                                    <div id="err_add_pilihan_terbit"></div>
                                 </div>
+                                <div id="err_add_pilihan_terbit"></div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Status Cetak: <span class="text-danger">*isi pilihan terbit dahulu</span></label>
@@ -66,8 +66,8 @@
                                     </div>
                                     <select class="form-control select2" name="add_status_cetak" id="statusCetak" required>
                                     </select>
-                                    <div id="err_add_status_cetak"></div>
                                 </div>
+                                <div id="err_add_status_cetak"></div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Jenis Mesin: <span class="text-danger">*</span></label>
@@ -78,8 +78,8 @@
                                     <select class="form-control select2" name="add_jenis_mesin" id="jenisMesin" required>
                                         <option label="Pilih"></option>
                                     </select>
-                                    <div id="err_add_jenis_mesin"></div>
                                 </div>
+                                <div id="err_add_jenis_mesin"></div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Judul Buku: <span class="text-danger">*</span></label>
@@ -88,8 +88,8 @@
                                         <div class="input-group-text"><i class="fas fa-book"></i></div>
                                     </div>
                                     <input type="text" class="form-control" name="add_judul_buku"  placeholder="Judul buku" required>
-                                    <div id="err_add_judul_buku"></div>
                                 </div>
+                                <div id="err_add_judul_buku"></div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Sub Judul Buku: <span class="text-danger">*</span></label>

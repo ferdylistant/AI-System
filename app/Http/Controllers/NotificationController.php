@@ -189,36 +189,6 @@ class NotificationController extends Controller {
                 }
             }
         }
-
-        // if(Gate::allows('do_approval', 'persetujuan-manstok')) {
-        //     $notifPenyetujuan = DB::table('notif')
-        //                     ->where('type', 'Persetujuan Order Cetak Ulang')->whereNull('expired')
-        //                     ->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')->orderBy('form_id', 'desc')
-        //                     ->select('permission_id', 'form_id', 'created_at as ndate')->get();
-
-        //     $idProduksi = [];
-        //     $notifPenyetujuan = (object)collect($notifPenyetujuan)->map(function($item, $key) use(&$idProduksi) {
-        //                             $idProduksi[$key] = $item->form_id;
-        //                             return $item;
-        //                         })->all();
-
-        //     if(!is_null($notifPenyetujuan)) {
-        //         $naskah = DB::table('produksi_order_cetak')->whereIn('id', $idProduksi)->whereNull('deleted_at')
-        //                     ->orderBy('id', 'desc')->select('id', 'judul_asli')->get();
-        //         foreach($naskah as $key => $n) {
-        //             $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $notifPenyetujuan->{$key}->ndate, 'Asia/Jakarta')->diffForHumans();
-        //             $html .=    '<a href="'.url('penerbitan/naskah/melihat-naskah/'.$n->id).'" class="dropdown-item dropdown-item-unread">
-        //                             <div class="dropdown-item-icon bg-primary text-white">
-        //                                 <i class="fas fa-file-alt"></i>
-        //                             </div>
-        //                             <div class="dropdown-item-desc">
-        //                                 Naskah <strong><i>'.$n->judul_asli.'</i></strong> perlu dinilai (<strong>Direksi</strong>).
-        //                                 <div class="time text-primary">'.$craetedAt.'</div>
-        //                             </div>
-        //                         </a>';
-        //         }
-        //     }
-        // }
         if(Gate::allows('do_approval', 'persetujuan-manpen')) {
             $notif = DB::table('notif as n')
                         ->join('produksi_order_cetak as po', function($j) {
@@ -338,8 +308,13 @@ class NotificationController extends Controller {
                 }
             }
         }
-        if(Gate::allows('do_approval', 'persetujuan-dirut')) {
+        if(Gate::allows('do_approval', 'persetujuan-order-cetak')) {
             $notif = DB::table('notif as n')
+                        ->join('notif_detail as nd', function($j) {
+                            $j->on('n.id', '=', 'nd.notif_id')
+                                ->where('nd.user_id', auth()->id())
+                                ->where('nd.seen', '0');
+                        })
                         ->join('produksi_order_cetak as po', function($j) {
                             $j->on('n.form_id', '=', 'po.id')
                                 ->whereNull('deleted_at');
@@ -349,58 +324,26 @@ class NotificationController extends Controller {
                                 ->orWhere('n.type', 'Persetujuan Order Cetak Ulang Revisi')
                                 ->orWhere('n.type', 'Persetujuan Order Cetak Ulang');
                         })
-                        ->where('n.permission_id', '87f03d6f4cb54135b451528bc1a9d0f5')
+                        ->where('n.permission_id', '09179170e6e643eca66b282e2ffae1f8')
                         ->whereNull('n.expired')
                         ->select(DB::raw('n.created_at as tgl_notif, po.id, po.created_by, po.kode_order, po.judul_buku'))
                         ->get();
-            // dd($notif);
+
             if(!$notif->isEmpty()) {
                 foreach($notif as $n) {
                     $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
-                    $html .=    '<a href="'.url('produksi/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                    $html .=    '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
                                     <div class="dropdown-item-icon bg-primary text-white">
                                         <i class="fas fa-file-alt"></i>
                                     </div>
                                     <div class="dropdown-item-desc">
-                                        Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" perlu Anda tanggapi (<strong>Direktur Keuangan</strong>).
+                                        Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" perlu Anda tanggapi.
                                         <div class="time text-primary">'.$craetedAt.'</div>
                                     </div>
                                 </a>';
                 }
             }
         }
-        // if(Gate::allows('do_update', 'timeline-naskah-update-date')) {
-        //     $notifTimeline = DB::table('notif as n')
-        //                         ->leftJoin('notif_detail as nd', 'n.id', '=', 'nd.notif_id')
-        //                         ->whereNull('n.expired')->where('n.permission_id', '8d9b1da4234f46eb858e1ea490da6348') // Date Timeline
-        //                         ->where('nd.user_id', auth()->id())->where('nd.seen', '0')->orderBy('n.form_id', 'desc')
-        //                         ->select('n.permission_id', 'n.form_id', 'n.created_at as ndate',
-        //                                 'nd.user_id', 'nd.created_at as nddate')->get();
-
-        //     $idNaskah = [];
-        //     $notifTimeline = (object)$notifTimeline->map(function($item, $key) use(&$idNaskah) {
-        //                             $idNaskah[$key] = $item->form_id;
-        //                             return $item;
-        //                         })->all();
-
-        //     if(!is_null($notifTimeline)) {
-        //         $naskah = DB::table('penerbitan_naskah as pn')->join('timeline as t', 'pn.id', '=', 't.naskah_id')
-        //                     ->whereIn('pn.id', $idNaskah)->whereNull('pn.deleted_at')
-        //                     ->orderBy('t.created_at', 'desc')->select('pn.id', 'pn.judul_asli')->get();
-        //         foreach($naskah as $key => $n) {
-        //             $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $notifTimeline->{$key}->nddate, 'Asia/Jakarta')->diffForHumans();
-        //             $html .=    '<a href="'.url('penerbitan/naskah/melihat-naskah/'.$n->id).'" class="dropdown-item dropdown-item-unread">
-        //                             <div class="dropdown-item-icon bg-primary text-white">
-        //                                 <i class="fas fa-calendar-alt"></i>
-        //                             </div>
-        //                             <div class="dropdown-item-desc">
-        //                                 Naskah <strong><i>'.$n->judul_asli.'</i></strong> perlu dibuat timeline.
-        //                                 <div class="time text-primary">'.$craetedAt.'</div>
-        //                             </div>
-        //                         </a>';
-        //         }
-        //     }
-        // }
 
         return $html;
     }

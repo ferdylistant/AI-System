@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
+use App\Events\NotifikasiPenyetujuan;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
 class ProduksiController extends Controller
@@ -279,9 +280,15 @@ class ProduksiController extends Controller
                     'id' => Uuid::uuid4()->toString(),
                     'produksi_order_cetak_id' => $idO,
                 ]);
-                $this->notifPersetujuan($request->add_status_cetak,'create-notif', [
-                        'form_id' => $idO
-                    ]);
+                $dataEvent = [
+                    'status_cetak' => $request->add_status_cetak,
+                    'type' => 'create-notif',
+                    'form_id' => $idO,
+                ];
+                event(new NotifikasiPenyetujuan($dataEvent));
+                // $this->notifPersetujuan($request->add_status_cetak,'create-notif', [
+                //         'form_id' => $idO
+                //     ]);
                 // return response()->json([
                 //     'success' => true,
                 //     'message' => 'Data berhasil ditambahkan',
@@ -552,15 +559,26 @@ class ProduksiController extends Controller
         if(is_null($dirut)){
             $dirut = '';
         }
-        DB::table('produksi_penyetujuan_order_cetak')
+        if ($prod->status_cetak == '3') {
+            DB::table('produksi_penyetujuan_order_cetak')
             ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id', $prod->id)
             ->update([
                 'm_stok' => $m_stok->id,
+                'd_operasional' => $dirop->id,
+                'd_keuangan' => $dirke->id,
+                'd_utama' => $dirut->id
+            ]);
+        } else {
+            DB::table('produksi_penyetujuan_order_cetak')
+            ->where('produksi_penyetujuan_order_cetak.produksi_order_cetak_id', $prod->id)
+            ->update([
                 'm_penerbitan' => $m_penerbitan->id,
                 'd_operasional' => $dirop->id,
                 'd_keuangan' => $dirke->id,
                 'd_utama' => $dirut->id
             ]);
+        }
+
         $p_mstok = DB::table('produksi_penyetujuan_order_cetak')
                     ->join('users', 'produksi_penyetujuan_order_cetak.m_stok', '=', 'users.id')
                     ->where('produksi_penyetujuan_order_cetak.m_stok','=', $m_stok->id)
@@ -634,30 +652,35 @@ class ProduksiController extends Controller
     Status Cetak (Cetak Ulang) ::
             M.Stok (bisa lewat langsung direktur) -> D.Operasional -> D.Keuangan -> D.Utama
     =============================================================================================
-            Manajer Penerbitan :: 1b842575174242cf83f949f262900570
-            Manajer Stok :: 09179170e6e643eca66b282e2ffae1f8
-            D.Operasional :: 2826b627ccc34fad84470c4b7534da0d
-            D.Keuangan:: 6b95b4e041e04d61a91422fe3d06fd8d
-            D.Utama :: 87f03d6f4cb54135b451528bc1a9d0f5
+            Permission :: 09179170e6e643eca66b282e2ffae1f8
 
         */
 
         if($statusCetak=='1' OR $statusCetak=='2') {
+            $dataLoop = DB::table('user_permission as up')
+                ->join('users as u', 'u.id', 'up.user_id')
+                ->join('jabatan as j', 'j.id', 'u.jabatan_id')
+                ->where('up.permission_id', '=', '09179170e6e643eca66b282e2ffae1f8')
+                ->whereNotIn('j.nama', ['Manajer Stok','Direktur Keuangan', 'Direktur Utama'])
+                ->get();
             if($action=='create-notif') {
                 $id_notif = Str::uuid()->getHex();
                 $sC = $statusCetak=='1'?'Persetujuan Order Buku Baru':'Persetujuan Order Cetak Ulang Revisi';
                 DB::table('notif')->insert([
                     [   'id' => $id_notif,
-                        'section' => 'Order Cetak Buku',
+                        'section' => 'Penerbitan',
                         'type' => $sC,
-                        'permission_id' => '1b842575174242cf83f949f262900570', // manajer penerbitan
-                        'form_id' => $data['form_id'], ],
-                    [   'id' => Str::uuid()->getHex(),
-                        'section' => 'Order Cetak Buku',
-                        'type' => $sC,
-                        'permission_id' => '2826b627ccc34fad84470c4b7534da0d', // D.Operasional
-                        'form_id' => $data['form_id'], ],
+                        'permission_id' => '09179170e6e643eca66b282e2ffae1f8',
+                        'form_id' => $data['form_id'],
+                    ],
                 ]);
+                foreach($dataLoop as $d) {
+                    DB::table('notif_detail')->insert([
+                        [   'notif_id' => $id_notif,
+                            'user_id' => $d->user_id,
+                        ],
+                    ]);
+                }
                 return;
             } elseif($action=='update-notif-from-naskah') {
                 $notif = DB::table('notif')->whereNull('expired')->where('permission_id', 'ebca07da8aad42c4aee304e3a6b81001') // Hanya untuk prodev
@@ -818,6 +841,15 @@ class ProduksiController extends Controller
                         ->update([
                             'm_penerbitan_act' => '3',
                         ]);
+                    $dataEvent = [
+                        'status_cetak' => $request->add_status_cetak,
+                        'nama_notif' => 'Approval Penerbitan',
+                        'type' => 'update-notif',
+                        'form_id' => $request->id,
+                        'user_id' => $dataPenyetujuan->m_penerbitan,
+                        'receiver_id' => $dataPenyetujuan->d_operasional,
+                    ];
+                    event(new \App\Events\NotifikasiPenyetujuan($dataEvent));
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Data berhasil diupdate'

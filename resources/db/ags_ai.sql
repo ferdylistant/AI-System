@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 18 Agu 2022 pada 11.22
+-- Waktu pembuatan: 19 Agu 2022 pada 11.28
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -263,23 +263,7 @@ CREATE TABLE `notif` (
 --
 
 INSERT INTO `notif` (`id`, `section`, `type`, `url`, `raw_data`, `permission_id`, `form_id`, `created_at`, `expired`) VALUES
-('04cdca7cb131470faf927100bac23a64', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', '2161594c08dc42f38709c6840c782f67', '2022-08-09 08:41:06', NULL),
-('1a4158ea31a1428e9af2ef40547a6beb', 'Produksi', 'Persetujuan Order Cetak Ulang', NULL, NULL, '09179170e6e643eca66b282e2ffae1f8', '5494fc15eac44667a05b4e535be117b9', '2022-08-04 08:08:35', NULL),
-('1a87827358b6450e917182ab7ac37090', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', 'c0b591d6acea46cab49a3399da081559', '2022-08-16 08:33:32', NULL),
-('21946b98ad6f44ffa7db098c95cdfca6', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '1b842575174242cf83f949f262900570', '51f0d8f725094114986a93ade0d7a8e6', '2022-08-09 08:49:30', NULL),
-('6a9b9cda6f4b490bb00452cda94c2acb', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', '136154b894c440eb933e4099635401ef', '2022-08-09 04:38:27', NULL),
-('6ab184fa31a1468280a3698ee527a2ac', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '1b842575174242cf83f949f262900570', '136154b894c440eb933e4099635401ef', '2022-08-09 04:38:27', NULL),
-('70e7d86621ae45f6adedf7ae5645f685', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', '51f0d8f725094114986a93ade0d7a8e6', '2022-08-09 08:49:30', NULL),
-('76da840e92fa47139999235dc8f1a0e0', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '1b842575174242cf83f949f262900570', 'be76886e4e8b4e3fa5069509510f57ad', '2022-08-03 02:59:21', NULL),
-('7d0e5c3f282a44ce882353fad2192597', '', 'Persetujuan Order Cetak Ulang', NULL, NULL, '09179170e6e643eca66b282e2ffae1f8', '2d7f898111ef466ca7d8d4ec00d5824b', '2022-08-18 09:20:27', NULL),
-('899129af119a47188af019d0b7997ed2', 'Produksi', 'Persetujuan Order Cetak Ulang Revisi', NULL, NULL, '1b842575174242cf83f949f262900570', '4aecd59e99cd40788a8dc5248c1b6671', '2022-08-03 03:49:47', NULL),
-('899bb391cd454452afdc6eda312cdaf3', 'Produksi', 'Persetujuan Order Cetak Ulang Revisi', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', '4aecd59e99cd40788a8dc5248c1b6671', '2022-08-03 03:49:47', NULL),
-('8d667ec34b5245e98b4ab51189fab3a1', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', 'be76886e4e8b4e3fa5069509510f57ad', '2022-08-03 02:59:21', NULL),
-('ad7da237ea7d42ad9945d3e7d8b311b3', 'Produksi', 'Persetujuan Order Cetak Ulang', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', '5494fc15eac44667a05b4e535be117b9', '2022-08-04 08:08:35', NULL),
-('b04fff24642641dd88c6fc471a8cfa23', '', 'Persetujuan Order Buku Baru', NULL, NULL, '1b842575174242cf83f949f262900570', 'a299c92242b14205a71d720b6da4ad00', '2022-08-18 02:25:07', NULL),
-('c48f756abfd247e2a4c36fd33b633792', '', 'Persetujuan Order Buku Baru', NULL, NULL, '2826b627ccc34fad84470c4b7534da0d', 'a299c92242b14205a71d720b6da4ad00', '2022-08-18 02:25:07', NULL),
-('c94456c1dd4e42e3969725619445891f', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '1b842575174242cf83f949f262900570', 'c0b591d6acea46cab49a3399da081559', '2022-08-16 08:33:32', NULL),
-('cb3a648d6d8e4a729440a7db9bb13390', 'Produksi', 'Persetujuan Order Buku Baru', NULL, NULL, '1b842575174242cf83f949f262900570', '2161594c08dc42f38709c6840c782f67', '2022-08-09 08:41:06', NULL);
+('2824ee44092a42099927495cda8c22dd', 'Penerbitan', 'Persetujuan Order Buku Baru', NULL, NULL, '09179170e6e643eca66b282e2ffae1f8', '552d0c06005f47db814b0fc6df5b4ed5', '2022-08-19 08:56:25', NULL);
 
 -- --------------------------------------------------------
 
@@ -295,6 +279,14 @@ CREATE TABLE `notif_detail` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data untuk tabel `notif_detail`
+--
+
+INSERT INTO `notif_detail` (`notif_id`, `user_id`, `seen`, `raw_data`, `created_at`, `updated_at`) VALUES
+('2824ee44092a42099927495cda8c22dd', 'fd035809e2c045098770a7e9dfccddf9', '0', NULL, '2022-08-19 08:56:25', NULL),
+('2824ee44092a42099927495cda8c22dd', '4fc80f443bfb4969b9a0272d9be08ef2', '0', NULL, '2022-08-19 08:56:25', NULL);
 
 -- --------------------------------------------------------
 
@@ -928,8 +920,7 @@ CREATE TABLE `produksi_order_cetak` (
 --
 
 INSERT INTO `produksi_order_cetak` (`id`, `kode_order`, `tipe_order`, `jenis_mesin`, `status_cetak`, `pilihan_terbit`, `urgent`, `judul_buku`, `sub_judul`, `penulis`, `isbn`, `eisbn`, `penerbit`, `imprint`, `platform_digital`, `status_buku`, `kelompok_buku`, `edisi_cetakan`, `posisi_layout`, `dami`, `format_buku`, `jumlah_halaman`, `kertas_isi`, `warna_isi`, `kertas_cover`, `warna_cover`, `efek_cover`, `jenis_cover`, `jilid`, `ukuran_jilid_bending`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status_penyetujuan`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
-('2d7f898111ef466ca7d8d4ec00d5824b', '22-1001', '1', '2', '3', '1', '1', 'Mantap-Mantra', 'Maklumat Dunia', 'Lorem Ipsum', '454878454555', NULL, 'Andi', 'PBMR Andi', '[]', '1', 'Teks PERTI', 'vii/2', '1', '24', '19 x 23 cm', 'xiv + 125', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '1', '3 cm', 2022, 'Tidak Wrapping', 2300, NULL, NULL, NULL, NULL, '2022-08-25', '1', '2022-08-18 09:20:27', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
-('a299c92242b14205a71d720b6da4ad00', '22-1000', '1', '2', '1', '1', '0', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', 'Yohanes Hendra', '12452774521144', NULL, 'Andi', 'PBMR Andi', '[]', '1', 'Ensiklopedi', 'vii/3', '1', '24', '19 x 23 cm', 'viii + 302', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV, embos', 'Biasa', '4', ' cm', 2022, 'Wrapping', 345, NULL, NULL, NULL, NULL, '2022-08-31', '1', '2022-08-18 02:25:07', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
+('552d0c06005f47db814b0fc6df5b4ed5', '22-1000', '1', '2', '1', '1', '0', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', 'Yohanes Hendra', '444188884745', NULL, 'Andi', 'Sigma', '[]', '1', 'Ensiklopedi', 'vii/1', '1', '16', '17,5 x 25 cm', 'xiv + 125', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV, embos', 'Biasa', '1', '2,5 cm', 2022, 'Tidak Wrapping', 458, NULL, NULL, NULL, NULL, '2022-08-26', '1', '2022-08-19 08:56:25', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1006,8 +997,7 @@ CREATE TABLE `produksi_penyetujuan_order_cetak` (
 --
 
 INSERT INTO `produksi_penyetujuan_order_cetak` (`id`, `produksi_order_cetak_id`, `m_penerbitan`, `m_stok`, `d_operasional`, `d_keuangan`, `d_utama`, `m_penerbitan_act`, `m_stok_act`, `d_operasional_act`, `d_keuangan_act`, `d_utama_act`, `tgl_permintaan_jadi_history`, `jumlah_cetak_history`, `diubah_oleh`, `ket_pending`, `pending_sampai`, `status_general`, `created_at`, `updated_at`) VALUES
-('85555bc0-c280-4a9f-abc4-7bd3c659dc15', 'a299c92242b14205a71d720b6da4ad00', '4fc80f443bfb4969b9a0272d9be08ef2', '59cb3d41a58141c3a3518a2e78c84221', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '3', '1', '3', '3', '3', NULL, NULL, NULL, NULL, NULL, 'Selesai', '2022-08-18 02:25:07', '2022-08-18 04:34:18'),
-('bd68d63b-342a-4eff-a6fa-6790c2db5a2a', '2d7f898111ef466ca7d8d4ec00d5824b', '4fc80f443bfb4969b9a0272d9be08ef2', '59cb3d41a58141c3a3518a2e78c84221', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '1', '1', '1', NULL, NULL, NULL, NULL, NULL, 'Proses', '2022-08-18 09:20:27', '2022-08-18 09:20:49');
+('0ef61a50-9a72-4b5d-900d-63e54a0e0654', '552d0c06005f47db814b0fc6df5b4ed5', '4fc80f443bfb4969b9a0272d9be08ef2', NULL, 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '3', '1', '1', '1', '1', NULL, NULL, NULL, NULL, NULL, 'Proses', '2022-08-19 08:56:25', '2022-08-19 09:24:19');
 
 -- --------------------------------------------------------
 
@@ -1072,7 +1062,7 @@ CREATE TABLE `proses_produksi_cetak` (
 --
 
 INSERT INTO `proses_produksi_cetak` (`id`, `order_cetak_id`, `katern`, `mesin`, `plat`, `cetak_isi`, `cover`, `lipat_isi`, `jilid`, `potong_3_sisi`, `wrapping`, `kirim_gudang`, `harga`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
-('196b0b0b-59e5-4683-a0ec-b6003c9a29a8', 'a299c92242b14205a71d720b6da4ad00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-08-18 04:34:18', NULL, NULL, NULL);
+('196b0b0b-59e5-4683-a0ec-b6003c9a29a8', 'a299c92242b14205a71d720b6da4ad00', NULL, NULL, '2022-12-20', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-08-18 04:34:18', NULL, '2022-08-19 06:15:31', NULL);
 
 -- --------------------------------------------------------
 
