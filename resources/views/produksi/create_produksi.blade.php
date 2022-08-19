@@ -424,7 +424,7 @@
                             <div class="form-group col-12 col-md-12 mb-4">
                                 <label>Buku Contoh: </label>
                                 <textarea class="form-control" name="add_buku_contoh"  placeholder="Buku contoh"></textarea>
-                                <div id="err_add_jumlah_halaman"></div>
+                                <div id="err_add_buku_contoh"></div>
 
                             </div>
                             <div class="form-group col-12 col-md-12 mb-4">

@@ -35,7 +35,7 @@ $(function() {
     });
     $('.datepicker').datepicker({
         format: 'dd MM yyyy',
-        startDate: '-10d',
+        startDate: '-0d',
         autoclose:true,
         clearBtn: true,
         todayHighlight: true

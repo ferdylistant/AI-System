@@ -96,6 +96,7 @@ Route::middleware(['auth'])->group(function() {
     Route::prefix('produksi')->group(function () {
         Route::get('/proses/cetak', [ProsesProduksiController::class, 'index'])->name('proses.cetak.view');
         Route::get('/proses/cetak/detail', [ProsesProduksiController::class, 'detailProduksi'])->name('proses.cetak.detail');
+        Route::match(['get', 'post'], '/proses/cetak/edit', [ProsesProduksiController::class,'updateProduksi'])->name('proses.cetak.update');
     });
 
 });

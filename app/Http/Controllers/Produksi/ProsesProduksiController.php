@@ -110,6 +110,12 @@ class ProsesProduksiController extends Controller
                             } else {
                                 $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> Cetak Isi</div>';
                             }
+                            //Cover
+                            if(is_null($data->cover)) {
+                                $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> Cover</div>';
+                            } else {
+                                $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> Cover</div>';
+                            }
                             //Lipat Isi
                             if(is_null($data->lipat_isi)) {
                                 $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> Lipat Isi</div>';
@@ -149,7 +155,7 @@ class ProsesProduksiController extends Controller
                                     class="d-flex btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if($update) {
-                                $btn .= '<a href="'.url('produksi/proses/cetak/edit?kode='.$data->id.'&track='.$data->id).'"
+                                $btn .= '<a href="'.url('produksi/proses/cetak/edit?kode='.$data->order_cetak_id.'&track='.$data->id).'"
                                     class="d-flex btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
@@ -214,6 +220,66 @@ class ProsesProduksiController extends Controller
 
         return view('produksi.proses_cetak.detail', [
             'title' => 'Detail Data Proses Produksi Order Cetak',
+            'data' => $data,
+        ]);
+    }
+    public function updateProduksi(Request $request) {
+        if ($request->ajax()) {
+            if ($request->isMethod('POST')) {
+                DB::table('proses_produksi_cetak')
+                    ->where('id', $request->id)
+                    ->update([
+                        'katern' => $request->katern,
+                        'mesin' => $request->mesin,
+                        'plat' => $request->plat==''?NULL:Carbon::createFromFormat('d F Y', $request->plat)->format('Y-m-d'),
+                        'cetak_isi' => $request->cetak_isi==''?NULL:Carbon::createFromFormat('d F Y', $request->cetak_isi)->format('Y-m-d'),
+                        'cover' => $request->cover==''?NULL:Carbon::createFromFormat('d F Y', $request->cover)->format('Y-m-d'),
+                        'lipat_isi' => $request->lipat_isi==''?NULL:Carbon::createFromFormat('d F Y', $request->lipat_isi)->format('Y-m-d'),
+                        'jilid' => $request->jilid==''?NULL:Carbon::createFromFormat('d F Y', $request->jilid)->format('Y-m-d'),
+                        'potong_3_sisi' => $request->potong_3_sisi==''?NULL:Carbon::createFromFormat('d F Y', $request->potong_3_sisi)->format('Y-m-d'),
+                        'wrapping' => $request->wrapping==''?NULL:Carbon::createFromFormat('d F Y', $request->wrapping)->format('Y-m-d'),
+                        'kirim_gudang' => $request->kirim_gudang==''?NULL:Carbon::createFromFormat('d F Y', $request->kirim_gudang)->format('Y-m-d'),
+                        'harga' => $request->harga,
+                ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data berhasil diubah',
+                    'route' => route('proses.cetak.view')
+                ]);
+            }
+        }
+        $kodeOr = $request->get('kode');
+        $track = $request->get('track');
+        $data = DB::table('proses_produksi_cetak as ppc')->join('produksi_order_cetak as poc', 'poc.id','=', 'ppc.order_cetak_id')
+                    ->where('ppc.order_cetak_id', $kodeOr)
+                    ->where('ppc.id', $track)
+                    ->select(
+                        'ppc.*',
+                        'poc.id as order_cetak_id',
+                        'poc.tipe_order',
+                        'poc.kode_order',
+                        'poc.judul_buku',
+                        'poc.sub_judul',
+                        'poc.penulis',
+                        'poc.edisi_cetakan',
+                        'poc.buku_jadi',
+                        'poc.tahun_terbit',
+                        'poc.status_cetak',
+                        'poc.format_buku',
+                        'poc.created_at as tanggal_order',
+                        'poc.tgl_permintaan_jadi',
+                        'poc.jumlah_cetak',
+                        'poc.jumlah_halaman',
+                        'poc.jilid as jenis_jilid',
+                        'poc.kertas_isi',
+                        'poc.efek_cover',
+                        'poc.keterangan',
+                        'poc.warna_cover',
+                        'poc.ukuran_jilid_bending as ukuran_bending'
+                    )
+                    ->first();
+            return view('produksi.proses_cetak.update', [
+            'title' => 'Update Proses Produksi Order Cetak',
             'data' => $data,
         ]);
     }

@@ -112,6 +112,20 @@
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Status Cetak</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                        @if ($data->status_cetak == '1')
+                                            Buku Baru
+                                        @elseif ($data->status_cetak == '2')
+                                            Cetak Ulang Revisi
+                                        @elseif ($data->status_cetak == '3')
+                                            Cetak Ulang
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Tanggal Order</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
@@ -246,6 +260,18 @@
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Jumlah Halaman</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                    @if (is_null($data->jumlah_halaman))
+                                        -
+                                    @else
+                                        {{ $data->jumlah_halaman }}
+                                    @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Cetak Isi</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
@@ -282,18 +308,6 @@
                                 </div>
                             </div>
                             <div class="col-12 col-md-4">
-                                <div class="list-group-item flex-column align-items-start">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Jumlah Halaman</h6>
-                                    </div>
-                                    <p class="mb-1 text-monospace">
-                                    @if (is_null($data->jumlah_halaman))
-                                        -
-                                    @else
-                                        {{ $data->jumlah_halaman }}
-                                    @endif
-                                    </p>
-                                </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Jenis Jilid</h6>
@@ -352,6 +366,18 @@
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Buku Jadi</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                    @if (is_null($data->buku_jadi))
+                                        -
+                                    @else
+                                        {{ $data->buku_jadi }}
+                                    @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Keterangan</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
@@ -359,6 +385,30 @@
                                         -
                                     @else
                                         {{ $data->keterangan }}
+                                    @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Katern</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                    @if (is_null($data->katern))
+                                        -
+                                    @else
+                                        {{ $data->katern }}
+                                    @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Mesin</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                    @if (is_null($data->mesin))
+                                        -
+                                    @else
+                                        {{ $data->mesin }}
                                     @endif
                                     </p>
                                 </div>
