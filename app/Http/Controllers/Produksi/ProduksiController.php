@@ -644,7 +644,7 @@ class ProduksiController extends Controller
                 abort(500);
         }
     }
-    protected function notifPersetujuan($statusCetak,$action=null, $data=null){
+    protected function notifPersetujuan($dataEvent){
         /*
     Persetujuan Direktur harus berurutan dari Operasional ke Utama.
     Status Cetak (Buku Baru & Cetak Ulang Revisi) ::
@@ -656,22 +656,22 @@ class ProduksiController extends Controller
 
         */
 
-        if($statusCetak=='1' OR $statusCetak=='2') {
+        if($dataEvent['status_cetak']=='1' OR $dataEvent['status_cetak']=='2') {
             $dataLoop = DB::table('user_permission as up')
                 ->join('users as u', 'u.id', 'up.user_id')
                 ->join('jabatan as j', 'j.id', 'u.jabatan_id')
                 ->where('up.permission_id', '=', '09179170e6e643eca66b282e2ffae1f8')
                 ->whereNotIn('j.nama', ['Manajer Stok','Direktur Keuangan', 'Direktur Utama'])
                 ->get();
-            if($action=='create-notif') {
+            if($dataEvent['type']=='create-notif') {
                 $id_notif = Str::uuid()->getHex();
-                $sC = $statusCetak=='1'?'Persetujuan Order Buku Baru':'Persetujuan Order Cetak Ulang Revisi';
+                $sC = $dataEvent['status_cetak']=='1'?'Persetujuan Order Buku Baru':'Persetujuan Order Cetak Ulang Revisi';
                 DB::table('notif')->insert([
                     [   'id' => $id_notif,
                         'section' => 'Penerbitan',
                         'type' => $sC,
                         'permission_id' => '09179170e6e643eca66b282e2ffae1f8',
-                        'form_id' => $data['form_id'],
+                        'form_id' => $dataEvent['form_id'],
                     ],
                 ]);
                 foreach($dataLoop as $d) {
@@ -682,26 +682,26 @@ class ProduksiController extends Controller
                     ]);
                 }
                 return;
-            } elseif($action=='update-notif-from-naskah') {
-                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', 'ebca07da8aad42c4aee304e3a6b81001') // Hanya untuk prodev
-                            ->where('form_id', $data['form_id'])->first();
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                            ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
-                DB::table('notif_detail')->insert([
-                    'notif_id' => $notif->id,
-                    'user_id' => $data['id_prodev']
-                ]);
+            } elseif($dataEvent['type']=='update-notif') {
+                if($dataEvent['m_penerbitan']) {
+                    $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8') // Hanya untuk prodev
+                            ->where('form_id', $dataEvent['form_id'])->first();
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataEvent['m_penerbitan'])
+                        ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                }
+
                 return;
             }
 
-        } elseif($statusCetak == '3') {
-            if($action=='create-notif') {
+        } elseif($dataEvent['status_cetak'] == '3') {
+            if($dataEvent['type']=='create-notif') {
                 DB::table('notif')->insert([
                     [   'id' => Str::uuid()->getHex(),
                         'section' => 'Order Cetak Buku',
                         'type' => 'Persetujuan Order Cetak Ulang',
                         'permission_id' => '09179170e6e643eca66b282e2ffae1f8', // M.Stok
-                        'form_id' => $data['form_id'], ],
+                        'form_id' => $dataEvent['form_id'], ],
                 ]);
                 return;
             }
@@ -747,10 +747,18 @@ class ProduksiController extends Controller
                         ->update([
                             'm_stok_act' => '3',
                         ]);
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => 'Data berhasil diupdate'
-                    ]);
+                    $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                        ->where('form_id', $request->id)->first();
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->m_stok)
+                        ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                        ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                        return response()->json([
+                            'status' => 'success',
+                            'message' => 'Data berhasil diupdate'
+                        ]);
                 } elseif($dataUser->id == $dataPenyetujuan->d_operasional) {
                     if($dataPenyetujuan->m_stok_act == '1'){
                         return response()->json([
@@ -763,6 +771,17 @@ class ProduksiController extends Controller
                         ->update([
                             'd_operasional_act' => '3',
                         ]);
+                        $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                        ->where('form_id', $request->id)->first();
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                        ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->insert([
+                            'notif_id' => $notif->id,
+                            'user_id' => $dataPenyetujuan->d_keuangan,
+                            'raw_data' => 'Disetujui',
+                        ]);
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Data berhasil diupdate'
@@ -773,6 +792,17 @@ class ProduksiController extends Controller
                             ->where('produksi_order_cetak_id', $request->id)
                             ->update([
                                 'd_keuangan_act' => '3',
+                            ]);
+                        $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                            ->where('form_id', $request->id)->first();
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                            ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->insert([
+                                'notif_id' => $notif->id,
+                                'user_id' => $dataPenyetujuan->d_utama,
+                                'raw_data' => 'Disetujui',
                             ]);
                         return response()->json([
                             'status' => 'success',
@@ -808,10 +838,59 @@ class ProduksiController extends Controller
                                 'd_utama_act' => '3',
                                 'status_general' => 'Selesai',
                             ]);
+                            $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                            ->where('form_id', $request->id)->first();
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->where('user_id', '=', $dataPenyetujuan->m_stok)
+                            ->update([
+                                'seen' => '0',
+                                'raw_data' => 'Selesai',
+                                'updated_at' => date('Y-m-d H:i:s')]);
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                            ->update([
+                                'seen' => '0',
+                                'raw_data' => 'Selesai',
+                                'updated_at' => date('Y-m-d H:i:s')]);
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                                ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                                ->update([
+                                    'seen' => '0',
+                                    'raw_data' => 'Selesai',
+                                    'updated_at' => date('Y-m-d H:i:s')]);
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                            ->update([
+                                'seen' => '0',
+                                'raw_data' => 'Selesai',
+                                'updated_at' => date('Y-m-d H:i:s')]);
+                        $idProsesProduksi = Uuid::uuid4()->toString();
                         DB::table('proses_produksi_cetak')->insert([
-                            'id' => Uuid::uuid4()->toString(),
+                            'id' => $idProsesProduksi,
                             'order_cetak_id' => $request->id,
                         ]);
+                        $dataLoop = DB::table('user_permission as up')
+                        ->join('users as u', 'u.id', 'up.user_id')
+                        ->where('up.permission_id', '=', 'a91ee437-1e08-11ed-87ce-1078d2a38ee5')
+                        ->get();
+                        $id_notif = Str::uuid()->getHex();
+                        $sC = 'Proses Produksi Order Cetak';
+                        DB::table('notif')->insert([
+                            [   'id' => $id_notif,
+                                'section' => 'Produksi',
+                                'type' => $sC,
+                                'permission_id' => 'a91ee437-1e08-11ed-87ce-1078d2a38ee5',
+                                'form_id' => $idProsesProduksi,
+                            ],
+                        ]);
+                        foreach($dataLoop as $d) {
+                            DB::table('notif_detail')->insert([
+                                [   'notif_id' => $id_notif,
+                                    'user_id' => $d->user_id,
+                                    // 'raw_data' => 'Produksi Baru',
+                                ],
+                            ]);
+                        }
                         return response()->json([
                             'status' => 'success',
                             'message' => 'Data berhasil diupdate'
@@ -841,15 +920,14 @@ class ProduksiController extends Controller
                         ->update([
                             'm_penerbitan_act' => '3',
                         ]);
-                    $dataEvent = [
-                        'status_cetak' => $request->add_status_cetak,
-                        'nama_notif' => 'Approval Penerbitan',
-                        'type' => 'update-notif',
-                        'form_id' => $request->id,
-                        'user_id' => $dataPenyetujuan->m_penerbitan,
-                        'receiver_id' => $dataPenyetujuan->d_operasional,
-                    ];
-                    event(new \App\Events\NotifikasiPenyetujuan($dataEvent));
+                    $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                            ->where('form_id', $request->id)->first();
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                        ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                        ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Data berhasil diupdate'
@@ -859,6 +937,17 @@ class ProduksiController extends Controller
                         ->where('produksi_order_cetak_id', $request->id)
                         ->update([
                             'd_operasional_act' => '3',
+                        ]);
+                    $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                        ->where('form_id', $request->id)->first();
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                        ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->insert([
+                            'notif_id' => $notif->id,
+                            'user_id' => $dataPenyetujuan->d_keuangan,
+                            'raw_data' => 'Disetujui',
                         ]);
                     return response()->json([
                         'status' => 'success',
@@ -870,6 +959,17 @@ class ProduksiController extends Controller
                             ->where('produksi_order_cetak_id', $request->id)
                             ->update([
                                 'd_keuangan_act' => '3',
+                            ]);
+                        $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                            ->where('form_id', $request->id)->first();
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                            ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->insert([
+                                'notif_id' => $notif->id,
+                                'user_id' => $dataPenyetujuan->d_utama,
+                                'raw_data' => 'Disetujui',
                             ]);
                         return response()->json([
                             'status' => 'success',
@@ -905,10 +1005,61 @@ class ProduksiController extends Controller
                                 'd_utama_act' => '3',
                                 'status_general' => 'Selesai',
                             ]);
+                        $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                            ->where('form_id', $request->id)->first();
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                            ->update([
+                                'seen' => '0',
+                                'raw_data' => 'Selesai',
+                                'updated_at' => date('Y-m-d H:i:s')]);
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                            ->update([
+                                'seen' => '0',
+                                'raw_data' => 'Selesai',
+                                'updated_at' => date('Y-m-d H:i:s')]);
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                                ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                                ->update([
+                                    'seen' => '0',
+                                    'raw_data' => 'Selesai',
+                                    'updated_at' => date('Y-m-d H:i:s')]);
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                                    ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                                    ->update([
+                                        'seen' => '0',
+                                        'raw_data' => 'Selesai',
+                                        'updated_at' => date('Y-m-d H:i:s')]);
+
+                        $idProsesProduksi = Uuid::uuid4()->toString();
                         DB::table('proses_produksi_cetak')->insert([
-                            'id' => Uuid::uuid4()->toString(),
+                            'id' => $idProsesProduksi,
                             'order_cetak_id' => $request->id,
                         ]);
+                        $dataLoop = DB::table('user_permission as up')
+                        ->join('users as u', 'u.id', 'up.user_id')
+                        ->join('jabatan as j', 'j.id', 'u.jabatan_id')
+                        ->where('up.permission_id', '=', 'a91ee437-1e08-11ed-87ce-1078d2a38ee5')
+                        ->get();
+                        $id_notif = Str::uuid()->getHex();
+                        $sC = 'Proses Produksi Order Cetak';
+                        DB::table('notif')->insert([
+                            [   'id' => $id_notif,
+                                'section' => 'Produksi',
+                                'type' => $sC,
+                                'permission_id' => 'a91ee437-1e08-11ed-87ce-1078d2a38ee5',
+                                'form_id' => $idProsesProduksi,
+                            ],
+                        ]);
+                        foreach($dataLoop as $d) {
+                            DB::table('notif_detail')->insert([
+                                [   'notif_id' => $id_notif,
+                                    'user_id' => $d->user_id,
+                                    // 'raw_data' => 'Produksi Baru',
+                                ],
+                            ]);
+                        }
                         return response()->json([
                             'status' => 'success',
                             'message' => 'Data berhasil diupdate'
@@ -928,7 +1079,6 @@ class ProduksiController extends Controller
             ]);
         }
     }
-
     protected function pendingOrder($request)
     {
         try {
@@ -978,6 +1128,42 @@ class ProduksiController extends Controller
                         'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
                         'status_general' => 'Pending',
                     ]);
+                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                    ->where('form_id', $request->id)->first();
+                if($request->status_cetak == '3') {
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_stok)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                } else{
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                }
+
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                        ->update([
+                            'seen' => '0',
+                            'raw_data' => 'Pending',
+                            'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                            ->update([
+                                'seen' => '0',
+                                'raw_data' => 'Pending',
+                                'updated_at' => date('Y-m-d H:i:s')]);
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil dipending'
@@ -1007,6 +1193,42 @@ class ProduksiController extends Controller
                         'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
                         'status_general' => 'Pending',
                     ]);
+                    $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                    ->where('form_id', $request->id)->first();
+                if($request->status_cetak == '3') {
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_stok)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                } else{
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                }
+
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                        ->update([
+                            'seen' => '0',
+                            'raw_data' => 'Pending',
+                            'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                            ->update([
+                                'seen' => '0',
+                                'raw_data' => 'Pending',
+                                'updated_at' => date('Y-m-d H:i:s')]);
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil dipending'
@@ -1032,6 +1254,42 @@ class ProduksiController extends Controller
                         'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
                         'status_general' => 'Pending',
                     ]);
+                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                    ->where('form_id', $request->id)->first();
+                if($request->status_cetak == '3') {
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_stok)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                } else{
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                }
+
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                        ->update([
+                            'seen' => '0',
+                            'raw_data' => 'Pending',
+                            'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                            ->update([
+                                'seen' => '0',
+                                'raw_data' => 'Pending',
+                                'updated_at' => date('Y-m-d H:i:s')]);
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil dipending'
@@ -1049,7 +1307,6 @@ class ProduksiController extends Controller
             ]);
         }
     }
-
     protected function getOrderId($tipeOrder)
     {
         $year = date('y');
@@ -1090,5 +1347,119 @@ class ProduksiController extends Controller
             }
         }
 
+    }
+    public function batalPendingOrderCetak($id)
+    {
+        try{
+            $dataCetak = DB::table('produksi_order_cetak')
+                            ->where('id', $id)
+                            ->first();
+            $dataPenyetujuan = DB::table('produksi_penyetujuan_order_cetak')
+                ->where('produksi_order_cetak_id', $id)
+                ->where('status_general','=', 'Pending')
+                ->first();
+            if(is_null($dataPenyetujuan)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Mungkin data sudah di Approve'
+                ]);
+            }
+            $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                    ->where('form_id', $id)->first();
+            $dataUser = auth()->id();
+            if($dataUser == $dataPenyetujuan->d_operasional) {
+                DB::table('produksi_penyetujuan_order_cetak')
+                    ->where('produksi_order_cetak_id', $id)
+                    ->update([
+                        'd_operasional_act' => '1',
+                        'ket_pending' => NULL,
+                        'pending_sampai' => NULL,
+                        'status_general' => 'Proses'
+                    ]);
+                if(is_null($dataPenyetujuan->m_stok)) {
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update(['seen' => '1', 'raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                } else {
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_stok)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                }
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                    ->delete();
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                    ->delete();
+            } elseif($dataUser == $dataPenyetujuan->d_keuangan) {
+                DB::table('produksi_penyetujuan_order_cetak')
+                    ->where('produksi_order_cetak_id', $id)
+                    ->update([
+                        'd_keuangan_act' => '1',
+                        'ket_pending' => NULL,
+                        'pending_sampai' => NULL,
+                        'status_general' => 'Proses'
+                    ]);
+                if(is_null($dataPenyetujuan->m_stok)) {
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                } else {
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_stok)
+                    ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                }
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                    ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                    ->delete();
+            } elseif($dataUser == $dataPenyetujuan->d_utama) {
+                DB::table('produksi_penyetujuan_order_cetak')
+                    ->where('produksi_order_cetak_id', $id)
+                    ->update([
+                        'd_utama_act' => '1',
+                        'ket_pending' => NULL,
+                        'pending_sampai' => NULL,
+                        'status_general' => 'Proses'
+                    ]);
+                if(is_null($dataPenyetujuan->m_stok)) {
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                } else {
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_stok)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                }
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                    ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda tidak memiliki akses'
+                ]);
+            }
+            return redirect()->to('/penerbitan/order-cetak/detail?kode='.$dataCetak->id.'&author='.$dataCetak->created_by);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }

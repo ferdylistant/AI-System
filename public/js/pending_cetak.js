@@ -1,4 +1,11 @@
 $(document).ready(function() {
+    var authSess = $('#authSession').val();
+    var dirop = $('#dirop').val();
+    var dirke = $('#dirke').val();
+    var dirut = $('#dirut').val();
+    var dirop_act = $('#dirop_act').val();
+    var dirke_act = $('#dirke_act').val();
+    var dirut_act = $('#dirut_act').val();
     var id = $('#id').val();
     var jb = $('#judul_buku').val();
     var ko = $('#kode_order').val();

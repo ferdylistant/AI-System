@@ -90,14 +90,20 @@
                             <span class="text-danger">
                                 @if ($data->status_cetak == '3')
                                     @if (Gate::allows('do_approval', 'persetujuan-order-cetak'))
-                                        @if ($prod_penyetujuan->m_penerbitan == auth()->id())
-                                            *Jabatan Anda tidak memiliki akses untuk data ini.
+                                        @if ((auth()->id() == $prod_penyetujuan->m_stok) OR (auth()->id() == $prod_penyetujuan->d_operasional) OR (auth()->id() == $prod_penyetujuan->d_keuangan) OR (auth()->id() == $prod_penyetujuan->d_utama))
+
+                                        @else
+                                            <small>*Jabatan Anda tidak memiliki akses untuk data ini.</small>
                                         @endif
                                     @endif
                                 @else
                                     @if (Gate::allows('do_approval', 'persetujuan-order-cetak'))
-                                        @if ($prod_penyetujuan->m_stok == auth()->id())
-                                            *Jabatan Anda tidak memiliki akses untuk data ini.
+                                        @if (is_null($prod_penyetujuan->m_stok))
+                                            @if ((auth()->id() == $prod_penyetujuan->m_penerbitan) OR (auth()->id() == $prod_penyetujuan->d_operasional) OR (auth()->id() == $prod_penyetujuan->d_keuangan) OR (auth()->id() == $prod_penyetujuan->d_utama))
+
+                                            @else
+                                                <small>*Jabatan Anda tidak memiliki akses untuk data ini.</small>
+                                            @endif
                                         @endif
                                     @endif
                                 @endif
@@ -110,6 +116,13 @@
                                 <div class="col-auto mr-auto">
                                     <div class="mb-4">
                                         @if (!is_null($data_penolakan))
+                                                <input type="hidden" id="authSession" value="{{ auth()->id() }}">
+                                                <input type="hidden" id="dirop" value="{{$data_penolakan->d_operasional}}">
+                                                <input type="hidden" id="dirke" value="{{$data_penolakan->d_keuangan}}">
+                                                <input type="hidden" id="dirut" value="{{$data_penolakan->d_utama}}">
+                                                <input type="hidden" id="dirop_act" value="{{$data_penolakan->d_operasional_act}}">
+                                                <input type="hidden" id="dirke_act" value="{{$data_penolakan->d_keuangan_act}}">
+                                                <input type="hidden" id="dirut_act" value="{{$data_penolakan->d_utama_act}}">
                                                 <input type="hidden" id="ketVal" value="{{$data_penolakan->ket_pending}}">
                                                 <input type="hidden" id="pendingSampai" value="{{Carbon\Carbon::parse($data_penolakan->pending_sampai)->translatedFormat('d F Y')}}">
                                             @endif

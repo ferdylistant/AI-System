@@ -37,6 +37,7 @@ class ProsesProduksiController extends Controller
                         'poc.jumlah_cetak',
                         'poc.jumlah_halaman',
                         'poc.jilid as jenis_jilid',
+                        'poc.ukuran_jilid_bending',
                         'poc.kertas_isi',
                         'poc.efek_cover',
                         'poc.keterangan',
@@ -81,7 +82,7 @@ class ProsesProduksiController extends Controller
                         })
                         ->addColumn('jenis_jilid', function($data) {
                             if ($data->jenis_jilid == 1) {
-                                $res = 'Bending';
+                                $res = 'Bending '.$data->ukuran_jilid_bending;
                             } elseif ($data->jenis_jilid == 2) {
                                 $res = 'Jahit kawat';
                             }
