@@ -194,9 +194,31 @@ class EbookController extends Controller
                     'id' => Uuid::uuid4()->toString(),
                     'produksi_order_ebook_id' => $idO,
                 ]);
-                // $this->notifPersetujuan($request->add_status_cetak,'create-notif', [
-                //         'form_id' => $idO
-                //     ]);
+
+                $dataLoop = DB::table('user_permission as up')
+                ->join('users as u', 'u.id', 'up.user_id')
+                ->join('jabatan as j', 'j.id', 'u.jabatan_id')
+                ->where('up.permission_id', '=', '171e6210418440a8bf4d689841d0f32c')
+                ->whereIn('j.nama', ['Manajer Penerbitan','Direktur Operasional'])
+                ->get();
+                $id_notif = Str::uuid()->getHex();
+                $sC = 'Persetujuan Order E-Book';
+                DB::table('notif')->insert([
+                    [   'id' => $id_notif,
+                        'section' => 'Penerbitan',
+                        'type' => $sC,
+                        'permission_id' => '171e6210418440a8bf4d689841d0f32c',
+                        'form_id' => $idO,
+                    ],
+                ]);
+                foreach($dataLoop as $d) {
+                    DB::table('notif_detail')->insert([
+                        [   'notif_id' => $id_notif,
+                            'user_id' => $d->user_id,
+                            'raw_data' => 'Penyetujuan',
+                        ],
+                    ]);
+                }
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil ditambahkan',
@@ -508,15 +530,34 @@ class EbookController extends Controller
                     ->update([
                         'm_penerbitan_act' => '3',
                     ]);
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Data berhasil diupdate'
-                ]);
+                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                    ->where('form_id', $request->id)->first();
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data berhasil diupdate'
+                    ]);
             } elseif($dataUser->id == $dataPenyetujuan->d_operasional) {
                 DB::table('produksi_penyetujuan_order_ebook')
                     ->where('produksi_order_ebook_id', $request->id)
                     ->update([
                         'd_operasional_act' => '3',
+                    ]);
+                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                    ->where('form_id', $request->id)->first();
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->insert([
+                        'notif_id' => $notif->id,
+                        'user_id' => $dataPenyetujuan->d_keuangan,
+                        'raw_data' => 'Disetujui',
                     ]);
                 return response()->json([
                     'status' => 'success',
@@ -528,6 +569,17 @@ class EbookController extends Controller
                         ->where('produksi_order_ebook_id', $request->id)
                         ->update([
                             'd_keuangan_act' => '3',
+                        ]);
+                    $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                        ->where('form_id', $request->id)->first();
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                        ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->insert([
+                            'notif_id' => $notif->id,
+                            'user_id' => $dataPenyetujuan->d_utama,
+                            'raw_data' => 'Disetujui',
                         ]);
                     return response()->json([
                         'status' => 'success',
@@ -563,6 +615,60 @@ class EbookController extends Controller
                             'd_utama_act' => '3',
                             'status_general' => 'Selesai',
                         ]);
+
+                    $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                        ->where('form_id', $request->id)->first();
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                        ->update([
+                            'seen' => '0',
+                            'raw_data' => 'Selesai',
+                            'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                        ->update([
+                            'seen' => '0',
+                            'raw_data' => 'Selesai',
+                            'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                            ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                            ->update([
+                                'seen' => '0',
+                                'raw_data' => 'Selesai',
+                                'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                                ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                                ->update([
+                                    'seen' => '0',
+                                    'raw_data' => 'Selesai',
+                                    'updated_at' => date('Y-m-d H:i:s')]);
+
+                    $idProsesEbook = Uuid::uuid4()->toString();
+                    DB::table('proses_produksi_cetak')->insert([
+                        'id' => $idProsesEbook,
+                        'order_ebook_id' => $request->id,
+                    ]);
+                    $dataLoop = DB::table('user_permission')
+                    ->where('permission_id', 'd821a505-1e08-11ed-87ce-1078d2a38ee5')
+                    ->get();
+                    $id_notif = Str::uuid()->getHex();
+                    $sC = 'Proses Produksi Order E-Book';
+                    DB::table('notif')->insert([
+                        [   'id' => $id_notif,
+                            'section' => 'Produksi',
+                            'type' => $sC,
+                            'permission_id' => 'd821a505-1e08-11ed-87ce-1078d2a38ee5',
+                            'form_id' => $idProsesEbook,
+                        ],
+                    ]);
+                    foreach($dataLoop as $d) {
+                        DB::table('notif_detail')->insert([
+                            [   'notif_id' => $id_notif,
+                                'user_id' => $d->user_id,
+                                // 'raw_data' => 'Produksi Baru',
+                            ],
+                        ]);
+                    }
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Data berhasil diupdate'

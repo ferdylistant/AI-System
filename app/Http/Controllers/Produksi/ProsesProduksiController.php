@@ -232,14 +232,14 @@ class ProsesProduksiController extends Controller
                     ->update([
                         'katern' => $request->katern,
                         'mesin' => $request->mesin,
-                        'plat' => $request->plat==''?NULL:Carbon::createFromFormat('d F Y', $request->plat)->format('Y-m-d'),
-                        'cetak_isi' => $request->cetak_isi==''?NULL:Carbon::createFromFormat('d F Y', $request->cetak_isi)->format('Y-m-d'),
-                        'cover' => $request->cover==''?NULL:Carbon::createFromFormat('d F Y', $request->cover)->format('Y-m-d'),
-                        'lipat_isi' => $request->lipat_isi==''?NULL:Carbon::createFromFormat('d F Y', $request->lipat_isi)->format('Y-m-d'),
-                        'jilid' => $request->jilid==''?NULL:Carbon::createFromFormat('d F Y', $request->jilid)->format('Y-m-d'),
-                        'potong_3_sisi' => $request->potong_3_sisi==''?NULL:Carbon::createFromFormat('d F Y', $request->potong_3_sisi)->format('Y-m-d'),
-                        'wrapping' => $request->wrapping==''?NULL:Carbon::createFromFormat('d F Y', $request->wrapping)->format('Y-m-d'),
-                        'kirim_gudang' => $request->kirim_gudang==''?NULL:Carbon::createFromFormat('d F Y', $request->kirim_gudang)->format('Y-m-d'),
+                        'plat' => $request->plat==''?NULL:date('Y-m-d',strtotime($request->plat)),
+                        'cetak_isi' => $request->cetak_isi==''?NULL:date('Y-m-d',strtotime($request->cetak_isi)),
+                        'cover' => $request->cover==''?NULL:date('Y-m-d',strtotime($request->cover)),
+                        'lipat_isi' => $request->lipat_isi==''?NULL:date('Y-m-d',strtotime($request->lipat_isi)),
+                        'jilid' => $request->jilid==''?NULL:date('Y-m-d',strtotime($request->jilid)),
+                        'potong_3_sisi' => $request->potong_3_sisi==''?NULL:date('Y-m-d',strtotime($request->potong_3_sisi)),
+                        'wrapping' => $request->wrapping==''?NULL:date('Y-m-d',strtotime($request->wrapping)),
+                        'kirim_gudang' => $request->kirim_gudang==''?NULL:date('Y-m-d',strtotime($request->kirim_gudang)),
                         'harga' => $request->harga,
                 ]);
                 return response()->json([

@@ -286,14 +286,6 @@ class ProduksiController extends Controller
                     'form_id' => $idO,
                 ];
                 event(new NotifikasiPenyetujuan($dataEvent));
-                // $this->notifPersetujuan($request->add_status_cetak,'create-notif', [
-                //         'form_id' => $idO
-                //     ]);
-                // return response()->json([
-                //     'success' => true,
-                //     'message' => 'Data berhasil ditambahkan',
-                //     'data' => $dd
-                // ]);
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil ditambahkan',
@@ -869,9 +861,8 @@ class ProduksiController extends Controller
                             'id' => $idProsesProduksi,
                             'order_cetak_id' => $request->id,
                         ]);
-                        $dataLoop = DB::table('user_permission as up')
-                        ->join('users as u', 'u.id', 'up.user_id')
-                        ->where('up.permission_id', '=', 'a91ee437-1e08-11ed-87ce-1078d2a38ee5')
+                        $dataLoop = DB::table('user_permission')
+                        ->where('permission_id', 'a91ee437-1e08-11ed-87ce-1078d2a38ee5')
                         ->get();
                         $id_notif = Str::uuid()->getHex();
                         $sC = 'Proses Produksi Order Cetak';
@@ -1037,10 +1028,8 @@ class ProduksiController extends Controller
                             'id' => $idProsesProduksi,
                             'order_cetak_id' => $request->id,
                         ]);
-                        $dataLoop = DB::table('user_permission as up')
-                        ->join('users as u', 'u.id', 'up.user_id')
-                        ->join('jabatan as j', 'j.id', 'u.jabatan_id')
-                        ->where('up.permission_id', '=', 'a91ee437-1e08-11ed-87ce-1078d2a38ee5')
+                        $dataLoop = DB::table('user_permission')
+                        ->where('permission_id', 'a91ee437-1e08-11ed-87ce-1078d2a38ee5')
                         ->get();
                         $id_notif = Str::uuid()->getHex();
                         $sC = 'Proses Produksi Order Cetak';

@@ -230,7 +230,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="plat" placeholder="Tanggal jadi plat" value="{{is_null($data->plat)?'':Carbon\Carbon::parse($data->plat)->translatedFormat('d F Y')}}">
+                                    <input type="text" class="form-control datepicker" name="plat" placeholder="Tanggal jadi plat" value="{{is_null($data->plat)?'':$data->plat}}">
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
@@ -239,7 +239,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="cetak_isi" placeholder="Tanggal jadi cetak isi" value="{{is_null($data->cetak_isi)?'':Carbon\Carbon::parse($data->cetak_isi)->translatedFormat('d F Y')}}">
+                                    <input type="text" class="form-control datepicker" name="cetak_isi" placeholder="Tanggal jadi cetak isi" value="{{is_null($data->cetak_isi)?'':$data->cetak_isi}}">
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
@@ -248,7 +248,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="cover" placeholder="Tanggal jadi cover" value="{{is_null($data->cover)?'':Carbon\Carbon::parse($data->cover)->translatedFormat('d F Y')}}">
+                                    <input type="text" class="form-control datepicker" name="cover" placeholder="Tanggal jadi cover" value="{{is_null($data->cover)?'':$data->cover}}">
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
@@ -257,7 +257,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="lipat_isi" placeholder="Tanggal jadi lipat isi" value="{{is_null($data->lipat_isi)?'':Carbon\Carbon::parse($data->lipat_isi)->translatedFormat('d F Y')}}">
+                                    <input type="text" class="form-control datepicker" name="lipat_isi" placeholder="Tanggal jadi lipat isi" value="{{is_null($data->lipat_isi)?'':$data->lipat_isi}}">
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
@@ -266,7 +266,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="jilid" placeholder="Tanggal jadi jilid" value="{{is_null($data->jilid)?'':Carbon\Carbon::parse($data->jilid)->translatedFormat('d F Y')}}">
+                                    <input type="text" class="form-control datepicker" name="jilid" placeholder="Tanggal jadi jilid" value="{{is_null($data->jilid)?'':$data->jilid}}">
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
@@ -275,7 +275,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="potong_3_sisi" placeholder="Tanggal jadi potong 3 sisi" value="{{is_null($data->potong_3_sisi)?'':Carbon\Carbon::parse($data->potong_3_sisi)->translatedFormat('d F Y')}}">
+                                    <input type="text" class="form-control datepicker" name="potong_3_sisi" placeholder="Tanggal jadi potong 3 sisi" value="{{is_null($data->potong_3_sisi)?'':$data->potong_3_sisi}}">
                                 </div>
                             </div>
                             @if ($data->buku_jadi == 'Wrapping')
@@ -285,7 +285,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="wrapping" placeholder="Tanggal jadi wrapping" value="{{is_null($data->wrapping)?'':Carbon\Carbon::parse($data->wrapping)->translatedFormat('d F Y')}}">
+                                    <input type="text" class="form-control datepicker" name="wrapping" placeholder="Tanggal jadi wrapping" value="{{is_null($data->wrapping)?'':$data->wrapping}}">
                                 </div>
                             </div>
                             @endif
@@ -295,7 +295,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="kirim_gudang" placeholder="Tanggal kirim gudang" value="{{is_null($data->kirim_gudang)?'':Carbon\Carbon::parse($data->kirim_gudang)->translatedFormat('d F Y')}}">
+                                    <input type="text" class="form-control datepicker" name="kirim_gudang" placeholder="Tanggal kirim gudang" value="{{is_null($data->kirim_gudang)?'':$data->kirim_gudang}}">
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
