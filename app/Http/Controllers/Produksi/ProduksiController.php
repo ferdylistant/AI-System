@@ -447,8 +447,7 @@ class ProduksiController extends Controller
             'jilid' => $jilid
         ]);
     }
-    public function detailProduksi(Request $request)
-    {
+    public function detailProduksi(Request $request) {
         $kode = $request->get('kode');
         $author = $request->get('author');
         $prod = DB::table('produksi_order_cetak')
@@ -470,6 +469,8 @@ class ProduksiController extends Controller
 
         if(!is_null($dataPenolakan)){
             $bool = $dataPenolakan->pending_sampai<=Carbon::now('Asia/Jakarta')->format('Y-m-d')?true:false;
+            $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                        ->where('form_id', $kode)->first();
             if($bool == true){
                 if($dataPenolakan->d_operasional_act == '2'){
                     DB::table('produksi_penyetujuan_order_cetak')
@@ -481,6 +482,24 @@ class ProduksiController extends Controller
                             'ket_pending' => NULL,
                             'pending_sampai' => NULL,
                         ]);
+                    if(is_null($dataPenolakan->m_stok)) {
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->m_penerbitan)
+                        ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+                    } else {
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->m_stok)
+                        ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+                    }
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_operasional)
+                        ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
+                        ->delete();
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_utama)
+                        ->delete();
                 } elseif($dataPenolakan->d_keuangan_act == '2'){
                     DB::table('produksi_penyetujuan_order_cetak')
                         ->where('produksi_order_cetak_id', $kode)
@@ -491,6 +510,24 @@ class ProduksiController extends Controller
                             'ket_pending' => NULL,
                             'pending_sampai' => NULL,
                         ]);
+                    if(is_null($dataPenolakan->m_stok)) {
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->m_penerbitan)
+                        ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+                    } else {
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->m_stok)
+                        ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+                    }
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_operasional)
+                        ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
+                        ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_utama)
+                        ->delete();
                 } elseif($dataPenolakan->d_utama_act == '2'){
                     DB::table('produksi_penyetujuan_order_cetak')
                         ->where('produksi_order_cetak_id', $kode)
@@ -501,6 +538,24 @@ class ProduksiController extends Controller
                             'ket_pending' => NULL,
                             'pending_sampai' => NULL,
                     ]);
+                    if(is_null($dataPenolakan->m_stok)) {
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->m_penerbitan)
+                        ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+                    } else {
+                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->m_stok)
+                        ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+                    }
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_operasional)
+                        ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
+                        ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_utama)
+                        ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                 }
             }
         }
@@ -744,9 +799,12 @@ class ProduksiController extends Controller
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                         ->where('user_id', '=', $dataPenyetujuan->m_stok)
                         ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-                        ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')
+                        ->insert([
+                            'notif_id' => $notif->id,
+                            'user_id' => $dataPenyetujuan->d_operasional,
+                            'raw_data' => 'Disetujui Cetak',
+                        ]);
                         return response()->json([
                             'status' => 'success',
                             'message' => 'Data berhasil diupdate'
@@ -768,11 +826,11 @@ class ProduksiController extends Controller
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                         ->where('user_id', '=', $dataPenyetujuan->d_operasional)
                         ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    DB::table('notif_detail')
                         ->insert([
                             'notif_id' => $notif->id,
                             'user_id' => $dataPenyetujuan->d_keuangan,
-                            'raw_data' => 'Disetujui',
+                            'raw_data' => 'Disetujui Cetak',
                         ]);
                     return response()->json([
                         'status' => 'success',
@@ -790,11 +848,11 @@ class ProduksiController extends Controller
                         DB::table('notif_detail')->where('notif_id', $notif->id)
                             ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
                             ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
-                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                        DB::table('notif_detail')
                             ->insert([
                                 'notif_id' => $notif->id,
                                 'user_id' => $dataPenyetujuan->d_utama,
-                                'raw_data' => 'Disetujui',
+                                'raw_data' => 'Disetujui Cetak',
                             ]);
                         return response()->json([
                             'status' => 'success',
@@ -836,25 +894,25 @@ class ProduksiController extends Controller
                             ->where('user_id', '=', $dataPenyetujuan->m_stok)
                             ->update([
                                 'seen' => '0',
-                                'raw_data' => 'Selesai',
+                                'raw_data' => 'Selesai Cetak',
                                 'updated_at' => date('Y-m-d H:i:s')]);
                         DB::table('notif_detail')->where('notif_id', $notif->id)
                             ->where('user_id', '=', $dataPenyetujuan->d_operasional)
                             ->update([
                                 'seen' => '0',
-                                'raw_data' => 'Selesai',
+                                'raw_data' => 'Selesai Cetak',
                                 'updated_at' => date('Y-m-d H:i:s')]);
                         DB::table('notif_detail')->where('notif_id', $notif->id)
                                 ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
                                 ->update([
                                     'seen' => '0',
-                                    'raw_data' => 'Selesai',
+                                    'raw_data' => 'Selesai Cetak',
                                     'updated_at' => date('Y-m-d H:i:s')]);
                         DB::table('notif_detail')->where('notif_id', $notif->id)
                             ->where('user_id', '=', $dataPenyetujuan->d_utama)
                             ->update([
                                 'seen' => '0',
-                                'raw_data' => 'Selesai',
+                                'raw_data' => 'Selesai Cetak',
                                 'updated_at' => date('Y-m-d H:i:s')]);
                         $idProsesProduksi = Uuid::uuid4()->toString();
                         DB::table('proses_produksi_cetak')->insert([
@@ -918,7 +976,7 @@ class ProduksiController extends Controller
                         ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                         ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-                        ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                        ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Data berhasil diupdate'
@@ -934,11 +992,11 @@ class ProduksiController extends Controller
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                         ->where('user_id', '=', $dataPenyetujuan->d_operasional)
                         ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    DB::table('notif_detail')
                         ->insert([
                             'notif_id' => $notif->id,
                             'user_id' => $dataPenyetujuan->d_keuangan,
-                            'raw_data' => 'Disetujui',
+                            'raw_data' => 'Disetujui Cetak',
                         ]);
                     return response()->json([
                         'status' => 'success',
@@ -956,11 +1014,11 @@ class ProduksiController extends Controller
                         DB::table('notif_detail')->where('notif_id', $notif->id)
                             ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
                             ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
-                        DB::table('notif_detail')->where('notif_id', $notif->id)
+                        DB::table('notif_detail')
                             ->insert([
                                 'notif_id' => $notif->id,
                                 'user_id' => $dataPenyetujuan->d_utama,
-                                'raw_data' => 'Disetujui',
+                                'raw_data' => 'Disetujui Cetak',
                             ]);
                         return response()->json([
                             'status' => 'success',
@@ -1002,25 +1060,25 @@ class ProduksiController extends Controller
                             ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
                             ->update([
                                 'seen' => '0',
-                                'raw_data' => 'Selesai',
+                                'raw_data' => 'Selesai Cetak',
                                 'updated_at' => date('Y-m-d H:i:s')]);
                         DB::table('notif_detail')->where('notif_id', $notif->id)
                             ->where('user_id', '=', $dataPenyetujuan->d_operasional)
                             ->update([
                                 'seen' => '0',
-                                'raw_data' => 'Selesai',
+                                'raw_data' => 'Selesai Cetak',
                                 'updated_at' => date('Y-m-d H:i:s')]);
                         DB::table('notif_detail')->where('notif_id', $notif->id)
                                 ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
                                 ->update([
                                     'seen' => '0',
-                                    'raw_data' => 'Selesai',
+                                    'raw_data' => 'Selesai Cetak',
                                     'updated_at' => date('Y-m-d H:i:s')]);
                         DB::table('notif_detail')->where('notif_id', $notif->id)
                                     ->where('user_id', '=', $dataPenyetujuan->d_utama)
                                     ->update([
                                         'seen' => '0',
-                                        'raw_data' => 'Selesai',
+                                        'raw_data' => 'Selesai Cetak',
                                         'updated_at' => date('Y-m-d H:i:s')]);
 
                         $idProsesProduksi = Uuid::uuid4()->toString();
@@ -1124,14 +1182,14 @@ class ProduksiController extends Controller
                     ->where('user_id', '=', $dataPenyetujuan->m_stok)
                     ->update([
                         'seen' => '0',
-                        'raw_data' => 'Pending',
+                        'raw_data' => 'Pending Cetak',
                         'updated_at' => date('Y-m-d H:i:s')]);
                 } else{
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
                     ->update([
                         'seen' => '0',
-                        'raw_data' => 'Pending',
+                        'raw_data' => 'Pending Cetak',
                         'updated_at' => date('Y-m-d H:i:s')]);
                 }
 
@@ -1139,20 +1197,20 @@ class ProduksiController extends Controller
                     ->where('user_id', '=', $dataPenyetujuan->d_operasional)
                     ->update([
                         'seen' => '0',
-                        'raw_data' => 'Pending',
+                        'raw_data' => 'Pending Cetak',
                         'updated_at' => date('Y-m-d H:i:s')]);
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
-                        ->update([
-                            'seen' => '0',
-                            'raw_data' => 'Pending',
-                            'updated_at' => date('Y-m-d H:i:s')]);
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                            ->where('user_id', '=', $dataPenyetujuan->d_utama)
-                            ->update([
-                                'seen' => '0',
-                                'raw_data' => 'Pending',
-                                'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')
+                    ->insert([
+                        'notif_id' => $notif->id,
+                        'user_id' => $dataPenyetujuan->d_keuangan,
+                        'raw_data' => 'Pending Cetak',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')
+                    ->insert([
+                        'notif_id' => $notif->id,
+                        'user_id' => $dataPenyetujuan->d_utama,
+                        'raw_data' => 'Pending Cetak',
+                        'updated_at' => date('Y-m-d H:i:s')]);
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil dipending'
@@ -1189,14 +1247,14 @@ class ProduksiController extends Controller
                     ->where('user_id', '=', $dataPenyetujuan->m_stok)
                     ->update([
                         'seen' => '0',
-                        'raw_data' => 'Pending',
+                        'raw_data' => 'Pending Cetak',
                         'updated_at' => date('Y-m-d H:i:s')]);
                 } else{
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
                     ->update([
                         'seen' => '0',
-                        'raw_data' => 'Pending',
+                        'raw_data' => 'Pending Cetak',
                         'updated_at' => date('Y-m-d H:i:s')]);
                 }
 
@@ -1204,20 +1262,20 @@ class ProduksiController extends Controller
                     ->where('user_id', '=', $dataPenyetujuan->d_operasional)
                     ->update([
                         'seen' => '0',
-                        'raw_data' => 'Pending',
+                        'raw_data' => 'Pending Cetak',
                         'updated_at' => date('Y-m-d H:i:s')]);
                 DB::table('notif_detail')->where('notif_id', $notif->id)
                         ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
                         ->update([
                             'seen' => '0',
-                            'raw_data' => 'Pending',
+                            'raw_data' => 'Pending Cetak',
                             'updated_at' => date('Y-m-d H:i:s')]);
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                            ->where('user_id', '=', $dataPenyetujuan->d_utama)
-                            ->update([
-                                'seen' => '0',
-                                'raw_data' => 'Pending',
-                                'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')
+                    ->insert([
+                        'notif_id' => $notif->id,
+                        'user_id' => $dataPenyetujuan->d_utama,
+                        'raw_data' => 'Pending Cetak',
+                        'updated_at' => date('Y-m-d H:i:s')]);
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil dipending'
@@ -1250,35 +1308,34 @@ class ProduksiController extends Controller
                     ->where('user_id', '=', $dataPenyetujuan->m_stok)
                     ->update([
                         'seen' => '0',
-                        'raw_data' => 'Pending',
+                        'raw_data' => 'Pending Cetak',
                         'updated_at' => date('Y-m-d H:i:s')]);
                 } else{
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
                     ->update([
                         'seen' => '0',
-                        'raw_data' => 'Pending',
+                        'raw_data' => 'Pending Cetak',
                         'updated_at' => date('Y-m-d H:i:s')]);
                 }
-
                 DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->d_operasional)
                     ->update([
                         'seen' => '0',
-                        'raw_data' => 'Pending',
+                        'raw_data' => 'Pending Cetak',
                         'updated_at' => date('Y-m-d H:i:s')]);
                 DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
-                        ->update([
-                            'seen' => '0',
-                            'raw_data' => 'Pending',
-                            'updated_at' => date('Y-m-d H:i:s')]);
+                    ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending Cetak',
+                        'updated_at' => date('Y-m-d H:i:s')]);
                 DB::table('notif_detail')->where('notif_id', $notif->id)
-                            ->where('user_id', '=', $dataPenyetujuan->d_utama)
-                            ->update([
-                                'seen' => '0',
-                                'raw_data' => 'Pending',
-                                'updated_at' => date('Y-m-d H:i:s')]);
+                    ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending Cetak',
+                        'updated_at' => date('Y-m-d H:i:s')]);
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil dipending'
@@ -1368,15 +1425,15 @@ class ProduksiController extends Controller
                 if(is_null($dataPenyetujuan->m_stok)) {
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
-                    ->update(['seen' => '1', 'raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                 } else {
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->m_stok)
-                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                 }
                 DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-                    ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                 DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
                     ->delete();
@@ -1395,7 +1452,7 @@ class ProduksiController extends Controller
                 if(is_null($dataPenyetujuan->m_stok)) {
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
-                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                 } else {
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->m_stok)
@@ -1403,10 +1460,10 @@ class ProduksiController extends Controller
                 }
                 DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                 DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
-                    ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                 DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->d_utama)
                     ->delete();
@@ -1422,21 +1479,21 @@ class ProduksiController extends Controller
                 if(is_null($dataPenyetujuan->m_stok)) {
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
-                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                 } else {
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->m_stok)
-                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                 }
                 DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                 DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
-                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    ->update(['seen' => '1','raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
                 DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->d_utama)
-                    ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
             } else {
                 return response()->json([
                     'status' => 'error',

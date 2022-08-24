@@ -51,7 +51,7 @@ class NotifikasiPenyetujuanListener
                     DB::table('notif_detail')->insert([
                         [   'notif_id' => $id_notif,
                             'user_id' => $d->user_id,
-                            'raw_data' => 'Penyetujuan',
+                            'raw_data' => 'Penyetujuan Cetak',
                         ],
                     ]);
                 }
@@ -88,7 +88,7 @@ class NotifikasiPenyetujuanListener
                     DB::table('notif_detail')->insert([
                         [   'notif_id' => $id_notif,
                             'user_id' => $d->user_id,
-                            'raw_data' => 'Penyetujuan',
+                            'raw_data' => 'Penyetujuan Cetak',
                         ],
                     ]);
                 }

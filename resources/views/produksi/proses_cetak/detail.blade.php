@@ -412,7 +412,8 @@
                                     @endif
                                     </p>
                                 </div>
-                                <div class="list-group-item flex-column align-items-start">
+                                @if ($data->buku_jadi == 'Wrapping')
+                                    <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Wrapping</h6>
                                     </div>
@@ -424,6 +425,8 @@
                                         @endif
                                     </p>
                                 </div>
+                                @endif
+
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Harga</h6>

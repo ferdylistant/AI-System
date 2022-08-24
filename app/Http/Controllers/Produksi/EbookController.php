@@ -354,6 +354,8 @@ class EbookController extends Controller
 
         if(!is_null($dataPenolakan)){
             $bool = $dataPenolakan->pending_sampai<=Carbon::now('Asia/Jakarta')->format('Y-m-d')?true:false;
+            $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                    ->where('form_id', $kode)->first();
             if($bool == true){
                 if($dataPenolakan->d_operasional_act == '2'){
                     DB::table('produksi_penyetujuan_order_ebook')
@@ -365,6 +367,18 @@ class EbookController extends Controller
                             'ket_pending' => NULL,
                             'pending_sampai' => NULL,
                         ]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->m_penerbitan)
+                        ->update(['seen' => '1', 'raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_operasional)
+                        ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
+                        ->delete();
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_utama)
+                        ->delete();
                 } elseif($dataPenolakan->d_keuangan_act == '2'){
                     DB::table('produksi_penyetujuan_order_ebook')
                         ->where('produksi_order_ebook_id', $kode)
@@ -375,6 +389,18 @@ class EbookController extends Controller
                             'ket_pending' => NULL,
                             'pending_sampai' => NULL,
                         ]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->m_penerbitan)
+                        ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_operasional)
+                        ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
+                        ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_utama)
+                        ->delete();
                 } elseif($dataPenolakan->d_utama_act == '2'){
                     DB::table('produksi_penyetujuan_order_ebook')
                         ->where('produksi_order_ebook_id', $kode)
@@ -385,6 +411,18 @@ class EbookController extends Controller
                             'ket_pending' => NULL,
                             'pending_sampai' => NULL,
                     ]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->m_penerbitan)
+                        ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_operasional)
+                        ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
+                        ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenolakan->d_utama)
+                        ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
                 }
             }
         }
@@ -553,7 +591,7 @@ class EbookController extends Controller
                 DB::table('notif_detail')->where('notif_id', $notif->id)
                     ->where('user_id', '=', $dataPenyetujuan->d_operasional)
                     ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
-                DB::table('notif_detail')->where('notif_id', $notif->id)
+                DB::table('notif_detail')
                     ->insert([
                         'notif_id' => $notif->id,
                         'user_id' => $dataPenyetujuan->d_keuangan,
@@ -575,7 +613,7 @@ class EbookController extends Controller
                     DB::table('notif_detail')->where('notif_id', $notif->id)
                         ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
                         ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
+                    DB::table('notif_detail')
                         ->insert([
                             'notif_id' => $notif->id,
                             'user_id' => $dataPenyetujuan->d_utama,
@@ -644,7 +682,7 @@ class EbookController extends Controller
                                     'updated_at' => date('Y-m-d H:i:s')]);
 
                     $idProsesEbook = Uuid::uuid4()->toString();
-                    DB::table('proses_produksi_cetak')->insert([
+                    DB::table('proses_ebook_multimedia')->insert([
                         'id' => $idProsesEbook,
                         'order_ebook_id' => $request->id,
                     ]);
@@ -728,6 +766,33 @@ class EbookController extends Controller
                         'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
                         'status_general' => 'Pending',
                     ]);
+                    $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                    ->where('form_id', $request->id)->first();
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')
+                    ->insert([
+                        'notif_id' => $notif->id,
+                        'user_id' => $dataPenyetujuan->d_keuangan,
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')
+                    ->insert([
+                        'notif_id' => $notif->id,
+                        'user_id' => $dataPenyetujuan->d_utama,
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil dipending'
@@ -757,6 +822,32 @@ class EbookController extends Controller
                         'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
                         'status_general' => 'Pending',
                     ]);
+                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                    ->where('form_id', $request->id)->first();
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                        ->update([
+                            'seen' => '0',
+                            'raw_data' => 'Pending',
+                            'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')
+                    ->insert([
+                        'notif_id' => $notif->id,
+                        'user_id' => $dataPenyetujuan->d_utama,
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil dipending'
@@ -782,6 +873,33 @@ class EbookController extends Controller
                         'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
                         'status_general' => 'Pending',
                     ]);
+                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                    ->where('form_id', $request->id)->first();
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil dipending'
@@ -856,6 +974,8 @@ class EbookController extends Controller
                     'message' => 'Mungkin data sudah di Approve'
                 ]);
             }
+            $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                    ->where('form_id', $id)->first();
             $dataUser = auth()->id();
             if($dataUser == $dataPenyetujuan->d_operasional) {
                 DB::table('produksi_penyetujuan_order_ebook')
@@ -866,6 +986,18 @@ class EbookController extends Controller
                         'pending_sampai' => NULL,
                         'status_general' => 'Proses'
                     ]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update(['seen' => '1', 'raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                    ->delete();
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                    ->delete();
                 return redirect()->to('/penerbitan/order-ebook/detail?kode='.$dataEbook->id.'&author='.$dataEbook->created_by);
             } elseif($dataUser == $dataPenyetujuan->d_keuangan) {
                 DB::table('produksi_penyetujuan_order_ebook')
@@ -876,6 +1008,18 @@ class EbookController extends Controller
                         'pending_sampai' => NULL,
                         'status_general' => 'Proses'
                     ]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                    ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                    ->delete();
                 return redirect()->to('/penerbitan/order-ebook/detail?kode='.$dataEbook->id.'&author='.$dataEbook->created_by);
             } elseif($dataUser == $dataPenyetujuan->d_utama) {
                 DB::table('produksi_penyetujuan_order_ebook')
@@ -886,6 +1030,18 @@ class EbookController extends Controller
                         'pending_sampai' => NULL,
                         'status_general' => 'Proses'
                     ]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                    ->update(['seen' => '1','raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                    ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
                 return redirect()->to('/penerbitan/order-ebook/detail?kode='.$dataEbook->id.'&author='.$dataEbook->created_by);
             }
             return response()->json([

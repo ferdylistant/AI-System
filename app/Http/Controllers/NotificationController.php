@@ -334,7 +334,7 @@ class NotificationController extends Controller {
 
             if(!$notif->isEmpty()) {
                 foreach($notif as $n) {
-                    if ($n->raw_data == 'Disetujui') {
+                    if ($n->raw_data == 'Disetujui Cetak') {
                         if (is_null($n->m_stok)){
                             if (auth()->id() == $n->d_operasional){
                             $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
@@ -386,7 +386,7 @@ class NotificationController extends Controller {
                         </a>';
                         }
 
-                    } elseif ($n->raw_data == 'Penyetujuan') {
+                    } elseif ($n->raw_data == 'Penyetujuan Cetak') {
                         $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
                         $html .= '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
                             <div class="dropdown-item-icon bg-primary text-white">
@@ -397,7 +397,7 @@ class NotificationController extends Controller {
                                 <div class="time text-primary">'.$craetedAt.'</div>
                             </div>
                         </a>';
-                    } elseif ($n->raw_data == 'Pending') {
+                    } elseif ($n->raw_data == 'Pending Cetak') {
                         if ($n->d_operasional_act == '2'){
                             $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_update, 'Asia/Jakarta')->diffForHumans();
                         $html .= '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
@@ -432,10 +432,10 @@ class NotificationController extends Controller {
                             </div>
                         </a>';
                         }
-                    } elseif ($n->raw_data == 'Selesai') {
+                    } elseif ($n->raw_data == 'Selesai Cetak') {
                         $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_update, 'Asia/Jakarta')->diffForHumans();
                         $html .= '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
-                            <div class="dropdown-item-icon bg-primary text-white">
+                            <div class="dropdown-item-icon bg-info text-white">
                                 <i class="fas fa-calendar-check"></i>
                             </div>
                             <div class="dropdown-item-desc">
@@ -455,21 +455,16 @@ class NotificationController extends Controller {
                         ->where('nd.user_id', auth()->id())
                         ->where('nd.seen', '0');
                 })
-                ->join('produksi_order_cetak as po', function($j) {
+                ->join('produksi_order_ebook as po', function($j) {
                     $j->on('n.form_id', '=', 'po.id')
                         ->whereNull('deleted_at');
                 })
-                ->join('produksi_penyetujuan_order_cetak as ppo', function($j) {
-                    $j->on('po.id', '=', 'ppo.produksi_order_cetak_id');
+                ->join('produksi_penyetujuan_order_ebook as ppo', function($j) {
+                    $j->on('po.id', '=', 'ppo.produksi_order_ebook_id');
                 })
-                ->where(function($q) {
-                    $q->where('n.type', 'Persetujuan Order Buku Baru')
-                        ->orWhere('n.type', 'Persetujuan Order Cetak Ulang Revisi')
-                        ->orWhere('n.type', 'Persetujuan Order Cetak Ulang');
-                })
-                ->where('n.permission_id', '09179170e6e643eca66b282e2ffae1f8')
+                ->where('n.permission_id', '171e6210418440a8bf4d689841d0f32c')
                 ->whereNull('n.expired')
-                ->select(DB::raw('nd.created_at as tgl_notif, nd.updated_at as tgl_update, nd.raw_data, po.id, po.created_by, po.kode_order, po.judul_buku, ppo.m_penerbitan, ppo.m_stok, ppo.d_operasional, ppo.d_keuangan, ppo.d_utama, ppo.d_operasional_act, ppo.d_keuangan_act, ppo.d_utama_act, ppo.pending_sampai'))
+                ->select(DB::raw('nd.created_at as tgl_notif, nd.updated_at as tgl_update, nd.raw_data, po.id, po.created_by, po.kode_order, po.judul_buku, ppo.m_penerbitan, ppo.d_operasional, ppo.d_keuangan, ppo.d_utama, ppo.d_operasional_act, ppo.d_keuangan_act, ppo.d_utama_act, ppo.pending_sampai'))
                 ->get();
 
             if(!$notif->isEmpty()) {
@@ -477,35 +472,35 @@ class NotificationController extends Controller {
                     if ($n->raw_data == 'Disetujui') {
                         if (auth()->id() == $n->d_operasional){
                             $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
-                            $html .= '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                            $html .= '<a href="'.url('penerbitan/order-ebook/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
                                 <div class="dropdown-item-icon bg-success text-white">
                                     <i class="fas fa-check"></i>
                                 </div>
                                 <div class="dropdown-item-desc">
-                                    Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" telah disetujui oleh Manajer Penerbitan. Selanjutnya, silahkan Anda konfirmasi penyetujuan penerbitan order e-book.
+                                    Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul e-book "<strong>'.$n->judul_buku.'</strong>" telah disetujui oleh Manajer Penerbitan. Selanjutnya, silahkan Anda konfirmasi penyetujuan penerbitan order e-book.
                                     <div class="time text-primary">'.$craetedAt.'</div>
                                 </div>
                             </a>';
                         }
                         if (auth()->id() == $n->d_keuangan){
                             $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
-                            $html .= '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                            $html .= '<a href="'.url('penerbitan/order-ebook/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
                                 <div class="dropdown-item-icon bg-success text-white">
                                     <i class="fas fa-check"></i>
                                 </div>
                                 <div class="dropdown-item-desc">
-                                    Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" telah disetujui oleh Direktur Operasional. Selanjutnya, silahkan Anda konfirmasi penyetujuan penerbitan order cetak.
+                                    Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul e-book "<strong>'.$n->judul_buku.'</strong>" telah disetujui oleh Direktur Operasional. Selanjutnya, silahkan Anda konfirmasi penyetujuan penerbitan order ebook.
                                     <div class="time text-primary">'.$craetedAt.'</div>
                                 </div>
                             </a>';
                         } elseif (auth()->id() == $n->d_utama){
                             $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
-                        $html .= '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                        $html .= '<a href="'.url('penerbitan/order-ebook/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
                             <div class="dropdown-item-icon bg-success text-white">
                                 <i class="fas fa-check"></i>
                             </div>
                             <div class="dropdown-item-desc">
-                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" telah disetujui oleh Direktur Keuangan. Selanjutnya, silahkan Anda konfirmasi penyetujuan penerbitan order cetak.
+                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul e-book "<strong>'.$n->judul_buku.'</strong>" telah disetujui oleh Direktur Keuangan. Selanjutnya, silahkan Anda konfirmasi penyetujuan penerbitan order e-book.
                                 <div class="time text-primary">'.$craetedAt.'</div>
                             </div>
                         </a>';
@@ -513,58 +508,58 @@ class NotificationController extends Controller {
 
                     } elseif ($n->raw_data == 'Penyetujuan') {
                         $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
-                        $html .= '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                        $html .= '<a href="'.url('penerbitan/order-ebook/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
                             <div class="dropdown-item-icon bg-primary text-white">
                                 <i class="fas fa-file-alt"></i>
                             </div>
                             <div class="dropdown-item-desc">
-                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" perlu Anda tanggapi.
+                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul e-book "<strong>'.$n->judul_buku.'</strong>" perlu Anda tanggapi.
                                 <div class="time text-primary">'.$craetedAt.'</div>
                             </div>
                         </a>';
                     } elseif ($n->raw_data == 'Pending') {
                         if ($n->d_operasional_act == '2'){
                             $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_update, 'Asia/Jakarta')->diffForHumans();
-                        $html .= '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                        $html .= '<a href="'.url('penerbitan/order-ebook/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
                             <div class="dropdown-item-icon bg-danger text-white">
                                 <i class="fas fa-hourglass-start"></i>
                             </div>
                             <div class="dropdown-item-desc">
-                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" dipending oleh Direktur Operasional, sampai '.Carbon::parse($n->pending_sampai)->translatedFormat('d F Y').'
+                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul e-book "<strong>'.$n->judul_buku.'</strong>" dipending oleh Direktur Operasional, sampai '.Carbon::parse($n->pending_sampai)->translatedFormat('d F Y').'
                                 <div class="time text-primary">'.$craetedAt.'</div>
                             </div>
                         </a>';
                         } elseif ($n->d_keuangan_act == '2') {
                             $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_update, 'Asia/Jakarta')->diffForHumans();
-                        $html .= '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                        $html .= '<a href="'.url('penerbitan/order-ebook/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
                             <div class="dropdown-item-icon bg-danger text-white">
                                 <i class="fas fa-hourglass-start"></i>
                             </div>
                             <div class="dropdown-item-desc">
-                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" dipending oleh Direktur Keuangan, sampai '.Carbon::parse($n->pending_sampai)->translatedFormat('d F Y').'
+                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul e-book "<strong>'.$n->judul_buku.'</strong>" dipending oleh Direktur Keuangan, sampai '.Carbon::parse($n->pending_sampai)->translatedFormat('d F Y').'
                                 <div class="time text-primary">'.$craetedAt.'</div>
                             </div>
                         </a>';
                         } elseif ($n->d_utama_act == '2') {
                             $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_update, 'Asia/Jakarta')->diffForHumans();
-                        $html .= '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                        $html .= '<a href="'.url('penerbitan/order-ebook/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
                             <div class="dropdown-item-icon bg-danger text-white">
                                 <i class="fas fa-hourglass-start"></i>
                             </div>
                             <div class="dropdown-item-desc">
-                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" dipending oleh Direktur Utama, sampai '.Carbon::parse($n->pending_sampai)->translatedFormat('d F Y').'
+                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul e-book "<strong>'.$n->judul_buku.'</strong>" dipending oleh Direktur Utama, sampai '.Carbon::parse($n->pending_sampai)->translatedFormat('d F Y').'
                                 <div class="time text-primary">'.$craetedAt.'</div>
                             </div>
                         </a>';
                         }
                     } elseif ($n->raw_data == 'Selesai') {
                         $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_update, 'Asia/Jakarta')->diffForHumans();
-                        $html .= '<a href="'.url('penerbitan/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                        $html .= '<a href="'.url('penerbitan/order-ebook/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
                             <div class="dropdown-item-icon bg-primary text-white">
                                 <i class="fas fa-calendar-check"></i>
                             </div>
                             <div class="dropdown-item-desc">
-                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" telah selesai disetujui, selanjutnya akan ke tahap produksi.
+                                Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul e-book "<strong>'.$n->judul_buku.'</strong>" telah selesai disetujui, selanjutnya akan ke tahap produksi upload multimedia e-book.
                                 <div class="time text-primary">'.$craetedAt.'</div>
                             </div>
                         </a>';
@@ -621,7 +616,7 @@ class NotificationController extends Controller {
                     $j->on('n.form_id', '=', 'pem.id');
                 })
                 ->join('produksi_order_ebook as po', function($j) {
-                    $j->on('po.id','=', 'pem.order_cetak_id')
+                    $j->on('po.id','=', 'pem.order_ebook_id')
                     ->whereNull('deleted_at');
                 })
                 ->where(function($q) {

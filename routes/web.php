@@ -1,13 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ManWeb\UsersController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ManWeb\StrukturAoController;
-use App\Http\Controllers\ApiController;
-use App\Http\Controllers\Produksi\{ProduksiController, EbookController,ProsesProduksiController};
+use App\Http\Controllers\Produksi\{ProduksiController, EbookController,ProsesProduksiController,ProsesEbookController};
 use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController, ImprintController, TimelineController};
 
 /*
@@ -94,9 +94,13 @@ Route::middleware(['auth'])->group(function() {
     });
     //Produksi
     Route::prefix('produksi')->group(function () {
+        //Proses Produksi Cetak
         Route::get('/proses/cetak', [ProsesProduksiController::class, 'index'])->name('proses.cetak.view');
         Route::get('/proses/cetak/detail', [ProsesProduksiController::class, 'detailProduksi'])->name('proses.cetak.detail');
         Route::match(['get', 'post'], '/proses/cetak/edit', [ProsesProduksiController::class,'updateProduksi'])->name('proses.cetak.update');
+
+        //Proses Produksi E-book Multimedia
+        Route::get('/proses/ebook-multimedia', [ProsesEbookController::class,'index'])->name('proses.ebook.view');
     });
 
 });
