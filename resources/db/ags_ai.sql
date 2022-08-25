@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 24 Agu 2022 pada 11.31
+-- Waktu pembuatan: 25 Agu 2022 pada 11.32
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -1060,6 +1060,7 @@ INSERT INTO `produksi_penyetujuan_order_ebook` (`id`, `produksi_order_ebook_id`,
 CREATE TABLE `proses_ebook_multimedia` (
   `id` char(36) NOT NULL,
   `order_ebook_id` char(36) NOT NULL,
+  `bukti_upload` longtext COMMENT 'Link Bukti Upload',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -1070,8 +1071,8 @@ CREATE TABLE `proses_ebook_multimedia` (
 -- Dumping data untuk tabel `proses_ebook_multimedia`
 --
 
-INSERT INTO `proses_ebook_multimedia` (`id`, `order_ebook_id`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
-('fb9350a6-53d2-4d89-9745-742f7b7a72cb', 'ea4bcd48-b9b1-4163-8d3e-f41f99eeaf4b', '2022-08-24 06:20:09', NULL, NULL, NULL);
+INSERT INTO `proses_ebook_multimedia` (`id`, `order_ebook_id`, `bukti_upload`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
+('fb9350a6-53d2-4d89-9745-742f7b7a72cb', 'ea4bcd48-b9b1-4163-8d3e-f41f99eeaf4b', NULL, '2022-08-24 06:20:09', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
