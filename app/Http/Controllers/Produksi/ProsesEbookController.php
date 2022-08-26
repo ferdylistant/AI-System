@@ -137,11 +137,12 @@ class ProsesEbookController extends Controller
             'data' => $data,
         ]);
     }
-    public function updateProduksi(Request $request) {
+    public function updateProduksi(Request $request)
+    {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $request->validate([
-                    'bukti_upload.*' => 'required',
+                    'bukti_upload.*' => 'url',
                 ], [
                     'required' => 'This field is requried'
                 ]);
@@ -156,7 +157,7 @@ class ProsesEbookController extends Controller
                 ]);
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'Data e-book berhasil diubah',
+                    'message' => 'Data bukti upload e-book berhasil diposting',
                     'route' => route('ebook.view')
                 ]);
             }
@@ -164,32 +165,35 @@ class ProsesEbookController extends Controller
         $kodeOr = $request->get('kode');
         $track = $request->get('track');
         $data = DB::table('proses_ebook_multimedia as pem')->join('produksi_order_ebook as poe', 'poe.id', '=', 'pem.order_ebook_id')
-                    ->where('pem.id', $track)
-                    ->where('pem.order_ebook_id', $kodeOr)
-                    ->select(
-                        'pem.*',
-                        'poe.kode_order',
-                        'poe.tipe_order',
-                        'poe.platform_digital',
-                        'poe.status_buku',
-                        'poe.created_at as tanggal_order',
-                        'poe.tgl_upload',
-                        'poe.judul_buku',
-                        'poe.sub_judul',
-                        'poe.penulis',
-                        'poe.penerbit',
-                        'poe.imprint',
-                        'poe.edisi_cetakan',
-                        'poe.tahun_terbit',
-                        'poe.kelompok_buku',
-                        'poe.jumlah_halaman',
-                        'poe.spp',
-                        'poe.keterangan',
-                        )
-                    ->first();
+            ->where('pem.id', $track)
+            ->where('pem.order_ebook_id', $kodeOr)
+            ->select(
+                'pem.*',
+                'poe.kode_order',
+                'poe.tipe_order',
+                'poe.platform_digital',
+                'poe.status_buku',
+                'poe.created_at as tanggal_order',
+                'poe.tgl_upload',
+                'poe.judul_buku',
+                'poe.sub_judul',
+                'poe.penulis',
+                'poe.penerbit',
+                'poe.imprint',
+                'poe.edisi_cetakan',
+                'poe.tahun_terbit',
+                'poe.kelompok_buku',
+                'poe.jumlah_halaman',
+                'poe.spp',
+                'poe.keterangan',
+                )
+            ->first();
+        $platformDigital = array(['name'=>'Moco'],['name'=>'Google Book'],['name'=>'Gramedia'],['name'=>'Esentral'],
+        ['name'=>'Bahanaflik'],['name'=> 'Indopustaka']);
         return view('produksi.proses_ebook_multimedia.update', [
             'title' => 'Update Bukti Upload E-book Multimedia',
             'data' => $data,
+            'platformDigital' => $platformDigital
         ]);
     }
 }

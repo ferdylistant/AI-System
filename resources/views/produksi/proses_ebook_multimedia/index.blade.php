@@ -28,8 +28,9 @@
             </div>
         </div>
     </div>
-</section>
 
+</section>
+@include('produksi.proses_ebook_multimedia.modal_upload_link')
 @endsection
 
 @section('jsRequired')
@@ -43,7 +44,7 @@
 @endsection
 
 @section('jsNeeded')
-
+{{-- <script src="{{url('js/modal_upload_link.js')}}"></script> --}}
 <script>
     $(function() {
          $('#tb_prosesEbook').DataTable({
@@ -77,4 +78,5 @@
         });
     })
 </script>
+
 @endsection

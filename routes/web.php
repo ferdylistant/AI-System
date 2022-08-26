@@ -102,6 +102,7 @@ Route::middleware(['auth'])->group(function() {
         //Proses Produksi E-book Multimedia
         Route::get('/proses/ebook-multimedia', [ProsesEbookController::class,'index'])->name('proses.ebook.view');
         Route::get('/proses/ebook-multimedia/detail', [ProsesEbookController::class,'detailProduksi'])->name('proses.ebook.detail');
+        Route::match(['get', 'post'], '/proses/ebook-multimedia/edit', [ProsesEbookController::class,'updateProduksi'])->name('proses.ebook.update');
     });
 
 });

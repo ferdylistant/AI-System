@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 use Yajra\DataTables\DataTables;
+use Yajra\DataTables\Html\Column;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
