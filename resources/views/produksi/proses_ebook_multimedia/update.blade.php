@@ -178,6 +178,7 @@
                                         </button>
                                     @endforeach
                                 </p>
+                                <input type="hidden" name="id" value="{{$data->id}}">
                                 @foreach (json_decode($data->platform_digital) as $plat_digital)
                                 <div class="collapse" id="{{Illuminate\Support\Str::slug($plat_digital.'link','-')}}">
                                     <label><span class="text-danger fas fa-link"></span>&nbsp;Bukti link upload {{$plat_digital}}: </label>

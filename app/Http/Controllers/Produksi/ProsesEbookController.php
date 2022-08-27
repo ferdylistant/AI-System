@@ -60,11 +60,12 @@ class ProsesEbookController extends Controller
                         })
                         ->addColumn('bukti_upload', function($data)  {
                             if(is_null($data->bukti_upload)){
-                                $res ='-';
+                                $convert ='-';
                             } else{
-                                $res = $data->bukti_upload;
+                                $convert = json_decode(urldecode($data->bukti_upload));
+                                // $convert = '<a href="www.kreatic.id"><i class="fas fa-circle"></i>&nbsp;TITIT</a>';
                             }
-                            return $res;
+                            return $convert;
                         })
                         ->addColumn('action', function($data) use ($update) {
                             $btn = '<a href="'.url('produksi/proses/ebook-multimedia/detail?kode='.$data->order_ebook_id.'&track='.$data->id).'"
@@ -141,13 +142,14 @@ class ProsesEbookController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
-                $request->validate([
-                    'bukti_upload.*' => 'url',
-                ], [
-                    'required' => 'This field is requried'
-                ]);
-                foreach ($request->bukti_upload as $key => $value) {
-                    $buktiUpload[$key] = $value;
+                // $request->validate([
+                //     'bukti_upload.*' => 'regex:/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/',
+                // ], [
+                //     'required' => 'This field is requried'
+                // ]);
+                foreach ($request->bukti_upload as $value) {
+                    if(is_null($value)) continue;
+                    $buktiUpload[] = urlencode($value);
                 }
                 DB::table('proses_ebook_multimedia')
                     ->where('id', $request->id)
@@ -158,7 +160,7 @@ class ProsesEbookController extends Controller
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data bukti upload e-book berhasil diposting',
-                    'route' => route('ebook.view')
+                    'route' => route('proses.ebook.view')
                 ]);
             }
         }

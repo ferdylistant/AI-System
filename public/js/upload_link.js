@@ -1,3 +1,7 @@
+function resetFrom(form) {
+    form.trigger('reset');
+        $('[name="bukti_upload[]"]').val('').trigger('change');
+    }
 function ajaxUpProsesProduksiEbook(data) {
     let el = data.get(0);
     console.log(el);
@@ -12,6 +16,7 @@ function ajaxUpProsesProduksiEbook(data) {
                 addClass('btn-progress')
         },
         success: function(result) {
+            // console.log(result.message);
             resetFrom(data);
             notifToast(result.status, result.message);
             location.href = result.route;
