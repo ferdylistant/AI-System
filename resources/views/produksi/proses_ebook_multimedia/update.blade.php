@@ -179,13 +179,24 @@
                                     @endforeach
                                 </p>
                                 <input type="hidden" name="id" value="{{$data->id}}">
-                                @foreach (json_decode($data->platform_digital) as $plat_digital)
-                                <div class="collapse" id="{{Illuminate\Support\Str::slug($plat_digital.'link','-')}}">
-                                    <label><span class="text-danger fas fa-link"></span>&nbsp;Bukti link upload {{$plat_digital}}: </label>
-                                      <input type="url" class="form-control mb-4" name="bukti_upload[]" placeholder="https://{{Illuminate\Support\Str::snake($plat_digital)}}.example/">
-                                </div>
+                                @foreach (json_decode($data->platform_digital) as $i => $plat_digital)
+                                    @if (!is_null($data->bukti_upload))
+                                        @foreach (json_decode($data->bukti_upload) as $j => $dt_bukti)
+                                            @if ($i == $j)
+                                                <div class="collapse" id="{{Illuminate\Support\Str::slug($plat_digital.'link','-')}}">
+                                                    <label><span class="text-danger fas fa-link"></span>&nbsp;Bukti link upload {{$plat_digital}}: </label>
+                                                    <input type="url" class="form-control mb-4" name="bukti_upload[]"
+                                                    value="{{is_null($dt_bukti)?'':$dt_bukti}}"  placeholder="https://{{Illuminate\Support\Str::snake($plat_digital)}}.example/">
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        <div class="collapse" id="{{Illuminate\Support\Str::slug($plat_digital.'link','-')}}">
+                                            <label><span class="text-danger fas fa-link"></span>&nbsp;Bukti link upload {{$plat_digital}}: </label>
+                                            <input type="url" class="form-control mb-4" id="bukti_upload[]" name="bukti_upload[]" placeholder="https://{{Illuminate\Support\Str::snake($plat_digital)}}.example/">
+                                        </div>
+                                    @endif
                                 @endforeach
-
                             </div>
                         </div>
                     </div>

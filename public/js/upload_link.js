@@ -1,3 +1,14 @@
+$(document).ready(function() {
+    $('button[type="submit"]').prop('disabled', true);
+    $('[id^="bukti_upload"]').keyup(function() {
+        if ( $('[id^="bukti_upload"]').val('')){
+            $('button[type="submit"]').prop('disabled', true);
+        } else {
+
+            $('button[type="submit"]').prop('disabled', false);
+        }
+      });
+});
 function resetFrom(form) {
     form.trigger('reset');
         $('[name="bukti_upload[]"]').val('').trigger('change');
@@ -17,9 +28,14 @@ function ajaxUpProsesProduksiEbook(data) {
         },
         success: function(result) {
             // console.log(result.message);
-            resetFrom(data);
-            notifToast(result.status, result.message);
-            location.href = result.route;
+            if(result.status == 'error') {
+                resetFrom(data);
+                notifToast(result.status, result.message);
+            } else {
+                resetFrom(data);
+                notifToast(result.status, result.message);
+                location.href = result.route;
+            }
         },
         error: function(err) {
             console.log(err.responseJSON)

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Produksi;
 
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
 class ProsesEbookController extends Controller
@@ -59,11 +61,17 @@ class ProsesEbookController extends Controller
                             return Carbon::parse($data->tgl_upload)->translatedFormat('d F Y');
                         })
                         ->addColumn('bukti_upload', function($data)  {
+                            $convert = [];
                             if(is_null($data->bukti_upload)){
                                 $convert ='-';
                             } else{
-                                $convert = json_decode(urldecode($data->bukti_upload));
-                                // $convert = '<a href="www.kreatic.id"><i class="fas fa-circle"></i>&nbsp;TITIT</a>';
+                                $bukti = Arr::whereNotNull(json_decode(urldecode($data->bukti_upload)));
+                                foreach ($bukti as $i => $bu){
+                                    $convert = '<p class="mb-1 text-monospace">
+                                    <i class="fas fa-check text-dark"></i>
+                                    <span>'.$bu.'</span>
+                                </p>';
+                                }
                             }
                             return $convert;
                         })
@@ -142,14 +150,17 @@ class ProsesEbookController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
-                // $request->validate([
-                //     'bukti_upload.*' => 'regex:/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/',
-                // ], [
-                //     'required' => 'This field is requried'
+                // $validator = Validator::make($request->all(), [
+                //     'bukti_upload.*' => 'required_without_all|distinct',
                 // ]);
+                // if ($validator->fails()) {
+                //     return response()->json([
+                //         'status' => 'error',
+                //          $validator->errors()
+                //     ]);
+                // }
                 foreach ($request->bukti_upload as $value) {
-                    if(is_null($value)) continue;
-                    $buktiUpload[] = urlencode($value);
+                    $buktiUpload[] = $value;
                 }
                 DB::table('proses_ebook_multimedia')
                     ->where('id', $request->id)
