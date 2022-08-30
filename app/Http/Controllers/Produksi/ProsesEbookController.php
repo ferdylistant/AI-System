@@ -7,7 +7,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
 class ProsesEbookController extends Controller
@@ -61,16 +60,18 @@ class ProsesEbookController extends Controller
                             return Carbon::parse($data->tgl_upload)->translatedFormat('d F Y');
                         })
                         ->addColumn('bukti_upload', function($data)  {
-                            $convert = [];
+                            $convert = '';
                             if(is_null($data->bukti_upload)){
-                                $convert ='-';
+                                $convert .='<div class="text-center text-small text-muted font-600-bold">-Belum upload-</div>';
                             } else{
-                                $bukti = Arr::whereNotNull(json_decode(urldecode($data->bukti_upload)));
-                                foreach ($bukti as $i => $bu){
-                                    $convert = '<p class="mb-1 text-monospace">
-                                    <i class="fas fa-check text-dark"></i>
-                                    <span>'.$bu.'</span>
-                                </p>';
+                                foreach (json_decode($data->platform_digital) as $i => $pDigi) {
+                                    foreach (Arr::whereNotNull(json_decode($data->bukti_upload)) as $j => $bu) {
+                                        if ($i == $j) {
+                                            $convert .= '<div class="text-small font-600-bold">
+                                            <a href="'.$bu.'" target="_blank" class="d-block"><i class="fas fa-link"></i>&nbsp;'.$pDigi.'</a></div>';
+                                        }
+                                    }
+
                                 }
                             }
                             return $convert;
@@ -150,15 +151,6 @@ class ProsesEbookController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
-                // $validator = Validator::make($request->all(), [
-                //     'bukti_upload.*' => 'required_without_all|distinct',
-                // ]);
-                // if ($validator->fails()) {
-                //     return response()->json([
-                //         'status' => 'error',
-                //          $validator->errors()
-                //     ]);
-                // }
                 foreach ($request->bukti_upload as $value) {
                     $buktiUpload[] = $value;
                 }

@@ -301,19 +301,61 @@
                                             @if (!is_null($data->tgl_upload))
                                                 @if (Gate::allows('do_decline', 'persetujuan-pending'))
                                                     @if ($prod_penyetujuan->status_general == 'Proses')
-                                                    <a href="javascript:void(0)" id="btn-edit-tgl-upload" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}</a>
-                                                    <div class="input-group" id="edit-tgl-upload" style="display: none;">
-                                                        <div class="input-group-prepend">
-                                                            <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
-                                                        </div>
-                                                        <input type="hidden" id="historyTgl" value="{{$data->tgl_upload}}">
-                                                        <input type="text" class="form-control datepicker" id="upTglUpload" value="{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
-                                                        <button type="button" class="close" aria-label="Close">
+                                                        @if (auth()->id() == $prod_penyetujuan->d_operasional)
+                                                            @if ($prod_penyetujuan->d_operasional_act == '1')
+                                                                <a href="javascript:void(0)" id="btn-edit-tgl-upload" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}</a>
+                                                                <div class="input-group" id="edit-tgl-upload" style="display: none;">
+                                                                    <div class="input-group-prepend">
+                                                                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                                                    </div>
+                                                                    <input type="hidden" id="historyTgl" value="{{$data->tgl_upload}}">
+                                                                    <input type="text" class="form-control datepicker" id="upTglUpload" value="{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
+                                                                    <button type="button" class="close" aria-label="Close">
 
-                                                            <span aria-hidden="true">&times;</span>
+                                                                        <span aria-hidden="true">&times;</span>
 
-                                                        </button>
-                                                    </div>
+                                                                    </button>
+                                                                </div>
+                                                            @else
+                                                            {{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}
+                                                            @endif
+                                                        @elseif (auth()->id() == $prod_penyetujuan->d_keuangan)
+                                                            @if ($prod_penyetujuan->d_keuangan_act == '1')
+                                                                <a href="javascript:void(0)" id="btn-edit-tgl-upload" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}</a>
+                                                                <div class="input-group" id="edit-tgl-upload" style="display: none;">
+                                                                    <div class="input-group-prepend">
+                                                                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                                                    </div>
+                                                                    <input type="hidden" id="historyTgl" value="{{$data->tgl_upload}}">
+                                                                    <input type="text" class="form-control datepicker" id="upTglUpload" value="{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
+                                                                    <button type="button" class="close" aria-label="Close">
+
+                                                                        <span aria-hidden="true">&times;</span>
+
+                                                                    </button>
+                                                                </div>
+                                                            @else
+                                                            {{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}
+                                                            @endif
+                                                        @elseif (auth()->id() == $prod_penyetujuan->d_utama)
+                                                            @if ($prod_penyetujuan->d_utama_act == '1')
+                                                                <a href="javascript:void(0)" id="btn-edit-tgl-upload" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}</a>
+                                                                <div class="input-group" id="edit-tgl-upload" style="display: none;">
+                                                                    <div class="input-group-prepend">
+                                                                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                                                    </div>
+                                                                    <input type="hidden" id="historyTgl" value="{{$data->tgl_upload}}">
+                                                                    <input type="text" class="form-control datepicker" id="upTglUpload" value="{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
+                                                                    <button type="button" class="close" aria-label="Close">
+
+                                                                        <span aria-hidden="true">&times;</span>
+
+                                                                    </button>
+                                                                </div>
+                                                            @else
+                                                            {{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}
+                                                            @endif
+                                                        @endif
                                                     @else
                                                     {{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}
                                                     @endif

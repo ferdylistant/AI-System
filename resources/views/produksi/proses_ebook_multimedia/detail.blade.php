@@ -295,7 +295,38 @@
                         </div>
                         <div class="row">
                             <div class="col-12 col-md-12">
-                                <div class="list-group-item flex-column align-items-start">
+                                <ul class="nav nav-tabs" id="myTab2" role="tablist">
+                                    @foreach (json_decode($data->platform_digital) as $i => $pDigi)
+                                        <li class="nav-item">
+                                        <a class="nav-link {{$i==0?'active show':''}}" id="{{Illuminate\Support\Str::slug($pDigi.'tab','-')}}" data-toggle="tab" href="#{{Illuminate\Support\Str::slug($pDigi.'link','-')}}" role="tab" aria-controls="{{Illuminate\Support\Str::slug($pDigi,'-')}}" aria-selected="true">{{$pDigi}}</a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                                <div class="tab-content tab-bordered" id="myTab3Content">
+                                    @foreach (json_decode($data->platform_digital) as $i => $pDigital)
+                                        @if (is_null($data->bukti_upload))
+                                        <div class="tab-pane fade {{$i==0?'active show':''}}" id="{{Illuminate\Support\Str::slug($pDigital.'link','-')}}" role="tabpanel" aria-labelledby="{{Illuminate\Support\Str::slug($pDigital.'tab','-')}}">
+                                            <div class="text-muted text-small font-600-bold">-Bukti upload link platform {{$pDigital}} belum ditambahkan-</div>
+                                        </div>
+                                        @else
+                                            @foreach (json_decode($data->bukti_upload) as $j => $bu)
+                                                @if ($i == $j)
+                                                    @if ($bu == null)
+                                                    <div class="tab-pane fade {{$i==0?'active show':''}}" id="{{Illuminate\Support\Str::slug($pDigital.'link','-')}}" role="tabpanel" aria-labelledby="{{Illuminate\Support\Str::slug($pDigital.'tab','-')}}">
+                                                        <div class="text-muted text-small font-600-bold">-Bukti upload link platform {{$pDigital}} belum ditambahkan-</div>
+                                                    </div>
+                                                    @else
+                                                    <div class="tab-pane fade {{$i==0?'active show':''}}" id="{{Illuminate\Support\Str::slug($pDigital.'link','-')}}" role="tabpanel" aria-labelledby="{{Illuminate\Support\Str::slug($pDigital.'tab','-')}}">
+                                                        <a href="{{$bu}}" target="_blank" class="d-block"><i class="fas fa-link"></i>&nbsp;{{$bu}}</a>
+                                                    </div>
+                                                    @endif
+                                                @endif
+                                            @endforeach
+                                        @endif
+
+                                    @endforeach
+                                </div>
+                                {{-- <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Bukti Link Upload Platform E-Book</h6>
                                     </div>
@@ -303,18 +334,20 @@
                                         @if (is_null(json_decode($data->bukti_upload)))
                                             <div class="text-muted text-center text-small font-600-bold">Bukti upload link belum ditambahkan..</div>
                                         @else
-                                        @foreach (json_decode($data->bukti_upload) as $bu)
-                                            @foreach (json_decode($data->platform_digital) as $pDigi)
-                                                <div class="text-small font-600-bold">
-                                                    <a href="{{$bu}}" class="d-block"><i class="fas fa-circle"></i>&nbsp;{{$pDigi}}</a>
-                                                </div>
+                                        @foreach (json_decode($data->platform_digital) as $i => $pDigi)
+                                            @foreach (Illuminate\Support\Arr::whereNotNull(json_decode($data->bukti_upload)) as $j => $bu)
+                                                @if ($i == $j)
+                                                    <div class="text-small font-600-bold">
+                                                        <a href="{{$bu}}" target="_blank" class="d-block"><i class="fas fa-link"></i>&nbsp;{{$pDigi}}</a>
+                                                    </div>
+                                                @endif
                                             @endforeach
 
                                         @endforeach
 
                                         @endif
                                     </p>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>

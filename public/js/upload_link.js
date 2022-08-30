@@ -1,13 +1,12 @@
 $(document).ready(function() {
-    $('button[type="submit"]').prop('disabled', true);
-    $('[id^="bukti_upload"]').keyup(function() {
-        if ( $('[id^="bukti_upload"]').val('')){
-            $('button[type="submit"]').prop('disabled', true);
-        } else {
+    $('[id^="bukti_upload"]').on('keyup', function() {
+        let empty = false;
 
-            $('button[type="submit"]').prop('disabled', false);
-        }
-      });
+        if ($(this).val().length == 0)
+          $('button[type="submit"]').attr('disabled', 'disabled');
+        else
+          $('button[type="submit"]').attr('disabled', false);
+    });
 });
 function resetFrom(form) {
     form.trigger('reset');
@@ -76,3 +75,4 @@ $('#fup_prosesEbook').on('submit', function(e) {
         notifToast('error', 'Periksa kembali form Anda!');
     }
 })
+
