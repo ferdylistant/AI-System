@@ -69,7 +69,7 @@
 
             <footer class="main-footer">
                 <div class="footer-left">
-                Copyright &copy; 2018 <div class="bullet"></div> Design By <a href="https://getstisla.com/">Stisla</a>
+                Copyright &copy; {{date("Y")}} <div class="bullet"></div> Andi Global Soft
                 </div>
                 <div class="footer-right">
                 2.3.0
@@ -215,7 +215,8 @@
                     }
                 },
                 error: function(err) {
-                    console.log(err)
+                    $('#containerNotf').children('div').children().eq(1).append(err);
+                    // console.log(err)
                 }
             })
         })

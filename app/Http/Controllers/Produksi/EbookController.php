@@ -168,6 +168,10 @@ class EbookController extends Controller
                     ->first();
                 $idO = Uuid::uuid4()->toString();
                 $getId = $this->getOrderId($tipeOrder);
+                // return response()->json([
+                //     'status' => 'success',
+                //     'message' => 'Data berhasil ditambahkan',
+                //     'data'=>$getId]);
                 DB::table('produksi_order_ebook')->insert([
                     'id' => $idO,
                     'kode_order' => $getId,
@@ -922,31 +926,31 @@ class EbookController extends Controller
         $year = date('y');
         switch($tipeOrder) {
             case 1: $lastId = DB::table('produksi_order_ebook')
-                                ->where('kode_order', 'like', $year.'-%')
+                                ->where('kode_order', 'like', 'E'.$year.'-%')
                                 ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 1000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 2999")
                                 ->orderBy('kode_order', 'desc')->first();
 
                     $firstId = '1000';
             break;
             case 2: $lastId = DB::table('produksi_order_ebook')
-                                ->where('kode_order', 'like', $year.'-%')
+                                ->where('kode_order', 'like', 'E'.$year.'-%')
                                 ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 3000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 3999")
                                 ->orderBy('kode_order', 'desc')->first();
                     $firstId = '3000';
             break;
             case 3: $lastId = DB::table('produksi_order_ebook')
-                                ->where('kode_order', 'like', $year.'-%')
+                                ->where('kode_order', 'like', 'E'.$year.'-%')
                                 ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 4000")
                                 ->orderBy('kode_order', 'desc')->first();
                     $firstId = '4000';
             break;
             default: abort(500);
         }
-
+//  return $lastId.'1234';
         if(is_null($lastId)) {
             return 'E'.$year.'-'.$firstId;
         } else {
-            $lastId_ = (int)substr($lastId->kode_order, 3);
+            $lastId_ = (int)substr($lastId->kode_order, 4);
             if($lastId_ == 2999) {
                 abort(500);
             } elseif($lastId_ == 3999) {

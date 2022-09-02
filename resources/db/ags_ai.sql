@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 26 Agu 2022 pada 11.28
+-- Waktu pembuatan: 02 Sep 2022 pada 11.17
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -32,6 +32,7 @@ CREATE TABLE `access` (
   `parent_id` varchar(36) DEFAULT NULL,
   `bagian_id` varchar(36) DEFAULT NULL,
   `level` tinyint(3) UNSIGNED NOT NULL,
+  `order_menu` smallint(6) DEFAULT NULL,
   `url` varchar(200) NOT NULL DEFAULT '#',
   `icon` varchar(150) NOT NULL DEFAULT 'fas fa-question-circle',
   `name` varchar(150) NOT NULL
@@ -41,17 +42,17 @@ CREATE TABLE `access` (
 -- Dumping data untuk tabel `access`
 --
 
-INSERT INTO `access` (`id`, `parent_id`, `bagian_id`, `level`, `url`, `icon`, `name`) VALUES
-('131899f9a9204e0baa1b23cd2eedff6a', NULL, 'f7e795b9ece54c6d82b0ed19f025a65e', 1, 'manajemen-web/users', 'fas fa-users-cog', 'Users'),
-('30d0f70435904ad5b4e7cbfeb98fc021', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 'penerbitan/naskah', 'fas fa-file-alt', 'Naskah'),
-('4e1627c1489844f985cbe2c485b2e162', NULL, 'f7e795b9ece54c6d82b0ed19f025a65e', 1, 'manajemen-web/struktur-ao', 'fas fa-project-diagram', 'Struktur Organisasi'),
-('5646908e-1e06-11ed-87ce-1078d2a38ee5', NULL, '8a3ca046fb54492a86aaead53f36bec7', 1, 'produksi/proses/cetak', 'fas fa-chalkboard-teacher', 'Proses Produksi Cetak'),
-('583a723cf036449d80d3742dcf695e38', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 'penerbitan/naskah/timeline', 'fas fa-question-circle', 'Timeline'),
-('70410774a1e0433bb213a9625aceb0bb', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 'penerbitan/order-cetak', 'fas fa-print', 'Order Cetak'),
-('b6cbf112-1e06-11ed-87ce-1078d2a38ee5', NULL, '8a3ca046fb54492a86aaead53f36bec7', 1, 'produksi/proses/ebook-multimedia', 'fas fa-globe', 'E-book Multimedia'),
-('bfb8b970f85c4a42bac1dc56181dc96b', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 'penerbitan/order-ebook', 'fas fa-atlas', 'Order E-Book'),
-('c60c554c-16f3-11ed-ae5c-1078d2a38ee5', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 'penerbitan/imprint', 'fas fa-stamp', 'Imprint'),
-('fb6c8f0dcc9e43199642f08a0fe1fd56', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 'penerbitan/penulis', 'fas fa-pen', 'Penulis');
+INSERT INTO `access` (`id`, `parent_id`, `bagian_id`, `level`, `order_menu`, `url`, `icon`, `name`) VALUES
+('131899f9a9204e0baa1b23cd2eedff6a', NULL, 'f7e795b9ece54c6d82b0ed19f025a65e', 1, 1, 'manajemen-web/users', 'fas fa-users-cog', 'Users'),
+('30d0f70435904ad5b4e7cbfeb98fc021', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 3, 'penerbitan/naskah', 'fas fa-file-alt', 'Naskah'),
+('4e1627c1489844f985cbe2c485b2e162', NULL, 'f7e795b9ece54c6d82b0ed19f025a65e', 1, 2, 'manajemen-web/struktur-ao', 'fas fa-project-diagram', 'Struktur Organisasi'),
+('5646908e-1e06-11ed-87ce-1078d2a38ee5', NULL, '8a3ca046fb54492a86aaead53f36bec7', 1, 1, 'produksi/proses/cetak', 'fas fa-chalkboard-teacher', 'Proses Produksi Cetak'),
+('583a723cf036449d80d3742dcf695e38', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 9, 'penerbitan/naskah/timeline', 'fas fa-question-circle', 'Timeline'),
+('70410774a1e0433bb213a9625aceb0bb', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 4, 'penerbitan/order-cetak', 'fas fa-print', 'Order Cetak'),
+('b6cbf112-1e06-11ed-87ce-1078d2a38ee5', NULL, '8a3ca046fb54492a86aaead53f36bec7', 1, 2, 'produksi/proses/ebook-multimedia', 'fas fa-globe', 'E-book Multimedia'),
+('bfb8b970f85c4a42bac1dc56181dc96b', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 5, 'penerbitan/order-ebook', 'fas fa-atlas', 'Order E-Book'),
+('c60c554c-16f3-11ed-ae5c-1078d2a38ee5', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 2, 'penerbitan/imprint', 'fas fa-stamp', 'Imprint'),
+('fb6c8f0dcc9e43199642f08a0fe1fd56', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 1, 'penerbitan/penulis', 'fas fa-pen', 'Penulis');
 
 -- --------------------------------------------------------
 
@@ -264,11 +265,17 @@ CREATE TABLE `notif` (
 
 INSERT INTO `notif` (`id`, `section`, `type`, `url`, `raw_data`, `permission_id`, `form_id`, `created_at`, `expired`) VALUES
 ('04291a75f3f54bc6813696859641c6dd', 'Produksi', 'Proses Produksi Order Cetak', NULL, NULL, 'a91ee437-1e08-11ed-87ce-1078d2a38ee5', '4ff61549-f6ee-49a3-9f7c-b76897e572d5', '2022-08-24 07:21:56', NULL),
+('2dc29db4121f49af9b33313f5e88ef4a', 'Produksi', 'Proses Produksi Order E-Book', NULL, NULL, 'd821a505-1e08-11ed-87ce-1078d2a38ee5', '9a9fb40a-96c8-4d68-aca4-238dcc47b062', '2022-08-30 03:56:46', NULL),
 ('34043ae3120347ea85b5ea3d0a3a2763', 'Penerbitan', 'Persetujuan Order E-Book', NULL, NULL, '171e6210418440a8bf4d689841d0f32c', 'ea4bcd48-b9b1-4163-8d3e-f41f99eeaf4b', '2022-08-24 02:57:30', NULL),
 ('474c09aeb53d4abd8c26c052afffff7f', 'Produksi', 'Proses Produksi Order Cetak', NULL, NULL, 'a91ee437-1e08-11ed-87ce-1078d2a38ee5', 'f96659c4-766f-4a17-ba55-eacd1d5a2922', '2022-08-24 02:06:13', NULL),
+('5ced42547f7f49b0aa2f7319e592e735', 'Penerbitan', 'Persetujuan Order E-Book', NULL, NULL, '171e6210418440a8bf4d689841d0f32c', '131ab442-a333-42b4-96d7-30fd1bdf1d2f', '2022-08-30 03:35:22', NULL),
+('6254b0df70b8485fa1af41857db23e6b', 'Penerbitan', 'Persetujuan Order E-Book', NULL, NULL, '171e6210418440a8bf4d689841d0f32c', 'b8479047-b8cc-4162-a8fe-907343ac7b0b', '2022-09-02 02:07:03', NULL),
+('6f430b8e9b1f409dbeaa384c971043b0', 'Penerbitan', 'Persetujuan Order Buku Baru', NULL, NULL, '09179170e6e643eca66b282e2ffae1f8', '72e1a2e5b14a451aa73058e805dc831b', '2022-09-01 09:20:44', NULL),
 ('8085d40860d44c5cacb81cde631921aa', 'Produksi', 'Proses Produksi Order E-Book', NULL, NULL, 'd821a505-1e08-11ed-87ce-1078d2a38ee5', 'fb9350a6-53d2-4d89-9745-742f7b7a72cb', '2022-08-24 06:20:09', NULL),
+('954e41bc0a7c47548e36b02181423ef2', 'Penerbitan', 'Persetujuan Order E-Book', NULL, NULL, '171e6210418440a8bf4d689841d0f32c', 'e186376a-49c5-4ec8-9602-7391884252f7', '2022-09-02 02:05:07', NULL),
 ('af8a1d142ecf41839034ac62a51f7680', 'Penerbitan', 'Persetujuan Order Buku Baru', NULL, NULL, '09179170e6e643eca66b282e2ffae1f8', 'd64c5b477bd24a60800b9c0ec52d5dc3', '2022-08-24 01:45:33', NULL),
-('d4eb9d773d594e13ace47b2eb8b6db68', 'Penerbitan', 'Persetujuan Order Cetak Ulang', NULL, NULL, '09179170e6e643eca66b282e2ffae1f8', '84c1c9acf04f4ec08d23c2febba23a81', '2022-08-24 06:26:34', NULL);
+('d4eb9d773d594e13ace47b2eb8b6db68', 'Penerbitan', 'Persetujuan Order Cetak Ulang', NULL, NULL, '09179170e6e643eca66b282e2ffae1f8', '84c1c9acf04f4ec08d23c2febba23a81', '2022-08-24 06:26:34', NULL),
+('e6c0221e76174797b3f0e2997f96fe50', 'Produksi', 'Proses Produksi Order Cetak', NULL, NULL, 'a91ee437-1e08-11ed-87ce-1078d2a38ee5', '52d6c379-5522-41f0-addc-2821936bbdd1', '2022-09-01 09:25:48', NULL);
 
 -- --------------------------------------------------------
 
@@ -304,7 +311,21 @@ INSERT INTO `notif_detail` (`notif_id`, `user_id`, `seen`, `raw_data`, `created_
 ('d4eb9d773d594e13ace47b2eb8b6db68', 'fd035809e2c045098770a7e9dfccddf9', '0', 'Selesai Cetak', '2022-08-24 06:29:06', '2022-08-24 07:21:56'),
 ('d4eb9d773d594e13ace47b2eb8b6db68', 'c62658af71bf4c5692b041c9384d068b', '0', 'Selesai Cetak', '2022-08-24 07:21:02', '2022-08-24 07:21:56'),
 ('d4eb9d773d594e13ace47b2eb8b6db68', '37aee684a9e447a6bef36cbf08222d5d', '0', 'Selesai Cetak', '2022-08-24 07:21:32', '2022-08-24 07:21:56'),
-('04291a75f3f54bc6813696859641c6dd', 'be8d42fa88a14406ac201974963d9c1b', '0', NULL, '2022-08-24 07:21:56', NULL);
+('04291a75f3f54bc6813696859641c6dd', 'be8d42fa88a14406ac201974963d9c1b', '0', NULL, '2022-08-24 07:21:56', NULL),
+('5ced42547f7f49b0aa2f7319e592e735', '4fc80f443bfb4969b9a0272d9be08ef2', '0', 'Selesai', '2022-08-30 03:35:22', '2022-08-30 03:56:46'),
+('5ced42547f7f49b0aa2f7319e592e735', 'fd035809e2c045098770a7e9dfccddf9', '0', 'Selesai', '2022-08-30 03:35:22', '2022-08-30 03:56:46'),
+('5ced42547f7f49b0aa2f7319e592e735', 'c62658af71bf4c5692b041c9384d068b', '0', 'Selesai', '2022-08-30 03:37:26', '2022-08-30 03:56:46'),
+('5ced42547f7f49b0aa2f7319e592e735', '37aee684a9e447a6bef36cbf08222d5d', '0', 'Selesai', '2022-08-30 03:56:05', '2022-08-30 03:56:46'),
+('2dc29db4121f49af9b33313f5e88ef4a', 'be8d42fa88a14406ac201974963d9c1b', '0', NULL, '2022-08-30 03:56:46', NULL),
+('6f430b8e9b1f409dbeaa384c971043b0', 'fd035809e2c045098770a7e9dfccddf9', '0', 'Selesai Cetak', '2022-09-01 09:20:44', '2022-09-01 09:25:48'),
+('6f430b8e9b1f409dbeaa384c971043b0', '4fc80f443bfb4969b9a0272d9be08ef2', '0', 'Selesai Cetak', '2022-09-01 09:20:44', '2022-09-01 09:25:48'),
+('6f430b8e9b1f409dbeaa384c971043b0', 'c62658af71bf4c5692b041c9384d068b', '0', 'Selesai Cetak', '2022-09-01 09:23:18', '2022-09-01 09:25:48'),
+('6f430b8e9b1f409dbeaa384c971043b0', '37aee684a9e447a6bef36cbf08222d5d', '0', 'Selesai Cetak', '2022-09-01 09:24:44', '2022-09-01 09:25:48'),
+('e6c0221e76174797b3f0e2997f96fe50', 'be8d42fa88a14406ac201974963d9c1b', '0', NULL, '2022-09-01 09:25:48', NULL),
+('954e41bc0a7c47548e36b02181423ef2', '4fc80f443bfb4969b9a0272d9be08ef2', '0', 'Penyetujuan', '2022-09-02 02:05:07', NULL),
+('954e41bc0a7c47548e36b02181423ef2', 'fd035809e2c045098770a7e9dfccddf9', '0', 'Penyetujuan', '2022-09-02 02:05:07', NULL),
+('6254b0df70b8485fa1af41857db23e6b', '4fc80f443bfb4969b9a0272d9be08ef2', '0', 'Penyetujuan', '2022-09-02 02:07:03', NULL),
+('6254b0df70b8485fa1af41857db23e6b', 'fd035809e2c045098770a7e9dfccddf9', '0', 'Penyetujuan', '2022-09-02 02:07:03', NULL);
 
 -- --------------------------------------------------------
 
@@ -938,6 +959,7 @@ CREATE TABLE `produksi_order_cetak` (
 --
 
 INSERT INTO `produksi_order_cetak` (`id`, `kode_order`, `tipe_order`, `jenis_mesin`, `status_cetak`, `pilihan_terbit`, `urgent`, `judul_buku`, `sub_judul`, `penulis`, `isbn`, `eisbn`, `penerbit`, `imprint`, `platform_digital`, `status_buku`, `kelompok_buku`, `edisi_cetakan`, `posisi_layout`, `dami`, `format_buku`, `jumlah_halaman`, `kertas_isi`, `warna_isi`, `kertas_cover`, `warna_cover`, `efek_cover`, `jenis_cover`, `jilid`, `ukuran_jilid_bending`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status_penyetujuan`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
+('72e1a2e5b14a451aa73058e805dc831b', '22-1001', '1', '2', '1', '1', '1', 'Aku', 'Kamu', 'Yohanes Hendra', '134233625756', NULL, 'Andi', 'PBMR Andi', '[]', '1', 'Computing & Internet', 'vii/3', '1', '24', '19 x 19 cm', 'viii + 1234', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV, embos', 'Biasa', '1', '3 cm', 2022, 'Wrapping', 1000, NULL, NULL, NULL, NULL, '2022-09-08', '1', '2022-09-01 09:20:43', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
 ('84c1c9acf04f4ec08d23c2febba23a81', '22-3000', '2', '2', '3', '1', '1', 'Bersama Tuhan', 'Mengenal Tuhan', 'Yohanes Hendra', '123191238744', NULL, 'Andi', 'PBMR Andi', '[]', '2', 'Studi Alkitab', 'vii/12', '1', '32', '11 x 18 cm', 'viii + 125', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV', 'Biasa', '3', ' cm', 2022, 'Tidak Wrapping', 1234, NULL, NULL, NULL, NULL, '2022-08-31', '1', '2022-08-24 06:26:34', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
 ('d64c5b477bd24a60800b9c0ec52d5dc3', '22-1000', '1', '2', '1', '1', '0', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', 'Yohanes Hendra', '2342323423', NULL, 'Andi', 'PBMR Andi', '[]', '2', 'Computing & Internet', 'vii/4', '1', '24', '19 x 19 cm', 'viii + 325', 'hvs 70', 'b/w', 'Ivory, 230', 'Full Color', 'UV, embos', 'Biasa', '2', ' cm', 2022, 'Tidak Wrapping', 764, NULL, NULL, NULL, NULL, '2022-08-31', '1', '2022-08-24 01:45:33', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
 
@@ -949,7 +971,7 @@ INSERT INTO `produksi_order_cetak` (`id`, `kode_order`, `tipe_order`, `jenis_mes
 
 CREATE TABLE `produksi_order_ebook` (
   `id` char(36) NOT NULL,
-  `kode_order` varchar(9) DEFAULT NULL,
+  `kode_order` varchar(9) NOT NULL,
   `tipe_order` enum('1','2') DEFAULT NULL COMMENT '1= Umum, 2= Rohani',
   `judul_buku` varchar(50) DEFAULT NULL,
   `sub_judul` varchar(100) DEFAULT NULL,
@@ -980,6 +1002,9 @@ CREATE TABLE `produksi_order_ebook` (
 --
 
 INSERT INTO `produksi_order_ebook` (`id`, `kode_order`, `tipe_order`, `judul_buku`, `sub_judul`, `platform_digital`, `penulis`, `eisbn`, `penerbit`, `imprint`, `edisi_cetakan`, `jumlah_halaman`, `kelompok_buku`, `tahun_terbit`, `status_buku`, `spp`, `perlengkapan`, `keterangan`, `tgl_upload`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
+('131ab442-a333-42b4-96d7-30fd1bdf1d2f', 'E22-3000', '2', 'Rohani Dalam Jiwa', 'Termenung', '[\"Moco\",\"Gramedia\",\"Esentral\",\"Bahanaflik\"]', 'Yohanes Hendra', '25456452222678', 'Andi', 'Pustaka Referensi', 'vii/2', 'viii + 325', 'Studi Alkitab', 2022, '2', NULL, NULL, NULL, '2022-09-01 10:35:22', '2022-08-30 03:35:22', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('b8479047-b8cc-4162-a8fe-907343ac7b0b', 'E22-1002', '1', 'Berani Untuk Siapa?', 'sub-sub', '[\"Moco\",\"Esentral\",\"Indopustaka\"]', 'Test Image', '63453577674534', 'Andi', 'Rapha', 'I/1', 'viii + 125', 'ArchitectPhotop', 2022, '2', NULL, NULL, NULL, '2022-09-09 09:07:03', '2022-09-02 02:07:03', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('e186376a-49c5-4ec8-9602-7391884252f7', 'E22-1001', '1', 'AIUEO', 'Nada-nada', '[\"Moco\"]', 'Test Image', '2355645275786', 'Andi', 'Rapha', 'VI/1', 'viii + 325', 'Home & Garden', 2022, '1', NULL, NULL, NULL, '2022-09-09 09:05:07', '2022-09-02 02:05:07', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
 ('ea4bcd48-b9b1-4163-8d3e-f41f99eeaf4b', 'E22-1000', '1', 'Filosofi Teras', 'Membangun kepercayadirian', '[\"Google Book\",\"Gramedia\",\"Indopustaka\"]', 'Test Image', '347578234234', 'Andi', 'PBMR Andi', 'vii/3', 'viii + 325', 'Utillities', 2022, '1', NULL, NULL, NULL, '2022-08-25 09:57:30', '2022-08-24 02:57:30', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
@@ -1017,7 +1042,8 @@ CREATE TABLE `produksi_penyetujuan_order_cetak` (
 
 INSERT INTO `produksi_penyetujuan_order_cetak` (`id`, `produksi_order_cetak_id`, `m_penerbitan`, `m_stok`, `d_operasional`, `d_keuangan`, `d_utama`, `m_penerbitan_act`, `m_stok_act`, `d_operasional_act`, `d_keuangan_act`, `d_utama_act`, `tgl_permintaan_jadi_history`, `jumlah_cetak_history`, `diubah_oleh`, `ket_pending`, `pending_sampai`, `status_general`, `created_at`, `updated_at`) VALUES
 ('67998395-700a-44f7-a814-30ac846a9ddf', '84c1c9acf04f4ec08d23c2febba23a81', NULL, '59cb3d41a58141c3a3518a2e78c84221', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '3', '3', '3', '3', NULL, NULL, NULL, NULL, NULL, 'Selesai', '2022-08-24 06:26:34', '2022-08-24 07:21:56'),
-('89caa394-0703-412a-876b-8d6b9627d861', 'd64c5b477bd24a60800b9c0ec52d5dc3', '4fc80f443bfb4969b9a0272d9be08ef2', NULL, 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '3', '3', '3', NULL, NULL, NULL, NULL, NULL, 'Selesai', '2022-08-24 01:45:33', '2022-08-24 02:06:12');
+('89caa394-0703-412a-876b-8d6b9627d861', 'd64c5b477bd24a60800b9c0ec52d5dc3', '4fc80f443bfb4969b9a0272d9be08ef2', NULL, 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '3', '3', '3', NULL, NULL, NULL, NULL, NULL, 'Selesai', '2022-08-24 01:45:33', '2022-08-24 02:06:12'),
+('d41ab652-7840-41ea-bcc4-1ddde31e016e', '72e1a2e5b14a451aa73058e805dc831b', '4fc80f443bfb4969b9a0272d9be08ef2', NULL, 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '3', '3', '3', NULL, NULL, NULL, NULL, NULL, 'Selesai', '2022-09-01 09:20:43', '2022-09-01 09:25:48');
 
 -- --------------------------------------------------------
 
@@ -1049,6 +1075,9 @@ CREATE TABLE `produksi_penyetujuan_order_ebook` (
 --
 
 INSERT INTO `produksi_penyetujuan_order_ebook` (`id`, `produksi_order_ebook_id`, `m_penerbitan`, `d_operasional`, `d_keuangan`, `d_utama`, `m_penerbitan_act`, `d_operasional_act`, `d_keuangan_act`, `d_utama_act`, `tgl_upload_history`, `ket_pending`, `pending_sampai`, `status_general`, `created_at`, `updated_at`) VALUES
+('0cda169f-6781-4939-96d9-4db5fa0676f6', '131ab442-a333-42b4-96d7-30fd1bdf1d2f', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '3', '3', '3', '3', NULL, NULL, NULL, 'Selesai', '2022-08-30 03:35:22', '2022-08-30 03:56:46'),
+('1ef5f78b-faf6-4837-9b16-5fe9333d3b3a', 'e186376a-49c5-4ec8-9602-7391884252f7', NULL, NULL, NULL, NULL, '1', '1', '1', '1', NULL, NULL, NULL, 'Proses', '2022-09-02 02:05:07', NULL),
+('6f77ab00-3429-4b3b-95ac-d5130a6a6ffc', 'b8479047-b8cc-4162-a8fe-907343ac7b0b', NULL, NULL, NULL, NULL, '1', '1', '1', '1', NULL, NULL, NULL, 'Proses', '2022-09-02 02:07:03', NULL),
 ('7080c0cb-3a4a-4446-8b58-c07d88353007', 'ea4bcd48-b9b1-4163-8d3e-f41f99eeaf4b', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '3', '3', '3', '3', NULL, NULL, NULL, 'Selesai', '2022-08-24 02:57:30', '2022-08-24 06:20:08');
 
 -- --------------------------------------------------------
@@ -1072,7 +1101,8 @@ CREATE TABLE `proses_ebook_multimedia` (
 --
 
 INSERT INTO `proses_ebook_multimedia` (`id`, `order_ebook_id`, `bukti_upload`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
-('fb9350a6-53d2-4d89-9745-742f7b7a72cb', 'ea4bcd48-b9b1-4163-8d3e-f41f99eeaf4b', NULL, '2022-08-24 06:20:09', NULL, NULL, NULL);
+('9a9fb40a-96c8-4d68-aca4-238dcc47b062', '131ab442-a333-42b4-96d7-30fd1bdf1d2f', '[\"https:\\/\\/catalog.moco.co.id\\/\",\"https:\\/\\/www.gramedia.com\",null,null]', '2022-08-30 03:56:46', NULL, '2022-09-02 03:22:20', 'be8d42fa88a14406ac201974963d9c1b'),
+('fb9350a6-53d2-4d89-9745-742f7b7a72cb', 'ea4bcd48-b9b1-4163-8d3e-f41f99eeaf4b', '[\"https:\\/\\/www.google.com\",\"https:\\/\\/www.gramedia.com\",\"https:\\/\\/indopustakaplus.com\\/\"]', '2022-08-24 06:20:09', NULL, '2022-08-30 03:15:31', 'be8d42fa88a14406ac201974963d9c1b');
 
 -- --------------------------------------------------------
 
@@ -1106,6 +1136,7 @@ CREATE TABLE `proses_produksi_cetak` (
 
 INSERT INTO `proses_produksi_cetak` (`id`, `order_cetak_id`, `katern`, `mesin`, `plat`, `cetak_isi`, `cover`, `lipat_isi`, `jilid`, `potong_3_sisi`, `wrapping`, `kirim_gudang`, `harga`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
 ('4ff61549-f6ee-49a3-9f7c-b76897e572d5', '84c1c9acf04f4ec08d23c2febba23a81', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-08-24 07:21:56', NULL, NULL, NULL),
+('52d6c379-5522-41f0-addc-2821936bbdd1', '72e1a2e5b14a451aa73058e805dc831b', NULL, NULL, '2022-09-01', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-09-01 09:25:48', NULL, '2022-09-01 09:28:44', NULL),
 ('f96659c4-766f-4a17-ba55-eacd1d5a2922', 'd64c5b477bd24a60800b9c0ec52d5dc3', '2,25', 77, '2022-08-25', '2022-08-25', '2022-08-25', NULL, NULL, NULL, NULL, NULL, NULL, '2022-08-24 02:06:13', NULL, '2022-08-24 02:45:36', NULL);
 
 -- --------------------------------------------------------
@@ -1291,7 +1322,6 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', '1f4e5b3752b8475cb5261940ef62532d'),
 ('be8d42fa88a14406ac201974963d9c1b', 'd821a505-1e08-11ed-87ce-1078d2a38ee5'),
 ('be8d42fa88a14406ac201974963d9c1b', 'eecbccb6-1e08-11ed-87ce-1078d2a38ee5'),
-('be8d42fa88a14406ac201974963d9c1b', '15fe30d3-1e08-11ed-87ce-1078d2a38ee5'),
 ('be8d42fa88a14406ac201974963d9c1b', '4943c707-1e08-11ed-87ce-1078d2a38ee5'),
 ('be8d42fa88a14406ac201974963d9c1b', 'a91ee437-1e08-11ed-87ce-1078d2a38ee5'),
 ('be8d42fa88a14406ac201974963d9c1b', '1c1940da68fa4f8ba2325e83c303c47c'),

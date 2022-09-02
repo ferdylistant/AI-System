@@ -60,12 +60,21 @@ class HomeController extends Controller
         // });
 
         // return Datatables::of($data)->make(true);
+
+
         $userdata = DB::table('users')->where('id', auth()->user()->id)->first();
+        $users = DB::table('users')->whereNotIn('id', [auth()->user()->id])->whereNull('deleted_at')->get();
+        $imprint = DB::table('imprint')->get();
+        $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
+        $divisi = DB::table('divisi')->whereNull('deleted_at')->get();
         return view('home', [
             'title' => 'Home',
             'id' => Str::uuid()->getHex(),
-            'userdata' => $userdata
-
+            'userdata' => $userdata,
+            'users'=> $users,
+            'imprint' => $imprint,
+            'penulis' => $penulis,
+            'divisi' => $divisi
         ]);
     }
 

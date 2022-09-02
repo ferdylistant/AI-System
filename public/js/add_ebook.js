@@ -70,6 +70,7 @@ function ajaxAddProduksiEbook(data) {
             resetFrom(data);
             notifToast(result.status, result.message);
             location.href = result.redirect;
+            // console.log(result);
 
         },
         error: function(err) {

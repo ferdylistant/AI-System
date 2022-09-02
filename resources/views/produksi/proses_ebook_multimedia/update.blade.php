@@ -201,7 +201,7 @@
                         </div>
                     </div>
                     <div class="card-footer text-right">
-                        <button type="submit" class="btn btn-success" disabled="disabled">Upload Bukti Link</button>
+                        <button type="submit" class="btn btn-success" >Upload Bukti Link</button>
                     </div>
                     </form>
                 </div>

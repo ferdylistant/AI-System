@@ -1,13 +1,14 @@
-$(document).ready(function() {
-    $('[id^="bukti_upload"]').on('keyup', function() {
-        let empty = false;
-
-        if ($(this).val().length == 0)
-          $('button[type="submit"]').attr('disabled', 'disabled');
-        else
-          $('button[type="submit"]').attr('disabled', false);
-    });
-});
+// $(document).ready(function() {
+//     $('[id^="bukti_upload"]').on('keyup', function() {
+//         console.log(this);
+//         if ($(this).val().length == 0) {
+//             $('button[type="submit"]').attr('disabled', 'disabled');
+//         }
+//         else {
+//             $('button[type="submit"]').attr('disabled', false);
+//         }
+//     });
+// });
 function resetFrom(form) {
     form.trigger('reset');
         $('[name="bukti_upload[]"]').val('').trigger('change');

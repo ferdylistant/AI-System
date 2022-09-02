@@ -306,14 +306,24 @@
                                     @foreach (json_decode($data->platform_digital) as $i => $pDigital)
                                         @if (is_null($data->bukti_upload))
                                         <div class="tab-pane fade {{$i==0?'active show':''}}" id="{{Illuminate\Support\Str::slug($pDigital.'link','-')}}" role="tabpanel" aria-labelledby="{{Illuminate\Support\Str::slug($pDigital.'tab','-')}}">
-                                            <div class="text-muted text-small font-600-bold">-Bukti upload link platform {{$pDigital}} belum ditambahkan-</div>
+                                            <div class="text-muted text-small font-600-bold">
+                                                -Link bukti upload ke platform {{$pDigital}} belum ditambahkan-
+                                                <p>
+                                                    <a href="{{url('produksi/proses/ebook-multimedia/edit?kode='.$data->order_ebook_id.'&track='.$data->id)}}"> Upload link</a>
+                                                </p>
+                                            </div>
                                         </div>
                                         @else
                                             @foreach (json_decode($data->bukti_upload) as $j => $bu)
                                                 @if ($i == $j)
                                                     @if ($bu == null)
                                                     <div class="tab-pane fade {{$i==0?'active show':''}}" id="{{Illuminate\Support\Str::slug($pDigital.'link','-')}}" role="tabpanel" aria-labelledby="{{Illuminate\Support\Str::slug($pDigital.'tab','-')}}">
-                                                        <div class="text-muted text-small font-600-bold">-Bukti upload link platform {{$pDigital}} belum ditambahkan-</div>
+                                                        <div class="text-muted text-small font-600-bold">
+                                                            -Link bukti upload ke platform {{$pDigital}} belum ditambahkan-
+                                                            <p>
+                                                                <a href="{{url('produksi/proses/ebook-multimedia/edit?kode='.$data->order_ebook_id.'&track='.$data->id)}}"> Upload link</a>
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                     @else
                                                     <div class="tab-pane fade {{$i==0?'active show':''}}" id="{{Illuminate\Support\Str::slug($pDigital.'link','-')}}" role="tabpanel" aria-labelledby="{{Illuminate\Support\Str::slug($pDigital.'tab','-')}}">
