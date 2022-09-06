@@ -71,7 +71,9 @@ class AuthController extends Controller
             foreach($menus as $key => $m) {
                 if($m['detail']['bagian_id'] == '04431b2b0e864cd4af41c87256cb92ef') {
                     $menus_['Dashboard'][$key] = $m;
-                }elseif($m['detail']['bagian_id'] == '063203a5c5124b399ab76f8a03b93c0d') {
+                } elseif($m['detail']['bagian_id'] == '3f9dfd9391394a5fa10d835e0ebb341c') {
+                    $menus_['Master Data'][$key] = $m;
+                } elseif($m['detail']['bagian_id'] == '063203a5c5124b399ab76f8a03b93c0d') {
                     $menus_['Penerbitan'][$key] = $m;
                 }elseif($m['detail']['bagian_id'] == 'f7e795b9ece54c6d82b0ed19f025a65e') {
                     $menus_['Manajemen Web'][$key] = $m;

@@ -12,10 +12,10 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1>Data Imprint</h1>
-        @if(Gate::allows('do_create', 'tambah-data-imprint'))
+        <h1>Data Platform Digital</h1>
+        @if(Gate::allows('do_create', 'buat-platform-digital'))
         <div class="section-header-button">
-            <a href="{{ route('imprint.create')}}" class="btn btn-success">Tambah</a>
+            <a href="{{ route('platform.create')}}" class="btn btn-success">Tambah</a>
         </div>
         @endif
     </div>
@@ -26,7 +26,7 @@
                 <div class="card card-primary">
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_Imprint" style="width:100%">
+                            <table class="table table-striped" id="tb_Platform" style="width:100%">
                             </table>
                         </div>
                     </div>
@@ -52,7 +52,7 @@
 
 <script>
     $(function() {
-         $('#tb_Imprint').DataTable({
+         $('#tb_Platform').DataTable({
             responsive: true,
             rowReorder: {
                 selector: 'td:nth-child(2)'
@@ -65,12 +65,12 @@
                 lengthMenu: '_MENU_ items/page',
             },
             ajax: {
-                url: "{{ url('master/imprint') }}",
-                data: {"request_": "table-imprint"}
+                url: "{{ url('master/platform-digital') }}",
+                data: {"request_": "table-platform"}
             },
             columns: [
                 { data: 'no', name: 'no', title: 'No' },
-                { data: 'nama_imprint', name: 'nama_imprint', title: 'Nama Imprint' },
+                { data: 'nama_platform', name: 'nama_platform', title: 'Nama Platform' },
                 { data: 'tgl_dibuat', name: 'tgl_dibuat', title: 'Tanggal Dibuat' },
                 { data: 'dibuat_oleh', name: 'dibuat_oleh', title: 'Dibuat Oleh'},
                 { data: 'diubah_terakhir', name: 'diubah_terakhir', title: 'Diubah Terakhir' },

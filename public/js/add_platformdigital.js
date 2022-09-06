@@ -3,15 +3,15 @@ $(function() {
     form.trigger('reset');
         $('[name="add_nama"]').val('').trigger('change');
     }
-    let addImprint = jqueryValidation_('#fadd_Imprint', {
+    let addImprint = jqueryValidation_('#fadd_PlatformDigital', {
         add_nama: {required: true},
     });
 
-    function ajaxAddImprint(data) {
+    function ajaxAddPlatform(data) {
         let el = data.get(0);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/master/imprint/tambah-imprint",
+            url: window.location.origin + "/master/platform-digital/tambah",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -34,7 +34,7 @@ $(function() {
                     })
                     addImprint.showErrors(err);
                 }
-                notifToast('error', 'Data imprint gagal disimpan!');
+                notifToast('error', 'Data platform digital gagal disimpan!');
             },
             complete: function() {
                 $('button[type="submit"]').prop('disabled', false).
@@ -43,19 +43,19 @@ $(function() {
         })
     }
 
-    $('#fadd_Imprint').on('submit', function(e) {
+    $('#fadd_PlatformDigital').on('submit', function(e) {
         e.preventDefault();
         if($(this).valid()) {
             let nama = $(this).find('[name="add_nama"]').val();
             swal({
-                text: 'Tambah data Imprint ('+nama+')?',
+                text: 'Tambah data platform ('+nama+')?',
                 icon: 'warning',
                 buttons: true,
                 dangerMode: true,
             })
             .then((confirm_) => {
                 if (confirm_) {
-                    ajaxAddImprint($(this))
+                    ajaxAddPlatform($(this))
                 }
             });
 

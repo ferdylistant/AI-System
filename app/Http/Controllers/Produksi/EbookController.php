@@ -233,8 +233,7 @@ class EbookController extends Controller
         $tipeOrd = array(['id' => 1,'name' => 'Umum'], ['id' => 2,'name' => 'Rohani']);
         $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
         $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
-        $platformDigital = array(['name'=>'Moco'],['name'=>'Google Book'],['name'=>'Gramedia'],['name'=>'Esentral'],
-        ['name'=>'Bahanaflik'],['name'=> 'Indopustaka']);
+        $platformDigital = DB::table('platform_digital_ebook')->whereNull('deleted_at')->get();
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
                     ->get();
         return view('produksi.ebook.create_ebook', [

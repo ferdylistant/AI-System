@@ -50,8 +50,8 @@
                                 <label class="d-block">Platform E-book: <span class="text-danger">*</span></label>
                                 @foreach ($platformDigital as $pD)
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" id="{{ $pD['name'] }}" name="add_platform_digital[]" value="{{ $pD['name'] }}" required>
-                                        <label class="form-check-label" for="{{ $pD['name'] }}">{{ $pD['name'] }}</label>
+                                        <input class="form-check-input" type="checkbox" id="{{ $pD->nama }}" name="add_platform_digital[]" value="{{ $pD->nama }}" required>
+                                        <label class="form-check-label" for="{{ $pD->nama }}">{{ $pD->nama }}</label>
                                     </div>
                                 @endforeach
 

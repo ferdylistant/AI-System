@@ -11,7 +11,7 @@ $(function() {
         let el = data.get(0);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/imprint/ubah-imprint",
+            url: window.location.origin + "/master/imprint/ubah-imprint",
             data: new FormData(el),
             processData: false,
             contentType: false,

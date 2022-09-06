@@ -67,6 +67,15 @@ class HomeController extends Controller
         $imprint = DB::table('imprint')->get();
         $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
         $divisi = DB::table('divisi')->whereNull('deleted_at')->get();
+        $naskah = DB::table('penerbitan_naskah')->whereNull('deleted_at')->get();
+        $or_ce = DB::table('produksi_order_cetak as poc')->join('produksi_penyetujuan_order_cetak as ppoc','ppoc.produksi_order_cetak_id','=','poc.id')
+        ->whereNotIn('ppoc.status_general',['Selesai'])
+        ->whereNull('poc.deleted_at')->get();
+        $or_eb = DB::table('produksi_order_ebook as poe')->join('produksi_penyetujuan_order_ebook as ppoe','ppoe.produksi_order_ebook_id','=','poe.id')
+        ->whereNotIn('ppoe.status_general',['Selesai'])
+        ->whereNull('poe.deleted_at')->get();
+        $proses_cetak = DB::table('proses_produksi_cetak')->whereNull('kirim_gudang')->get();
+        $upload_ebook = DB::table('proses_ebook_multimedia')->get();
         return view('home', [
             'title' => 'Home',
             'id' => Str::uuid()->getHex(),
@@ -74,7 +83,12 @@ class HomeController extends Controller
             'users'=> $users,
             'imprint' => $imprint,
             'penulis' => $penulis,
-            'divisi' => $divisi
+            'divisi' => $divisi,
+            'naskah' => $naskah,
+            'or_ce' => $or_ce,
+            'or_eb' => $or_eb,
+            'proses_cetak' => $proses_cetak,
+            'upload_ebook' => $upload_ebook
         ]);
     }
 

@@ -57,6 +57,16 @@ Route::middleware(['auth'])->group(function() {
     Route::get('manajemen-web/struktur-ao', [StrukturAoController::class, 'index']);
     Route::match(['get', 'post'], 'manajemen-web/struktur-ao/{act}/{type}/{id?}', [StrukturAoController::class, 'crudSO']);
 
+    Route::prefix('master')->group(function () {
+        //Imprint
+        Route::get('/imprint', [ImprintController::class, 'index'])->name('imprint.view');
+        Route::match(['get', 'post'], '/imprint/tambah-imprint', [ImprintController::class, 'createImprint'])->name('imprint.create');
+        Route::match(['get', 'post'], '/imprint/ubah-imprint', [ImprintController::class, 'updateImprint'])->name('imprint.update');
+        //Platform Digital
+        Route::get('/platform-digital', [ImprintController::class, 'indexPlatform'])->name('platform.view');
+        Route::match(['get', 'post'], '/platform-digital/tambah', [ImprintController::class, 'createPlatform'])->name('platform.create');
+        Route::match(['get', 'post'], '/platform-digital/ubah', [ImprintController::class, 'updatePlatform'])->name('platform.update');
+    });
     //Penerbitan
     Route::prefix('penerbitan')->group(function () {
         //Penulis
@@ -73,10 +83,6 @@ Route::middleware(['auth'])->group(function() {
         Route::match(['get', 'post'], '/naskah/mengubah-naskah/{id}', [NaskahController::class, 'updateNaskah']);
         Route::post('/naskah/penilaian/{cat}', [PenilaianNaskahController::class, 'index']);
         Route::post('/naskah/timeline/{cat}', [TimelineController::class, 'index']);
-        //Imprint
-        Route::get('/imprint', [ImprintController::class, 'index'])->name('imprint.view');
-        Route::match(['get', 'post'], '/imprint/tambah-imprint', [ImprintController::class, 'createImprint'])->name('imprint.create');
-        Route::match(['get', 'post'], '/imprint/ubah-imprint', [ImprintController::class, 'updateImprint'])->name('imprint.update');
         //Order Cetak
         Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('cetak.view');
         Route::get('/order-cetak/detail', [ProduksiController::class, 'detailProduksi'])->name('cetak.detail');

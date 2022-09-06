@@ -29,6 +29,10 @@ class AuthServiceProvider extends ServiceProvider
             return session('access')->where('url', $url)
                     ->where('type', 'Read')->isNotEmpty();
         });
+        Gate::define('do_read_raw', function ($user, $raw) {
+            return session('permissions')->where('raw', $raw)
+                    ->isNotEmpty();
+        });
 
         Gate::define('do_create', function ($user, $raw) {
             return session('permissions')->where('raw', $raw)

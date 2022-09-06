@@ -77,7 +77,7 @@
         <div class="section-header-back">
             <a href="{{ route('proses.ebook.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
-        <h1>Detail Produksi E-Book Multimedia</h1>
+        <h1>Detail Proses Upload E-Book Multimedia</h1>
     </div>
 
     <div class="section-body">

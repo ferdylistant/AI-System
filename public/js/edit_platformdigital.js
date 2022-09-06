@@ -1,17 +1,17 @@
 $(function() {
     function resetFrom(form) {
     form.trigger('reset');
-        $('[name="add_nama"]').val('').trigger('change');
+        $('[name="up_nama"]').val('').trigger('change');
     }
-    let addImprint = jqueryValidation_('#fadd_Imprint', {
-        add_nama: {required: true},
+    let upImprint = jqueryValidation_('#fup_PlatformDigital', {
+        up_nama: {required: true},
     });
 
-    function ajaxAddImprint(data) {
+    function ajaxUpPlatform(data) {
         let el = data.get(0);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/master/imprint/tambah-imprint",
+            url: window.location.origin + "/master/platform-digital/ubah",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -22,9 +22,10 @@ $(function() {
             success: function(result) {
                 resetFrom(data);
                 notifToast(result.status, result.message);
+                location.href = result.route;
             },
             error: function(err) {
-                // console.log(err.responseJSON)
+                console.log(err.responseJSON)
                 rs = err.responseJSON.errors;
                 if(rs != undefined) {
                     err = {};
@@ -32,9 +33,9 @@ $(function() {
                         let [key, value] = entry;
                         err[key] = value
                     })
-                    addImprint.showErrors(err);
+                    upImprint.showErrors(err);
                 }
-                notifToast('error', 'Data imprint gagal disimpan!');
+                notifToast(err.status, err.message);
             },
             complete: function() {
                 $('button[type="submit"]').prop('disabled', false).
@@ -43,22 +44,25 @@ $(function() {
         })
     }
 
-    $('#fadd_Imprint').on('submit', function(e) {
+    $('#fup_PlatformDigital').on('submit', function(e) {
         e.preventDefault();
         if($(this).valid()) {
-            let nama = $(this).find('[name="add_nama"]').val();
+            let nama = $(this).find('[name="up_nama"]').val();
             swal({
-                text: 'Tambah data Imprint ('+nama+')?',
+                text: 'Ubah data platform ('+nama+')?',
                 icon: 'warning',
                 buttons: true,
                 dangerMode: true,
             })
             .then((confirm_) => {
                 if (confirm_) {
-                    ajaxAddImprint($(this))
+                    ajaxUpPlatform($(this))
                 }
             });
 
         }
+        else {
+            notifToast('error', 'Periksa kembali form Anda!');
+        }
     })
-});
+})

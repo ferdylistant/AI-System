@@ -298,6 +298,7 @@ class UsersController extends Controller
                             ->where('user_id', $id)
                             ->get();;
         $accessBagian   = DB::table('access_bagian')
+                            ->orderBy('order_ab','asc')
                             ->get();
         $access         = DB::table('access')
                             ->select('id', 'parent_id', 'bagian_id', 'level',

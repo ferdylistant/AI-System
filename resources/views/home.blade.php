@@ -48,12 +48,12 @@
         <h1>Dashboard</h1>
     </div>
     <div class="section-body">
-        {{-- @if (Gate::allows('do_update','ubah-data-user'));
-        <div class="row">
+        <div class="row mb-3">
+        @if (Gate::allows('do_update','ubah-data-user'))
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">
                     <div class="card-icon bg-primary">
-                    <i class="fas fa-user"></i>
+                    <i class="far fa-user"></i>
                     </div>
                     <div class="card-wrap">
                     <div class="card-header">
@@ -80,10 +80,12 @@
                     </div>
                 </div>
             </div>
+        @endif
+        @if (Gate::allows('do_read_raw','lihat-penulis'))
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">
                     <div class="card-icon" style="background: #34395e">
-                        <i class="fas fa-stamp"></i>
+                        <i class="fas fa-pen"></i>
                     </div>
                     <div class="card-wrap">
                         <div class="card-header">
@@ -95,104 +97,116 @@
                     </div>
                 </div>
             </div>
+        @endif
+        @if (Gate::allows('do_read_raw','lihat-imprint'))
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                <div class="card card-statistic-1">
+                    <div class="card-icon bg-danger">
+                        <i class="fas fa-stamp"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header">
+                        <h4>Imprint</h4>
+                        </div>
+                        <div class="card-body">
+                        {{$imprint->count()}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+        @if (Gate::allows('do_read_raw','lihat-naskah'))
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">
                     <div class="card-icon bg-warning">
-                        <i class="fas fa-stamp"></i>
+                        <i class="far fa-file-alt"></i>
                     </div>
                     <div class="card-wrap">
                         <div class="card-header">
-                        <h4>Imprint</h4>
+                        <h4>Naskah</h4>
                         </div>
                         <div class="card-body">
-                        {{$imprint->count()}}
+                        {{$naskah->count()}}
                         </div>
                     </div>
                 </div>
             </div>
+        @endif
+        @if (Gate::allows('do_read_raw','lihat-order-cetak'))
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">
-                    <div class="card-icon bg-danger">
-                        <i class="fas fa-stamp"></i>
+                    <div class="card-icon bg-info">
+                        <i class="fas fa-print"></i>
                     </div>
                     <div class="card-wrap">
                         <div class="card-header">
-                        <h4>Imprint</h4>
+                        <h4>Order Cetak</h4>
                         </div>
                         <div class="card-body">
-                        {{$imprint->count()}}
+                        {{$or_ce->count()}}
                         </div>
                     </div>
                 </div>
             </div>
+        @endif
+        @if (Gate::allows('do_read_raw','lihat-order-ebook'))
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">
-                    <div class="card-icon bg-danger">
-                        <i class="fas fa-stamp"></i>
+                    <div class="card-icon bg-primary">
+                        <i class="fas fa-atlas"></i>
                     </div>
                     <div class="card-wrap">
                         <div class="card-header">
-                        <h4>Imprint</h4>
+                        <h4>Order E-Book</h4>
                         </div>
                         <div class="card-body">
-                        {{$imprint->count()}}
+                        {{$or_eb->count()}}
                         </div>
                     </div>
                 </div>
             </div>
+        @endif
+        @if (Gate::allows('do_read_raw','lihat-proses-produksi'))
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">
-                    <div class="card-icon bg-danger">
-                        <i class="fas fa-stamp"></i>
+                    <div class="card-icon bg-success">
+                        <i class="fas fa-chalkboard-teacher"></i>
                     </div>
                     <div class="card-wrap">
                         <div class="card-header">
-                        <h4>Imprint</h4>
+                        <h4>Proses Produksi Cetak</h4>
                         </div>
                         <div class="card-body">
-                        {{$imprint->count()}}
+                        {{$proses_cetak->count()}}
                         </div>
                     </div>
                 </div>
             </div>
+        @endif
+        @if (Gate::allows('do_read_raw','lihat-ebook-multimedia'))
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">
-                    <div class="card-icon bg-danger">
-                        <i class="fas fa-stamp"></i>
+                    <div class="card-icon" style="background: #34395e">
+                        <i class="fas fa-globe"></i>
                     </div>
                     <div class="card-wrap">
                         <div class="card-header">
-                        <h4>Imprint</h4>
+                        <h4>Proses Upload E-Book</h4>
                         </div>
                         <div class="card-body">
-                        {{$imprint->count()}}
+                        {{$upload_ebook->count()}}
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                <div class="card card-statistic-1">
-                    <div class="card-icon bg-danger">
-                        <i class="fas fa-stamp"></i>
-                    </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                        <h4>Imprint</h4>
-                        </div>
-                        <div class="card-body">
-                        {{$imprint->count()}}
-                        </div>
-                    </div>
-                </div>
-            </div>
+        @endif
         </div>
-        @endif --}}
         <div class="row">
             <div class="col-12 mb-4">
                 <div class="hero text-white hero-bg-image hero-bg-parallax" style="background-image: url('images/background-home.avif');">
                     <div class="hero-inner">
                         <h2>Selamat datang, {{ $userdata->nama}}!</h2>
-                        <p class="lead">You almost arrived, complete the information about your account to complete registration. </p>
+                        <p class="lead">You almost arrived, complete the information about your account to complete registration. {{$id}}</p>
                         <div class="mt-4">
                         <a href="{{url('manajemen-web/user/'.$userdata->id)}}" class="btn btn-outline-white btn-lg btn-icon icon-left"><i class="far fa-user"></i> Setup Account</a>
                         </div>
@@ -224,14 +238,14 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --->
             <div class="col-10 offset-1">
                 <div class="card card-secondary">
                     <div class="card-body">
                         <div id='calendar'></div>
                     </div>
                 </div>
-            </div> -->
+            </div>
         </div>
     </div>
 </section>
