@@ -11,7 +11,7 @@
         </a>
     </div>
 
-    <ul class="sidebar-menu">
+    <ul class="sidebar-menu pb-5">
         @foreach(session('menus') as $key => $menus)
         <li class="menu-header">{{$key}}</li>
             @foreach($menus as $menu)

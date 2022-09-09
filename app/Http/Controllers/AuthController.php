@@ -43,7 +43,7 @@ class AuthController extends Controller
                     ORDER BY a.name ASC
                 ) AS a3 ON a.id = a3.id
                 LEFT JOIN access_bagian AS ab ON a.bagian_id = ab.id
-                ORDER BY order_ab, order_menu,`level` ASC
+                ORDER BY order_ab,`level`, order_menu ASC
             ");
 
             $menus = [];

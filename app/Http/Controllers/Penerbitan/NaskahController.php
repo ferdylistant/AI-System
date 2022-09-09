@@ -18,7 +18,7 @@ class NaskahController extends Controller
                             ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
                             ->whereNull('pn.deleted_at')
                             ->select('pn.id', 'pn.kode', 'pn.judul_asli', 'pn.jalur_buku', 'pn.tanggal_masuk_naskah',
-                                'pn.selesai_penilaian', 'pns.tgl_pn_prodev', 'pns.tgl_pn_m_penerbitan',
+                                'pn.selesai_penilaian', 'pn.bukti_email_penulis','pns.tgl_pn_prodev', 'pns.tgl_pn_m_penerbitan',
                                 'pns.tgl_pn_m_pemasaran', 'pns.tgl_pn_d_pemasaran', 'pns.tgl_pn_direksi', 'pns.tgl_pn_editor',
                                 'pns.tgl_pn_setter', 'pns.tgl_pn_selesai')
                             ->get();
@@ -33,6 +33,11 @@ class NaskahController extends Controller
                             if(in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
                                 if(!is_null($data->tgl_pn_selesai)) {
                                     $badge .= '<span class="badge badge-primary">Selesai Dinilai</span>';
+                                    if(Gate::allows('do_read_raw','notifikasi-email-penulis')){
+                                        $badge .= '&nbsp;|&nbsp;<a href="'.url('penerbitan/naskah/tandai-telah-kirim-email').'" class="text-primary">Tandai telah kirim email ke penulis</a>';
+                                    } else{
+
+                                    }
                                 } else {
                                     $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_prodev)?'danger':'success').'">Pdv</span>';
                                     $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_m_penerbitan)?'danger':'success').'">M.Pen</span>';
@@ -191,7 +196,6 @@ class NaskahController extends Controller
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
                     ->get();
         $user = DB::table('users')->get();
-
         return view('penerbitan.naskah.create-naskah', [
             'kode' => self::generateId(),
             'kbuku' => $kbuku,

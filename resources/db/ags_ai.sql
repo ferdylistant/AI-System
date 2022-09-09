@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 06 Sep 2022 pada 11.33
+-- Waktu pembuatan: 09 Sep 2022 pada 11.55
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -45,17 +45,22 @@ CREATE TABLE `access` (
 INSERT INTO `access` (`id`, `parent_id`, `bagian_id`, `level`, `order_menu`, `url`, `icon`, `name`) VALUES
 ('131899f9a9204e0baa1b23cd2eedff6a', NULL, 'f7e795b9ece54c6d82b0ed19f025a65e', 1, 2, 'manajemen-web/users', 'fas fa-users-cog', 'Users'),
 ('30d0f70435904ad5b4e7cbfeb98fc021', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 2, 'penerbitan/naskah', 'fas fa-file-alt', 'Naskah'),
+('31a0187d88d94ddc83db4b71524b5b2d', NULL, '3f9dfd9391394a5fa10d835e0ebb341c', 1, 3, 'master/kelompok-buku', 'fas fa-layer-group', 'Kelompok Buku'),
+('3dbad039493241aa8ed0c698d07ee94d', NULL, '3f9dfd9391394a5fa10d835e0ebb341c', 1, 4, 'master/format-buku', 'fas fa-ruler-combined', 'Format Buku'),
 ('4e1627c1489844f985cbe2c485b2e162', NULL, 'f7e795b9ece54c6d82b0ed19f025a65e', 1, 1, 'manajemen-web/struktur-ao', 'fas fa-project-diagram', 'Struktur Organisasi'),
 ('5646908e-1e06-11ed-87ce-1078d2a38ee5', NULL, '8a3ca046fb54492a86aaead53f36bec7', 1, 1, 'produksi/proses/cetak', 'fas fa-chalkboard-teacher', 'Proses Produksi Cetak'),
 ('583a723cf036449d80d3742dcf695e38', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 9, 'penerbitan/naskah/timeline', 'fas fa-question-circle', 'Timeline'),
+('5ce34256ce1f4a8989ac8f3510576600', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 3, '#', 'fas fa-clipboard-check', 'Deskripsi'),
 ('63a1825ffe574c00929e532fd6241629', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 5, 'penerbitan/pracetak', 'fas fa-file-powerpoint', 'Pracetak'),
 ('70410774a1e0433bb213a9625aceb0bb', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 6, 'penerbitan/order-cetak', 'fas fa-print', 'Order Cetak'),
+('71d6b5671ebb4e128215fccc458fbf09', '5ce34256ce1f4a8989ac8f3510576600', '063203a5c5124b399ab76f8a03b93c0d', 2, 3, 'penerbitan/deskripsi/cover', 'fas fa-question-circle', 'Cover'),
 ('8bc1be5db97545e2ab1c79e0d68d4896', NULL, '3f9dfd9391394a5fa10d835e0ebb341c', 1, 1, 'master/platform-digital', 'fas fa-globe', 'Platform Digital'),
 ('92463f9e96394c19a979a3290fde5745', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 4, 'penerbitan/editing', 'fas fa-user-edit', 'Editing'),
 ('b6cbf112-1e06-11ed-87ce-1078d2a38ee5', NULL, '8a3ca046fb54492a86aaead53f36bec7', 1, 2, 'produksi/proses/ebook-multimedia', 'fas fa-desktop', 'E-book Multimedia'),
 ('bc5eb3aa02394dcca7692764e1328cee', NULL, '3f9dfd9391394a5fa10d835e0ebb341c', 1, 2, 'master/imprint', 'fas fa-stamp', 'Imprint'),
+('bd09e803c41245a49ef23987c27b20ac', '5ce34256ce1f4a8989ac8f3510576600', '063203a5c5124b399ab76f8a03b93c0d', 2, 1, 'penerbitan/deskripsi/produk', 'fas fa-question-circle', 'Produk'),
 ('bfb8b970f85c4a42bac1dc56181dc96b', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 7, 'penerbitan/order-ebook', 'fas fa-atlas', 'Order E-Book'),
-('e32aa5bb41144ac58f2e6eeca81604ac', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 3, 'penerbitan/deskripsi-final', 'fas fa-clipboard-check', 'Deskripsi Final'),
+('e32aa5bb41144ac58f2e6eeca81604ac', '5ce34256ce1f4a8989ac8f3510576600', '063203a5c5124b399ab76f8a03b93c0d', 2, 2, 'penerbitan/deskripsi/final', 'fas fa-clipboard-check', 'Final'),
 ('fb6c8f0dcc9e43199642f08a0fe1fd56', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 1, 'penerbitan/penulis', 'fas fa-pen', 'Penulis');
 
 -- --------------------------------------------------------
@@ -134,6 +139,100 @@ INSERT INTO `divisi` (`id`, `nama`, `created_by`, `updated_by`, `deleted_by`, `c
 ('821ac200b1de45fdad7d533ce0190492', 'Produksi', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-03-31 08:33:36', NULL, NULL),
 ('d1946a0d285944488032d2dcd1a7882b', 'Operasional', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-03-31 08:33:48', NULL, NULL),
 ('df719b3e9de442b3ba21b1b414887ec7', 'Marketing', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-03-31 08:33:18', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `format_buku`
+--
+
+CREATE TABLE `format_buku` (
+  `id` char(36) NOT NULL,
+  `jenis_format` varchar(10) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` varchar(36) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_by` varchar(36) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `deleted_by` varchar(36) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data untuk tabel `format_buku`
+--
+
+INSERT INTO `format_buku` (`id`, `jenis_format`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
+('00b3d327-4d4e-4d3e-9354-db5937834822', '20 x 24', '2022-09-08 07:46:16', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('03b147a8-f116-493a-b89a-afa49789af6f', '18 x 14,5', '2022-09-08 08:22:21', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('043030ec-937a-4994-a961-31e44cc95455', '25 x 20', '2022-09-08 07:42:59', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('05b58d4c-2d60-4a3f-9e8a-646b6cf69fc2', '10 x 20', '2022-09-08 08:33:37', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('16741c44-9d76-49ef-ab1f-3601d1f17d26', '12 x 23', '2022-09-08 08:33:18', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('1a3c0d7b-27b4-4cf3-a1f2-6819bff36d2e', '12 x 19', '2022-09-08 08:33:28', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('1ed81d05-527a-4240-bd97-772ed1e468fd', '19 x 21', '2022-09-08 08:10:34', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('1ffd28a8-ec9c-4fa6-9b1b-b0487f4612ce', '15 x 15', '2022-09-08 08:32:23', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('20332d5a-0312-4ccd-b3c3-18ce1c6ab50e', '28 x 21', '2022-09-08 07:45:50', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('263d8e03-cdb5-4b4c-9f9a-071435856fc7', '21,5 x 29', '2022-09-08 07:43:57', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('27abbf45-c7e1-4b97-aa4c-0bce86f7d407', '21 x 29', '2022-09-08 08:21:32', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('2de34e90-e46b-4bc2-8e8d-4503724f29c9', '28 x 40', '2022-09-08 07:35:24', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('30d8b993-02f4-4fbb-b422-9db67c21fc8c', '14 x 19', '2022-09-08 08:17:41', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('33bdf031-da9d-4e55-a907-7acb89163683', '16 x 24', '2022-09-08 07:34:15', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('33f9868c-9e45-4023-b251-4f88edef9a78', '17,6 x 25', '2022-09-08 08:10:48', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('3655c222-c0a8-4205-9ae9-c7fcaa2d50b6', '19 x 25', '2022-09-08 07:22:50', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('3a96ec78-04af-4bc0-b08d-e7012cde77ef', '23 x 21', '2022-09-08 08:21:13', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('3bad1839-ea3c-45f0-b227-bec0e0fabea6', '17,5 x 24,', '2022-09-08 08:23:33', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('3bf95c4e-37eb-4d8c-89ac-36e2b5212259', '18 x 23', '2022-09-08 07:43:25', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('3c462584-e043-4de6-aaa4-646d1c8ab54f', '18 x 25', '2022-09-08 07:35:57', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('3ce0c7f3-6b88-42cf-83a8-e319db1013b6', '15,5 x 23', '2022-09-08 07:36:10', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('3d6e4b20-f8ba-498c-b2e3-2ee8d094588f', '19,5 x 27,', '2022-09-08 07:33:37', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('41b9e190-a012-4e00-aee3-3c9d79b7cfd6', '12 x 16', '2022-09-08 07:43:45', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('48167b08-5100-40b1-be4c-6e706275935e', '16,5 x 21', '2022-09-08 08:10:24', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('49d5004c-ac92-4b23-a1b8-b5a2350ee3e7', '15 x 10', '2022-09-08 08:33:01', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('4bf4cd46-0392-4349-96d2-c7780a42b224', '25 x 17,6', '2022-09-08 07:36:26', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('4cf1286e-d95a-47f9-b129-9dd66e51fd96', '21 x 14,5', '2022-09-08 07:42:21', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('4f4b732d-9e8c-41af-b3f6-5d1766dcdd41', '20 x 28', '2022-09-08 08:22:54', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('52a686fa-df29-4589-8236-40d0c07d6227', '29,7 x 21', '2022-09-08 06:59:48', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('5a3c55d7-71c2-416f-93a6-aff65bf8b29f', '15 x 21', '2022-09-08 07:33:19', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('6129cc12-9950-4f04-b7fe-24643b276ce4', '27 x 19', '2022-09-08 07:42:44', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('64741b33-a174-4683-8768-a4ef6ab3b929', '23 x 19', '2022-09-08 08:15:45', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('6c76c38e-1463-491c-9c97-9be3ac89cdfc', '19 x 23', '2022-09-08 08:23:03', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('6f16d0e3-bec1-40fc-941a-348f852129a5', '14,5 x 18', '2022-09-08 08:16:54', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('725bbe24-9d6d-4a8d-89c4-0abbdf1da669', '28 x 20', '2022-09-08 07:41:58', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('78d1eb46-4adb-4638-b7e8-458d5b1c572f', '28,5 x 21', '2022-09-08 07:33:04', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('7d694465-167b-414f-bcfd-b132402eb40f', '11 x 18', '2022-09-08 07:46:31', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('7ef6ad3e-74f2-4c17-9139-a44c1b2729b3', '13 x 20', '2022-09-08 08:17:31', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('8c2a3deb-4dcb-4ccd-87cb-07cc4f53c53a', '19 x 14', '2022-09-08 08:21:51', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('9040fc78-4b0e-413a-a114-dd76234fad9e', '21 x 29,7', '2022-09-08 08:16:22', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('92215e7a-a0c5-4219-9b98-466fa0da6895', '17 x 24', '2022-09-08 07:28:17', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('9791545a-e38f-45a6-801c-76e3a3442b5a', '26,5 x 25', '2022-09-08 07:35:12', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('9975d557-27f9-4b32-887e-a099a3d9ad6f', '40 x 40', '2022-09-08 07:44:29', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('9af8b57a-5b1f-459d-b4e0-142888b3052d', '21 x 28', '2022-09-08 08:17:05', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('9fd8c2d9-9707-43a8-a727-1d84a60433bd', '17,5 x 24', '2022-09-08 07:34:42', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('a03da286-03d1-4a48-be6e-2339f70caa3a', '18 x 18', '2022-09-08 07:42:32', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('a0ecec9e-01c6-495c-9779-adcafada9ee3', '15 x 19', '2022-09-08 07:35:45', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('a11ed3a8-8b88-4047-a543-3aa5e42e3eb3', '21 x 23', '2022-09-08 07:34:52', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('a9b7634e-4e57-471d-abb5-c0438386ec8c', '13 x 19', '2022-09-08 08:07:19', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('b1755a36-07a3-4cc7-b51b-32c7ad3da576', '21 x 27,5', '2022-09-08 08:10:09', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('b7ea7b64-0f12-4bfa-824a-c922f8b1ee64', '20,5 x 24', '2022-09-08 08:22:41', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('bc0e9dcd-0a44-4c1a-b9fd-fd763e21045f', '19 x 27,5', '2022-09-08 07:23:07', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('bf15ef4a-b35f-47a1-9338-d472046c9423', '20 x 20', '2022-09-08 07:43:11', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('c094433a-cdee-48e8-80da-4d716889d06f', '24 x 20,5', '2022-09-08 08:20:55', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('c285eb8c-ea5b-4e07-b6cb-05e845aa6c36', '9 x 12,5', '2022-09-08 07:36:40', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('c3eecf0a-0b73-4d34-820f-62eaa6156c96', '19 x 19', '2022-09-08 08:23:19', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('c88a7fbd-ef6c-458f-8140-d4ab6c2f932a', '20 x 25', '2022-09-08 07:41:24', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('c8b5aeec-a9e0-4bce-add8-365d4e3ce9ab', '29,5 x 20,', '2022-09-08 08:22:07', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('cae456da-4789-42b2-b053-445ad443ac26', '19 x 24', '2022-09-08 07:34:30', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('cea05ec2-f58e-480b-a722-c6e784d76cea', '14,8 x 21', '2022-09-08 07:46:02', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('d5a2701a-f5d4-41f8-bacf-b40e778d5936', '10 x 15', '2022-09-08 08:17:50', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('d9653aa4-e317-4605-8ad1-9c5c6e36eafc', '16 x 23', '2022-09-08 08:31:50', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('dc0f3bda-b5a6-4b7e-8a88-f2f29c210eac', '21,59 x 27', '2022-09-08 08:17:22', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('e6696c11-bf84-4c1d-8fe4-c4f6466f5ef2', '17 x 22', '2022-09-08 08:16:00', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('e6aa3405-464f-4073-8e2d-59782974fe27', '22 x 15,5', '2022-09-08 07:42:10', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('eae78443-94f8-4d9e-a78a-1db7f8daab11', '21 x 21', '2022-09-08 08:22:31', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('eb721a05-3b7e-4397-b2b4-36688ac79213', '22 x 30', '2022-09-08 07:44:46', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('f09625b6-da85-4938-bc70-110e20681c4c', '14 x 21', '2022-09-08 08:32:38', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('f252fab5-ab32-47df-851b-c8e42264aa2a', '37,5 x 28', '2022-09-08 07:44:11', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('f5c2afa4-838b-4636-b625-4440351f65b2', '15 x 23', '2022-09-08 07:45:38', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
+('f9c54039-828f-4398-a1ba-f592075d4035', '17,5 x 25', '2022-09-08 07:33:58', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -293,7 +392,7 @@ CREATE TABLE `penerbitan_m_kelompok_buku` (
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -358,7 +457,7 @@ INSERT INTO `penerbitan_m_kelompok_buku` (`id`, `kode`, `nama`, `created_by`, `u
 ('7fd1b27c3dfc4de58387a39264b80574', 'KB005', 'Desain Teknik', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('81dcf6f0ceb4431992a6ffc98227c2d9', 'KB080', 'SDM', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('845b13d0f7a44246967cdf1e7a218087', 'KB067', 'Keamanan Komp.', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
-('87cf57e453044cb890784aacc59461f6', 'KB001', 'Aplikasi Office', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
+('87cf57e453044cb890784aacc59461f6', 'KB001', 'Aplikasi Office', 'be8d42fa88a14406ac201974963d9c1b', 'be8d42fa88a14406ac201974963d9c1b', NULL, '2022-02-23 03:27:48', '2022-09-07 07:24:01', NULL),
 ('89089725f8f848d7a440fd5f13e55736', 'KB047', 'Teknologi Pertanian', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('8adbefa7643b4f09826f470e55d633fc', 'KB023', 'Entertainment', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('8cb77e520cb94fe5834cb6a9eec73ade', 'KB014', 'Sistem Operasi', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
@@ -380,6 +479,7 @@ INSERT INTO `penerbitan_m_kelompok_buku` (`id`, `kode`, `nama`, `created_by`, `u
 ('a77b77ac2c2b4ded99f8289ee256ed2f', 'KB015', 'Statistik', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('aabf079d3ff04fc8b0be43fac38d3252', 'KB074', 'Gadget', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('aeec8573e79b4014a873c7578d0b7260', 'KB114', 'Kesehatan', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
+('b0ea25ec-b366-4de3-b02b-c0a6488557eb', 'KB120', 'coba2', 'be8d42fa88a14406ac201974963d9c1b', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-09-07 04:42:01', '2022-09-07 07:12:15', '2022-09-07 07:12:15'),
 ('b38ae711fe0c46a6a3568adc8424f9f1', 'KB020', 'Non Komputer', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('b3f4f5787c574761b9c392d35b155d18', 'KB069', 'Teks Kedokteran', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('b7b77e55c93241d0aaee2bfcf3b78e50', 'KB056', 'Agrihobi', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
@@ -398,7 +498,7 @@ INSERT INTO `penerbitan_m_kelompok_buku` (`id`, `kode`, `nama`, `created_by`, `u
 ('d1f4265cfa2c4566910e91c535e4da55', 'KB009', 'Multimedia', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('d22c65e563e84c9887cf301fecd2da77', 'KB065', 'Philosophy', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('d25238a0b57a40f5885b19f48240186d', 'KB096', 'Studi Alktb/Tafsir PL', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
-('d96347a9bc704888a2a7a72b3d4b97a6', 'KB010', 'Open Source', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
+('d96347a9bc704888a2a7a72b3d4b97a6', 'KB010', 'Open Source', 'be8d42fa88a14406ac201974963d9c1b', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-02-23 03:27:48', '2022-09-07 07:05:27', '2022-09-07 07:05:27'),
 ('d9ba00c6ed6442fb8c707112eed95460', 'KB092', 'Bioteknologi', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('dab05d03e64a47c281e6b258e7fbead1', 'KB070', 'Psikologi Populer', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('dcc19113f13d4042bfb14c2f799f2240', 'KB076', 'Sosial Politik', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
@@ -413,6 +513,7 @@ INSERT INTO `penerbitan_m_kelompok_buku` (`id`, `kode`, `nama`, `created_by`, `u
 ('f04cb5551c8042b79f2aa111be16973d', 'KB073', 'Public Relations', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('f11c5ef842ae4e68b32a2b04520fef81', 'KB107', 'Teol/Roh Kudus', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('f1b3290bcb15424dbaf3ce1d11bd3106', 'KB022', 'Diet& Health', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
+('f4e827d5-4a01-4c62-ac16-64545c9d3b4f', 'KB119', 'cobacoba', 'be8d42fa88a14406ac201974963d9c1b', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-09-07 04:41:31', '2022-09-07 07:17:15', '2022-09-07 07:17:15'),
 ('f4f977eb93654039a958e10b29e99bbf', 'KB038', 'Fotografi', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('f9b757202fa444d8b711521412f09139', 'KB036', 'Law', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
 ('fa853236a45c467a9d0c932c18322de3', 'KB094', 'Referensi', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-02-23 03:27:48', NULL, NULL),
@@ -451,6 +552,7 @@ CREATE TABLE `penerbitan_naskah` (
   `selesai_penilaian` enum('0','1','2') DEFAULT NULL COMMENT 'N:Default | 0:Belum Selesai | 1:Selesai Dinilai | 2:Tidak Dinilai',
   `selesai_penilaian_tgl` datetime DEFAULT NULL,
   `status_penilaian` enum('Reguler','eBook','Reguler-eBook','Revisi Minor','Revisi Mayor','Ditolak') DEFAULT NULL,
+  `bukti_email_penulis` datetime DEFAULT NULL,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
@@ -463,9 +565,10 @@ CREATE TABLE `penerbitan_naskah` (
 -- Dumping data untuk tabel `penerbitan_naskah`
 --
 
-INSERT INTO `penerbitan_naskah` (`id`, `kode`, `judul_asli`, `tanggal_masuk_naskah`, `email`, `kelompok_buku_id`, `jalur_buku`, `tentang_penulis`, `hard_copy`, `soft_copy`, `cdqr_code`, `keterangan`, `pic_prodev`, `penilaian_naskah`, `date_pic_prodev`, `penilaian_prodev`, `penilaian_editset`, `penilaian_pemasaran`, `penilaian_penerbitan`, `penilaian_direksi`, `selesai_penilaian`, `selesai_penilaian_tgl`, `status_penilaian`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
-('1a71b26e23094c39a62f6c8d62ec6665', 'NA20220722001', 'Lorem Ipsum Reguler', '2022-07-06', NULL, '0242257c619e4f0f85f0a2d872359e95', 'Reguler', '1', '0', '1', '0', NULL, 'e4ddf4d7c2b84cb69647f4dd63f9dbc2', '1', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Reguler', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-07-22 02:32:45', NULL, NULL),
-('b9614d8eb16a40cb871a589f23507e19', 'NA20220727002', 'coba', '2022-07-25', 'fdasdasda@gmail.com', '0242257c619e4f0f85f0a2d872359e95', 'MoU-Reguler', '0', '1', '0', '1', NULL, '4fc80f443bfb4969b9a0272d9be08ef2', '1', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-07-27 08:23:22', NULL, NULL);
+INSERT INTO `penerbitan_naskah` (`id`, `kode`, `judul_asli`, `tanggal_masuk_naskah`, `email`, `kelompok_buku_id`, `jalur_buku`, `tentang_penulis`, `hard_copy`, `soft_copy`, `cdqr_code`, `keterangan`, `pic_prodev`, `penilaian_naskah`, `date_pic_prodev`, `penilaian_prodev`, `penilaian_editset`, `penilaian_pemasaran`, `penilaian_penerbitan`, `penilaian_direksi`, `selesai_penilaian`, `selesai_penilaian_tgl`, `status_penilaian`, `bukti_email_penulis`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
+('1a71b26e23094c39a62f6c8d62ec6665', 'NA20220722001', 'Lorem Ipsum Reguler', '2022-07-06', NULL, '0242257c619e4f0f85f0a2d872359e95', 'Reguler', '1', '0', '1', '0', NULL, 'e4ddf4d7c2b84cb69647f4dd63f9dbc2', '1', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Reguler', NULL, 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-07-22 02:32:45', NULL, NULL),
+('7efc9508128a4bec9ba4bd1140085ca3', 'NA20220909003', 'cobacoba', '2022-09-09', 'ferdy@gmail.com', '0d6b22630e41467a85f2764630b81033', 'SMK/NonSMK', '1', '1', '1', '1', NULL, '4fc80f443bfb4969b9a0272d9be08ef2', '0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-09-09 03:21:20', NULL, NULL),
+('b9614d8eb16a40cb871a589f23507e19', 'NA20220727002', 'coba', '2022-07-25', 'fdasdasda@gmail.com', '0242257c619e4f0f85f0a2d872359e95', 'MoU-Reguler', '0', '1', '0', '1', NULL, '4fc80f443bfb4969b9a0272d9be08ef2', '1', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, '2022-07-27 08:23:22', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -493,7 +596,8 @@ CREATE TABLE `penerbitan_naskah_files` (
 INSERT INTO `penerbitan_naskah_files` (`id`, `naskah_id`, `kategori`, `file`, `created_by`, `updated_by`, `deleted_by`, `created_at`, `updated_at`, `deleted_at`) VALUES
 ('064d3933431f496f96f94298e53fc14c', '1a71b26e23094c39a62f6c8d62ec6665', 'File Tambahan Naskah', 'g2fL1xUNZVmaZ3xxmMFXHwUrcNb32I6Ipi0Ofu50.rar', NULL, NULL, NULL, '2022-07-22 02:32:45', NULL, NULL),
 ('5892d56a88f64a528e0843ee47d3f2b7', 'b9614d8eb16a40cb871a589f23507e19', 'File Naskah Asli', 'fdfdYE9LTqAJ8kOlTwhEBPvXvmV12ln6FCZmmcuh.pdf', NULL, NULL, NULL, '2022-07-27 08:23:22', NULL, NULL),
-('7276bbb0a725401c8c7725f154d733b8', '1a71b26e23094c39a62f6c8d62ec6665', 'File Naskah Asli', 'FgEkTY5YjgOz4loGbbDfKemiaG9FH29rZUGnpwUj.pdf', NULL, NULL, NULL, '2022-07-22 02:32:45', NULL, NULL);
+('7276bbb0a725401c8c7725f154d733b8', '1a71b26e23094c39a62f6c8d62ec6665', 'File Naskah Asli', 'FgEkTY5YjgOz4loGbbDfKemiaG9FH29rZUGnpwUj.pdf', NULL, NULL, NULL, '2022-07-22 02:32:45', NULL, NULL),
+('832df51ad41c486e8e1bf7c35c827da5', '7efc9508128a4bec9ba4bd1140085ca3', 'File Naskah Asli', 'CQXRRAZmUiYxMHu5BVDur0htW1LsEYLTuKsgeEPe.pdf', NULL, NULL, NULL, '2022-09-09 03:21:20', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -512,7 +616,10 @@ CREATE TABLE `penerbitan_naskah_penulis` (
 
 INSERT INTO `penerbitan_naskah_penulis` (`penulis_id`, `naskah_id`) VALUES
 ('90d2a75954c0442bb9f6b2578e83fc8b', '1a71b26e23094c39a62f6c8d62ec6665'),
-('353a88a472d5438dacf5e7fb7d6271e3', 'b9614d8eb16a40cb871a589f23507e19');
+('353a88a472d5438dacf5e7fb7d6271e3', 'b9614d8eb16a40cb871a589f23507e19'),
+('90d2a75954c0442bb9f6b2578e83fc8b', '7efc9508128a4bec9ba4bd1140085ca3'),
+('353a88a472d5438dacf5e7fb7d6271e3', '7efc9508128a4bec9ba4bd1140085ca3'),
+('0297e7cb197647a885098e96716bab0d', '7efc9508128a4bec9ba4bd1140085ca3');
 
 -- --------------------------------------------------------
 
@@ -790,6 +897,7 @@ CREATE TABLE `penerbitan_pn_stts` (
 --
 
 INSERT INTO `penerbitan_pn_stts` (`id`, `naskah_id`, `tgl_input_admin`, `tgl_naskah_masuk`, `tgl_pn_prodev`, `tgl_pn_editor`, `tgl_pn_setter`, `tgl_pn_m_pemasaran`, `tgl_pn_m_penerbitan`, `tgl_pn_d_pemasaran`, `tgl_pn_direksi`, `tgl_pn_selesai`) VALUES
+('7720778b3fbe4985a6caa389eb9542cf', '7efc9508128a4bec9ba4bd1140085ca3', '2022-09-09 10:21:20', '2022-09-09 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-09-09 10:21:20'),
 ('930b73d33a8445f7b933643ad967aa5f', 'b9614d8eb16a40cb871a589f23507e19', '2022-07-27 15:23:22', '2022-07-25 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 ('9e81321a28cb4d3b91e9c39541f62547', '1a71b26e23094c39a62f6c8d62ec6665', '2022-07-22 09:32:45', '2022-07-06 00:00:00', '2022-07-22 10:13:39', NULL, NULL, '2022-07-22 09:46:53', '2022-07-22 10:15:14', '2022-07-22 10:11:56', '2022-07-22 10:15:41', '2022-07-22 10:15:41');
 
@@ -815,12 +923,14 @@ CREATE TABLE `permissions` (
 INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALUES
 ('068adb0171304c628b267874004d7e8c', '8bc1be5db97545e2ab1c79e0d68d4896', '', 'Read', 'lihat-platform-digital', 'Lihat Platform Digital'),
 ('09179170e6e643eca66b282e2ffae1f8', '70410774a1e0433bb213a9625aceb0bb', '', 'Approval', 'persetujuan-order-cetak', 'Persetujuan Cetak'),
+('0d9c8667ccb34e9da275e7dce09d9cd9', '3dbad039493241aa8ed0c698d07ee94d', '', 'Update', 'ubah-format-buku', 'Ubah Format Buku'),
 ('1098a56970114e18898367d334658b47', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/mengubah-naskah', 'Update', 'ubah-data-naskah', 'Ubah Data Naskah'),
 ('12b852d92d284ab5a654c26e8856fffd', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-mpenerbitan', 'Penilaian M.Penerbitan'),
 ('171e6210418440a8bf4d689841d0f32c', 'bfb8b970f85c4a42bac1dc56181dc96b', '', 'Approval', 'persetujuan-order-ebook', 'Persetujuan E-Book'),
 ('1b89744217b04f79a8c1d7a967a46912', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis', 'Read', 'lihat-penulis', 'Lihat Data Penulis'),
 ('1c1940da68fa4f8ba2325e83c303c47c', '131899f9a9204e0baa1b23cd2eedff6a', 'manajemen-web/user', 'Update', 'ubah-data-user', 'Ubah Data User'),
 ('1f4e5b3752b8475cb5261940ef62532d', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis/membuat-penulis', 'Create', 'tambah-data-penulis', 'Buat Data Penulis'),
+('28c3460bb5cf4c618ba8ec6f3c12ddbd', '31a0187d88d94ddc83db4b71524b5b2d', '', 'Delete', 'hapus-kelompok-buku', 'Hapus Kelompok Buku'),
 ('2b6032ef8a73463ba2c761c86be5ed5d', '8bc1be5db97545e2ab1c79e0d68d4896', '', 'Create', 'buat-platform-digital', 'Buat Platform Digital'),
 ('33c3711d787d416082c0519356547b0c', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-setter', 'Penilaian Setter'),
 ('358a13267bcb4608a14c851c3010f79b', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/membuat-naskah', 'Create', 'tambah-data-naskah', 'Tambah Data Naskah'),
@@ -831,15 +941,19 @@ INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALU
 ('4bb845580b464d7db3d7c3b3e4fd213b', '4e1627c1489844f985cbe2c485b2e162', 'manajemen-web/struktur-ao', 'Read', NULL, 'Lihat Struktur AO'),
 ('4cea10b3a4434bc3b342407a78a9ab2a', 'bfb8b970f85c4a42bac1dc56181dc96b', '', 'Delete', 'hapus-produksi-ebook', 'Hapus Order E-book'),
 ('4d64a842e08344b9aeec88ed9eb2eb72', '70410774a1e0433bb213a9625aceb0bb', '', 'Update', 'update-produksi', 'Mengubah Data Produksi Order Cetak'),
+('569c1d340cea4b21a54910177eeaf51f', 'bd09e803c41245a49ef23987c27b20ac', '', 'Read', 'lihat-deskripsi-produk', 'Lihat Deskripsi Produk'),
 ('5d793b19c75046b9a4d75d067e8e33b2', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-editor', 'Penilaian Editor'),
 ('60b2f2ca-16f5-11ed-ae5c-1078d2a38ee5', 'bc5eb3aa02394dcca7692764e1328cee', '', 'Update', 'ubah-data-imprint', 'Ubah Data Imprint'),
 ('6903e82e7e94478f87df3cf80de6b587', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah', 'Read', 'lihat-naskah', 'Lihat Data Naskah'),
+('6b4e3b36783d4a488101da7639c40de0', '71d6b5671ebb4e128215fccc458fbf09', '', 'Read', 'lihat-deskripsi-cover', 'Lihat Deskripsi Cover'),
 ('78712deb909d4d88af7f098c0fcf6857', 'bfb8b970f85c4a42bac1dc56181dc96b', '', 'Decline', 'persetujuan-pending', 'Persetujuan Pending'),
 ('808ab7987c9b4f0ab025b1b9e3ed1d43', '92463f9e96394c19a979a3290fde5745', '', 'Read', 'lihat-editing', 'Buat Editing'),
 ('8791f143a90e42e2a4d1d0d6b1254bad', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-direksi', 'Penilaian Direksi'),
 ('89bc4b0ef1dd4306a3217cbf24551071', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis/hapus-penulis', 'Delete', 'hapus-data-penulis', 'Hapus Data Penulis'),
+('8a6141a082554335a2137c90f9fa0a5e', '31a0187d88d94ddc83db4b71524b5b2d', '', 'Create', 'buat-kelompok-buku', 'Buat Kelompok Buku'),
 ('8baa9163-16f5-11ed-ae5c-1078d2a38ee5', 'bc5eb3aa02394dcca7692764e1328cee', '', 'Delete', 'hapus-data-imprint', 'Hapus Data Imprint'),
 ('8d9b1da4234f46eb858e1ea490da6348', '583a723cf036449d80d3742dcf695e38', 'penerbitan/naskah/timeline', 'Update', 'timeline-naskah-update-date', 'Ubah Tanggal Timeline Naskah'),
+('8de7d59a74f345a5bcab20ec43376299', '30d0f70435904ad5b4e7cbfeb98fc021', '', 'Read', 'notifikasi-email-penulis', 'Notifikasi kirim Email Ke Penulis'),
 ('8f53727c763849aab80c1513505decf8', 'bfb8b970f85c4a42bac1dc56181dc96b', '', 'Update', 'update-produksi-ebook', 'Ubah Order E-book'),
 ('9b4e52c30f974844ac7a050000a0ee6a', '70410774a1e0433bb213a9625aceb0bb', '', 'Decline', 'persetujuan-pending-cetak', 'Persetujuan Pending'),
 ('9beba245308543ce821efe8a3ba965e3', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-dpemasaran', 'Penilaian D.Pemasaran'),
@@ -847,17 +961,22 @@ INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALU
 ('a213b689b8274f4dbe19b3fb24d66840', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-mpemasaran', 'Penilaian M.Pemasaran'),
 ('a6034d814d7e4671b4cc8a98433f8fb2', '583a723cf036449d80d3742dcf695e38', 'penerbitan/naskah/timeline', 'Create', 'timeline-naskah-add', 'Buat Timeline Naskah'),
 ('a91ee437-1e08-11ed-87ce-1078d2a38ee5', '5646908e-1e06-11ed-87ce-1078d2a38ee5', '', 'Update', 'ubah-lanjutan-data-produksi', 'Ubah Data Proses Produksi'),
+('bc5a7cb945e14432bfdf312e2059e868', '31a0187d88d94ddc83db4b71524b5b2d', '', 'Read', 'lihat-kelompok-buku', 'Lihat Kelompok Buku'),
 ('bc6b9c821e3f42ccb57532930c8d92be', '8bc1be5db97545e2ab1c79e0d68d4896', '', 'Update', 'ubah-platform-digital', 'Ubah Platform Digital'),
+('be40fd210eb44ee68475bbe80eb8b1ea', '31a0187d88d94ddc83db4b71524b5b2d', '', 'Update', 'ubah-kelompok-buku', 'Ubah Kelompok Buku'),
 ('c21495eca0d44776aeacf431dc9fb0e1', 'bfb8b970f85c4a42bac1dc56181dc96b', '', 'Create', 'tambah-produksi-ebook', 'Buat Order E-Book'),
 ('c64802952e504f4ab25a6b1241232f85', '70410774a1e0433bb213a9625aceb0bb', 'produksi/order-cetak', 'Read', 'lihat-order-cetak', 'Lihat Data Order Cetak'),
 ('cc93223a47764195ac15aacf266673d9', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis/mengubah-penulis', 'Update', 'ubah-data-penulis', 'Ubah Data Penulis'),
 ('d821a505-1e08-11ed-87ce-1078d2a38ee5', 'b6cbf112-1e06-11ed-87ce-1078d2a38ee5', '', 'Update', 'ubah-data-multimedia', 'Ubah Data E-book Multimedia'),
 ('db87d2605a68440fbf8e148744e243e8', 'e32aa5bb41144ac58f2e6eeca81604ac', '', 'Read', 'lihat-deskripsi-final', 'Lihat Deskripsi Final'),
+('dc43f263313f4788bccbcc9adf642a1f', '3dbad039493241aa8ed0c698d07ee94d', '', 'Delete', 'hapus-format-buku', 'Hapus Format Buku'),
 ('e0860766d564483e870b5974a601649c', '70410774a1e0433bb213a9625aceb0bb', '', 'Create', 'tambah-produksi-cetak', 'Membuat Data Order Cetak'),
 ('e9f5bad7fdd94494a125e451de456a92', '8bc1be5db97545e2ab1c79e0d68d4896', '', 'Delete', 'hapus-platform-digital', 'Hapus Platform Digital'),
 ('ebca07da8aad42c4aee304e3a6b81001', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-prodev', 'Penilaian Prodev'),
 ('eecbccb6-1e08-11ed-87ce-1078d2a38ee5', 'b6cbf112-1e06-11ed-87ce-1078d2a38ee5', '', 'Read', 'lihat-ebook-multimedia', 'Lihat Data E-book Multimedia'),
-('f76c69fb-16f4-11ed-ae5c-1078d2a38ee5', 'bc5eb3aa02394dcca7692764e1328cee', '', 'Read', 'lihat-imprint', 'Lihat Data Imprint');
+('f76c69fb-16f4-11ed-ae5c-1078d2a38ee5', 'bc5eb3aa02394dcca7692764e1328cee', '', 'Read', 'lihat-imprint', 'Lihat Data Imprint'),
+('faa7c4808c714ca49762f6aaade7da3b', '3dbad039493241aa8ed0c698d07ee94d', '', 'Read', 'lihat-format-buku', 'Lihat Format Buku'),
+('fd061c3363db4b298eea0bb0b4cbcbf0', '3dbad039493241aa8ed0c698d07ee94d', '', 'Create', 'buat-format-buku', 'Buat Format Buku');
 
 -- --------------------------------------------------------
 
@@ -1258,7 +1377,14 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', '068adb0171304c628b267874004d7e8c'),
 ('be8d42fa88a14406ac201974963d9c1b', '2b6032ef8a73463ba2c761c86be5ed5d'),
 ('be8d42fa88a14406ac201974963d9c1b', 'bc6b9c821e3f42ccb57532930c8d92be'),
-('be8d42fa88a14406ac201974963d9c1b', 'db87d2605a68440fbf8e148744e243e8'),
+('be8d42fa88a14406ac201974963d9c1b', '0d9c8667ccb34e9da275e7dce09d9cd9'),
+('be8d42fa88a14406ac201974963d9c1b', 'dc43f263313f4788bccbcc9adf642a1f'),
+('be8d42fa88a14406ac201974963d9c1b', 'faa7c4808c714ca49762f6aaade7da3b'),
+('be8d42fa88a14406ac201974963d9c1b', 'fd061c3363db4b298eea0bb0b4cbcbf0'),
+('be8d42fa88a14406ac201974963d9c1b', '28c3460bb5cf4c618ba8ec6f3c12ddbd'),
+('be8d42fa88a14406ac201974963d9c1b', '8a6141a082554335a2137c90f9fa0a5e'),
+('be8d42fa88a14406ac201974963d9c1b', 'bc5a7cb945e14432bfdf312e2059e868'),
+('be8d42fa88a14406ac201974963d9c1b', 'be40fd210eb44ee68475bbe80eb8b1ea'),
 ('be8d42fa88a14406ac201974963d9c1b', '4cea10b3a4434bc3b342407a78a9ab2a'),
 ('be8d42fa88a14406ac201974963d9c1b', '8f53727c763849aab80c1513505decf8'),
 ('be8d42fa88a14406ac201974963d9c1b', '9d69d18ff5184804990bc21cb1005ab7'),
@@ -1268,11 +1394,15 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', 'c64802952e504f4ab25a6b1241232f85'),
 ('be8d42fa88a14406ac201974963d9c1b', 'e0860766d564483e870b5974a601649c'),
 ('be8d42fa88a14406ac201974963d9c1b', '38f34660ef404dc9b7a0ee0f697ae781'),
+('be8d42fa88a14406ac201974963d9c1b', 'db87d2605a68440fbf8e148744e243e8'),
+('be8d42fa88a14406ac201974963d9c1b', '569c1d340cea4b21a54910177eeaf51f'),
+('be8d42fa88a14406ac201974963d9c1b', '6b4e3b36783d4a488101da7639c40de0'),
 ('be8d42fa88a14406ac201974963d9c1b', '8d9b1da4234f46eb858e1ea490da6348'),
 ('be8d42fa88a14406ac201974963d9c1b', 'a6034d814d7e4671b4cc8a98433f8fb2'),
 ('be8d42fa88a14406ac201974963d9c1b', '1098a56970114e18898367d334658b47'),
 ('be8d42fa88a14406ac201974963d9c1b', '358a13267bcb4608a14c851c3010f79b'),
 ('be8d42fa88a14406ac201974963d9c1b', '6903e82e7e94478f87df3cf80de6b587'),
+('be8d42fa88a14406ac201974963d9c1b', '8de7d59a74f345a5bcab20ec43376299'),
 ('be8d42fa88a14406ac201974963d9c1b', '1b89744217b04f79a8c1d7a967a46912'),
 ('be8d42fa88a14406ac201974963d9c1b', '1f4e5b3752b8475cb5261940ef62532d'),
 ('be8d42fa88a14406ac201974963d9c1b', 'd821a505-1e08-11ed-87ce-1078d2a38ee5'),
@@ -1313,6 +1443,12 @@ ALTER TABLE `cabang`
 ALTER TABLE `divisi`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `nama` (`nama`);
+
+--
+-- Indeks untuk tabel `format_buku`
+--
+ALTER TABLE `format_buku`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indeks untuk tabel `imprint`

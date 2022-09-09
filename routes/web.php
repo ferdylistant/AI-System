@@ -7,8 +7,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ManWeb\UsersController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ManWeb\StrukturAoController;
+use App\Http\Controllers\MasterData\{ImprintController,KelompokBukuController,FormatBukuController};
 use App\Http\Controllers\Produksi\{ProduksiController, EbookController,ProsesProduksiController,ProsesEbookController};
-use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController, ImprintController, TimelineController};
+use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiFinalController};
 
 /*
 |--------------------------------------------------------------------------
@@ -66,6 +67,16 @@ Route::middleware(['auth'])->group(function() {
         Route::get('/platform-digital', [ImprintController::class, 'indexPlatform'])->name('platform.view');
         Route::match(['get', 'post'], '/platform-digital/tambah', [ImprintController::class, 'createPlatform'])->name('platform.create');
         Route::match(['get', 'post'], '/platform-digital/ubah', [ImprintController::class, 'updatePlatform'])->name('platform.update');
+        //Kelompok Buku
+        Route::get('/kelompok-buku',[KelompokBukuController::class,'index'])->name('kb.view');
+        Route::match(['get', 'post'], '/kelompok-buku/tambah', [KelompokBukuController::class, 'createKbuku'])->name('kb.create');
+        Route::match(['get', 'post'], '/kelompok-buku/ubah', [KelompokBukuController::class, 'updateKbuku'])->name('kb.update');
+        Route::get('/kelompok-buku/hapus',[KelompokBukuController::class, 'deleteKbuku'])->name('kb.delete');
+        //Format Buku
+        Route::get('/format-buku',[FormatBukuController::class,'index'])->name('fb.view');
+        Route::match(['get', 'post'], '/format-buku/tambah', [FormatBukuController::class, 'createFbuku'])->name('fb.create');
+        Route::match(['get', 'post'], '/format-buku/ubah', [FormatBukuController::class, 'updateFbuku'])->name('fb.update');
+        Route::get('/format-buku/hapus',[FormatBukuController::class, 'deleteFbuku'])->name('fb.delete');
     });
     //Penerbitan
     Route::prefix('penerbitan')->group(function () {
@@ -83,6 +94,8 @@ Route::middleware(['auth'])->group(function() {
         Route::match(['get', 'post'], '/naskah/mengubah-naskah/{id}', [NaskahController::class, 'updateNaskah']);
         Route::post('/naskah/penilaian/{cat}', [PenilaianNaskahController::class, 'index']);
         Route::post('/naskah/timeline/{cat}', [TimelineController::class, 'index']);
+        //Deskripsi Final
+        Route::get('descripsi-final',[DeskripsiFinalController::class,'index']);
         //Order Cetak
         Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('cetak.view');
         Route::get('/order-cetak/detail', [ProduksiController::class, 'detailProduksi'])->name('cetak.detail');
