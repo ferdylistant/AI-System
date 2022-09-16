@@ -76,4 +76,22 @@ $('#fup_prosesEbook').on('submit', function(e) {
         notifToast('error', 'Periksa kembali form Anda!');
     }
 })
+$(document).on('click', '.mark-sent-email',function(e){
+    e.preventDefault();
+    var getLink = $(this).attr('href');
+    swal({
+        title: 'Apakah anda yakin?',
+        text:  'Email harus sudah dikirim ke penulis',
+        type: 'warning',
+        html: true,
+        icon: 'warning',
+        buttons: true,
+        dangerMode: true,
+    })
+    .then((confirm_) => {
+        if (confirm_) {
+            window.location.href = getLink
+        }
+    });
+});
 

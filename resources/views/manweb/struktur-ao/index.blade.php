@@ -20,13 +20,13 @@
                     <div class="card-header">
                         <h4>Data Cabang</h4>
                         <div class="card-header-action">
-                            <button id="btn_AddCabang" class="btn btn-success" 
+                            <button id="btn_AddCabang" class="btn btn-success"
                                 data-toggle="modal" data-target="#md_AddCabang" data-backdrop="static">Tambah</button>
                         </div>
-                    </div>  
+                    </div>
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_Cabang">
+                            <table class="table table-striped" id="tb_Cabang" style="width: 100%">
                             </table>
                         </div>
                     </div>
@@ -42,10 +42,10 @@
                             <a href="#"  class="btn btn-success" data-tipe="Divisi"
                                 data-toggle="modal" data-target="#md_AddDivJab" data-backdrop="static">Tambah</a>
                         </div>
-                    </div>  
+                    </div>
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_Divisi">
+                            <table class="table table-striped" id="tb_Divisi" style="width: 100%">
                             </table>
                         </div>
                     </div>
@@ -59,10 +59,10 @@
                             <a href="#" class="btn btn-success" data-tipe="Jabatan"
                                 data-toggle="modal" data-target="#md_AddDivJab" data-backdrop="static">Tambah</a>
                         </div>
-                    </div>  
+                    </div>
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_Jabatan">
+                            <table class="table table-striped" id="tb_Jabatan" style="width: 100%">
                             </table>
                         </div>
                     </div>
@@ -78,7 +78,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-success">
-                
+
             </div>
             <form id="fm_AddCabang">
             <div class="modal-body">
@@ -125,7 +125,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-warning">
-                
+
             </div>
             <form id="fm_EditCabang">
             <div class="modal-body">
@@ -254,7 +254,7 @@
                 { data: 'nama', name: 'Nama', title: 'Nama' },
                 { data: 'telp', name: 'telp', sDefaultContent: '-', title: 'Telepon' },
                 { data: 'alamat', name: 'alamat', sDefaultContent: '-', title: 'Alamat' },
-                { data: 'action', name: 'action', title: 'Aksi', searchable: false, orderable: false },    
+                { data: 'action', name: 'action', title: 'Aksi', searchable: false, orderable: false },
             ],
         });
 
@@ -274,7 +274,7 @@
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "10%" },
                 { data: 'nama', name: 'Nama', title: 'Nama' },
-                { data: 'action', name: 'action', title: 'Aksi', searchable: false, orderable: false },    
+                { data: 'action', name: 'action', title: 'Aksi', searchable: false, orderable: false },
             ],
         });
 
@@ -294,7 +294,7 @@
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "10%" },
                 { data: 'nama', name: 'Nama', title: 'Nama' },
-                { data: 'action', name: 'action', title: 'Aksi', searchable: false, orderable: false },    
+                { data: 'action', name: 'action', title: 'Aksi', searchable: false, orderable: false },
             ],
         });
 
@@ -306,7 +306,7 @@
         let editCabang = jqueryValidation_('#fm_EditCabang', {
             edit_nama: { required: true, },
             edit_telp: { number: true }
-        }); 
+        });
         let addDivJab = jqueryValidation_('#fm_AddDivJab', {
             add_djnama: { required: true, }
         });
@@ -410,7 +410,7 @@
         function ajaxAddDivJab(data, cat, type) {
             let el = data.get(0);
                 type = type.toLowerCase();
-                
+
             $.ajax({
                 type: "POST",
                 url: "{!!url('manajemen-web/struktur-ao/"+cat+"/"+type+"')!!}",
@@ -451,7 +451,7 @@
         function ajaxEditDivJab(data, cat, type) {
             let el = data.get(0);
                 type = type.toLowerCase();
-                
+
             $.ajax({
                 type: "POST",
                 url: "{!!url('manajemen-web/struktur-ao/"+cat+"/"+type+"')!!}",
@@ -480,7 +480,7 @@
                         })
                         editDivJab.showErrors(err);
                     }
-                    notifToast('error', 'Data '+type+' gagal diubah!');   
+                    notifToast('error', 'Data '+type+' gagal diubah!');
                 },
                 complete: function() {
                     $('button[type="submit"]').prop('disabled', false).
@@ -568,7 +568,7 @@
                         ajaxEditCabang($(this))
                     }
                 });
-                
+
             }
         })
 
@@ -647,7 +647,7 @@
         $('#tb_Cabang').on('click', '.btn_DelCabang', function(e) {
             let cabang = $(this).data('nama'),
                 id = $(this).data('id');
-            
+
             swal({
                 text: 'Hapus data Cabang ('+cabang+')?',
                 icon: 'warning',
@@ -666,7 +666,7 @@
             let nama = $(this).data('nama'),
                 id = $(this).data('id'),
                 type = $(this).data('tipe');
-            
+
             swal({
                 text: 'Hapus data '+type+' ('+nama+')?',
                 icon: 'warning',

@@ -9,7 +9,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ManWeb\StrukturAoController;
 use App\Http\Controllers\MasterData\{ImprintController,KelompokBukuController,FormatBukuController};
 use App\Http\Controllers\Produksi\{ProduksiController, EbookController,ProsesProduksiController,ProsesEbookController};
-use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiFinalController};
+use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiFinalController, DeskripsiProdukController};
 
 /*
 |--------------------------------------------------------------------------
@@ -87,13 +87,17 @@ Route::middleware(['auth'])->group(function() {
         Route::match(['get', 'post'], '/penulis/detail-penulis/{id}', [PenulisController::class, 'detailPenulis']);
         Route::post('/penulis/hapus-penulis', [PenulisController::class, 'deletePenulis']);
         //Naskah
-        Route::get('/naskah', [NaskahController::class, 'index']);
+        Route::get('/naskah', [NaskahController::class, 'index'])->name('naskah.view');
         Route::get('/naskah/ajax-call-page/{page}', [NaskahController::class, 'ajaxCallPage']);
         Route::match(['get', 'post'], '/naskah/melihat-naskah/{id}', [NaskahController::class, 'viewNaskah']);
         Route::match(['get', 'post'], '/naskah/membuat-naskah', [NaskahController::class, 'createNaskah']);
         Route::match(['get', 'post'], '/naskah/mengubah-naskah/{id}', [NaskahController::class, 'updateNaskah']);
         Route::post('/naskah/penilaian/{cat}', [PenilaianNaskahController::class, 'index']);
         Route::post('/naskah/timeline/{cat}', [TimelineController::class, 'index']);
+        Route::get('/naskah/tandai-telah-kirim-email', [NaskahController::class, 'tandaKirimEmail']);
+        //Deskripsi Produk
+        Route::get('/deskripsi/produk',[DeskripsiProdukController::class, 'index'])->name('despro.view');
+        Route::match(['get', 'post'],'/deskripsi/produk/edit',[DeskripsiProdukController::class, 'editDeskripsiProduk'])->name('despro.edit');
         //Deskripsi Final
         Route::get('descripsi-final',[DeskripsiFinalController::class,'index']);
         //Order Cetak

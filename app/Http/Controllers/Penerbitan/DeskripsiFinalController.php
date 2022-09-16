@@ -6,6 +6,7 @@ use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
 class DeskripsiFinalController extends Controller

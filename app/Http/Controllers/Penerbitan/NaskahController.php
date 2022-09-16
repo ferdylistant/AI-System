@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
-use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use PhpParser\Node\Stmt\Catch_;
 use Yajra\DataTables\DataTables;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
 class NaskahController extends Controller
 {
@@ -33,10 +35,19 @@ class NaskahController extends Controller
                             if(in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
                                 if(!is_null($data->tgl_pn_selesai)) {
                                     $badge .= '<span class="badge badge-primary">Selesai Dinilai</span>';
-                                    if(Gate::allows('do_read_raw','notifikasi-email-penulis')){
-                                        $badge .= '&nbsp;|&nbsp;<a href="'.url('penerbitan/naskah/tandai-telah-kirim-email').'" class="text-primary">Tandai telah kirim email ke penulis</a>';
+                                    if(Gate::allows('do_update','notifikasi-email-penulis')){
+                                        if (is_null($data->bukti_email_penulis)) {
+                                            $badge .= '&nbsp;|&nbsp;<a href="'.url('penerbitan/naskah/tandai-telah-kirim-email?n='.$data->id).'" class="text-primary mark-sent-email">Tandai naskah sudah lengkap</a>';
+                                        } else {
+                                            $badge .= '&nbsp;|&nbsp;<span class="badge badge-success">Naskah sudah lengkap</span>';
+                                        }
                                     } else{
+                                        if(is_null($data->bukti_email_penulis)) {
+                                            $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning">Naskah belum lengkap</span>';
+                                        } else {
+                                            $badge .= '&nbsp;|&nbsp;<span class="badge badge-success">Naskah sudah lengkap</span>';
 
+                                        }
                                     }
                                 } else {
                                     $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_prodev)?'danger':'success').'">Pdv</span>';
@@ -54,6 +65,20 @@ class NaskahController extends Controller
                                 }
                             } else {
                                 $badge .= '<span class="badge badge-primary">Tidak Dinilai</span>';
+                                if(Gate::allows('do_update','notifikasi-email-penulis')){
+                                    if (is_null($data->bukti_email_penulis)) {
+                                        $badge .= '&nbsp;|&nbsp;<a href="'.url('penerbitan/naskah/tandai-telah-kirim-email?n='.$data->id).'" class="text-primary mark-sent-email">Tandai naskah sudah lengkap</a>';
+                                    } else {
+                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-success">Naskah sudah lengkap</span>';
+                                    }
+                                } else{
+                                    if(is_null($data->bukti_email_penulis)) {
+                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning">Naskah belum lengkap</span>';
+                                    } else {
+                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-success">Naskah sudah lengkap</span>';
+
+                                    }
+                                }
                             }
 
                             return $badge;
@@ -195,7 +220,10 @@ class NaskahController extends Controller
 
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
                     ->get();
-        $user = DB::table('users')->get();
+        $user = DB::table('users as u')->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+            ->where('j.nama','LIKE','%Prodev%')
+            ->select('u.nama','u.id')
+            ->get();
         return view('penerbitan.naskah.create-naskah', [
             'kode' => self::generateId(),
             'kbuku' => $kbuku,
@@ -350,7 +378,10 @@ class NaskahController extends Controller
         }
 
         $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
-        $user = DB::table('users')->get();
+        $user = DB::table('users as u')->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+        ->where('j.nama','LIKE','%Prodev%')
+        ->select('u.nama','u.id')
+        ->get();
 
         return view('penerbitan.naskah.update-naskah', [
             'kbuku' => $kbuku,
@@ -421,6 +452,30 @@ class NaskahController extends Controller
             'fileNaskah' => (object)$fileNaskah,
             'title' => 'Detail Naskah'
         ]);
+    }
+
+    public function tandaKirimEmail(Request $request) {
+        $id = $request->get('n');
+        // return response()->json($id);
+        $data = DB::table('penerbitan_naskah as pn')->whereNull('deleted_at')->where('id',$id)->first();
+        if(is_null($data))
+        {
+            abort(404);
+        } else {
+            try {
+                DB::table('deskripsi_produk')->insert([
+                    'id' => Uuid::uuid4()->toString(),
+                    'naskah_id' => $id,
+                    'pembuat_deskripsi' => $data->pic_prodev
+                ]);
+                DB::table('penerbitan_naskah as pn')->whereNull('deleted_at')->where('id',$id)->update([
+                'bukti_email_penulis' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ]);
+                return redirect()->route('naskah.view');
+            } catch (\Exception $e) {
+                abort(500);
+            }
+        }
     }
 
     public static function generateId() {

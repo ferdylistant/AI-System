@@ -50,6 +50,7 @@
 @endsection
 
 @section('jsNeeded')
+<script src="{{url('js/upload_link.js')}}"></script>
 <script>
     $(function() {
          $('#tb_Naskah').DataTable({

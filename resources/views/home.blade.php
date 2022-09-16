@@ -239,13 +239,6 @@
                     </div>
                 </div>
             </div> --->
-            <div class="col-10 offset-1">
-                <div class="card card-secondary">
-                    <div class="card-body">
-                        <div id='calendar'></div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </section>
