@@ -33,20 +33,20 @@
                                         <table class="table table-bordered">
                                             <tbody>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Kode naskah:</th>
+                                                    <th class="table-secondary" style="width: 25%">Kode naskah:</th>
                                                     <td class="table-active text-right">{{$data->kode}}</td>
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Judul Asli:</th>
+                                                    <th class="table-secondary" style="width: 25%">Judul Asli:</th>
                                                     <input type="hidden" name="judul_asli" value="{{$data->judul_asli}}">
                                                     <td class="table-active text-right">{{$data->judul_asli}}</td>
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Kelompok Buku:</th>
+                                                    <th class="table-secondary" style="width: 25%">Kelompok Buku:</th>
                                                     <td class="table-active text-right">{{$data->nama}}</td>
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Penulis:</th>
+                                                    <th class="table-secondary" style="width: 25%">Penulis:</th>
                                                     <td class="table-active text-right">
                                                         @foreach ($penulis as $p)
                                                             {{$p->nama}}-<br>
@@ -54,9 +54,27 @@
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Format Buku: <span class="text-danger">*</span></th>
+                                                    <th class="table-secondary" style="width: 25%">Format Buku: <span class="text-danger">*</span></th>
                                                     @if (!is_null($data->format_buku))
-
+                                                    <td class="table-active text-right" id="formatBukuCol">
+                                                        {{$data->format_buku}} cm
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="formatBukuButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="formatBukuColInput" hidden>
+                                                        <div class="input-group">
+                                                            <select name="format_buku" class="form-control select-format-buku" required>
+                                                                <option label="Pilih format buku"></option>
+                                                                @foreach ($format_buku as $fb)
+                                                                    <option value="{{$fb->jenis_format}}" {{$data->format_buku==$fb->jenis_format?'Selected':''}}>{{$fb->jenis_format}}&nbsp;cm&nbsp;&nbsp;</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_format text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                     @else
                                                     <td class="table-active text-left">
                                                         <select name="format_buku" class="form-control select-format-buku" required>
@@ -69,22 +87,54 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Jumlah halaman perkiraan: <span class="text-danger">*</span></th>
-                                                    @if (!is_null($data->format_buku))
+                                                    <th class="table-secondary" style="width: 25%">Jumlah halaman perkiraan: <span class="text-danger">*</span></th>
+                                                    @if (!is_null($data->jml_hal_perkiraan))
+                                                    <td class="table-active text-right" id="jmlHalCol">
+                                                        {{$data->jml_hal_perkiraan}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="jmlHalButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="jmlHalColInput" hidden>
+                                                        <div class="input-group">
+                                                            <input type="number" name="jml_hal_perkiraan" value="{{$data->jml_hal_perkiraan}}" class="form-control" min="1" required>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_jml text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
 
                                                     @else
                                                     <td class="table-active text-left">
-                                                        <input type="number" name="jml_hal_perkiraan" class="form-control" min="1">
+                                                        <input type="number" name="jml_hal_perkiraan" class="form-control" min="1" required>
                                                     </td>
                                                     @endif
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Kelengkapan:</th>
+                                                    <th class="table-secondary" style="width: 25%">Kelengkapan:</th>
                                                     @if (!is_null($data->kelengkapan))
-
+                                                    <td class="table-active text-right" id="kelCol">
+                                                        {{$data->kelengkapan}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="kelButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="kelColInput" hidden>
+                                                        <div class="input-group">
+                                                            <select name="kelengkapan" class="form-control select-kelengkapan">
+                                                                <option label="Pilih kelengkapan"></option>
+                                                                @foreach ($kelengkapan as $k)
+                                                                    <option value="{{$k['value']}}" {{$data->kelengkapan==$k['value']?'Selected':''}}>{{$k['value']}}&nbsp;&nbsp;</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_kel text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                     @else
                                                     <td class="table-active text-left">
-                                                        <select name="kelengkapan" class="form-control select-kelengkapan" required>
+                                                        <select name="kelengkapan" class="form-control select-kelengkapan">
                                                             <option label="Pilih kelengkapan"></option>
                                                             @foreach ($kelengkapan as $k)
                                                                 <option value="{{$k['value']}}">{{$k['value']}}&nbsp;&nbsp;</option>
@@ -94,9 +144,22 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Catatan:</th>
-                                                    @if (!is_null($data->imprint))
-
+                                                    <th class="table-secondary" style="width: 25%">Catatan:</th>
+                                                    @if (!is_null($data->catatan))
+                                                    <td class="table-active text-right" id="catCol">
+                                                        {{$data->catatan}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="catButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="catColInput" hidden>
+                                                        <div class="input-group">
+                                                            <textarea name="catatan" class="form-control" cols="30" rows="10">{{$data->catatan}}</textarea>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_cat text-danger" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                     @else
                                                     <td class="table-active text-left">
                                                         <textarea name="catatan" class="form-control" cols="30" rows="10"></textarea>
@@ -104,9 +167,27 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Imprint: <span class="text-danger">*</span></th>
+                                                    <th class="table-secondary" style="width: 25%">Imprint: <span class="text-danger">*</span></th>
                                                     @if (!is_null($data->imprint))
-
+                                                    <td class="table-active text-right" id="imprintCol">
+                                                        {{$data->imprint}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="imprintButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="imprintColInput" hidden>
+                                                        <div class="input-group">
+                                                            <select name="imprint" class="form-control select-imprint" required>
+                                                                <option label="Pilih imprint"></option>
+                                                                @foreach ($imprint as $i)
+                                                                    <option value="{{$i->nama}}" {{$data->imprint==$i->nama?'Selected':''}}>{{$i->nama}}&nbsp;&nbsp;</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_imprint text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                     @else
                                                     <td class="table-active text-left">
                                                         <select name="imprint" class="form-control select-imprint" required>
@@ -119,9 +200,22 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Judul Final:</th>
-                                                    @if (!is_null($data->imprint))
-
+                                                    <th class="table-secondary" style="width: 25%">Judul Final:</th>
+                                                    @if (!is_null($data->judul_final))
+                                                    <td class="table-active text-right" id="judulFinalCol">
+                                                        {{$data->judul_final}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="judulFinalButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="judulFinalColInput" hidden>
+                                                        <div class="input-group">
+                                                            <textarea name="judul_final" class="form-control" cols="30" rows="10">{{$data->judul_final}}</textarea>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_judul_final text-danger" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                     @else
                                                     <td class="table-active text-left">
                                                         <textarea name="judul_final" class="form-control" cols="30" rows="10"></textarea>
@@ -129,9 +223,22 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Bulan: <span class="text-danger">*</span></th>
-                                                    @if (!is_null($data->imprint))
-
+                                                    <th class="table-secondary" style="width: 25%">Bulan: <span class="text-danger">*</span></th>
+                                                    @if (!is_null($data->bulan))
+                                                    <td class="table-active text-right" id="bulanCol">
+                                                        {{Carbon\Carbon::parse($data->bulan)->translatedFormat('F Y')}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="bulanButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="bulanColInput" hidden>
+                                                        <div class="input-group">
+                                                            <input name="bulan" value="{{Carbon\Carbon::parse($data->bulan)->translatedFormat('F Y')}}" class="form-control datepicker" required>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_bulan text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                     @else
                                                     <td class="table-active text-left">
                                                         <input name="bulan" class="form-control datepicker" required>
@@ -139,24 +246,42 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 30%">Alt Judul</th>
+                                                    <th class="table-secondary" style="width: 25%">Alt Judul</th>
+                                                    @if (!is_null($data->alt_judul))
+                                                    <td class="table-active text-right" id="altCol">
+                                                        @foreach (json_decode($data->alt_judul,true) as $aj)
+                                                            {{$aj}}-<br>
+                                                        @endforeach
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="altButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="altColInput" hidden>
+                                                        <div class="input_fields_wrap">
+                                                            <button class="add_field_button btn btn-outline-primary mb-1"><i class="fas fa-plus-circle"></i> More Fields</button>
+                                                            <button class="btn btn-outline-danger batal_edit_alt text-danger align-self-center mb-1" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            @foreach (Illuminate\Support\Arr::whereNotNull(json_decode($data->alt_judul,true)) as $alt_judul)
+                                                            <div class="input-group-append">
+                                                                <input type="text" name="alt_judul[]" value="{{$alt_judul}}" placeholder="Alternatif judul" class="form-control">
+                                                            </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </td>
+                                                    @else
                                                     <td class="table-active text-left">
                                                         <div class="input_fields_wrap">
                                                             <button class="add_field_button btn btn-outline-primary mb-1"><i class="fas fa-plus-circle"></i> More Fields</button>
-                                                            <div class="input-group-append"><input type="text" name="alt_judul[]" placeholder="Alternatif judul" class="form-control" required></div>
+                                                            <div class="input-group-append"><input type="text" name="alt_judul[]" placeholder="Alternatif judul" class="form-control"></div>
                                                         </div>
                                                     </td>
+                                                    @endif
                                                 </tr>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
                                 <input type="hidden" name="id" value="{{$data->id}}">
-
-
-                            </div>
                         </div>
                         <div class="card-footer text-right">
                             <button type="submit" class="btn btn-success">Update</button>

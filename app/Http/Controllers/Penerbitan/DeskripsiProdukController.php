@@ -157,19 +157,27 @@ class DeskripsiProdukController extends Controller
     {
         if($request->ajax()) {
             if ($request->isMethod('POST')) {
-                foreach ($request->bukti_upload as $value) {
-                    $buktiUpload[] = $value;
+                foreach ($request->alt_judul as $value) {
+                    $altJudul[] = $value;
                 }
-                DB::table('proses_ebook_multimedia')
+                DB::table('deskripsi_produk')
                     ->where('id', $request->id)
                     ->update([
-                    'bukti_upload' => json_encode($buktiUpload),
+                    'judul_final' => $request->judul_final,
+                    'alt_judul' => json_encode($altJudul),
+                    'format_buku' => $request->format_buku,
+                    'jml_hal_perkiraan' => $request->jml_hal_perkiraan,
+                    'imprint' => $request->imprint,
+                    'kelengkapan' => $request->kelengkapan,
+                    'catatan' => $request->catatan,
+                    'bulan' => date('Y-m-d',strtotime($request->bulan)),
+                    'status' => 'Proses',
                     'updated_by'=> auth()->id()
                 ]);
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'Data bukti upload e-book berhasil diposting',
-                    'route' => route('proses.ebook.view')
+                    'message' => 'Data deskripsi produk berhasil ditambahkan',
+                    'route' => route('despro.view')
                 ]);
             }
         }

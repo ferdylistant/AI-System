@@ -8,12 +8,108 @@ $(document).ready(function() {
 		e.preventDefault();
 		if(x < max_fields){ //max input box allowed
 			x++; //text box increment
-			$(wrapper).append('<div class="input-group-append"><input type="text" name="alt_judul[]" class="form-control" placeholder="Alternatif judul" required/><button type="button" class="btn btn-outline-danger remove_field text-danger align-self-center" data-toggle="tooltip" title="Hapus Field"><i class="fas fa-times"></i></button></div>'); //add input box
+			$(wrapper).append('<div class="input-group-append"><input type="text" name="alt_judul[]" class="form-control" placeholder="Alternatif judul"/><button type="button" class="btn btn-outline-danger remove_field text-danger align-self-center" data-toggle="tooltip" title="Hapus Field"><i class="fas fa-times"></i></button></div>'); //add input box
 		}
 	});
 
 	$(wrapper).on("click",".remove_field", function(e){ //user click on remove text
 		e.preventDefault(); $(this).parent('div').remove(); x--;
+	})
+});
+$(document).ready(function() {
+    $('#formatBukuButton').click(function(e) {
+        e.preventDefault();
+        $('#formatBukuCol').attr('hidden','hidden');
+        $('#formatBukuColInput').removeAttr('hidden');
+    });
+    $('.batal_edit_format').click(function(e){ //user click on remove text
+		e.preventDefault();
+        $('#formatBukuColInput').attr('hidden','hidden');
+        $('#formatBukuCol').removeAttr('hidden');
+	})
+});
+$(document).ready(function() {
+    $('#jmlHalButton').click(function(e) {
+        e.preventDefault();
+        $('#jmlHalCol').attr('hidden','hidden');
+        $('#jmlHalColInput').removeAttr('hidden');
+    });
+    $('.batal_edit_jml').click(function(e){ //user click on remove text
+		e.preventDefault();
+        $('#jmlHalColInput').attr('hidden','hidden');
+        $('#jmlHalCol').removeAttr('hidden');
+	})
+});
+$(document).ready(function() {
+    $('#kelButton').click(function(e) {
+        e.preventDefault();
+        $('#kelCol').attr('hidden','hidden');
+        $('#kelColInput').removeAttr('hidden');
+    });
+    $('.batal_edit_kel').click(function(e){ //user click on remove text
+		e.preventDefault();
+        $('#kelColInput').attr('hidden','hidden');
+        $('#kelCol').removeAttr('hidden');
+	})
+});
+$(document).ready(function() {
+    $('#catButton').click(function(e) {
+        e.preventDefault();
+        $('#catCol').attr('hidden','hidden');
+        $('#catColInput').removeAttr('hidden');
+    });
+    $('.batal_edit_cat').click(function(e){ //user click on remove text
+		e.preventDefault();
+        $('#catColInput').attr('hidden','hidden');
+        $('#catCol').removeAttr('hidden');
+	})
+});
+$(document).ready(function() {
+    $('#imprintButton').click(function(e) {
+        e.preventDefault();
+        $('#imprintCol').attr('hidden','hidden');
+        $('#imprintColInput').removeAttr('hidden');
+    });
+    $('.batal_edit_imprint').click(function(e){ //user click on remove text
+		e.preventDefault();
+        $('#imprintColInput').attr('hidden','hidden');
+        $('#imprintCol').removeAttr('hidden');
+	})
+});
+$(document).ready(function() {
+    $('#judulFinalButton').click(function(e) {
+        e.preventDefault();
+        $('#judulFinalCol').attr('hidden','hidden');
+        $('#judulFinalColInput').removeAttr('hidden');
+    });
+    $('.batal_edit_judul_final').click(function(e){ //user click on remove text
+		e.preventDefault();
+        $('#judulFinalColInput').attr('hidden','hidden');
+        $('#judulFinalCol').removeAttr('hidden');
+	})
+});
+$(document).ready(function() {
+    $('#bulanButton').click(function(e) {
+        e.preventDefault();
+        $('#bulanCol').attr('hidden','hidden');
+        $('#bulanColInput').removeAttr('hidden');
+    });
+    $('.batal_edit_bulan').click(function(e){ //user click on remove text
+		e.preventDefault();
+        $('#bulanColInput').attr('hidden','hidden');
+        $('#bulanCol').removeAttr('hidden');
+	})
+});
+$(document).ready(function() {
+    $('#altButton').click(function(e) {
+        e.preventDefault();
+        $('#altCol').attr('hidden','hidden');
+        $('#altColInput').removeAttr('hidden');
+    });
+    $('.batal_edit_alt').click(function(e){ //user click on remove text
+		e.preventDefault();
+        $('#altColInput').attr('hidden','hidden');
+        $('#altCol').removeAttr('hidden');
 	})
 });
 $(function() {
@@ -46,40 +142,12 @@ $(function() {
         autoclose:true,
         clearBtn: true
     });
-    function resetFrom(form) {
-    form.trigger('reset');
-        $('[name="up_tipe_order"]').val('').trigger('change');
-        $('[name="up_jenis_mesin"]').val('').trigger('change');
-        $('[name="up_status_cetak"]').val('').trigger('change');
-        $('[name="up_judul_buku"]').val('').trigger('change');
-        $('[name="up_platform_digital[]"]').val('').trigger('change');
-        $('[name="up_urgent"]').val('').trigger('change');
-        $('[name="up_isbn"]').val('').trigger('change');
-        $('[name="up_edisi]"]').val('').trigger('change');
-        $('[name="up_cetakan"]').val('').trigger('change');
-        $('[name="up_tahun_terbit"]').val('').trigger('change');
-        $('[name="up_tgl_permintaan_jadi"]').val('').trigger('change');
-        $('[name="up_jilid"]').val('').trigger('change');
-        $('[name="up_posisi_layout"]').val('').trigger('change');
-        $('[name="up_ukuran_bending"]').val('').trigger('change');
-    }
-    // let upNaskah = jqueryValidation_('#fup_Produksi', {
-    //     up_tipe_order: {required: true},
-    //     up_status_cetak: {required: true},
-    //     up_judul_buku: {required: true},
-    //     up_platform_digital: {required: true},
-    //     up_urgent: {required: true},
-    //     up_isbn: {required: true},
-    //     up_edisi: {required: true},
-    //     up_cetakan: {required: true},
-    //     up_tgl_permintaan_jadi: {required: true},
-    // });
 
     function ajaxUpDeskripsiProduk(data) {
         let el = data.get(0);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/order-cetak/edit",
+            url: window.location.origin + "/penerbitan/deskripsi/produk/edit",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -88,7 +156,7 @@ $(function() {
                     addClass('btn-progress')
             },
             success: function(result) {
-                resetFrom(data);
+                // resetFrom(data);
                 notifToast(result.status, result.message);
                 location.href = result.route;
             },
