@@ -175,7 +175,7 @@ class ImprintController extends Controller
                 'author_id' => $d->author_id,
                 'nama' => $d->nama,
                 'modified_at' => Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans(),
-                'format_tanggal' => Carbon::parse($d->modified_at)->translatedFormat('d M Y - H:i')
+                'format_tanggal' => Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i')
             ];
         }
         return response()->json($result);

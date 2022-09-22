@@ -104,13 +104,17 @@
 $(document).ready(function(e){
     $('#tb_Imprint').on('click','.btn-history',function(e){
         var data = $(this).data('id');
-        $.post("{{route('imprint.history')}}",
-        {
-            id: data
-        },
-        function(data, status){
-            $.each(data, function(k, v) {
-                $('#dataHistory').append(`<span class="ticket-item">
+        $.ajax({
+            type: "POST",
+            url: "{{route('imprint.history')}}",
+            dataType: "json",
+            data: {
+                id: data
+            },
+            success:function(result) {
+                $('#dataHistory').empty();
+                $.each(result, function(k, v) {
+                    $('#dataHistory').append(`<span class="ticket-item">
                         <div class="ticket-title">
                             <h6><span class="bullet"></span> Imprint '`+v.imprint_history+`' diubah menjadi '`+v.imprint_new+`'.</h6>
                         </div>
@@ -120,9 +124,8 @@ $(document).ready(function(e){
                             <div>`+v.modified_at+` (`+v.format_tanggal+`)</div>
                         </div>
                     </span>`);
-                // console.log(v);
-            });
-            $( this ).off( e );
+                });
+            }
         });
     });
 });
