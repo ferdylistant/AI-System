@@ -101,31 +101,23 @@
     })
 </script>
 <script>
-$(document).ready(function(e){
+$(function(){
     $('#tb_Imprint').on('click','.btn-history',function(e){
         var data = $(this).data('id');
-        $.ajax({
-            type: "POST",
-            url: "{{route('imprint.history')}}",
-            dataType: "json",
-            data: {
-                id: data
-            },
-            success:function(result) {
-                $('#dataHistory').empty();
-                $.each(result, function(k, v) {
-                    $('#dataHistory').append(`<span class="ticket-item">
-                        <div class="ticket-title">
-                            <h6><span class="bullet"></span> Imprint '`+v.imprint_history+`' diubah menjadi '`+v.imprint_new+`'.</h6>
-                        </div>
-                        <div class="ticket-info">
-                            <div class="text-muted">Modified by <a href="{{url('/manajemen-web/user/`+v.author_id+`')}}">`+v.nama+`</a></div>
-                            <div class="bullet"></div>
-                            <div>`+v.modified_at+` (`+v.format_tanggal+`)</div>
-                        </div>
-                    </span>`);
-                });
-            }
+        $.post("{{route('imprint.history')}}", {id: data}, function(data){
+            $('#dataHistory').empty();
+            $.each(data, function(k, v) {
+            $('#dataHistory').append(`<span class="ticket-item">
+                    <div class="ticket-title">
+                        <h6><span class="bullet"></span> Imprint '`+v.imprint_history+`' diubah menjadi '`+v.imprint_new+`'.</h6>
+                    </div>
+                    <div class="ticket-info">
+                        <div class="text-muted">Modified by <a href="{{url('/manajemen-web/user/`+v.author_id+`')}}">`+v.nama+`</a></div>
+                        <div class="bullet"></div>
+                        <div>`+v.modified_at+` (`+v.format_tanggal+`)</div>
+                    </div>
+                </span>`);
+            });
         });
     });
 });
