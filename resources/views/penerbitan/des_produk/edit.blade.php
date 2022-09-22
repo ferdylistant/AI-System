@@ -25,6 +25,24 @@
         <div class="row">
             <div class="col-12">
                 <div class="card card-warning">
+                    <div class="card-header">
+                        <div class="card-header-action lead">
+                            @if ($data->status == 'Pending')
+                                <i class="far fa-circle text-danger"></i>
+                                Status Progress:
+                                <span class="badge badge-danger">{{$data->status}}</span>
+                            @elseif ($data->status == 'Proses')
+                                <i class="far fa-circle" style="color:#34395E;"></i>
+                                Status Progress:
+                                <span class="badge" style="background:#34395E;color:white">{{$data->status}}</span>
+                            @elseif ($data->status == 'Selesai')
+                                <i class="far fa-circle text-dark"></i>
+                                Status Progress:
+                                <span class="badge badge-light">{{$data->status}}</span>
+                            @endif
+                        </div>
+                    </div>
+                    @if ($data->status == 'Proses')
                     <form id="fup_deskripsiProduk">
                         <div class="card-body">
                             <div class="row">
@@ -138,6 +156,39 @@
                                                             <option label="Pilih kelengkapan"></option>
                                                             @foreach ($kelengkapan as $k)
                                                                 <option value="{{$k['value']}}">{{$k['value']}}&nbsp;&nbsp;</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
+                                                    <th class="table-secondary" style="width: 25%">Usulan Editor:</th>
+                                                    @if (!is_null($data->editor))
+                                                    <td class="table-active text-right" id="eCol">
+                                                        {{$data->editor}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="eButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="eColInput" hidden>
+                                                        <div class="input-group">
+                                                            <select name="editor" class="form-control select-editor">
+                                                                <option label="Pilih editor"></option>
+                                                                @foreach ($editor as $e)
+                                                                    <option value="{{$e['id']}}" {{$data->editor==$e['nama']?'Selected':''}}>{{$e['nama']}}&nbsp;&nbsp;</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_editor text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @else
+                                                    <td class="table-active text-left">
+                                                        <select name="editor" class="form-control select-editor">
+                                                            <option label="Pilih editor"></option>
+                                                            @foreach ($editor as $e)
+                                                                <option value="{{$e['id']}}">{{$e['nama']}}&nbsp;&nbsp;</option>
                                                             @endforeach
                                                         </select>
                                                     </td>
@@ -287,6 +338,133 @@
                             <button type="submit" class="btn btn-success">Update</button>
                         </div>
                     </form>
+                    @else
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <tbody>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Kode naskah:</th>
+                                                <td class="table-active text-right">{{$data->kode}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Judul Asli:</th>
+                                                <input type="hidden" name="judul_asli" value="{{$data->judul_asli}}">
+                                                <td class="table-active text-right">{{$data->judul_asli}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Kelompok Buku:</th>
+                                                <td class="table-active text-right">{{$data->nama}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Penulis:</th>
+                                                <td class="table-active text-right">
+                                                    @foreach ($penulis as $p)
+                                                        {{$p->nama}}-<br>
+                                                    @endforeach
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Format Buku: <span class="text-danger">*</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->format_buku))
+                                                        {{$data->format_buku}} cm
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Jumlah halaman perkiraan: <span class="text-danger">*</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->jml_hal_perkiraan))
+                                                        {{$data->jml_hal_perkiraan}}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Kelengkapan:</th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->kelengkapan))
+                                                        {{$data->kelengkapan}}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Usulan Editor:</th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->editor))
+                                                        {{$data->editor}}
+                                                    @else
+                                                        <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Catatan:</th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->catatan))
+                                                        {{$data->catatan}}
+                                                    @else
+                                                        <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Imprint: <span class="text-danger">*</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->imprint))
+                                                        {{$data->imprint}}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Judul Final:</th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->judul_final))
+                                                        {{$data->judul_final}}
+                                                    @else
+                                                        <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Bulan: <span class="text-danger">*</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->bulan))
+                                                        {{Carbon\Carbon::parse($data->bulan)->translatedFormat('F Y')}}
+                                                    @else
+                                                        <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Alt Judul</th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->alt_judul))
+                                                        @foreach (json_decode($data->alt_judul,true) as $aj)
+                                                            {{$aj}}-<br>
+                                                        @endforeach
+                                                    @else
+                                                        <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -53,6 +53,18 @@ $(document).ready(function() {
 	})
 });
 $(document).ready(function() {
+    $('#eButton').click(function(e) {
+        e.preventDefault();
+        $('#eCol').attr('hidden','hidden');
+        $('#eColInput').removeAttr('hidden');
+    });
+    $('.batal_edit_editor').click(function(e){ //user click on remove text
+		e.preventDefault();
+        $('#eColInput').attr('hidden','hidden');
+        $('#eCol').removeAttr('hidden');
+	})
+});
+$(document).ready(function() {
     $('#catButton').click(function(e) {
         e.preventDefault();
         $('#catCol').attr('hidden','hidden');
@@ -122,6 +134,13 @@ $(function() {
     });
     $(".select-kelengkapan").select2({
         placeholder: 'Pilih kelengkapan',
+    }).on('change', function(e) {
+        if(this.value) {
+            $(this).valid();
+        }
+    });
+    $(".select-editor").select2({
+        placeholder: 'Pilih editor',
     }).on('change', function(e) {
         if(this.value) {
             $(this).valid();

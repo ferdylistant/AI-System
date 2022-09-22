@@ -12,7 +12,7 @@
     <div class="section-header">
         <h1>Data Users</h1>
         <div class="section-header-button">
-            <a href="{{url('penerbitan/naskah/membuat-naskah')}}" class="btn btn-success" data-toggle="modal" data-target="#md_AddUser">Tambah</a>
+            <a href="javascript:void(0)" class="btn btn-success" data-toggle="modal" data-target="#md_AddUser">Tambah</a>
         </div>
     </div>
 
@@ -138,10 +138,10 @@
                 { data: 'cabang', name: 'cabang', sDefaultContent: '-', title: 'Cabang' },
                 { data: 'bagian', name: 'bagian', sDefaultContent: '-', title: 'Bagian' },
                 { data: 'status', name: 'status', title: 'Status' },
-                { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false },    
+                { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false },
             ],
         });
-        
+
         let addUser = jqueryValidation_('#fm_AddUser', {});
 
         function resetForm(form) {
@@ -217,14 +217,14 @@
                     }
                 });
             }
-                
+
         });
 
         $('#tb_Users').on('click', '.btn_DelUser', function(e) {
             e.preventDefault();
             let nama = $(this).data('nama'),
                 id = $(this).data('id');
-            
+
             swal({
                 text: 'Hapus data user ('+nama+')?',
                 icon: 'warning',

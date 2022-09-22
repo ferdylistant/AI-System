@@ -15,7 +15,6 @@ class NaskahController extends Controller
 {
     public function index(Request $request) {
         if($request->ajax()) {
-            if($request->input('request_') === 'table-naskah') {
                 $data = DB::table('penerbitan_naskah as pn')
                             ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
                             ->whereNull('pn.deleted_at')
@@ -50,11 +49,11 @@ class NaskahController extends Controller
                                         }
                                     }
                                 } else {
-                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_prodev)?'danger':'success').'">Pdv</span>';
-                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_m_penerbitan)?'danger':'success').'">M.Pen</span>';
-                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_m_pemasaran)?'danger':'success').'">M.Pem</span>';
-                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_d_pemasaran)?'danger':'success').'">D.Pem</span>';
-                                    $badge .= '<span class="badge badge-'.(is_null($data->tgl_pn_direksi)?'danger':'success').'">Dir</span>';
+                                    $badge .= '<span class="d-block badge badge-'.(is_null($data->tgl_pn_prodev)?'danger':'success').' mr-1">Prodev'.(is_null($data->tgl_pn_prodev)?'':'&nbsp;'.Carbon::parse($data->tgl_pn_prodev)->translatedFormat('d M Y, H:i:s')).'</span>';
+                                    $badge .= '<span class="d-block badge badge-'.(is_null($data->tgl_pn_m_penerbitan)?'danger':'success').' mr-1 mt-1">M.Penerbitan'.(is_null($data->tgl_pn_m_penerbitan)?'':'&nbsp;'.Carbon::parse($data->tgl_pn_m_penerbitan)->translatedFormat('d M Y, H:i:s')).'</span>';
+                                    $badge .= '<span class="d-block badge badge-'.(is_null($data->tgl_pn_m_pemasaran)?'danger':'success').' mr-1 mt-1">M.Pemasaran'.(is_null($data->tgl_pn_m_pemasaran)?'':'&nbsp;'.Carbon::parse($data->tgl_pn_m_pemasaran)->translatedFormat('d M Y, H:i:s')).'</span>';
+                                    $badge .= '<span class="d-block badge badge-'.(is_null($data->tgl_pn_d_pemasaran)?'danger':'success').' mr-1 mt-1">D.Pemasaran'.(is_null($data->tgl_pn_d_pemasaran)?'':'&nbsp;'.Carbon::parse($data->tgl_pn_d_pemasaran)->translatedFormat('d M Y, H:i:s')).'</span>';
+                                    $badge .= '<span class="d-block badge badge-'.(is_null($data->tgl_pn_direksi)?'danger':'success').' mr-1 mt-1">Direksi'.(is_null($data->tgl_pn_direksi)?'':'&nbsp;'.Carbon::parse($data->tgl_pn_direksi)->translatedFormat('d M Y, H:i:s')).'</span>';
                                 }
                             } elseif($data->jalur_buku == 'Pro Literasi') {
                                 if(!is_null($data->tgl_pn_selesai)) {
@@ -85,18 +84,18 @@ class NaskahController extends Controller
                         })
                         ->addColumn('action', function($data) use($update) {
                             $btn = '<a href="'.url('penerbitan/naskah/melihat-naskah/'.$data->id).'"
-                                    class="btn btn-sm btn-primary btn-icon mr-1">
+                                    class="d-block btn btn-sm btn-primary btn-icon mr-1">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if($update) {
                                 $btn .= '<a href="'.url('penerbitan/naskah/mengubah-naskah/'.$data->id).'"
-                                    class="btn btn-sm btn-warning btn-icon mr-1">
+                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
                             return $btn;
                         })
                         ->rawColumns(['stts_penilaian', 'action'])
                         ->make(true);
-            } elseif($request->input('request_') === 'selectPenulis') {
+            if($request->input('request_') === 'selectPenulis') {
                 $data = DB::table('penerbitan_penulis')
                         ->whereNull('deleted_at')
                         ->where('nama', 'like', '%'.$request->input('term').'%')
@@ -466,7 +465,8 @@ class NaskahController extends Controller
                 DB::table('deskripsi_produk')->insert([
                     'id' => Uuid::uuid4()->toString(),
                     'naskah_id' => $id,
-                    'pembuat_deskripsi' => $data->pic_prodev
+                    'pembuat_deskripsi' => $data->pic_prodev,
+                    'status' => 'Pending'
                 ]);
                 DB::table('penerbitan_naskah as pn')->whereNull('deleted_at')->where('id',$id)->update([
                 'bukti_email_penulis' => Carbon::now('Asia/Jakarta')->toDateTimeString()

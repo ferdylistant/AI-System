@@ -97,7 +97,9 @@ Route::middleware(['auth'])->group(function() {
         Route::get('/naskah/tandai-telah-kirim-email', [NaskahController::class, 'tandaKirimEmail']);
         //Deskripsi Produk
         Route::get('/deskripsi/produk',[DeskripsiProdukController::class, 'index'])->name('despro.view');
+        Route::get('/deskripsi/produk/detail',[DeskripsiProdukController::class, 'detailDeskripsiProduk'])->name('despro.detail');
         Route::match(['get', 'post'],'/deskripsi/produk/edit',[DeskripsiProdukController::class, 'editDeskripsiProduk'])->name('despro.edit');
+        Route::post('/deskripsi/produk/update-status-progress',[DeskripsiProdukController::class, 'updateStatusProgress']);
         //Deskripsi Final
         Route::get('descripsi-final',[DeskripsiFinalController::class,'index']);
         //Order Cetak

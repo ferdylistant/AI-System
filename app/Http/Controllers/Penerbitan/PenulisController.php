@@ -31,15 +31,15 @@ class PenulisController extends Controller
                 return Datatables::of($data)
                         ->addColumn('action', function($data) use($update, $delete){
                             $btn = '<a href="'.url('penerbitan/penulis/detail-penulis/'.$data->id).'"
-                                    class="btn btn-sm btn-primary btn-icon mr-1">
+                                    class="d-block btn btn-sm btn-primary btn-icon mr-1">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if($update) {
                                 $btn .= '<a href="'.url('penerbitan/penulis/mengubah-penulis/'.$data->id).'"
-                                    class="btn btn-sm btn-warning btn-icon mr-1">
+                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
                             if($delete) {
-                                $btn .= '<a href="#" class="btn btn-sm btn_DelPenulis btn-danger btn-icon"
+                                $btn .= '<a href="#" class="d-block btn btn-sm btn_DelPenulis btn-danger btn-icon mr-1 mt-1"
                                     data-id ="'.$data->id.'" data-nama="'.$data->nama.'">
                                     <div><i class="fas fa-trash-alt"></i></div></a>';
                             }

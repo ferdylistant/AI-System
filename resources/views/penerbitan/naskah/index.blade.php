@@ -25,6 +25,20 @@
             <div class="col-12">
                 <div class="card card-primary">
                     <div class="card-body">
+                        <div class="form-group col-12 col-md-3 mb-4">
+                            <div class="input-group">
+                                <select data-column="2" name="status_jb" id="status_jb" class="form-control select-filter-jb status_filter-_jb" style="width: 200px">
+                                    <option label="Pilih Filter Status"></option>
+                                    <option value="Reguler">Reguler</option>
+                                        <option value="MoU-Reguler">MoU-Reguler</option>
+
+                                </select>
+                                    <button type="button" class="btn btn-outline-danger clear_field_jb text-danger align-self-center" data-toggle="tooltip" title="Reset" hidden><i class="fas fa-times"></i></button>
+
+                            </div>
+
+
+                        </div>
                         <div class="col-12 table-responsive">
                             <table class="table table-striped" id="tb_Naskah">
                             </table>
@@ -53,11 +67,9 @@
 <script src="{{url('js/upload_link.js')}}"></script>
 <script>
     $(function() {
-         $('#tb_Naskah').DataTable({
-            responsive: true,
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            },
+        let tableNaskah = $('#tb_Naskah').DataTable({
+            "bSort": true,
+            "responsive": true,
             processing: true,
             serverSide: true,
             language: {
@@ -65,10 +77,7 @@
                 sSearch: '',
                 lengthMenu: '_MENU_ items/page',
             },
-            ajax: {
-                url: "{{ url('penerbitan/naskah') }}",
-                data: {"request_": "table-naskah"}
-            },
+            ajax: "{{ route('naskah.view') }}",
             columns: [
                 { data: 'kode', name: 'kode', title: 'Kode' },
                 { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
@@ -77,7 +86,12 @@
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
             ]
         });
-
-    })
+        $('[name="status_jb"]').on('change', function(){
+            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+            tableNaskah.column( $(this).data('column') )
+            .search( val ? val : '', true, false )
+            .draw();
+        });
+    });
 </script>
 @endsection
