@@ -51,7 +51,7 @@ Route::middleware(['auth'])->group(function() {
 
     Route::get('manajemen-web/users', [UsersController::class, 'index']);
     Route::match(['get', 'post'], 'manajemen-web/user/ajax/{act}/{id?}', [UsersController::class, 'ajaxUser']);
-    Route::get('manajemen-web/user/{id}', [UsersController::class, 'selectUser']);
+    Route::get('manajemen-web/user/{id}', [UsersController::class, 'selectUser'])->name('user.view');
     Route::post('manajemen-web/user/update-access', [UsersController::class, 'updateAccess']);
 
     /* Menu Struktur Organisasi [cabang, divisi, jabatan] */
@@ -63,6 +63,7 @@ Route::middleware(['auth'])->group(function() {
         Route::get('/imprint', [ImprintController::class, 'index'])->name('imprint.view');
         Route::match(['get', 'post'], '/imprint/tambah-imprint', [ImprintController::class, 'createImprint'])->name('imprint.create');
         Route::match(['get', 'post'], '/imprint/ubah-imprint', [ImprintController::class, 'updateImprint'])->name('imprint.update');
+        Route::match(['get', 'post'],'/imprint/lihat-history', [ImprintController::class, 'lihatHistory'])->name('imprint.history');
         //Platform Digital
         Route::get('/platform-digital', [ImprintController::class, 'indexPlatform'])->name('platform.view');
         Route::match(['get', 'post'], '/platform-digital/tambah', [ImprintController::class, 'createPlatform'])->name('platform.create');

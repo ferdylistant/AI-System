@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\MasterData;
 
+use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use App\Events\UpdateImprintEvent;
+use App\Events\InsertImprintHistory;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
@@ -46,6 +49,15 @@ class ImprintController extends Controller
                                 return $date;
                             }
                         })
+                        ->addColumn('history', function ($data) {
+                            $historyData = DB::table('imprint_history')->where('imprint_id',$data->id)->get();
+                            if($historyData->isEmpty()) {
+                                return '-';
+                            } else {
+                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-toggle="modal" data-target="#md_ImprintHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
+                                return $date;
+                            }
+                        })
                         ->addColumn('diubah_oleh', function($data) {
                             if($data->updated_by == null) {
                                 return '-';
@@ -57,12 +69,12 @@ class ImprintController extends Controller
                         ->addColumn('action', function($data) use ($update) {
                             if(Gate::allows('do_delete', 'hapus-data-imprint')) {
                                 $btn = '<a href="'.url('master/imprint/hapus?im='.$data->id).'"
-                                    class="btn btn-sm btn-danger btn-icon mr-1" data-toggle="tooltip" title="Hapus Data">
+                                    class="d-block btn btn-sm btn-danger btn-icon mr-1" data-toggle="tooltip" title="Hapus Data">
                                     <div><i class="fas fa-trash"></i></div></a>';
                             }
                             if($update) {
                                 $btn .= '<a href="'.url('master/imprint/ubah-imprint?im='.$data->id).'"
-                                    class="btn btn-sm btn-warning btn-icon mr-1" data-toggle="tooltip" title="Edit Data">
+                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
                             return $btn;
@@ -74,6 +86,7 @@ class ImprintController extends Controller
                             'dibuat_oleh',
                             'diubah_terakhir',
                             'diubah_oleh',
+                            'history',
                             'action'
                             ])
                         ->make(true);
@@ -118,13 +131,21 @@ class ImprintController extends Controller
                 ], [
                     'required' => 'This field is requried'
                 ]);
-
-                DB::table('imprint')
-                    ->where('id', $request->id)
-                    ->update([
+                $history = DB::table('imprint')->where('id',$request->id)->first();
+                $update = [
+                    'id' => $request->id,
                     'nama' => $request->up_nama,
                     'updated_by' => auth()->user()->id
-                ]);
+                ];
+                event(new UpdateImprintEvent($update));
+                $insert = [
+                    'imprint_id' => $request->id,
+                    'imprint_history' => $history->nama,
+                    'imprint_new' => $request->up_nama,
+                    'author_id' => auth()->user()->id,
+                    'modified_at' => date('Y-m-d H:i:s')
+                ];
+                event(new InsertImprintHistory($insert));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data imprint berhasil diubah!',
@@ -140,6 +161,24 @@ class ImprintController extends Controller
             'title' => 'Update Imprint',
             'data' => $data
         ]);
+    }
+    public function lihatHistory(Request $request) {
+        $id = $request->input('id');
+        $data = DB::table('imprint_history as ih')->join('users as u','ih.author_id','=','u.id')
+        ->where('ih.imprint_id',$id)
+        ->select('ih.*','u.nama')
+        ->get();
+        foreach ($data as $d){
+            $result[] = [
+                'imprint_history' => $d->imprint_history,
+                'imprint_new' => $d->imprint_new,
+                'author_id' => $d->author_id,
+                'nama' => $d->nama,
+                'modified_at' => Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans(),
+                'format_tanggal' => Carbon::parse($d->modified_at)->translatedFormat('d M Y - H:i')
+            ];
+        }
+        return response()->json($result);
     }
     public function indexPlatform(Request $request) {
         if($request->ajax()) {
