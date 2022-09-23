@@ -27,14 +27,18 @@
                 <div class="card card-warning">
                     <div class="card-header">
                         <div class="card-header-action lead">
-                            @if ($data->status == 'Pending')
+                            @if ($data->status == 'Antrian')
+                                <i class="far fa-circle" style="color:#34395E;"></i>
+                                Status Progress:
+                                <span class="badge" style="background:#34395E;color:white">{{$data->status}}</span>
+                            @elseif ($data->status == 'Pending')
                                 <i class="far fa-circle text-danger"></i>
                                 Status Progress:
                                 <span class="badge badge-danger">{{$data->status}}</span>
                             @elseif ($data->status == 'Proses')
-                                <i class="far fa-circle" style="color:#34395E;"></i>
+                                <i class="far fa-circle text-success"></i>
                                 Status Progress:
-                                <span class="badge" style="background:#34395E;color:white">{{$data->status}}</span>
+                                <span class="badge badge-success">{{$data->status}}</span>
                             @elseif ($data->status == 'Selesai')
                                 <i class="far fa-circle text-dark"></i>
                                 Status Progress:

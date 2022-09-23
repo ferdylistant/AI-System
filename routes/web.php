@@ -63,21 +63,26 @@ Route::middleware(['auth'])->group(function() {
         Route::get('/imprint', [ImprintController::class, 'index'])->name('imprint.view');
         Route::match(['get', 'post'], '/imprint/tambah-imprint', [ImprintController::class, 'createImprint'])->name('imprint.create');
         Route::match(['get', 'post'], '/imprint/ubah-imprint', [ImprintController::class, 'updateImprint'])->name('imprint.update');
-        Route::match(['get', 'post'],'/imprint/lihat-history', [ImprintController::class, 'lihatHistory'])->name('imprint.history');
+        Route::get('/imprint/hapus',[ImprintController::class, 'deleteImprint'])->name('imprint.delete');
+        Route::post('/imprint/lihat-history', [ImprintController::class, 'lihatHistory'])->name('imprint.history');
         //Platform Digital
         Route::get('/platform-digital', [ImprintController::class, 'indexPlatform'])->name('platform.view');
         Route::match(['get', 'post'], '/platform-digital/tambah', [ImprintController::class, 'createPlatform'])->name('platform.create');
         Route::match(['get', 'post'], '/platform-digital/ubah', [ImprintController::class, 'updatePlatform'])->name('platform.update');
+        Route::post('/platform-digital/hapus', [ImprintController::class, 'deletePlatform'])->name('platform.delete');
+        Route::post('/platform-digital/lihat-history', [ImprintController::class, 'lihatHistoryPlatform'])->name('platform.history');
         //Kelompok Buku
         Route::get('/kelompok-buku',[KelompokBukuController::class,'index'])->name('kb.view');
         Route::match(['get', 'post'], '/kelompok-buku/tambah', [KelompokBukuController::class, 'createKbuku'])->name('kb.create');
         Route::match(['get', 'post'], '/kelompok-buku/ubah', [KelompokBukuController::class, 'updateKbuku'])->name('kb.update');
         Route::get('/kelompok-buku/hapus',[KelompokBukuController::class, 'deleteKbuku'])->name('kb.delete');
+        Route::post('/kelompok-buku/lihat-history', [KelompokBukuController::class, 'lihatHistory'])->name('kb.history');
         //Format Buku
         Route::get('/format-buku',[FormatBukuController::class,'index'])->name('fb.view');
         Route::match(['get', 'post'], '/format-buku/tambah', [FormatBukuController::class, 'createFbuku'])->name('fb.create');
         Route::match(['get', 'post'], '/format-buku/ubah', [FormatBukuController::class, 'updateFbuku'])->name('fb.update');
         Route::get('/format-buku/hapus',[FormatBukuController::class, 'deleteFbuku'])->name('fb.delete');
+        Route::post('/format-buku/lihat-history', [FormatBukuController::class, 'lihatHistory'])->name('fb.history');
     });
     //Penerbitan
     Route::prefix('penerbitan')->group(function () {

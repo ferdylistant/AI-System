@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
+use App\Events\UpdateFbEvent;
+use App\Events\InsertFbHistory;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -57,15 +59,24 @@ class FormatBukuController extends Controller
                                 return $dataUser->nama;
                             }
                         })
+                        ->addColumn('history', function ($data) {
+                            $historyData = DB::table('format_buku_history')->where('format_buku_id',$data->id)->get();
+                            if($historyData->isEmpty()) {
+                                return '-';
+                            } else {
+                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-toggle="modal" data-target="#md_FormatBukuHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
+                                return $date;
+                            }
+                        })
                         ->addColumn('action', function($data) use ($update) {
                             if(Gate::allows('do_delete', 'hapus-format-buku')) {
-                                $btn = '<a href="'.url('master/format-buku/hapus?kb='.$data->id).'"
-                                    class="btn btn-sm btn-danger btn-icon mr-1" id="hapus-fbuku" data-toggle="tooltip" title="Hapus Data">
+                                $btn = '<a href="'.url('master/format-buku/hapus?fb='.$data->id).'"
+                                    class="d-block btn btn-sm btn-danger btn-icon mr-1" id="hapus-fbuku" data-toggle="tooltip" title="Hapus Data">
                                     <div><i class="fas fa-trash"></i></div></a>';
                             }
                             if($update) {
-                                $btn .= '<a href="'.url('master/format-buku/ubah?kb='.$data->id).'"
-                                    class="btn btn-sm btn-warning btn-icon mr-1" data-toggle="tooltip" title="Edit Data">
+                                $btn .= '<a href="'.url('master/format-buku/ubah?fb='.$data->id).'"
+                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
                             return $btn;
@@ -77,6 +88,7 @@ class FormatBukuController extends Controller
                             'dibuat_oleh',
                             'diubah_terakhir',
                             'diubah_oleh',
+                            'history',
                             'action'
                             ])
                         ->make(true);
@@ -115,44 +127,71 @@ class FormatBukuController extends Controller
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $request->validate([
-                    'up_nama' => 'required',
+                    'jenis_format' => 'required',
                 ], [
                     'required' => 'This field is requried'
                 ]);
 
-                DB::table('penerbitan_m_kelompok_buku')
-                    ->where('id', $request->id)
-                    ->update([
-                    'nama' => $request->up_nama,
+                $history = DB::table('format_buku')->where('id',$request->id)->first();
+                $update = [
+                    'id' => $request->id,
+                    'jenis_format' => $request->jenis_format,
                     'updated_by' => auth()->user()->id
-                ]);
+                ];
+                event(new UpdateFbEvent($update));
+                $insert = [
+                    'format_buku_id' => $request->id,
+                    'jenis_format_history' => $history->jenis_format,
+                    'jenis_format_new' => $request->jenis_format,
+                    'author_id' => auth()->user()->id,
+                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                event(new InsertFbHistory($insert));
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'Data kelompok buku berhasil diubah!',
-                    'route' => route('kb.view')
+                    'message' => 'Data format buku berhasil diubah!',
+                    'route' => route('fb.view')
                 ]);
             }
         }
-        $id = $request->get('kb');
-        $data = DB::table('penerbitan_m_kelompok_buku')
+        $id = $request->get('fb');
+        $data = DB::table('format_buku')
                     ->where('id', $id)
                     ->first();
-        return view('master_data.kelompok_buku.update', [
-            'title' => 'Update Kelompok Buku',
+        return view('master_data.format_buku.update', [
+            'title' => 'Update Format Buku',
             'data' => $data
         ]);
     }
     public function deleteFbuku(Request $request) {
-        $id = $request->get('kb');
-        $deleted = DB::table('penerbitan_m_kelompok_buku')->where('id',$id)->update([
+        $id = $request->get('fb');
+        $deleted = DB::table('format_buku')->where('id',$id)->update([
             'deleted_by' => auth()->id(),
             'deleted_at' => date('Y-m-d H:i:s')
         ]);
         if ($deleted) {
             echo '<script>
 
-            window.location = "'.route('kb.view').'";
+            window.location = "'.route('fb.view').'";
             </script>';
         }
+    }
+    public function lihatHistory(Request $request) {
+        $id = $request->input('id');
+        $data = DB::table('format_buku_history as fb')->join('users as u','fb.author_id','=','u.id')
+        ->where('fb.format_buku_id',$id)
+        ->select('fb.*','u.nama')
+        ->get();
+        foreach ($data as $d){
+            $result[] = [
+                'jenis_format_history' => $d->jenis_format_history,
+                'jenis_format_new' => $d->jenis_format_new,
+                'author_id' => $d->author_id,
+                'nama' => $d->nama,
+                'modified_at' => Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans(),
+                'format_tanggal' => Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i')
+            ];
+        }
+        return response()->json($result);
     }
 }

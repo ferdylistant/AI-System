@@ -39,7 +39,7 @@
     <div class="modal-dialog  modal-dialog-centered" role="document">
         <div class="modal-content ">
             <div class="modal-header bg-light">
-                <h5 class="modal-title" id="titleModal">History Data Perubahan</h5>
+                <h5 class="modal-title" id="titleModal"><i class="fas fa-history"></i>&nbsp;History Data Perubahan</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -68,14 +68,11 @@
 @endsection
 
 @section('jsNeeded')
-
+<script src="{{url('js/delete_imprint.js')}}"></script>
 <script>
     $(function() {
          $('#tb_Imprint').DataTable({
             responsive: true,
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            },
             processing: true,
             serverSide: true,
             language: {

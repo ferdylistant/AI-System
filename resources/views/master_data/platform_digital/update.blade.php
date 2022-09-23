@@ -35,7 +35,7 @@
                                     <label>Nama Platform: <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <div class="input-group-text"><i class="fas fa-book"></i></div>
+                                            <div class="input-group-text"><i class="fas fa-globe"></i></div>
                                         </div>
                                         <input type="hidden" name="id" value="{{$data->id}}">
                                         <input type="text" class="form-control" name="up_nama" value="{{$data->nama}}" placeholder="Input here..." required>

@@ -36,7 +36,26 @@
         </div>
     </div>
 </section>
+<div id="md_KelompokBukuHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered" role="document">
+        <div class="modal-content ">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="titleModal"><i class="fas fa-history"></i>&nbsp;History Data Perubahan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body ">
+                <div class="tickets-list" id="dataHistory">
 
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('jsRequired')
@@ -56,9 +75,6 @@
     $(function() {
          $('#tb_Kbuku').DataTable({
             responsive: true,
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            },
             processing: true,
             serverSide: true,
             language: {
@@ -77,10 +93,32 @@
                 { data: 'dibuat_oleh', name: 'dibuat_oleh', title: 'Dibuat Oleh'},
                 { data: 'diubah_terakhir', name: 'diubah_terakhir', title: 'Diubah Terakhir' },
                 { data: 'diubah_oleh', name: 'diubah_oleh', title: 'Diubah Oleh' },
+                { data: 'history', name: 'history', title: 'History Data' },
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
             ]
         });
     })
 </script>
-
+<script>
+    $(function(){
+        $('#tb_Kbuku').on('click','.btn-history',function(e){
+            var data = $(this).data('id');
+            $.post("{{route('kb.history')}}", {id: data}, function(data){
+                $('#dataHistory').empty();
+                $.each(data, function(k, v) {
+                $('#dataHistory').append(`<span class="ticket-item">
+                        <div class="ticket-title">
+                            <h6><span class="bullet"></span> Kelompok buku '`+v.kelompok_buku_history+`' diubah menjadi '`+v.kelompok_buku_new+`'.</h6>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted">Modified by <a href="{{url('/manajemen-web/user/`+v.author_id+`')}}">`+v.nama+`</a></div>
+                            <div class="bullet"></div>
+                            <div>`+v.modified_at+` (`+v.format_tanggal+`)</div>
+                        </div>
+                    </span>`);
+                });
+            });
+        });
+    });
+</script>
 @endsection

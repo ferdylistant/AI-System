@@ -8,8 +8,10 @@ use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Events\UpdateImprintEvent;
+use App\Events\UpdatePlatformEvent;
 use App\Events\InsertImprintHistory;
 use App\Http\Controllers\Controller;
+use App\Events\InsertPlatformHistory;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
 class ImprintController extends Controller
@@ -69,7 +71,7 @@ class ImprintController extends Controller
                         ->addColumn('action', function($data) use ($update) {
                             if(Gate::allows('do_delete', 'hapus-data-imprint')) {
                                 $btn = '<a href="'.url('master/imprint/hapus?im='.$data->id).'"
-                                    class="d-block btn btn-sm btn-danger btn-icon mr-1" data-toggle="tooltip" title="Hapus Data">
+                                    class="d-block btn btn-sm btn-danger btn-icon mr-1" id="hapus-imprint" data-toggle="tooltip" title="Hapus Data">
                                     <div><i class="fas fa-trash"></i></div></a>';
                             }
                             if($update) {
@@ -143,7 +145,7 @@ class ImprintController extends Controller
                     'imprint_history' => $history->nama,
                     'imprint_new' => $request->up_nama,
                     'author_id' => auth()->user()->id,
-                    'modified_at' => date('Y-m-d H:i:s')
+                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
                 event(new InsertImprintHistory($insert));
                 return response()->json([
@@ -161,6 +163,19 @@ class ImprintController extends Controller
             'title' => 'Update Imprint',
             'data' => $data
         ]);
+    }
+    public function deleteImprint(Request $request) {
+        $id = $request->get('im');
+        $deleted = DB::table('imprint')->where('id',$id)->update([
+            'deleted_by' => auth()->id(),
+            'deleted_at' => date('Y-m-d H:i:s')
+        ]);
+        if ($deleted) {
+            echo '<script>
+
+            window.location = "'.route('imprint.view').'";
+            </script>';
+        }
     }
     public function lihatHistory(Request $request) {
         $id = $request->input('id');
@@ -200,7 +215,7 @@ class ImprintController extends Controller
                             return $data->nama;
                         })
                         ->addColumn('tgl_dibuat', function($data) {
-                            $date = date('d F Y, H:i', strtotime($data->created_at));
+                            $date = date('d M Y, H:i', strtotime($data->created_at));
                             return $date;
                         })
                         ->addColumn('dibuat_oleh', function($data) {
@@ -211,7 +226,16 @@ class ImprintController extends Controller
                             if($data->updated_at == null) {
                                 return '-';
                             } else {
-                                $date = date('d F Y, H:i', strtotime($data->updated_at));
+                                $date = date('d M Y, H:i', strtotime($data->updated_at));
+                                return $date;
+                            }
+                        })
+                        ->addColumn('history', function ($data) {
+                            $historyData = DB::table('platform_digital_ebook_history')->where('platform_id',$data->id)->get();
+                            if($historyData->isEmpty()) {
+                                return '-';
+                            } else {
+                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-toggle="modal" data-target="#md_PlatformHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
                                 return $date;
                             }
                         })
@@ -226,12 +250,12 @@ class ImprintController extends Controller
                         ->addColumn('action', function($data) use ($update) {
                             if(Gate::allows('do_delete', 'hapus-data-imprint')) {
                                 $btn = '<a href="'.url('master/platform-digital/hapus?p='.$data->id).'"
-                                    class="btn btn-sm btn-danger btn-icon mr-1" data-toggle="tooltip" title="Hapus Data">
+                                    class="d-block btn btn-sm btn-danger btn-icon mr-1" id="hapus-platform" data-toggle="tooltip" title="Hapus Data">
                                     <div><i class="fas fa-trash"></i></div></a>';
                             }
                             if($update) {
                                 $btn .= '<a href="'.url('master/platform-digital/ubah?p='.$data->id).'"
-                                    class="btn btn-sm btn-warning btn-icon mr-1" data-toggle="tooltip" title="Edit Data">
+                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
                             return $btn;
@@ -242,6 +266,7 @@ class ImprintController extends Controller
                             'tgl_dibuat',
                             'dibuat_oleh',
                             'diubah_terakhir',
+                            'history',
                             'diubah_oleh',
                             'action'
                             ])
@@ -287,13 +312,21 @@ class ImprintController extends Controller
                 ], [
                     'required' => 'This field is requried'
                 ]);
-
-                DB::table('platform_digital_ebook')
-                    ->where('id', $request->id)
-                    ->update([
+                $history = DB::table('platform_digital_ebook')->where('id',$request->id)->first();
+                $update = [
+                    'id' => $request->id,
                     'nama' => $request->up_nama,
                     'updated_by' => auth()->user()->id
-                ]);
+                ];
+                event(new UpdatePlatformEvent($update));
+                $insert = [
+                    'platform_id' => $request->id,
+                    'platform_history' => $history->nama,
+                    'platform_new' => $request->up_nama,
+                    'author_id' => auth()->user()->id,
+                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                event(new InsertPlatformHistory($insert));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data platform berhasil diubah!',
@@ -309,5 +342,38 @@ class ImprintController extends Controller
             'title' => 'Update Platform Digital',
             'data' => $data
         ]);
+    }
+
+    public function deletePlatform(Request $request) {
+        $id = $request->get('p');
+        $deleted = DB::table('platform_digital_ebook')->where('id',$id)->update([
+            'deleted_by' => auth()->id(),
+            'deleted_at' => date('Y-m-d H:i:s')
+        ]);
+        if ($deleted) {
+            echo '<script>
+
+            window.location = "'.route('platform.view').'";
+            </script>';
+        }
+    }
+
+    public function lihatHistoryPlatform(Request $request) {
+        $id = $request->input('id');
+        $data = DB::table('platform_digital_ebook_history as pl')->join('users as u','pl.author_id','=','u.id')
+        ->where('pl.platform_id',$id)
+        ->select('pl.*','u.nama')
+        ->get();
+        foreach ($data as $d){
+            $result[] = [
+                'platform_history' => $d->platform_history,
+                'platform_new' => $d->platform_new,
+                'author_id' => $d->author_id,
+                'nama' => $d->nama,
+                'modified_at' => Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans(),
+                'format_tanggal' => Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i')
+            ];
+        }
+        return response()->json($result);
     }
 }

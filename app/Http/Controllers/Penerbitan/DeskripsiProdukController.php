@@ -92,21 +92,26 @@ class DeskripsiProdukController extends Controller
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
                             if (Gate::allows('do_approval','action-progress-des-produk')) {
-                                if ($data->status == 'Pending') {
+                                if ($data->status == 'Antrian'){
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-despro" style="background:#34395E;color:white" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                    <div>'.$data->status.'</div></a>';
+                                } elseif ($data->status == 'Pending') {
                                     $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
                                     <div>'.$data->status.'</div></a>';
                                 } elseif ($data->status == 'Proses') {
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-despro" style="background:#34395E;color:white" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
                                     <div>'.$data->status.'</div></a>';
                                 } elseif ($data->status == 'Selesai') {
                                     $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
                                     <div>'.$data->status.'</div></a>';
                                 }
                             } else {
-                                if ($data->status == 'Pending') {
+                                if($data->status == 'Antrian'){
+                                    $btn .= '<span class="d-block badge badge-secondary">'.$data->status.'</span>';
+                                } elseif ($data->status == 'Pending') {
                                     $btn .= '<span class="d-block badge badge-danger">'.$data->status.'</span>';
                                 } elseif ($data->status == 'Proses') {
-                                    $btn .= '<span class="d-block badge badge-secondary">'.$data->status.'</span>';
+                                    $btn .= '<span class="d-block badge badge-success">'.$data->status.'</span>';
                                 } elseif ($data->status == 'Selesai') {
                                     $btn .= '<span class="d-block badge badge-light">'.$data->status.'</span>';
                                 }
@@ -127,6 +132,9 @@ class DeskripsiProdukController extends Controller
 
         }
         $statusProgress = (array)[
+            [
+                'value' => 'Antrian'
+            ],
             [
                 'value' => 'Pending'
             ],

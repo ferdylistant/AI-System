@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
+use App\Events\UpdateKbEvent;
+use App\Events\InsertKbHistory;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
 use GrahamCampbell\ResultType\Success;
@@ -57,15 +59,24 @@ class KelompokBukuController extends Controller
                                 return $dataUser->nama;
                             }
                         })
+                        ->addColumn('history', function ($data) {
+                            $historyData = DB::table('penerbitan_m_kelompok_buku_history')->where('kelompok_buku_id',$data->id)->get();
+                            if($historyData->isEmpty()) {
+                                return '-';
+                            } else {
+                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-toggle="modal" data-target="#md_KelompokBukuHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
+                                return $date;
+                            }
+                        })
                         ->addColumn('action', function($data) use ($update) {
                             if(Gate::allows('do_delete', 'hapus-kelompok-buku')) {
                                 $btn = '<a href="'.url('master/kelompok-buku/hapus?kb='.$data->id).'"
-                                    class="btn btn-sm btn-danger btn-icon mr-1" id="hapus-kbuku" data-toggle="tooltip" title="Hapus Data">
+                                    class="d-block btn btn-sm btn-danger btn-icon mr-1" id="hapus-kbuku" data-toggle="tooltip" title="Hapus Data">
                                     <div><i class="fas fa-trash"></i></div></a>';
                             }
                             if($update) {
                                 $btn .= '<a href="'.url('master/kelompok-buku/ubah?kb='.$data->id).'"
-                                    class="btn btn-sm btn-warning btn-icon mr-1" data-toggle="tooltip" title="Edit Data">
+                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
                             return $btn;
@@ -77,6 +88,7 @@ class KelompokBukuController extends Controller
                             'dibuat_oleh',
                             'diubah_terakhir',
                             'diubah_oleh',
+                            'history',
                             'action'
                             ])
                         ->make(true);
@@ -122,13 +134,21 @@ class KelompokBukuController extends Controller
                 ], [
                     'required' => 'This field is requried'
                 ]);
-
-                DB::table('penerbitan_m_kelompok_buku')
-                    ->where('id', $request->id)
-                    ->update([
+                $history = DB::table('penerbitan_m_kelompok_buku')->where('id',$request->id)->first();
+                $update = [
+                    'id' => $request->id,
                     'nama' => $request->up_nama,
                     'updated_by' => auth()->user()->id
-                ]);
+                ];
+                event(new UpdateKbEvent($update));
+                $insert = [
+                    'kelompok_buku_id' => $request->id,
+                    'kelompok_buku_history' => $history->nama,
+                    'kelompok_buku_new' => $request->up_nama,
+                    'author_id' => auth()->user()->id,
+                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                event(new InsertKbHistory($insert));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data kelompok buku berhasil diubah!',
@@ -157,5 +177,23 @@ class KelompokBukuController extends Controller
             window.location = "'.route('kb.view').'";
             </script>';
         }
+    }
+    public function lihatHistory(Request $request) {
+        $id = $request->input('id');
+        $data = DB::table('penerbitan_m_kelompok_buku_history as kb')->join('users as u','kb.author_id','=','u.id')
+        ->where('kb.kelompok_buku_id',$id)
+        ->select('kb.*','u.nama')
+        ->get();
+        foreach ($data as $d){
+            $result[] = [
+                'kelompok_buku_history' => $d->kelompok_buku_history,
+                'kelompok_buku_new' => $d->kelompok_buku_new,
+                'author_id' => $d->author_id,
+                'nama' => $d->nama,
+                'modified_at' => Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans(),
+                'format_tanggal' => Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i')
+            ];
+        }
+        return response()->json($result);
     }
 }

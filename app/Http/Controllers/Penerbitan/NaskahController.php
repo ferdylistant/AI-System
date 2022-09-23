@@ -466,7 +466,7 @@ class NaskahController extends Controller
                     'id' => Uuid::uuid4()->toString(),
                     'naskah_id' => $id,
                     'pembuat_deskripsi' => $data->pic_prodev,
-                    'status' => 'Pending'
+                    'status' => 'Antrian'
                 ]);
                 DB::table('penerbitan_naskah as pn')->whereNull('deleted_at')->where('id',$id)->update([
                 'bukti_email_penulis' => Carbon::now('Asia/Jakarta')->toDateTimeString()

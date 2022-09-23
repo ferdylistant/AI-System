@@ -16,18 +16,18 @@
 <section class="section">
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('kb.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('fb.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
-        <h1>Edit Kelompok Buku Penerbitan</h1>
+        <h1>Edit Format Buku Penerbitan</h1>
     </div>
 
     <div class="section-body">
         <div class="row">
             <div class="col-12">
                 <div class="card card-success">
-                    <form id="fup_Kbuku">
+                    <form id="fup_Fbuku">
                         <div class="card-header">
-                            <h4>Form Kelompok Buku</h4>
+                            <h4>Form Format Buku</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -35,11 +35,11 @@
                                     <label>Nama: <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <div class="input-group-text"><i class="fas fa-book"></i></div>
+                                            <div class="input-group-text"><i class="fas fa-ruler-combined"></i></div>
                                         </div>
                                         <input type="hidden" name="id" value="{{$data->id}}">
-                                        <input type="text" class="form-control" name="up_nama" value="{{$data->nama}}" placeholder="Input here..." required>
-                                        <div id="err_up_nama"></div>
+                                        <input type="text" class="form-control" name="jenis_format" value="{{$data->jenis_format}}" placeholder="Input here..." required>
+                                        <div id="err_jenis_format"></div>
                                     </div>
                                 </div>
                             </div>
@@ -66,5 +66,5 @@
 
 
 @section('jsNeeded')
-<script src="{{url('js/edit_kbuku.js')}}"></script>
+<script src="{{url('js/edit_fbuku.js')}}"></script>
 @endsection

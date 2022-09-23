@@ -23,10 +23,13 @@
                     <div class="card-header">
                         <h4>Data Deskripsi Produk&nbsp;
                             -
-                        </h4>@if ($data->status == 'Pending')
+                        </h4>
+                            @if ($data->status == 'Antrian')
+                                <span class="badge" style="background:#34395E;color:white">{{$data->status}}</span>
+                            @elseif ($data->status == 'Pending')
                                 <span class="badge badge-danger">{{$data->status}}</span>
                             @elseif ($data->status == 'Proses')
-                                <span class="badge" style="background:#34395E;color:wheat">{{$data->status}}</span>
+                                <span class="badge badge-success">{{$data->status}}</span>
                             @elseif ($data->status == 'Selesai')
                                 <span class="badge badge-light">{{$data->status}}</span>
                             @endif
