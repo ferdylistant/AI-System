@@ -8,6 +8,55 @@
 <link rel="stylesheet" href="{{url('vendors/select2/dist/css/select2.min.css')}}">
 <link rel="stylesheet" href="{{url('vendors/SpinKit/spinkit.css')}}">
 <link rel="stylesheet" href="{{url('vendors/izitoast/dist/css/iziToast.min.css')}}">
+<style>
+    .scrollbar-deep-purple::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    background-color: #F5F5F5;
+    border-radius: 10px;
+}
+
+.scrollbar-deep-purple::-webkit-scrollbar {
+    width: 12px;
+    background-color: #F5F5F5;
+}
+
+.scrollbar-deep-purple::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    background-color: #6777EF;
+}
+
+.scrollbar-deep-purple {
+    scrollbar-color: #6777EF #F5F5F5;
+}
+
+.bordered-deep-purple::-webkit-scrollbar-track {
+    -webkit-box-shadow: none;
+    border: 1px solid #6777EF;
+}
+
+.bordered-deep-purple::-webkit-scrollbar-thumb {
+    -webkit-box-shadow: none;
+}
+
+.square::-webkit-scrollbar-track {
+    border-radius: 0 !important;
+}
+
+.square::-webkit-scrollbar-thumb {
+    border-radius: 0 !important;
+}
+
+.thin::-webkit-scrollbar {
+    width: 6px;
+}
+
+.example-1 {
+    position: relative;
+    overflow-y: scroll;
+    height: 200px;
+}
+</style>
 @endsection
 
 @section('content')
@@ -85,23 +134,23 @@
         </div>
     </div>
 </div>
-<div id="md_DesproHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal" aria-hidden="true">
+<div id="md_DesproHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalDespro" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content ">
             <div class="modal-header bg-light">
-                <h5 class="modal-title" id="titleModal"><i class="fas fa-history"></i>&nbsp;History Perubahan</h5>
+                <h5 class="modal-title" id="titleModalDespro"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body ">
+            <div class="modal-body example-1 scrollbar-deep-purple bordered-deep-purple thin">
                 <div class="tickets-list" id="dataHistory">
 
                 </div>
-                <button class="btn btn-primary load-more" data-paginate="2">Load more...</button>
-                {{-- <p class="invisible">No more posts...</p> --}}
+
             </div>
             <div class="modal-footer">
+            <button class="d-block btn btn-sm btn-outline-primary btn-block load-more" id="load_more" data-paginate="2" data-id="">Load more</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
             </div>
         </div>
@@ -164,8 +213,11 @@
 </script>
 <script>
     $('#tb_DesProduk').on('click','.btn-history',function(e){
-        var data = $(this).data('id');
-        $.post("{{route('despro.history')}}", {id: data}, function(data){
+        var id = $(this).data('id');
+        var judul = $(this).data('judulasli');
+        $.get("{{route('despro.history')}}", {id: id}, function(data){
+            $('#titleModalDespro').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "'+judul+'"');
+            $('#load_more').data('id',id);
             $('#dataHistory').html(data);
             // $.each(data, function(k, v) {
             //     // console.log(v);

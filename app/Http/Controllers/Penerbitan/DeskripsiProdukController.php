@@ -8,7 +8,9 @@ use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
 use App\Events\UpdateFbEvent;
 use Yajra\DataTables\DataTables;
+use App\Events\UpdateDesproEvent;
 use App\Events\UpdateStatusEvent;
+use App\Events\InsertDesproHistory;
 use App\Events\InsertStatusHistory;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
@@ -90,7 +92,7 @@ class DeskripsiProdukController extends Controller
                             if($historyData->isEmpty()) {
                                 return '-';
                             } else {
-                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-toggle="modal" data-target="#md_DesproHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
+                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-judulasli="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_DesproHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
                                 return $date;
                             }
                         })
@@ -211,9 +213,12 @@ class DeskripsiProdukController extends Controller
                 foreach ($request->alt_judul as $value) {
                     $altJudul[] = $value;
                 }
-                DB::table('deskripsi_produk')
-                    ->where('id', $request->id)
-                    ->update([
+                $history = DB::table('deskripsi_produk')
+                ->where('id', $request->id)
+                ->whereNull('deleted_at')
+                ->first();
+                $update = [
+                    'id' => $request->id,
                     'judul_final' => $request->judul_final,
                     'alt_judul' => json_encode($altJudul),
                     'format_buku' => $request->format_buku,
@@ -225,7 +230,34 @@ class DeskripsiProdukController extends Controller
                     'bulan' => date('Y-m-d',strtotime($request->bulan)),
                     'status' => 'Proses',
                     'updated_by'=> auth()->id()
-                ]);
+                ];
+                event(new UpdateDesproEvent($update));
+
+                $insert = [
+                    'deskripsi_produk_id' => $request->id,
+                    'type_history' => 'Update',
+                    'judul_final_his' => $history->judul_final,
+                    'judul_final_new' => $request->judul_final,
+                    'alt_judul_his' => $history->alt_judul,
+                    'alt_judul_new' => json_encode($altJudul),
+                    'format_buku_his' => $history->format_buku,
+                    'format_buku_new' => $request->format_buku,
+                    'jml_hal_his' => $history->jml_hal_perkiraan,
+                    'jml_hal_new' => $request->jml_hal_perkiraan,
+                    'imprint_his' => $history->imprint,
+                    'imprint_new' => $request->imprint,
+                    'editor_his' => $history->editor,
+                    'editor_new' => $request->editor,
+                    'kelengkapan_his' => $history->kelengkapan,
+                    'kelengkapan_new' => $request->kelengkapan,
+                    'catatan_his' => $history->catatan,
+                    'catatan_new' => $request->catatan,
+                    'bulan_his' => $history->bulan,
+                    'bulan_new' => date('Y-m-d',strtotime($request->bulan)),
+                    'author_id' => auth()->id(),
+                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                event(new InsertDesproHistory($insert));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data deskripsi produk berhasil ditambahkan',
@@ -327,24 +359,62 @@ class DeskripsiProdukController extends Controller
     public function lihatHistoryDespro(Request $request) {
         if($request->ajax()){
             $html = '';
-            $id = $request->input('id');
+            $id = $request->get('id');
             $data = DB::table('deskripsi_produk_history as pd')->join('users as u','pd.author_id','=','u.id')
-            ->where('pd.deskripsi_produk_id',$id)
-            ->select('pd.*','u.nama')
-            ->paginate(5);
+                ->where('pd.deskripsi_produk_id',$id)
+                ->select('pd.*','u.nama')
+                ->orderBy('pd.id', 'desc')
+                ->paginate(2);
             foreach ($data as $d){
                 if($d->type_history == 'Status'){
                     $html .= '<span class="ticket-item">
                     <div class="ticket-title">
-                        <h6><span class="bullet"></span> Status deskripsi produk '.$d->status_his.' diubah menjadi '.$d->status_new.'.</h6>
+                        <span><span class="bullet"></span> Status deskripsi produk <b class="text-dark">'.$d->status_his.'</b> diubah menjadi <b class="text-dark">'.$d->status_new.'</b>.</span>
                     </div>
                     <div class="ticket-info">
-                        <div class="text-muted">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
-                        <div class="bullet"></div>
-                        <div>'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i').')</div>
+                        <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i').')</div>
                     </div>
-                </span>';
+                    </span>';
 
+                } elseif ($d->type_history == 'Update') {
+                    $html .= '<span class="ticket-item">
+                    <div class="ticket-title"><span><span class="bullet"></span>';
+                    if (!is_null($d->judul_final_his)) {
+                        $html .=' Judul final <b class="text-dark">'.$d->judul_final_his.'</b> diubah menjadi <b class="text-dark">'.$d->judul_final_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->format_buku_his)) {
+                        $html .=' Format buku <b class="text-dark">'.$d->format_buku_his.' cm</b> diubah menjadi <b class="text-dark">'.$d->format_buku_new.' cm</b>.<br>';
+                    }
+                    if (!is_null($d->jml_hal_his)) {
+                        $html .=' Jumlah halaman perkiraan <b class="text-dark">'.$d->jml_hal_his.'</b> diubah menjadi <b class="text-dark">'.$d->jml_hal_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->imprint_his)) {
+                        $html .=' Imprint <b class="text-dark">'.$d->imprint_his.'</b> diubah menjadi <b class="text-dark">'.$d->imprint_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->editor_his)) {
+                        $html .=' Editor <b class="text-dark">'
+                        .DB::table('users')->where('id',$d->editor_his)->whereNull('deleted_at')->pluck('nama').
+                        '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->editor_new)->whereNull('deleted_at')->pluck('nama').'</b>.<br>';
+                    }
+                    if (!is_null($d->kelengkapan_his)) {
+                        $html .=' Kelengkapan <b class="text-dark">'.$d->kelengkapan_his.'</b> diubah menjadi <b class="text-dark">'.$d->kelengkapan_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->catatan_his)) {
+                        $html .=' Catatan <b class="text-dark">'.$d->catatan_his.'</b> diubah menjadi <b class="text-dark">'.$d->catatan_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->bulan_his)) {
+                        $html .=' Bulan <b class="text-dark">'.Carbon::parse($d->bulan_his)->translatedFormat('F Y').'</b> diubah menjadi <b class="text-dark">'.Carbon::parse($d->bulan_new)->translatedFormat('F Y').'</b>.';
+                    }
+                    $html .='</span></div>
+                    <div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i').')</div>
+
+                    </div>
+                    </span>';
                 }
             }
         }
