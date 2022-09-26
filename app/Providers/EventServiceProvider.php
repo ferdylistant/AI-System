@@ -6,7 +6,9 @@ use App\Events\UpdateFbEvent;
 use App\Events\UpdateKbEvent;
 use App\Events\InsertFbHistory;
 use App\Events\InsertKbHistory;
+use App\Events\UpdateStatusEvent;
 use App\Events\UpdateImprintEvent;
+use App\Events\InsertStatusHistory;
 use App\Events\UpdatePlatformEvent;
 use App\Listeners\UpdateFbListener;
 use App\Listeners\UpdateKbListener;
@@ -15,10 +17,12 @@ use App\Events\InsertPlatformHistory;
 use App\Events\NotifikasiPenyetujuan;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
+use App\Listeners\UpdateStatusListener;
 use App\Listeners\UpdateImprintListener;
 use App\Listeners\UpdatePlatformListener;
 use App\Listeners\InsertFbHistoryListener;
 use App\Listeners\InsertKbHistoryListener;
+use App\Listeners\InsertStatusHistoryListener;
 use App\Listeners\InsertImprintHistoryListener;
 use App\Listeners\InsertPlatformHistoryListener;
 use App\Listeners\NotifikasiPenyetujuanListener;
@@ -66,6 +70,10 @@ class EventServiceProvider extends ServiceProvider
             [UpdateFbListener::class, 'handle']
         );
         Event::listen(
+            UpdateStatusEvent::class,
+            [UpdateStatusListener::class, 'handle']
+        );
+        Event::listen(
             InsertImprintHistory::class,
             [InsertImprintHistoryListener::class, 'handle']
         );
@@ -80,6 +88,10 @@ class EventServiceProvider extends ServiceProvider
         Event::listen(
             InsertFbHistory::class,
             [InsertFbHistoryListener::class, 'handle']
+        );
+        Event::listen(
+            InsertStatusHistory::class,
+            [InsertStatusHistoryListener::class, 'handle']
         );
     }
 }

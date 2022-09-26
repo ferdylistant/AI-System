@@ -1,3 +1,28 @@
+$(function(){
+    $('.load-more').click(function(){
+        var page = $(this).data('paginate');
+        $(this).data('paginate', page+1);
+
+            $.ajax({
+                url: window.location.origin + '/penerbitan/deskripsi/produk/lihat-history',
+                type: 'post',
+                data: {page:page},
+                beforeSend:function(){
+                    $(".load-more").text("Loading...");
+                },
+                success: function(response){
+
+                    // Setting little delay while displaying new content
+                    setTimeout(function() {
+                        // appending posts after last post with class="post"
+                        $("#dataHistory:last").after(response).show().fadeIn("slow");
+                    }, 2000);
+
+                }
+            });
+
+    });
+});
 $(document).ready(function() {
     $(".select-status").select2({
         placeholder: 'Pilih Status',

@@ -6,7 +6,10 @@ use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
+use App\Events\UpdateFbEvent;
 use Yajra\DataTables\DataTables;
+use App\Events\UpdateStatusEvent;
+use App\Events\InsertStatusHistory;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -82,6 +85,15 @@ class DeskripsiProdukController extends Controller
                             }
                             return $result;
                         })
+                        ->addColumn('history', function ($data) {
+                            $historyData = DB::table('deskripsi_produk_history')->where('deskripsi_produk_id',$data->id)->get();
+                            if($historyData->isEmpty()) {
+                                return '-';
+                            } else {
+                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-toggle="modal" data-target="#md_DesproHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
+                                return $date;
+                            }
+                        })
                         ->addColumn('action', function($data) use ($update) {
                             $btn = '<a href="'.url('penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$data->kode).'"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
@@ -126,6 +138,7 @@ class DeskripsiProdukController extends Controller
                             'judul_final',
                             'tgl_deskripsi',
                             'pembuat_deskripsi',
+                            'history',
                             'action'
                             ])
                         ->make(true);
@@ -285,10 +298,21 @@ class DeskripsiProdukController extends Controller
                     'message' => 'Data corrupt...'
                 ],404);
             }
-            DB::table('deskripsi_produk')->where('id',$data->id)->whereNull('deleted_at')->update([
+            $update = [
+                'id' => $data->id,
                 'status' => $request->status,
                 'updated_by' => auth()->id()
-            ]);
+            ];
+            event(new UpdateStatusEvent($update));
+            $insert = [
+                'deskripsi_produk_id' => $data->id,
+                'type_history' => 'Status',
+                'status_his' => $data->status,
+                'status_new'  => $request->status,
+                'author_id' => auth()->user()->id,
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new InsertStatusHistory($insert));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Status progress deskripsi produk berhasil diupdate'
@@ -300,4 +324,60 @@ class DeskripsiProdukController extends Controller
             ]);
         }
     }
+    public function lihatHistoryDespro(Request $request) {
+        if($request->ajax()){
+            $html = '';
+            $id = $request->input('id');
+            $data = DB::table('deskripsi_produk_history as pd')->join('users as u','pd.author_id','=','u.id')
+            ->where('pd.deskripsi_produk_id',$id)
+            ->select('pd.*','u.nama')
+            ->paginate(5);
+            foreach ($data as $d){
+                if($d->type_history == 'Status'){
+                    $html .= '<span class="ticket-item">
+                    <div class="ticket-title">
+                        <h6><span class="bullet"></span> Status deskripsi produk '.$d->status_his.' diubah menjadi '.$d->status_new.'.</h6>
+                    </div>
+                    <div class="ticket-info">
+                        <div class="text-muted">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
+                        <div class="bullet"></div>
+                        <div>'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i').')</div>
+                    </div>
+                </span>';
+
+                }
+            }
+        }
+        // foreach ($data as $d){
+        //     $result[] = [
+        //         'type_history' => $d->type_history,
+        //         'judul_final_his' => $d->judul_final_his,
+        //         'judul_final_new' => $d->judul_final_new,
+        //         'alt_judul_his' => $d->alt_judul_his,
+        //         'alt_judul_new' => $d->alt_judul_new,
+        //         'format_buku_his' => $d->format_buku_his,
+        //         'format_buku_new' => $d->format_buku_new,
+        //         'jml_hal_his' => $d->jml_hal_his,
+        //         'jml_hal_new' => $d->jml_hal_new,
+        //         'imprint_his' => $d->imprint_his,
+        //         'imprint_new' => $d->imprint_new,
+        //         'editor_his' => DB::table('users')->where('id',$d->editor_his)->whereNull('deleted_at')->first(),
+        //         'editor_new' => DB::table('users')->where('id',$d->editor_new)->whereNull('deleted_at')->first(),
+        //         'kelengkapan_his' => $d->kelengkapan_his,
+        //         'kelengkapan_new' => $d->kelengkapan_new,
+        //         'catatan_his' => $d->catatan_his,
+        //         'catatan_new' => $d->catatan_new,
+        //         'bulan_his' => Carbon::parse($d->bulan_his)->translatedFormat('F Y'),
+        //         'bulan_new' => Carbon::parse($d->bulan_new)->translatedFormat('F Y'),
+        //         'status_his' => $d->status_his,
+        //         'status_new' => $d->status_new,
+        //         'author_id' => $d->author_id,
+        //         'nama' => $d->nama,
+        //         'modified_at' => Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans(),
+        //         'format_tanggal' => Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i')
+        //     ];
+        // }
+        return $html;
+    }
+
 }

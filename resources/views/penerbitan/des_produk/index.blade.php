@@ -29,7 +29,7 @@
                         <div class="form-group col-12 col-md-3 mb-4">
                             <div class="input-group">
 
-                                <select data-column="7" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
+                                <select data-column="8" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
                                     <option label="Pilih Filter Status"></option>
                                     @foreach ($status_progress as $val)
                                         <option value="{{$val['value']}}">{{$val['value']}}</option>
@@ -53,7 +53,7 @@
     </div>
 </section>
 <div id="md_UpdateStatusDesProduk" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal" aria-hidden="true">
-    <div class="modal-dialog  modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="titleModal">Update Status Progress Deskripsi Produk</h5>
@@ -82,6 +82,28 @@
                 <button type="submit" class="btn btn-success">Update</button>
             </div>
             </form>
+        </div>
+    </div>
+</div>
+<div id="md_DesproHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content ">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="titleModal"><i class="fas fa-history"></i>&nbsp;History Perubahan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body ">
+                <div class="tickets-list" id="dataHistory">
+
+                </div>
+                <button class="btn btn-primary load-more" data-paginate="2">Load more...</button>
+                {{-- <p class="invisible">No more posts...</p> --}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
         </div>
     </div>
 </div>
@@ -127,6 +149,7 @@
                 { data: 'judul_final', name: 'judul_final', title: 'Judul Final'},
                 { data: 'tgl_deskripsi', name: 'tgl_deskripsi', title: 'Tgl Deskripsi'},
                 { data: 'pembuat_deskripsi', name: 'pembuat_deskripsi', title: 'Pembuat Deskripsi',orderable: false},
+                { data: 'history', name: 'history', title: 'History Progress'},
                 { data: 'action', name: 'action', title: 'Action', orderable: false},
             ],
 
@@ -136,6 +159,29 @@
             tableDesProduk.column( $(this).data('column') )
             .search( val ? val : '', true, false )
             .draw();
+        });
+    });
+</script>
+<script>
+    $('#tb_DesProduk').on('click','.btn-history',function(e){
+        var data = $(this).data('id');
+        $.post("{{route('despro.history')}}", {id: data}, function(data){
+            $('#dataHistory').html(data);
+            // $.each(data, function(k, v) {
+            //     // console.log(v);
+            //     if (v.type_history == 'Status'){
+            //         $('#dataHistory').append(`<span class="ticket-item">
+            //             <div class="ticket-title">
+            //                 <h6><span class="bullet"></span> Status deskripsi produk '`+v.status_his+`' diubah menjadi '`+v.status_new+`'.</h6>
+            //             </div>
+            //             <div class="ticket-info">
+            //                 <div class="text-muted">Modified by <a href="{{url('/manajemen-web/user/`+v.author_id+`')}}">`+v.nama+`</a></div>
+            //                 <div class="bullet"></div>
+            //                 <div>`+v.modified_at+` (`+v.format_tanggal+`)</div>
+            //             </div>
+            //         </span>`);
+            //     }
+            // });
         });
     });
 </script>
