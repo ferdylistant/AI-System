@@ -63,7 +63,10 @@
                 sSearch: '',
                 lengthMenu: '_MENU_ items/page',
             },
-            ajax: "{{ route('naskah.view') }}",
+            ajax: {
+                url: "{{ route('naskah.view') }}",
+                data: {"request_": "table-naskah"}
+            },
             columns: [
                 { data: 'kode', name: 'kode', title: 'Kode' },
                 { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },

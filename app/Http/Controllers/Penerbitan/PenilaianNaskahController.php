@@ -161,7 +161,7 @@ class PenilaianNaskahController extends Controller
                 }
             } else {
                 if (is_null($naskah->penilaian_editset)) {
-                    return '<h5>Editor/Setter belum membauat penilaian.</h5>';
+                    return '<h5>Editor/Setter belum membuat penilaian.</h5>';
 
                 } else {
                     $pn_editset = DB::table('penerbitan_pn_editor_setter')->where('naskah_id', $naskah->id)->first();
@@ -365,7 +365,7 @@ class PenilaianNaskahController extends Controller
                 }
             } else {
                 if (is_null($naskah->tgl_pn_m_penerbitan)) {
-                    return '<h5>Penerbitan belum membauat penilaian.</h5>';
+                    return '<h5>Penerbitan belum membuat penilaian.</h5>';
                 } else {
                     $pn_penerbitan = DB::table('penerbitan_pn_penerbitan')->where('naskah_id', $naskah->id)->first();
                     return view('penerbitan.naskah.page.tab-penerbitan', [

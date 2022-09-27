@@ -174,25 +174,14 @@ select[readonly].select2-hidden-accessible + .select2-container .select2-selecti
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>File Naskah (.pdf) (<span class="text-danger">#Abaikan jika tidak diubah</span>)</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="edit_file_naskah" id="fileNaskah">
-                                    <label class="custom-file-label" for="fileNaskah">Choose file</label>
-                                </div>
-                                <div id="err_edit_file_naskah" style="display: block;"></div>
-                            </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Penulis: <span class="text-danger">*</span></label>
                                 <select id="edit_penulis" class="form-control select2" name="edit_penulis[]" multiple="" required></select>
                                 <div id="err_edit_penulis"></div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
-                                <label>File Tambahan Naskah (.rar; .zip) (<span class="text-danger">#Abaikan jika tidak diubah</span>)</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="edit_file_tambahan_naskah" id="fileTambahanNaskah">
-                                    <label class="custom-file-label" for="fileTambahanNaskah">Choose file</label>
-                                </div>
-                                <div id="err_edit_file_tambahan_naskah" style="display: block;"></div>
+                            <div class="form-group col-12 col-md-12 mb-4">
+                                <label>URL File: <span class="text-danger">*</span></label>
+                                <input type="url" class="form-control" name="add_url_file" required>
+                                <div id="err_add_url_file"></div>
                             </div>
                             <div class="form-group col-12 mb-4 table-responsive ">
                                 <table id="tb_selectedPenulis" class="table table-bordered">
@@ -265,7 +254,7 @@ function getSelectedPenulis(id, table) {
 function loadDataPenulis() {
     let id = window.location.pathname.split('/').pop(),
         cardWrap = $('.section-body').find('.card');
-    
+
     $.ajax({
         url: '{!!url("penerbitan/naskah/mengubah-naskah/'+id+'")!!}',
         beforeSend: function() {
@@ -365,8 +354,8 @@ $(function() {
         edit_soft_copy: {required: true},
         edit_cdqr_code: {required: true},
         edit_pic_prodev: {required: true},
-        edit_file_naskah: { extension: "pdf", maxsize: 500000, },
-        edit_file_tambahan_naskah: { extension: "rar|zip", maxsize: 500000, }
+        // edit_file_naskah: { extension: "pdf", maxsize: 500000, },
+        // edit_file_tambahan_naskah: { extension: "rar|zip", maxsize: 500000, }
     });
 
     function ajaxEditNaskah(data) {
@@ -423,7 +412,7 @@ $(function() {
                     ajaxEditNaskah($(this))
                 }
             });
-            
+
         }
     })
 })

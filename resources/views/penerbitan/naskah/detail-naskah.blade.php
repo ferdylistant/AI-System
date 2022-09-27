@@ -110,19 +110,12 @@
                                     </ol></td>
                                 </tr>
                                 <tr>
-                                    <th>File Naskah Tambahan</th>
+                                    <th>URL File</th>
                                     <td>
-                                        @if($fileNaskah->rar)
-                                        <a href="{{url('storage/penerbitan/naskah/'.$naskah->id.'/'.$fileNaskah->rar)}}"
-                                        class="btn btn-sm btn-primary">Download</a>
+                                        @if($naskah->url_file)
+                                        <a href="{{$naskah->url_file}}"
+                                        class="text-primary" target="_blank">{{$naskah->url_file}}</a>
                                         @endif
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>File Naskah Asli</th>
-                                    <td>
-                                        <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/naskah/'.$naskah->id.'/'.$fileNaskah->pdf)}}"
-                                        data-book-engine="onepageswipe" style="max-height: 300px;"></div>
                                     </td>
                                 </tr>
                             </tbody>

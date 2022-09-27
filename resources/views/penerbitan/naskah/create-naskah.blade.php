@@ -159,26 +159,32 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
+                                <label>Penulis: <span class="text-danger">*</span></label>
+                                <select id="add_penulis" class="form-control select2" name="add_penulis[]" multiple="" required></select>
+                                <div id="err_add_penulis"></div>
+                            </div>
+                            <div class="form-group col-12 col-md-12 mb-4">
+                                <label>URL File: <span class="text-danger">*</span></label>
+                                <input type="url" class="form-control" name="add_url_file" required>
+                                <div id="err_add_url_file"></div>
+                            </div>
+                            {{-- <div class="form-group col-12 col-md-6 mb-4">
                                 <label>File Naskah (.pdf) <span class="text-danger">*</span></label>
                                 <div class="custom-file">
                                     <input type="file" class="custom-file-input" name="add_file_naskah" id="fileNaskah">
                                     <label class="custom-file-label" for="fileNaskah">Choose file</label>
                                 </div>
                                 <div id="err_add_file_naskah" style="display: block;"></div>
-                            </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Penulis: <span class="text-danger">*</span></label>
-                                <select id="add_penulis" class="form-control select2" name="add_penulis[]" multiple="" required></select>
-                                <div id="err_add_penulis"></div>
-                            </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            </div> --}}
+
+                            {{-- <div class="form-group col-12 col-md-6 mb-4">
                                 <label>File Tambahan Naskah (.rar; .zip)</label>
                                 <div class="custom-file">
                                     <input type="file" class="custom-file-input" name="add_file_tambahan_naskah" id="fileTambahanNaskah">
                                     <label class="custom-file-label" for="fileTambahanNaskah">Choose file</label>
                                 </div>
                                 <div id="err_add_file_tambahan_naskah" style="display: block;"></div>
-                            </div>
+                            </div> --}}
                             <div class="form-group col-12 mb-4">
                                 <table id="tb_selectedPenulis" class="table table-bordered">
                                     <thead class="thead-dark">
@@ -284,7 +290,7 @@ $(function() {
 
     $('#add_penulis').select2({
         multiple: true,
-        minimumInputLength: 2,
+        minimumInputLength: 1,
         minimumResultsForSearch: 10,
         ajax: {
             url: "{{url('penerbitan/naskah')}}",

@@ -121,13 +121,13 @@ class DeskripsiProdukController extends Controller
                                 }
                             } else {
                                 if($data->status == 'Antrian'){
-                                    $btn .= '<span class="d-block badge badge-secondary">'.$data->status.'</span>';
+                                    $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">'.$data->status.'</span>';
                                 } elseif ($data->status == 'Pending') {
-                                    $btn .= '<span class="d-block badge badge-danger">'.$data->status.'</span>';
+                                    $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">'.$data->status.'</span>';
                                 } elseif ($data->status == 'Proses') {
-                                    $btn .= '<span class="d-block badge badge-success">'.$data->status.'</span>';
+                                    $btn .= '<span class="d-block badge badge-success mr-1 mt-1">'.$data->status.'</span>';
                                 } elseif ($data->status == 'Selesai') {
-                                    $btn .= '<span class="d-block badge badge-light">'.$data->status.'</span>';
+                                    $btn .= '<span class="d-block badge badge-light mr-1 mt-1">'.$data->status.'</span>';
                                 }
                             }
                             return $btn;
@@ -367,7 +367,7 @@ class DeskripsiProdukController extends Controller
                 ->paginate(2);
             foreach ($data as $d){
                 if($d->type_history == 'Status'){
-                    $html .= '<span class="ticket-item">
+                    $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title">
                         <span><span class="bullet"></span> Status deskripsi produk <b class="text-dark">'.$d->status_his.'</b> diubah menjadi <b class="text-dark">'.$d->status_new.'</b>.</span>
                     </div>
@@ -379,7 +379,7 @@ class DeskripsiProdukController extends Controller
                     </span>';
 
                 } elseif ($d->type_history == 'Update') {
-                    $html .= '<span class="ticket-item">
+                    $html .= '<span class="ticket-item id="newAppend"">
                     <div class="ticket-title"><span><span class="bullet"></span>';
                     if (!is_null($d->judul_final_his)) {
                         $html .=' Judul final <b class="text-dark">'.$d->judul_final_his.'</b> diubah menjadi <b class="text-dark">'.$d->judul_final_new.'</b>.<br>';

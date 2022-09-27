@@ -15,13 +15,15 @@ class NaskahController extends Controller
 {
     public function index(Request $request) {
         if($request->ajax()) {
+            if($request->input('request_') === 'table-naskah'){
                 $data = DB::table('penerbitan_naskah as pn')
                             ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
                             ->whereNull('pn.deleted_at')
                             ->select('pn.id', 'pn.kode', 'pn.judul_asli', 'pn.jalur_buku', 'pn.tanggal_masuk_naskah',
-                                'pn.selesai_penilaian', 'pn.bukti_email_penulis','pns.tgl_pn_prodev', 'pns.tgl_pn_m_penerbitan',
-                                'pns.tgl_pn_m_pemasaran', 'pns.tgl_pn_d_pemasaran', 'pns.tgl_pn_direksi', 'pns.tgl_pn_editor',
-                                'pns.tgl_pn_setter', 'pns.tgl_pn_selesai')
+                            'pn.selesai_penilaian', 'pn.bukti_email_penulis','pns.tgl_pn_prodev', 'pns.tgl_pn_m_penerbitan',
+                            'pns.tgl_pn_m_pemasaran', 'pns.tgl_pn_d_pemasaran', 'pns.tgl_pn_direksi', 'pns.tgl_pn_editor',
+                            'pns.tgl_pn_setter', 'pns.tgl_pn_selesai')
+                            ->orderBy('pn.tanggal_masuk_naskah','asc')
                             ->get();
                 $update = Gate::allows('do_update', 'ubah-data-naskah');
 
@@ -95,7 +97,8 @@ class NaskahController extends Controller
                         })
                         ->rawColumns(['stts_penilaian', 'action'])
                         ->make(true);
-            if($request->input('request_') === 'selectPenulis') {
+            }
+            elseif($request->input('request_') === 'selectPenulis') {
                 $data = DB::table('penerbitan_penulis')
                         ->whereNull('deleted_at')
                         ->where('nama', 'like', '%'.$request->input('term').'%')
@@ -136,8 +139,9 @@ class NaskahController extends Controller
                     'add_soft_copy' => 'required',
                     'add_cdqr_code' => 'required',
                     'add_pic_prodev' => 'required',
-                    'add_file_naskah' => 'required|mimes:pdf',
-                    'add_file_tambahan_naskah' => 'mimes:rar,zip',
+                    'add_url_file' => 'required|url',
+                    // 'add_file_naskah' => 'required|mimes:pdf',
+                    // 'add_file_tambahan_naskah' => 'mimes:rar,zip',
                     'add_penulis' => 'required'
                 ], [
                     'required' => 'This field is requried'
@@ -154,25 +158,25 @@ class NaskahController extends Controller
                             'penulis_id' => $p
                         ];
                     }
-                    $fileN = explode('/', $request->file('add_file_naskah')->store('penerbitan/naskah/'.$idN));
-                    $fileNaskah[] = [
-                            'id' => Str::uuid()->getHex(),
-                            'naskah_id' => $idN,
-                            'kategori' => 'File Naskah Asli',
-                            'file' => end($fileN)
-                        ];
-                    if($request->file('add_file_tambahan_naskah')) {
-                        $fileN = explode('/', $request->file('add_file_tambahan_naskah')->store('penerbitan/naskah/'.$idN));
-                        $fileNaskah[] = [
-                            'id' => Str::uuid()->getHex(),
-                            'naskah_id' => $idN,
-                            'kategori' => 'File Tambahan Naskah',
-                            'file' => end($fileN)
-                        ];
-                    }
+                    // $fileN = explode('/', $request->file('add_file_naskah')->store('penerbitan/naskah/'.$idN));
+                    // $fileNaskah[] = [
+                    //         'id' => Str::uuid()->getHex(),
+                    //         'naskah_id' => $idN,
+                    //         'kategori' => 'File Naskah Asli',
+                    //         'file' => end($fileN)
+                    //     ];
+                    // if($request->file('add_file_tambahan_naskah')) {
+                    //     $fileN = explode('/', $request->file('add_file_tambahan_naskah')->store('penerbitan/naskah/'.$idN));
+                    //     $fileNaskah[] = [
+                    //         'id' => Str::uuid()->getHex(),
+                    //         'naskah_id' => $idN,
+                    //         'kategori' => 'File Tambahan Naskah',
+                    //         'file' => end($fileN)
+                    //     ];
+                    // }
 
-                    DB::table('penerbitan_naskah_penulis')->insert($daftarPenulis);
-                    DB::table('penerbitan_naskah_files')->insert($fileNaskah);
+                    // DB::table('penerbitan_naskah_penulis')->insert($daftarPenulis);
+                    // DB::table('penerbitan_naskah_files')->insert($fileNaskah);
                     $penilaian = $this->alurPenilaian($request->input('add_jalur_buku'), 'create-notif-from-naskah', [
                         'id_prodev' => $request->input('add_pic_prodev'),
                         'form_id' => $idN
@@ -193,6 +197,7 @@ class NaskahController extends Controller
                         'cdqr_code' => $request->input('add_cdqr_code'),
                         'keterangan' => $request->input('add_keterangan'),
                         'pic_prodev' => $request->input('add_pic_prodev'),
+                        'url_file' => $request->input('add_url_file'),
                         'penilaian_naskah' => ($penilaian['penilaian_naskah']?'1':'0'),
                         'created_by' => auth()->id()
                     ]);

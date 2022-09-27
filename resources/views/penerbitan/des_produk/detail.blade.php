@@ -39,6 +39,9 @@
                             <div class="col-auto mr-auto">
                                 <div class="mb-4">
                                 {{-- APROVAL --}}
+                                @if (Gate::allows('do_approval','approval-deskripsi-produk'))
+                                <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                @endif
                                 </div>
                             </div>
                         </div>
@@ -199,7 +202,27 @@
                                     @if (is_null($data->judul_final))
                                         -
                                     @else
-                                        {{ $data->judul_final }}
+                                        @if (Gate::allows('do_approval','approval-deskripsi-produk'))
+                                            @if ($data->status == 'Proses')
+                                            <a href="javascript:void(0)" id="btn-edit-tgl-upload" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}</a>
+                                            <div class="input-group" id="edit-tgl-upload" style="display: none;">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                                                </div>
+                                                <input type="hidden" id="historyTgl" value="{{$data->tgl_upload}}">
+                                                <input type="text" class="form-control datepicker" id="upTglUpload" value="{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
+                                                <button type="button" class="close" aria-label="Close">
+
+                                                    <span aria-hidden="true">&times;</span>
+
+                                                </button>
+                                            </div>
+                                            @else
+                                            {{ $data->judul_final }}
+                                            @endif
+                                        @else
+                                            {{ $data->judul_final }}
+                                        @endif
                                     @endif
                                     </p>
                                 </div>
