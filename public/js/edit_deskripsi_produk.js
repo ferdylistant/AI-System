@@ -88,18 +88,18 @@ $(document).ready(function() {
         $('#imprintCol').removeAttr('hidden');
 	})
 });
-$(document).ready(function() {
-    $('#judulFinalButton').click(function(e) {
-        e.preventDefault();
-        $('#judulFinalCol').attr('hidden','hidden');
-        $('#judulFinalColInput').removeAttr('hidden');
-    });
-    $('.batal_edit_judul_final').click(function(e){ //user click on remove text
-		e.preventDefault();
-        $('#judulFinalColInput').attr('hidden','hidden');
-        $('#judulFinalCol').removeAttr('hidden');
-	})
-});
+// $(document).ready(function() {
+//     $('#judulFinalButton').click(function(e) {
+//         e.preventDefault();
+//         $('#judulFinalCol').attr('hidden','hidden');
+//         $('#judulFinalColInput').removeAttr('hidden');
+//     });
+//     $('.batal_edit_judul_final').click(function(e){ //user click on remove text
+// 		e.preventDefault();
+//         $('#judulFinalColInput').attr('hidden','hidden');
+//         $('#judulFinalCol').removeAttr('hidden');
+// 	})
+// });
 $(document).ready(function() {
     $('#bulanButton').click(function(e) {
         e.preventDefault();

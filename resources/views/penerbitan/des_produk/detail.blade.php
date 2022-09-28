@@ -32,16 +32,52 @@
                                 <span class="badge badge-success">{{$data->status}}</span>
                             @elseif ($data->status == 'Selesai')
                                 <span class="badge badge-light">{{$data->status}}</span>
+                            @elseif ($data->status == 'Revisi')
+                                <span class="badge badge-info">{{$data->status}}</span>
+                            @elseif ($data->status == 'Acc')
+                                <span class="badge badge-light">{{$data->status}}</span>
                             @endif
                     </div>
                     <div class="card-body">
-                        <div class="row justify-content-between">
+                        <div class="row">
+                            {{-- APROVAL --}}
+                            @if (Gate::allows('do_approval','approval-deskripsi-produk'))
+                                @if ($data->status == 'Selesai')
                             <div class="col-auto mr-auto">
                                 <div class="mb-4">
-                                {{-- APROVAL --}}
-                                @if (Gate::allows('do_approval','approval-deskripsi-produk'))
-                                <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Setujui</button>
-                                @endif
+                                    <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                    <button type="button" class="btn btn-danger" id="btn-revision"
+                                    data-id="{{$data->id}}" data-kode="{{$data->kode}}" data-judul_asli="{{$data->judul_asli}}" data-status="{{$data->status}}"
+                                    ><i class="fas fa-tools"></i>&nbsp;Revisi</button>
+                                </div>
+                            </div>
+                            @endif
+                        @endif
+                            <div class="col-auto mr-auto">
+                                <div class="mb-4">
+                                    <div class="user-item">
+                                        <div class="user-details">
+                                            <div class="user-name">Yogyakarta, {{Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d F Y')}}</div>
+                                                @if($data->status == 'Acc')
+                                                <div class="text-job text-success">
+                                                    <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
+                                                </div>
+                                                @elseif($data->status == 'Revisi')
+                                                <div class="text-job text-danger">
+                                                    <a href="javascript:void(0)" id="btn-pending" class="text-danger" data-status="Revisi" data-action_gm="{{$data->action_gm}}"
+                                                    data-alasan_revisi="{{$data->alasan_revisi}}" data-deadline_revisi="{{$data->deadline_revisi}}">
+                                                    <i class="fas fa-tools"></i>&nbsp;Direvisi</a>
+                                                </div>
+                                                @else
+                                                <div class="text-job text-muted">
+                                                    &nbsp;
+                                                </div>
+                                                @endif
+                                            <div class="user-cta">
+                                                <span><u>GM. Penerbitan</u></span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -274,7 +310,7 @@
 
 
 
-@include('produksi.include.modal_decline')
+@include('penerbitan.des_produk.include.modal_revisi')
 
 @endsection
 @section('jsRequired')
@@ -289,8 +325,8 @@
 @endsection
 
 @section('jsNeeded')
-<script src="{{url('js/approval_ebook.js')}}"></script>
-<script src="{{url('js/pending_ebook.js')}}"></script>
+<script src="{{url('js/approval_despro.js')}}"></script>
+<script src="{{url('js/revisi_despro.js')}}"></script>
 @endsection
 
 @yield('jsNeededForm')

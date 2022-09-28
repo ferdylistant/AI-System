@@ -43,10 +43,18 @@
                                 <i class="far fa-circle text-dark"></i>
                                 Status Progress:
                                 <span class="badge badge-light">{{$data->status}}</span>
+                            @elseif ($data->status == 'Revisi')
+                                <i class="far fa-circle text-info"></i>
+                                Status Progress:
+                                <span class="badge badge-info">{{$data->status}}</span>
+                            @elseif ($data->status == 'Acc')
+                                <i class="far fa-circle text-dark"></i>
+                                Status Progress:
+                                <span class="badge badge-light">{{$data->Acc}}</span>
                             @endif
                         </div>
                     </div>
-                    @if ($data->status == 'Proses')
+                    @if (($data->status == 'Proses') || ($data->status == 'Revisi'))
                     <form id="fup_deskripsiProduk">
                         <div class="card-body">
                             <div class="row">
@@ -254,7 +262,7 @@
                                                     </td>
                                                     @endif
                                                 </tr>
-                                                <tr>
+                                                {{-- <tr>
                                                     <th class="table-secondary" style="width: 25%">Judul Final:</th>
                                                     @if (!is_null($data->judul_final))
                                                     <td class="table-active text-right" id="judulFinalCol">
@@ -276,7 +284,7 @@
                                                         <textarea name="judul_final" class="form-control" cols="30" rows="10"></textarea>
                                                     </td>
                                                     @endif
-                                                </tr>
+                                                </tr> --}}
                                                 <tr>
                                                     <th class="table-secondary" style="width: 25%">Bulan: <span class="text-danger">*</span></th>
                                                     @if (!is_null($data->bulan))
@@ -430,7 +438,7 @@
                                                     @endif
                                                 </td>
                                             </tr>
-                                            <tr>
+                                            {{-- <tr>
                                                 <th class="table-secondary" style="width: 25%">Judul Final:</th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->judul_final))
@@ -439,7 +447,7 @@
                                                         <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
                                                 </td>
-                                            </tr>
+                                            </tr> --}}
                                             <tr>
                                                 <th class="table-secondary" style="width: 25%">Bulan: <span class="text-danger">*</span></th>
                                                 <td class="table-active text-right">

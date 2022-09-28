@@ -31,8 +31,8 @@ class InsertDesproHistoryListener
         $res = DB::table('deskripsi_produk_history')->insert([
             'deskripsi_produk_id' => $data['deskripsi_produk_id'],
             'type_history' => $data['type_history'],
-            'judul_final_his' => $data['judul_final_his'],
-            'judul_final_new' => $data['judul_final_new'],
+            // 'judul_final_his' => $data['judul_final_his'],
+            // 'judul_final_new' => $data['judul_final_new'],
             'alt_judul_his' => $data['alt_judul_his'],
             'alt_judul_new' => $data['alt_judul_new'],
             'format_buku_his' => $data['format_buku_his'],

@@ -31,7 +31,7 @@ class UpdateDesproListener
         $res = DB::table('deskripsi_produk')
             ->where('id', $data['id'])
             ->update([
-            'judul_final' => $data['judul_final'],
+            // 'judul_final' => $data['judul_final'],
             'alt_judul' => $data['alt_judul'],
             'format_buku' => $data['format_buku'],
             'jml_hal_perkiraan' => $data['jml_hal_perkiraan'],

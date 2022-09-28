@@ -118,6 +118,11 @@ class DeskripsiProdukController extends Controller
                                 } elseif ($data->status == 'Selesai') {
                                     $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
                                     <div>'.$data->status.'</div></a>';
+                                } elseif ($data->status == 'Revisi') {
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-info btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                    <div>'.$data->status.'</div></a>';
+                                } elseif ($data->status == 'Acc') {
+                                    $btn .= '<span class="d-block badge badge-light mr-1 mt-1">'.$data->status.'</span>';
                                 }
                             } else {
                                 if($data->status == 'Antrian'){
@@ -127,6 +132,10 @@ class DeskripsiProdukController extends Controller
                                 } elseif ($data->status == 'Proses') {
                                     $btn .= '<span class="d-block badge badge-success mr-1 mt-1">'.$data->status.'</span>';
                                 } elseif ($data->status == 'Selesai') {
+                                    $btn .= '<span class="d-block badge badge-light mr-1 mt-1">'.$data->status.'</span>';
+                                } elseif ($data->status == 'Revisi') {
+                                    $btn .= '<span class="d-block badge badge-info mr-1 mt-1">'.$data->status.'</span>';
+                                } elseif ($data->status == 'Acc') {
                                     $btn .= '<span class="d-block badge badge-light mr-1 mt-1">'.$data->status.'</span>';
                                 }
                             }
@@ -219,7 +228,7 @@ class DeskripsiProdukController extends Controller
                 ->first();
                 $update = [
                     'id' => $request->id,
-                    'judul_final' => $request->judul_final,
+                    // 'judul_final' => $request->judul_final,
                     'alt_judul' => json_encode($altJudul),
                     'format_buku' => $request->format_buku,
                     'jml_hal_perkiraan' => $request->jml_hal_perkiraan,
@@ -236,8 +245,8 @@ class DeskripsiProdukController extends Controller
                 $insert = [
                     'deskripsi_produk_id' => $request->id,
                     'type_history' => 'Update',
-                    'judul_final_his' => $history->judul_final,
-                    'judul_final_new' => $request->judul_final,
+                    // 'judul_final_his' => $history->judul_final,
+                    // 'judul_final_new' => $request->judul_final,
                     'alt_judul_his' => $history->alt_judul,
                     'alt_judul_new' => json_encode($altJudul),
                     'format_buku_his' => $history->format_buku,
