@@ -106,7 +106,9 @@ Route::middleware(['auth'])->group(function() {
         Route::get('/deskripsi/produk/detail',[DeskripsiProdukController::class, 'detailDeskripsiProduk'])->name('despro.detail');
         Route::match(['get', 'post'],'/deskripsi/produk/edit',[DeskripsiProdukController::class, 'editDeskripsiProduk'])->name('despro.edit');
         Route::post('/deskripsi/produk/update-status-progress',[DeskripsiProdukController::class, 'updateStatusProgress']);
-        Route::get('/deskripsi/produk/lihat-history', [DeskripsiProdukController::class, 'lihatHistoryDespro'])->name('despro.history');
+        Route::post('/deskripsi/produk/lihat-history', [DeskripsiProdukController::class, 'lihatHistoryDespro'])->name('despro.history');
+        Route::post('/deskripsi/produk/revisi',[DeskripsiProdukController::class, 'revisiDespro']);
+        Route::post('/deskripsi/produk/pilih-judul',[DeskripsiProdukController::class, 'pilihJudul'])->name('despro.pilihjudul');
         //Deskripsi Final
         Route::get('descripsi-final',[DeskripsiFinalController::class,'index']);
         //Order Cetak

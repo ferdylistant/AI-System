@@ -2,7 +2,7 @@
 <div class="modal fade" id="modalRevisi" tabindex="-1" role="dialog" aria-labelledby="titleModalDetDespro" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
-        <form method="post" id="fadd_Keterangan">
+        <form method="post" id="fadd_Revisi">
             <div class="modal-header">
                 <h5 class="modal-title" id="titleModalDetDespro"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -11,10 +11,9 @@
             </div>
             <div class="modal-body">
                 @csrf
-                <input type="hidden" name="id" id="id_" value="">
-                <input type="hidden" name="kode_order" id="kode_Order" value="">
-                <input type="hidden" name="judul_buku" id="judul_Buku" value="">
-                <input type="hidden" name="status_cetak" id="status_cetak" value="">
+                <input type="hidden" name="id" id="_id" value="">
+                <input type="hidden" name="kode" id="kode" value="">
+                <input type="hidden" name="judul_asli" id="judul_asli" value="">
                     <div id="contentData"></div>
             </div>
             <div class="modal-footer" id="footerDecline">

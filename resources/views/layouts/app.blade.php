@@ -49,12 +49,48 @@
         .form-control.is-invalid + .select2 {
             border: 1px solid #dc3545 !important;
         }
+        #overlay{
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  height:100%;
+  display: none;
+  background: rgba(0,0,0,0.6);
+}
+.cv-spinner {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px #ddd solid;
+  border-top: 4px #2e93e6 solid;
+  border-radius: 50%;
+  animation: sp-anime 0.8s infinite linear;
+}
+@keyframes sp-anime {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.is-hide{
+  display:none;
+}
     </style>
     @yield('cssNeeded')
 </head>
 
 <body>
     <div id="app">
+        <div id="overlay">
+            <div class="cv-spinner">
+              <span class="spinner"></span>
+            </div>
+        </div>
         <div class="main-wrapper main-wrapper-1">
             <div class="navbar-bg"></div>
             @include('layouts.topbar')

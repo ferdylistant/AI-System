@@ -215,10 +215,11 @@
     $('#tb_DesProduk').on('click','.btn-history',function(e){
         var id = $(this).data('id');
         var judul = $(this).data('judulasli');
-        $.get("{{route('despro.history')}}", {id: id}, function(data){
+        $.post("{{route('despro.history')}}", {id: id}, function(data){
             $('#titleModalDespro').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "'+judul+'"');
             $('#load_more').data('id',id);
             $('#dataHistory').html(data);
+            $('#md_DesproHistory').modal('show')
             // $.each(data, function(k, v) {
             //     // console.log(v);
             //     if (v.type_history == 'Status'){

@@ -312,7 +312,10 @@
                                                     <th class="table-secondary" style="width: 25%">Alt Judul</th>
                                                     @if (!is_null($data->alt_judul))
                                                     <td class="table-active text-right" id="altCol">
-                                                        @foreach (json_decode($data->alt_judul,true) as $aj)
+                                                        @foreach (json_decode($data->alt_judul,true) as $key => $aj)
+                                                            @if ($key < 1)
+                                                                <i class="fas fa-check text-danger"></i><span class="text-danger">(Usulan Penulis)</span>
+                                                            @endif
                                                             {{$aj}}-<br>
                                                         @endforeach
                                                         <p class="text-small">
@@ -323,9 +326,17 @@
                                                         <div class="input_fields_wrap">
                                                             <button class="add_field_button btn btn-outline-primary mb-1"><i class="fas fa-plus-circle"></i> More Fields</button>
                                                             <button class="btn btn-outline-danger batal_edit_alt text-danger align-self-center mb-1" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
-                                                            @foreach (Illuminate\Support\Arr::whereNotNull(json_decode($data->alt_judul,true)) as $alt_judul)
-                                                            <div class="input-group-append">
-                                                                <input type="text" name="alt_judul[]" value="{{$alt_judul}}" placeholder="Alternatif judul" class="form-control">
+                                                            @foreach (Illuminate\Support\Arr::whereNotNull(json_decode($data->alt_judul,true)) as $k => $alt_judul)
+                                                            <div>
+                                                                <div class="input-group">
+                                                                    @if ($k < 1)
+                                                                        <div class="input-group-prepend">
+                                                                            <span class="input-group-text text-danger font-weight-bold"><span class="bullet"></span>Usulan Penulis</span>
+                                                                        </div>
+                                                                    @endif
+                                                                        <input type="text" name="alt_judul[]" value="{{$alt_judul}}" placeholder="Alternatif judul" class="form-control">
+
+                                                                </div>
                                                             </div>
                                                             @endforeach
                                                         </div>
@@ -334,7 +345,12 @@
                                                     <td class="table-active text-left">
                                                         <div class="input_fields_wrap">
                                                             <button class="add_field_button btn btn-outline-primary mb-1"><i class="fas fa-plus-circle"></i> More Fields</button>
-                                                            <div class="input-group-append"><input type="text" name="alt_judul[]" placeholder="Alternatif judul" class="form-control"></div>
+                                                            <div class="input-group">
+                                                                <div class="input-group-prepend">
+                                                                    <span class="input-group-text text-danger font-weight-bold"><span class="bullet"></span>Usulan Penulis</span>
+                                                                </div>
+                                                                <input type="text" name="alt_judul[]" placeholder="Alternatif judul" class="form-control">
+                                                            </div>
                                                         </div>
                                                     </td>
                                                     @endif
@@ -462,7 +478,10 @@
                                                 <th class="table-secondary" style="width: 25%">Alt Judul</th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->alt_judul))
-                                                        @foreach (json_decode($data->alt_judul,true) as $aj)
+                                                        @foreach (json_decode($data->alt_judul,true) as $key => $aj)
+                                                            @if ($key < 1)
+                                                                <i class="fas fa-check text-danger"></i><span class="text-danger">(Usulan Penulis)</span>
+                                                            @endif
                                                             {{$aj}}-<br>
                                                         @endforeach
                                                     @else

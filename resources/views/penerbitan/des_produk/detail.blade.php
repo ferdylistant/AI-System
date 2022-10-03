@@ -8,6 +8,7 @@
 @endsection
 
 @section('content')
+
 <section class="section">
     <div class="section-header">
         <div class="section-header-back">
@@ -57,15 +58,15 @@
                                 <div class="mb-4">
                                     <div class="user-item">
                                         <div class="user-details">
-                                            <div class="user-name">Yogyakarta, {{Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d F Y')}}</div>
+                                            <div class="user-name">Yogyakarta, {{is_null($data->action_gm)?Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('l d F Y'):Carbon\Carbon::parse($data->action_gm)->translatedFormat('l d F Y')}}</div>
                                                 @if($data->status == 'Acc')
                                                 <div class="text-job text-success">
                                                     <i class="fas fa-check-circle"></i>&nbsp;Telah Disetujui
                                                 </div>
                                                 @elseif($data->status == 'Revisi')
                                                 <div class="text-job text-danger">
-                                                    <a href="javascript:void(0)" id="btn-pending" class="text-danger" data-status="Revisi" data-action_gm="{{$data->action_gm}}"
-                                                    data-alasan_revisi="{{$data->alasan_revisi}}" data-deadline_revisi="{{$data->deadline_revisi}}">
+                                                    <a href="javascript:void(0)" id="btn-revision" class="text-danger" data-id="{{$data->id}}" data-kode="{{$data->kode}}" data-judul_asli="{{$data->judul_asli}}" data-status="Revisi" data-action_gm="{{Carbon\Carbon::parse($data->action_gm)->translatedFormat('l d F Y')}}"
+                                                    data-alasan_revisi="{{$data->alasan_revisi}}" data-deadline_revisi="{{Carbon\Carbon::parse($data->deadline_revisi)->translatedFormat('l d F Y, H:i')}}">
                                                     <i class="fas fa-tools"></i>&nbsp;Direvisi</a>
                                                 </div>
                                                 @else
@@ -109,7 +110,7 @@
                                         @foreach ($penulis as $pen)
                                             <li class="list-inline-item">
                                             <p class="mb-1 text-monospace">
-                                                <i class="fas fa-check text-dark"></i>
+                                                <span class="bullet"></span>
                                                 <span>{{ $pen->nama }}</span>
                                             </p>
                                             </li>
@@ -234,31 +235,11 @@
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Judul Final</h6>
                                     </div>
-                                    <p class="mb-1 text-monospace">
+                                    <p class="mb-1 text-monospace" id="judulFinalChange">
                                     @if (is_null($data->judul_final))
                                         -
                                     @else
-                                        @if (Gate::allows('do_approval','approval-deskripsi-produk'))
-                                            @if ($data->status == 'Proses')
-                                            <a href="javascript:void(0)" id="btn-edit-tgl-upload" class="text-primary" data-toggle="tooltip" data-placement="bottom" title="Edit data">{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}</a>
-                                            <div class="input-group" id="edit-tgl-upload" style="display: none;">
-                                                <div class="input-group-prepend">
-                                                    <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
-                                                </div>
-                                                <input type="hidden" id="historyTgl" value="{{$data->tgl_upload}}">
-                                                <input type="text" class="form-control datepicker" id="upTglUpload" value="{{ Carbon\Carbon::parse($data->tgl_upload)->translatedFormat('d F Y') }}" placeholder="Tanggal Upload" readonly required>
-                                                <button type="button" class="close" aria-label="Close">
-
-                                                    <span aria-hidden="true">&times;</span>
-
-                                                </button>
-                                            </div>
-                                            @else
-                                            {{ $data->judul_final }}
-                                            @endif
-                                        @else
-                                            {{ $data->judul_final }}
-                                        @endif
+                                        {{ $data->judul_final }}
                                     @endif
                                     </p>
                                 </div>
@@ -275,6 +256,7 @@
                                     </p>
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
+
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Alternatif Judul</h6>
                                     </div>
@@ -282,9 +264,56 @@
                                     @if (is_null($data->alt_judul))
                                         -
                                     @else
-                                        @foreach (json_decode($data->alt_judul) as $alt)
-                                        <p>-{{ $alt }}</p>
+                                        @foreach (json_decode($data->alt_judul) as $key => $alt)
+                                        @if (Gate::allows('do_approval','approval-deskripsi-produk'))
+                                            @if ($data->status == 'Selesai')
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="alt_judul_radio" data-id="{{$data->id}}" value="{{$alt}}" id="altJudulRadio"
+                                                    {{(is_null($data->judul_final)?($key<1?'checked':''):($data->judul_final==$alt?'checked':''))}}>
+                                                    <label class="form-check-label" for="altJudulRadio">
+                                                        {{$alt}}
+                                                    @if ($key < 1)
+                                                        <span class="text-danger font-weight-bold">(Usulan Penulis)</span>
+                                                    @endif
+                                                    </label>
+                                                </div>
+                                            @else
+                                            <p><span class="bullet"></span>{{ $alt }}
+                                                @if ($key < 1)
+                                                <i class="fas fa-check text-danger"></i><span class="text-danger font-weight-bold"> Usulan Penulis</span>
+                                                    @if (!is_null($data->judul_final))
+                                                        @if ($data->judul_final==$alt)
+                                                        & <i class="fas fa-check text-success"></i><span class="text-success font-weight-bold"> Dipilih Direksi</span>
+                                                        @endif
+                                                    @endif
+                                                @else
+                                                     @if (!is_null($data->judul_final))
+                                                        @if ($data->judul_final==$alt)
+                                                        <i class="fas fa-check text-success"></i><span class="text-success font-weight-bold"> Dipilih Direksi</span>
+                                                        @endif
+                                                    @endif
+                                                @endif
+                                            </p>
+                                            @endif
 
+                                        @else
+                                        <p><span class="bullet"></span>{{ $alt }}
+                                            @if ($key < 1)
+                                            <i class="fas fa-check text-danger"></i><span class="text-danger font-weight-bold"> Usulan Penulis</span>
+                                                @if (!is_null($data->judul_final))
+                                                    @if ($data->judul_final==$alt)
+                                                    & <i class="fas fa-check text-success"></i><span class="text-success font-weight-bold"> Dipilih Direksi</span>
+                                                    @endif
+                                                @endif
+                                            @else
+                                                 @if (!is_null($data->judul_final))
+                                                    @if ($data->judul_final==$alt)
+                                                    <i class="fas fa-check text-success"></i><span class="text-success font-weight-bold"> Dipilih Direksi</span>
+                                                    @endif
+                                                @endif
+                                            @endif
+                                        </p>
+                                        @endif
                                         @endforeach
                                     @endif
                                     </p>
@@ -327,6 +356,36 @@
 @section('jsNeeded')
 <script src="{{url('js/approval_despro.js')}}"></script>
 <script src="{{url('js/revisi_despro.js')}}"></script>
+<script>
+$(function(){
+    $(document).ajaxSend(function() {
+        $("#overlay").fadeIn(300);　
+    });
+    $('input[type=radio][name=alt_judul_radio]').change(function(){
+        var id = $(this).data('id');
+        var judul_val = $(this).val();
+        $.ajax({
+            url: "{{route('despro.pilihjudul')}}",
+            type: 'POST',
+            data: { id: id, judul: judul_val },
+            dataType: 'json',
+            success: function(data){
+                console.log(data);
+                if (data.status == 'success'){
+                    $('#judulFinalChange').html(data.data);
+                    notifToast(data.status, data.message);
+                } else {
+                    notifToast(data.status, data.message);
+                }
+            }
+        }).done(function() {
+            setTimeout(function(){
+                $("#overlay").fadeOut(300);
+            },500);
+        });
+    });
+});
+</script>
 @endsection
 
 @yield('jsNeededForm')

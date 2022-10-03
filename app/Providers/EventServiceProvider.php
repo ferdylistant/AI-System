@@ -6,8 +6,10 @@ use App\Events\UpdateFbEvent;
 use App\Events\UpdateKbEvent;
 use App\Events\InsertFbHistory;
 use App\Events\InsertKbHistory;
+use App\Events\PilihJudulEvent;
 use App\Events\UpdateDesproEvent;
 use App\Events\UpdateStatusEvent;
+use App\Events\InsertJudulHistory;
 use App\Events\UpdateImprintEvent;
 use App\Events\InsertDesproHistory;
 use App\Events\InsertStatusHistory;
@@ -17,19 +19,25 @@ use App\Listeners\UpdateKbListener;
 use App\Events\InsertImprintHistory;
 use App\Events\InsertPlatformHistory;
 use App\Events\NotifikasiPenyetujuan;
+use App\Listeners\PilihJudulListener;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
+use App\Events\UpdateRevisiDesproEvent;
 use App\Listeners\UpdateDesproListener;
 use App\Listeners\UpdateStatusListener;
 use App\Listeners\UpdateImprintListener;
+use App\Events\InsertRevisiDesproHistory;
 use App\Listeners\UpdatePlatformListener;
 use App\Listeners\InsertFbHistoryListener;
 use App\Listeners\InsertKbHistoryListener;
+use App\Listeners\InsertJudulHistoryListener;
+use App\Listeners\UpdateRevisiDesproListener;
 use App\Listeners\InsertDesproHistoryListener;
 use App\Listeners\InsertStatusHistoryListener;
 use App\Listeners\InsertImprintHistoryListener;
 use App\Listeners\InsertPlatformHistoryListener;
 use App\Listeners\NotifikasiPenyetujuanListener;
+use App\Listeners\InsertRevisiDesproHistoryListener;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -82,6 +90,10 @@ class EventServiceProvider extends ServiceProvider
             [UpdateDesproListener::class, 'handle']
         );
         Event::listen(
+            UpdateRevisiDesproEvent::class,
+            [UpdateRevisiDesproListener::class, 'handle']
+        );
+        Event::listen(
             InsertImprintHistory::class,
             [InsertImprintHistoryListener::class, 'handle']
         );
@@ -104,6 +116,18 @@ class EventServiceProvider extends ServiceProvider
         Event::listen(
             InsertDesproHistory::class,
             [InsertDesproHistoryListener::class, 'handle']
+        );
+        Event::listen(
+            InsertRevisiDesproHistory::class,
+            [InsertRevisiDesproHistoryListener::class, 'handle']
+        );
+        Event::listen(
+            InsertJudulHistory::class,
+            [InsertJudulHistoryListener::class, 'handle']
+        );
+        Event::listen(
+            PilihJudulEvent::class,
+            [PilihJudulListener::class, 'handle']
         );
     }
 }

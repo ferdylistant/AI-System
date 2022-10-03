@@ -7,12 +7,16 @@ use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
 use App\Events\UpdateFbEvent;
+use App\Events\PilihJudulEvent;
 use Yajra\DataTables\DataTables;
 use App\Events\UpdateDesproEvent;
 use App\Events\UpdateStatusEvent;
+use App\Events\InsertJudulHistory;
 use App\Events\InsertDesproHistory;
 use App\Events\InsertStatusHistory;
 use App\Http\Controllers\Controller;
+use App\Events\UpdateRevisiDesproEvent;
+use App\Events\InsertRevisiDesproHistory;
 use Illuminate\Support\Facades\{DB, Gate};
 
 class DeskripsiProdukController extends Controller
@@ -92,7 +96,7 @@ class DeskripsiProdukController extends Controller
                             if($historyData->isEmpty()) {
                                 return '-';
                             } else {
-                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-judulasli="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_DesproHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
+                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-judulasli="'.$data->judul_asli.'"><i class="fas fa-history"></i>&nbsp;History</button>';
                                 return $date;
                             }
                         })
@@ -365,11 +369,13 @@ class DeskripsiProdukController extends Controller
             ]);
         }
     }
-    public function lihatHistoryDespro(Request $request) {
+    public function lihatHistoryDespro(Request $request)
+    {
         if($request->ajax()){
             $html = '';
-            $id = $request->get('id');
-            $data = DB::table('deskripsi_produk_history as pd')->join('users as u','pd.author_id','=','u.id')
+            $id = $request->id;
+            $data = DB::table('deskripsi_produk_history as pd')
+                ->join('users as u','pd.author_id','=','u.id')
                 ->where('pd.deskripsi_produk_id',$id)
                 ->select('pd.*','u.nama')
                 ->orderBy('pd.id', 'desc')
@@ -383,7 +389,7 @@ class DeskripsiProdukController extends Controller
                     <div class="ticket-info">
                         <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
                         <div class="bullet pt-2"></div>
-                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i').')</div>
+                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i').')</div>
                     </div>
                     </span>';
 
@@ -392,6 +398,9 @@ class DeskripsiProdukController extends Controller
                     <div class="ticket-title"><span><span class="bullet"></span>';
                     if (!is_null($d->judul_final_his)) {
                         $html .=' Judul final <b class="text-dark">'.$d->judul_final_his.'</b> diubah menjadi <b class="text-dark">'.$d->judul_final_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->judul_final_new)) {
+                        $html .=' Judul alternatif <b class="text-dark">'.$d->judul_final_new.'</b> telah dipilih menjadi judul final.<br>';
                     }
                     if (!is_null($d->format_buku_his)) {
                         $html .=' Format buku <b class="text-dark">'.$d->format_buku_his.' cm</b> diubah menjadi <b class="text-dark">'.$d->format_buku_new.' cm</b>.<br>';
@@ -420,12 +429,24 @@ class DeskripsiProdukController extends Controller
                     <div class="ticket-info">
                         <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
                         <div class="bullet pt-2"></div>
-                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i').')</div>
+                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i').')</div>
 
+                    </div>
+                    </span>';
+                } elseif ($d->type_history == 'Revisi') {
+                    $html .= '<span class="ticket-item" id="newAppend">
+                    <div class="ticket-title">
+                        <span><span class="bullet"></span> Deskripsi produk naskah ini diminta untuk direvisi selambatnya tanggal <b class="text-dark">'.Carbon::parse($d->deadline_revisi_his)->translatedFormat('l d F Y, H:i').'</b>. Direvisi dengan alasan <b class="text-dark">"'.$d->alasan_revisi_his.'"</b>.</span>
+                    </div>
+                    <div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i').')</div>
                     </div>
                     </span>';
                 }
             }
+            return $html;
         }
         // foreach ($data as $d){
         //     $result[] = [
@@ -456,7 +477,80 @@ class DeskripsiProdukController extends Controller
         //         'format_tanggal' => Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i')
         //     ];
         // }
-        return $html;
-    }
 
+    }
+    public function revisiDespro(Request$request)
+    {
+        try{
+            $kode = $request->input('kode');
+            $judul_asli = $request->input('judul_asli');
+            $data = DB::table('deskripsi_produk')->where('id',$request->input('id'))->where('status','Selesai')->whereNull('deadline_revisi')->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Deskripsi produk "'.$judul_asli.'" sedang direvisi'
+                ]);
+            }
+            // return response()->json($request->input('alasan'));
+            // $update = [
+            //     'id' => $request->input('id'),
+            //     'status' => "Revisi",
+            //     'deadline_revisi' => date('Y-m-d H:i:s', strtotime($request->input('deadline_revisi'))),
+            //     'alasan_revisi' => $request->input('alasan'),
+            //     'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+            //     'updated_by' => auth()->id()
+            // ];
+            DB::table('deskripsi_produk')->where('id',$request->input('id'))->update([
+                'status' => "Revisi",
+                'deadline_revisi' => Carbon::createFromFormat('d F Y',$request->input('deadline_revisi'))->format('Y-m-d H:i:s'),
+                'alasan_revisi' => $request->input('alasan'),
+                'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'updated_by' =>auth()->id()
+            ]);
+            // event(new UpdateRevisiDesproEvent($update));
+            $insert = [
+                'deskripsi_produk_id' => $request->input('id'),
+                'type_history' => 'Revisi',
+                'status_his'=> $data->status,
+                'deadline_revisi_his' => Carbon::createFromFormat('d F Y',$request->input('deadline_revisi'))->format('Y-m-d H:i:s'),
+                'alasan_revisi_his' => $request->input('alasan'),
+                'status_new' => 'Revisi',
+                'author_id' => auth()->id(),
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new InsertRevisiDesproHistory($insert));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Naskah "'.$kode.'" telah disetujui!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    public function pilihJudul(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $judul = $request->judul;
+            $data = [
+                'id' => $id,
+                'judul' => $judul
+            ];
+            event(new PilihJudulEvent($data));
+            event(new InsertJudulHistory($data));
+            return response([
+                'status' => 'success',
+                'message' => 'Judul final telah dipilih',
+                'data' => $judul
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }

@@ -1,12 +1,17 @@
 $(function(){
-    $('.load-more').click(function(){
+    $('.load-more').click(function(e){
+        e.preventDefault();
         var page = $(this).data('paginate');
         var id = $(this).data('id');
         $(this).data('paginate', page+1);
 
             $.ajax({
-                url: window.location.origin + '/penerbitan/deskripsi/produk/lihat-history?id='+id+'&page='+page,
-                type: 'get',
+                url: window.location.origin + '/penerbitan/deskripsi/produk/lihat-history',
+                data: {
+                    id: id,
+                    page: page
+                },
+                type: 'post',
                 beforeSend:function(){
                     $(".load-more").text("Loading...");
                 },
@@ -14,7 +19,7 @@ $(function(){
                     // if (response.length == 0) {
                     //     $(".load-more").remove();
                     // }
-                    $('#dataHistory').append(response).fadeIn("slow");
+                    $('#dataHistory').append(response);
                     // Setting little delay while displaying new content
                     // setTimeout(function() {
                     //     // appending posts after last post with class="post"
