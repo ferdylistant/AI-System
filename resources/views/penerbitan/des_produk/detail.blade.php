@@ -46,7 +46,8 @@
                                 @if ($data->status == 'Selesai')
                             <div class="col-auto mr-auto">
                                 <div class="mb-4">
-                                    <button type="submit" class="btn btn-success" id="btn-approve"><i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                    <button type="submit" class="btn btn-success" id="btn-approve-despro" data-id="{{$data->id}}" data-kode="{{$data->kode}}">
+                                        <i class="fas fa-check"></i>&nbsp;Setujui</button>
                                     <button type="button" class="btn btn-danger" id="btn-revision"
                                     data-id="{{$data->id}}" data-kode="{{$data->kode}}" data-judul_asli="{{$data->judul_asli}}" data-status="{{$data->status}}"
                                     ><i class="fas fa-tools"></i>&nbsp;Revisi</button>
@@ -65,8 +66,8 @@
                                                 </div>
                                                 @elseif($data->status == 'Revisi')
                                                 <div class="text-job text-danger">
-                                                    <a href="javascript:void(0)" id="btn-revision" class="text-danger" data-id="{{$data->id}}" data-kode="{{$data->kode}}" data-judul_asli="{{$data->judul_asli}}" data-status="Revisi" data-action_gm="{{Carbon\Carbon::parse($data->action_gm)->translatedFormat('l d F Y')}}"
-                                                    data-alasan_revisi="{{$data->alasan_revisi}}" data-deadline_revisi="{{Carbon\Carbon::parse($data->deadline_revisi)->translatedFormat('l d F Y, H:i')}}">
+                                                    <a href="javascript:void(0)" id="btn-revision" class="text-danger" data-id="{{$data->id}}" data-kode="{{$data->kode}}" data-judul_asli="{{$data->judul_asli}}" data-status="Revisi" data-action_gm="{{Carbon\Carbon::parse($data->action_gm)->translatedFormat('l, d F Y, H:i')}}"
+                                                    data-alasan_revisi="{{$data->alasan_revisi}}" data-deadline_revisi="{{Carbon\Carbon::parse($data->deadline_revisi)->translatedFormat('l, d F Y, H:i')}}">
                                                     <i class="fas fa-tools"></i>&nbsp;Direvisi</a>
                                                 </div>
                                                 @else

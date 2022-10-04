@@ -109,6 +109,7 @@ Route::middleware(['auth'])->group(function() {
         Route::post('/deskripsi/produk/lihat-history', [DeskripsiProdukController::class, 'lihatHistoryDespro'])->name('despro.history');
         Route::post('/deskripsi/produk/revisi',[DeskripsiProdukController::class, 'revisiDespro']);
         Route::post('/deskripsi/produk/pilih-judul',[DeskripsiProdukController::class, 'pilihJudul'])->name('despro.pilihjudul');
+        Route::post('/deskripsi/produk/approve',[DeskripsiProdukController::class, 'approveDespro'])->name('despro.approve');
         //Deskripsi Final
         Route::get('descripsi-final',[DeskripsiFinalController::class,'index']);
         //Order Cetak

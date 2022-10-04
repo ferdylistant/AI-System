@@ -7,6 +7,8 @@ use App\Events\UpdateKbEvent;
 use App\Events\InsertFbHistory;
 use App\Events\InsertKbHistory;
 use App\Events\PilihJudulEvent;
+use App\Events\InsertDescovEvent;
+use App\Events\InsertDesfinEvent;
 use App\Events\UpdateDesproEvent;
 use App\Events\UpdateStatusEvent;
 use App\Events\InsertJudulHistory;
@@ -23,8 +25,11 @@ use App\Listeners\PilihJudulListener;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use App\Events\UpdateRevisiDesproEvent;
+use App\Listeners\InsertDescovListener;
+use App\Listeners\InsertDesfinListener;
 use App\Listeners\UpdateDesproListener;
 use App\Listeners\UpdateStatusListener;
+use App\Events\UpdateApproveDesproEvent;
 use App\Listeners\UpdateImprintListener;
 use App\Events\InsertRevisiDesproHistory;
 use App\Listeners\UpdatePlatformListener;
@@ -34,6 +39,7 @@ use App\Listeners\InsertJudulHistoryListener;
 use App\Listeners\UpdateRevisiDesproListener;
 use App\Listeners\InsertDesproHistoryListener;
 use App\Listeners\InsertStatusHistoryListener;
+use App\Listeners\UpdateApproveDesproListener;
 use App\Listeners\InsertImprintHistoryListener;
 use App\Listeners\InsertPlatformHistoryListener;
 use App\Listeners\NotifikasiPenyetujuanListener;
@@ -92,6 +98,18 @@ class EventServiceProvider extends ServiceProvider
         Event::listen(
             UpdateRevisiDesproEvent::class,
             [UpdateRevisiDesproListener::class, 'handle']
+        );
+        Event::listen(
+            UpdateApproveDesproEvent::class,
+            [UpdateApproveDesproListener::class, 'handle']
+        );
+        Event::listen(
+            InsertDesfinEvent::class,
+            [InsertDesfinListener::class, 'handle']
+        );
+        Event::listen(
+            InsertDescovEvent::class,
+            [InsertDescovListener::class, 'handle']
         );
         Event::listen(
             InsertImprintHistory::class,

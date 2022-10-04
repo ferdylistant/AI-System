@@ -1,68 +1,23 @@
 $(function(){
-    $('.datepicker').datepicker({
-        format: 'dd MM yyyy',
-        startDate: '-10d',
-        autoclose:true,
-        clearBtn: true,
-        todayHighlight: true
-    });
-    $('#btn-edit-tgl-upload').on('click', function(){
-        $('#edit-tgl-upload').removeAttr('style');
-        $('#btn-edit-tgl-upload').hide();
-    });
-    $('.close').on('click', function(){
-        $('#edit-tgl-upload').attr('style', 'display:none');
-        $('#btn-edit-tgl-upload').show();
-    });
-    $('#upTglUpload').change(function (e) {
-        e.preventDefault();
-
-        // get the value of the dropdown
-        var id = $('#id').val();
-        var hisTglUpload = $('#historyTgl').val();
-        var selectedValue = $(this).val();
-        console.log(hisTglUpload);
-        // make the ajax call (needs to be POST since you're sending data)
-        $.ajax({
-              url: window.location.origin + '/update-tanggal-upload-ebook',
-              type:'POST',  // change your route to use POST too
-              datatype:'JSON',
-              context: this,
-              data: {
-                history: hisTglUpload,
-                value: selectedValue,
-                id: id
-              },
-              success: function( res ) {
-                  //var html = res;// no need to waste a variable, just use it directly
-                  notifToast(res.status, res.message);
-                  location.reload();
-              },
-              error: function() {
-                notifToast('error', 'Terjadi kesalahan');
-              }
-        });
-    });
-    function ajaxApproveProduksiEbook(data) {
-        let el = data.get(0);
-        // console.log(el);
+    function ajaxApproveDespro(id) {
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/order-ebook/ajax/approve",
-            data: new FormData(el),
+            url: window.location.origin + "/penerbitan/deskripsi/produk/approve?id="+id,
             processData: false,
             contentType: false,
             beforeSend: function() {
-                $('button[type="submit"]').prop('disabled', true).
-                    addClass('btn-progress')
+                // $('button[type="submit"]').prop('disabled', true).
+                //     addClass('btn-progress')
+                $("#overlay").fadeIn(300);
             },
             success: function(result) {
-                // resetFrom(data);
-                notifToast(result.status, result.message);
-                location.reload();
-                // $('#modalDecline').modal('hide');
-                // ajax.reload();
-                // location.href = result.redirect;
+                if (result.status == 'error') {
+                    notifToast(result.status, result.message);
+                } else {
+                    notifToast(result.status, result.message);
+                    location.reload();
+                }
+
 
             },
             error: function(err) {
@@ -74,35 +29,34 @@ $(function(){
                         let [key, value] = entry;
                         err[key] = value
                     })
-                    addForm.showErrors(err);
                 }
                 notifToast('error', 'Gagal melakukan penyetujuan!');
             },
             complete: function() {
-                $('button[type="submit"]').prop('disabled', false).
-                    removeClass('btn-progress')
+                // $('button[type="submit"]').prop('disabled', false).
+                //     removeClass('btn-progress')
+                setTimeout(function(){
+                    $("#overlay").fadeOut(300);
+                },500);
             }
         })
     }
 
-    $('#fadd_Approval').on('submit', function(e) {
+    $('#btn-approve-despro').on('click', function(e) {
         e.preventDefault();
-        if($(this).valid()) {
-            let kode = $(this).find('[name="kode_order"]').val();
-            let judul = $(this).find('[name="judul_buku"]').val();
+            let id = $(this).data('id');
+            let kode = $(this).data('kode');
             swal({
-                title: 'Yakin menyetujui order e-book #'+kode+'-'+judul+'?',
-                text: 'Setelah menyetujui, Anda tidak dapat mengubah kembali data yang sudah Anda setujui!',
+                title: 'Yakin menyetujui naskah deskripsi produk '+kode+'?',
+                text: 'Harap diperiksa kembali, supaya tidak terjadi kekeliruan data.',
                 icon: 'warning',
                 buttons: true,
                 dangerMode: true,
             })
             .then((confirm_) => {
                 if (confirm_) {
-                    ajaxApproveProduksiEbook($(this))
+                    ajaxApproveDespro(id)
                 }
             });
-
-        }
     })
 });

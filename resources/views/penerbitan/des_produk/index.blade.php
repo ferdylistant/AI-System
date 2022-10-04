@@ -197,7 +197,7 @@
                 { data: 'imprint', name: 'imprint', title: 'Imprint'},
                 { data: 'judul_final', name: 'judul_final', title: 'Judul Final'},
                 { data: 'tgl_deskripsi', name: 'tgl_deskripsi', title: 'Tgl Deskripsi'},
-                { data: 'pembuat_deskripsi', name: 'pembuat_deskripsi', title: 'Pembuat Deskripsi',orderable: false},
+                { data: 'pic_prodev', name: 'pic_prodev', title: 'PIC Prodev'},
                 { data: 'history', name: 'history', title: 'History Progress'},
                 { data: 'action', name: 'action', title: 'Action', orderable: false},
             ],
@@ -219,22 +219,7 @@
             $('#titleModalDespro').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "'+judul+'"');
             $('#load_more').data('id',id);
             $('#dataHistory').html(data);
-            $('#md_DesproHistory').modal('show')
-            // $.each(data, function(k, v) {
-            //     // console.log(v);
-            //     if (v.type_history == 'Status'){
-            //         $('#dataHistory').append(`<span class="ticket-item">
-            //             <div class="ticket-title">
-            //                 <h6><span class="bullet"></span> Status deskripsi produk '`+v.status_his+`' diubah menjadi '`+v.status_new+`'.</h6>
-            //             </div>
-            //             <div class="ticket-info">
-            //                 <div class="text-muted">Modified by <a href="{{url('/manajemen-web/user/`+v.author_id+`')}}">`+v.nama+`</a></div>
-            //                 <div class="bullet"></div>
-            //                 <div>`+v.modified_at+` (`+v.format_tanggal+`)</div>
-            //             </div>
-            //         </span>`);
-            //     }
-            // });
+            $('#md_DesproHistory').modal('show');
         });
     });
 </script>

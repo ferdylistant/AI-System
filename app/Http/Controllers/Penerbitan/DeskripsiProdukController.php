@@ -6,18 +6,12 @@ use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
-use App\Events\UpdateFbEvent;
-use App\Events\PilihJudulEvent;
 use Yajra\DataTables\DataTables;
-use App\Events\UpdateDesproEvent;
-use App\Events\UpdateStatusEvent;
-use App\Events\InsertJudulHistory;
-use App\Events\InsertDesproHistory;
-use App\Events\InsertStatusHistory;
 use App\Http\Controllers\Controller;
-use App\Events\UpdateRevisiDesproEvent;
+use App\Events\UpdateApproveDesproEvent;
 use App\Events\InsertRevisiDesproHistory;
 use Illuminate\Support\Facades\{DB, Gate};
+use App\Events\{PilihJudulEvent,InsertDescovEvent,InsertDesfinEvent,UpdateDesproEvent,UpdateStatusEvent,InsertJudulHistory,InsertDesproHistory,InsertStatusHistory};
 
 class DeskripsiProdukController extends Controller
 {
@@ -30,7 +24,8 @@ class DeskripsiProdukController extends Controller
                     ->select(
                         'dp.*',
                         'pn.kode',
-                        'pn.judul_asli'
+                        'pn.judul_asli',
+                        'pn.pic_prodev'
                         )
                     ->get();
                 $update = Gate::allows('do_create', 'ubah-atau-buat-des-produk');
@@ -81,9 +76,9 @@ class DeskripsiProdukController extends Controller
                             return Carbon::parse($data->tgl_deskripsi)->translatedFormat('d M Y');
 
                         })
-                        ->addColumn('pembuat_deskripsi', function($data) {
+                        ->addColumn('pic_prodev', function($data) {
                             $result = '';
-                            $res = DB::table('users')->where('id',$data->pembuat_deskripsi)->whereNull('deleted_at')
+                            $res = DB::table('users')->where('id',$data->pic_prodev)->whereNull('deleted_at')
                             ->select('nama')
                             ->get();
                             foreach (json_decode($res) as $q) {
@@ -105,29 +100,34 @@ class DeskripsiProdukController extends Controller
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if($update) {
-                                $btn .= '<a href="'.url('penerbitan/deskripsi/produk/edit?desc='.$data->id.'&kode='.$data->kode).'"
-                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                    <div><i class="fas fa-edit"></i></div></a>';
+                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
+                                    $btn .= '<a href="'.url('penerbitan/deskripsi/produk/edit?desc='.$data->id.'&kode='.$data->kode).'"
+                                        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                        <div><i class="fas fa-edit"></i></div></a>';
+                                }
                             }
                             if (Gate::allows('do_approval','action-progress-des-produk')) {
-                                if ($data->status == 'Antrian'){
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-despro" style="background:#34395E;color:white" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
-                                    <div>'.$data->status.'</div></a>';
-                                } elseif ($data->status == 'Pending') {
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
-                                    <div>'.$data->status.'</div></a>';
-                                } elseif ($data->status == 'Proses') {
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
-                                    <div>'.$data->status.'</div></a>';
-                                } elseif ($data->status == 'Selesai') {
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
-                                    <div>'.$data->status.'</div></a>';
-                                } elseif ($data->status == 'Revisi') {
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-info btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
-                                    <div>'.$data->status.'</div></a>';
-                                } elseif ($data->status == 'Acc') {
-                                    $btn .= '<span class="d-block badge badge-light mr-1 mt-1">'.$data->status.'</span>';
+                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
+                                    if ($data->status == 'Antrian'){
+                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-despro" style="background:#34395E;color:white" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                        <div>'.$data->status.'</div></a>';
+                                    } elseif ($data->status == 'Pending') {
+                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                        <div>'.$data->status.'</div></a>';
+                                    } elseif ($data->status == 'Proses') {
+                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                        <div>'.$data->status.'</div></a>';
+                                    } elseif ($data->status == 'Selesai') {
+                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                        <div>'.$data->status.'</div></a>';
+                                    } elseif ($data->status == 'Revisi') {
+                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-info btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                        <div>'.$data->status.'</div></a>';
+                                    } elseif ($data->status == 'Acc') {
+                                        $btn .= '<span class="d-block badge badge-light mr-1 mt-1">'.$data->status.'</span>';
+                                    }
                                 }
+
                             } else {
                                 if($data->status == 'Antrian'){
                                     $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">'.$data->status.'</span>';
@@ -152,13 +152,14 @@ class DeskripsiProdukController extends Controller
                             'imprint',
                             'judul_final',
                             'tgl_deskripsi',
-                            'pembuat_deskripsi',
+                            'pic_prodev',
                             'history',
                             'action'
                             ])
                         ->make(true);
 
         }
+
         $statusProgress = (array)[
             [
                 'value' => 'Antrian'
@@ -171,6 +172,12 @@ class DeskripsiProdukController extends Controller
             ],
             [
                 'value' => 'Selesai'
+            ],
+            [
+                'value' => 'Revisi'
+            ],
+            [
+                'value' => 'Acc'
             ]
         ];
         return view('penerbitan.des_produk.index', [
@@ -195,6 +202,7 @@ class DeskripsiProdukController extends Controller
                 'dp.*',
                 'pn.kode',
                 'pn.judul_asli',
+                'pn.pic_prodev',
                 'kb.nama'
                 )
             ->first();
@@ -209,7 +217,7 @@ class DeskripsiProdukController extends Controller
         ->where('pnp.naskah_id','=',$data->naskah_id)
         ->select('pp.nama')
         ->get();
-        $pic = DB::table('users')->where('id',$data->pembuat_deskripsi)->whereNull('deleted_at')->select('nama')->first();
+        $pic = DB::table('users')->where('id',$data->pic_prodev)->whereNull('deleted_at')->select('nama')->first();
         $editor = DB::table('users')->where('id',$data->editor)->whereNull('deleted_at')->select('nama')->first();
         return view('penerbitan.des_produk.detail',[
             'title' => 'Detail Deskripsi Produk',
@@ -342,6 +350,12 @@ class DeskripsiProdukController extends Controller
                     'status' => 'error',
                     'message' => 'Data corrupt...'
                 ],404);
+            }
+            if ($data->status == "Revisi") {
+                DB::table('deskripsi_produk')->where('id',$id)->update([
+                    'alasan_revisi' => NULL,
+                    'deadline_revisi' => NULL
+                ]);
             }
             $update = [
                 'id' => $data->id,
@@ -491,15 +505,6 @@ class DeskripsiProdukController extends Controller
                     'message' => 'Deskripsi produk "'.$judul_asli.'" sedang direvisi'
                 ]);
             }
-            // return response()->json($request->input('alasan'));
-            // $update = [
-            //     'id' => $request->input('id'),
-            //     'status' => "Revisi",
-            //     'deadline_revisi' => date('Y-m-d H:i:s', strtotime($request->input('deadline_revisi'))),
-            //     'alasan_revisi' => $request->input('alasan'),
-            //     'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
-            //     'updated_by' => auth()->id()
-            // ];
             DB::table('deskripsi_produk')->where('id',$request->input('id'))->update([
                 'status' => "Revisi",
                 'deadline_revisi' => Carbon::createFromFormat('d F Y',$request->input('deadline_revisi'))->format('Y-m-d H:i:s'),
@@ -507,7 +512,6 @@ class DeskripsiProdukController extends Controller
                 'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                 'updated_by' =>auth()->id()
             ]);
-            // event(new UpdateRevisiDesproEvent($update));
             $insert = [
                 'deskripsi_produk_id' => $request->input('id'),
                 'type_history' => 'Revisi',
@@ -545,6 +549,50 @@ class DeskripsiProdukController extends Controller
                 'status' => 'success',
                 'message' => 'Judul final telah dipilih',
                 'data' => $judul
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    public function approveDespro(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $data = DB::table('deskripsi_produk')->where('id',$id)->whereNotNull('judul_final')->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Judul final belum ditentukan..'
+                ]);
+            }
+            $despro = [
+                'id' => $id,
+                'status' => 'Acc',
+                'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+            ];
+            event(new UpdateApproveDesproEvent($despro));
+            $history = [
+                'deskripsi_produk_id' => $id,
+                'type_history' => 'Approval',
+                'status_his' => $data->status,
+                'status_new' => 'Acc',
+                'author_id' => auth()->id(),
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new InsertStatusHistory($history));
+            $desFinCov = [
+                'id' => Uuid::uuid4()->toString(),
+                'deskripsi_produk_id' => $id,
+                'tgl_deskripsi' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new InsertDesfinEvent($desFinCov));
+            event(new InsertDescovEvent($desFinCov));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Deskripsi produk telah disetujui, silahkan cek Deskripsi Final dan Deskripsi Cover untuk tracking lanjutan'
             ]);
         } catch (\Exception $e) {
             return response()->json([
