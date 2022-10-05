@@ -50,7 +50,7 @@
                             @elseif ($data->status == 'Acc')
                                 <i class="far fa-circle text-dark"></i>
                                 Status Progress:
-                                <span class="badge badge-light">{{$data->Acc}}</span>
+                                <span class="badge badge-light">{{$data->status}}</span>
                             @endif
                         </div>
                     </div>

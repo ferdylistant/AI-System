@@ -62,7 +62,7 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1>Data Penerbitan Deskripsi Produk</h1>
+        <h1>Data Penerbitan Deskripsi Final</h1>
 
         {{-- @if(Gate::allows('do_create', 'tambah-produksi-cetak'))
         <div class="section-header-button">
@@ -89,11 +89,11 @@
                                 </div>
                             </div>
                             <div class="col-auto">
-                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data deskripsi produk: <b>{{$count}}</b></span>
+                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data deskripsi final: <b>{{$count}}</b></span>
                             </div>
                         </div>
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_DesProduk" style="width:100%">
+                            <table class="table table-striped" id="tb_DesFinal" style="width:100%">
                             </table>
                         </div>
                     </div>
@@ -178,7 +178,7 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
         });
-        let tableDesProduk = $('#tb_DesProduk').DataTable({
+        let tableDesProduk = $('#tb_DesFinal').DataTable({
             "bSort": false,
             "responsive": true,
             processing: true,
@@ -188,7 +188,7 @@
                 sSearch: '',
                 lengthMenu: '_MENU_ items/page',
             },
-            ajax: "{{ route('despro.view') }}"
+            ajax: "{{ route('desfin.view') }}"
             ,
             columns: [
                 // { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "5%" },
@@ -213,7 +213,7 @@
     });
 </script>
 <script>
-    $('#tb_DesProduk').on('click','.btn-history',function(e){
+    $('#tb_DesFinal').on('click','.btn-history',function(e){
         var id = $(this).data('id');
         var judul = $(this).data('judulasli');
         $.post("{{route('despro.history')}}", {id: id}, function(data){
@@ -224,5 +224,5 @@
         });
     });
 </script>
-<script src="{{url('js/update_progress_despro.js')}}"></script>
+<script src="{{url('js/update_progress_desfin.js')}}"></script>
 @endsection

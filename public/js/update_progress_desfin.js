@@ -6,7 +6,7 @@ $(function(){
         $(this).data('paginate', page+1);
 
             $.ajax({
-                url: window.location.origin + '/penerbitan/deskripsi/produk/lihat-history',
+                url: window.location.origin + '/penerbitan/deskripsi/final/lihat-history',
                 data: {
                     id: id,
                     page: page
@@ -61,7 +61,7 @@ $(document).ready(function(){
    });
 });
 $(document).ready(function() {
-    $('#tb_DesProduk').on('click','.btn-status-despro', function(e) {
+    $('#tb_DesFinal').on('click','.btn-status-despro', function(e) {
         e.preventDefault();
         let id = $(this).data('id'),
             kode = $(this).data('kode'),
@@ -72,12 +72,12 @@ $(document).ready(function() {
     })
 });
 $(document).ready(function(){
-    function ajaxUpdateStatusDeskripsiProduk(data) {
+    function ajaxUpdateStatusDeskripsiFinal(data) {
         let el = data.get(0);
         // console.log(el);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/deskripsi/produk/update-status-progress",
+            url: window.location.origin + "/penerbitan/deskripsi/final/update-status-progress",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -111,13 +111,13 @@ $(document).ready(function(){
         })
     }
 
-    $('#fm_UpdateStatusDespro').on('submit', function(e) {
+    $('#fm_UpdateStatusDesfin').on('submit', function(e) {
         e.preventDefault();
         if($(this).valid()) {
             let kode = $(this).find('[name="kode"]').val();
             let judul = $(this).find('[name="judul_asli"]').val();
             swal({
-                title: 'Yakin mengubah status deskripsi produk '+kode+'-'+judul+'?',
+                title: 'Yakin mengubah status deskripsi final '+kode+'-'+judul+'?',
                 text: 'Anda sebagai Prodev tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.',
                 icon: 'warning',
                 buttons: true,
@@ -125,7 +125,7 @@ $(document).ready(function(){
             })
             .then((confirm_) => {
                 if (confirm_) {
-                    ajaxUpdateStatusDeskripsiProduk($(this))
+                    ajaxUpdateStatusDeskripsiFinal($(this))
                 }
             });
 

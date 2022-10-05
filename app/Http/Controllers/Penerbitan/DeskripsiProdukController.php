@@ -27,6 +27,7 @@ class DeskripsiProdukController extends Controller
                         'pn.judul_asli',
                         'pn.pic_prodev'
                         )
+                    ->orderBy('dp.tgl_deskripsi')
                     ->get();
                 $update = Gate::allows('do_create', 'ubah-atau-buat-des-produk');
 
@@ -159,7 +160,17 @@ class DeskripsiProdukController extends Controller
                         ->make(true);
 
         }
-
+        $data = DB::table('deskripsi_produk as dp')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->whereNull('dp.deleted_at')
+                    ->select(
+                        'dp.*',
+                        'pn.kode',
+                        'pn.judul_asli',
+                        'pn.pic_prodev'
+                        )
+                    ->orderBy('dp.tgl_deskripsi')
+                    ->get();
         $statusProgress = (array)[
             [
                 'value' => 'Antrian'
@@ -182,7 +193,8 @@ class DeskripsiProdukController extends Controller
         ];
         return view('penerbitan.des_produk.index', [
             'title' => 'Deskripsi Produk',
-            'status_progress' => $statusProgress
+            'status_progress' => $statusProgress,
+            'count' => count($data)
         ]);
     }
     public function detailDeskripsiProduk(Request $request)
@@ -408,7 +420,7 @@ class DeskripsiProdukController extends Controller
                     </span>';
 
                 } elseif ($d->type_history == 'Update') {
-                    $html .= '<span class="ticket-item id="newAppend"">
+                    $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
                     if (!is_null($d->judul_final_his)) {
                         $html .=' Judul final <b class="text-dark">'.$d->judul_final_his.'</b> diubah menjadi <b class="text-dark">'.$d->judul_final_new.'</b>.<br>';
@@ -458,40 +470,21 @@ class DeskripsiProdukController extends Controller
                         <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i').')</div>
                     </div>
                     </span>';
+                } elseif ($d->type_history == 'Approval') {
+                    $html .= '<span class="ticket-item" id="newAppend">
+                    <div class="ticket-title">
+                        <span><span class="bullet"></span> Deskripsi produk naskah ini telah disetujui direksi. <i class="fas fa-check text-success"></i></span>
+                    </div>
+                    <div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i').')</div>
+                    </div>
+                    </span>';
                 }
             }
             return $html;
         }
-        // foreach ($data as $d){
-        //     $result[] = [
-        //         'type_history' => $d->type_history,
-        //         'judul_final_his' => $d->judul_final_his,
-        //         'judul_final_new' => $d->judul_final_new,
-        //         'alt_judul_his' => $d->alt_judul_his,
-        //         'alt_judul_new' => $d->alt_judul_new,
-        //         'format_buku_his' => $d->format_buku_his,
-        //         'format_buku_new' => $d->format_buku_new,
-        //         'jml_hal_his' => $d->jml_hal_his,
-        //         'jml_hal_new' => $d->jml_hal_new,
-        //         'imprint_his' => $d->imprint_his,
-        //         'imprint_new' => $d->imprint_new,
-        //         'editor_his' => DB::table('users')->where('id',$d->editor_his)->whereNull('deleted_at')->first(),
-        //         'editor_new' => DB::table('users')->where('id',$d->editor_new)->whereNull('deleted_at')->first(),
-        //         'kelengkapan_his' => $d->kelengkapan_his,
-        //         'kelengkapan_new' => $d->kelengkapan_new,
-        //         'catatan_his' => $d->catatan_his,
-        //         'catatan_new' => $d->catatan_new,
-        //         'bulan_his' => Carbon::parse($d->bulan_his)->translatedFormat('F Y'),
-        //         'bulan_new' => Carbon::parse($d->bulan_new)->translatedFormat('F Y'),
-        //         'status_his' => $d->status_his,
-        //         'status_new' => $d->status_new,
-        //         'author_id' => $d->author_id,
-        //         'nama' => $d->nama,
-        //         'modified_at' => Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans(),
-        //         'format_tanggal' => Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i')
-        //     ];
-        // }
-
     }
     public function revisiDespro(Request$request)
     {
