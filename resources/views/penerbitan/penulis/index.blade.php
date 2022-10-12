@@ -20,10 +20,10 @@
     <div class="section-body">
         <div class="row">
             <div class="col-12">
-                <div class="card card-primary">  
+                <div class="card card-primary">
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_Penulis">
+                            <table id="tb_Penulis" class="table table-striped dt-responsive" style="width: 100%">
                             </table>
                         </div>
                     </div>
@@ -110,6 +110,6 @@
         })
     })
 
-    
+
 </script>
 @endsection

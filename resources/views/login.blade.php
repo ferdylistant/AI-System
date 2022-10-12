@@ -58,7 +58,7 @@
                     </div>
                 </div>
 
-                <div class="simple-footer">Copyright &copy; Stisla 2018</div>
+                <div class="simple-footer">Copyright &copy; {{date("Y")}} <div class="bullet"></div> Andi Global Soft</div>
             </div>
             </div>
         </div>
