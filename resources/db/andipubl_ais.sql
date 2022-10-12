@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 05 Okt 2022 pada 08.17
+-- Waktu pembuatan: 11 Okt 2022 pada 11.31
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -156,7 +156,7 @@ CREATE TABLE `deskripsi_final` (
   `deskripsi_produk_id` char(36) DEFAULT NULL,
   `sub_judul_final` varchar(255) DEFAULT NULL,
   `kertas_isi` enum('60 Gr','70 Gr','80 Gr','Art Paper','Book Paper','CD/Buram','Imperial','Matte Paper') DEFAULT NULL,
-  `jml_hal_asli` tinyint(4) DEFAULT NULL,
+  `jml_hal_asli` int(11) DEFAULT NULL,
   `ukuran_asli` varchar(10) DEFAULT NULL,
   `isi_warna` enum('Black & White','Dua Warna','Full Color','Sisipan Warna') DEFAULT NULL,
   `isi_huruf` varchar(50) DEFAULT NULL,
@@ -165,6 +165,7 @@ CREATE TABLE `deskripsi_final` (
   `korektor` varchar(36) DEFAULT NULL,
   `bulan` date DEFAULT NULL,
   `tgl_deskripsi` datetime DEFAULT NULL,
+  `status` enum('Pending','Proses','Selesai','Antrian') NOT NULL DEFAULT 'Antrian',
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
@@ -175,8 +176,63 @@ CREATE TABLE `deskripsi_final` (
 -- Dumping data untuk tabel `deskripsi_final`
 --
 
-INSERT INTO `deskripsi_final` (`id`, `deskripsi_produk_id`, `sub_judul_final`, `kertas_isi`, `jml_hal_asli`, `ukuran_asli`, `isi_warna`, `isi_huruf`, `bullet`, `setter`, `korektor`, `bulan`, `tgl_deskripsi`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
-('44dfe332-5755-4191-8158-e79d496e1473', '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-10-04 16:34:45', NULL, NULL, NULL, NULL);
+INSERT INTO `deskripsi_final` (`id`, `deskripsi_produk_id`, `sub_judul_final`, `kertas_isi`, `jml_hal_asli`, `ukuran_asli`, `isi_warna`, `isi_huruf`, `bullet`, `setter`, `korektor`, `bulan`, `tgl_deskripsi`, `status`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
+('44dfe332-5755-4191-8158-e79d496e1473', '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', NULL, 'Art Paper', 900, NULL, 'Full Color', NULL, '[null]', NULL, NULL, '1970-01-01', '2022-10-04 16:34:45', 'Proses', '2022-10-11 09:28:38', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `deskripsi_final_history`
+--
+
+CREATE TABLE `deskripsi_final_history` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `deskripsi_final_id` char(36) DEFAULT NULL,
+  `type_history` enum('Status','Update') DEFAULT NULL,
+  `judul_final_his` varchar(255) DEFAULT NULL,
+  `judul_final_new` varchar(255) DEFAULT NULL,
+  `sub_judul_final_his` varchar(255) DEFAULT NULL,
+  `sub_judul_final_new` varchar(255) DEFAULT NULL,
+  `kertas_isi_his` varchar(15) DEFAULT NULL,
+  `kertas_isi_new` varchar(15) DEFAULT NULL,
+  `jml_hal_asli_his` tinyint(4) DEFAULT NULL,
+  `jml_hal_asli_new` tinyint(4) DEFAULT NULL,
+  `ukuran_asli_his` varchar(10) DEFAULT NULL,
+  `ukuran_asli_new` varchar(10) DEFAULT NULL,
+  `isi_warna_his` varchar(15) DEFAULT NULL,
+  `isi_warna_new` varchar(15) DEFAULT NULL,
+  `isi_huruf_his` varchar(50) DEFAULT NULL,
+  `isi_huruf_new` varchar(50) DEFAULT NULL,
+  `bullet_his` text,
+  `bullet_new` text,
+  `setter_his` varchar(36) DEFAULT NULL,
+  `setter_new` varchar(36) DEFAULT NULL,
+  `korektor_his` varchar(36) DEFAULT NULL,
+  `korektor_new` varchar(36) DEFAULT NULL,
+  `bulan_his` date DEFAULT NULL,
+  `bulan_new` date DEFAULT NULL,
+  `status_his` varchar(8) DEFAULT NULL,
+  `status_new` varchar(8) DEFAULT NULL,
+  `author_id` varchar(36) DEFAULT NULL,
+  `modified_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data untuk tabel `deskripsi_final_history`
+--
+
+INSERT INTO `deskripsi_final_history` (`id`, `deskripsi_final_id`, `type_history`, `judul_final_his`, `judul_final_new`, `sub_judul_final_his`, `sub_judul_final_new`, `kertas_isi_his`, `kertas_isi_new`, `jml_hal_asli_his`, `jml_hal_asli_new`, `ukuran_asli_his`, `ukuran_asli_new`, `isi_warna_his`, `isi_warna_new`, `isi_huruf_his`, `isi_huruf_new`, `bullet_his`, `bullet_new`, `setter_his`, `setter_new`, `korektor_his`, `korektor_new`, `bulan_his`, `bulan_new`, `status_his`, `status_new`, `author_id`, `modified_at`) VALUES
+(1, '44dfe332-5755-4191-8158-e79d496e1473', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', 'be8d42fa88a14406ac201974963d9c1b', '2022-10-07 15:13:56'),
+(2, '44dfe332-5755-4191-8158-e79d496e1473', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Antrian', 'be8d42fa88a14406ac201974963d9c1b', '2022-10-11 08:55:03'),
+(3, '44dfe332-5755-4191-8158-e79d496e1473', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', 'be8d42fa88a14406ac201974963d9c1b', '2022-10-11 11:01:50'),
+(4, '44dfe332-5755-4191-8158-e79d496e1473', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Antrian', 'be8d42fa88a14406ac201974963d9c1b', '2022-10-11 15:35:40'),
+(5, '44dfe332-5755-4191-8158-e79d496e1473', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', 'be8d42fa88a14406ac201974963d9c1b', '2022-10-11 15:38:53'),
+(6, '44dfe332-5755-4191-8158-e79d496e1473', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Pending', 'be8d42fa88a14406ac201974963d9c1b', '2022-10-11 15:53:51'),
+(7, '44dfe332-5755-4191-8158-e79d496e1473', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Proses', 'be8d42fa88a14406ac201974963d9c1b', '2022-10-11 15:54:48'),
+(8, '44dfe332-5755-4191-8158-e79d496e1473', 'Update', 'Aku & Di Balik Mata Kaca', 'Aku & Di Balik Mata Kaca', NULL, NULL, NULL, NULL, NULL, 127, NULL, NULL, NULL, 'Full Color', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-10-01', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-11 16:18:58'),
+(9, '44dfe332-5755-4191-8158-e79d496e1473', 'Update', 'Aku & Di Balik Mata Kaca', 'Aku & Di Balik Mata Kaca', NULL, NULL, NULL, 'Art Paper', 127, 127, NULL, NULL, 'Full Color', 'Full Color', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-10-01', '1970-01-01', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-11 16:24:48'),
+(10, '44dfe332-5755-4191-8158-e79d496e1473', 'Update', 'Aku & Di Balik Mata Kaca', 'Aku & Di Balik Mata Kaca', NULL, NULL, 'Art Paper', 'Art Paper', 127, 127, NULL, NULL, 'Full Color', 'Full Color', NULL, NULL, NULL, '[null]', NULL, NULL, NULL, NULL, '1970-01-01', '2022-10-01', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-11 16:27:29'),
+(11, '44dfe332-5755-4191-8158-e79d496e1473', 'Update', 'Aku & Di Balik Mata Kaca', 'Aku & Di Balik Mata Kaca', NULL, NULL, 'Art Paper', 'Art Paper', 127, 127, NULL, NULL, 'Full Color', 'Full Color', NULL, NULL, NULL, '[null]', NULL, NULL, NULL, NULL, '2022-10-01', '1970-01-01', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-11 16:28:38');
 
 -- --------------------------------------------------------
 
@@ -212,7 +268,7 @@ CREATE TABLE `deskripsi_produk` (
 --
 
 INSERT INTO `deskripsi_produk` (`id`, `naskah_id`, `judul_final`, `alt_judul`, `format_buku`, `jml_hal_perkiraan`, `imprint`, `editor`, `kelengkapan`, `catatan`, `bulan`, `tgl_deskripsi`, `status`, `action_gm`, `alasan_revisi`, `deadline_revisi`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
-('2f7bf184-23cf-42d7-9efc-19e47aaa3f14', '16fdb6f329c544c6824cf85ec38501b7', 'Aku & Di Balik Mata Kaca', '[\"Aku & Di Balik Mata Kaca\",\"Di Balik Mata Kaca Terabaikan\",\"Ada Di Balik Mata Kaca\"]', '15,5 x 23', 1000, 'G-Media', NULL, '', NULL, '2022-09-01', '2022-09-14 05:00:42', 'Acc', '2022-10-04 16:34:44', NULL, NULL, '2022-10-04 09:34:44', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL);
+('2f7bf184-23cf-42d7-9efc-19e47aaa3f14', '16fdb6f329c544c6824cf85ec38501b7', 'Aku & Di Balik Mata Kaca', '[\"Aku & Di Balik Mata Kaca\",\"Di Balik Mata Kaca Terabaikan\",\"Ada Di Balik Mata Kaca\"]', '15,5 x 23', 1000, 'G-Media', NULL, NULL, NULL, '2022-09-01', '2022-09-14 05:00:42', 'Acc', '2022-10-04 16:34:44', NULL, NULL, '2022-10-10 03:43:03', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -279,7 +335,6 @@ INSERT INTO `deskripsi_produk_history` (`id`, `deskripsi_produk_id`, `type_histo
 (25, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Update', NULL, 'Aku & Di Balik Mata Kaca', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ee2c544aa4dc4c1eb12472cd84406358', '2022-10-03 14:27:27'),
 (26, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Update', NULL, 'Di Balik Mata Kaca Terabaikan', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ee2c544aa4dc4c1eb12472cd84406358', '2022-10-03 15:09:14'),
 (27, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Update', NULL, 'Ada Di Balik Mata Kaca', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ee2c544aa4dc4c1eb12472cd84406358', '2022-10-03 15:09:39'),
-(28, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Update', NULL, 'Di Balik Mata Kaca Terabaikan', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ee2c544aa4dc4c1eb12472cd84406358', '2022-10-03 15:11:40'),
 (29, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Update', NULL, 'Ada Di Balik Mata Kaca', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ee2c544aa4dc4c1eb12472cd84406358', '2022-10-03 15:11:51'),
 (30, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Update', NULL, 'Di Balik Mata Kaca Terabaikan', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ee2c544aa4dc4c1eb12472cd84406358', '2022-10-03 15:16:16'),
 (31, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Update', NULL, 'Aku & Di Balik Mata Kaca', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ee2c544aa4dc4c1eb12472cd84406358', '2022-10-03 15:16:47'),
@@ -301,7 +356,8 @@ INSERT INTO `deskripsi_produk_history` (`id`, `deskripsi_produk_id`, `type_histo
 (47, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Antrian', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-04 10:31:42'),
 (48, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Selesai', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-04 10:32:47'),
 (49, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Approval', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Selesai', 'Acc', NULL, NULL, 'ee2c544aa4dc4c1eb12472cd84406358', '2022-10-04 16:31:32'),
-(50, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Approval', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Selesai', 'Acc', NULL, NULL, 'ee2c544aa4dc4c1eb12472cd84406358', '2022-10-04 16:34:44');
+(50, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Approval', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Selesai', 'Acc', NULL, NULL, 'ee2c544aa4dc4c1eb12472cd84406358', '2022-10-04 16:34:44'),
+(51, '44dfe332-5755-4191-8158-e79d496e1473', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-07 15:11:39');
 
 -- --------------------------------------------------------
 
@@ -2279,6 +2335,25 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('7c4f86aba34f430884fb87fee84bc870', '1c1940da68fa4f8ba2325e83c303c47c'),
 ('7c4f86aba34f430884fb87fee84bc870', '38645f82ae7c468abad1ab191e7a8ad9'),
 ('7c4f86aba34f430884fb87fee84bc870', '4bb845580b464d7db3d7c3b3e4fd213b'),
+('ee2c544aa4dc4c1eb12472cd84406358', 'f76c69fb-16f4-11ed-ae5c-1078d2a38ee5'),
+('ee2c544aa4dc4c1eb12472cd84406358', '068adb0171304c628b267874004d7e8c'),
+('ee2c544aa4dc4c1eb12472cd84406358', 'faa7c4808c714ca49762f6aaade7da3b'),
+('ee2c544aa4dc4c1eb12472cd84406358', 'bc5a7cb945e14432bfdf312e2059e868'),
+('ee2c544aa4dc4c1eb12472cd84406358', '171e6210418440a8bf4d689841d0f32c'),
+('ee2c544aa4dc4c1eb12472cd84406358', '78712deb909d4d88af7f098c0fcf6857'),
+('ee2c544aa4dc4c1eb12472cd84406358', '9d69d18ff5184804990bc21cb1005ab7'),
+('ee2c544aa4dc4c1eb12472cd84406358', '09179170e6e643eca66b282e2ffae1f8'),
+('ee2c544aa4dc4c1eb12472cd84406358', '9b4e52c30f974844ac7a050000a0ee6a'),
+('ee2c544aa4dc4c1eb12472cd84406358', 'c64802952e504f4ab25a6b1241232f85'),
+('ee2c544aa4dc4c1eb12472cd84406358', 'db87d2605a68440fbf8e148744e243e8'),
+('ee2c544aa4dc4c1eb12472cd84406358', '569c1d340cea4b21a54910177eeaf51f'),
+('ee2c544aa4dc4c1eb12472cd84406358', '99a7a50e866749879f55b92df2b5449c'),
+('ee2c544aa4dc4c1eb12472cd84406358', '6b4e3b36783d4a488101da7639c40de0'),
+('ee2c544aa4dc4c1eb12472cd84406358', '6903e82e7e94478f87df3cf80de6b587'),
+('ee2c544aa4dc4c1eb12472cd84406358', '8791f143a90e42e2a4d1d0d6b1254bad'),
+('ee2c544aa4dc4c1eb12472cd84406358', '1b89744217b04f79a8c1d7a967a46912'),
+('ee2c544aa4dc4c1eb12472cd84406358', 'eecbccb6-1e08-11ed-87ce-1078d2a38ee5'),
+('ee2c544aa4dc4c1eb12472cd84406358', '4943c707-1e08-11ed-87ce-1078d2a38ee5'),
 ('be8d42fa88a14406ac201974963d9c1b', '3a70433b-16f5-11ed-ae5c-1078d2a38ee5'),
 ('be8d42fa88a14406ac201974963d9c1b', '60b2f2ca-16f5-11ed-ae5c-1078d2a38ee5'),
 ('be8d42fa88a14406ac201974963d9c1b', '8baa9163-16f5-11ed-ae5c-1078d2a38ee5'),
@@ -2308,6 +2383,7 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', 'c64802952e504f4ab25a6b1241232f85'),
 ('be8d42fa88a14406ac201974963d9c1b', 'e0860766d564483e870b5974a601649c'),
 ('be8d42fa88a14406ac201974963d9c1b', '38f34660ef404dc9b7a0ee0f697ae781'),
+('be8d42fa88a14406ac201974963d9c1b', '26a74e3097b94bd882bd1a9f6feace68'),
 ('be8d42fa88a14406ac201974963d9c1b', 'db87d2605a68440fbf8e148744e243e8'),
 ('be8d42fa88a14406ac201974963d9c1b', '569c1d340cea4b21a54910177eeaf51f'),
 ('be8d42fa88a14406ac201974963d9c1b', '5a1bd42cca6f412cb1795a1aeddac2fe'),
@@ -2336,26 +2412,7 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', 'a91ee437-1e08-11ed-87ce-1078d2a38ee5'),
 ('be8d42fa88a14406ac201974963d9c1b', '1c1940da68fa4f8ba2325e83c303c47c'),
 ('be8d42fa88a14406ac201974963d9c1b', '38645f82ae7c468abad1ab191e7a8ad9'),
-('be8d42fa88a14406ac201974963d9c1b', '4bb845580b464d7db3d7c3b3e4fd213b'),
-('ee2c544aa4dc4c1eb12472cd84406358', 'f76c69fb-16f4-11ed-ae5c-1078d2a38ee5'),
-('ee2c544aa4dc4c1eb12472cd84406358', '068adb0171304c628b267874004d7e8c'),
-('ee2c544aa4dc4c1eb12472cd84406358', 'faa7c4808c714ca49762f6aaade7da3b'),
-('ee2c544aa4dc4c1eb12472cd84406358', 'bc5a7cb945e14432bfdf312e2059e868'),
-('ee2c544aa4dc4c1eb12472cd84406358', '171e6210418440a8bf4d689841d0f32c'),
-('ee2c544aa4dc4c1eb12472cd84406358', '78712deb909d4d88af7f098c0fcf6857'),
-('ee2c544aa4dc4c1eb12472cd84406358', '9d69d18ff5184804990bc21cb1005ab7'),
-('ee2c544aa4dc4c1eb12472cd84406358', '09179170e6e643eca66b282e2ffae1f8'),
-('ee2c544aa4dc4c1eb12472cd84406358', '9b4e52c30f974844ac7a050000a0ee6a'),
-('ee2c544aa4dc4c1eb12472cd84406358', 'c64802952e504f4ab25a6b1241232f85'),
-('ee2c544aa4dc4c1eb12472cd84406358', 'db87d2605a68440fbf8e148744e243e8'),
-('ee2c544aa4dc4c1eb12472cd84406358', '569c1d340cea4b21a54910177eeaf51f'),
-('ee2c544aa4dc4c1eb12472cd84406358', '99a7a50e866749879f55b92df2b5449c'),
-('ee2c544aa4dc4c1eb12472cd84406358', '6b4e3b36783d4a488101da7639c40de0'),
-('ee2c544aa4dc4c1eb12472cd84406358', '6903e82e7e94478f87df3cf80de6b587'),
-('ee2c544aa4dc4c1eb12472cd84406358', '8791f143a90e42e2a4d1d0d6b1254bad'),
-('ee2c544aa4dc4c1eb12472cd84406358', '1b89744217b04f79a8c1d7a967a46912'),
-('ee2c544aa4dc4c1eb12472cd84406358', 'eecbccb6-1e08-11ed-87ce-1078d2a38ee5'),
-('ee2c544aa4dc4c1eb12472cd84406358', '4943c707-1e08-11ed-87ce-1078d2a38ee5');
+('be8d42fa88a14406ac201974963d9c1b', '4bb845580b464d7db3d7c3b3e4fd213b');
 
 --
 -- Indexes for dumped tables
@@ -2385,6 +2442,12 @@ ALTER TABLE `cabang`
 -- Indeks untuk tabel `deskripsi_final`
 --
 ALTER TABLE `deskripsi_final`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `deskripsi_final_history`
+--
+ALTER TABLE `deskripsi_final_history`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -2605,10 +2668,16 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT untuk tabel `deskripsi_final_history`
+--
+ALTER TABLE `deskripsi_final_history`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
 -- AUTO_INCREMENT untuk tabel `deskripsi_produk_history`
 --
 ALTER TABLE `deskripsi_produk_history`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT untuk tabel `format_buku_history`

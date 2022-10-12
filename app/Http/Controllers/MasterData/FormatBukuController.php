@@ -6,8 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
-use App\Events\UpdateFbEvent;
-use App\Events\InsertFbHistory;
+use App\Events\MasterDataEvent;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -134,19 +133,21 @@ class FormatBukuController extends Controller
 
                 $history = DB::table('format_buku')->where('id',$request->id)->first();
                 $update = [
+                    'params' => 'Update Format Buku',
                     'id' => $request->id,
                     'jenis_format' => $request->jenis_format,
                     'updated_by' => auth()->user()->id
                 ];
-                event(new UpdateFbEvent($update));
+                event(new MasterDataEvent($update));
                 $insert = [
+                    'params' => 'Insert History Format Buku',
                     'format_buku_id' => $request->id,
                     'jenis_format_history' => $history->jenis_format,
                     'jenis_format_new' => $request->jenis_format,
                     'author_id' => auth()->user()->id,
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
-                event(new InsertFbHistory($insert));
+                event(new MasterDataEvent($insert));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data format buku berhasil diubah!',

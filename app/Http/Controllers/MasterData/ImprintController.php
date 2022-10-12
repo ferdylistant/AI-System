@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
+use App\Events\MasterDataEvent;
 use Yajra\DataTables\DataTables;
 use App\Events\UpdateImprintEvent;
 use App\Events\UpdatePlatformEvent;
@@ -135,19 +136,21 @@ class ImprintController extends Controller
                 ]);
                 $history = DB::table('imprint')->where('id',$request->id)->first();
                 $update = [
+                    'params' => 'Update Imprint',
                     'id' => $request->id,
                     'nama' => $request->up_nama,
                     'updated_by' => auth()->user()->id
                 ];
-                event(new UpdateImprintEvent($update));
+                event(new MasterDataEvent($update));
                 $insert = [
+                    'params' => 'Insert History Imprint',
                     'imprint_id' => $request->id,
                     'imprint_history' => $history->nama,
                     'imprint_new' => $request->up_nama,
                     'author_id' => auth()->user()->id,
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
-                event(new InsertImprintHistory($insert));
+                event(new MasterDataEvent($insert));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data imprint berhasil diubah!',
@@ -314,19 +317,21 @@ class ImprintController extends Controller
                 ]);
                 $history = DB::table('platform_digital_ebook')->where('id',$request->id)->first();
                 $update = [
+                    'params' => 'Update Platform',
                     'id' => $request->id,
                     'nama' => $request->up_nama,
                     'updated_by' => auth()->user()->id
                 ];
-                event(new UpdatePlatformEvent($update));
+                event(new MasterDataEvent($update));
                 $insert = [
+                    'params' => 'Insert History Platform',
                     'platform_id' => $request->id,
                     'platform_history' => $history->nama,
                     'platform_new' => $request->up_nama,
                     'author_id' => auth()->user()->id,
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
-                event(new InsertPlatformHistory($insert));
+                event(new MasterDataEvent($insert));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data platform berhasil diubah!',

@@ -6,11 +6,9 @@ use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\Request;
-use App\Events\UpdateKbEvent;
-use App\Events\InsertKbHistory;
+use App\Events\MasterDataEvent;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
-use GrahamCampbell\ResultType\Success;
 use Illuminate\Support\Facades\{DB, Gate};
 
 class KelompokBukuController extends Controller
@@ -136,19 +134,21 @@ class KelompokBukuController extends Controller
                 ]);
                 $history = DB::table('penerbitan_m_kelompok_buku')->where('id',$request->id)->first();
                 $update = [
+                    'params' => 'Update Kelompok Buku',
                     'id' => $request->id,
                     'nama' => $request->up_nama,
                     'updated_by' => auth()->user()->id
                 ];
-                event(new UpdateKbEvent($update));
+                event(new MasterDataEvent($update));
                 $insert = [
+                    'params' => 'Insert History Kelompok Buku',
                     'kelompok_buku_id' => $request->id,
                     'kelompok_buku_history' => $history->nama,
                     'kelompok_buku_new' => $request->up_nama,
                     'author_id' => auth()->user()->id,
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
-                event(new InsertKbHistory($insert));
+                event(new MasterDataEvent($insert));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data kelompok buku berhasil diubah!',

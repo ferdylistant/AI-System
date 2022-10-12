@@ -16,10 +16,10 @@ $(function(){
                     $(".load-more").text("Loading...");
                 },
                 success: function(response){
-                    // if (response.length == 0) {
-                    //     $(".load-more").remove();
-                    // }
-                    $('#dataHistory').append(response);
+                    if (response.length == 0) {
+                        notifToast('error', 'Tidak ada data lagi');
+                    }
+                    $('#dataHistoryDesfin').append(response);
                     // Setting little delay while displaying new content
                     // setTimeout(function() {
                     //     // appending posts after last post with class="post"
@@ -61,7 +61,7 @@ $(document).ready(function(){
    });
 });
 $(document).ready(function() {
-    $('#tb_DesFinal').on('click','.btn-status-despro', function(e) {
+    $('#tb_DesFinal').on('click','.btn-status-desfin', function(e) {
         e.preventDefault();
         let id = $(this).data('id'),
             kode = $(this).data('kode'),
@@ -87,7 +87,7 @@ $(document).ready(function(){
             },
             success: function(result) {
                 notifToast(result.status, result.message);
-                $('#fm_UpdateStatusDespro').trigger('reset');
+                $('#fm_UpdateStatusDesfin').trigger('reset');
                 location.reload();
 
             },

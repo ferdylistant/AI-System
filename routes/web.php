@@ -111,7 +111,11 @@ Route::middleware(['auth'])->group(function() {
         Route::post('/deskripsi/produk/pilih-judul',[DeskripsiProdukController::class, 'pilihJudul'])->name('despro.pilihjudul');
         Route::post('/deskripsi/produk/approve',[DeskripsiProdukController::class, 'approveDespro'])->name('despro.approve');
         //Deskripsi Final
-        Route::get('deskripsi/final',[DeskripsiFinalController::class,'index'])->name('desfin.view');
+        Route::get('/deskripsi/final',[DeskripsiFinalController::class,'index'])->name('desfin.view');
+        Route::get('/deskripsi/final/detail',[DeskripsiFinalController::class, 'detailDeskripsiFinal'])->name('desfin.detail');
+        Route::match(['get', 'post'],'/deskripsi/final/edit',[DeskripsiFinalController::class, 'editDeskripsiFinal'])->name('desfin.edit');
+        Route::post('/deskripsi/final/update-status-progress',[DeskripsiFinalController::class, 'updateStatusProgress']);
+        Route::post('/deskripsi/final/lihat-history', [DeskripsiFinalController::class, 'lihatHistoryDesfin'])->name('desfin.history');
         //Order Cetak
         Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('cetak.view');
         Route::get('/order-cetak/detail', [ProduksiController::class, 'detailProduksi'])->name('cetak.detail');

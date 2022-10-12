@@ -16,9 +16,9 @@ $(function(){
                     $(".load-more").text("Loading...");
                 },
                 success: function(response){
-                    // if (response.length == 0) {
-                    //     $(".load-more").remove();
-                    // }
+                    if (response.length == 0) {
+                        notifToast('error', 'Tidak ada data lagi');
+                    }
                     $('#dataHistory').append(response);
                     // Setting little delay while displaying new content
                     // setTimeout(function() {

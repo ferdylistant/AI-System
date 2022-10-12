@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Penerbitan;
 use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
+use App\Events\DescovEvent;
+use App\Events\DesfinEvent;
+use App\Events\DesproEvent;
+use App\Events\UpdateEvent;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
@@ -27,7 +31,7 @@ class DeskripsiProdukController extends Controller
                         'pn.judul_asli',
                         'pn.pic_prodev'
                         )
-                    ->orderBy('dp.tgl_deskripsi')
+                    ->orderBy('dp.tgl_deskripsi','ASC')
                     ->get();
                 $update = Gate::allows('do_create', 'ubah-atau-buat-des-produk');
 
@@ -169,7 +173,7 @@ class DeskripsiProdukController extends Controller
                         'pn.judul_asli',
                         'pn.pic_prodev'
                         )
-                    ->orderBy('dp.tgl_deskripsi')
+                    ->orderBy('dp.tgl_deskripsi','ASC')
                     ->get();
         $statusProgress = (array)[
             [
@@ -251,6 +255,7 @@ class DeskripsiProdukController extends Controller
                 ->whereNull('deleted_at')
                 ->first();
                 $update = [
+                    'params' => 'Edit Despro',
                     'id' => $request->id,
                     // 'judul_final' => $request->judul_final,
                     'alt_judul' => json_encode($altJudul),
@@ -261,12 +266,13 @@ class DeskripsiProdukController extends Controller
                     'editor' => $request->editor,
                     'catatan' => $request->catatan,
                     'bulan' => date('Y-m-d',strtotime($request->bulan)),
-                    'status' => 'Proses',
                     'updated_by'=> auth()->id()
                 ];
-                event(new UpdateDesproEvent($update));
+                // event(new UpdateDesproEvent($update));
+                event(new DesproEvent($update));
 
                 $insert = [
+                    'params' => 'Insert History Despro',
                     'deskripsi_produk_id' => $request->id,
                     'type_history' => 'Update',
                     // 'judul_final_his' => $history->judul_final,
@@ -290,7 +296,7 @@ class DeskripsiProdukController extends Controller
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
-                event(new InsertDesproHistory($insert));
+                event(new DesproEvent($insert));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data deskripsi produk berhasil ditambahkan',
@@ -370,12 +376,14 @@ class DeskripsiProdukController extends Controller
                 ]);
             }
             $update = [
+                'params' => 'Update Status Despro',
                 'id' => $data->id,
                 'status' => $request->status,
                 'updated_by' => auth()->id()
             ];
-            event(new UpdateStatusEvent($update));
+            event(new DesproEvent($update));
             $insert = [
+                'params' => 'Insert History Status Despro',
                 'deskripsi_produk_id' => $data->id,
                 'type_history' => 'Status',
                 'status_his' => $data->status,
@@ -383,7 +391,7 @@ class DeskripsiProdukController extends Controller
                 'author_id' => auth()->user()->id,
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
-            event(new InsertStatusHistory($insert));
+            event(new DesproEvent($insert));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Status progress deskripsi produk berhasil diupdate'
@@ -506,6 +514,7 @@ class DeskripsiProdukController extends Controller
                 'updated_by' =>auth()->id()
             ]);
             $insert = [
+                'params' => 'Insert History Revisi Despro',
                 'deskripsi_produk_id' => $request->input('id'),
                 'type_history' => 'Revisi',
                 'status_his'=> $data->status,
@@ -515,7 +524,8 @@ class DeskripsiProdukController extends Controller
                 'author_id' => auth()->id(),
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
-            event(new InsertRevisiDesproHistory($insert));
+            //EVENT
+            event(new DesproEvent($insert));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Naskah "'.$kode.'" telah disetujui!'
@@ -533,11 +543,11 @@ class DeskripsiProdukController extends Controller
             $id = $request->id;
             $judul = $request->judul;
             $data = [
+                'params' => 'Pilih Judul',
                 'id' => $id,
                 'judul' => $judul
             ];
-            event(new PilihJudulEvent($data));
-            event(new InsertJudulHistory($data));
+            event(new DesproEvent($data));
             return response([
                 'status' => 'success',
                 'message' => 'Judul final telah dipilih',
@@ -562,12 +572,14 @@ class DeskripsiProdukController extends Controller
                 ]);
             }
             $despro = [
+                'params' => 'Approval Despro',
                 'id' => $id,
                 'status' => 'Acc',
                 'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
             ];
-            event(new UpdateApproveDesproEvent($despro));
+            event(new DesproEvent($despro));
             $history = [
+                'params' => 'Insert History Status Despro',
                 'deskripsi_produk_id' => $id,
                 'type_history' => 'Approval',
                 'status_his' => $data->status,
@@ -575,14 +587,15 @@ class DeskripsiProdukController extends Controller
                 'author_id' => auth()->id(),
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
-            event(new InsertStatusHistory($history));
+            event(new DesproEvent($history));
             $desFinCov = [
+                'params' => 'Input Deskripsi',
                 'id' => Uuid::uuid4()->toString(),
                 'deskripsi_produk_id' => $id,
                 'tgl_deskripsi' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
-            event(new InsertDesfinEvent($desFinCov));
-            event(new InsertDescovEvent($desFinCov));
+            event(new DesfinEvent($desFinCov));
+            event(new DescovEvent($desFinCov));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Deskripsi produk telah disetujui, silahkan cek Deskripsi Final dan Deskripsi Cover untuk tracking lanjutan'

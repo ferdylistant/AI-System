@@ -102,16 +102,16 @@
         </div>
     </div>
 </section>
-<div id="md_UpdateStatusDesProduk" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal" aria-hidden="true">
+<div id="md_UpdateStatusDesFinal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="titleModal">Update Status Progress Deskripsi Produk</h5>
+                <h5 class="modal-title" id="titleModal">Update Status Progress Deskripsi Final</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="fm_UpdateStatusDespro">
+            <form id="fm_UpdateStatusDesfin">
             <div class="modal-body">
                 <div class="form-group">
                     <input type="hidden" name="id" id="id" value="">
@@ -135,17 +135,17 @@
         </div>
     </div>
 </div>
-<div id="md_DesproHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalDespro" aria-hidden="true">
+<div id="md_DesfinHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalDesfin" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content ">
             <div class="modal-header bg-light">
-                <h5 class="modal-title" id="titleModalDespro"></h5>
+                <h5 class="modal-title" id="titleModalDesfin"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body example-1 scrollbar-deep-purple bordered-deep-purple thin">
-                <div class="tickets-list" id="dataHistory">
+                <div class="tickets-list" id="dataHistoryDesfin">
 
                 </div>
 
@@ -216,11 +216,11 @@
     $('#tb_DesFinal').on('click','.btn-history',function(e){
         var id = $(this).data('id');
         var judul = $(this).data('judulasli');
-        $.post("{{route('despro.history')}}", {id: id}, function(data){
-            $('#titleModalDespro').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "'+judul+'"');
+        $.post("{{route('desfin.history')}}", {id: id}, function(data){
+            $('#titleModalDesfin').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "'+judul+'"');
             $('#load_more').data('id',id);
-            $('#dataHistory').html(data);
-            $('#md_DesproHistory').modal('show');
+            $('#dataHistoryDesfin').html(data);
+            $('#md_DesfinHistory').modal('show');
         });
     });
 </script>
