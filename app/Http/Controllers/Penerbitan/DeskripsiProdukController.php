@@ -265,7 +265,7 @@ class DeskripsiProdukController extends Controller
                     'kelengkapan' => $request->kelengkapan,
                     'editor' => $request->editor,
                     'catatan' => $request->catatan,
-                    'bulan' => date('Y-m-d',strtotime($request->bulan)),
+                    'bulan' => Carbon::createFromDate($request->bulan),
                     'updated_by'=> auth()->id()
                 ];
                 // event(new UpdateDesproEvent($update));
@@ -292,7 +292,7 @@ class DeskripsiProdukController extends Controller
                     'catatan_his' => $history->catatan,
                     'catatan_new' => $request->catatan,
                     'bulan_his' => $history->bulan,
-                    'bulan_new' => date('Y-m-d',strtotime($request->bulan)),
+                    'bulan_new' => Carbon::createFromDate($request->bulan),
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];

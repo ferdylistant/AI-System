@@ -214,8 +214,6 @@
                                     @endif
                                     </p>
                                 </div>
-                            </div>
-                            <div class="col-12 col-md-4">
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Isi Huruf</h6>
@@ -228,6 +226,8 @@
                                     @endif
                                     </p>
                                 </div>
+                            </div>
+                            <div class="col-12 col-md-4">
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Usulan Setter</h6>
@@ -261,6 +261,18 @@
                                         -
                                     @else
                                         {{ $data->catatan }}
+                                    @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Sinopsis</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                    @if (is_null($data->sinopsis))
+                                        -
+                                    @else
+                                        {{ $data->sinopsis }}
                                     @endif
                                     </p>
                                 </div>

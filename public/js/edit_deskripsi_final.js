@@ -184,6 +184,18 @@ $(document).ready(function() {
         $('#korektorCol').removeAttr('hidden');
 	})
 });
+$(document).ready(function() {
+    $('#sinopsisButton').click(function(e) {
+        e.preventDefault();
+        $('#sinopsisCol').attr('hidden','hidden');
+        $('#sinopsisColInput').removeAttr('hidden');
+    });
+    $('.batal_edit_sinopsis').click(function(e){ //user click on remove text
+		e.preventDefault();
+        $('#sinopsisColInput').attr('hidden','hidden');
+        $('#sinopsisCol').removeAttr('hidden');
+	})
+});
 $(function() {
     $(".select-imprint").select2({
         placeholder: 'Pilih imprint',

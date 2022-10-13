@@ -176,20 +176,11 @@ class DeskripsiFinalController extends Controller
                         )
                     ->orderBy('df.tgl_deskripsi','ASC')
                     ->get();
-        $statusProgress = (array)[
-            [
-                'value' => 'Antrian'
-            ],
-            [
-                'value' => 'Pending'
-            ],
-            [
-                'value' => 'Proses'
-            ],
-            [
-                'value' => 'Selesai'
-            ]
-        ];
+                    //Isi Warna Enum
+            $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_final WHERE Field = 'status'"))[0]->Type;
+            preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+            $statusProgress = explode("','", $matches[1]);
+
         return view('penerbitan.des_final.index', [
             'title' => 'Deskripsi Final',
             'status_progress' => $statusProgress,
@@ -275,7 +266,8 @@ class DeskripsiFinalController extends Controller
                     'bullet' =>  json_encode(array_filter($bullet)),
                     'setter' => $request->setter,
                     'korektor' => $request->korektor,
-                    'bulan' => Carbon::createFromFormat('F Y',$request->bulan)->format('Y-m-d'),
+                    'sinopsis' => $request->sinopsis,
+                    'bulan' => Carbon::createFromDate($request->bulan),
                     'updated_by'=> auth()->id()
                 ];
                 event(new DesfinEvent($update));
@@ -302,10 +294,12 @@ class DeskripsiFinalController extends Controller
                     'bullet_new' => json_encode(array_filter($bullet)),
                     'setter_his' => $history->setter,
                     'setter_new' => $request->setter,
-                    'korektor_his' => $request->korektor,
+                    'korektor_his' => $history->korektor,
                     'korektor_new' => $request->korektor,
+                    'sinopsis_his' => $history->sinopsis,
+                    'sinopsis_new' => $request->sinopsis,
                     'bulan_his' => $history->bulan,
-                    'bulan_new' => Carbon::createFromFormat('F Y',$request->bulan)->format('Y-m-d'),
+                    'bulan_new' => Carbon::createFromDate($request->bulan),
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
@@ -351,6 +345,11 @@ class DeskripsiFinalController extends Controller
             ->orWhere('u.email','LIKE','%setter%')
             ->select('u.nama','u.id')
             ->get();
+        if(!is_null($data->setter)){
+            $namaSetter = DB::table('users')
+                ->where('id',$data->setter)
+                ->first();
+        }
         $Korektor = DB::table('users as u')->join('jabatan as j','u.jabatan_id', '=', 'j.id')
             ->where('j.nama','LIKE','%Korektor%')
             ->orWhere('u.email','LIKE', '%korektor%')
@@ -389,7 +388,8 @@ class DeskripsiFinalController extends Controller
             'format_buku' => $format_buku,
             'kelengkapan' => $kelengkapan,
             'kertas_isi' => $kertas_isi,
-            'isi_warna' => $isi_warna
+            'isi_warna' => $isi_warna,
+            'nama_setter' => $namaSetter
             // 'imprint' => $imprint
         ]);
     }
@@ -403,6 +403,12 @@ class DeskripsiFinalController extends Controller
                     'status' => 'error',
                     'message' => 'Data corrupt...'
                 ],404);
+            }
+            if (is_null($data->sinopsis)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Harap input sinopis dahulu!'
+                ]);
             }
             $update = [
                 'params' => 'Update Status Desfin',
@@ -437,11 +443,13 @@ class DeskripsiFinalController extends Controller
         if($request->ajax()){
             $html = '';
             $id = $request->id;
-            $data = DB::table('deskripsi_final_history as df')
-                ->join('users as u','df.author_id','=','u.id')
-                ->where('df.deskripsi_final_id',$id)
-                ->select('df.*','u.nama')
-                ->orderBy('df.id', 'desc')
+            $data = DB::table('deskripsi_final_history as dfh')
+                ->join('deskripsi_final as df','df.id','=','dfh.deskripsi_final_id')
+                ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
+                ->join('users as u','dfh.author_id','=','u.id')
+                ->where('dfh.deskripsi_final_id',$id)
+                ->select('dfh.*','dp.judul_final','u.nama')
+                ->orderBy('dfh.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d){
                 if($d->type_history == 'Status'){
@@ -460,24 +468,48 @@ class DeskripsiFinalController extends Controller
                     $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
                     if (!is_null($d->judul_final_his)) {
-                        $html .=' Judul final <b class="text-dark">'.$d->judul_final_his.'</b> diubah menjadi <b class="text-dark">'.$d->judul_final_new.'</b>.<br>';
-                    }
-                    if (!is_null($d->judul_final_new)) {
-                        $html .=' Judul alternatif <b class="text-dark">'.$d->judul_final_new.'</b> telah dipilih menjadi judul final.<br>';
+                        if($d->judul_final_his != $d->judul_final_new){
+                            $html .=' Judul final <b class="text-dark">'.$d->judul_final_his.'</b> diubah menjadi <b class="text-dark">'.$d->judul_final_new.'</b>.<br>';
+                        }
                     }
                     if (!is_null($d->format_buku_his)) {
-                        $html .=' Format buku <b class="text-dark">'.$d->format_buku_his.' cm</b> diubah menjadi <b class="text-dark">'.$d->format_buku_new.' cm</b>.<br>';
+                        if($d->format_buku_his != $d->format_buku_new){
+                            $html .=' Format buku <b class="text-dark">'.$d->format_buku_his.' cm</b> diubah menjadi <b class="text-dark">'.$d->format_buku_new.' cm</b>.<br>';
+                        }
                     }
                     if (!is_null($d->jml_hal_his)) {
-                        $html .=' Jumlah halaman perkiraan <b class="text-dark">'.$d->jml_hal_his.'</b> diubah menjadi <b class="text-dark">'.$d->jml_hal_new.'</b>.<br>';
+                        if($d->jml_hal_his != $d->jml_hal_new){
+                            $html .=' Jumlah halaman perkiraan <b class="text-dark">'.$d->jml_hal_his.'</b> diubah menjadi <b class="text-dark">'.$d->jml_hal_new.'</b>.<br>';
+                        }
                     }
-                    if (!is_null($d->imprint_his)) {
-                        $html .=' Imprint <b class="text-dark">'.$d->imprint_his.'</b> diubah menjadi <b class="text-dark">'.$d->imprint_new.'</b>.<br>';
+                    if (!is_null($d->jml_hal_asli_his)) {
+                        if($d->jml_hal_asli_his != $d->jml_hal_asli_new){
+                            $html .=' Jumlah halaman asli <b class="text-dark">'.$d->jml_hal_asli_his.'</b> diubah menjadi <b class="text-dark">'.$d->jml_hal_asli_new.'</b>.<br>';
+                        }
                     }
-                    if (!is_null($d->editor_his)) {
-                        $html .=' Editor <b class="text-dark">'
-                        .DB::table('users')->where('id',$d->editor_his)->whereNull('deleted_at')->pluck('nama').
-                        '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->editor_new)->whereNull('deleted_at')->pluck('nama').'</b>.<br>';
+                    if (!is_null($d->ukuran_asli_his)) {
+                        if($d->ukuran_asli_his != $d->ukuran_asli_new){
+                            $html .=' Ukuran asli <b class="text-dark">'.$d->ukuran_asli_his.'</b> diubah menjadi <b class="text-dark">'.$d->ukuran_asli_new.'</b>.<br>';
+                        }
+                    }
+                    if (!is_null($d->isi_warna_his)) {
+                        if($d->isi_warna_his != $d->isi_warna_new) {
+                            $html .=' Isi warna <b class="text-dark">'.$d->isi_warna_his.'</b> diubah menjadi <b class="text-dark">'.$d->isi_warna_new.'</b>.<br>';
+                        }
+                    }
+                    if (!is_null($d->setter_his)) {
+                        if ($d->setter_his != $d->setter_new) {
+                            $html .=' Setter <b class="text-dark">'
+                            .DB::table('users')->where('id',$d->setter_his)->whereNull('deleted_at')->first()->nama.
+                            '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->setter_new)->whereNull('deleted_at')->first()->nama.'</b>.<br>';
+                        }
+                    }
+                    if (!is_null($d->korektor_his)) {
+                        if ($d->korektor_his != $d->korektor_new) {
+                            $html .=' Korektor <b class="text-dark">'
+                            .DB::table('users')->where('id',$d->korektor_his)->whereNull('deleted_at')->first()->nama.
+                            '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->korektor_new)->whereNull('deleted_at')->first()->nama.'</b>.<br>';
+                        }
                     }
                     if (!is_null($d->kelengkapan_his)) {
                         $html .=' Kelengkapan <b class="text-dark">'.$d->kelengkapan_his.'</b> diubah menjadi <b class="text-dark">'.$d->kelengkapan_new.'</b>.<br>';
@@ -486,7 +518,9 @@ class DeskripsiFinalController extends Controller
                         $html .=' Catatan <b class="text-dark">'.$d->catatan_his.'</b> diubah menjadi <b class="text-dark">'.$d->catatan_new.'</b>.<br>';
                     }
                     if (!is_null($d->bulan_his)) {
-                        $html .=' Bulan <b class="text-dark">'.Carbon::parse($d->bulan_his)->translatedFormat('F Y').'</b> diubah menjadi <b class="text-dark">'.Carbon::parse($d->bulan_new)->translatedFormat('F Y').'</b>.';
+                        if ($d->bulan_his != $d->bulan_new) {
+                            $html .=' Bulan <b class="text-dark">'.Carbon::parse($d->bulan_his)->translatedFormat('F Y').'</b> diubah menjadi <b class="text-dark">'.Carbon::parse($d->bulan_new)->translatedFormat('F Y').'</b>.';
+                        }
                     }
                     $html .='</span></div>
                     <div class="ticket-info">

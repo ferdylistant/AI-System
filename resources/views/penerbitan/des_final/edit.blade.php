@@ -369,7 +369,7 @@
                                                     @else
                                                     <td class="table-active text-right" id="bulletCol">
                                                         @foreach (json_decode($data->bullet,true) as $key => $aj)
-                                                            <span class="bullet"></span>{{$aj}}-<br>
+                                                            <span class="bullet"></span>{{$aj}}<br>
                                                         @endforeach
                                                         <p class="text-small">
                                                             <a href="javascript:void(0)" id="bulletButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
@@ -394,7 +394,7 @@
                                                     <th class="table-secondary" style="width: 25%">Usulan Setter:</th>
                                                     @if (!is_null($data->setter))
                                                     <td class="table-active text-right" id="setterCol">
-                                                        {{$data->setter}}
+                                                        {{$nama_setter->nama}}
                                                         <p class="text-small">
                                                             <a href="javascript:void(0)" id="setterButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                                         </p>
@@ -457,6 +457,37 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
+                                                    <th class="table-secondary" style="width: 25%">Sinopsis:</th>
+                                                    @if (!is_null($data->sinopsis))
+                                                    <td class="table-active text-right" id="sinopsisCol">
+                                                        {{$data->sinopsis}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="sinopsisButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="sinopsisColInput" hidden>
+                                                        <div class="input-group">
+                                                            <textarea name="sinopsis" class="form-control">{{$data->sinopsis}}</textarea>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_sinopsis text-danger" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @else
+                                                    <td class="table-active text-right" id="sinopsisCol">
+                                                        <a href="javascript:void(0)" id="sinopsisButton"><i class="fa fa-plus"></i>&nbsp;Tambahkan</a>
+                                                    </td>
+                                                    <td class="table-active text-left" id="sinopsisColInput" hidden>
+                                                        <div class="input-group">
+                                                            <textarea name="sinopsis" class="form-control"></textarea>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_sinopsis text-danger" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
                                                     <th class="table-secondary" style="width: 25%">Bulan: <span class="text-danger">*</span></th>
                                                     @if (!is_null($data->bulan))
                                                     <td class="table-active text-right" id="bulanCol">
@@ -467,7 +498,7 @@
                                                     </td>
                                                     <td class="table-active text-left" id="bulanColInput" hidden>
                                                         <div class="input-group">
-                                                            <input name="bulan" value="{{Carbon\Carbon::parse($data->bulan)->translatedFormat('F Y')}}" class="form-control datepicker" readonly required>
+                                                            <input name="bulan" class="form-control datepicker" readonly required>
                                                             <div class="input-group-append">
                                                                 <button type="button" class="btn btn-outline-danger batal_edit_bulan text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                                             </div>
@@ -650,6 +681,16 @@
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->korektor))
                                                         {{$data->korektor}}
+                                                    @else
+                                                        <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Sinopsis:</th>
+                                                <td class="table-active text-left">
+                                                    @if (!is_null($data->sinopsis))
+                                                        {{$data->sinopsis}}
                                                     @else
                                                         <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
