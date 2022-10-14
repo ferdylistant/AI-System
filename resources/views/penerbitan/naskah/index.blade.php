@@ -73,6 +73,7 @@
                 { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
                 { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku' },
                 { data: 'stts_penilaian', name: 'stts_penilaian', title: 'Penilaian'},
+                { data: 'history', name: 'history', title: 'History'},
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
             ]
         });

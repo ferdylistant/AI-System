@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
+use App\Events\NaskahEvent;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
@@ -84,6 +85,15 @@ class NaskahController extends Controller
 
                             return $badge;
                         })
+                        ->addColumn('history', function ($data) {
+                            $historyData = DB::table('deskripsi_final_history')->where('deskripsi_final_id',$data->id)->get();
+                            if($historyData->isEmpty()) {
+                                return '-';
+                            } else {
+                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-judulasli="'.$data->judul_asli.'"><i class="fas fa-history"></i>&nbsp;History</button>';
+                                return $date;
+                            }
+                        })
                         ->addColumn('action', function($data) use($update) {
                             $btn = '<a href="'.url('penerbitan/naskah/melihat-naskah/'.$data->id).'"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1">
@@ -95,7 +105,7 @@ class NaskahController extends Controller
                             }
                             return $btn;
                         })
-                        ->rawColumns(['stts_penilaian', 'action'])
+                        ->rawColumns(['stts_penilaian', 'history', 'action'])
                         ->make(true);
             }
             elseif($request->input('request_') === 'selectPenulis') {
@@ -175,14 +185,14 @@ class NaskahController extends Controller
                     //     ];
                     // }
 
-                    // DB::table('penerbitan_naskah_penulis')->insert($daftarPenulis);
+                    DB::table('penerbitan_naskah_penulis')->insert($daftarPenulis);
                     // DB::table('penerbitan_naskah_files')->insert($fileNaskah);
                     $penilaian = $this->alurPenilaian($request->input('add_jalur_buku'), 'create-notif-from-naskah', [
                         'id_prodev' => $request->input('add_pic_prodev'),
                         'form_id' => $idN
                     ]);
-
-                    DB::table('penerbitan_naskah')->insert([
+                    $addNaskah = [
+                        'params' => 'Add Naskah',
                         'id' => $idN,
                         'kode' => $request->input('add_kode'),
                         'judul_asli' => $request->input('add_judul_asli'),
@@ -200,15 +210,17 @@ class NaskahController extends Controller
                         'url_file' => $request->input('add_url_file'),
                         'penilaian_naskah' => ($penilaian['penilaian_naskah']?'1':'0'),
                         'created_by' => auth()->id()
-                    ]);
-
-                    DB::table('penerbitan_pn_stts')->insert([
+                    ];
+                    event(new NaskahEvent($addNaskah));
+                    $addPnStatus = [
+                        'params' => 'Add Penilaian Status',
                         'id' => Str::uuid()->getHex(),
                         'naskah_id' => $idN,
                         'tgl_naskah_masuk' => Carbon::createFromFormat('d F Y', $request->input('add_tanggal_masuk_naskah'))
                             ->format('Y-m-d'),
                         'tgl_pn_selesai' => ($penilaian['selesai_penilaian']>0)?date('Y-m-d H:i:s'):null
-                    ]);
+                    ];
+                    event(new NaskahEvent($addPnStatus));
 
                     DB::commit();
                     return;
@@ -252,9 +264,6 @@ class NaskahController extends Controller
             return $item;
         })->all();
 
-        $fileNaskah = DB::table('penerbitan_naskah_files')->where('naskah_id', $naskah->id)
-                        ->get();
-
         if($request->ajax()) {
             if($request->isMethod('GET')) {
                 $penulis = DB::table('penerbitan_naskah_penulis as pnp')
@@ -276,8 +285,7 @@ class NaskahController extends Controller
                     'edit_soft_copy' => 'required',
                     'edit_cdqr_code' => 'required',
                     'edit_pic_prodev' => 'required',
-                    'edit_file_naskah' => 'mimes:pdf',
-                    'edit_file_tambahan_naskah' => 'mimes:rar,zip',
+                    'edit_url_file' => 'required|url',
                     'edit_penulis' => 'required'
                 ], [
                     'required' => 'This field is requried'
@@ -285,40 +293,6 @@ class NaskahController extends Controller
 
                 DB::beginTransaction();
                 try {
-                    if(!is_null($request->file('edit_file_naskah'))){
-                        $fNaskah = explode('/', $request->file('edit_file_naskah')->store('penerbitan/naskah/'.$naskah->id));
-                        $fNaskah = end($fNaskah);
-
-                        DB::table('penerbitan_naskah_files')
-                            ->where('naskah_id', $naskah->id)
-                            ->where('kategori', 'File Naskah Asli')
-                            ->update([
-                                'file' => $fNaskah,
-                                'updated_at' => date('Y-m-d H:i:s')
-                            ]);
-                    }
-
-                    if(!is_null($request->file('edit_file_tambahan_naskah'))){
-                        $ftNaskah = explode('/', $request->file('edit_file_tambahan_naskah')->store('penerbitan/naskah/'.$naskah->id));
-                        $ftNaskah = end($ftNaskah);
-
-                        if(!is_null($request->file('edit_file_tambahan_naskah'))){
-                            DB::table('penerbitan_naskah_files')->insert([
-                                'id' => Str::uuid()->getHex(),
-                                'naskah_id' => $naskah->id,
-                                'kategori' => 'File Tambahan Naskah',
-                                'file' => $ftNaskah,
-                            ]);
-                        } else {
-                            DB::table('penerbitan_naskah_files')
-                                ->where('naskah_id', $naskah->id)
-                                ->where('kategori', 'File Tambahan Naskah')
-                                ->update([
-                                    'file' => $ftNaskah,
-                                    'updated_at' => date('Y-m-d H:i:s')
-                                ]);
-                        }
-                    }
 
                     foreach($request->input('edit_penulis') as $p) {
                         $daftarPenulis[] = [
@@ -338,9 +312,9 @@ class NaskahController extends Controller
                             'form_id' => $naskah->id
                         ]);
                     }
-
-                    DB::table('penerbitan_naskah')
-                        ->where('id', $naskah->id)->update([
+                    $editNaskah = [
+                        'params' => 'Edit Naskah',
+                        'id' => $naskah->id,
                         'judul_asli' => $request->input('edit_judul_asli'),
                         'tanggal_masuk_naskah' => Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
                             ->format('Y-m-d'),
@@ -353,28 +327,32 @@ class NaskahController extends Controller
                         'cdqr_code' => $request->input('edit_cdqr_code'),
                         'keterangan' => $request->input('edit_keterangan'),
                         'pic_prodev' => $request->input('edit_pic_prodev'),
-                        'keterangan' => $request->input('edit_keterangan'),
+                        'url_file' => $request->input('edit_url_file'),
                         'updated_by' => auth()->id(),
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-
+                        'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new NaskahEvent($editNaskah));
+                    //BELOM SELESAI
+                    $insertHistoryEdit = [
+                        'naskah_id' => $naskah->id,
+                        'judul_asli_his' => $naskah->judul_asli,
+                        'judul_asli_new' => $request->input('edit_judul_asli'),
+                        'email_his' => $naskah->email,
+                        'email_new' => $request->input('edit_email'),
+                        'kelompok_buku_his' => $naskah->kelompok_buku,
+                        'kelompok_buku_new' => $request->input('edit_kelompok_buku'),
+                        'tgl_masuk_nas_his' => $naskah->tgl_masuk_naskah,
+                        'tgl_masuk_nas_new' => Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
+                        ->format('Y-m-d'),
+                        'tentang_penulis_his' => $naskah->tentang_penulis,
+                        'tentang_penulis_new' => $request->input('edit_tentang_penulis'),
+                        'hard_copy_his' => $naskah->hard_copy,
+                        'hard_copy_new' => $request->input('edit_hard_copy'),
+                    ];
+                    event(new NaskahEvent($insertHistoryEdit));
                     DB::commit();
-                    if(!is_null($request->file('edit_file_naskah'))){
-                        Storage::delete('penerbitan/naskah/'.$naskah->id.'/'.
-                            $fileNaskah->where('kategori', 'File Naskah Asli')->pluck('file')->first());
-                    }
-                    if(!is_null($request->file('edit_file_tambahan_naskah'))){
-                        Storage::delete('penerbitan/naskah/'.$naskah->id.'/'.
-                            $fileNaskah->where('kategori', 'File Tambahan Naskah')->pluck('file')->first());
-                    }
                     return;
                 } catch(\Exception $e) {
-                    if(!is_null($request->file('edit_file_naskah'))){
-                        Storage::delete('penerbitan/naskah/'.$naskah->id.'/'.$fNaskah);
-                    }
-                    if(!is_null($request->file('edit_file_tambahan_naskah'))){
-                        Storage::delete('penerbitan/naskah/'.$naskah->id.'/'.$ftNaskah);
-                    }
                     DB::rollback();
                     return abort(500, $e->getMessage());
                 }

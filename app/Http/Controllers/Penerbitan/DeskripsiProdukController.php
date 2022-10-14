@@ -3,19 +3,14 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
-use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use App\Events\DescovEvent;
 use App\Events\DesfinEvent;
 use App\Events\DesproEvent;
-use App\Events\UpdateEvent;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
-use App\Events\UpdateApproveDesproEvent;
-use App\Events\InsertRevisiDesproHistory;
 use Illuminate\Support\Facades\{DB, Gate};
-use App\Events\{PilihJudulEvent,InsertDescovEvent,InsertDesfinEvent,UpdateDesproEvent,UpdateStatusEvent,InsertJudulHistory,InsertDesproHistory,InsertStatusHistory};
 
 class DeskripsiProdukController extends Controller
 {
@@ -78,7 +73,7 @@ class DeskripsiProdukController extends Controller
                             return $res;
                         })
                         ->addColumn('tgl_deskripsi', function($data) {
-                            return Carbon::parse($data->tgl_deskripsi)->translatedFormat('d M Y');
+                            return Carbon::parse($data->tgl_deskripsi)->translatedFormat('l, d M Y h:i');
 
                         })
                         ->addColumn('pic_prodev', function($data) {

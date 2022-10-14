@@ -180,8 +180,8 @@ select[readonly].select2-hidden-accessible + .select2-container .select2-selecti
                             </div>
                             <div class="form-group col-12 col-md-12 mb-4">
                                 <label>URL File: <span class="text-danger">*</span></label>
-                                <input type="url" class="form-control" name="add_url_file" required>
-                                <div id="err_add_url_file"></div>
+                                <input type="url" class="form-control" name="edit_url_file" required>
+                                <div id="err_edit_url_file"></div>
                             </div>
                             <div class="form-group col-12 mb-4 table-responsive ">
                                 <table id="tb_selectedPenulis" class="table table-bordered">
@@ -263,6 +263,7 @@ function loadDataPenulis() {
         success: function(result){
             let {naskah, penulis} = result;
 
+
             for(let p of penulis) {
                 $("#edit_penulis").select2("trigger", "select", {
                     data: {id: p.id, text: p.nama}
@@ -272,6 +273,7 @@ function loadDataPenulis() {
                 $('[name="edit_pic_prodev"]').attr("readonly", true);
             }
             for(let n in naskah) {
+                // console.log(n);
                 const rdio = ['tentang_penulis', 'soft_copy', 'hard_copy', 'cdqr_code']
                 if(rdio.includes(n)) {
                     $('[name="edit_'+n+'"]').val([naskah[n]]);
@@ -354,6 +356,7 @@ $(function() {
         edit_soft_copy: {required: true},
         edit_cdqr_code: {required: true},
         edit_pic_prodev: {required: true},
+        edit_url_file: {required: true},
         // edit_file_naskah: { extension: "pdf", maxsize: 500000, },
         // edit_file_tambahan_naskah: { extension: "rar|zip", maxsize: 500000, }
     });
@@ -373,11 +376,11 @@ $(function() {
                     addClass('btn-progress')
             },
             success: function(result) {
-                console.log(result)
+                // console.log(result)
                 notifToast('success', 'Data naskah berhasil diubah!');
             },
             error: function(err) {
-                console.log(err)
+                // console.log(err)
                 rs = err.responseJSON.errors;
                 if(rs != undefined) {
                     err = {};
@@ -385,7 +388,7 @@ $(function() {
                         let [key, value] = entry;
                         err[key] = value
                     })
-                    console.log(err)
+                    // console.log(err)
                     editNaskah.showErrors(err);
                 }
                 notifToast('error', 'Data naskah gagal diubah!');

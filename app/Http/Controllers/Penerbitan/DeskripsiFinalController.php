@@ -9,6 +9,7 @@ use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 use PhpParser\Node\Stmt\Continue_;
+use Illuminate\Support\Arr;
 
 class DeskripsiFinalController extends Controller
 {
@@ -183,7 +184,7 @@ class DeskripsiFinalController extends Controller
 
         return view('penerbitan.des_final.index', [
             'title' => 'Deskripsi Final',
-            'status_progress' => $statusProgress,
+            'status_progress' => Arr::sort($statusProgress),
             'count' => count($data)
         ]);
     }
