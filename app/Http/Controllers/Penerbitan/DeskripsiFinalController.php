@@ -452,7 +452,7 @@ class DeskripsiFinalController extends Controller
                 ->select('dfh.*','dp.judul_final','u.nama')
                 ->orderBy('dfh.id', 'desc')
                 ->paginate(2);
-            foreach ($data as $d){
+            foreach ($data as $key => $d){
                 if($d->type_history == 'Status'){
                     $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title">

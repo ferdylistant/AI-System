@@ -101,6 +101,7 @@ Route::middleware(['auth'])->group(function() {
         Route::post('/naskah/penilaian/{cat}', [PenilaianNaskahController::class, 'index']);
         Route::post('/naskah/timeline/{cat}', [TimelineController::class, 'index']);
         Route::get('/naskah/tandai-telah-kirim-email', [NaskahController::class, 'tandaKirimEmail']);
+        Route::post('/naskah/lihat-history', [NaskahController::class, 'lihatHistoryNaskah'])->name('naskah.history');
         //Deskripsi Produk
         Route::get('/deskripsi/produk',[DeskripsiProdukController::class, 'index'])->name('despro.view');
         Route::get('/deskripsi/produk/detail',[DeskripsiProdukController::class, 'detailDeskripsiProduk'])->name('despro.detail');

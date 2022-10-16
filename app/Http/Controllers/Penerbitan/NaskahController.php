@@ -86,7 +86,7 @@ class NaskahController extends Controller
                             return $badge;
                         })
                         ->addColumn('history', function ($data) {
-                            $historyData = DB::table('deskripsi_final_history')->where('deskripsi_final_id',$data->id)->get();
+                            $historyData = DB::table('penerbitan_naskah_history')->where('naskah_id',$data->id)->get();
                             if($historyData->isEmpty()) {
                                 return '-';
                             } else {
@@ -332,22 +332,36 @@ class NaskahController extends Controller
                         'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ];
                     event(new NaskahEvent($editNaskah));
-                    //BELOM SELESAI
                     $insertHistoryEdit = [
+                        'params' => 'Insert Edit Naskah History',
                         'naskah_id' => $naskah->id,
-                        'judul_asli_his' => $naskah->judul_asli,
-                        'judul_asli_new' => $request->input('edit_judul_asli'),
-                        'email_his' => $naskah->email,
-                        'email_new' => $request->input('edit_email'),
-                        'kelompok_buku_his' => $naskah->kelompok_buku,
-                        'kelompok_buku_new' => $request->input('edit_kelompok_buku'),
-                        'tgl_masuk_nas_his' => $naskah->tgl_masuk_naskah,
-                        'tgl_masuk_nas_new' => Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
+                        'judul_asli_his' => $naskah->judul_asli==$request->input('edit_judul_asli')?NULL:$naskah->judul_asli,
+                        'judul_asli_new' => $naskah->judul_asli==$request->input('edit_judul_asli')?NULL:$request->input('edit_judul_asli'),
+                        'email_his' => $naskah->email==$request->input('edit_email')?NULL:$naskah->email,
+                        'email_new' => $naskah->email==$request->input('edit_email')?NULL:$request->input('edit_email'),
+                        'kelompok_buku_his' => $naskah->kelompok_buku_id==$request->input('edit_kelompok_buku')?NULL:$naskah->kelompok_buku_id,
+                        'kelompok_buku_new' => $naskah->kelompok_buku_id==$request->input('edit_kelompok_buku')?NULL:$request->input('edit_kelompok_buku'),
+                        'tgl_masuk_nas_his' => Carbon::createFromFormat('d F Y', $naskah->tanggal_masuk_naskah)
+                        ->format('Y-m-d')==Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
+                        ->format('Y-m-d')?NULL:Carbon::createFromFormat('d F Y', $naskah->tanggal_masuk_naskah)
                         ->format('Y-m-d'),
-                        'tentang_penulis_his' => $naskah->tentang_penulis,
-                        'tentang_penulis_new' => $request->input('edit_tentang_penulis'),
-                        'hard_copy_his' => $naskah->hard_copy,
-                        'hard_copy_new' => $request->input('edit_hard_copy'),
+                        'tgl_masuk_nas_new' => Carbon::createFromFormat('d F Y', $naskah->tanggal_masuk_naskah)
+                        ->format('Y-m-d')==Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
+                        ->format('Y-m-d')?NULL:Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
+                        ->format('Y-m-d'),
+                        'tentang_penulis_his' => $naskah->tentang_penulis==$request->input('edit_tentang_penulis')?NULL:$naskah->tentang_penulis,
+                        'tentang_penulis_new' => $naskah->tentang_penulis==$request->input('edit_tentang_penulis')?NULL:$request->input('edit_tentang_penulis'),
+                        'hard_copy_his' => $naskah->hard_copy==$request->input('edit_hard_copy')?NULL:$naskah->hard_copy,
+                        'hard_copy_new' => $naskah->hard_copy==$request->input('edit_hard_copy')?NULL:$request->input('edit_hard_copy'),
+                        'soft_copy_his' => $naskah->soft_copy==$request->input('edit_soft_copy')?NULL:$naskah->soft_copy,
+                        'soft_copy_new' => $naskah->soft_copy==$request->input('edit_soft_copy')?NULL:$request->input('edit_soft_copy'),
+                        'cdqr_code_his' => $naskah->cdqr_code==$request->input('edit_cdqr_code')?NULL:$naskah->cdqr_code,
+                        'cdqr_code_new' => $naskah->cdqr_code==$request->input('edit_cdqr_code')?NULL:$request->input('edit_cdqr_code'),
+                        'pic_prodev_his' => $naskah->pic_prodev==$request->input('edit_pic_prodev')?NULL:$naskah->pic_prodev,
+                        'pic_prodev_new' => $naskah->pic_prodev==$request->input('edit_pic_prodev')?NULL:$request->input('edit_pic_prodev'),
+                        'penulis_new' => json_encode($daftarPenulis),
+                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                        'author_id' => auth()->id()
                     ];
                     event(new NaskahEvent($insertHistoryEdit));
                     DB::commit();
@@ -460,7 +474,74 @@ class NaskahController extends Controller
             }
         }
     }
+    public function lihatHistoryNaskah(Request $request)
+    {
+        if($request->ajax()){
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('penerbitan_naskah_history as pnh')
+                ->join('penerbitan_naskah as pn','pn.id','=','pnh.naskah_id')
+                ->join('users as u','pnh.author_id','=','u.id')
+                ->where('pnh.naskah_id',$id)
+                ->select('pnh.*','u.nama')
+                ->orderBy('pnh.id', 'desc')
+                ->paginate(2);
+            foreach ($data as $key => $d){
+                if($d->type_history == 'Sent Email'){
+                    $html .= '<span class="ticket-item" id="newAppend">
+                    <div class="ticket-title">
+                        <span><span class="bullet"></span> Status deskripsi final <b class="text-dark">'.$d->status_his.'</b> diubah menjadi <b class="text-dark">'.$d->status_new.'</b>.</span>
+                    </div>
+                    <div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i').')</div>
+                    </div>
+                    </span>';
 
+                } elseif ($d->type_history == 'Update') {
+                    $html .= '<span class="ticket-item" id="newAppend">
+                    <div class="ticket-title"><span><span class="bullet"></span>';
+                    if (!is_null($d->judul_asli_his)) {
+                        $html .=' Judul asli <b class="text-dark">'.$d->judul_asli_his.'</b> diubah menjadi <b class="text-dark">'.$d->judul_asli_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->email_his)) {
+                        $html .=' Email <b class="text-dark">'.$d->email_his.'</b> diubah menjadi <b class="text-dark">'.$d->email_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->kelompok_buku_his)) {
+                        $html .=' Kelompok buku <b class="text-dark">'.DB::table('penerbitan_m_kelompok_buku')->where('id',$d->kelompok_buku_his)->whereNull('deleted_at')->first()->nama.'</b> diubah menjadi <b class="text-dark">'.DB::table('penerbitan_m_kelompok_buku')->where('id',$d->kelompok_buku_new)->whereNull('deleted_at')->first()->nama.'</b>.<br>';
+                    }
+                    if (!is_null($d->tgl_masuk_nas_his)) {
+                        $html .=' Tanggal masuk naskah <b class="text-dark">'.Carbon::parse($d->tgl_masuk_nas_his)->translatedFormat('l d F Y').'</b> diubah menjadi <b class="text-dark">'.Carbon::parse($d->tgl_masuk_nas_new)->translatedFormat('l d F Y').'</b>.<br>';
+                    }
+                    if (!is_null($d->tentang_penulis_his)) {
+                        $html .=' Tentang penulis <b class="text-dark">'.$d->tentang_penulis_his.'</b> diubah menjadi <b class="text-dark">'.$d->tentang_penulis_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->hard_copy_his)) {
+                        $html .=' Hardcopy <b class="text-dark">'.$d->hard_copy_his.'</b> diubah menjadi <b class="text-dark">'.$d->hard_copy_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->soft_copy_his)) {
+                        $html .=' Soft <b class="text-dark">'.$d->soft_copy_his.'</b> diubah menjadi <b class="text-dark">'.$d->soft_copy_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->cdqr_code_his)) {
+                        $html .=' Cdqr code <b class="text-dark">'.$d->cdqr_code_his.'</b> diubah menjadi <b class="text-dark">'.$d->cdqr_code_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->pic_prodev_his)) {
+                        $html .=' PIC prodev <b class="text-dark">'.DB::table('users')->where('id',$d->pic_prodev_his)->whereNull('deleted_at')->first()->nama.'</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->pic_prodev_new)->whereNull('deleted_at')->first()->nama.'</b>.<br>';
+                    }
+                    $html .='</span></div>
+                    <div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i').')</div>
+
+                    </div>
+                    </span>';
+                }
+            }
+            return $html;
+        }
+    }
     public static function generateId() {
         $last = DB::table('penerbitan_naskah')
                     ->select('kode')

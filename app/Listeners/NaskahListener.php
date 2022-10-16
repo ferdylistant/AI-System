@@ -76,7 +76,30 @@ class NaskahListener
                 ]);
                 break;
             case 'Insert Edit Naskah History':
-
+                $res = DB::table('penerbitan_naskah_history')->insert([
+                    'naskah_id' => $data['naskah_id'],
+                    'judul_asli_his' => $data['judul_asli_his'],
+                    'judul_asli_new' => $data['judul_asli_new'],
+                    'email_his' => $data['email_his'],
+                    'email_new' => $data['email_new'],
+                    'kelompok_buku_his' => $data['kelompok_buku_his'],
+                    'kelompok_buku_new' => $data['kelompok_buku_new'],
+                    'tgl_masuk_nas_his' => $data['tgl_masuk_nas_his'],
+                    'tgl_masuk_nas_new' => $data['tgl_masuk_nas_new'],
+                    'tentang_penulis_his' => $data['tentang_penulis_his'],
+                    'tentang_penulis_new' => $data['tentang_penulis_new'],
+                    'hard_copy_his' => $data['hard_copy_his'],
+                    'hard_copy_new' => $data['hard_copy_new'],
+                    'soft_copy_his' => $data['soft_copy_his'],
+                    'soft_copy_new' => $data['soft_copy_new'],
+                    'cdqr_code_his' => $data['cdqr_code_his'],
+                    'cdqr_code_new' => $data['cdqr_code_new'],
+                    'pic_prodev_his' => $data['pic_prodev_his'],
+                    'pic_prodev_new' => $data['pic_prodev_new'],
+                    'penulis_new' => $data['penulis_new'],
+                    'modified_at' => $data['modified_at'],
+                    'author_id' => $data['author_id']
+                ]);
                 break;
             default:
                 abort(500);

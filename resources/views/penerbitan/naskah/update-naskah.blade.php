@@ -305,7 +305,10 @@ $(function() {
     });
 
     $('.datepicker').datepicker({
-        format: 'dd MM yyyy'
+        format: 'dd MM yyyy',
+        autoclose:true,
+        clearBtn: true,
+        todayHighlight: true
     });
 
     $('#fileNaskah').on('change',function(e){

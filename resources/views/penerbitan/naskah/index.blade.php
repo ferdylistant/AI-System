@@ -35,7 +35,28 @@
         </div>
     </div>
 </section>
+<div id="md_NaskahHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalNaskah" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content ">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="titleModalNaskah"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body example-1 scrollbar-deep-purple bordered-deep-purple thin">
+                <div class="tickets-list" id="dataHistoryNaskah">
 
+                </div>
+
+            </div>
+            <div class="modal-footer">
+            <button class="d-block btn btn-sm btn-outline-primary btn-block load-more" id="load_more" data-paginate="2" data-id="">Load more</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('jsRequired')
@@ -76,6 +97,18 @@
                 { data: 'history', name: 'history', title: 'History'},
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
             ]
+        });
+    });
+</script>
+<script>
+    $('#tb_Naskah').on('click','.btn-history',function(e){
+        var id = $(this).data('id');
+        var judul = $(this).data('judulasli');
+        $.post("{{route('naskah.history')}}", {id: id}, function(data){
+            $('#titleModalNaskah').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "'+judul+'"');
+            $('#load_more').data('id',id);
+            $('#dataHistoryNaskah').html(data);
+            $('#md_NaskahHistory').modal('show');
         });
     });
 </script>
