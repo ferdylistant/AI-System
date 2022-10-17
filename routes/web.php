@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ManWeb\UsersController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ManWeb\StrukturAoController;
+use App\Http\Controllers\Penerbitan\DeskripsiCoverController;
 use App\Http\Controllers\MasterData\{ImprintController,KelompokBukuController,FormatBukuController};
 use App\Http\Controllers\Produksi\{ProduksiController, EbookController,ProsesProduksiController,ProsesEbookController};
 use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiFinalController, DeskripsiProdukController};
@@ -117,6 +118,12 @@ Route::middleware(['auth'])->group(function() {
         Route::match(['get', 'post'],'/deskripsi/final/edit',[DeskripsiFinalController::class, 'editDeskripsiFinal'])->name('desfin.edit');
         Route::post('/deskripsi/final/update-status-progress',[DeskripsiFinalController::class, 'updateStatusProgress']);
         Route::post('/deskripsi/final/lihat-history', [DeskripsiFinalController::class, 'lihatHistoryDesfin'])->name('desfin.history');
+        //Deskripsi Cover
+        Route::get('/deskripsi/cover',[DeskripsiCoverController::class,'index'])->name('descov.view');
+        Route::get('/deskripsi/cover/detail',[DeskripsiCoverController::class, 'detailDeskripsiCover'])->name('descov.detail');
+        Route::match(['get', 'post'],'/deskripsi/cover/edit',[DeskripsiCoverController::class, 'editDeskripsiCover'])->name('descov.edit');
+        Route::post('/deskripsi/cover/update-status-progress',[DeskripsiCoverController::class, 'updateStatusProgress']);
+        Route::post('/deskripsi/cover/lihat-history', [DeskripsiCoverController::class, 'lihatHistoryDescov'])->name('descov.history');
         //Order Cetak
         Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('cetak.view');
         Route::get('/order-cetak/detail', [ProduksiController::class, 'detailProduksi'])->name('cetak.detail');

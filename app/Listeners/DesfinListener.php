@@ -41,25 +41,28 @@ class DesfinListener
                     ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
                     ->where('df.id', $data['id'])
                     ->update([
-                    'dp.judul_final' => $data['judul_final'],
-                    'df.sub_judul_final' => $data['sub_judul_final'],
-                    'df.kertas_isi' => $data['kertas_isi'],
-                    'df.jml_hal_asli' => $data['jml_hal_asli'],
-                    'df.ukuran_asli' => $data['ukuran_asli'],
-                    'df.isi_warna' => $data['isi_warna'],
-                    'df.isi_huruf' => $data['isi_huruf'],
-                    'df.bullet' => $data['bullet'],
-                    'df.setter' => $data['setter'],
-                    'df.korektor' => $data['korektor'],
-                    'df.sinopsis' => $data['sinopsis'],
-                    'df.bulan' => $data['bulan'],
-                    'df.updated_by'=> $data['updated_by']
-                ]);
+                        'dp.format_buku' => $data['format_buku'],
+                        'dp.judul_final' => $data['judul_final'],
+                        'df.sub_judul_final' => $data['sub_judul_final'],
+                        'df.kertas_isi' => $data['kertas_isi'],
+                        'df.jml_hal_asli' => $data['jml_hal_asli'],
+                        'df.ukuran_asli' => $data['ukuran_asli'],
+                        'df.isi_warna' => $data['isi_warna'],
+                        'df.isi_huruf' => $data['isi_huruf'],
+                        'df.bullet' => $data['bullet'],
+                        'df.setter' => $data['setter'],
+                        'df.korektor' => $data['korektor'],
+                        'df.sinopsis' => $data['sinopsis'],
+                        'df.bulan' => $data['bulan'],
+                        'df.updated_by'=> $data['updated_by']
+                    ]);
                 break;
             case 'Insert History Desfin':
                 $res = DB::table('deskripsi_final_history')->insert([
                     'deskripsi_final_id' => $data['deskripsi_final_id'],
                     'type_history' => $data['type_history'],
+                    'format_buku_his' => $data['format_buku_his'],
+                    'format_buku_new' => $data['format_buku_new'],
                     'judul_final_his' => $data['judul_final_his'],
                     'judul_final_new' => $data['judul_final_new'],
                     'sub_judul_final_his' => $data['sub_judul_final_his'],

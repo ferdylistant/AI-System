@@ -30,6 +30,14 @@ class DesproListener
     {
         $data = $event->data;
         switch ($data['params']) {
+            case 'Create Despro':
+                $res = DB::table('deskripsi_produk')->insert([
+                    'id' => $data['id'],
+                    'naskah_id' => $data['naskah_id'],
+                    'pembuat_deskripsi' => $data['pembuat_deskripsi'],
+                    'status' => $data['status']
+                ]);
+                break;
             case 'Edit Despro':
                 $res = DB::table('deskripsi_produk')
                     ->where('id', $data['id'])

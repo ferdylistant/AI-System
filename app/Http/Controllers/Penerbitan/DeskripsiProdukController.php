@@ -583,14 +583,20 @@ class DeskripsiProdukController extends Controller
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
             event(new DesproEvent($history));
-            $desFinCov = [
+            $desFin = [
                 'params' => 'Input Deskripsi',
                 'id' => Uuid::uuid4()->toString(),
                 'deskripsi_produk_id' => $id,
                 'tgl_deskripsi' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
-            event(new DesfinEvent($desFinCov));
-            event(new DescovEvent($desFinCov));
+            $desCov = [
+                'params' => 'Input Deskripsi',
+                'id' => Uuid::uuid4()->toString(),
+                'deskripsi_produk_id' => $id,
+                'tgl_deskripsi' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new DesfinEvent($desFin));
+            event(new DescovEvent($desCov));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Deskripsi produk telah disetujui, silahkan cek Deskripsi Final dan Deskripsi Cover untuk tracking lanjutan'

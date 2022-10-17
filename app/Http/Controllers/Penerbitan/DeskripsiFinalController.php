@@ -249,7 +249,7 @@ class DeskripsiFinalController extends Controller
                 ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
                 ->where('df.id', $request->id)
                 ->whereNull('df.deleted_at')
-                ->select('df.*','dp.judul_final')
+                ->select('df.*','dp.judul_final','dp.format_buku')
                 ->first();
                 foreach ($request->bullet as $value) {
                     $bullet[] = $value;
@@ -258,6 +258,7 @@ class DeskripsiFinalController extends Controller
                     'params' => 'Edit Desfin',
                     'id' => $request->id,
                     'judul_final' => $request->judul_final,//Di Deskripsi Produk
+                    'format_buku' => $request->format_buku,
                     'sub_judul_final' => $request->sub_judul_final,
                     'kertas_isi' => $request->kertas_isi,
                     'jml_hal_asli' =>$request->jml_hal_asli,
@@ -277,30 +278,32 @@ class DeskripsiFinalController extends Controller
                     'params' => 'Insert History Desfin',
                     'deskripsi_final_id' => $request->id,
                     'type_history' => 'Update',
-                    'judul_final_his' => $history->judul_final,
-                    'judul_final_new' => $request->judul_final,
-                    'sub_judul_final_his' => $history->sub_judul_final,
-                    'sub_judul_final_new' => $request->sub_judul_final,
-                    'kertas_isi_his' => $history->kertas_isi,
-                    'kertas_isi_new' => $request->kertas_isi,
-                    'jml_hal_asli_his' => $history->jml_hal_asli,
-                    'jml_hal_asli_new' => $request->jml_hal_asli,
-                    'ukuran_asli_his' => $history->ukuran_asli,
-                    'ukuran_asli_new' => $request->ukuran_asli,
-                    'isi_warna_his' => $history->isi_warna,
-                    'isi_warna_new' => $request->isi_warna,
-                    'isi_huruf_his' => $history->isi_huruf,
-                    'isi_huruf_new' => $request->isi_huruf,
-                    'bullet_his' => $history->bullet,
-                    'bullet_new' => json_encode(array_filter($bullet)),
-                    'setter_his' => $history->setter,
-                    'setter_new' => $request->setter,
-                    'korektor_his' => $history->korektor,
-                    'korektor_new' => $request->korektor,
-                    'sinopsis_his' => $history->sinopsis,
-                    'sinopsis_new' => $request->sinopsis,
-                    'bulan_his' => $history->bulan,
-                    'bulan_new' => Carbon::createFromDate($request->bulan),
+                    'format_buku_his' => $history->format_buku==$request->format_buku?NULL:$history->format_buku,
+                    'format_buku_new' => $history->format_buku==$request->format_buku?NULL:$request->format_buku,
+                    'judul_final_his' => $history->judul_final==$request->judul_final?NULL:$history->judul_final,
+                    'judul_final_new' => $history->judul_final==$request->judul_final?NULL:$request->judul_final,
+                    'sub_judul_final_his' => $history->sub_judul_final==$request->sub_judul_final?NULL:$history->sub_judul_final,
+                    'sub_judul_final_new' => $history->sub_judul_final==$request->sub_judul_final?NULL:$request->sub_judul_final,
+                    'kertas_isi_his' => $history->kertas_isi==$request->kertas_isi?NULL:$history->kertas_isi,
+                    'kertas_isi_new' => $history->kertas_isi==$request->kertas_isi?NULL:$request->kertas_isi,
+                    'jml_hal_asli_his' => $history->jml_hal_asli==$request->jml_hal_asli?NULL:$history->jml_hal_asli,
+                    'jml_hal_asli_new' => $history->jml_hal_asli==$request->jml_hal_asli?NULL:$request->jml_hal_asli,
+                    'ukuran_asli_his' => $history->ukuran_asli==$request->ukuran_asli?NULL:$history->ukuran_asli,
+                    'ukuran_asli_new' => $history->ukuran_asli==$request->ukuran_asli?NULL:$request->ukuran_asli,
+                    'isi_warna_his' => $history->isi_warna==$request->isi_warna?NULL:$history->isi_warna,
+                    'isi_warna_new' => $history->isi_warna==$request->isi_warna?NULL:$request->isi_warna,
+                    'isi_huruf_his' => $history->isi_huruf==$request->isi_huruf?NULL:$history->isi_huruf,
+                    'isi_huruf_new' => $history->isi_huruf==$request->isi_huruf?NULL:$request->isi_huruf,
+                    'bullet_his' => $history->bullet==json_encode(array_filter($bullet))?NULL:$history->bullet,
+                    'bullet_new' => $history->bullet==json_encode(array_filter($bullet))?NULL:json_encode(array_filter($bullet)),
+                    'setter_his' => $history->setter==$request->setter?NULL:$history->setter,
+                    'setter_new' => $history->setter==$request->setter?NULL:$request->setter,
+                    'korektor_his' => $history->korektor==$request->korektor?NULL:$history->korektor,
+                    'korektor_new' => $history->korektor==$request->korektor?NULL:$request->korektor,
+                    'sinopsis_his' => $history->sinopsis==$request->sinopsis?NULL:$history->sinopsis,
+                    'sinopsis_new' => $history->sinopsis==$request->sinopsis?NULL:$request->sinopsis,
+                    'bulan_his' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d')==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
+                    'bulan_new' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d')==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromDate($request->bulan),
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
@@ -428,6 +431,11 @@ class DeskripsiFinalController extends Controller
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
             event(new DesfinEvent($insert));
+            $updateStatusDescov = [
+                'params' => 'Update Status Descov',
+                'deskripsi_produk_id' => $data->deskripsi_produk_id,
+                'status' => 'Antrian'
+            ];
             return response()->json([
                 'status' => 'success',
                 'message' => 'Status progress deskripsi final berhasil diupdate'
@@ -469,48 +477,32 @@ class DeskripsiFinalController extends Controller
                     $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
                     if (!is_null($d->judul_final_his)) {
-                        if($d->judul_final_his != $d->judul_final_new){
-                            $html .=' Judul final <b class="text-dark">'.$d->judul_final_his.'</b> diubah menjadi <b class="text-dark">'.$d->judul_final_new.'</b>.<br>';
-                        }
+                        $html .=' Judul final <b class="text-dark">'.$d->judul_final_his.'</b> diubah menjadi <b class="text-dark">'.$d->judul_final_new.'</b>.<br>';
                     }
                     if (!is_null($d->format_buku_his)) {
-                        if($d->format_buku_his != $d->format_buku_new){
-                            $html .=' Format buku <b class="text-dark">'.$d->format_buku_his.' cm</b> diubah menjadi <b class="text-dark">'.$d->format_buku_new.' cm</b>.<br>';
-                        }
+                        $html .=' Format buku <b class="text-dark">'.$d->format_buku_his.' cm</b> diubah menjadi <b class="text-dark">'.$d->format_buku_new.' cm</b>.<br>';
                     }
                     if (!is_null($d->jml_hal_his)) {
-                        if($d->jml_hal_his != $d->jml_hal_new){
-                            $html .=' Jumlah halaman perkiraan <b class="text-dark">'.$d->jml_hal_his.'</b> diubah menjadi <b class="text-dark">'.$d->jml_hal_new.'</b>.<br>';
-                        }
+                        $html .=' Jumlah halaman perkiraan <b class="text-dark">'.$d->jml_hal_his.'</b> diubah menjadi <b class="text-dark">'.$d->jml_hal_new.'</b>.<br>';
                     }
                     if (!is_null($d->jml_hal_asli_his)) {
-                        if($d->jml_hal_asli_his != $d->jml_hal_asli_new){
-                            $html .=' Jumlah halaman asli <b class="text-dark">'.$d->jml_hal_asli_his.'</b> diubah menjadi <b class="text-dark">'.$d->jml_hal_asli_new.'</b>.<br>';
-                        }
+                        $html .=' Jumlah halaman asli <b class="text-dark">'.$d->jml_hal_asli_his.'</b> diubah menjadi <b class="text-dark">'.$d->jml_hal_asli_new.'</b>.<br>';
                     }
                     if (!is_null($d->ukuran_asli_his)) {
-                        if($d->ukuran_asli_his != $d->ukuran_asli_new){
-                            $html .=' Ukuran asli <b class="text-dark">'.$d->ukuran_asli_his.'</b> diubah menjadi <b class="text-dark">'.$d->ukuran_asli_new.'</b>.<br>';
-                        }
+                        $html .=' Ukuran asli <b class="text-dark">'.$d->ukuran_asli_his.'</b> diubah menjadi <b class="text-dark">'.$d->ukuran_asli_new.'</b>.<br>';
                     }
                     if (!is_null($d->isi_warna_his)) {
-                        if($d->isi_warna_his != $d->isi_warna_new) {
-                            $html .=' Isi warna <b class="text-dark">'.$d->isi_warna_his.'</b> diubah menjadi <b class="text-dark">'.$d->isi_warna_new.'</b>.<br>';
-                        }
+                        $html .=' Isi warna <b class="text-dark">'.$d->isi_warna_his.'</b> diubah menjadi <b class="text-dark">'.$d->isi_warna_new.'</b>.<br>';
                     }
                     if (!is_null($d->setter_his)) {
-                        if ($d->setter_his != $d->setter_new) {
-                            $html .=' Setter <b class="text-dark">'
+                        $html .=' Setter <b class="text-dark">'
                             .DB::table('users')->where('id',$d->setter_his)->whereNull('deleted_at')->first()->nama.
                             '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->setter_new)->whereNull('deleted_at')->first()->nama.'</b>.<br>';
-                        }
                     }
                     if (!is_null($d->korektor_his)) {
-                        if ($d->korektor_his != $d->korektor_new) {
-                            $html .=' Korektor <b class="text-dark">'
+                        $html .=' Korektor <b class="text-dark">'
                             .DB::table('users')->where('id',$d->korektor_his)->whereNull('deleted_at')->first()->nama.
                             '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->korektor_new)->whereNull('deleted_at')->first()->nama.'</b>.<br>';
-                        }
                     }
                     if (!is_null($d->kelengkapan_his)) {
                         $html .=' Kelengkapan <b class="text-dark">'.$d->kelengkapan_his.'</b> diubah menjadi <b class="text-dark">'.$d->kelengkapan_new.'</b>.<br>';
@@ -519,9 +511,7 @@ class DeskripsiFinalController extends Controller
                         $html .=' Catatan <b class="text-dark">'.$d->catatan_his.'</b> diubah menjadi <b class="text-dark">'.$d->catatan_new.'</b>.<br>';
                     }
                     if (!is_null($d->bulan_his)) {
-                        if ($d->bulan_his != $d->bulan_new) {
                             $html .=' Bulan <b class="text-dark">'.Carbon::parse($d->bulan_his)->translatedFormat('F Y').'</b> diubah menjadi <b class="text-dark">'.Carbon::parse($d->bulan_new)->translatedFormat('F Y').'</b>.';
-                        }
                     }
                     $html .='</span></div>
                     <div class="ticket-info">

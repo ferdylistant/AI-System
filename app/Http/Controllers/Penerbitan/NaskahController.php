@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
+use App\Events\DesproEvent;
 use App\Events\NaskahEvent;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
@@ -334,6 +335,7 @@ class NaskahController extends Controller
                     event(new NaskahEvent($editNaskah));
                     $insertHistoryEdit = [
                         'params' => 'Insert Edit Naskah History',
+                        'type_history' => 'Update',
                         'naskah_id' => $naskah->id,
                         'judul_asli_his' => $naskah->judul_asli==$request->input('edit_judul_asli')?NULL:$naskah->judul_asli,
                         'judul_asli_new' => $naskah->judul_asli==$request->input('edit_judul_asli')?NULL:$request->input('edit_judul_asli'),
@@ -459,18 +461,32 @@ class NaskahController extends Controller
             abort(404);
         } else {
             try {
-                DB::table('deskripsi_produk')->insert([
+                $createDespro = [
+                    'params' => 'Create Despro',
                     'id' => Uuid::uuid4()->toString(),
                     'naskah_id' => $id,
                     'pembuat_deskripsi' => $data->pic_prodev,
                     'status' => 'Antrian'
-                ]);
-                DB::table('penerbitan_naskah as pn')->whereNull('deleted_at')->where('id',$id)->update([
-                'bukti_email_penulis' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                ]);
+                ];
+                event(new DesproEvent($createDespro));
+                $buktiEmail = [
+                    'params' => 'Bukti Email',
+                    'id' => $id,
+                    'bukti_email_penulis' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                event(new NaskahEvent($buktiEmail));
+                $buktiEmailHistory = [
+                    'params' => 'Bukti Email History',
+                    'type_history' => 'Sent Email',
+                    'naskah_id' => $id,
+                    'bukti_email_penulis' => $buktiEmail['bukti_email_penulis'],
+                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                    'author_id' => auth()->id()
+                ];
+                event(new NaskahEvent($buktiEmailHistory));
                 return redirect()->route('naskah.view');
             } catch (\Exception $e) {
-                abort(500);
+                return abort(500,$e->getMessage());
             }
         }
     }
@@ -490,7 +506,7 @@ class NaskahController extends Controller
                 if($d->type_history == 'Sent Email'){
                     $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title">
-                        <span><span class="bullet"></span> Status deskripsi final <b class="text-dark">'.$d->status_his.'</b> diubah menjadi <b class="text-dark">'.$d->status_new.'</b>.</span>
+                        <span><span class="bullet"></span> Penulis telah selesai melengkapi naskah. Selanjutnya, naskah akan diproses pada tahap deskripsi produk.</span>
                     </div>
                     <div class="ticket-info">
                         <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>

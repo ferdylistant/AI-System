@@ -77,6 +77,7 @@ class NaskahListener
                 break;
             case 'Insert Edit Naskah History':
                 $res = DB::table('penerbitan_naskah_history')->insert([
+                    'type_history' => $data['type_history'],
                     'naskah_id' => $data['naskah_id'],
                     'judul_asli_his' => $data['judul_asli_his'],
                     'judul_asli_new' => $data['judul_asli_new'],
@@ -97,6 +98,20 @@ class NaskahListener
                     'pic_prodev_his' => $data['pic_prodev_his'],
                     'pic_prodev_new' => $data['pic_prodev_new'],
                     'penulis_new' => $data['penulis_new'],
+                    'modified_at' => $data['modified_at'],
+                    'author_id' => $data['author_id']
+                ]);
+                break;
+            case 'Bukti Email':
+                $res = DB::table('penerbitan_naskah as pn')->whereNull('deleted_at')->where('id',$data['id'])->update([
+                    'bukti_email_penulis' => $data['bukti_email_penulis']
+                    ]);
+                break;
+            case 'Bukti Email History':
+                $res = DB::table('penerbitan_naskah_history')->insert([
+                    'type_history' => $data['type_history'],
+                    'naskah_id' => $data['naskah_id'],
+                    'bukti_email_penulis' => $data['bukti_email_penulis'],
                     'modified_at' => $data['modified_at'],
                     'author_id' => $data['author_id']
                 ]);
