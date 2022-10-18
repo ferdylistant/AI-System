@@ -364,6 +364,12 @@ class DeskripsiProdukController extends Controller
                     'message' => 'Data corrupt...'
                 ],404);
             }
+            if ($data->status == $request->status) {
+                return response()->json([
+                   'status' => 'error',
+                   'message' => 'Pilih status yang berbeda dengan status saat ini!'
+                ]);
+            }
             if ($data->status == "Revisi") {
                 DB::table('deskripsi_produk')->where('id',$id)->update([
                     'alasan_revisi' => NULL,

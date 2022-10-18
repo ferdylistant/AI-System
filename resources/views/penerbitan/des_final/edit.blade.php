@@ -427,7 +427,7 @@
                                                     <th class="table-secondary" style="width: 25%">Usulan Korektor:</th>
                                                     @if (!is_null($data->korektor))
                                                     <td class="table-active text-right" id="korektorCol">
-                                                        {{$data->korektor}}
+                                                        {{$nama_korektor->nama}}
                                                         <p class="text-small">
                                                             <a href="javascript:void(0)" id="korektorButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                                         </p>
@@ -670,7 +670,7 @@
                                                 <th class="table-secondary" style="width: 25%">Usulan Setter:</th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->setter))
-                                                        {{$data->setter}}
+                                                        {{$nama_setter->nama}}
                                                     @else
                                                         <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
@@ -680,7 +680,7 @@
                                                 <th class="table-secondary" style="width: 25%">Usulan Korektor:</th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->korektor))
-                                                        {{$data->korektor}}
+                                                        {{$nama_korektor->nama}}
                                                     @else
                                                         <span class="text-danger text-small">Belum diinput</span>
                                                     @endif

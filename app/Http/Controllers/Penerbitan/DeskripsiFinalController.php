@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
+use App\Events\DescovEvent;
 use Carbon\Carbon;
 use App\Events\DesfinEvent;
 use Illuminate\Http\Request;
@@ -76,7 +77,7 @@ class DeskripsiFinalController extends Controller
                             return $res;
                         })
                         ->addColumn('tgl_deskripsi', function($data) {
-                            return Carbon::parse($data->tgl_deskripsi)->translatedFormat('d M Y');
+                            return Carbon::parse($data->tgl_deskripsi)->translatedFormat('l d M Y H:i');
 
                         })
                         ->addColumn('pic_prodev', function($data) {
@@ -94,7 +95,7 @@ class DeskripsiFinalController extends Controller
                             if($historyData->isEmpty()) {
                                 return '-';
                             } else {
-                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-judulasli="'.$data->judul_asli.'"><i class="fas fa-history"></i>&nbsp;History</button>';
+                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-judulfinal="'.$data->judul_final.'"><i class="fas fa-history"></i>&nbsp;History</button>';
                                 return $date;
                             }
                         })
@@ -109,7 +110,7 @@ class DeskripsiFinalController extends Controller
                                         <div><i class="fas fa-edit"></i></div></a>';
                                 }
                             }
-                            if (Gate::allows('do_approval','action-progress-des-produk')) {
+                            if (Gate::allows('do_approval','action-progress-des-final')) {
                                 if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
                                     if ($data->status == 'Antrian'){
                                         $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-desfin" style="background:#34395E;color:white" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesFinal" title="Update Status">
@@ -340,7 +341,7 @@ class DeskripsiFinalController extends Controller
                 'pn.kode',
                 'pn.judul_asli',
                 'pn.pic_prodev',
-                'kb.nama'
+                'kb.nama',
                 )
             ->first();
         is_null($data)?abort(404):
@@ -353,6 +354,15 @@ class DeskripsiFinalController extends Controller
             $namaSetter = DB::table('users')
                 ->where('id',$data->setter)
                 ->first();
+        } else {
+            $namaSetter = NULL;
+        }
+        if(!is_null($data->korektor)){
+            $namaKorektor = DB::table('users')
+                ->where('id',$data->korektor)
+                ->first();
+        } else {
+            $namaKorektor = NULL;
         }
         $Korektor = DB::table('users as u')->join('jabatan as j','u.jabatan_id', '=', 'j.id')
             ->where('j.nama','LIKE','%Korektor%')
@@ -393,7 +403,8 @@ class DeskripsiFinalController extends Controller
             'kelengkapan' => $kelengkapan,
             'kertas_isi' => $kertas_isi,
             'isi_warna' => $isi_warna,
-            'nama_setter' => $namaSetter
+            'nama_setter' => $namaSetter,
+            'nama_korektor' => $namaKorektor
             // 'imprint' => $imprint
         ]);
     }
@@ -408,10 +419,16 @@ class DeskripsiFinalController extends Controller
                     'message' => 'Data corrupt...'
                 ],404);
             }
-            if (is_null($data->sinopsis)) {
+            if ((is_null($data->sinopsis)) && ($request->status == 'Selesai')) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Harap input sinopis dahulu!'
+                ]);
+            }
+            if ($data->status == $request->status) {
+                return response()->json([
+                   'status' => 'error',
+                   'message' => 'Pilih status yang berbeda dengan status saat ini!'
                 ]);
             }
             $update = [
@@ -420,7 +437,6 @@ class DeskripsiFinalController extends Controller
                 'status' => $request->status,
                 'updated_by' => auth()->id()
             ];
-            event(new DesfinEvent($update));
             $insert = [
                 'params' => 'Insert History Status Desfin',
                 'deskripsi_final_id' => $data->id,
@@ -430,15 +446,38 @@ class DeskripsiFinalController extends Controller
                 'author_id' => auth()->user()->id,
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
-            event(new DesfinEvent($insert));
-            $updateStatusDescov = [
-                'params' => 'Update Status Descov',
-                'deskripsi_produk_id' => $data->deskripsi_produk_id,
-                'status' => 'Antrian'
-            ];
+            if ($data->status == 'Selesai') {
+                event(new DesfinEvent($update));
+                event(new DesfinEvent($insert));
+                $updateStatusDescov = [
+                    'params' => 'Update Status Descov',
+                    'deskripsi_produk_id' => $data->deskripsi_produk_id,
+                    'status' => 'Terkunci',
+                    'updated_by' => auth()->user()->id
+                ];
+                event(new DescovEvent($updateStatusDescov));
+                $msg = 'Status progress deskripsi final berhasil diupdate';
+            }
+            elseif ($request->status == 'Selesai') {
+                event(new DesfinEvent($update));
+                event(new DesfinEvent($insert));
+                $updateStatusDescov = [
+                    'params' => 'Update Status Descov',
+                    'deskripsi_produk_id' => $data->deskripsi_produk_id,
+                    'status' => 'Antrian',
+                    'updated_by' => auth()->user()->id
+                ];
+                event(new DescovEvent($updateStatusDescov));
+                $msg = 'Deskripsi final selesai, silahkan lanjut ke proses Deskripsi Cover..';
+            }
+            else {
+                event(new DesfinEvent($update));
+                event(new DesfinEvent($insert));
+                $msg = 'Status progress deskripsi final berhasil diupdate';
+            }
             return response()->json([
                 'status' => 'success',
-                'message' => 'Status progress deskripsi final berhasil diupdate'
+                'message' => $msg
             ],200);
         } catch (\Exception $e) {
             return response()->json([

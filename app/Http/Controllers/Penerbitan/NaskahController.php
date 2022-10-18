@@ -130,9 +130,18 @@ class NaskahController extends Controller
                 return $data;
             }
         }
-
+        $data = DB::table('penerbitan_naskah as pn')
+            ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+            ->whereNull('pn.deleted_at')
+            ->select('pn.id', 'pn.kode', 'pn.judul_asli', 'pn.jalur_buku', 'pn.tanggal_masuk_naskah',
+            'pn.selesai_penilaian', 'pn.bukti_email_penulis','pns.tgl_pn_prodev', 'pns.tgl_pn_m_penerbitan',
+            'pns.tgl_pn_m_pemasaran', 'pns.tgl_pn_d_pemasaran', 'pns.tgl_pn_direksi', 'pns.tgl_pn_editor',
+            'pns.tgl_pn_setter', 'pns.tgl_pn_selesai')
+            ->orderBy('pn.tanggal_masuk_naskah','asc')
+            ->get();
         return view('penerbitan.naskah.index', [
-            'title' => 'Naskah Penerbitan'
+            'title' => 'Naskah Penerbitan',
+            'count' => count($data)
         ]);
     }
 

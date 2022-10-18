@@ -75,6 +75,11 @@
             <div class="col-12">
                 <div class="card card-primary">
                     <div class="card-body">
+                        <div class="d-flex justify-content-end">
+                            <div class="col-auto mb-3">
+                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data naskah masuk: <b>{{$count}}</b></span>
+                            </div>
+                        </div>
                         <div class="col-12 table-responsive">
                             <table id="tb_Naskah" class="table table-striped  dt-responsive" style="width: 100%">
                             </table>

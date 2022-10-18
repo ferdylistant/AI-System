@@ -6,7 +6,7 @@ $(function(){
         $(this).data('paginate', page+1);
 
             $.ajax({
-                url: window.location.origin + '/penerbitan/deskripsi/final/lihat-history',
+                url: window.location.origin + '/penerbitan/deskripsi/cover/lihat-history',
                 data: {
                     id: id,
                     page: page
@@ -19,7 +19,7 @@ $(function(){
                     if (response.length == 0) {
                         notifToast('error', 'Tidak ada data lagi');
                     }
-                    $('#dataHistoryDesfin').append(response);
+                    $('#dataHistoryDescov').append(response);
                     // Setting little delay while displaying new content
                     // setTimeout(function() {
                     //     // appending posts after last post with class="post"
@@ -61,7 +61,7 @@ $(document).ready(function(){
    });
 });
 $(document).ready(function() {
-    $('#tb_DesFinal').on('click','.btn-status-desfin', function(e) {
+    $('#tb_DesCover').on('click','.btn-status-descov', function(e) {
         e.preventDefault();
         let id = $(this).data('id'),
             kode = $(this).data('kode'),
@@ -72,12 +72,12 @@ $(document).ready(function() {
     })
 });
 $(document).ready(function(){
-    function ajaxUpdateStatusDeskripsiFinal(data) {
+    function ajaxUpdateStatusDeskripsiCover(data) {
         let el = data.get(0);
         // console.log(el);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/deskripsi/final/update-status-progress",
+            url: window.location.origin + "/penerbitan/deskripsi/cover/update-status-progress",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -88,10 +88,10 @@ $(document).ready(function(){
             success: function(result) {
                 if(result.status == 'error'){
                     notifToast(result.status, result.message);
-                    $('#fm_UpdateStatusDesfin').trigger('reset');
+                    $('#fm_UpdateStatusDescov').trigger('reset');
                 } else {
                     notifToast(result.status, result.message);
-                    $('#fm_UpdateStatusDesfin').trigger('reset');
+                    $('#fm_UpdateStatusDescov').trigger('reset');
                     location.reload();
                 }
 
@@ -116,13 +116,13 @@ $(document).ready(function(){
         })
     }
 
-    $('#fm_UpdateStatusDesfin').on('submit', function(e) {
+    $('#fm_UpdateStatusDescov').on('submit', function(e) {
         e.preventDefault();
         if($(this).valid()) {
             let kode = $(this).find('[name="kode"]').val();
             let judul = $(this).find('[name="judul_asli"]').val();
             swal({
-                title: 'Yakin mengubah status deskripsi final '+kode+'-'+judul+'?',
+                title: 'Yakin mengubah status deskripsi cover '+kode+'-'+judul+'?',
                 text: 'Anda sebagai Prodev tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.',
                 icon: 'warning',
                 buttons: true,
@@ -130,7 +130,7 @@ $(document).ready(function(){
             })
             .then((confirm_) => {
                 if (confirm_) {
-                    ajaxUpdateStatusDeskripsiFinal($(this))
+                    ajaxUpdateStatusDeskripsiCover($(this))
                 }
             });
 

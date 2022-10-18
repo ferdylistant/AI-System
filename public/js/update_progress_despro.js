@@ -86,9 +86,14 @@ $(document).ready(function(){
                     addClass('btn-progress')
             },
             success: function(result) {
-                notifToast(result.status, result.message);
-                $('#fm_UpdateStatusDespro').trigger('reset');
-                location.reload();
+                if (result.status == 'error') {
+                    notifToast(result.status, result.message);
+                    $('#fm_UpdateStatusDespro').trigger('reset');
+                } else {
+                    notifToast(result.status, result.message);
+                    $('#fm_UpdateStatusDespro').trigger('reset');
+                    location.reload();
+                }
 
             },
             error: function(err) {

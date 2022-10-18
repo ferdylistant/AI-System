@@ -89,7 +89,7 @@
                                 </div>
                             </div>
                             <div class="col-auto">
-                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data deskripsi final: <b>{{$count}}</b></span>
+                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data deskripsi cover: <b>{{$count}}</b></span>
                             </div>
                         </div>
                         <div class="col-12 table-responsive">
@@ -120,7 +120,7 @@
                     <label for="adduser_name">Status: <span class="text-danger">*</span></label>
                     <select name="status" class="form-control select-status"required>
                         <option label="Pilih Status"></option>
-                        @foreach ($status_progress as $sp)
+                        @foreach ($status_action as $sp)
                             <option value="{{$sp}}">{{$sp}}</option>
                         @endforeach
                     </select>
@@ -216,7 +216,7 @@
 <script>
     $('#tb_DesCover').on('click','.btn-history',function(e){
         var id = $(this).data('id');
-        var judul = $(this).data('judulasli');
+        var judul = $(this).data('judulfinal');
         $.post("{{route('descov.history')}}", {id: id}, function(data){
             $('#titleModalDescov').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "'+judul+'"');
             $('#load_more').data('id',id);
@@ -225,5 +225,5 @@
         });
     });
 </script>
-<script src="{{url('js/update_progress_desfin.js')}}"></script>
+<script src="{{url('js/update_progress_descov.js')}}"></script>
 @endsection

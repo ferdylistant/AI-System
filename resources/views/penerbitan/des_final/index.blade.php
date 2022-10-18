@@ -216,7 +216,7 @@
 <script>
     $('#tb_DesFinal').on('click','.btn-history',function(e){
         var id = $(this).data('id');
-        var judul = $(this).data('judulasli');
+        var judul = $(this).data('judulfinal');
         $.post("{{route('desfin.history')}}", {id: id}, function(data){
             $('#titleModalDesfin').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "'+judul+'"');
             $('#load_more').data('id',id);
