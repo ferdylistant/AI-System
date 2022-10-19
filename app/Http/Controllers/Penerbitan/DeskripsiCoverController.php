@@ -243,172 +243,160 @@ class DeskripsiCoverController extends Controller
             'korektor' => $korektor
         ]);
     }
-    // public function editDeskripsiFinal(Request $request)
-    // {
-    //     if($request->ajax()) {
-    //         if ($request->isMethod('POST')) {
-    //             $history = DB::table('deskripsi_final as df')
-    //             ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
-    //             ->where('df.id', $request->id)
-    //             ->whereNull('df.deleted_at')
-    //             ->select('df.*','dp.judul_final','dp.format_buku')
-    //             ->first();
-    //             foreach ($request->bullet as $value) {
-    //                 $bullet[] = $value;
-    //             }
-    //             $update = [
-    //                 'params' => 'Edit Desfin',
-    //                 'id' => $request->id,
-    //                 'judul_final' => $request->judul_final,//Di Deskripsi Produk
-    //                 'format_buku' => $request->format_buku,
-    //                 'sub_judul_final' => $request->sub_judul_final,
-    //                 'kertas_isi' => $request->kertas_isi,
-    //                 'jml_hal_asli' =>$request->jml_hal_asli,
-    //                 'ukuran_asli' => $request->ukuran_asli,
-    //                 'isi_warna' => $request->isi_warna,
-    //                 'isi_huruf' => $request->isi_huruf,
-    //                 'bullet' =>  json_encode(array_filter($bullet)),
-    //                 'setter' => $request->setter,
-    //                 'korektor' => $request->korektor,
-    //                 'sinopsis' => $request->sinopsis,
-    //                 'bulan' => Carbon::createFromDate($request->bulan),
-    //                 'updated_by'=> auth()->id()
-    //             ];
-    //             event(new DesfinEvent($update));
+    public function editDeskripsiCover(Request $request)
+    {
+        if($request->ajax()) {
+            if ($request->isMethod('POST')) {
+                $history = DB::table('deskripsi_cover as dc')
+                ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
+                ->join('deskripsi_final as df','df.deskripsi_produk','=','dp.id')
+                ->where('dc.id', $request->id)
+                ->whereNull('dc.deleted_at')
+                ->select('dc.*','dp.judul_final','dp.format_buku','df.sub_judul_final','df.bullet')
+                ->first();
+                foreach ($request->bullet as $value) {
+                    $bullet[] = $value;
+                }
+                $update = [
+                    'params' => 'Edit Desfin',
+                    'id' => $request->id,
+                    'judul_final' => $request->judul_final,//Di Deskripsi Produk
+                    'format_buku' => $request->format_buku,
+                    'sub_judul_final' => $request->sub_judul_final,
+                    'kertas_isi' => $request->kertas_isi,
+                    'jml_hal_asli' =>$request->jml_hal_asli,
+                    'ukuran_asli' => $request->ukuran_asli,
+                    'isi_warna' => $request->isi_warna,
+                    'isi_huruf' => $request->isi_huruf,
+                    'bullet' =>  json_encode(array_filter($bullet)),
+                    'setter' => $request->setter,
+                    'korektor' => $request->korektor,
+                    'sinopsis' => $request->sinopsis,
+                    'bulan' => Carbon::createFromDate($request->bulan),
+                    'updated_by'=> auth()->id()
+                ];
+                // event(new DesfinEvent($update));
 
-    //             $insert = [
-    //                 'params' => 'Insert History Desfin',
-    //                 'deskripsi_final_id' => $request->id,
-    //                 'type_history' => 'Update',
-    //                 'format_buku_his' => $history->format_buku==$request->format_buku?NULL:$history->format_buku,
-    //                 'format_buku_new' => $history->format_buku==$request->format_buku?NULL:$request->format_buku,
-    //                 'judul_final_his' => $history->judul_final==$request->judul_final?NULL:$history->judul_final,
-    //                 'judul_final_new' => $history->judul_final==$request->judul_final?NULL:$request->judul_final,
-    //                 'sub_judul_final_his' => $history->sub_judul_final==$request->sub_judul_final?NULL:$history->sub_judul_final,
-    //                 'sub_judul_final_new' => $history->sub_judul_final==$request->sub_judul_final?NULL:$request->sub_judul_final,
-    //                 'kertas_isi_his' => $history->kertas_isi==$request->kertas_isi?NULL:$history->kertas_isi,
-    //                 'kertas_isi_new' => $history->kertas_isi==$request->kertas_isi?NULL:$request->kertas_isi,
-    //                 'jml_hal_asli_his' => $history->jml_hal_asli==$request->jml_hal_asli?NULL:$history->jml_hal_asli,
-    //                 'jml_hal_asli_new' => $history->jml_hal_asli==$request->jml_hal_asli?NULL:$request->jml_hal_asli,
-    //                 'ukuran_asli_his' => $history->ukuran_asli==$request->ukuran_asli?NULL:$history->ukuran_asli,
-    //                 'ukuran_asli_new' => $history->ukuran_asli==$request->ukuran_asli?NULL:$request->ukuran_asli,
-    //                 'isi_warna_his' => $history->isi_warna==$request->isi_warna?NULL:$history->isi_warna,
-    //                 'isi_warna_new' => $history->isi_warna==$request->isi_warna?NULL:$request->isi_warna,
-    //                 'isi_huruf_his' => $history->isi_huruf==$request->isi_huruf?NULL:$history->isi_huruf,
-    //                 'isi_huruf_new' => $history->isi_huruf==$request->isi_huruf?NULL:$request->isi_huruf,
-    //                 'bullet_his' => $history->bullet==json_encode(array_filter($bullet))?NULL:$history->bullet,
-    //                 'bullet_new' => $history->bullet==json_encode(array_filter($bullet))?NULL:json_encode(array_filter($bullet)),
-    //                 'setter_his' => $history->setter==$request->setter?NULL:$history->setter,
-    //                 'setter_new' => $history->setter==$request->setter?NULL:$request->setter,
-    //                 'korektor_his' => $history->korektor==$request->korektor?NULL:$history->korektor,
-    //                 'korektor_new' => $history->korektor==$request->korektor?NULL:$request->korektor,
-    //                 'sinopsis_his' => $history->sinopsis==$request->sinopsis?NULL:$history->sinopsis,
-    //                 'sinopsis_new' => $history->sinopsis==$request->sinopsis?NULL:$request->sinopsis,
-    //                 'bulan_his' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d')==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
-    //                 'bulan_new' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d')==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromDate($request->bulan),
-    //                 'author_id' => auth()->id(),
-    //                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-    //             ];
-    //             event(new DesfinEvent($insert));
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'message' => 'Data deskripsi final berhasil ditambahkan',
-    //                 'route' => route('desfin.view')
-    //             ]);
-    //         }
-    //     }
-    //     $id = $request->get('desc');
-    //     $kodenaskah = $request->get('kode');
-    //     $data = DB::table('deskripsi_final as df')
-    //         ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
-    //         ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-    //         ->join('penerbitan_m_kelompok_buku as kb',function($q){
-    //             $q->on('pn.kelompok_buku_id','=','kb.id')
-    //             ->whereNull('kb.deleted_at');
-    //         })
-    //         ->where('df.id',$id)
-    //         ->where('pn.kode',$kodenaskah)
-    //         ->whereNull('dp.deleted_at')
-    //         ->whereNull('pn.deleted_at')
-    //         ->select(
-    //             'df.*',
-    //             'dp.naskah_id',
-    //             'dp.judul_final',
-    //             'dp.jml_hal_perkiraan',
-    //             'dp.format_buku',
-    //             'dp.kelengkapan',
-    //             'dp.catatan',
-    //             'dp.imprint',
-    //             'pn.kode',
-    //             'pn.judul_asli',
-    //             'pn.pic_prodev',
-    //             'kb.nama',
-    //             )
-    //         ->first();
-    //     is_null($data)?abort(404):
-    //     $setter = DB::table('users as u')->join('jabatan as j','u.jabatan_id', '=', 'j.id')
-    //         ->where('j.nama','LIKE','%Setter%')
-    //         ->orWhere('u.email','LIKE','%setter%')
-    //         ->select('u.nama','u.id')
-    //         ->get();
-    //     if(!is_null($data->setter)){
-    //         $namaSetter = DB::table('users')
-    //             ->where('id',$data->setter)
-    //             ->first();
-    //     } else {
-    //         $namaSetter = NULL;
-    //     }
-    //     if(!is_null($data->korektor)){
-    //         $namaKorektor = DB::table('users')
-    //             ->where('id',$data->korektor)
-    //             ->first();
-    //     } else {
-    //         $namaKorektor = NULL;
-    //     }
-    //     $Korektor = DB::table('users as u')->join('jabatan as j','u.jabatan_id', '=', 'j.id')
-    //         ->where('j.nama','LIKE','%Korektor%')
-    //         ->orWhere('u.email','LIKE', '%korektor%')
-    //         ->select('u.nama','u.id')
-    //         ->get();
-    //     $penulis = DB::table('penerbitan_naskah_penulis as pnp')
-    //     ->join('penerbitan_penulis as pp',function($q) {
-    //         $q->on('pnp.penulis_id','=','pp.id')
-    //         ->whereNull('pp.deleted_at');
-    //     })
-    //     ->where('pnp.naskah_id','=',$data->naskah_id)
-    //     ->select('pp.nama')
-    //     ->get();
-    //     $format_buku = DB::table('format_buku')->whereNull('deleted_at')->get();
+                $insert = [
+                    'params' => 'Insert History Desfin',
+                    'deskripsi_final_id' => $request->id,
+                    'type_history' => 'Update',
+                    'format_buku_his' => $history->format_buku==$request->format_buku?NULL:$history->format_buku,
+                    'format_buku_new' => $history->format_buku==$request->format_buku?NULL:$request->format_buku,
+                    'judul_final_his' => $history->judul_final==$request->judul_final?NULL:$history->judul_final,
+                    'judul_final_new' => $history->judul_final==$request->judul_final?NULL:$request->judul_final,
+                    'sub_judul_final_his' => $history->sub_judul_final==$request->sub_judul_final?NULL:$history->sub_judul_final,
+                    'sub_judul_final_new' => $history->sub_judul_final==$request->sub_judul_final?NULL:$request->sub_judul_final,
+                    'kertas_isi_his' => $history->kertas_isi==$request->kertas_isi?NULL:$history->kertas_isi,
+                    'kertas_isi_new' => $history->kertas_isi==$request->kertas_isi?NULL:$request->kertas_isi,
+                    'jml_hal_asli_his' => $history->jml_hal_asli==$request->jml_hal_asli?NULL:$history->jml_hal_asli,
+                    'jml_hal_asli_new' => $history->jml_hal_asli==$request->jml_hal_asli?NULL:$request->jml_hal_asli,
+                    'ukuran_asli_his' => $history->ukuran_asli==$request->ukuran_asli?NULL:$history->ukuran_asli,
+                    'ukuran_asli_new' => $history->ukuran_asli==$request->ukuran_asli?NULL:$request->ukuran_asli,
+                    'isi_warna_his' => $history->isi_warna==$request->isi_warna?NULL:$history->isi_warna,
+                    'isi_warna_new' => $history->isi_warna==$request->isi_warna?NULL:$request->isi_warna,
+                    'isi_huruf_his' => $history->isi_huruf==$request->isi_huruf?NULL:$history->isi_huruf,
+                    'isi_huruf_new' => $history->isi_huruf==$request->isi_huruf?NULL:$request->isi_huruf,
+                    'bullet_his' => $history->bullet==json_encode(array_filter($bullet))?NULL:$history->bullet,
+                    'bullet_new' => $history->bullet==json_encode(array_filter($bullet))?NULL:json_encode(array_filter($bullet)),
+                    'setter_his' => $history->setter==$request->setter?NULL:$history->setter,
+                    'setter_new' => $history->setter==$request->setter?NULL:$request->setter,
+                    'korektor_his' => $history->korektor==$request->korektor?NULL:$history->korektor,
+                    'korektor_new' => $history->korektor==$request->korektor?NULL:$request->korektor,
+                    'sinopsis_his' => $history->sinopsis==$request->sinopsis?NULL:$history->sinopsis,
+                    'sinopsis_new' => $history->sinopsis==$request->sinopsis?NULL:$request->sinopsis,
+                    'bulan_his' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d')==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
+                    'bulan_new' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d')==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromDate($request->bulan),
+                    'author_id' => auth()->id(),
+                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                // event(new DesfinEvent($insert));
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data deskripsi final berhasil ditambahkan',
+                    'route' => route('desfin.view')
+                ]);
+            }
+        }
+        $id = $request->get('desc');
+        $kodenaskah = $request->get('kode');
+        $data = DB::table('deskripsi_cover as dc')
+            ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
+            ->join('deskripsi_final as df','df.deskripsi_produk_id','=','dp.id')
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+            ->join('penerbitan_m_kelompok_buku as kb',function($q){
+                $q->on('pn.kelompok_buku_id','=','kb.id')
+                ->whereNull('kb.deleted_at');
+            })
+            ->where('dc.id',$id)
+            ->where('pn.kode',$kodenaskah)
+            ->whereNull('dc.deleted_at')
+            ->whereNull('pn.deleted_at')
+            ->select(
+                'dc.*',
+                'df.sub_judul_final',
+                'df.bullet',
+                'dp.naskah_id',
+                'dp.judul_final',
+                'dp.format_buku',
+                'dp.kelengkapan',
+                'dp.catatan',
+                'dp.imprint',
+                'pn.kode',
+                'pn.judul_asli',
+                'pn.pic_prodev',
+                'kb.nama',
+                )
+            ->first();
+        is_null($data)?abort(404):
+        $desainer = DB::table('users as u')->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+            ->where('j.nama','LIKE','%Desainer%')
+            ->orWhere('j.nama','LIKE','%desainer%')
+            ->orWhere('u.email','LIKE','%Desainer%')
+            ->orWhere('u.email','LIKE','%desainer%')
+            ->select('u.nama','u.id')
+            ->get();
+        if(!is_null($data->desainer)){
+            $namaDesainer = DB::table('users')
+                ->where('id',$data->desainer)
+                ->first();
+        } else {
+            $namaDesainer = NULL;
+        }
+        $penulis = DB::table('penerbitan_naskah_penulis as pnp')
+        ->join('penerbitan_penulis as pp',function($q) {
+            $q->on('pnp.penulis_id','=','pp.id')
+            ->whereNull('pp.deleted_at');
+        })
+        ->where('pnp.naskah_id','=',$data->naskah_id)
+        ->select('pp.nama')
+        ->get();
+        $format_buku = DB::table('format_buku')->whereNull('deleted_at')->get();
 
-    //     //Kertas Isi Enum
-    //     $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_final WHERE Field = 'kertas_isi'"))[0]->Type;
-    //     preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-    //     $kertas_isi = explode("','", $matches[1]);
-    //     //Kelengkapan Enum
-    //     $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'kelengkapan'"))[0]->Type;
-    //     preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-    //     $kelengkapan = explode("','", $matches[1]);
-    //     //Isi Warna Enum
-    //     $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_final WHERE Field = 'isi_warna'"))[0]->Type;
-    //     preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-    //     $isi_warna = explode("','", $matches[1]);
-
-    //     // $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
-    //     return view('penerbitan.des_final.edit',[
-    //         'title' => 'Edit Deskripsi Final',
-    //         'data' => $data,
-    //         'setter' => $setter,
-    //         'korektor' => $Korektor,
-    //         'penulis' => $penulis,
-    //         'format_buku' => $format_buku,
-    //         'kelengkapan' => $kelengkapan,
-    //         'kertas_isi' => $kertas_isi,
-    //         'isi_warna' => $isi_warna,
-    //         'nama_setter' => $namaSetter,
-    //         'nama_korektor' => $namaKorektor
-    //         // 'imprint' => $imprint
-    //     ]);
-    // }
+        //Jilid Enum
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_cover WHERE Field = 'jilid'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $jilid = explode("','", $matches[1]);
+        //Finishing Cover
+        $finishingCover = ['Embosh','Foil','Glossy','Laminasi Dof','UV','UV Spot'];
+        //Kelengkapan Enum
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'kelengkapan'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $kelengkapan = explode("','", $matches[1]);
+        // $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
+        return view('penerbitan.des_cover.edit',[
+            'title' => 'Edit Deskripsi Cover',
+            'data' => $data,
+            'desainer' => $desainer,
+            'penulis' => $penulis,
+            'format_buku' => $format_buku,
+            'jilid' => $jilid,
+            'nama_desainer' => $namaDesainer,
+            'finishing_cover' => $finishingCover,
+            'kelengkapan' => $kelengkapan
+            // 'imprint' => $imprint
+        ]);
+    }
     public function updateStatusProgress(Request $request)
     {
         try{
