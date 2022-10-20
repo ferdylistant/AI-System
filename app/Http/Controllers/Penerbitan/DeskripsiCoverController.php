@@ -367,11 +367,11 @@ class DeskripsiCoverController extends Controller
                 )
             ->first();
         is_null($data)?abort(404):
-        $desainer = DB::table('users as u')->join('jabatan as j','u.jabatan_id', '=', 'j.id')
-            ->where('j.nama','LIKE','%Desainer%')
-            ->orWhere('j.nama','LIKE','%desainer%')
-            ->orWhere('u.email','LIKE','%Desainer%')
-            ->orWhere('u.email','LIKE','%desainer%')
+        $desainer = DB::table('users as u')
+            ->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+            ->join('divisi as d', 'u.divisi_id','=','d.id')
+            ->where('j.nama','LIKE','%Design%')
+            ->where('d.nama','LIKE','%Penerbitan%')
             ->select('u.nama','u.id')
             ->get();
         if(!is_null($data->desainer)){

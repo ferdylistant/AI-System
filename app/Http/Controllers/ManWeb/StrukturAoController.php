@@ -35,6 +35,7 @@ class StrukturAoController extends Controller
             } elseif ($request->input('request_') === 'table-divisi') { // Load Table Divisi
                 $table = DB::table('divisi')
                                 ->whereNull('deleted_at')
+                                ->orderBy('nama','ASC')
                                 ->select('id', 'nama')->get();
 
                     return Datatables::of($table)
@@ -54,6 +55,7 @@ class StrukturAoController extends Controller
             } elseif ($request->input('request_') === 'table-jabatan') { // Load Table Jabatan
                 $table = DB::table('jabatan')
                                 ->whereNull('deleted_at')
+                                ->orderBy('nama','ASC')
                                 ->select('id', 'nama')->get();
 
                     return Datatables::of($table)

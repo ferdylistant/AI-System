@@ -26,7 +26,7 @@
                     </div>
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_Cabang" style="width: 100%">
+                            <table id="tb_Cabang" class="table table-striped" style="width: 100%">
                             </table>
                         </div>
                     </div>
@@ -45,7 +45,7 @@
                     </div>
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_Divisi" style="width: 100%">
+                            <table id="tb_Divisi" class="table table-striped" style="width: 100%">
                             </table>
                         </div>
                     </div>
@@ -62,7 +62,7 @@
                     </div>
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_Jabatan" style="width: 100%">
+                            <table id="tb_Jabatan" class="table table-striped" style="width: 100%">
                             </table>
                         </div>
                     </div>
@@ -226,7 +226,7 @@
 @section('jsRequired')
 <script src="{{url('vendors/datatables/media/js/jquery.dataTables.min.js')}}"></script>
 <script src="{{url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
-<script src="{{url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js')}}"></script>
+{{-- <script src="{{url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js')}}"></script> --}}
 <script src="{{url('vendors/select2/dist/js/select2.full.min.js')}}"></script>
 <script src="{{url('vendors/sweetalert/dist/sweetalert.min.js')}}"></script>
 <script src="{{url('vendors/izitoast/dist/js/iziToast.min.js')}}"></script>
@@ -237,9 +237,11 @@
 <script>
     $(function(){
         let tableCabang = $('#tb_Cabang').DataTable({
+            "bSort": false,
+            "responsive": true,
+            "autoWidth" : true,
             processing: true,
             serverSide: true,
-            responsive: true,
             language: {
                 searchPlaceholder: 'Search...',
                 sSearch: '',
@@ -259,9 +261,11 @@
         });
 
         let tableDivisi = $('#tb_Divisi').DataTable({
+            "bSort": false,
+            "responsive": true,
+            "autoWidth" : true,
             processing: true,
             serverSide: true,
-            responsive: true,
             language: {
                 searchPlaceholder: 'Search...',
                 sSearch: '',
@@ -279,9 +283,11 @@
         });
 
         let tableJabatan = $('#tb_Jabatan').DataTable({
+            "bSort": false,
+            "responsive": true,
+            "autoWidth" : true,
             processing: true,
             serverSide: true,
-            responsive: true,
             language: {
                 searchPlaceholder: 'Search...',
                 sSearch: '',

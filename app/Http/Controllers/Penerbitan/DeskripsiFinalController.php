@@ -363,9 +363,11 @@ class DeskripsiFinalController extends Controller
                 )
             ->first();
         is_null($data)?abort(404):
-        $setter = DB::table('users as u')->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+        $setter = DB::table('users as u')
+            ->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+            ->join('divisi as d','u.divisi_id','=','d.id')
             ->where('j.nama','LIKE','%Setter%')
-            ->orWhere('u.email','LIKE','%setter%')
+            ->where('d.nama','LIKE','%Penerbitan%')
             ->select('u.nama','u.id')
             ->get();
         if(!is_null($data->setter)){
@@ -382,9 +384,11 @@ class DeskripsiFinalController extends Controller
         } else {
             $namaKorektor = NULL;
         }
-        $Korektor = DB::table('users as u')->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+        $Korektor = DB::table('users as u')
+            ->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+            ->join('divisi as d','u.divisi_id','=','d.id')
             ->where('j.nama','LIKE','%Korektor%')
-            ->orWhere('u.email','LIKE', '%korektor%')
+            ->where('d.nama','LIKE', '%Penerbitan%')
             ->select('u.nama','u.id')
             ->get();
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
