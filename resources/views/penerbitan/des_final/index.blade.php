@@ -196,6 +196,7 @@
                 { data: 'kode', name: 'kode', title: 'Kode' },
                 { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
                 { data: 'penulis', name: 'penulis', title: 'Penulis',"width":"15%" },
+                { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku'},
                 { data: 'imprint', name: 'imprint', title: 'Imprint'},
                 { data: 'judul_final', name: 'judul_final', title: 'Judul Final'},
                 { data: 'tgl_deskripsi', name: 'tgl_deskripsi', title: 'Tgl Deskripsi'},

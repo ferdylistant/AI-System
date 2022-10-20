@@ -81,7 +81,7 @@
                                     <select data-column="8" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
                                         <option label="Pilih Filter Status"></option>
                                         @foreach ($status_progress as $val)
-                                            <option value="{{$val['value']}}">{{$val['value']}}&nbsp;&nbsp;</option>
+                                            <option value="{{$val}}">{{$val}}&nbsp;&nbsp;</option>
                                         @endforeach
 
                                     </select>
@@ -120,8 +120,8 @@
                     <label for="adduser_name">Status: <span class="text-danger">*</span></label>
                     <select name="status" class="form-control select-status"required>
                         <option label="Pilih Status"></option>
-                        @foreach ($status_progress as $sp)
-                            <option value="{{$sp['value']}}">{{$sp['value']}}</option>
+                        @foreach ($status_action as $sp)
+                            <option value="{{$sp}}">{{$sp}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -196,6 +196,7 @@
                 { data: 'kode', name: 'kode', title: 'Kode' },
                 { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
                 { data: 'penulis', name: 'penulis', title: 'Penulis',"width":"15%" },
+                { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku'},
                 { data: 'imprint', name: 'imprint', title: 'Imprint'},
                 { data: 'judul_final', name: 'judul_final', title: 'Judul Final'},
                 { data: 'tgl_deskripsi', name: 'tgl_deskripsi', title: 'Tgl Deskripsi'},

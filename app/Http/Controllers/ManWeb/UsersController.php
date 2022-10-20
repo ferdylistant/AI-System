@@ -301,9 +301,10 @@ class UsersController extends Controller
                             ->orderBy('order_ab','asc')
                             ->get();
         $access         = DB::table('access')
-                            ->select('id', 'parent_id', 'bagian_id', 'level',
+                            ->select('id', 'parent_id', 'bagian_id', 'level', 'order_menu',
                                 'url', 'name')
-                            ->orderBy('level', 'desc')
+                            ->orderBy('order_menu', 'asc')
+                            // ->orderBy('level', 'desc')
                             ->get();
         $permissions    = DB::table('permissions as p')
                             ->join('access as a', 'p.access_id', '=', 'a.id')
@@ -407,7 +408,7 @@ class UsersController extends Controller
             }
             $temp = 0;
         }
-
+        // dd($ld);
         return [
             'accbag' => $accbag,
             'ls' => $ls,

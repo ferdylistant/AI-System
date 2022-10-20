@@ -7,6 +7,7 @@ use Ramsey\Uuid\Uuid;
 use App\Events\DescovEvent;
 use App\Events\DesfinEvent;
 use App\Events\DesproEvent;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
@@ -24,7 +25,8 @@ class DeskripsiProdukController extends Controller
                         'dp.*',
                         'pn.kode',
                         'pn.judul_asli',
-                        'pn.pic_prodev'
+                        'pn.pic_prodev',
+                        'pn.jalur_buku'
                         )
                     ->orderBy('dp.tgl_deskripsi','ASC')
                     ->get();
@@ -55,6 +57,14 @@ class DeskripsiProdukController extends Controller
                             }
                             return $result;
                             //  $res;
+                        })
+                        ->addColumn('jalur_buku', function($data) {
+                            if (!is_null($data->jalur_buku)) {
+                                $res = $data->jalur_buku;
+                            } else {
+                                $res = '-';
+                            }
+                            return $res;
                         })
                         ->addColumn('imprint', function($data) {
                             if (!is_null($data->imprint)) {
@@ -100,10 +110,18 @@ class DeskripsiProdukController extends Controller
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if($update) {
-                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
-                                    $btn .= '<a href="'.url('penerbitan/deskripsi/produk/edit?desc='.$data->id.'&kode='.$data->kode).'"
+                                if ($data->status == 'Acc') {
+                                    if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                        $btn .= '<a href="'.url('penerbitan/deskripsi/produk/edit?desc='.$data->id.'&kode='.$data->kode).'"
                                         class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                         <div><i class="fas fa-edit"></i></div></a>';
+                                    }
+                                } else {
+                                    if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                        $btn .= '<a href="'.url('penerbitan/deskripsi/produk/edit?desc='.$data->id.'&kode='.$data->kode).'"
+                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    }
                                 }
                             }
                             if (Gate::allows('do_approval','action-progress-des-produk')) {
@@ -149,6 +167,7 @@ class DeskripsiProdukController extends Controller
                             'kode',
                             'judul_asli',
                             'penulis',
+                            'jalur_buku',
                             'imprint',
                             'judul_final',
                             'tgl_deskripsi',
@@ -170,29 +189,16 @@ class DeskripsiProdukController extends Controller
                         )
                     ->orderBy('dp.tgl_deskripsi','ASC')
                     ->get();
-        $statusProgress = (array)[
-            [
-                'value' => 'Antrian'
-            ],
-            [
-                'value' => 'Pending'
-            ],
-            [
-                'value' => 'Proses'
-            ],
-            [
-                'value' => 'Selesai'
-            ],
-            [
-                'value' => 'Revisi'
-            ],
-            [
-                'value' => 'Acc'
-            ]
-        ];
+        //Kelengkapan Enum
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'status'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $statusProgress = explode("','", $matches[1]);
+        $statusAction = Arr::except($statusProgress,['4','5']);
+        $statusProgress = Arr::sort($statusProgress);
         return view('penerbitan.des_produk.index', [
             'title' => 'Deskripsi Produk',
             'status_progress' => $statusProgress,
+            'status_action' => Arr::sort($statusAction),
             'count' => count($data)
         ]);
     }

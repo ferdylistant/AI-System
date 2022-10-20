@@ -26,6 +26,7 @@ class DeskripsiFinalController extends Controller
                         'pn.kode',
                         'pn.judul_asli',
                         'pn.pic_prodev',
+                        'pn.jalur_buku',
                         'dp.naskah_id',
                         'dp.imprint',
                         'dp.judul_final'
@@ -59,6 +60,14 @@ class DeskripsiFinalController extends Controller
                             }
                             return $result;
                             //  $res;
+                        })
+                        ->addColumn('jalur_buku', function($data) {
+                            if (!is_null($data->jalur_buku)) {
+                                $res = $data->jalur_buku;
+                            } else {
+                                $res = '-';
+                            }
+                            return $res;
                         })
                         ->addColumn('imprint', function($data) {
                             if (!is_null($data->imprint)) {
@@ -104,10 +113,18 @@ class DeskripsiFinalController extends Controller
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if($update) {
-                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
-                                    $btn .= '<a href="'.url('penerbitan/deskripsi/final/edit?desc='.$data->id.'&kode='.$data->kode).'"
+                                if ($data->status == 'Selesai') {
+                                    if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                        $btn .= '<a href="'.url('penerbitan/deskripsi/final/edit?desc='.$data->id.'&kode='.$data->kode).'"
                                         class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                         <div><i class="fas fa-edit"></i></div></a>';
+                                    }
+                                } else {
+                                    if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                        $btn .= '<a href="'.url('penerbitan/deskripsi/final/edit?desc='.$data->id.'&kode='.$data->kode).'"
+                                        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                        <div><i class="fas fa-edit"></i></div></a>';
+                                    }
                                 }
                             }
                             if (Gate::allows('do_approval','action-progress-des-final')) {
@@ -153,6 +170,7 @@ class DeskripsiFinalController extends Controller
                             'kode',
                             'judul_asli',
                             'penulis',
+                            'jalur_buku',
                             'imprint',
                             'judul_final',
                             'tgl_deskripsi',
@@ -418,12 +436,6 @@ class DeskripsiFinalController extends Controller
                     'status' => 'error',
                     'message' => 'Data corrupt...'
                 ],404);
-            }
-            if ((is_null($data->sinopsis)) && ($request->status == 'Selesai')) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Harap input sinopis dahulu!'
-                ]);
             }
             if ($data->status == $request->status) {
                 return response()->json([

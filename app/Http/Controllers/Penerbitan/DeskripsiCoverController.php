@@ -25,6 +25,7 @@ class DeskripsiCoverController extends Controller
                         'pn.kode',
                         'pn.judul_asli',
                         'pn.pic_prodev',
+                        'pn.jalur_buku',
                         'pn.kelompok_buku_id',
                         'dp.naskah_id',
                         'dp.judul_final',
@@ -60,6 +61,14 @@ class DeskripsiCoverController extends Controller
                             }
                             return $result;
                             //  $res;
+                        })
+                        ->addColumn('jalur_buku', function($data) {
+                            if (!is_null($data->jalur_buku)) {
+                                $res = $data->jalur_buku;
+                            } else {
+                                $res = '-';
+                            }
+                            return $res;
                         })
                         ->addColumn('kelompok_buku', function($data) {
                             if (!is_null($data->kelompok_buku_id)) {
@@ -107,10 +116,18 @@ class DeskripsiCoverController extends Controller
 
                             if($data->status != 'Terkunci'){
                                 if($update) {
-                                    if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
-                                        $btn .= '<a href="'.url('penerbitan/deskripsi/cover/edit?desc='.$data->id.'&kode='.$data->kode).'"
+                                    if ($data->status == 'Selesai') {
+                                        if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                            $btn .= '<a href="'.url('penerbitan/deskripsi/cover/edit?desc='.$data->id.'&kode='.$data->kode).'"
                                             class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                             <div><i class="fas fa-edit"></i></div></a>';
+                                        }
+                                    } else {
+                                        if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                            $btn .= '<a href="'.url('penerbitan/deskripsi/cover/edit?desc='.$data->id.'&kode='.$data->kode).'"
+                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                            <div><i class="fas fa-edit"></i></div></a>';
+                                        }
                                     }
                                 }
                             }
@@ -152,6 +169,7 @@ class DeskripsiCoverController extends Controller
                             'kode',
                             'judul_asli',
                             'penulis',
+                            'jalur_buku',
                             'kelompok_buku',
                             'judul_final',
                             'tgl_deskripsi',

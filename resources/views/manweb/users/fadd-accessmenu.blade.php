@@ -23,7 +23,8 @@
                         @if($ls->url=='#')
                         <ul>
                             @foreach($access['ld'] as $ld)
-                            <li>
+                            @if ($ls->id === $ld->parent_id)
+                                <li>
                                 <i class="fa fa-plus"></i>
                                 <label>
                                     <input id="xnode-{{$ab->id}}-{{$ls->id}}-{{$ld->id}}" data-id="custom-{{$ab->id}}-{{$ls->id}}-{{$ld->id}}" type="checkbox" {{$ld->checked?'checked':''}}/> {{$ld->name}}
@@ -52,6 +53,8 @@
 
                                 </ul>
                             </li>
+                            @endif
+
                             @endforeach
 
                         </ul>

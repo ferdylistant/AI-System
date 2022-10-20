@@ -54,7 +54,7 @@
                             @endif
                         </div>
                     </div>
-                    @if (($data->status == 'Proses') || ($data->status == 'Revisi'))
+                    @if (($data->status == 'Proses') || ($data->status == 'Revisi') || ($data->status == 'Acc' && Gate::allows('do_approval','approval-deskripsi-produk')))
                     <form id="fup_deskripsiProduk">
                         <div class="card-body">
                             <div class="row">

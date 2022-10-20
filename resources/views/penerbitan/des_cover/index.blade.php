@@ -197,6 +197,7 @@
                 { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
                 { data: 'judul_final', name: 'judul_final', title: 'Judul Final'},
                 { data: 'penulis', name: 'penulis', title: 'Penulis',"width":"15%" },
+                { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku'},
                 { data: 'kelompok_buku', name: 'kelompok_buku', title: 'Kelompok Buku'},
                 { data: 'tgl_deskripsi', name: 'tgl_deskripsi', title: 'Tgl Deskripsi'},
                 { data: 'pic_prodev', name: 'pic_prodev', title: 'PIC Prodev'},
