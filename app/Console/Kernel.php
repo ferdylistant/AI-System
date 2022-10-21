@@ -25,6 +25,15 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->command('optimize:clear')->daily();
+        $schedule->command('config:cache')->daily();
+        $schedule->command('cache:clear')->daily();
+        $schedule->command('auth:clear-resets')->weekly();
+        $schedule->command('queue:work')->withoutOverlapping()->runInBackground();
+        $schedule->command('queue:flush')->weekdays();
+        $schedule->command('backup:clean')->daily();
+        $schedule->command('backup:run')->daily();
+
     }
 
     /**

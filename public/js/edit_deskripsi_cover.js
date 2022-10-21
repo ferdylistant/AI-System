@@ -197,15 +197,15 @@ $(document).ready(function() {
 	})
 });
 $(document).ready(function() {
-    $('#korektorButton').click(function(e) {
+    $('#contohCoverButton').click(function(e) {
         e.preventDefault();
-        $('#korektorCol').attr('hidden','hidden');
-        $('#korektorColInput').removeAttr('hidden');
+        $('#contohCoverCol').attr('hidden','hidden');
+        $('#contohCoverColInput').removeAttr('hidden');
     });
-    $('.batal_edit_korektor').click(function(e){ //user click on remove text
+    $('.batal_edit_contoh_cover').click(function(e){ //user click on remove text
 		e.preventDefault();
-        $('#korektorColInput').attr('hidden','hidden');
-        $('#korektorCol').removeAttr('hidden');
+        $('#contohCoverColInput').attr('hidden','hidden');
+        $('#contohCoverCol').removeAttr('hidden');
 	})
 });
 $(document).ready(function() {

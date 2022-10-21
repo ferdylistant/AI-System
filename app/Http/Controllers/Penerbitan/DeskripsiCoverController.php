@@ -278,7 +278,6 @@ class DeskripsiCoverController extends Controller
                 $update = [
                     'params' => 'Edit Desfin',
                     'id' => $request->id,
-                    'judul_final' => $request->judul_final,//Di Deskripsi Produk
                     'format_buku' => $request->format_buku,
                     'sub_judul_final' => $request->sub_judul_final,
                     'kertas_isi' => $request->kertas_isi,
@@ -291,6 +290,7 @@ class DeskripsiCoverController extends Controller
                     'korektor' => $request->korektor,
                     'sinopsis' => $request->sinopsis,
                     'bulan' => Carbon::createFromDate($request->bulan),
+                    'contoh_cover' => $request->contoh_cover,
                     'updated_by'=> auth()->id()
                 ];
                 // event(new DesfinEvent($update));
@@ -301,8 +301,6 @@ class DeskripsiCoverController extends Controller
                     'type_history' => 'Update',
                     'format_buku_his' => $history->format_buku==$request->format_buku?NULL:$history->format_buku,
                     'format_buku_new' => $history->format_buku==$request->format_buku?NULL:$request->format_buku,
-                    'judul_final_his' => $history->judul_final==$request->judul_final?NULL:$history->judul_final,
-                    'judul_final_new' => $history->judul_final==$request->judul_final?NULL:$request->judul_final,
                     'sub_judul_final_his' => $history->sub_judul_final==$request->sub_judul_final?NULL:$history->sub_judul_final,
                     'sub_judul_final_new' => $history->sub_judul_final==$request->sub_judul_final?NULL:$request->sub_judul_final,
                     'kertas_isi_his' => $history->kertas_isi==$request->kertas_isi?NULL:$history->kertas_isi,
@@ -325,6 +323,8 @@ class DeskripsiCoverController extends Controller
                     'sinopsis_new' => $history->sinopsis==$request->sinopsis?NULL:$request->sinopsis,
                     'bulan_his' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d')==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
                     'bulan_new' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d')==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromDate($request->bulan),
+                    'contoh_cover_his' => $history->contoh_cover==$request->contoh_cover?NULL:$history->contoh_cover,
+                    'contoh_cover_new' => $history->contoh_cover==$request->contoh_cover?NULL:$request->contoh_cover,
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];

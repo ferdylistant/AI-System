@@ -154,7 +154,7 @@
                                                             <select name="kelengkapan" class="form-control select-kelengkapan">
                                                                 <option label="Pilih kelengkapan"></option>
                                                                 @foreach ($kelengkapan as $k)
-                                                                    <option value="{{$k['value']}}" {{$data->kelengkapan==$k['value']?'Selected':''}}>{{$k['value']}}&nbsp;&nbsp;</option>
+                                                                    <option value="{{$k}}" {{$data->kelengkapan==$k?'Selected':''}}>{{$k}}&nbsp;&nbsp;</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="input-group-append">
@@ -167,7 +167,7 @@
                                                         <select name="kelengkapan" class="form-control select-kelengkapan">
                                                             <option label="Pilih kelengkapan"></option>
                                                             @foreach ($kelengkapan as $k)
-                                                                <option value="{{$k['value']}}">{{$k['value']}}&nbsp;&nbsp;</option>
+                                                                <option value="{{$k}}">{{$k}}&nbsp;&nbsp;</option>
                                                             @endforeach
                                                         </select>
                                                     </td>
@@ -177,7 +177,7 @@
                                                     <th class="table-secondary" style="width: 25%">Usulan Editor:</th>
                                                     @if (!is_null($data->editor))
                                                     <td class="table-active text-right" id="eCol">
-                                                        {{$data->editor}}
+                                                        {{$nama_editor}}
                                                         <p class="text-small">
                                                             <a href="javascript:void(0)" id="eButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                                         </p>
@@ -187,7 +187,7 @@
                                                             <select name="editor" class="form-control select-editor">
                                                                 <option label="Pilih editor"></option>
                                                                 @foreach ($editor as $e)
-                                                                    <option value="{{$e['id']}}" {{$data->editor==$e['nama']?'Selected':''}}>{{$e['nama']}}&nbsp;&nbsp;</option>
+                                                                    <option value="{{$e->id}}" {{$data->editor==$e->id?'Selected':''}}>{{$e->nama}}&nbsp;&nbsp;</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="input-group-append">
@@ -200,7 +200,7 @@
                                                         <select name="editor" class="form-control select-editor">
                                                             <option label="Pilih editor"></option>
                                                             @foreach ($editor as $e)
-                                                                <option value="{{$e['id']}}">{{$e['nama']}}&nbsp;&nbsp;</option>
+                                                                <option value="{{$e->id}}">{{$e->nama}}&nbsp;&nbsp;</option>
                                                             @endforeach
                                                         </select>
                                                     </td>
@@ -296,7 +296,7 @@
                                                     </td>
                                                     <td class="table-active text-left" id="bulanColInput" hidden>
                                                         <div class="input-group">
-                                                            <input name="bulan" value="{{Carbon\Carbon::parse($data->bulan)->translatedFormat('F Y')}}" class="form-control datepicker" required>
+                                                            <input name="bulan" class="form-control datepicker" placeholder="Bulan progress" readonly required>
                                                             <div class="input-group-append">
                                                                 <button type="button" class="btn btn-outline-danger batal_edit_bulan text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                                             </div>
@@ -304,7 +304,7 @@
                                                     </td>
                                                     @else
                                                     <td class="table-active text-left">
-                                                        <input name="bulan" class="form-control datepicker" required>
+                                                        <input name="bulan" class="form-control datepicker" placeholder="Bulan progress" readonly required>
                                                     </td>
                                                     @endif
                                                 </tr>
@@ -428,7 +428,7 @@
                                                 <th class="table-secondary" style="width: 25%">Usulan Editor:</th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->editor))
-                                                        {{$data->editor}}
+                                                        {{nama_editor}}
                                                     @else
                                                         <span class="text-danger text-small">Belum diinput</span>
                                                     @endif

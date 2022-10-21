@@ -66,23 +66,8 @@
                                                 <tr>
                                                     <th class="table-secondary" style="width: 25%">Judul Final:</th>
                                                     @if (!is_null($data->judul_final))
-                                                    <td class="table-active text-right" id="judulFinalCol">
+                                                    <td class="table-active text-right">
                                                         {{$data->judul_final}}
-                                                        <p class="text-small">
-                                                            <a href="javascript:void(0)" id="judulFinalButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
-                                                        </p>
-                                                    </td>
-                                                    <td class="table-active text-left" id="judulFinalColInput" hidden>
-                                                        <div class="input-group">
-                                                            <textarea name="judul_final" class="form-control" cols="30" rows="10">{{$data->judul_final}}</textarea>
-                                                            <div class="input-group-append">
-                                                                <button type="button" class="btn btn-outline-danger batal_edit_judul_final text-danger" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    @else
-                                                    <td class="table-active text-left">
-                                                        <textarea name="judul_final" class="form-control" cols="30" rows="10"></textarea>
                                                     </td>
                                                     @endif
                                                 </tr>
@@ -485,6 +470,37 @@
                                                                 <option value="{{$s->id}}">{{$s->nama}}&nbsp;&nbsp;</option>
                                                             @endforeach
                                                         </select>
+                                                    </td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
+                                                    <th class="table-secondary" style="width: 25%">Contoh Cover: </th>
+                                                    @if (!is_null($data->contoh_cover))
+                                                    <td class="table-active text-right" id="contohCoverCol">
+                                                        {{$data->contoh_cover}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="contohCoverButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="contohCoverColInput" hidden>
+                                                        <div class="input-group">
+                                                        <input type="url" class="form-control" name="contoh_cover" value="{{$data->contoh_cover}}"  placeholder="https://example.com/">
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_contoh_cover text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @else
+                                                    <td class="table-active text-right" id="contohCoverCol">
+                                                        <a href="javascript:void(0)" id="contohCoverButton"><i class="fa fa-plus"></i>&nbsp;Tambahkan</a>
+                                                    </td>
+                                                    <td class="table-active text-left" id="contohCoverColInput" hidden>
+                                                        <div class="input-group">
+                                                        <input type="url" class="form-control" name="contoh_cover" placeholder="https://example.com/">
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_contoh_cover text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                     @endif
                                                 </tr>

@@ -26,12 +26,12 @@
 
         <li class="dropdown">
             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-                <img alt="image" src="{{url('storage/users/'.Auth::user()->id.'/'.Auth::user()->avatar)}}" class="rounded-circle mr-1">
+                <img alt="image" src="{{url('storage/users/'.auth()->user()->id.'/'.auth()->user()->avatar)}}" class="rounded-circle mr-1">
                 <div class="d-sm-none d-lg-inline-block">Hi, {{Auth::user()->nama}}</div>
             </a>
             <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-title">Logged in 5 min ago</div>
-                <a href="{{url('manajemen-web/user/'.Auth::id())}}" class="dropdown-item has-icon">
+                <a href="{{url('manajemen-web/user/'.auth()->id())}}" class="dropdown-item has-icon">
                     <i class="far fa-user"></i> Profile
                 </a>
                 <a href="features-settings.html" class="dropdown-item has-icon">

@@ -258,7 +258,6 @@ class DeskripsiProdukController extends Controller
                 $update = [
                     'params' => 'Edit Despro',
                     'id' => $request->id,
-                    // 'judul_final' => $request->judul_final,
                     'alt_judul' => json_encode($altJudul),
                     'format_buku' => $request->format_buku,
                     'jml_hal_perkiraan' => $request->jml_hal_perkiraan,
@@ -276,24 +275,22 @@ class DeskripsiProdukController extends Controller
                     'params' => 'Insert History Despro',
                     'deskripsi_produk_id' => $request->id,
                     'type_history' => 'Update',
-                    // 'judul_final_his' => $history->judul_final,
-                    // 'judul_final_new' => $request->judul_final,
-                    'alt_judul_his' => $history->alt_judul,
-                    'alt_judul_new' => json_encode($altJudul),
-                    'format_buku_his' => $history->format_buku,
-                    'format_buku_new' => $request->format_buku,
-                    'jml_hal_his' => $history->jml_hal_perkiraan,
-                    'jml_hal_new' => $request->jml_hal_perkiraan,
-                    'imprint_his' => $history->imprint,
-                    'imprint_new' => $request->imprint,
-                    'editor_his' => $history->editor,
-                    'editor_new' => $request->editor,
-                    'kelengkapan_his' => $history->kelengkapan,
-                    'kelengkapan_new' => $request->kelengkapan,
-                    'catatan_his' => $history->catatan,
-                    'catatan_new' => $request->catatan,
-                    'bulan_his' => $history->bulan,
-                    'bulan_new' => Carbon::createFromDate($request->bulan),
+                    'alt_judul_his' => $history->alt_judul==json_encode($altJudul)?NULL:$history->alt_judul,
+                    'alt_judul_new' => $history->alt_judul==json_encode($altJudul)?NULL:json_encode($altJudul),
+                    'format_buku_his' => $history->format_buku==$request->format_buku?NULL:$history->format_buku,
+                    'format_buku_new' => $history->format_buku==$request->format_buku?NULL:$request->format_buku,
+                    'jml_hal_his' => $history->jml_hal_perkiraan==$request->jml_hal_perkiraan?NULL:$history->jml_hal_perkiraan,
+                    'jml_hal_new' => $history->jml_hal_perkiraan==$request->jml_hal_perkiraan?NULL:$request->jml_hal_perkiraan,
+                    'imprint_his' => $history->imprint==$request->imprint?NULL:$history->imprint,
+                    'imprint_new' => $history->imprint==$request->imprint?NULL:$request->imprint,
+                    'editor_his' => $history->editor==$request->editor?NULL:$history->editor,
+                    'editor_new' => $history->editor==$request->editor?NULL:$request->editor,
+                    'kelengkapan_his' => $history->kelengkapan==$request->kelengkapan?NULL:$history->kelengkapan,
+                    'kelengkapan_new' => $history->kelengkapan==$request->kelengkapan?NULL:$request->kelengkapan,
+                    'catatan_his' => $history->catatan==$request->catatan?NULL:$history->catatan,
+                    'catatan_new' => $history->catatan==$request->catatan?NULL:$request->catatan,
+                    'bulan_his' => $history->bulan==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
+                    'bulan_new' => $history->bulan==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromDate($request->bulan),
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
@@ -324,10 +321,15 @@ class DeskripsiProdukController extends Controller
                 )
             ->first();
         is_null($data)?abort(404):
-        $editor = DB::table('users as u')->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+        $editor = DB::table('users as u')
+            ->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+            ->join('divisi as d','u.divisi_id','=','d.id')
             ->where('j.nama','LIKE','%Editor%')
+            ->where('d.nama','LIKE','%Penerbitan%')
             ->select('u.nama','u.id')
+            ->orderBy('u.nama','ASC')
             ->get();
+        $namaeditor = DB::table('users')->where('id',$data->editor)->whereNull('deleted_at')->first()->nama;
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
         ->join('penerbitan_penulis as pp',function($q) {
             $q->on('pnp.penulis_id','=','pp.id')
@@ -337,22 +339,16 @@ class DeskripsiProdukController extends Controller
         ->select('pp.nama')
         ->get();
         $format_buku = DB::table('format_buku')->whereNull('deleted_at')->get();
-        $kelengkapan = (object)[
-            [
-                'value' => 'CD'
-            ],
-            [
-                'value' => 'Disket'
-            ],
-            [
-                'value' => 'VCD'
-            ],
-        ];
+        //Kelengkapan Enum
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'kelengkapan'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $kelengkapan = explode("','", $matches[1]);
         $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
         return view('penerbitan.des_produk.edit',[
             'title' => 'Edit Deskripsi Produk',
             'data' => $data,
             'editor' => $editor,
+            'nama_editor' => $namaeditor,
             'penulis' => $penulis,
             'format_buku' => $format_buku,
             'kelengkapan' => $kelengkapan,
@@ -454,8 +450,11 @@ class DeskripsiProdukController extends Controller
                     }
                     if (!is_null($d->editor_his)) {
                         $html .=' Editor <b class="text-dark">'
-                        .DB::table('users')->where('id',$d->editor_his)->whereNull('deleted_at')->pluck('nama').
-                        '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->editor_new)->whereNull('deleted_at')->pluck('nama').'</b>.<br>';
+                        .DB::table('users')->where('id',$d->editor_his)->whereNull('deleted_at')->first()->nama.
+                        '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->editor_new)->whereNull('deleted_at')->first()->nama.'</b>.<br>';
+                    }
+                    if (!is_null($d->editor_new)) {
+                        $html .=' Editor <b class="text-dark">'.DB::table('users')->where('id',$d->editor_new)->whereNull('deleted_at')->first()->nama.'</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->kelengkapan_his)) {
                         $html .=' Kelengkapan <b class="text-dark">'.$d->kelengkapan_his.'</b> diubah menjadi <b class="text-dark">'.$d->kelengkapan_new.'</b>.<br>';
@@ -464,7 +463,9 @@ class DeskripsiProdukController extends Controller
                         $html .=' Catatan <b class="text-dark">'.$d->catatan_his.'</b> diubah menjadi <b class="text-dark">'.$d->catatan_new.'</b>.<br>';
                     }
                     if (!is_null($d->bulan_his)) {
-                        $html .=' Bulan <b class="text-dark">'.Carbon::parse($d->bulan_his)->translatedFormat('F Y').'</b> diubah menjadi <b class="text-dark">'.Carbon::parse($d->bulan_new)->translatedFormat('F Y').'</b>.';
+                        if ($d->bulan_his != $d->bulan_new) {
+                            $html .=' Bulan <b class="text-dark">'.Carbon::parse($d->bulan_his)->translatedFormat('F Y').'</b> diubah menjadi <b class="text-dark">'.Carbon::parse($d->bulan_new)->translatedFormat('F Y').'</b>.';
+                        }
                     }
                     $html .='</span></div>
                     <div class="ticket-info">
