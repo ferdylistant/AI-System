@@ -257,6 +257,7 @@ $(function() {
         }
     });
     $(".select-finishing-cover").select2({
+        multiple: true,
         placeholder: 'Pilih finishing cover',
     }).on('change', function(e) {
         if(this.value) {
@@ -278,7 +279,6 @@ $(function() {
         autoclose:true,
         clearBtn: true
     });
-
     function ajaxUpDeskripsiCover(data) {
         let el = data.get(0);
         $.ajax({

@@ -168,17 +168,28 @@
                                                     <th class="table-secondary" style="width: 25%">Finishing Cover:</th>
                                                     @if (!is_null($data->finishing_cover))
                                                     <td class="table-active text-right" id="finishingCol">
-                                                        {{$data->finishing_cover}}
+                                                        @foreach (json_decode($data->finishing_cover,true) as $fc)
+                                                            <span class="bullet"></span>{{$fc}}<br>
+                                                        @endforeach
                                                         <p class="text-small">
                                                             <a href="javascript:void(0)" id="finishingButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                                         </p>
                                                     </td>
                                                     <td class="table-active text-left" id="finishingColInput" hidden>
                                                         <div class="input-group">
-                                                            <select name="finishing_cover" class="form-control select-finishing-cover">
+                                                            <select name="finishing_cover[]" class="form-control select-finishing-cover" multiple="multiple">
                                                                 <option label="Pilih finishing cover"></option>
-                                                                @foreach ($finishing_cover as $f)
-                                                                    <option value="{{$f}}" {{$data->finishing_cover==$f?'Selected':''}}>{{$f}}&nbsp;&nbsp;</option>
+                                                                <?php $ci = 0; ?>
+                                                                <?php $cj = 0; ?>
+                                                                @foreach ($finishing_cover as $i => $f)
+                                                                    @foreach (json_decode($data->finishing_cover,true) as $j => $fc)
+                                                                    @if ($ci > $i && ($cj > $ci) )
+                                                                        @continue
+                                                                    @endif
+                                                                    <option value="{{$f}}" {{$f==$fc?'Selected':''}}>{{$f}}&nbsp;&nbsp;</option>
+                                                                    <?php $ci++; ?>
+                                                                    @endforeach
+                                                                    <?php $cj++; ?>
                                                                 @endforeach
                                                             </select>
                                                             <div class="input-group-append">
@@ -192,7 +203,7 @@
                                                     </td>
                                                     <td class="table-active text-left" id="finishingColInput" hidden>
                                                         <div class="input-group">
-                                                            <select name="finishing_cover" class="form-control select-finishing-cover">
+                                                            <select name="finishing_cover[]" class="form-control select-finishing-cover" multiple="multiple">
                                                                 <option label="Pilih finishing cover"></option>
                                                                 @foreach ($finishing_cover as $f)
                                                                     <option value="{{$f}}" {{$data->finishing_cover==$f?'Selected':''}}>{{$f}}&nbsp;&nbsp;</option>

@@ -53,6 +53,8 @@ class DesfinListener
                         'df.setter' => $data['setter'],
                         'df.korektor' => $data['korektor'],
                         'df.sinopsis' => $data['sinopsis'],
+                        'df.kelengkapan' => $data['kelengkapan'],
+                        'df.catatan' => $data['catatan'],
                         'df.bulan' => $data['bulan'],
                         'df.updated_by'=> $data['updated_by']
                     ]);
@@ -85,6 +87,10 @@ class DesfinListener
                     'korektor_new' => $data['korektor_new'],
                     'sinopsis_his' => $data['sinopsis_his'],
                     'sinopsis_new' => $data['sinopsis_new'],
+                    'kelengkapan_his' => $data['kelengkapan_his'],
+                    'kelengkapan_new' => $data['kelengkapan_new'],
+                    'catatan_his' => $data['catatan_his'],
+                    'catatan_new' => $data['catatan_new'],
                     'bulan_his' => $data['bulan_his'],
                     'bulan_new' => $data['bulan_new'],
                     'author_id' => $data['author_id'],

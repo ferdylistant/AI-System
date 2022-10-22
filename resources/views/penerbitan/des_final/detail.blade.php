@@ -242,6 +242,18 @@
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Usulan Korektor</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                    @if (is_null($korektor))
+                                        -
+                                    @else
+                                        {{ $korektor->nama }}
+                                    @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Kelengkapan</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
