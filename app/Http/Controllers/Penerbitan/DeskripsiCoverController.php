@@ -208,38 +208,41 @@ class DeskripsiCoverController extends Controller
             'count' => count($data)
         ]);
     }
-    public function detailDeskripsiFinal(Request $request)
+    public function detailDeskripsiCover(Request $request)
     {
         $id = $request->get('desc');
         $kode = $request->get('kode');
-        $data = DB::table('deskripsi_final as df')
-            ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
+        $data = DB::table('deskripsi_cover as dc')
+            ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
+            ->join('deskripsi_final as df','dp.id','=','df.deskripsi_produk_id')
             ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
             ->join('penerbitan_m_kelompok_buku as kb',function($q){
                 $q->on('pn.kelompok_buku_id','=','kb.id')
                 ->whereNull('kb.deleted_at');
             })
-            ->where('df.id',$id)
+            ->where('dc.id',$id)
             ->where('pn.kode',$kode)
             ->whereNull('dp.deleted_at')
             ->whereNull('pn.deleted_at')
             ->select(
-                'df.*',
+                'dc.*',
+                'df.sub_judul_final',
+                'df.bullet',
                 'dp.naskah_id',
                 'dp.format_buku',
                 'dp.judul_final',
                 'dp.imprint',
-                'dp.jml_hal_perkiraan',
                 'dp.kelengkapan',
                 'dp.catatan',
                 'pn.kode',
                 'pn.judul_asli',
                 'pn.pic_prodev',
+                'pn.jalur_buku',
                 'kb.nama'
                 )
             ->first();
         if(is_null($data)) {
-            return redirect()->route('desfin.view');
+            return redirect()->route('descov.view');
         }
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
         ->join('penerbitan_penulis as pp',function($q) {
@@ -249,16 +252,14 @@ class DeskripsiCoverController extends Controller
         ->where('pnp.naskah_id','=',$data->naskah_id)
         ->select('pp.nama')
         ->get();
-        $pic = DB::table('users')->where('id',$data->pic_prodev)->whereNull('deleted_at')->select('nama')->first();
-        $setter = DB::table('users')->where('id',$data->setter)->whereNull('deleted_at')->select('nama')->first();
-        $korektor = DB::table('users')->where('id',$data->korektor)->whereNull('deleted_at')->select('nama')->first();
-        return view('penerbitan.des_final.detail',[
-            'title' => 'Detail Deskripsi Final',
+        $pic = DB::table('users')->where('id',$data->pic_prodev)->whereNull('deleted_at')->first()->nama;
+        $desainer = DB::table('users')->where('id',$data->desainer)->whereNull('deleted_at')->first()->nama;
+        return view('penerbitan.des_cover.detail',[
+            'title' => 'Detail Deskripsi Cover',
             'data' => $data,
             'penulis' => $penulis,
             'pic' => $pic,
-            'setter' => $setter,
-            'korektor' => $korektor
+            'desainer' => $desainer,
         ]);
     }
     public function editDeskripsiCover(Request $request)
@@ -275,8 +276,14 @@ class DeskripsiCoverController extends Controller
                 foreach ($request->bullet as $value) {
                     $bullet[] = $value;
                 }
-                foreach ($request->finishing_cover as $value) {
-                    $finishing_cover[] = $value;
+                if (!$request->has('finishing_cover')) {
+                    if ((!is_null($history->finishing_cover)) || ($history->finishing_cover != [])) {
+                        $finishing_cover = json_decode($history->finishing_cover);
+                    }
+                } else {
+                    foreach ($request->finishing_cover as $value) {
+                        $finishing_cover[] = $value;
+                    }
                 }
                 $update = [
                     'params' => 'Edit Descov',
@@ -520,39 +527,86 @@ class DeskripsiCoverController extends Controller
                 } elseif ($d->type_history == 'Update') {
                     $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
-                    if (!is_null($d->judul_final_his)) {
-                        $html .=' Judul final <b class="text-dark">'.$d->judul_final_his.'</b> diubah menjadi <b class="text-dark">'.$d->judul_final_new.'</b>.<br>';
+                    if (!is_null($d->sub_judul_final_his)) {
+                        $html .=' Sub Judul final <b class="text-dark">'.$d->sub_judul_final_his.'</b> diubah menjadi <b class="text-dark">'.$d->sub_judul_final_new.'</b>.<br>';
+                    } elseif (!is_null($d->sub_judul_final_new)) {
+                        $html .=' Sub Judul final <b class="text-dark">'.$d->sub_judul_final_new.'</b> ditambahkan.<br>';
+                    }
+                    if (!is_null($d->des_front_cover_his)) {
+                        $html .=' Deskripsi cover depan <b class="text-dark">'.$d->des_front_cover_his.'</b> diubah menjadi <b class="text-dark">'.$d->des_front_cover_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->des_back_cover_his)) {
+                        $html .=' Deskripsi cover belakang <b class="text-dark">'.$d->des_back_cover_his.'</b> diubah menjadi <b class="text-dark">'.$d->des_back_cover_new.'</b>.<br>';
+                    }
+                    if (!is_null($d->finishing_cover_his)) {
+                        $loopFC = '';
+                        $loopFCN = '';
+                        foreach (json_decode($d->finishing_cover_his, true) as $fc) {
+                            $loopFC .= '<b class="text-dark">'.$fc.'</b>, ';
+                        }
+                        foreach (json_decode($d->finishing_cover_new, true) as $fcn) {
+                            $loopFCN .= '<span class="bullet"></span>'.$fcn;
+                        }
+                        $html .=' Finishing cover <b class="text-dark">'.$loopFC.'</b>diubah menjadi <b class="text-dark">'.$loopFCN.'</b>.<br>';
+                    } elseif (!is_null($d->finishing_cover_new)) {
+                        $loopFCNew = '';
+                        foreach (json_decode($d->finishing_cover_new, true) as $fcn) {
+                            $loopFCNew .= '<b class="text-dark">'.$fcn.'</b>, ';
+                        }
+                        $html .=' Finishing cover '.$loopFCNew.'ditambahkan.<br>';
                     }
                     if (!is_null($d->format_buku_his)) {
                         $html .=' Format buku <b class="text-dark">'.$d->format_buku_his.' cm</b> diubah menjadi <b class="text-dark">'.$d->format_buku_new.' cm</b>.<br>';
                     }
-                    if (!is_null($d->jml_hal_his)) {
-                        $html .=' Jumlah halaman perkiraan <b class="text-dark">'.$d->jml_hal_his.'</b> diubah menjadi <b class="text-dark">'.$d->jml_hal_new.'</b>.<br>';
+                    if (!is_null($d->jilid_his)) {
+                        $html .=' Jilid <b class="text-dark">'.$d->jilid_his.'</b> diubah menjadi <b class="text-dark">'.$d->jilid_new.'</b>.<br>';
                     }
-                    if (!is_null($d->jml_hal_asli_his)) {
-                        $html .=' Jumlah halaman asli <b class="text-dark">'.$d->jml_hal_asli_his.'</b> diubah menjadi <b class="text-dark">'.$d->jml_hal_asli_new.'</b>.<br>';
+                    if (!is_null($d->tipografi_his)) {
+                        $html .=' Tipografi <b class="text-dark">'.$d->tipografi_his.'</b> diubah menjadi <b class="text-dark">'.$d->tipografi_new.'</b>.<br>';
+                    } elseif (!is_null($d->tipografi_new)) {
+                        $html .=' Tipografi <b class="text-dark">'.$d->tipografi_new.'</b> ditambahkan.<br>';
                     }
-                    if (!is_null($d->ukuran_asli_his)) {
-                        $html .=' Ukuran asli <b class="text-dark">'.$d->ukuran_asli_his.'</b> diubah menjadi <b class="text-dark">'.$d->ukuran_asli_new.'</b>.<br>';
+                    if (!is_null($d->warna_his)) {
+                        $html .=' Warna <b class="text-dark">'.$d->warna_his.'</b> diubah menjadi <b class="text-dark">'.$d->warna_new.'</b>.<br>';
+                    } elseif (!is_null($d->warna_new)) {
+                        $html .=' Warna <b class="text-dark">'.$d->warna_new.'</b> ditambahkan.<br>';
                     }
-                    if (!is_null($d->isi_warna_his)) {
-                        $html .=' Isi warna <b class="text-dark">'.$d->isi_warna_his.'</b> diubah menjadi <b class="text-dark">'.$d->isi_warna_new.'</b>.<br>';
-                    }
-                    if (!is_null($d->setter_his)) {
-                        $html .=' Setter <b class="text-dark">'
-                            .DB::table('users')->where('id',$d->setter_his)->whereNull('deleted_at')->first()->nama.
-                            '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->setter_new)->whereNull('deleted_at')->first()->nama.'</b>.<br>';
-                    }
-                    if (!is_null($d->korektor_his)) {
-                        $html .=' Korektor <b class="text-dark">'
-                            .DB::table('users')->where('id',$d->korektor_his)->whereNull('deleted_at')->first()->nama.
-                            '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->korektor_new)->whereNull('deleted_at')->first()->nama.'</b>.<br>';
+                    if (!is_null($d->desainer_his)) {
+                        $html .=' Desainer <b class="text-dark">'
+                            .DB::table('users')->where('id',$d->desainer_his)->whereNull('deleted_at')->first()->nama.
+                            '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->desainer_new)->whereNull('deleted_at')->first()->nama.'</b>.<br>';
                     }
                     if (!is_null($d->kelengkapan_his)) {
                         $html .=' Kelengkapan <b class="text-dark">'.$d->kelengkapan_his.'</b> diubah menjadi <b class="text-dark">'.$d->kelengkapan_new.'</b>.<br>';
+                    } elseif (!is_null($d->kelengkapan_new)) {
+                        $html .=' Kelengkapan <b class="text-dark">'.$d->kelengkapan_new.'</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->catatan_his)) {
                         $html .=' Catatan <b class="text-dark">'.$d->catatan_his.'</b> diubah menjadi <b class="text-dark">'.$d->catatan_new.'</b>.<br>';
+                    } elseif (!is_null($d->catatan_new)) {
+                        $html .=' Catatan <b class="text-dark">'.$d->catatan_new.'</b> ditambahkan.<br>';
+                    }
+                    if (!is_null($d->contoh_cover_his)) {
+                        $html .=' Link contoh cover <a href="'.$d->contoh_cover_his.'" target="_blank" class="text-dark"><b>'.$d->contoh_cover_his.'</b></a> diubah menjadi <a href="'.$d->contoh_cover_new.'" target="_blank" class="text-dark"><b>'.$d->contoh_cover_new.'</b></a>.<br>';
+                    } elseif (!is_null($d->contoh_cover_new)) {
+                        $html .=' Link contoh cover <a href="'.$d->contoh_cover_new.'" target="_blank" class="text-dark"><b>'.$d->contoh_cover_new.'</b></a> ditambahkan.<br>';
+                    }
+                    if (!is_null($d->bullet_his)) {
+                        $loopFC = '';
+                        $loopFCN = '';
+                        foreach (json_decode($d->bullet_his, true) as $fc) {
+                            $loopFC .= '<span class="bullet"></span>'.$fc;
+                        }
+                        foreach (json_decode($d->bullet_new, true) as $fcn) {
+                            $loopFCN .= '<span class="bullet"></span>'.$fcn;
+                        }
+                        $html .=' Bullet <b class="text-dark">'.$loopFC.'</b> diubah menjadi <b class="text-dark">'.$loopFCN.'</b>.<br>';
+                    } elseif (!is_null($d->bullet_new)) {
+                        $loopFCNew = '';
+                        foreach (json_decode($d->bullet_new, true) as $fcn) {
+                            $loopFCNew .= '<span class="bullet"></span>'.$fcn;
+                        }
+                        $html .=' Bullet '.$loopFCNew.'</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->bulan_his)) {
                             $html .=' Bulan <b class="text-dark">'.Carbon::parse($d->bulan_his)->translatedFormat('F Y').'</b> diubah menjadi <b class="text-dark">'.Carbon::parse($d->bulan_new)->translatedFormat('F Y').'</b>.';

@@ -78,7 +78,7 @@
                         <div class="d-flex justify-content-between">
                             <div class="form-group col-auto col-md-3 mr-auto">
                                 <div class="input-group">
-                                    <select data-column="8" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
+                                    <select data-column="9" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
                                         <option label="Pilih Filter Status"></option>
                                         @foreach ($status_progress as $val)
                                             <option value="{{$val}}">{{$val}}&nbsp;&nbsp;</option>

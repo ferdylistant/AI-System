@@ -181,12 +181,13 @@
                                                                 <option label="Pilih finishing cover"></option>
                                                                 <?php $ci = 0; ?>
                                                                 <?php $cj = 0; ?>
+                                                                <?php $selected = ''; ?>
                                                                 @foreach ($finishing_cover as $i => $f)
                                                                     @foreach (json_decode($data->finishing_cover,true) as $j => $fc)
-                                                                    @if ($ci > $i && ($cj > $ci) )
-                                                                        @continue
+                                                                    @if ($ci > $i)
+                                                                    @continue
                                                                     @endif
-                                                                    <option value="{{$f}}" {{$f==$fc?'Selected':''}}>{{$f}}&nbsp;&nbsp;</option>
+                                                                    <option value="{{$f}}">{{$f}}&nbsp;&nbsp;</option>
                                                                     <?php $ci++; ?>
                                                                     @endforeach
                                                                     <?php $cj++; ?>
@@ -253,7 +254,7 @@
                                                     <th class="table-secondary" style="width: 25%">Jilid: <span class="text-danger">*</span></th>
                                                     @if (!is_null($data->jilid))
                                                     <td class="table-active text-right" id="jilidCol">
-                                                        {{$data->jilid}} cm
+                                                        {{$data->jilid}}
                                                         <p class="text-small">
                                                             <a href="javascript:void(0)" id="jilidButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                                         </p>
@@ -571,6 +572,16 @@
                                                 <td class="table-active text-right">{{$data->judul_final}}</td>
                                             </tr>
                                             <tr>
+                                                <th class="table-secondary" style="width: 25%">Sub-Judul Final:</th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->sub_judul_final))
+                                                        {{$data->sub_judul_final}}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <th class="table-secondary" style="width: 25%">Kelompok Buku:</th>
                                                 <td class="table-active text-right">{{$data->nama}}</td>
                                             </tr>
@@ -593,20 +604,72 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th class="table-secondary" style="width: 25%">Jumlah halaman perkiraan:</th>
+                                                <th class="table-secondary" style="width: 25%">Des Front Cover: <span class="text-danger">*</span></th>
                                                 <td class="table-active text-right">
-                                                    @if (!is_null($data->jml_hal_perkiraan))
-                                                        {{$data->jml_hal_perkiraan}}
+                                                    @if (!is_null($data->des_front_cover))
+                                                        {{$data->des_front_cover}}
                                                     @else
                                                     <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th class="table-secondary" style="width: 25%">Jumlah halaman asli: <span class="text-danger">*</span></th>
+                                                <th class="table-secondary" style="width: 25%">Des Back Cover: <span class="text-danger">*</span></th>
                                                 <td class="table-active text-right">
-                                                    @if (!is_null($data->jml_hal_asli))
-                                                        {{$data->jml_hal_asli}}
+                                                    @if (!is_null($data->des_back_cover))
+                                                        {{$data->des_back_cover}}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Finishing Cover:</th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->finishing_cover))
+                                                        @foreach (json_decode($data->finishing_cover,true) as $fc)
+                                                            <span class="bullet"></span>{{$fc}}<br>
+                                                        @endforeach
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Format Buku: <span class="text-danger">*</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->format_buku))
+                                                        {{$data->format_buku}} cm
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Jilid: <span class="text-danger">*</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->kertas_isi))
+                                                        {{$data->kertas_isi}}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Tipografi:</th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->tipografi))
+                                                        {{$data->tipografi}}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Warna:</th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->warna))
+                                                        {{$data->warna}}
                                                     @else
                                                     <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
@@ -628,56 +691,6 @@
                                                     @if (!is_null($data->catatan))
                                                         {{$data->catatan}}
                                                     @else
-                                                        <span class="text-danger text-small">Belum diinput</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th class="table-secondary" style="width: 25%">Format Buku: <span class="text-danger">*</span></th>
-                                                <td class="table-active text-right">
-                                                    @if (!is_null($data->format_buku))
-                                                        {{$data->format_buku}} cm
-                                                    @else
-                                                    <span class="text-danger text-small">Belum diinput</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th class="table-secondary" style="width: 25%">Kertas Isi:</th>
-                                                <td class="table-active text-right">
-                                                    @if (!is_null($data->kertas_isi))
-                                                        {{$data->kertas_isi}}
-                                                    @else
-                                                    <span class="text-danger text-small">Belum diinput</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th class="table-secondary" style="width: 25%">Ukuran Asli:</th>
-                                                <td class="table-active text-right">
-                                                    @if (!is_null($data->ukuran_asli))
-                                                        {{$data->ukuran_asli}}
-                                                    @else
-                                                    <span class="text-danger text-small">Belum diinput</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th class="table-secondary" style="width: 25%">Isi Warna:</th>
-                                                <td class="table-active text-right">
-                                                    @if (!is_null($data->isi_warna))
-                                                        {{$data->isi_warna}}
-                                                    @else
-                                                    <span class="text-danger text-small">Belum diinput</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th class="table-secondary" style="width: 25%">Isi Huruf:</th>
-                                                <td class="table-active text-right">
-                                                    @if (!is_null($data->isi_huruf))
-                                                        {{$data->isi_huruf}}
-                                                    @else
                                                     <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
                                                 </td>
@@ -695,17 +708,17 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th class="table-secondary" style="width: 25%">Usulan Setter:</th>
+                                                <th class="table-secondary" style="width: 25%">Usulan Desainer: <span class="text-danger">*</span></th>
                                                 <td class="table-active text-right">
-                                                    @if (!is_null($data->setter))
-                                                        {{$nama_setter->nama}}
+                                                    @if (!is_null($data->desainer))
+                                                        {{$nama_desainer->nama}}
                                                     @else
                                                         <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th class="table-secondary" style="width: 25%">Usulan Korektor:</th>
+                                                <th class="table-secondary" style="width: 25%">:</th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->korektor))
                                                         {{$nama_korektor->nama}}
@@ -715,10 +728,10 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th class="table-secondary" style="width: 25%">Sinopsis:</th>
+                                                <th class="table-secondary" style="width: 25%">Contoh Cover: </th>
                                                 <td class="table-active text-left">
-                                                    @if (!is_null($data->sinopsis))
-                                                        {{$data->sinopsis}}
+                                                    @if (!is_null($data->contoh_cover))
+                                                        {{$data->contoh_cover}}
                                                     @else
                                                         <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
