@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
+use Ramsey\Uuid\Uuid;
 use App\Events\DescovEvent;
 use Illuminate\Support\Arr;
+use App\Events\EditingEvent;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use App\Events\PracetakCoverEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -430,7 +433,34 @@ class DeskripsiCoverController extends Controller
     {
         try{
             $id = $request->id;
-            $data = DB::table('deskripsi_cover')->where('id',$id)->whereNull('deleted_at')->first();
+            $data = DB::table('deskripsi_cover as dc')
+            ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
+            ->join('deskripsi_final as df','dp.id','=','df.deskripsi_produk_id')
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+            ->join('penerbitan_m_kelompok_buku as kb',function($q){
+                $q->on('pn.kelompok_buku_id','=','kb.id')
+                ->whereNull('kb.deleted_at');
+            })
+            ->where('dc.id',$id)
+            ->whereNull('dp.deleted_at')
+            ->whereNull('pn.deleted_at')
+            ->select(
+                'dc.*',
+                'df.id as deskripsi_final_id',
+                'dp.naskah_id',
+                'dp.format_buku',
+                'dp.judul_final',
+                'dp.editor',
+                'dp.imprint',
+                'dp.kelengkapan',
+                'dp.catatan',
+                'pn.kode',
+                'pn.judul_asli',
+                'pn.pic_prodev',
+                'pn.jalur_buku',
+                'kb.nama'
+                )
+            ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
@@ -458,29 +488,27 @@ class DeskripsiCoverController extends Controller
                 'author_id' => auth()->user()->id,
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
-            if ($data->status == 'Selesai') {
-                // event(new DesfinEvent($update));
-                // event(new DesfinEvent($insert));
-                // $updateStatusDescov = [
-                //     'params' => 'Update Status Descov',
-                //     'deskripsi_produk_id' => $data->deskripsi_produk_id,
-                //     'status' => 'Terkunci',
-                //     'updated_by' => auth()->user()->id
-                // ];
-                // event(new DescovEvent($updateStatusDescov));
-                // $msg = 'Status progress deskripsi cover berhasil diupdate';
-            }
-            elseif ($request->status == 'Selesai') {
-                // event(new DesfinEvent($update));
-                // event(new DesfinEvent($insert));
-                // $updateStatusDescov = [
-                //     'params' => 'Update Status Descov',
-                //     'deskripsi_produk_id' => $data->deskripsi_produk_id,
-                //     'status' => 'Antrian',
-                //     'updated_by' => auth()->user()->id
-                // ];
-                // event(new DescovEvent($updateStatusDescov));
-                // $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Deskripsi Cover..';
+            if ($request->status == 'Selesai') {
+                event(new DescovEvent($update));
+                event(new DescovEvent($insert));
+                $insertEditingProses = [
+                    'params' => 'Insert Editing',
+                    'id' => Uuid::uuid4()->toString(),
+                    'deskripsi_final_id' => $data->deskripsi_final_id,
+                    'editor' => $data->editor,
+                    'tgl_masuk_editing' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                event(new EditingEvent($insertEditingProses));
+                $insertPracetakCover = [
+                    'params' => 'Insert Pracetak Cover',
+                    'id' => Uuid::uuid4()->toString(),
+                    'deskripsi_cover_id' => $data->id,
+                    'desainer' => $data->desainer,
+                    'editor' => $data->editor,
+                    'tgl_masuk_cover' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                ];
+                event(new PracetakCoverEvent($insertPracetakCover));
+                $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
             }
             else {
                 event(new DescovEvent($update));

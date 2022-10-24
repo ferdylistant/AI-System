@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 22, 2022 at 02:45 PM
+-- Generation Time: Oct 24, 2022 at 06:05 PM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 7.4.29
 
@@ -149,7 +149,7 @@ CREATE TABLE `deskripsi_cover` (
 --
 
 INSERT INTO `deskripsi_cover` (`id`, `deskripsi_produk_id`, `des_front_cover`, `des_back_cover`, `finishing_cover`, `jilid`, `tipografi`, `warna`, `desainer`, `bulan`, `tgl_deskripsi`, `contoh_cover`, `kelengkapan`, `catatan`, `status`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
-('2c05015a-d003-42d9-8a90-3bb62fc1103a', '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Warna kuning..', 'Warna biru..', '[\"Glossy\",\"Laminasi Dof\",\"UV Spot\"]', 'Binding', NULL, NULL, '3d43ab399ec24c30b39c9b052686416d', '2022-10-22', '2022-10-04 16:34:45', 'https://www.google.com', NULL, NULL, 'Proses', '2022-10-22 12:01:02', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL);
+('2c05015a-d003-42d9-8a90-3bb62fc1103a', '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Warna kuning..', 'Warna biru..', '[\"Glossy\",\"Laminasi Dof\",\"UV Spot\"]', 'Binding', NULL, NULL, '3d43ab399ec24c30b39c9b052686416d', '2022-10-22', '2022-10-04 16:34:45', 'https://www.google.com', NULL, NULL, 'Selesai', '2022-10-24 15:58:02', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -204,7 +204,8 @@ INSERT INTO `deskripsi_cover_history` (`id`, `deskripsi_cover_id`, `type_history
 (2, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[\"Embosh\",\"Foil\",\"Glossy\",\"Laminasi Dof\",\"UV\",\"UV Spot\"]', '[\"Embosh\",\"Glossy\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-10-01', '2022-10-22', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-22 16:11:00'),
 (3, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[\"Embosh\",\"Glossy\"]', '[\"Embosh\",\"Foil\",\"Glossy\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-10-22', '2022-10-22', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-22 17:50:27'),
 (4, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[\"Embosh\",\"Foil\",\"Glossy\"]', '[\"Laminasi Dof\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-10-22', '2022-10-22', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-22 19:00:40'),
-(5, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[\"Laminasi Dof\"]', '[\"Glossy\",\"Laminasi Dof\",\"UV Spot\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-10-22', '2022-10-22', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-22 19:01:02');
+(5, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[\"Laminasi Dof\"]', '[\"Glossy\",\"Laminasi Dof\",\"UV Spot\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-10-22', '2022-10-22', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-22 19:01:02'),
+(6, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', 'be8d42fa88a14406ac201974963d9c1b', '2022-10-24 22:58:02');
 
 -- --------------------------------------------------------
 
@@ -522,6 +523,13 @@ CREATE TABLE `editing_proses` (
   `deleted_at` datetime DEFAULT NULL,
   `deleted_by` varchar(36) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `editing_proses`
+--
+
+INSERT INTO `editing_proses` (`id`, `deskripsi_final_id`, `editor`, `tgl_masuk_editing`, `bulan`, `tgl_mulai_edit`, `tgl_selesai_edit`, `turun_pracetak`, `catatan`, `status`, `deleted_at`, `deleted_by`) VALUES
+('d3dda101-46d3-4ec4-be80-4abcb8b2ef7a', '44dfe332-5755-4191-8158-e79d496e1473', 'fab4f858e0314d1dbf6b5b834007313e', '2022-10-24 22:58:02', NULL, NULL, NULL, NULL, NULL, 'Antrian', NULL, '');
 
 -- --------------------------------------------------------
 
@@ -2027,6 +2035,45 @@ INSERT INTO `platform_digital_ebook_history` (`id`, `platform_id`, `platform_his
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `pracetak_cover`
+--
+
+CREATE TABLE `pracetak_cover` (
+  `id` char(36) NOT NULL,
+  `deskripsi_cover_id` char(36) DEFAULT NULL,
+  `desainer` varchar(36) DEFAULT NULL,
+  `editor` varchar(36) DEFAULT NULL,
+  `tgl_masuk_cover` datetime DEFAULT NULL,
+  `mulai_kerja_cover` datetime DEFAULT NULL COMMENT 'Tanggal ketika desainer mulai memproses cover buku yang di assign kabag pracetak',
+  `selesai_kerja_cover` datetime DEFAULT NULL COMMENT 'Tanggal ketika desainer selesai proses cover buku yang di assign kabag pracetak',
+  `proses_front_cover` datetime DEFAULT NULL,
+  `proses_front_cover_selesai` datetime DEFAULT NULL,
+  `proses_back_cover` datetime DEFAULT NULL,
+  `proses_back_cover_selesai` datetime DEFAULT NULL,
+  `korektor_back_cover` varchar(36) DEFAULT NULL,
+  `koreksi_sbl_film` datetime DEFAULT NULL COMMENT 'Tanggal korektor melakukan koreksi akhir sebelum pembuatan setting plat',
+  `koreksi_sbl_film_selesai` datetime DEFAULT NULL COMMENT 'Tanggal korektor selesai melakukan koreksi sebelum pembuatan setting plat',
+  `korektor_sbl_film` varchar(36) DEFAULT NULL,
+  `mulai_koreksi_film` datetime DEFAULT NULL COMMENT 'Tanggal mulai korektor melakukan koreksi settingan plat',
+  `mulai_koreksi_film_selesai` datetime DEFAULT NULL,
+  `korektor_film` datetime DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
+  `bulan` date DEFAULT NULL,
+  `status` enum('Pending','Proses','Selesai','Antrian') DEFAULT 'Antrian',
+  `updated_at` datetime DEFAULT NULL,
+  `updated_by` varchar(36) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `pracetak_cover`
+--
+
+INSERT INTO `pracetak_cover` (`id`, `deskripsi_cover_id`, `desainer`, `editor`, `tgl_masuk_cover`, `mulai_kerja_cover`, `selesai_kerja_cover`, `proses_front_cover`, `proses_front_cover_selesai`, `proses_back_cover`, `proses_back_cover_selesai`, `korektor_back_cover`, `koreksi_sbl_film`, `koreksi_sbl_film_selesai`, `korektor_sbl_film`, `mulai_koreksi_film`, `mulai_koreksi_film_selesai`, `korektor_film`, `keterangan`, `bulan`, `status`, `updated_at`, `updated_by`) VALUES
+('b81cf9f7-893c-4e24-9ee0-bfd29a04dfc7', '2c05015a-d003-42d9-8a90-3bb62fc1103a', '3d43ab399ec24c30b39c9b052686416d', 'fab4f858e0314d1dbf6b5b834007313e', '2022-10-24 22:58:02', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `produksi_order_cetak`
 --
 
@@ -2973,6 +3020,12 @@ ALTER TABLE `platform_digital_ebook_history`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `pracetak_cover`
+--
+ALTER TABLE `pracetak_cover`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `produksi_order_cetak`
 --
 ALTER TABLE `produksi_order_cetak`
@@ -3036,7 +3089,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `deskripsi_cover_history`
 --
 ALTER TABLE `deskripsi_cover_history`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `deskripsi_final_history`

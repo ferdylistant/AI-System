@@ -2,20 +2,10 @@
 
 namespace App\Providers;
 
-use App\Events\DescovEvent;
-use App\Events\DesfinEvent;
-use App\Events\DesproEvent;
-use App\Events\NaskahEvent;
-use App\Events\MasterDataEvent;
-use App\Listeners\DescovListener;
-use App\Listeners\DesfinListener;
-use App\Listeners\DesproListener;
-use App\Listeners\NaskahListener;
-use App\Events\NotifikasiPenyetujuan;
-use App\Listeners\MasterDataListener;
+use App\Events\{NotifikasiPenyetujuan,DescovEvent,DesfinEvent,DesproEvent,NaskahEvent,EditingEvent,MasterDataEvent,PracetakCoverEvent};
+use App\Listeners\{NotifikasiPenyetujuanListener,DescovListener,DesfinListener,DesproListener,NaskahListener,EditingListener,MasterDataListener,PracetakCoverListener};
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
-use App\Listeners\NotifikasiPenyetujuanListener;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -58,6 +48,14 @@ class EventServiceProvider extends ServiceProvider
         Event::listen(
             DescovEvent::class,
             [DescovListener::class, 'handle']
+        );
+        Event::listen(
+            EditingEvent::class,
+            [EditingListener::class, 'handle']
+        );
+        Event::listen(
+            PracetakCoverEvent::class,
+            [PracetakCoverListener::class, 'handle']
         );
         Event::listen(
             MasterDataEvent::class,
