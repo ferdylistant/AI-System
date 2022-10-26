@@ -150,7 +150,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <h5>#2</h5><hr>
                         <div class="row mb-5">
                             <div class="form-group col-12 col-md-4 mb-4">
@@ -229,7 +229,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-gavel"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_npwp" placeholder="NPWP">
+                                    <input type="text" class="form-control" name="add_npwp" placeholder="NPWP" onkeydown="return numbersonly(this, event);" onkeyup="javascript:tandaPemisahTitik(this);">
                                     <div id="err_add_npwp"></div>
                                 </div>
                             </div>
@@ -343,26 +343,26 @@ $(function() {
     });
 
     $.uploadPreview({
-        input_field: "#iu_npwp",  
-        preview_box: "#ip_npwp", 
-        label_field: "#il_npwp",  
-        label_default: "Pilih File",  
+        input_field: "#iu_npwp",
+        preview_box: "#ip_npwp",
+        label_field: "#il_npwp",
+        label_default: "Pilih File",
         label_selected: "Pilih File"
     });
 
     $.uploadPreview({
-        input_field: "#iu_ktp",  
-        preview_box: "#ip_ktp", 
-        label_field: "#il_ktp",  
-        label_default: "Pilih File",  
+        input_field: "#iu_ktp",
+        preview_box: "#ip_ktp",
+        label_field: "#il_ktp",
+        label_default: "Pilih File",
         label_selected: "Pilih File"
     });
 
     $.uploadPreview({
-        input_field: "#iu_pp",  
-        preview_box: "#ip_pp", 
-        label_field: "#il_pp",  
-        label_default: "Pilih File",  
+        input_field: "#iu_pp",
+        preview_box: "#ip_pp",
+        label_field: "#il_pp",
+        label_default: "Pilih File",
         label_selected: "Pilih File"
     });
 
@@ -445,7 +445,7 @@ $(function() {
             }
         })
     }
-    
+
     $('#fadd_Penulis').on('submit', function(e) {
         e.preventDefault();
         if($(this).valid()) {
@@ -461,9 +461,94 @@ $(function() {
                     ajaxAddPenulis($(this))
                 }
             });
-            
+
         }
     })
-})
+});
+function tandaPemisahTitik(b){
+    var _minus = false;
+    if (b < 0) _minus = true;
+        b = b.toString();
+        b=b.replace(".","");
+        b=b.replace("-","");
+        c = "";
+    panjang = b.length;
+    j = 0;
+    for (i = panjang; i > 0; i--){
+        j = j + 1;
+        if (((j % 3) == 1) && (j != 1)){
+            c = b.substr(i-1,1) + "." + c;
+        } else {
+            c = b.substr(i-1,1) + c;
+        }
+    }
+    if (_minus) c = "-" + c ;
+        return c;
+    }
+
+    function numbersonly(ini, e){
+        if (e.keyCode>=49){
+            if(e.keyCode<=57){
+                a = ini.value.toString().replace(".","");
+                b = a.replace(/[^\d]/g,"");
+                b = (b=="0")?String.fromCharCode(e.keyCode):b + String.fromCharCode(e.keyCode);
+                ini.value = tandaPemisahTitik(b);
+                return false;
+            }
+        else if(e.keyCode<=105){
+            if(e.keyCode>=96){
+            // e.keycode = e.keycode - 47;
+            a = ini.value.toString().replace(".","");
+            b = a.replace(/[^\d]/g,"");
+            b = (b=="0")?String.fromCharCode(e.keyCode-48):b + String.fromCharCode(e.keyCode-48);
+            ini.value = tandaPemisahTitik(b);
+            //alert(e.keycode);
+            return false;
+            }
+            else {
+                return false;
+            }
+        }
+    else {
+    return false; }
+    }else if (e.keyCode==48){
+    a = ini.value.replace(".","") + String.fromCharCode(e.keyCode);
+    b = a.replace(/[^\d]/g,"");
+    if (parseFloat(b)!=0){
+    ini.value = tandaPemisahTitik(b);
+    return false;
+    } else {
+    return false;
+    }
+    }else if (e.keyCode==95){
+    a = ini.value.replace(".","") + String.fromCharCode(e.keyCode-48);
+    b = a.replace(/[^\d]/g,"");
+    if (parseFloat(b)!=0){
+    ini.value = tandaPemisahTitik(b);
+    return false;
+    } else {
+    return false;
+    }
+    }else if (e.keyCode==8 || e.keycode==46){
+    a = ini.value.replace(".","");
+    b = a.replace(/[^\d]/g,"");
+    b = b.substr(0,b.length -1);
+    if (tandaPemisahTitik(b)!=""){
+    ini.value = tandaPemisahTitik(b);
+    } else {
+    ini.value = "";
+    }
+
+    return false;
+    } else if (e.keyCode==9){
+    return true;
+    } else if (e.keyCode==17){
+    return true;
+    } else {
+    //alert (e.keyCode);
+    return false;
+    }
+
+}
 </script>
 @endsection

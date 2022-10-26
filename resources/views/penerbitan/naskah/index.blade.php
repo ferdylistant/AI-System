@@ -60,7 +60,7 @@
 @endsection
 
 @section('content')
-<section class="section">
+<section class="section" id="sectionDataNaskah">
     <div class="section-header">
         <h1>Data Naskah</h1>
         @if(Gate::allows('do_create', 'tambah-data-naskah'))
@@ -141,14 +141,13 @@
                 sSearch: '',
                 lengthMenu: '_MENU_ items/page',
             },
-            ajax: {
-                url: "{{ route('naskah.view') }}",
-                data: {"request_": "table-naskah"}
-            },
+            ajax: "{{ route('naskah.view') }}"
+            ,
             columns: [
                 { data: 'kode', name: 'kode', title: 'Kode' },
                 { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
                 { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku' },
+                { data: 'masuk_naskah', name: 'masuk_naskah', title: 'Masuk Naskah'},
                 { data: 'stts_penilaian', name: 'stts_penilaian', title: 'Penilaian'},
                 { data: 'history', name: 'history', title: 'History'},
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
@@ -205,4 +204,5 @@ $(function(){
     });
 });
 </script>
+
 @endsection

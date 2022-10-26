@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate, Storage};
 
 class PenilaianNaskahController extends Controller
@@ -477,14 +478,14 @@ class PenilaianNaskahController extends Controller
                 ]);
                 DB::table('penerbitan_pn_stts')->where('naskah_id',$request->input('pn1_naskah_id'))
                     ->update([
-                        'tgl_pn_prodev' => date('Y-m-d H:i:s')
+                        'tgl_pn_prodev' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ]);
                 $notif = DB::table('notif')->whereNull('expired')->where('permission_id', 'ebca07da8aad42c4aee304e3a6b81001') // Notif Prodev
                             ->where('form_id', $request->input('pn1_naskah_id'))->first();
                 if (!is_null($notif)) {
-                    DB::table('notif')->where('id', $notif->id)->update(['expired' => date('Y-m-d H:i:s')]);
+                    DB::table('notif')->where('id', $notif->id)->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
                     DB::table('notif_detail')->where('notif_id', $notif->id)->where('user_id', auth()->id())
-                        ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+                        ->update(['seen' => '1', 'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
                 }
 
             } else {
@@ -520,7 +521,7 @@ class PenilaianNaskahController extends Controller
                     'saran' => $request->input('pn1_saran'),
                     'potensi' => $request->input('pn1_potensi'),
                     'updated_by' => auth()->id(),
-                    'updated_at' => date('Y-m-d H:i:s')
+                    'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ]);
             }
 
@@ -563,11 +564,11 @@ class PenilaianNaskahController extends Controller
                     'perlu_proses_edit' => $request->input('pn2_perlu_proses_edit'),
                     'proses_editor' => $request->input('pn2_proses_editor'),
                     'penilai_editing' => auth()->id(),
-                    'editing_created_at' => date('Y-m-d H:i:s')
+                    'editing_created_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ]);
 
                 DB::table('notif')->whereNull('expired')->where('permission_id', '5d793b19c75046b9a4d75d067e8e33b2')
-                    ->where('form_id', $request->input('pn2_naskah_id'))->update(['expired' => date('Y-m-d H:i:s')]);
+                    ->where('form_id', $request->input('pn2_naskah_id'))->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
 
             } else {
                 DB::table('penerbitan_pn_editor_setter')->where('id', $request->input('pn2_id'))->update([
@@ -581,7 +582,7 @@ class PenilaianNaskahController extends Controller
                     'perlu_proses_edit' => $request->input('pn2_perlu_proses_edit'),
                     'proses_editor' => $request->input('pn2_proses_editor'),
                     'penilai_editing' => auth()->id(),
-                    'editing_updated_at' => date('Y-m-d H:i:s')
+                    'editing_updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ]);
             }
 
@@ -600,7 +601,7 @@ class PenilaianNaskahController extends Controller
                     'perlu_proses_setting' => $request->input('pn2_perlu_proses_setting'),
                     'proses_setting' => $request->input('pn2_proses_setting'),
                     'penilai_setting' => auth()->id(),
-                    'setting_created_at' => date('Y-m-d H:i:s')
+                    'setting_created_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ]);
 
                 DB::table('penerbitan_naskah')->where('id', $request->input('pn2_naskah_id'))
@@ -610,7 +611,7 @@ class PenilaianNaskahController extends Controller
                     ]);
 
                 DB::table('notif')->whereNull('expired')->where('permission_id', '33c3711d787d416082c0519356547b0c')
-                    ->where('form_id', $request->input('pn2_naskah_id'))->update(['expired' => date('Y-m-d H:i:s')]);
+                    ->where('form_id', $request->input('pn2_naskah_id'))->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
 
                 DB::commit();
                 return;
@@ -642,17 +643,17 @@ class PenilaianNaskahController extends Controller
                     'ds_tb' => json_encode($request->input('pn3_dstb')),
                     'pilar' => json_encode($request->input('pn3_pilar')),
                     'created_by' => auth()->id(),
-                    'created_at' => date('Y-m-d H:i:s')
+                    'created_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ]);
 
                 $pemasaran = DB::table('penerbitan_pn_pemasaran')->where('naskah_id', $request->input('pn3_naskah_id'))
                                 ->where('pic', 'M')->get();
                 if(count($pemasaran) > 1) {
                     DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn3_naskah_id'))->update([
-                        'tgl_pn_m_pemasaran' => date('Y-m-d H:i:s')
+                        'tgl_pn_m_pemasaran' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ]);
                     DB::table('notif')->whereNull('expired')->where('permission_id', 'a213b689b8274f4dbe19b3fb24d66840')
-                        ->where('form_id', $request->input('pn3_naskah_id'))->update(['expired' => date('Y-m-d H:i:s')]);
+                        ->where('form_id', $request->input('pn3_naskah_id'))->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
                 }
 
                 // $pn = DB::table('penerbitan_pn_penerbitan')->where('naskah_id', $request->input('pn3_naskah_id'))->first();
@@ -674,7 +675,7 @@ class PenilaianNaskahController extends Controller
                         'ds_tb' => json_encode($request->input('pn3_dstb')),
                         'pilar' => json_encode($request->input('pn3_pilar')),
                         'updated_by' => auth()->id(),
-                        'updated_at' => date('Y-m-d H:i:s')
+                        'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ]);
             }
 
@@ -707,11 +708,11 @@ class PenilaianNaskahController extends Controller
                     'ds_tb' => $request->input('pn6_dstb'),
                     'pilar' => $request->input('pn6_pilar'),
                     'created_by' => auth()->id(),
-                    'created_at' => date('Y-m-d H:i:s')
+                    'created_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ]);
 
                 DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn6_naskah_id'))->update([
-                    'tgl_pn_d_pemasaran' => date('Y-m-d H:i:s')
+                    'tgl_pn_d_pemasaran' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ]);
 
                 $pn = DB::table('penerbitan_pn_penerbitan')->where('naskah_id', $request->input('pn6_naskah_id'))->first();
@@ -733,7 +734,7 @@ class PenilaianNaskahController extends Controller
                         'ds_tb' => $request->input('pn6_dstb'),
                         'pilar' => $request->input('pn6_pilar'),
                         'updated_by' => auth()->id(),
-                        'updated_at' => date('Y-m-d H:i:s')
+                        'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ]);
             }
 
@@ -766,11 +767,11 @@ class PenilaianNaskahController extends Controller
 
                 DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn4_naskah_id'))
                     ->update([
-                        'tgl_pn_m_penerbitan' => date('Y-m-d H:i:s')
+                        'tgl_pn_m_penerbitan' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ]);
                 DB::table('notif')->whereNull('expired')->where('permission_id', '12b852d92d284ab5a654c26e8856fffd')
                     ->where('form_id', $request->input('pn4_naskah_id'))->update([
-                        'expired' => date('Y-m-d H:i:s')
+                        'expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ]);
 
             } else {
@@ -781,7 +782,7 @@ class PenilaianNaskahController extends Controller
                         'potensi' => $request->input('pn4_potensi'),
                         'catatan' => $request->input('pn4_catatan'),
                         'updated_by' => auth()->id(),
-                        'updated_at' => date('Y-m-d H:i:s')
+                        'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ]);
             }
 
@@ -831,11 +832,11 @@ class PenilaianNaskahController extends Controller
             ]);
             DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn5_naskah_id'))
                     ->update([
-                        'tgl_pn_direksi' => date('Y-m-d H:i:s'),
-                        'tgl_pn_selesai' => date('Y-m-d H:i:s')
+                        'tgl_pn_direksi' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                        'tgl_pn_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ]);
             DB::table('notif')->whereNull('expired')->where('permission_id', '8791f143a90e42e2a4d1d0d6b1254bad')
-                ->where('form_id', $request->input('pn5_naskah_id'))->update(['expired' => date('Y-m-d H:i:s')]);
+                ->where('form_id', $request->input('pn5_naskah_id'))->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
 
             DB::commit();
         } catch(\Exception $e) {

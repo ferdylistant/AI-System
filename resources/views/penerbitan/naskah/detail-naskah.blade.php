@@ -367,7 +367,7 @@ $(function() {
                     $('#form_penilaian').parent().addClass('card-progress')
                 },
                 success: function(result) {
-                    console.log(tab)
+                    // console.log(tab)
                     $('#pn_'+tab).empty();
                     $('#pn_'+tab).append(result)
                     reinitialSelect2();
@@ -388,7 +388,7 @@ $(function() {
                     }
                 },
                 error: function(err) {
-                    console.log(err)
+                    // console.log(err)
                     notifToast('error', 'Terjadi Kesalahan Form Penilaian Gagal Dibuka!');
                 },
                 complete: function() {
@@ -437,7 +437,7 @@ $(function() {
                     addClass('btn-progress')
             },
             success: function(result) {
-                console.log(result)
+                // console.log(result)
                 notifToast('success', 'Penilaian berhasil disimpan!', true);
             },
             error: function(err) {
@@ -489,11 +489,10 @@ $(function() {
                     addClass('btn-progress')
             },
             success: function(result) {
-                console.log(result)
                 notifToast('success', 'Data naskah berhasil disimpan!', true);
             },
             error: function(err) {
-                console.log(err.responseJSON)
+                // console.log(err.responseJSON)
                 rs = err.responseJSON.errors;
                 if(rs != undefined) {
                     err = {};
@@ -501,7 +500,7 @@ $(function() {
                         let [key, value] = entry;
                         err[key] = value
                     })
-                    console.log(err)
+                    // console.log(err)
                     pn2_EditSet.showErrors(err);
                 }
                 notifToast('error', 'Data naskah gagal disimpan!');
@@ -546,7 +545,6 @@ $(function() {
                 notifToast('success', 'Penilaian berhasil disimpan!', true);
             },
             error: function(err) {
-                console.log(err);
                 rs = err.responseJSON.errors;
                 if(rs != undefined) {
                     err = {};

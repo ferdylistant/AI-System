@@ -48,14 +48,9 @@ select[readonly].select2-hidden-accessible + .select2-container .select2-selecti
                         <div class="row">
                             <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Judul Asli: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fas fa-user"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="edit_judul_asli" placeholder="Judul Asli Naskah">
+                                    <textarea class="form-control" name="edit_judul_asli" placeholder="Judul Asli Naskah"></textarea>
                                     <input type="hidden" name="edit_id">
                                     <div id="err_edit_judul_asli"></div>
-                                </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Kode Naskah: <span class="text-danger">*</span></label>

@@ -27,6 +27,7 @@
         <div class="form-group col-12">
             <label class="d-block">Pilar: <span class="text-danger">*</span></label>
             @foreach($pilar as $pl)
+
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="checkbox" {{in_array($pl->options, json_decode($p->pilar))?'checked':''}} disabled>
                 <label class="form-check-label" >{{$pl->options}}</label>
@@ -110,7 +111,7 @@
     </div>
     <div class="form-group col-12 mb-4">
         <label class="d-block">Pilar: <span class="text-danger">*</span></label>
-        @foreach($pilar as $p)
+        @foreach($pilar as $key => $p)
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="checkbox" id="P_{{$p->options}}" name="pn3_pilar[]" value="{{$p->options}}" {{in_array($p->options, json_decode($pn_pemasaran->pilar))?'checked':''}}>
             <label class="form-check-label" for="P_{{$p->options}}">{{$p->options}}</label>

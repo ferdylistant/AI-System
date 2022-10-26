@@ -34,10 +34,7 @@
                             <div class="form-group col-12 col-md-6 mb-4">
                                 <label>Judul Asli: <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fas fa-user"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="add_judul_asli"  placeholder="Judul Asli Naskah">
+                                        <textarea class="form-control" name="add_judul_asli"  placeholder="Judul Asli Naskah"></textarea>
                                     <div id="err_add_judul_asli"></div>
                                 </div>
                             </div>
@@ -199,9 +196,9 @@
                                 </table>
                             </div>
                             <div class="form-group col-12 mb-4">
-                                <label>Keterangan: </label>
+                                <label>Keterangan: <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <textarea class="form-control" name="add_keterangan" placeholder="Keterangan Tambahan Naskah"></textarea>
+                                    <textarea class="form-control" name="add_keterangan" placeholder="Keterangan Tambahan Naskah" required></textarea>
                                     <div id="err_add_keterangan"></div>
                                 </div>
                             </div>

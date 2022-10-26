@@ -101,7 +101,7 @@ Route::middleware(['auth'])->group(function() {
         Route::match(['get', 'post'], '/naskah/mengubah-naskah/{id}', [NaskahController::class, 'updateNaskah']);
         Route::post('/naskah/penilaian/{cat}', [PenilaianNaskahController::class, 'index']);
         Route::post('/naskah/timeline/{cat}', [TimelineController::class, 'index']);
-        Route::get('/naskah/tandai-telah-kirim-email', [NaskahController::class, 'tandaKirimEmail']);
+        Route::post('/naskah/tandai-data-lengkap', [NaskahController::class, 'tandaDataLengkap']);
         Route::post('/naskah/lihat-history', [NaskahController::class, 'lihatHistoryNaskah'])->name('naskah.history');
         //Deskripsi Produk
         Route::get('/deskripsi/produk',[DeskripsiProdukController::class, 'index'])->name('despro.view');
