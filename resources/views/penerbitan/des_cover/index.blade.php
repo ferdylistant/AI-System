@@ -178,7 +178,7 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
         });
-        let tableDesProduk = $('#tb_DesCover').DataTable({
+        let tableDesCover = $('#tb_DesCover').DataTable({
             "bSort": false,
             "responsive": true,
             "autoWidth" : true,
@@ -208,7 +208,7 @@
         });
         $('[name="status_filter"]').on('change', function(){
             var val = $.fn.dataTable.util.escapeRegex($(this).val());
-            tableDesProduk.column( $(this).data('column') )
+            tableDesCover.column( $(this).data('column') )
             .search( val ? val : '', true, false )
             .draw();
         });

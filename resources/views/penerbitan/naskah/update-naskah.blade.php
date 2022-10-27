@@ -192,9 +192,9 @@ select[readonly].select2-hidden-accessible + .select2-container .select2-selecti
                                 </table>
                             </div>
                             <div class="form-group col-12 mb-4">
-                                <label>Keterangan: </label>
+                                <label>Keterangan: <span class="text-danger"></span></label>
                                 <div class="input-group">
-                                    <textarea class="form-control" name="edit_keterangan" placeholder="Keterangan Tambahan Naskah"></textarea>
+                                    <textarea class="form-control" name="edit_keterangan" placeholder="Keterangan Tambahan Naskah" required></textarea>
                                     <div id="err_edit_keterangan"></div>
                                 </div>
                             </div>

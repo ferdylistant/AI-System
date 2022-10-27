@@ -75,8 +75,20 @@
             <div class="col-12">
                 <div class="card card-primary">
                     <div class="card-body">
-                        <div class="d-flex justify-content-end">
-                            <div class="col-auto mb-3">
+                        <div class="d-flex justify-content-between">
+                            <div class="form-group col-auto col-md-3 mr-auto">
+                                <div class="input-group">
+                                    <select data-column="4" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
+                                        <option label="Pilih Filter Data"></option>
+                                        @foreach ($data_naskah_penulis as $val)
+                                            <option value="{{$val['value']}}">{{$val['name']}}&nbsp;&nbsp;</option>
+                                        @endforeach
+
+                                    </select>
+                                    <button type="button" class="btn btn-outline-danger clear_field text-danger align-self-center" data-toggle="tooltip" title="Reset" hidden><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                            <div class="col-auto">
                                 <span class="badge badge-warning"><i class="fas fa-database"></i> Total data naskah masuk: <b>{{$count}}</b></span>
                             </div>
                         </div>
@@ -153,6 +165,12 @@
                 { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
             ]
         });
+        $('[name="status_filter"]').on('change', function(){
+            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+            tableNaskah.column( $(this).data('column') )
+            .search( val ? val : '', true, false )
+            .draw();
+        });
     });
 </script>
 <script>
@@ -202,6 +220,22 @@ $(function(){
             }
         });
     });
+});
+$(document).ready(function() {
+    $(".select-filter").select2({
+        placeholder: 'Filter Data Lengkap/Belum\xa0\xa0',
+    }).on('change', function(e) {
+        if(this.value) {
+            $('.clear_field').removeAttr('hidden');
+            $(this).valid();
+        }
+    });
+});
+$(document).ready(function(){
+    $('.clear_field').click( function () {
+        $(".select-filter").val('').trigger('change');
+        $('.clear_field').attr('hidden','hidden');
+   });
 });
 </script>
 

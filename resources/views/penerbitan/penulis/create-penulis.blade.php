@@ -49,7 +49,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Kewarganegaraan: <span class="text-danger">*</span></label>
+                                <label>Kewarganegaraan: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-flag"></i></div>
@@ -63,7 +63,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Tempat Lahir: <span class="text-danger">*</span></label>
+                                <label>Tempat Lahir: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-globe"></i></div>
@@ -73,7 +73,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Tanggal Lahir: <span class="text-danger">*</span></label>
+                                <label>Tanggal Lahir: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
@@ -83,22 +83,22 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Telepon: </label>
+                                <label>Telepon: <span class="text-danger">* Jika tidak ada, isi dengan nilai 0</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-phone"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_telepon_domisili" placeholder="No.Telepon Aktif">
+                                    <input type="text" class="form-control" name="add_telepon_domisili" placeholder="No.Telepon Aktif" required>
                                     <div id="err_add_telepon_domisili"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Ponsel: </label>
+                                <label>Ponsel: <span class="text-danger">* Jika tidak ada, isi dengan nilai 0</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-mobile"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_ponsel_domisili" placeholder="No.Ponsel Aktif">
+                                    <input type="text" class="form-control" name="add_ponsel_domisili" placeholder="No.Ponsel Aktif" required>
                                     <div id="err_add_ponsel_domisili"></div>
                                 </div>
                             </div>
@@ -194,7 +194,7 @@
 
                         <div class="row mb-5">
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>No Rekening: <span class="text-danger">*</span></label>
+                                <label>No Rekening: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="far fa-credit-card"></i></div>
@@ -204,7 +204,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Nama Bank: <span class="text-danger">*</span></label>
+                                <label>Nama Bank: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-university"></i></div>
@@ -214,7 +214,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Atas Nama: <span class="text-danger">*</span></label>
+                                <label>Atas Nama: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-user"></i></div>
@@ -229,12 +229,19 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-gavel"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_npwp" placeholder="NPWP" onkeydown="return numbersonly(this, event);" onkeyup="javascript:tandaPemisahTitik(this);">
+                                    <input type="text" class="form-control is-invalid" name="add_npwp" placeholder="NPWP" id="npWP" onkeyup="checkInput()">
+                                    <div class="invalid-feedback">
+                                        Masukan sesuai format NPWP..
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Format NPWP sudah sesuai..
+                                    </div>
+
                                     <div id="err_add_npwp"></div>
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>No.KTP: <span class="text-danger">*</span></label>
+                                <label>No.KTP: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-id-card"></i></div>
@@ -273,11 +280,19 @@
                                     <div id="err_add_foto_penulis" style="display: block;"></div>
                                 </div>
                             </div>
+                            <div class="form-group col-12 col-md-12 mb-4">
+                                <label>File Hibah Royalti (<span class="text-danger">.pdf</span>) </label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="add_file_hibah_royalti" id="fileHR">
+                                    <label class="custom-file-label" for="fileHR">Choose file</label>
+                                </div>
+                                <div id="err_add_file_hibah_royalti" style="display: block;"></div>
+                            </div>
                         </div>
 
                         <h5>#3</h5><hr>
                         <div class="row">
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            <div class="form-group col-12 col-md-12 mb-4">
                                 <label>File Tentang Penulis (<span class="text-danger">.pdf</span>) </label>
                                 <div class="custom-file">
                                     <input type="file" class="custom-file-input" name="add_file_tentang_penulis" id="fileTP">
@@ -318,6 +333,28 @@
 
 
 @section('jsNeeded')
+<script src="https://unpkg.com/imask"></script>
+<script>
+    var element = document.getElementById('npWP');
+    var maskOptions = {
+        mask: '00.000.000.0-000.000'
+    };
+    var mask = IMask(element, maskOptions,reverse = true);
+
+</script>
+<script>
+    const input = document.querySelector("#npWP");
+function checkInput() {
+    var value = document.getElementById( "npWP" ).value;
+    if ( value.length < 20 ) {
+        input.classList.remove( "is-valid" );
+        input.classList.add( "is-invalid" );
+    } else {
+        input.classList.add( "is-valid" );
+        input.classList.remove( "is-invalid" );
+    }
+}
+</script>
 <script>
 $(function() {
     $(".select2").select2({
@@ -368,13 +405,11 @@ $(function() {
 
     let addCabang = jqueryValidation_('#fadd_Penulis', {
         add_nama: {required: true},
-        add_kewarganegaraan: {required: true},
-        add_tempat_lahir: {required: true},
-        add_tanggal_lahir: {required: true},
-        add_telp: {min:0, maxlength:20,  number: true},
-        add_ponsel: {min:0, maxlength:20,  number: true},
+        add_telp: {required: true,min:0, maxlength:20,  number: true},
+        add_ponsel: {required: true,min:0, maxlength:20,  number: true},
         add_telp_kantor: {min:0, maxlength:20,  number: true},
         add_file_tentang_penulis: { extension: "pdf", maxsize: 2000000, },
+        add_file_hibah_royalti: { extension: "pdf", maxsize: 2000000, },
         add_scan_ktp: { extension: "jpg,jpeg,png" },
         add_scan_npwp: { extension: "jpg,jpeg,png" },
         add_foto_penulis: { extension: "jpg,jpeg,png" },
@@ -465,90 +500,90 @@ $(function() {
         }
     })
 });
-function tandaPemisahTitik(b){
-    var _minus = false;
-    if (b < 0) _minus = true;
-        b = b.toString();
-        b=b.replace(".","");
-        b=b.replace("-","");
-        c = "";
-    panjang = b.length;
-    j = 0;
-    for (i = panjang; i > 0; i--){
-        j = j + 1;
-        if (((j % 3) == 1) && (j != 1)){
-            c = b.substr(i-1,1) + "." + c;
-        } else {
-            c = b.substr(i-1,1) + c;
-        }
-    }
-    if (_minus) c = "-" + c ;
-        return c;
-    }
+// function tandaPemisahTitik(b){
+//     var _minus = false;
+//     if (b < 0) _minus = true;
+//         b = b.toString();
+//         b=b.replace(".","");
+//         b=b.replace("-","");
+//         c = "";
+//     panjang = b.length;
+//     j = 0;
+//     for (i = panjang; i > 0; i--){
+//         j = j + 1;
+//         if (((j % 3) == 1) && (j != 1)){
+//             c = b.substr(i-1,1) + "." + c;
+//         } else {
+//             c = b.substr(i-1,1) + c;
+//         }
+//     }
+//     if (_minus) c = "-" + c ;
+//         return c;
+//     }
 
-    function numbersonly(ini, e){
-        if (e.keyCode>=49){
-            if(e.keyCode<=57){
-                a = ini.value.toString().replace(".","");
-                b = a.replace(/[^\d]/g,"");
-                b = (b=="0")?String.fromCharCode(e.keyCode):b + String.fromCharCode(e.keyCode);
-                ini.value = tandaPemisahTitik(b);
-                return false;
-            }
-        else if(e.keyCode<=105){
-            if(e.keyCode>=96){
-            // e.keycode = e.keycode - 47;
-            a = ini.value.toString().replace(".","");
-            b = a.replace(/[^\d]/g,"");
-            b = (b=="0")?String.fromCharCode(e.keyCode-48):b + String.fromCharCode(e.keyCode-48);
-            ini.value = tandaPemisahTitik(b);
-            //alert(e.keycode);
-            return false;
-            }
-            else {
-                return false;
-            }
-        }
-    else {
-    return false; }
-    }else if (e.keyCode==48){
-    a = ini.value.replace(".","") + String.fromCharCode(e.keyCode);
-    b = a.replace(/[^\d]/g,"");
-    if (parseFloat(b)!=0){
-    ini.value = tandaPemisahTitik(b);
-    return false;
-    } else {
-    return false;
-    }
-    }else if (e.keyCode==95){
-    a = ini.value.replace(".","") + String.fromCharCode(e.keyCode-48);
-    b = a.replace(/[^\d]/g,"");
-    if (parseFloat(b)!=0){
-    ini.value = tandaPemisahTitik(b);
-    return false;
-    } else {
-    return false;
-    }
-    }else if (e.keyCode==8 || e.keycode==46){
-    a = ini.value.replace(".","");
-    b = a.replace(/[^\d]/g,"");
-    b = b.substr(0,b.length -1);
-    if (tandaPemisahTitik(b)!=""){
-    ini.value = tandaPemisahTitik(b);
-    } else {
-    ini.value = "";
-    }
+// function numbersonly(ini, e){
+//     console.log(e.keyCode);
+//     if (e.keyCode>=49){
+//         if(e.keyCode<=57){
+//             a = ini.value.toString().replace(".","");
+//             b = a.replace(/[^\d]/g,"");
+//             b = (b=="0")?String.fromCharCode(e.keyCode):b + String.fromCharCode(e.keyCode);
+//             ini.value = tandaPemisahTitik(b);
+//             return false;
+//         }
+//     else if(e.keyCode<=105){
+//         if(e.keyCode>=96){
+//         e.keycode = e.keycode - 47;
+//         a = ini.value.toString().replace(".","");
+//         b = a.replace(/[^\d]/g,"");
+//         b = (b=="0")?String.fromCharCode(e.keyCode-48):b + String.fromCharCode(e.keyCode-48);
+//         ini.value = tandaPemisahTitik(b);
+//         //alert(e.keycode);
+//         return false;
+//         }
+//         else {
+//             return false;
+//         }
+//     }
+//     else {
+//         return false; }
+//     } else if (e.keyCode==48){
+//         a = ini.value.replace(".","") + String.fromCharCode(e.keyCode);
+//         b = a.replace(/[^\d]/g,"");
+//         if (parseFloat(b)!=0){
+//             ini.value = tandaPemisahTitik(b);
+//             return false;
+//         } else {
+//             return false;
+//         }
+//     }else if (e.keyCode==95){
+//         a = ini.value.replace(".","") + String.fromCharCode(e.keyCode-48);
+//         b = a.replace(/[^\d]/g,"");
+//         if (parseFloat(b)!=0){
+//             ini.value = tandaPemisahTitik(b);
+//             return false;
+//         } else {
+//             return false;
+//         }
+//     }else if (e.keyCode==8 || e.keycode==46){
+//         a = ini.value.replace(".","");
+//         b = a.replace(/[^\d]/g,"");
+//         b = b.substr(0,b.length -1);
+//         if (tandaPemisahTitik(b)!=""){
+//             ini.value = tandaPemisahTitik(b);
+//         } else {
+//             ini.value = "";
+//         }
 
-    return false;
-    } else if (e.keyCode==9){
-    return true;
-    } else if (e.keyCode==17){
-    return true;
-    } else {
-    //alert (e.keyCode);
-    return false;
-    }
-
-}
+//         return false;
+//     } else if (e.keyCode==9){
+//         return true;
+//     } else if (e.keyCode==17){
+//         return true;
+//     } else {
+//         //alert (e.keyCode);
+//         return false;
+//     }
+// }
 </script>
 @endsection

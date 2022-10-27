@@ -52,7 +52,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Kewarganegaraan: <span class="text-danger">*</span></label>
+                                <label>Kewarganegaraan: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-flag"></i></div>
@@ -66,7 +66,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Tempat Lahir: <span class="text-danger">*</span></label>
+                                <label>Tempat Lahir: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-globe"></i></div>
@@ -76,7 +76,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Tanggal Lahir: <span class="text-danger">*</span></label>
+                                <label>Tanggal Lahir: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
@@ -86,7 +86,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Telepon: </label>
+                                <label>Telepon: <span class="text-danger">* Jika tidak ada, isi dengan nilai 0</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-phone"></i></div>
@@ -96,7 +96,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Ponsel: </label>
+                                <label>Ponsel: <span class="text-danger">* Jika tidak ada, isi dengan nilai 0</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-mobile"></i></div>
@@ -153,7 +153,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <h5>#2</h5><hr>
                         <div class="row  mb-5">
                             <div class="form-group col-12 col-md-4 mb-4">
@@ -197,7 +197,7 @@
 
                         <div class="row  mb-5">
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>No Rekening: <span class="text-danger">*</span></label>
+                                <label>No Rekening: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="far fa-credit-card"></i></div>
@@ -207,7 +207,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Nama Bank: <span class="text-danger">*</span></label>
+                                <label>Nama Bank: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-university"></i></div>
@@ -217,7 +217,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Atas Nama: <span class="text-danger">*</span></label>
+                                <label>Atas Nama: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-user"></i></div>
@@ -237,7 +237,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>No.KTP: <span class="text-danger">*</span></label>
+                                <label>No.KTP: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-id-card"></i></div>
@@ -248,7 +248,7 @@
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Scan NPWP: </label>
-                                @if(!is_null($penulis->scan_npwp)) 
+                                @if(!is_null($penulis->scan_npwp))
                                 <a class="btn btn-sm btn-primary" data-magnify="gallery"
                                     href="{{ url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_npwp) }}"
                                 >Lihat</a>
@@ -263,7 +263,7 @@
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Scan KTP: </label>
-                                @if(!is_null($penulis->scan_ktp)) 
+                                @if(!is_null($penulis->scan_ktp))
                                 <a class="btn btn-sm btn-primary" data-magnify="gallery"
                                     href="{{ url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_ktp) }}"
                                 >Lihat</a>
@@ -278,7 +278,7 @@
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Foto Penulis: </label>
-                                @if(!is_null($penulis->foto_penulis)) 
+                                @if(!is_null($penulis->foto_penulis))
                                 <a class="btn btn-sm btn-primary" data-magnify="gallery"
                                     href="{{ url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->foto_penulis) }}"
                                 >Lihat</a>
@@ -290,6 +290,18 @@
                                     </div>
                                     <div id="err_edit_foto_penulis" style="display: block;"></div>
                                 </div>
+                            </div>
+                            <div class="form-group col-12 col-md-4 mb-4">
+                                <label>File Hibah Royalti (<span class="text-danger">.pdf</span>) </label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="edit_file_hibah_royalti" id="fileHR">
+                                    <label class="custom-file-label" for="fileHR">Choose file</label>
+                                </div>
+                                <div id="err_edit_file_hibah_royalti" style="display: block;"></div>
+                                @if(!is_null($penulis->file_hibah_royalti))
+                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->file_hibah_royalti)}}"
+                                    data-book-engine="onepageswipe" style="max-height: 300px;"></div>
+                                @endif
                             </div>
                         </div>
 
@@ -303,7 +315,7 @@
                                 </div>
                                 <div id="err_edit_file_tentang_penulis" style="display: block;"></div>
                                 @if(!is_null($penulis->file_tentang_penulis))
-                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->file_tentang_penulis)}}" 
+                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->file_tentang_penulis)}}"
                                     data-book-engine="onepageswipe" style="max-height: 300px;"></div>
                                 @endif
                             </div>
@@ -393,37 +405,35 @@ $(function() {
     });
 
     $.uploadPreview({
-        input_field: "#iu_npwp",  
-        preview_box: "#ip_npwp", 
-        label_field: "#il_npwp",  
-        label_default: "Pilih File",  
+        input_field: "#iu_npwp",
+        preview_box: "#ip_npwp",
+        label_field: "#il_npwp",
+        label_default: "Pilih File",
         label_selected: "Pilih File"
     });
 
     $.uploadPreview({
-        input_field: "#iu_ktp",  
-        preview_box: "#ip_ktp", 
-        label_field: "#il_ktp",  
-        label_default: "Pilih File",  
+        input_field: "#iu_ktp",
+        preview_box: "#ip_ktp",
+        label_field: "#il_ktp",
+        label_default: "Pilih File",
         label_selected: "Pilih File"
     });
     $.uploadPreview({
-        input_field: "#iu_pp",  
-        preview_box: "#ip_pp", 
-        label_field: "#il_pp",  
-        label_default: "Pilih File",  
+        input_field: "#iu_pp",
+        preview_box: "#ip_pp",
+        label_field: "#il_pp",
+        label_default: "Pilih File",
         label_selected: "Pilih File"
     });
 
     let editCabang = jqueryValidation_('#fedit_Penulis', {
         edit_nama: {required: true},
-        edit_kewarganegaraan: {required: true},
-        edit_tempat_lahir: {required: true},
-        edit_tanggal_lahir: {required: true},
         edit_telp: {min:0, maxlength:20,  number: true},
         edit_ponsel: {min:0, maxlength:20,  number: true},
         edit_telp_kantor: {min:0, maxlength:20,  number: true},
         edit_file_tentang_penulis: { extension: "pdf", maxsize: 500000, },
+        edit_file_hibah_royalti: { extension: "pdf", maxsize: 500000, },
         edit_scan_ktp: { extension: "jpg,jpeg,png", maxsize: 500000, },
         edit_scan_npwp: { extension: "jpg,jpeg,png", maxsize: 500000, },
         edit_foto_penulis: { extension: "jpg,jpeg,png", maxsize: 500000, },
@@ -458,7 +468,7 @@ $(function() {
                     })
                     editCabang.showErrors(err);
                 }
-                
+
                 notifToast('error', 'Data penulis gagal disimpan!');
             },
             complete: function() {
@@ -467,7 +477,7 @@ $(function() {
             }
         })
     }
-    
+
     $('#fedit_Penulis').on('submit', function(e) {
         e.preventDefault();
         if($(this).valid()) {
@@ -483,7 +493,7 @@ $(function() {
                     ajaxEditPenulis($(this))
                 }
             });
-            
+
         }
     })
 })

@@ -8,7 +8,7 @@
 
 @section('cssNeeded')
 <style>
-    
+
 </style>
 @endsection
 
@@ -23,10 +23,10 @@
 
     <div class="section-body">
         <div class="row">
-            <div class="col-12 col-md-7">
+            <div class="col-12 col-md-12">
                 <div class="card card-primary profile-widget">
                     <div class="profile-widget-header">
-                        <img alt="image" src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->foto_penulis)}}" class="rounded-circle profile-widget-picture"> 
+                        <img alt="image" src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->foto_penulis)}}" class="rounded-circle profile-widget-picture">
                     </div>
                     <div class="profile-widget-description">
                         <div class="row mb-5">
@@ -40,7 +40,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Kewarganegaraan: <span class="text-danger">*</span></label>
+                                <label>Kewarganegaraan: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-flag"></i></div>
@@ -49,7 +49,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Tempat Lahir: <span class="text-danger">*</span></label>
+                                <label>Tempat Lahir: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-globe"></i></div>
@@ -58,7 +58,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Tanggal Lahir: <span class="text-danger">*</span></label>
+                                <label>Tanggal Lahir: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
@@ -67,7 +67,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Telepon: </label>
+                                <label>Telepon: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-phone"></i></div>
@@ -76,7 +76,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>Ponsel: </label>
+                                <label>Ponsel: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-mobile"></i></div>
@@ -127,7 +127,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row  mb-5">
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Nama Kantor: </label>
@@ -166,7 +166,7 @@
 
                         <div class="row  mb-5">
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>No Rekening: <span class="text-danger">*</span></label>
+                                <label>No Rekening: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="far fa-credit-card"></i></div>
@@ -175,7 +175,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Nama Bank: <span class="text-danger">*</span></label>
+                                <label>Nama Bank: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-university"></i></div>
@@ -184,7 +184,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Atas Nama: <span class="text-danger">*</span></label>
+                                <label>Atas Nama: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-user"></i></div>
@@ -202,7 +202,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-6 mb-4">
-                                <label>No.KTP: <span class="text-danger">*</span></label>
+                                <label>No.KTP: </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-id-card"></i></div>
@@ -210,9 +210,9 @@
                                     <input type="text" class="form-control" value="{{$penulis->ktp}}" readonly>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Scan NPWP: </label>
-                                @if(!is_null($penulis->scan_npwp)) 
+                                @if(!is_null($penulis->scan_npwp))
                                 <a class="btn btn-sm btn-primary" data-magnify="gallery"
                                     href="{{ url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_npwp) }}"
                                 >Lihat</a>
@@ -220,12 +220,21 @@
                                 <div><small class="text-muted">#Tidak ada file diupload.</small></div>
                                 @endif
                             </div>
-                            <div class="form-group col-12 col-md-6 mb-4">
+                            <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Scan KTP: </label>
-                                @if(!is_null($penulis->scan_ktp)) 
+                                @if(!is_null($penulis->scan_ktp))
                                 <a class="btn btn-sm btn-primary" data-magnify="gallery"
                                     href="{{ url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_ktp) }}"
                                 >Lihat</a>
+                                @else
+                                <div><small class="text-muted">#Tidak ada file diupload.</small></div>
+                                @endif
+                            </div>
+                            <div class="form-group col-12 col-md-4 mb-4">
+                                <label>File Hibah Royalti (<span class="text-danger">.pdf</span>) </label>
+                                @if(!is_null($penulis->file_hibah_royalti))
+                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->file_hibah_royalti)}}"
+                                    data-book-engine="onepageswipe" style="max-height: 300px;"></div>
                                 @else
                                 <div><small class="text-muted">#Tidak ada file diupload.</small></div>
                                 @endif
@@ -242,7 +251,7 @@
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label>File Tentang Penulis (<span class="text-danger">.pdf</span>) </label>
                                 @if(!is_null($penulis->file_tentang_penulis))
-                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->file_tentang_penulis)}}" 
+                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->file_tentang_penulis)}}"
                                     data-book-engine="onepageswipe" style="max-height: 300px;"></div>
                                 @else
                                 <div><small class="text-muted">#Tidak ada file diupload.</small></div>
