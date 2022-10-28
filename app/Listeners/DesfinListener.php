@@ -43,6 +43,7 @@ class DesfinListener
                     ->update([
                         'dp.format_buku' => $data['format_buku'],
                         'dp.judul_final' => $data['judul_final'],
+                        'dp.jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
                         'df.sub_judul_final' => $data['sub_judul_final'],
                         'df.kertas_isi' => $data['kertas_isi'],
                         'df.jml_hal_asli' => $data['jml_hal_asli'],
@@ -71,6 +72,8 @@ class DesfinListener
                     'sub_judul_final_new' => $data['sub_judul_final_new'],
                     'kertas_isi_his' => $data['kertas_isi_his'],
                     'kertas_isi_new' => $data['kertas_isi_new'],
+                    'jml_hal_perkiraan_his' => $data['jml_hal_perkiraan_his'],
+                    'jml_hal_perkiraan_new' => $data['jml_hal_perkiraan_new'],
                     'jml_hal_asli_his' => $data['jml_hal_asli_his'],
                     'jml_hal_asli_new' => $data['jml_hal_asli_new'],
                     'ukuran_asli_his' => $data['ukuran_asli_his'],

@@ -95,6 +95,37 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
+                                                    <th class="table-secondary" style="width: 25%">Sub-Judul Final:</th>
+                                                    @if (!is_null($data->sub_judul_final))
+                                                    <td class="table-active text-right" id="subJudulFinalCol">
+                                                        {{$data->sub_judul_final}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="subJudulFinalButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="subJudulFinalColInput" hidden>
+                                                        <div class="input-group">
+                                                            <textarea name="sub_judul_final" class="form-control" cols="30" rows="10">{{$data->sub_judul_final}}</textarea>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_sub_judul_final text-danger" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @else
+                                                    <td class="table-active text-right" id="subJudulFinalCol">
+                                                        <a href="javascript:void(0)" id="subJudulFinalButton"><i class="fa fa-plus"></i>&nbsp;Tambahkan</a>
+                                                    </td>
+                                                    <td class="table-active text-left" id="subJudulFinalColInput" hidden>
+                                                        <div class="input-group">
+                                                            <textarea name="sub_judul_final" class="form-control" cols="30" rows="10"></textarea>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_sub_judul_final text-danger" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
                                                     <th class="table-secondary" style="width: 25%">Kelompok Buku:</th>
                                                     <td class="table-active text-right">{{$data->nama}}</td>
                                                 </tr>
@@ -536,6 +567,11 @@
                                                 <th class="table-secondary" style="width: 25%">Judul Asli:</th>
                                                 <input type="hidden" name="judul_asli" value="{{$data->judul_asli}}">
                                                 <td class="table-active text-right">{{$data->judul_asli}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Judul Final:</th>
+                                                <input type="hidden" name="judul_final" value="{{$data->judul_final}}">
+                                                <td class="table-active text-right">{{$data->judul_final}}</td>
                                             </tr>
                                             <tr>
                                                 <th class="table-secondary" style="width: 25%">Judul Final:</th>

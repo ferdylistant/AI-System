@@ -29,6 +29,18 @@ $(document).ready(function() {
 	})
 });
 $(document).ready(function() {
+    $('#subJudulFinalButton').click(function(e) {
+        e.preventDefault();
+        $('#subJudulFinalCol').attr('hidden','hidden');
+        $('#subJudulFinalColInput').removeAttr('hidden');
+    });
+    $('.batal_edit_sub_judul_final').click(function(e){ //user click on remove text
+		e.preventDefault();
+        $('#subJudulFinalColInput').attr('hidden','hidden');
+        $('#subJudulFinalCol').removeAttr('hidden');
+	})
+});
+$(document).ready(function() {
     $('#jmlHalButton').click(function(e) {
         e.preventDefault();
         $('#jmlHalCol').attr('hidden','hidden');
