@@ -232,7 +232,13 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-gavel"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="edit_npwp" value="{{$penulis->npwp}}" placeholder="NPWP">
+                                    <input type="text" class="form-control" name="edit_npwp" value="{{$penulis->npwp}}" id="npWP" onkeyup="checkInput()" placeholder="NPWP">
+                                    <div class="invalid-feedback">
+                                        Masukan sesuai format NPWP..
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Format NPWP sudah sesuai..
+                                    </div>
                                     <div id="err_edit_npwp"></div>
                                 </div>
                             </div>
@@ -242,7 +248,13 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-id-card"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="edit_ktp" value="{{$penulis->ktp}}" placeholder="No.KTP">
+                                    <input type="text" class="form-control" name="edit_ktp" value="{{$penulis->ktp}}" id="noKTP" onkeyup="checkInputKTP()" placeholder="No.KTP">
+                                    <div class="invalid-feedback">
+                                        Panjang NIK tidak sesuai format..
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Panjang NIK sudah sesuai format..
+                                    </div>
                                     <div id="err_edit_ktp"></div>
                                 </div>
                             </div>
@@ -355,6 +367,46 @@
 
 
 @section('jsNeeded')
+<script src="https://unpkg.com/imask"></script>
+<script>
+    var npwp = document.getElementById('npWP');
+    var ktp = document.getElementById('noKTP');
+    var maskNPWP = {
+        mask: '00.000.000.0-000.000'
+    };
+    var maskKTP = {
+        mask: '0000000000000000'
+    };
+    var mask = IMask(npwp, maskNPWP,reverse = true);
+    var mask = IMask(ktp, maskKTP,reverse = true);
+
+</script>
+<script>
+    const input = document.querySelector("#npWP");
+function checkInput() {
+    var value = document.getElementById( "npWP" ).value;
+    if ( value.length < 20 ) {
+        input.classList.remove( "is-valid" );
+        input.classList.add( "is-invalid" );
+    } else {
+        input.classList.add( "is-valid" );
+        input.classList.remove( "is-invalid" );
+    }
+}
+</script>
+<script>
+const inputKTP = document.querySelector("#noKTP");
+function checkInputKTP() {
+    var valueKTP = document.getElementById( "noKTP" ).value;
+    if ( valueKTP.length < 16 ) {
+        inputKTP.classList.remove( "is-valid" );
+        inputKTP.classList.add( "is-invalid" );
+    } else {
+        inputKTP.classList.add( "is-valid" );
+        inputKTP.classList.remove( "is-invalid" );
+    }
+}
+</script>
 <script>
 $(function() {
     $(".select2").select2({

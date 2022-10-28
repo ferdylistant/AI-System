@@ -10,6 +10,7 @@ use App\Events\EditingEvent;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Events\PracetakCoverEvent;
+use App\Events\PracetakSetterEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -447,11 +448,14 @@ class DeskripsiCoverController extends Controller
             ->select(
                 'dc.*',
                 'df.id as deskripsi_final_id',
+                'df.setter',
+                'df.korektor',
                 'dp.naskah_id',
                 'dp.format_buku',
                 'dp.judul_final',
                 'dp.editor',
                 'dp.imprint',
+                'dp.jml_hal_perkiraan',
                 'dp.kelengkapan',
                 'dp.catatan',
                 'pn.kode',
@@ -495,16 +499,27 @@ class DeskripsiCoverController extends Controller
                     'params' => 'Insert Editing',
                     'id' => Uuid::uuid4()->toString(),
                     'deskripsi_final_id' => $data->deskripsi_final_id,
-                    'editor' => $data->editor,
+                    'editor' => json_encode([$data->editor]),
                     'tgl_masuk_editing' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
                 event(new EditingEvent($insertEditingProses));
+                $insertPracetakSetter = [
+                    'params' => 'Insert Pracetak Setter',
+                    'id' => Uuid::uuid4()->toString(),
+                    'deskripsi_final_id' => $data->deskripsi_final_id,
+                    'setter' => json_encode([$data->setter]),
+                    'korektor_komp' => json_encode([$data->korektor]),
+                    'korektor_manual' => json_encode([$data->korektor]),
+                    'jml_hal_final' => $data->jml_hal_perkiraan,
+                    'tgl_masuk_pracetak' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                ];
+                event(new PracetakSetterEvent($insertPracetakSetter));
                 $insertPracetakCover = [
                     'params' => 'Insert Pracetak Cover',
                     'id' => Uuid::uuid4()->toString(),
                     'deskripsi_cover_id' => $data->id,
-                    'desainer' => $data->desainer,
-                    'editor' => $data->editor,
+                    'desainer' => json_encode([$data->desainer]),
+                    'editor' => json_encode([$data->editor]),
                     'tgl_masuk_cover' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                 ];
                 event(new PracetakCoverEvent($insertPracetakCover));

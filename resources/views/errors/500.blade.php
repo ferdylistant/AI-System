@@ -124,12 +124,12 @@
     <div class="container error-container">
         <div class="row  d-flex align-items-center justify-content-center">
             <div class="col-md-12 text-center">
-                <h1 class="big-text">404</h1>
-                <h2 class="small-text">PAGE NOT FOUND</h2>
+                <h1 class="big-text">500</h1>
+                <h2 class="small-text">INTERNAL SERVER ERROR</h2>
 
             </div>
             <div class="col-md-6  text-center">
-                <p>The page you are looking for might have been removed had its name changed or is temporarily unavailable.</p>
+                <p>Oops, something went wrong. Try to refresh this page or feel free to contact developer if the problem persists.</p>
 
 
                 <button class="button button-dark-blue iq-mt-15 text-center" onclick="history.back()">Back to previous</button>

@@ -229,7 +229,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-gavel"></i></div>
                                     </div>
-                                    <input type="text" class="form-control is-invalid" name="add_npwp" placeholder="NPWP" id="npWP" onkeyup="checkInput()">
+                                    <input type="text" class="form-control" name="add_npwp" placeholder="NPWP" id="npWP" onkeyup="checkInput()">
                                     <div class="invalid-feedback">
                                         Masukan sesuai format NPWP..
                                     </div>
@@ -246,7 +246,13 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-id-card"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_ktp" placeholder="No.KTP">
+                                    <input type="text" class="form-control" name="add_ktp" id="noKTP" onkeyup="checkInputKTP()" placeholder="No.KTP">
+                                    <div class="invalid-feedback">
+                                        Panjang NIK tidak sesuai format..
+                                    </div>
+                                    <div class="valid-feedback">
+                                        Panjang NIK sudah sesuai format..
+                                    </div>
                                     <div id="err_add_ktp"></div>
                                 </div>
                             </div>
@@ -335,11 +341,16 @@
 @section('jsNeeded')
 <script src="https://unpkg.com/imask"></script>
 <script>
-    var element = document.getElementById('npWP');
-    var maskOptions = {
+    var npwp = document.getElementById('npWP');
+    var ktp = document.getElementById('noKTP');
+    var maskNPWP = {
         mask: '00.000.000.0-000.000'
     };
-    var mask = IMask(element, maskOptions,reverse = true);
+    var maskKTP = {
+        mask: '0000000000000000'
+    };
+    var mask = IMask(npwp, maskNPWP,reverse = true);
+    var mask = IMask(ktp, maskKTP,reverse = true);
 
 </script>
 <script>
@@ -352,6 +363,19 @@ function checkInput() {
     } else {
         input.classList.add( "is-valid" );
         input.classList.remove( "is-invalid" );
+    }
+}
+</script>
+<script>
+const inputKTP = document.querySelector("#noKTP");
+function checkInputKTP() {
+    var valueKTP = document.getElementById( "noKTP" ).value;
+    if ( valueKTP.length < 16 ) {
+        inputKTP.classList.remove( "is-valid" );
+        inputKTP.classList.add( "is-invalid" );
+    } else {
+        inputKTP.classList.add( "is-valid" );
+        inputKTP.classList.remove( "is-invalid" );
     }
 }
 </script>

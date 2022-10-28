@@ -95,7 +95,10 @@ class EditingController extends Controller
                         })
                         ->addColumn('editor', function($data) {
                             if (!is_null($data->editor)){
-                                $res = DB::table('users')->where('id',$data->editor)->whereNull('deleted_at')->first()->nama;
+                                $res = '';
+                                foreach (json_decode($data->editor,true) as $q) {
+                                    $res .= '<span class="d-block">-&nbsp;'.DB::table('users')->where('id',$q)->whereNull('deleted_at')->first()->nama.'</span>';
+                                }
                             } else {
                                 $res = '-';
                             }

@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use App\Events\{NotifikasiPenyetujuan,DescovEvent,DesfinEvent,DesproEvent,NaskahEvent,EditingEvent,MasterDataEvent,PracetakCoverEvent};
-use App\Listeners\{NotifikasiPenyetujuanListener,DescovListener,DesfinListener,DesproListener,NaskahListener,EditingListener,MasterDataListener,PracetakCoverListener};
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use App\Events\{NotifikasiPenyetujuan,DescovEvent,DesfinEvent,DesproEvent,NaskahEvent,EditingEvent,MasterDataEvent,PracetakCoverEvent,PracetakSetterEvent};
+use App\Listeners\{NotifikasiPenyetujuanListener,DescovListener,DesfinListener,DesproListener,NaskahListener,EditingListener,MasterDataListener,PracetakCoverListener,PracetakSetterListener};
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -56,6 +56,10 @@ class EventServiceProvider extends ServiceProvider
         Event::listen(
             PracetakCoverEvent::class,
             [PracetakCoverListener::class, 'handle']
+        );
+        Event::listen(
+            PracetakSetterEvent::class,
+            [PracetakSetterListener::class, 'handle']
         );
         Event::listen(
             MasterDataEvent::class,
