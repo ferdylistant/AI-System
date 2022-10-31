@@ -144,12 +144,12 @@ class NaskahController extends Controller
                     })
                     ->addColumn('action', function($data) use($update) {
                         $btn = '<a href="'.url('penerbitan/naskah/melihat-naskah/'.$data->id).'"
-                                class="d-block btn btn-sm btn-primary btn-icon mr-1">
+                                class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Data">
                                 <div><i class="fas fa-envelope-open-text"></i></div></a>';
                         if($update) {
                             if ((auth()->id() == $data->pic_prodev) || (auth()->id() == $data->created_by) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
                                 $btn .= '<a href="'.url('penerbitan/naskah/mengubah-naskah/'.$data->id).'"
-                                        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1">
+                                        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                         <div><i class="fas fa-edit"></i></div></a>';
                             }
                         }

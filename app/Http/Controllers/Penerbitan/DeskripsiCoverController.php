@@ -95,14 +95,9 @@ class DeskripsiCoverController extends Controller
 
                         })
                         ->addColumn('pic_prodev', function($data) {
-                            $result = '';
                             $res = DB::table('users')->where('id',$data->pic_prodev)->whereNull('deleted_at')
-                            ->select('nama')
-                            ->get();
-                            foreach (json_decode($res) as $q) {
-                                $result .= $q->nama;
-                            }
-                            return $result;
+                            ->first()->nama;
+                            return $res;
                         })
                         ->addColumn('history', function ($data) {
                             $historyData = DB::table('deskripsi_cover_history')->where('deskripsi_cover_id',$data->id)->get();
@@ -138,20 +133,29 @@ class DeskripsiCoverController extends Controller
 
                             if (Gate::allows('do_approval','action-progress-des-cover')) {
                                 if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
-                                    if ($data->status == 'Terkunci') {
-                                        $btn .= '<span class="d-block badge badge-dark mr-1 mt-1"><i class="fas fa-lock"></i>&nbsp;'.$data->status.'</span>';
-                                    } elseif ($data->status == 'Antrian'){
-                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-descov" style="background:#34395E;color:white" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
-                                        <div>'.$data->status.'</div></a>';
-                                    } elseif ($data->status == 'Pending') {
-                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-descov" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
-                                        <div>'.$data->status.'</div></a>';
-                                    } elseif ($data->status == 'Proses') {
-                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-descov" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
-                                        <div>'.$data->status.'</div></a>';
-                                    } elseif ($data->status == 'Selesai') {
-                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-descov" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
-                                        <div>'.$data->status.'</div></a>';
+                                    switch ($data->status) {
+                                        case 'Terkunci':
+                                            $btn .= '<span class="d-block badge badge-dark mr-1 mt-1"><i class="fas fa-lock"></i>&nbsp;'.$data->status.'</span>';
+                                            break;
+                                        case 'Antrian':
+                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-descov" style="background:#34395E;color:white" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                                            <div>'.$data->status.'</div></a>';
+                                            break;
+                                        case 'Pending':
+                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-descov" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                                            <div>'.$data->status.'</div></a>';
+                                            break;
+                                        case 'Proses':
+                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-descov" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                                            <div>'.$data->status.'</div></a>';
+                                            break;
+                                        case 'Selesai':
+                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-descov" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                                            <div>'.$data->status.'</div></a>';
+                                            break;
+                                        default:
+                                            return abort(410);
+                                            break;
                                     }
                                 }
                             } else {

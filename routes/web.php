@@ -10,7 +10,7 @@ use App\Http\Controllers\ManWeb\StrukturAoController;
 use App\Http\Controllers\Penerbitan\DeskripsiCoverController;
 use App\Http\Controllers\MasterData\{ImprintController,KelompokBukuController,FormatBukuController};
 use App\Http\Controllers\Produksi\{ProduksiController, EbookController,ProsesProduksiController,ProsesEbookController};
-use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiFinalController, DeskripsiProdukController, EditingController};
+use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiFinalController, DeskripsiProdukController, EditingController, PracetakDesainerController};
 
 /*
 |--------------------------------------------------------------------------
@@ -130,6 +130,12 @@ Route::middleware(['auth'])->group(function() {
         Route::match(['get', 'post'],'/editing/edit',[EditingController::class, 'editEditing'])->name('editing.edit');
         Route::post('/editing/update-status-progress',[EditingController::class, 'updateStatusProgress']);
         Route::post('/editing/lihat-history', [EditingController::class, 'lihatHistoryEditing'])->name('editing.history');
+        //Pracetak Desainer
+        Route::get('/pracetak/designer', [PracetakDesainerController::class, 'index'])->name('prades.view');
+        Route::get('/pracetak/designer/detail', [PracetakDesainerController::class, 'detailPracetakDesainer'])->name('prades.detail');
+        Route::match(['get', 'post'],'/pracetak/designer/edit',[PracetakDesainerController::class, 'editPracetakDesainer'])->name('prades.edit');
+        Route::post('/pracetak/designer/update-status-progress',[PracetakDesainerController::class, 'updateStatusProgress']);
+        Route::post('/pracetak/designer/lihat-history', [PracetakDesainerController::class, 'lihatHistoryPracetakDesainer'])->name('prades.history');
         //Order Cetak
         Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('cetak.view');
         Route::get('/order-cetak/detail', [ProduksiController::class, 'detailProduksi'])->name('cetak.detail');
