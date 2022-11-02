@@ -297,7 +297,6 @@ class NaskahController extends Controller
                         'judul_asli' => $request->input('add_judul_asli'),
                         'tanggal_masuk_naskah' => Carbon::createFromFormat('d F Y', $request->input('add_tanggal_masuk_naskah'))
                             ->format('Y-m-d'),
-                        'email' => $request->input('add_email'),
                         'kelompok_buku_id' => $request->input('add_kelompok_buku'),
                         'jalur_buku' => $request->input('add_jalur_buku'),
                         'tentang_penulis' => $request->input('add_tentang_penulis'),
