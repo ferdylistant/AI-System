@@ -9,26 +9,28 @@
 //         }
 //     });
 // });
-$(document).ready(function() {
-    $(".select-filter-jb").select2({
-        placeholder: 'Pilih Jalur Buku',
-    }).on('change', function(e) {
-        if(this.value) {
-            $('.clear_field_jb').removeAttr('hidden');
-            $(this).valid();
-        }
+$(document).ready(function () {
+    $(".select-filter-jb")
+        .select2({
+            placeholder: "Pilih Jalur Buku",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(".clear_field_jb").removeAttr("hidden");
+                $(this).valid();
+            }
+        });
+});
+$(document).ready(function () {
+    $(".clear_field_jb").click(function () {
+        $(".select-filter-jb").val("").trigger("change");
+        $(".clear_field_jb").attr("hidden", "hidden");
     });
 });
-$(document).ready(function(){
-    $('.clear_field_jb').click( function () {
-        $(".select-filter-jb").val('').trigger('change');
-        $('.clear_field_jb').attr('hidden','hidden');
-   });
-});
 function resetFrom(form) {
-    form.trigger('reset');
-        $('[name="bukti_upload[]"]').val('').trigger('change');
-    }
+    form.trigger("reset");
+    $('[name="bukti_upload[]"]').val("").trigger("change");
+}
 function ajaxUpProsesProduksiEbook(data) {
     let el = data.get(0);
     console.log(el);
@@ -38,13 +40,14 @@ function ajaxUpProsesProduksiEbook(data) {
         data: new FormData(el),
         processData: false,
         contentType: false,
-        beforeSend: function() {
-            $('button[type="submit"]').prop('disabled', true).
-                addClass('btn-progress')
+        beforeSend: function () {
+            $('button[type="submit"]')
+                .prop("disabled", true)
+                .addClass("btn-progress");
         },
-        success: function(result) {
+        success: function (result) {
             // console.log(result.message);
-            if(result.status == 'error') {
+            if (result.status == "error") {
                 resetFrom(data);
                 notifToast(result.status, result.message);
             } else {
@@ -53,62 +56,60 @@ function ajaxUpProsesProduksiEbook(data) {
                 location.href = result.route;
             }
         },
-        error: function(err) {
-            console.log(err.responseJSON)
+        error: function (err) {
+            console.log(err.responseJSON);
             rs = err.responseJSON.errors;
-            if(rs != undefined) {
+            if (rs != undefined) {
                 err = {};
-                Object.entries(rs).forEach(entry => {
+                Object.entries(rs).forEach((entry) => {
                     let [key, value] = entry;
-                    err[key] = value
-                })
+                    err[key] = value;
+                });
             }
-            notifToast('error', 'Upload link gagal!');
+            notifToast("error", "Upload link gagal!");
         },
-        complete: function() {
-            $('button[type="submit"]').prop('disabled', false).
-                removeClass('btn-progress')
-        }
-    })
+        complete: function () {
+            $('button[type="submit"]')
+                .prop("disabled", false)
+                .removeClass("btn-progress");
+        },
+    });
 }
 
-$('#fup_prosesEbook').on('submit', function(e) {
+$("#fup_prosesEbook").on("submit", function (e) {
     e.preventDefault();
-    if($(this).valid()) {
+    if ($(this).valid()) {
         swal({
-            text: 'Upload bukti link order e-book?',
-            icon: 'warning',
+            text: "Upload bukti link order e-book?",
+            icon: "warning",
             buttons: true,
             dangerMode: true,
-        })
-        .then((confirm_) => {
+        }).then((confirm_) => {
             if (confirm_) {
-                ajaxUpProsesProduksiEbook($(this))
+                ajaxUpProsesProduksiEbook($(this));
             }
         });
-
+    } else {
+        notifToast("error", "Periksa kembali form Anda!");
     }
-    else {
-        notifToast('error', 'Periksa kembali form Anda!');
-    }
-})
+});
 function ajaxTandaDataLengkap(data) {
-    let id = data.data('id');
-    let judul_asli = data.data('judul');
-    let kode = data.data('kode');
+    let id = data.data("id");
+    let judul_asli = data.data("judul");
+    let kode = data.data("kode");
     $.ajax({
         type: "POST",
         url: window.location.origin + "/penerbitan/naskah/tandai-data-lengkap",
         data: {
             id: id,
             judul_asli: judul_asli,
-            kode: kode
+            kode: kode,
         },
-        beforeSend: function() {
-            $('#sectionDataNaskah').parent().addClass('card-progress')
+        beforeSend: function () {
+            $("#sectionDataNaskah").parent().addClass("card-progress");
         },
-        success: function(result) {
-            if(result.status == 'success') {
+        success: function (result) {
+            if (result.status == "success") {
                 notifToast(result.status, result.message);
                 location.reload();
             } else {
@@ -117,46 +118,48 @@ function ajaxTandaDataLengkap(data) {
             // $('#modalDecline').modal('hide');
             // ajax.reload();
             // location.href = result.redirect;
-
         },
-        error: function(err) {
+        error: function (err) {
             // console.log(err.responseJSON)
             rs = err.responseJSON.errors;
-            if(rs != undefined) {
+            if (rs != undefined) {
                 err = {};
-                Object.entries(rs).forEach(entry => {
+                Object.entries(rs).forEach((entry) => {
                     let [key, value] = entry;
-                    err[key] = value
-                })
+                    err[key] = value;
+                });
                 addForm.showErrors(err);
             }
-            notifToast('error', 'Terjadi kesalahan!');
+            notifToast("error", "Terjadi kesalahan!");
         },
-        complete: function() {
-            $('#sectionDataNaskah').parent().removeClass('card-progress')
-        }
-    })
+        complete: function () {
+            $("#sectionDataNaskah").parent().removeClass("card-progress");
+        },
+    });
 }
-$(document).on('click', '.mark-sent-email',function(e){
+$(document).on("click", ".mark-sent-email", function (e) {
     e.preventDefault();
-    let id = $(this).data('id');
-    let judul_asli = $(this).data('judul');
-    let kode = $(this).data('kode');
-    var getLink = $(this).attr('href');
+    let id = $(this).data("id");
+    let judul_asli = $(this).data("judul");
+    let kode = $(this).data("kode");
+    var getLink = $(this).attr("href");
     swal({
-        title: 'Apakah anda yakin data '+kode+'_'+judul_asli+' sudah lengkap?',
-        text:  'Data naskah dan data penulis harus sudah lengkap..',
-        type: 'warning',
+        title:
+            "Apakah anda yakin data " +
+            kode +
+            "_" +
+            judul_asli +
+            " sudah lengkap?",
+        text: "Data naskah dan data penulis harus sudah lengkap..",
+        type: "warning",
         html: true,
-        icon: 'warning',
+        icon: "warning",
         buttons: true,
         dangerMode: true,
-    })
-    .then((confirm_) => {
+    }).then((confirm_) => {
         if (confirm_) {
             // window.location.href = getLink
-            ajaxTandaDataLengkap($(this))
+            ajaxTandaDataLengkap($(this));
         }
     });
 });
-

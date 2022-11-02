@@ -17,197 +17,195 @@ class DeskripsiProdukController extends Controller
 {
     public function index(Request $request)
     {
-        if($request->ajax()) {
-                $data = DB::table('deskripsi_produk as dp')
-                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                    ->whereNull('dp.deleted_at')
-                    ->select(
-                        'dp.*',
-                        'pn.kode',
-                        'pn.judul_asli',
-                        'pn.pic_prodev',
-                        'pn.jalur_buku'
-                        )
-                    ->orderBy('dp.tgl_deskripsi','ASC')
-                    ->get();
-                $update = Gate::allows('do_create', 'ubah-atau-buat-des-produk');
+        if ($request->ajax()) {
+            $data = DB::table('deskripsi_produk as dp')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->whereNull('dp.deleted_at')
+                ->select(
+                    'dp.*',
+                    'pn.kode',
+                    'pn.judul_asli',
+                    'pn.pic_prodev',
+                    'pn.jalur_buku'
+                )
+                ->orderBy('dp.tgl_deskripsi', 'ASC')
+                ->get();
+            $update = Gate::allows('do_create', 'ubah-atau-buat-des-produk');
 
-                return DataTables::of($data)
-                        // ->addIndexColumn()
-                        ->addColumn('kode', function($data) {
-                            return $data->kode;
-                        })
-                        ->addColumn('judul_asli', function($data) {
-                            return $data->judul_asli;
-                        })
-                        ->addColumn('penulis', function($data) {
-                            // return $data->penulis;
-                            $result = '';
-                            $res = DB::table('penerbitan_naskah_penulis as pnp')
-                            ->join('penerbitan_penulis as pp',function($q) {
-                                $q->on('pnp.penulis_id','=','pp.id')
+            return DataTables::of($data)
+                // ->addIndexColumn()
+                ->addColumn('kode', function ($data) {
+                    return $data->kode;
+                })
+                ->addColumn('judul_asli', function ($data) {
+                    return $data->judul_asli;
+                })
+                ->addColumn('penulis', function ($data) {
+                    // return $data->penulis;
+                    $result = '';
+                    $res = DB::table('penerbitan_naskah_penulis as pnp')
+                        ->join('penerbitan_penulis as pp', function ($q) {
+                            $q->on('pnp.penulis_id', '=', 'pp.id')
                                 ->whereNull('pp.deleted_at');
-                            })
-                            ->where('pnp.naskah_id','=',$data->naskah_id)
-                            ->select('pp.nama')
-                            // ->pluck('pp.nama');
-                            ->get();
-                            foreach ($res as $q) {
-                                $result .= '<span class="d-block">-&nbsp;'.$q->nama.'</span>';
-                            }
-                            return $result;
-                            //  $res;
                         })
-                        ->addColumn('jalur_buku', function($data) {
-                            if (!is_null($data->jalur_buku)) {
-                                $res = $data->jalur_buku;
-                            } else {
-                                $res = '-';
-                            }
-                            return $res;
-                        })
-                        ->addColumn('imprint', function($data) {
-                            if (!is_null($data->imprint)) {
-                                $res = $data->imprint;
-                            } else {
-                                $res = '-';
-                            }
-                            return $res;
-                        })
-                        ->addColumn('judul_final', function($data) {
-                            if(is_null($data->judul_final)) {
-                                $res = '-';
-                            } else {
-                                $res = $data->judul_final;
-                            }
-                            return $res;
-                        })
-                        ->addColumn('tgl_deskripsi', function($data) {
-                            return Carbon::parse($data->tgl_deskripsi)->translatedFormat('l, d M Y h:i');
-
-                        })
-                        ->addColumn('pic_prodev', function($data) {
-                            $res = DB::table('users')->where('id',$data->pic_prodev)->whereNull('deleted_at')
-                            ->first()->nama;
-                            return $res;
-                        })
-                        ->addColumn('history', function ($data) {
-                            $historyData = DB::table('deskripsi_produk_history')->where('deskripsi_produk_id',$data->id)->get();
-                            if($historyData->isEmpty()) {
-                                return '-';
-                            } else {
-                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-judulasli="'.$data->judul_asli.'"><i class="fas fa-history"></i>&nbsp;History</button>';
-                                return $date;
-                            }
-                        })
-                        ->addColumn('action', function($data) use ($update) {
-                            $btn = '<a href="'.url('penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$data->kode).'"
+                        ->where('pnp.naskah_id', '=', $data->naskah_id)
+                        ->select('pp.nama')
+                        // ->pluck('pp.nama');
+                        ->get();
+                    foreach ($res as $q) {
+                        $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
+                    }
+                    return $result;
+                    //  $res;
+                })
+                ->addColumn('jalur_buku', function ($data) {
+                    if (!is_null($data->jalur_buku)) {
+                        $res = $data->jalur_buku;
+                    } else {
+                        $res = '-';
+                    }
+                    return $res;
+                })
+                ->addColumn('imprint', function ($data) {
+                    if (!is_null($data->imprint)) {
+                        $res = $data->imprint;
+                    } else {
+                        $res = '-';
+                    }
+                    return $res;
+                })
+                ->addColumn('judul_final', function ($data) {
+                    if (is_null($data->judul_final)) {
+                        $res = '-';
+                    } else {
+                        $res = $data->judul_final;
+                    }
+                    return $res;
+                })
+                ->addColumn('tgl_deskripsi', function ($data) {
+                    return Carbon::parse($data->tgl_deskripsi)->translatedFormat('l, d M Y h:i');
+                })
+                ->addColumn('pic_prodev', function ($data) {
+                    $res = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')
+                        ->first()->nama;
+                    return $res;
+                })
+                ->addColumn('history', function ($data) {
+                    $historyData = DB::table('deskripsi_produk_history')->where('deskripsi_produk_id', $data->id)->get();
+                    if ($historyData->isEmpty()) {
+                        return '-';
+                    } else {
+                        $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-judulasli="' . $data->judul_asli . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                        return $date;
+                    }
+                })
+                ->addColumn('action', function ($data) use ($update) {
+                    $btn = '<a href="' . url('penerbitan/deskripsi/produk/detail?desc=' . $data->id . '&kode=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                            if($update) {
-                                if ($data->status == 'Acc') {
-                                    if (Gate::allows('do_approval','approval-deskripsi-produk')) {
-                                        $btn .= '<a href="'.url('penerbitan/deskripsi/produk/edit?desc='.$data->id.'&kode='.$data->kode).'"
+                    if ($update) {
+                        if ($data->status == 'Acc') {
+                            if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
+                                $btn .= '<a href="' . url('penerbitan/deskripsi/produk/edit?desc=' . $data->id . '&kode=' . $data->kode) . '"
                                         class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                         <div><i class="fas fa-edit"></i></div></a>';
-                                    }
-                                } else {
-                                    if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
-                                        $btn .= '<a href="'.url('penerbitan/deskripsi/produk/edit?desc='.$data->id.'&kode='.$data->kode).'"
+                            }
+                        } else {
+                            if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $btn .= '<a href="' . url('penerbitan/deskripsi/produk/edit?desc=' . $data->id . '&kode=' . $data->kode) . '"
                                             class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                             <div><i class="fas fa-edit"></i></div></a>';
-                                    }
-                                }
                             }
-                            if (Gate::allows('do_approval','action-progress-des-produk')) {
-                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
-                                    switch ($data->status) {
-                                        case 'Antrian':
-                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-despro" style="background:#34395E;color:white" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
-                                            <div>'.$data->status.'</div></a>';
-                                            break;
-                                        case 'Pending':
-                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
-                                            <div>'.$data->status.'</div></a>';
-                                            break;
-                                        case 'Proses':
-                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
-                                            <div>'.$data->status.'</div></a>';
-                                            break;
-                                        case 'Selesai':
-                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
-                                            <div>'.$data->status.'</div></a>';
-                                            break;
-                                        case 'Revisi':
-                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-info btn-icon mr-1 mt-1 btn-status-despro" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
-                                            <div>'.$data->status.'</div></a>';
-                                            break;
-                                        case 'Acc':
-                                            $btn .= '<span class="d-block badge badge-light mr-1 mt-1">'.$data->status.'</span>';
-                                            break;
-                                        default:
-                                            return abort(410);
-                                            break;
-                                    }
-                                }
-                            } else {
-                                switch ($data->status) {
-                                    case 'Antrian':
-                                        $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">'.$data->status.'</span>';
-                                        break;
-                                    case 'Pending':
-                                        $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">'.$data->status.'</span>';
-                                        break;
-                                    case 'Proses':
-                                        $btn .= '<span class="d-block badge badge-success mr-1 mt-1">'.$data->status.'</span>';
-                                        break;
-                                    case 'Selesai':
-                                        $btn .= '<span class="d-block badge badge-light mr-1 mt-1">'.$data->status.'</span>';
-                                        break;
-                                    case 'Revisi':
-                                        $btn .= '<span class="d-block badge badge-info mr-1 mt-1">'.$data->status.'</span>';
-                                        break;
-                                    case 'Acc':
-                                        $btn .= '<span class="d-block badge badge-light mr-1 mt-1">'.$data->status.'</span>';
-                                        break;
-                                    default:
-                                        return abort(410);
-                                        break;
-                                }
+                        }
+                    }
+                    if (Gate::allows('do_approval', 'action-progress-des-produk')) {
+                        if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
+                            switch ($data->status) {
+                                case 'Antrian':
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-despro" style="background:#34395E;color:white" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                            <div>' . $data->status . '</div></a>';
+                                    break;
+                                case 'Pending':
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-despro" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                            <div>' . $data->status . '</div></a>';
+                                    break;
+                                case 'Proses':
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-despro" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                            <div>' . $data->status . '</div></a>';
+                                    break;
+                                case 'Selesai':
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-despro" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                            <div>' . $data->status . '</div></a>';
+                                    break;
+                                case 'Revisi':
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-info btn-icon mr-1 mt-1 btn-status-despro" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesProduk" title="Update Status">
+                                            <div>' . $data->status . '</div></a>';
+                                    break;
+                                case 'Acc':
+                                    $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $data->status . '</span>';
+                                    break;
+                                default:
+                                    return abort(410);
+                                    break;
                             }
-                            return $btn;
-                        })
-                        ->rawColumns([
-                            'kode',
-                            'judul_asli',
-                            'penulis',
-                            'jalur_buku',
-                            'imprint',
-                            'judul_final',
-                            'tgl_deskripsi',
-                            'pic_prodev',
-                            'history',
-                            'action'
-                            ])
-                        ->make(true);
-
+                        }
+                    } else {
+                        switch ($data->status) {
+                            case 'Antrian':
+                                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $data->status . '</span>';
+                                break;
+                            case 'Pending':
+                                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $data->status . '</span>';
+                                break;
+                            case 'Proses':
+                                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $data->status . '</span>';
+                                break;
+                            case 'Selesai':
+                                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $data->status . '</span>';
+                                break;
+                            case 'Revisi':
+                                $btn .= '<span class="d-block badge badge-info mr-1 mt-1">' . $data->status . '</span>';
+                                break;
+                            case 'Acc':
+                                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $data->status . '</span>';
+                                break;
+                            default:
+                                return abort(410);
+                                break;
+                        }
+                    }
+                    return $btn;
+                })
+                ->rawColumns([
+                    'kode',
+                    'judul_asli',
+                    'penulis',
+                    'jalur_buku',
+                    'imprint',
+                    'judul_final',
+                    'tgl_deskripsi',
+                    'pic_prodev',
+                    'history',
+                    'action'
+                ])
+                ->make(true);
         }
         $data = DB::table('deskripsi_produk as dp')
-                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                    ->whereNull('dp.deleted_at')
-                    ->select(
-                        'dp.*',
-                        'pn.kode',
-                        'pn.judul_asli',
-                        'pn.pic_prodev'
-                        )
-                    ->orderBy('dp.tgl_deskripsi','ASC')
-                    ->get();
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+            ->whereNull('dp.deleted_at')
+            ->select(
+                'dp.*',
+                'pn.kode',
+                'pn.judul_asli',
+                'pn.pic_prodev'
+            )
+            ->orderBy('dp.tgl_deskripsi', 'ASC')
+            ->get();
         //Kelengkapan Enum
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $statusProgress = explode("','", $matches[1]);
-        $statusAction = Arr::except($statusProgress,['4','5']);
+        $statusAction = Arr::except($statusProgress, ['4', '5']);
         $statusProgress = Arr::sort($statusProgress);
         return view('penerbitan.des_produk.index', [
             'title' => 'Deskripsi Produk',
@@ -222,12 +220,12 @@ class DeskripsiProdukController extends Controller
         $kode = $request->get('kode');
         $data = DB::table('deskripsi_produk as dp')
             ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-            ->join('penerbitan_m_kelompok_buku as kb',function($q){
-                $q->on('pn.kelompok_buku_id','=','kb.id')
-                ->whereNull('kb.deleted_at');
+            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
             })
-            ->where('dp.id',$id)
-            ->where('pn.kode',$kode)
+            ->where('dp.id', $id)
+            ->where('pn.kode', $kode)
             ->whereNull('dp.deleted_at')
             ->select(
                 'dp.*',
@@ -235,22 +233,22 @@ class DeskripsiProdukController extends Controller
                 'pn.judul_asli',
                 'pn.pic_prodev',
                 'kb.nama'
-                )
+            )
             ->first();
-        if(is_null($data)) {
+        if (is_null($data)) {
             return redirect()->route('despro.view');
         }
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
-        ->join('penerbitan_penulis as pp',function($q) {
-            $q->on('pnp.penulis_id','=','pp.id')
-            ->whereNull('pp.deleted_at');
-        })
-        ->where('pnp.naskah_id','=',$data->naskah_id)
-        ->select('pp.nama')
-        ->get();
-        $pic = DB::table('users')->where('id',$data->pic_prodev)->whereNull('deleted_at')->select('nama')->first();
-        $editor = DB::table('users')->where('id',$data->editor)->whereNull('deleted_at')->select('nama')->first();
-        return view('penerbitan.des_produk.detail',[
+            ->join('penerbitan_penulis as pp', function ($q) {
+                $q->on('pnp.penulis_id', '=', 'pp.id')
+                    ->whereNull('pp.deleted_at');
+            })
+            ->where('pnp.naskah_id', '=', $data->naskah_id)
+            ->select('pp.nama')
+            ->get();
+        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->select('nama')->first();
+        $editor = DB::table('users')->where('id', $data->editor)->whereNull('deleted_at')->select('nama')->first();
+        return view('penerbitan.des_produk.detail', [
             'title' => 'Detail Deskripsi Produk',
             'data' => $data,
             'penulis' => $penulis,
@@ -260,15 +258,15 @@ class DeskripsiProdukController extends Controller
     }
     public function editDeskripsiProduk(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 foreach ($request->alt_judul as $value) {
                     $altJudul[] = $value;
                 }
                 $history = DB::table('deskripsi_produk')
-                ->where('id', $request->id)
-                ->whereNull('deleted_at')
-                ->first();
+                    ->where('id', $request->id)
+                    ->whereNull('deleted_at')
+                    ->first();
                 $update = [
                     'params' => 'Edit Despro',
                     'id' => $request->id,
@@ -280,7 +278,7 @@ class DeskripsiProdukController extends Controller
                     'editor' => $request->editor,
                     'catatan' => $request->catatan,
                     'bulan' => Carbon::createFromDate($request->bulan),
-                    'updated_by'=> auth()->id()
+                    'updated_by' => auth()->id()
                 ];
                 // event(new UpdateDesproEvent($update));
                 event(new DesproEvent($update));
@@ -289,22 +287,22 @@ class DeskripsiProdukController extends Controller
                     'params' => 'Insert History Despro',
                     'deskripsi_produk_id' => $request->id,
                     'type_history' => 'Update',
-                    'alt_judul_his' => $history->alt_judul==json_encode($altJudul)?NULL:$history->alt_judul,
-                    'alt_judul_new' => $history->alt_judul==json_encode($altJudul)?NULL:json_encode($altJudul),
-                    'format_buku_his' => $history->format_buku==$request->format_buku?NULL:$history->format_buku,
-                    'format_buku_new' => $history->format_buku==$request->format_buku?NULL:$request->format_buku,
-                    'jml_hal_his' => $history->jml_hal_perkiraan==$request->jml_hal_perkiraan?NULL:$history->jml_hal_perkiraan,
-                    'jml_hal_new' => $history->jml_hal_perkiraan==$request->jml_hal_perkiraan?NULL:$request->jml_hal_perkiraan,
-                    'imprint_his' => $history->imprint==$request->imprint?NULL:$history->imprint,
-                    'imprint_new' => $history->imprint==$request->imprint?NULL:$request->imprint,
-                    'editor_his' => $history->editor==$request->editor?NULL:$history->editor,
-                    'editor_new' => $history->editor==$request->editor?NULL:$request->editor,
-                    'kelengkapan_his' => $history->kelengkapan==$request->kelengkapan?NULL:$history->kelengkapan,
-                    'kelengkapan_new' => $history->kelengkapan==$request->kelengkapan?NULL:$request->kelengkapan,
-                    'catatan_his' => $history->catatan==$request->catatan?NULL:$history->catatan,
-                    'catatan_new' => $history->catatan==$request->catatan?NULL:$request->catatan,
-                    'bulan_his' => $history->bulan==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
-                    'bulan_new' => $history->bulan==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromDate($request->bulan),
+                    'alt_judul_his' => $history->alt_judul == json_encode($altJudul) ? NULL : $history->alt_judul,
+                    'alt_judul_new' => $history->alt_judul == json_encode($altJudul) ? NULL : json_encode($altJudul),
+                    'format_buku_his' => $history->format_buku == $request->format_buku ? NULL : $history->format_buku,
+                    'format_buku_new' => $history->format_buku == $request->format_buku ? NULL : $request->format_buku,
+                    'jml_hal_his' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? NULL : $history->jml_hal_perkiraan,
+                    'jml_hal_new' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? NULL : $request->jml_hal_perkiraan,
+                    'imprint_his' => $history->imprint == $request->imprint ? NULL : $history->imprint,
+                    'imprint_new' => $history->imprint == $request->imprint ? NULL : $request->imprint,
+                    'editor_his' => $history->editor == $request->editor ? NULL : $history->editor,
+                    'editor_new' => $history->editor == $request->editor ? NULL : $request->editor,
+                    'kelengkapan_his' => $history->kelengkapan == $request->kelengkapan ? NULL : $history->kelengkapan,
+                    'kelengkapan_new' => $history->kelengkapan == $request->kelengkapan ? NULL : $request->kelengkapan,
+                    'catatan_his' => $history->catatan == $request->catatan ? NULL : $history->catatan,
+                    'catatan_new' => $history->catatan == $request->catatan ? NULL : $request->catatan,
+                    'bulan_his' => $history->bulan == Carbon::createFromDate($request->bulan) ? NULL : Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
+                    'bulan_new' => $history->bulan == Carbon::createFromDate($request->bulan) ? NULL : Carbon::createFromDate($request->bulan),
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
@@ -320,45 +318,45 @@ class DeskripsiProdukController extends Controller
         $kodenaskah = $request->get('kode');
         $data = DB::table('deskripsi_produk as dp')
             ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-            ->join('penerbitan_m_kelompok_buku as kb',function($q){
-                $q->on('pn.kelompok_buku_id','=','kb.id')
-                ->whereNull('kb.deleted_at');
+            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
             })
-            ->where('dp.id',$id)
-            ->where('pn.kode',$kodenaskah)
+            ->where('dp.id', $id)
+            ->where('pn.kode', $kodenaskah)
             ->whereNull('dp.deleted_at')
             ->select(
                 'dp.*',
                 'pn.kode',
                 'pn.judul_asli',
                 'kb.nama'
-                )
+            )
             ->first();
-        is_null($data)?abort(404):
-        $editor = DB::table('users as u')
-            ->join('jabatan as j','u.jabatan_id', '=', 'j.id')
-            ->join('divisi as d','u.divisi_id','=','d.id')
-            ->where('j.nama','LIKE','%Editor%')
-            ->where('d.nama','LIKE','%Penerbitan%')
-            ->select('u.nama','u.id')
-            ->orderBy('u.nama','ASC')
+        is_null($data) ? abort(404) :
+            $editor = DB::table('users as u')
+            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+            ->where('j.nama', 'LIKE', '%Editor%')
+            ->where('d.nama', 'LIKE', '%Penerbitan%')
+            ->select('u.nama', 'u.id')
+            ->orderBy('u.nama', 'ASC')
             ->get();
-        $namaeditor = DB::table('users')->where('id',$data->editor)->whereNull('deleted_at')->first()->nama;
+        $namaeditor = DB::table('users')->where('id', $data->editor)->whereNull('deleted_at')->first()->nama;
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
-        ->join('penerbitan_penulis as pp',function($q) {
-            $q->on('pnp.penulis_id','=','pp.id')
-            ->whereNull('pp.deleted_at');
-        })
-        ->where('pnp.naskah_id','=',$data->naskah_id)
-        ->select('pp.nama')
-        ->get();
+            ->join('penerbitan_penulis as pp', function ($q) {
+                $q->on('pnp.penulis_id', '=', 'pp.id')
+                    ->whereNull('pp.deleted_at');
+            })
+            ->where('pnp.naskah_id', '=', $data->naskah_id)
+            ->select('pp.nama')
+            ->get();
         $format_buku = DB::table('format_buku')->whereNull('deleted_at')->get();
         //Kelengkapan Enum
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'kelengkapan'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $kelengkapan = explode("','", $matches[1]);
         $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
-        return view('penerbitan.des_produk.edit',[
+        return view('penerbitan.des_produk.edit', [
             'title' => 'Edit Deskripsi Produk',
             'data' => $data,
             'editor' => $editor,
@@ -371,23 +369,23 @@ class DeskripsiProdukController extends Controller
     }
     public function updateStatusProgress(Request $request)
     {
-        try{
+        try {
             $id = $request->id;
-            $data = DB::table('deskripsi_produk')->where('id',$id)->whereNull('deleted_at')->first();
+            $data = DB::table('deskripsi_produk')->where('id', $id)->whereNull('deleted_at')->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Data corrupt...'
-                ],404);
+                ], 404);
             }
             if ($data->status == $request->status) {
                 return response()->json([
-                   'status' => 'error',
-                   'message' => 'Pilih status yang berbeda dengan status saat ini!'
+                    'status' => 'error',
+                    'message' => 'Pilih status yang berbeda dengan status saat ini!'
                 ]);
             }
             if ($data->status == "Revisi") {
-                DB::table('deskripsi_produk')->where('id',$id)->update([
+                DB::table('deskripsi_produk')->where('id', $id)->update([
                     'alasan_revisi' => NULL,
                     'deadline_revisi' => NULL
                 ]);
@@ -412,7 +410,7 @@ class DeskripsiProdukController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Status progress deskripsi produk berhasil diupdate'
-            ],200);
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -422,82 +420,81 @@ class DeskripsiProdukController extends Controller
     }
     public function lihatHistoryDespro(Request $request)
     {
-        if($request->ajax()){
+        if ($request->ajax()) {
             $html = '';
             $id = $request->id;
             $data = DB::table('deskripsi_produk_history as pd')
-                ->join('users as u','pd.author_id','=','u.id')
-                ->where('pd.deskripsi_produk_id',$id)
-                ->select('pd.*','u.nama')
+                ->join('users as u', 'pd.author_id', '=', 'u.id')
+                ->where('pd.deskripsi_produk_id', $id)
+                ->select('pd.*', 'u.nama')
                 ->orderBy('pd.id', 'desc')
                 ->paginate(2);
-            foreach ($data as $d){
-                if($d->type_history == 'Status'){
+            foreach ($data as $d) {
+                if ($d->type_history == 'Status') {
                     $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title">
-                        <span><span class="bullet"></span> Status deskripsi produk <b class="text-dark">'.$d->status_his.'</b> diubah menjadi <b class="text-dark">'.$d->status_new.'</b>.</span>
+                        <span><span class="bullet"></span> Status deskripsi produk <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
                     </div>
                     <div class="ticket-info">
-                        <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
+                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
                         <div class="bullet pt-2"></div>
-                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i').')</div>
+                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                     </div>
                     </span>';
-
                 } elseif ($d->type_history == 'Update') {
                     $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
                     if (!is_null($d->judul_final_his)) {
-                        $html .=' Judul final <b class="text-dark">'.$d->judul_final_his.'</b> diubah menjadi <b class="text-dark">'.$d->judul_final_new.'</b>.<br>';
+                        $html .= ' Judul final <b class="text-dark">' . $d->judul_final_his . '</b> diubah menjadi <b class="text-dark">' . $d->judul_final_new . '</b>.<br>';
                     }
                     if (!is_null($d->judul_final_new)) {
-                        $html .=' Judul alternatif <b class="text-dark">'.$d->judul_final_new.'</b> telah dipilih menjadi judul final.<br>';
+                        $html .= ' Judul alternatif <b class="text-dark">' . $d->judul_final_new . '</b> telah dipilih menjadi judul final.<br>';
                     }
                     if (!is_null($d->format_buku_his)) {
-                        $html .=' Format buku <b class="text-dark">'.$d->format_buku_his.' cm</b> diubah menjadi <b class="text-dark">'.$d->format_buku_new.' cm</b>.<br>';
+                        $html .= ' Format buku <b class="text-dark">' . $d->format_buku_his . ' cm</b> diubah menjadi <b class="text-dark">' . $d->format_buku_new . ' cm</b>.<br>';
                     }
                     if (!is_null($d->jml_hal_his)) {
-                        $html .=' Jumlah halaman perkiraan <b class="text-dark">'.$d->jml_hal_his.'</b> diubah menjadi <b class="text-dark">'.$d->jml_hal_new.'</b>.<br>';
+                        $html .= ' Jumlah halaman perkiraan <b class="text-dark">' . $d->jml_hal_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_new . '</b>.<br>';
                     }
                     if (!is_null($d->imprint_his)) {
-                        $html .=' Imprint <b class="text-dark">'.$d->imprint_his.'</b> diubah menjadi <b class="text-dark">'.$d->imprint_new.'</b>.<br>';
+                        $html .= ' Imprint <b class="text-dark">' . $d->imprint_his . '</b> diubah menjadi <b class="text-dark">' . $d->imprint_new . '</b>.<br>';
                     }
                     if (!is_null($d->editor_his)) {
-                        $html .=' Editor <b class="text-dark">'
-                        .DB::table('users')->where('id',$d->editor_his)->whereNull('deleted_at')->first()->nama.
-                        '</b> diubah menjadi <b class="text-dark">'.DB::table('users')->where('id',$d->editor_new)->whereNull('deleted_at')->first()->nama.'</b>.<br>';
+                        $html .= ' Editor <b class="text-dark">'
+                            . DB::table('users')->where('id', $d->editor_his)->whereNull('deleted_at')->first()->nama .
+                            '</b> diubah menjadi <b class="text-dark">' . DB::table('users')->where('id', $d->editor_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
                     }
                     if (!is_null($d->editor_new)) {
-                        $html .=' Editor <b class="text-dark">'.DB::table('users')->where('id',$d->editor_new)->whereNull('deleted_at')->first()->nama.'</b> ditambahkan.<br>';
+                        $html .= ' Editor <b class="text-dark">' . DB::table('users')->where('id', $d->editor_new)->whereNull('deleted_at')->first()->nama . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->kelengkapan_his)) {
-                        $html .=' Kelengkapan <b class="text-dark">'.$d->kelengkapan_his.'</b> diubah menjadi <b class="text-dark">'.$d->kelengkapan_new.'</b>.<br>';
+                        $html .= ' Kelengkapan <b class="text-dark">' . $d->kelengkapan_his . '</b> diubah menjadi <b class="text-dark">' . $d->kelengkapan_new . '</b>.<br>';
                     }
                     if (!is_null($d->catatan_his)) {
-                        $html .=' Catatan <b class="text-dark">'.$d->catatan_his.'</b> diubah menjadi <b class="text-dark">'.$d->catatan_new.'</b>.<br>';
+                        $html .= ' Catatan <b class="text-dark">' . $d->catatan_his . '</b> diubah menjadi <b class="text-dark">' . $d->catatan_new . '</b>.<br>';
                     }
                     if (!is_null($d->bulan_his)) {
                         if ($d->bulan_his != $d->bulan_new) {
-                            $html .=' Bulan <b class="text-dark">'.Carbon::parse($d->bulan_his)->translatedFormat('F Y').'</b> diubah menjadi <b class="text-dark">'.Carbon::parse($d->bulan_new)->translatedFormat('F Y').'</b>.';
+                            $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->bulan_new)->translatedFormat('F Y') . '</b>.';
                         }
                     }
-                    $html .='</span></div>
+                    $html .= '</span></div>
                     <div class="ticket-info">
-                        <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
+                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
                         <div class="bullet pt-2"></div>
-                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i').')</div>
+                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
 
                     </div>
                     </span>';
                 } elseif ($d->type_history == 'Revisi') {
                     $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title">
-                        <span><span class="bullet"></span> Deskripsi produk naskah ini diminta untuk direvisi selambatnya tanggal <b class="text-dark">'.Carbon::parse($d->deadline_revisi_his)->translatedFormat('l d F Y, H:i').'</b>. Direvisi dengan alasan <b class="text-dark">"'.$d->alasan_revisi_his.'"</b>.</span>
+                        <span><span class="bullet"></span> Deskripsi produk naskah ini diminta untuk direvisi selambatnya tanggal <b class="text-dark">' . Carbon::parse($d->deadline_revisi_his)->translatedFormat('l d F Y, H:i') . '</b>. Direvisi dengan alasan <b class="text-dark">"' . $d->alasan_revisi_his . '"</b>.</span>
                     </div>
                     <div class="ticket-info">
-                        <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
+                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
                         <div class="bullet pt-2"></div>
-                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i').')</div>
+                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                     </div>
                     </span>';
                 } elseif ($d->type_history == 'Approval') {
@@ -506,9 +503,9 @@ class DeskripsiProdukController extends Controller
                         <span><span class="bullet"></span> Deskripsi produk naskah ini telah disetujui direksi. <i class="fas fa-check text-success"></i></span>
                     </div>
                     <div class="ticket-info">
-                        <div class="text-muted pt-2">Modified by <a href="'.url('/manajemen-web/user/'.$d->author_id).'">'.$d->nama.'</a></div>
+                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
                         <div class="bullet pt-2"></div>
-                        <div class="pt-2">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans().' ('.Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i').')</div>
+                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                     </div>
                     </span>';
                 }
@@ -516,31 +513,31 @@ class DeskripsiProdukController extends Controller
             return $html;
         }
     }
-    public function revisiDespro(Request$request)
+    public function revisiDespro(Request $request)
     {
-        try{
+        try {
             $kode = $request->input('kode');
             $judul_asli = $request->input('judul_asli');
-            $data = DB::table('deskripsi_produk')->where('id',$request->input('id'))->where('status','Selesai')->whereNull('deadline_revisi')->first();
+            $data = DB::table('deskripsi_produk')->where('id', $request->input('id'))->where('status', 'Selesai')->whereNull('deadline_revisi')->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Deskripsi produk "'.$judul_asli.'" sedang direvisi'
+                    'message' => 'Deskripsi produk "' . $judul_asli . '" sedang direvisi'
                 ]);
             }
-            DB::table('deskripsi_produk')->where('id',$request->input('id'))->update([
+            DB::table('deskripsi_produk')->where('id', $request->input('id'))->update([
                 'status' => "Revisi",
-                'deadline_revisi' => Carbon::createFromFormat('d F Y',$request->input('deadline_revisi'))->format('Y-m-d H:i:s'),
+                'deadline_revisi' => Carbon::createFromFormat('d F Y', $request->input('deadline_revisi'))->format('Y-m-d H:i:s'),
                 'alasan_revisi' => $request->input('alasan'),
                 'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
-                'updated_by' =>auth()->id()
+                'updated_by' => auth()->id()
             ]);
             $insert = [
                 'params' => 'Insert History Revisi Despro',
                 'deskripsi_produk_id' => $request->input('id'),
                 'type_history' => 'Revisi',
-                'status_his'=> $data->status,
-                'deadline_revisi_his' => Carbon::createFromFormat('d F Y',$request->input('deadline_revisi'))->format('Y-m-d H:i:s'),
+                'status_his' => $data->status,
+                'deadline_revisi_his' => Carbon::createFromFormat('d F Y', $request->input('deadline_revisi'))->format('Y-m-d H:i:s'),
                 'alasan_revisi_his' => $request->input('alasan'),
                 'status_new' => 'Revisi',
                 'author_id' => auth()->id(),
@@ -550,7 +547,7 @@ class DeskripsiProdukController extends Controller
             event(new DesproEvent($insert));
             return response()->json([
                 'status' => 'success',
-                'message' => 'Naskah "'.$kode.'" telah disetujui!'
+                'message' => 'Naskah "' . $kode . '" telah disetujui!'
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -586,7 +583,7 @@ class DeskripsiProdukController extends Controller
     {
         try {
             $id = $request->id;
-            $data = DB::table('deskripsi_produk')->where('id',$id)->whereNotNull('judul_final')->first();
+            $data = DB::table('deskripsi_produk')->where('id', $id)->whereNotNull('judul_final')->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',

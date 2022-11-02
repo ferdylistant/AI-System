@@ -14,9 +14,10 @@ use Illuminate\Support\Facades\Gate;
 
 class FormatBukuController extends Controller
 {
-    public function index(Request $request) {
-        if($request->ajax()) {
-            if($request->input('request_') === 'table-format-buku') {
+    public function index(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->input('request_') === 'table-format-buku') {
                 $data = DB::table('format_buku')
                     ->whereNull('deleted_at')
                     ->orderBy('jenis_format', 'asc')
@@ -25,72 +26,72 @@ class FormatBukuController extends Controller
                 // foreach ($data as $key => $value) {
                 //     $no = $key + 1;
                 // }
-                $start=1;
+                $start = 1;
                 return DataTables::of($data)
-                        ->addColumn('no', function($no) use (&$start) {
-                            return $start++;
-                        })
-                        ->addColumn('jenis_format', function($data) {
-                            return $data->jenis_format;
-                        })
-                        ->addColumn('tgl_dibuat', function($data) {
-                            $date = Carbon::parse($data->created_at)->translatedFormat('d M Y, H:i');
-                            // $date = date('d F Y, H:i', strtotime($data->created_at));
+                    ->addColumn('no', function ($no) use (&$start) {
+                        return $start++;
+                    })
+                    ->addColumn('jenis_format', function ($data) {
+                        return $data->jenis_format;
+                    })
+                    ->addColumn('tgl_dibuat', function ($data) {
+                        $date = Carbon::parse($data->created_at)->translatedFormat('d M Y, H:i');
+                        // $date = date('d F Y, H:i', strtotime($data->created_at));
+                        return $date;
+                    })
+                    ->addColumn('dibuat_oleh', function ($data) {
+                        $dataUser = User::where('id', $data->created_by)->first();
+                        return $dataUser->nama;
+                    })
+                    ->addColumn('diubah_terakhir', function ($data) {
+                        if ($data->updated_at == null) {
+                            return '-';
+                        } else {
+                            $date = Carbon::parse($data->updated_at)->translatedFormat('d M Y, H:i');
                             return $date;
-                        })
-                        ->addColumn('dibuat_oleh', function($data) {
-                            $dataUser = User::where('id',$data->created_by)->first();
+                        }
+                    })
+                    ->addColumn('diubah_oleh', function ($data) {
+                        if ($data->updated_by == null) {
+                            return '-';
+                        } else {
+                            $dataUser = User::where('id', $data->updated_by)->first();
                             return $dataUser->nama;
-                        })
-                        ->addColumn('diubah_terakhir', function($data) {
-                            if($data->updated_at == null) {
-                                return '-';
-                            } else {
-                                $date = Carbon::parse($data->updated_at)->translatedFormat('d M Y, H:i');
-                                return $date;
-                            }
-                        })
-                        ->addColumn('diubah_oleh', function($data) {
-                            if($data->updated_by == null) {
-                                return '-';
-                            } else {
-                                $dataUser = User::where('id',$data->updated_by)->first();
-                                return $dataUser->nama;
-                            }
-                        })
-                        ->addColumn('history', function ($data) {
-                            $historyData = DB::table('format_buku_history')->where('format_buku_id',$data->id)->get();
-                            if($historyData->isEmpty()) {
-                                return '-';
-                            } else {
-                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-toggle="modal" data-target="#md_FormatBukuHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
-                                return $date;
-                            }
-                        })
-                        ->addColumn('action', function($data) use ($update) {
-                            if(Gate::allows('do_delete', 'hapus-format-buku')) {
-                                $btn = '<a href="'.url('master/format-buku/hapus?fb='.$data->id).'"
+                        }
+                    })
+                    ->addColumn('history', function ($data) {
+                        $historyData = DB::table('format_buku_history')->where('format_buku_id', $data->id)->get();
+                        if ($historyData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-toggle="modal" data-target="#md_FormatBukuHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
+                            return $date;
+                        }
+                    })
+                    ->addColumn('action', function ($data) use ($update) {
+                        if (Gate::allows('do_delete', 'hapus-format-buku')) {
+                            $btn = '<a href="' . url('master/format-buku/hapus?fb=' . $data->id) . '"
                                     class="d-block btn btn-sm btn-danger btn-icon mr-1" id="hapus-fbuku" data-toggle="tooltip" title="Hapus Data">
                                     <div><i class="fas fa-trash"></i></div></a>';
-                            }
-                            if($update) {
-                                $btn .= '<a href="'.url('master/format-buku/ubah?fb='.$data->id).'"
+                        }
+                        if ($update) {
+                            $btn .= '<a href="' . url('master/format-buku/ubah?fb=' . $data->id) . '"
                                     class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
-                            }
-                            return $btn;
-                        })
-                        ->rawColumns([
-                            'no',
-                            'jenis_format',
-                            'tgl_dibuat',
-                            'dibuat_oleh',
-                            'diubah_terakhir',
-                            'diubah_oleh',
-                            'history',
-                            'action'
-                            ])
-                        ->make(true);
+                        }
+                        return $btn;
+                    })
+                    ->rawColumns([
+                        'no',
+                        'jenis_format',
+                        'tgl_dibuat',
+                        'dibuat_oleh',
+                        'diubah_terakhir',
+                        'diubah_oleh',
+                        'history',
+                        'action'
+                    ])
+                    ->make(true);
             }
         }
 
@@ -98,9 +99,10 @@ class FormatBukuController extends Controller
             'title' => 'Format Buku Penerbitan',
         ]);
     }
-    public function createFbuku(Request $request) {
-        if($request->ajax()) {
-            if($request->isMethod('POST')) {
+    public function createFbuku(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->isMethod('POST')) {
                 $request->validate([
                     'add_nama' => 'required|unique:format_buku,jenis_format',
                 ], [
@@ -122,7 +124,8 @@ class FormatBukuController extends Controller
             'title' => 'Tambah Format Buku'
         ]);
     }
-    public function updateFbuku(Request $request) {
+    public function updateFbuku(Request $request)
+    {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $request->validate([
@@ -131,7 +134,7 @@ class FormatBukuController extends Controller
                     'required' => 'This field is requried'
                 ]);
 
-                $history = DB::table('format_buku')->where('id',$request->id)->first();
+                $history = DB::table('format_buku')->where('id', $request->id)->first();
                 $update = [
                     'params' => 'Update Format Buku',
                     'id' => $request->id,
@@ -157,33 +160,35 @@ class FormatBukuController extends Controller
         }
         $id = $request->get('fb');
         $data = DB::table('format_buku')
-                    ->where('id', $id)
-                    ->first();
+            ->where('id', $id)
+            ->first();
         return view('master_data.format_buku.update', [
             'title' => 'Update Format Buku',
             'data' => $data
         ]);
     }
-    public function deleteFbuku(Request $request) {
+    public function deleteFbuku(Request $request)
+    {
         $id = $request->get('fb');
-        $deleted = DB::table('format_buku')->where('id',$id)->update([
+        $deleted = DB::table('format_buku')->where('id', $id)->update([
             'deleted_by' => auth()->id(),
             'deleted_at' => date('Y-m-d H:i:s')
         ]);
         if ($deleted) {
             echo '<script>
 
-            window.location = "'.route('fb.view').'";
+            window.location = "' . route('fb.view') . '";
             </script>';
         }
     }
-    public function lihatHistory(Request $request) {
+    public function lihatHistory(Request $request)
+    {
         $id = $request->input('id');
-        $data = DB::table('format_buku_history as fb')->join('users as u','fb.author_id','=','u.id')
-        ->where('fb.format_buku_id',$id)
-        ->select('fb.*','u.nama')
-        ->get();
-        foreach ($data as $d){
+        $data = DB::table('format_buku_history as fb')->join('users as u', 'fb.author_id', '=', 'u.id')
+            ->where('fb.format_buku_id', $id)
+            ->select('fb.*', 'u.nama')
+            ->get();
+        foreach ($data as $d) {
             $result[] = [
                 'jenis_format_history' => $d->jenis_format_history,
                 'jenis_format_new' => $d->jenis_format_new,

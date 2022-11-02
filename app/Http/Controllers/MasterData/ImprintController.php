@@ -17,9 +17,10 @@ use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
 class ImprintController extends Controller
 {
-    public function index(Request $request) {
-        if($request->ajax()) {
-            if($request->input('request_') === 'table-imprint') {
+    public function index(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->input('request_') === 'table-imprint') {
                 $data = DB::table('imprint')
                     ->whereNull('deleted_at')
                     ->orderBy('nama', 'asc')
@@ -28,71 +29,71 @@ class ImprintController extends Controller
                 // foreach ($data as $key => $value) {
                 //     $no = $key + 1;
                 // }
-                $start=1;
+                $start = 1;
                 return DataTables::of($data)
-                        ->addColumn('no', function($no) use (&$start) {
-                            return $start++;
-                        })
-                        ->addColumn('nama_imprint', function($data) {
-                            return $data->nama;
-                        })
-                        ->addColumn('tgl_dibuat', function($data) {
-                            $date = date('d F Y, H:i', strtotime($data->created_at));
+                    ->addColumn('no', function ($no) use (&$start) {
+                        return $start++;
+                    })
+                    ->addColumn('nama_imprint', function ($data) {
+                        return $data->nama;
+                    })
+                    ->addColumn('tgl_dibuat', function ($data) {
+                        $date = date('d F Y, H:i', strtotime($data->created_at));
+                        return $date;
+                    })
+                    ->addColumn('dibuat_oleh', function ($data) {
+                        $dataUser = User::where('id', $data->created_by)->first();
+                        return $dataUser->nama;
+                    })
+                    ->addColumn('diubah_terakhir', function ($data) {
+                        if ($data->updated_at == null) {
+                            return '-';
+                        } else {
+                            $date = date('d F Y, H:i', strtotime($data->updated_at));
                             return $date;
-                        })
-                        ->addColumn('dibuat_oleh', function($data) {
-                            $dataUser = User::where('id',$data->created_by)->first();
+                        }
+                    })
+                    ->addColumn('history', function ($data) {
+                        $historyData = DB::table('imprint_history')->where('imprint_id', $data->id)->get();
+                        if ($historyData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-toggle="modal" data-target="#md_ImprintHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
+                            return $date;
+                        }
+                    })
+                    ->addColumn('diubah_oleh', function ($data) {
+                        if ($data->updated_by == null) {
+                            return '-';
+                        } else {
+                            $dataUser = User::where('id', $data->updated_by)->first();
                             return $dataUser->nama;
-                        })
-                        ->addColumn('diubah_terakhir', function($data) {
-                            if($data->updated_at == null) {
-                                return '-';
-                            } else {
-                                $date = date('d F Y, H:i', strtotime($data->updated_at));
-                                return $date;
-                            }
-                        })
-                        ->addColumn('history', function ($data) {
-                            $historyData = DB::table('imprint_history')->where('imprint_id',$data->id)->get();
-                            if($historyData->isEmpty()) {
-                                return '-';
-                            } else {
-                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-toggle="modal" data-target="#md_ImprintHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
-                                return $date;
-                            }
-                        })
-                        ->addColumn('diubah_oleh', function($data) {
-                            if($data->updated_by == null) {
-                                return '-';
-                            } else {
-                                $dataUser = User::where('id',$data->updated_by)->first();
-                                return $dataUser->nama;
-                            }
-                        })
-                        ->addColumn('action', function($data) use ($update) {
-                            if(Gate::allows('do_delete', 'hapus-data-imprint')) {
-                                $btn = '<a href="'.url('master/imprint/hapus?im='.$data->id).'"
+                        }
+                    })
+                    ->addColumn('action', function ($data) use ($update) {
+                        if (Gate::allows('do_delete', 'hapus-data-imprint')) {
+                            $btn = '<a href="' . url('master/imprint/hapus?im=' . $data->id) . '"
                                     class="d-block btn btn-sm btn-danger btn-icon mr-1" id="hapus-imprint" data-toggle="tooltip" title="Hapus Data">
                                     <div><i class="fas fa-trash"></i></div></a>';
-                            }
-                            if($update) {
-                                $btn .= '<a href="'.url('master/imprint/ubah-imprint?im='.$data->id).'"
+                        }
+                        if ($update) {
+                            $btn .= '<a href="' . url('master/imprint/ubah-imprint?im=' . $data->id) . '"
                                     class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
-                            }
-                            return $btn;
-                        })
-                        ->rawColumns([
-                            'no',
-                            'nama_imprint',
-                            'tgl_dibuat',
-                            'dibuat_oleh',
-                            'diubah_terakhir',
-                            'diubah_oleh',
-                            'history',
-                            'action'
-                            ])
-                        ->make(true);
+                        }
+                        return $btn;
+                    })
+                    ->rawColumns([
+                        'no',
+                        'nama_imprint',
+                        'tgl_dibuat',
+                        'dibuat_oleh',
+                        'diubah_terakhir',
+                        'diubah_oleh',
+                        'history',
+                        'action'
+                    ])
+                    ->make(true);
             }
         }
 
@@ -101,9 +102,10 @@ class ImprintController extends Controller
         ]);
     }
 
-    public function createImprint(Request $request) {
-        if($request->ajax()) {
-            if($request->isMethod('POST')) {
+    public function createImprint(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->isMethod('POST')) {
                 $request->validate([
                     'add_nama' => 'required',
                 ], [
@@ -126,7 +128,8 @@ class ImprintController extends Controller
         ]);
     }
 
-    public function updateImprint(Request $request) {
+    public function updateImprint(Request $request)
+    {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $request->validate([
@@ -134,7 +137,7 @@ class ImprintController extends Controller
                 ], [
                     'required' => 'This field is requried'
                 ]);
-                $history = DB::table('imprint')->where('id',$request->id)->first();
+                $history = DB::table('imprint')->where('id', $request->id)->first();
                 $update = [
                     'params' => 'Update Imprint',
                     'id' => $request->id,
@@ -160,33 +163,35 @@ class ImprintController extends Controller
         }
         $id = $request->get('im');
         $data = DB::table('imprint')
-                    ->where('id', $id)
-                    ->first();
+            ->where('id', $id)
+            ->first();
         return view('master_data.imprint.update', [
             'title' => 'Update Imprint',
             'data' => $data
         ]);
     }
-    public function deleteImprint(Request $request) {
+    public function deleteImprint(Request $request)
+    {
         $id = $request->get('im');
-        $deleted = DB::table('imprint')->where('id',$id)->update([
+        $deleted = DB::table('imprint')->where('id', $id)->update([
             'deleted_by' => auth()->id(),
             'deleted_at' => date('Y-m-d H:i:s')
         ]);
         if ($deleted) {
             echo '<script>
 
-            window.location = "'.route('imprint.view').'";
+            window.location = "' . route('imprint.view') . '";
             </script>';
         }
     }
-    public function lihatHistory(Request $request) {
+    public function lihatHistory(Request $request)
+    {
         $id = $request->input('id');
-        $data = DB::table('imprint_history as ih')->join('users as u','ih.author_id','=','u.id')
-        ->where('ih.imprint_id',$id)
-        ->select('ih.*','u.nama')
-        ->get();
-        foreach ($data as $d){
+        $data = DB::table('imprint_history as ih')->join('users as u', 'ih.author_id', '=', 'u.id')
+            ->where('ih.imprint_id', $id)
+            ->select('ih.*', 'u.nama')
+            ->get();
+        foreach ($data as $d) {
             $result[] = [
                 'imprint_history' => $d->imprint_history,
                 'imprint_new' => $d->imprint_new,
@@ -198,9 +203,10 @@ class ImprintController extends Controller
         }
         return response()->json($result);
     }
-    public function indexPlatform(Request $request) {
-        if($request->ajax()) {
-            if($request->input('request_') === 'table-platform') {
+    public function indexPlatform(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->input('request_') === 'table-platform') {
                 $data = DB::table('platform_digital_ebook')
                     ->whereNull('deleted_at')
                     ->orderBy('nama', 'asc')
@@ -209,71 +215,71 @@ class ImprintController extends Controller
                 // foreach ($data as $key => $value) {
                 //     $no = $key + 1;
                 // }
-                $start=1;
+                $start = 1;
                 return DataTables::of($data)
-                        ->addColumn('no', function($no) use (&$start) {
-                            return $start++;
-                        })
-                        ->addColumn('nama_platform', function($data) {
-                            return $data->nama;
-                        })
-                        ->addColumn('tgl_dibuat', function($data) {
-                            $date = date('d M Y, H:i', strtotime($data->created_at));
+                    ->addColumn('no', function ($no) use (&$start) {
+                        return $start++;
+                    })
+                    ->addColumn('nama_platform', function ($data) {
+                        return $data->nama;
+                    })
+                    ->addColumn('tgl_dibuat', function ($data) {
+                        $date = date('d M Y, H:i', strtotime($data->created_at));
+                        return $date;
+                    })
+                    ->addColumn('dibuat_oleh', function ($data) {
+                        $dataUser = User::where('id', $data->created_by)->first();
+                        return $dataUser->nama;
+                    })
+                    ->addColumn('diubah_terakhir', function ($data) {
+                        if ($data->updated_at == null) {
+                            return '-';
+                        } else {
+                            $date = date('d M Y, H:i', strtotime($data->updated_at));
                             return $date;
-                        })
-                        ->addColumn('dibuat_oleh', function($data) {
-                            $dataUser = User::where('id',$data->created_by)->first();
+                        }
+                    })
+                    ->addColumn('history', function ($data) {
+                        $historyData = DB::table('platform_digital_ebook_history')->where('platform_id', $data->id)->get();
+                        if ($historyData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-toggle="modal" data-target="#md_PlatformHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
+                            return $date;
+                        }
+                    })
+                    ->addColumn('diubah_oleh', function ($data) {
+                        if ($data->updated_by == null) {
+                            return '-';
+                        } else {
+                            $dataUser = User::where('id', $data->updated_by)->first();
                             return $dataUser->nama;
-                        })
-                        ->addColumn('diubah_terakhir', function($data) {
-                            if($data->updated_at == null) {
-                                return '-';
-                            } else {
-                                $date = date('d M Y, H:i', strtotime($data->updated_at));
-                                return $date;
-                            }
-                        })
-                        ->addColumn('history', function ($data) {
-                            $historyData = DB::table('platform_digital_ebook_history')->where('platform_id',$data->id)->get();
-                            if($historyData->isEmpty()) {
-                                return '-';
-                            } else {
-                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="'.$data->id.'" data-toggle="modal" data-target="#md_PlatformHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
-                                return $date;
-                            }
-                        })
-                        ->addColumn('diubah_oleh', function($data) {
-                            if($data->updated_by == null) {
-                                return '-';
-                            } else {
-                                $dataUser = User::where('id',$data->updated_by)->first();
-                                return $dataUser->nama;
-                            }
-                        })
-                        ->addColumn('action', function($data) use ($update) {
-                            if(Gate::allows('do_delete', 'hapus-data-imprint')) {
-                                $btn = '<a href="'.url('master/platform-digital/hapus?p='.$data->id).'"
+                        }
+                    })
+                    ->addColumn('action', function ($data) use ($update) {
+                        if (Gate::allows('do_delete', 'hapus-data-imprint')) {
+                            $btn = '<a href="' . url('master/platform-digital/hapus?p=' . $data->id) . '"
                                     class="d-block btn btn-sm btn-danger btn-icon mr-1" id="hapus-platform" data-toggle="tooltip" title="Hapus Data">
                                     <div><i class="fas fa-trash"></i></div></a>';
-                            }
-                            if($update) {
-                                $btn .= '<a href="'.url('master/platform-digital/ubah?p='.$data->id).'"
+                        }
+                        if ($update) {
+                            $btn .= '<a href="' . url('master/platform-digital/ubah?p=' . $data->id) . '"
                                     class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
-                            }
-                            return $btn;
-                        })
-                        ->rawColumns([
-                            'no',
-                            'nama_platform',
-                            'tgl_dibuat',
-                            'dibuat_oleh',
-                            'diubah_terakhir',
-                            'history',
-                            'diubah_oleh',
-                            'action'
-                            ])
-                        ->make(true);
+                        }
+                        return $btn;
+                    })
+                    ->rawColumns([
+                        'no',
+                        'nama_platform',
+                        'tgl_dibuat',
+                        'dibuat_oleh',
+                        'diubah_terakhir',
+                        'history',
+                        'diubah_oleh',
+                        'action'
+                    ])
+                    ->make(true);
             }
         }
 
@@ -282,9 +288,10 @@ class ImprintController extends Controller
         ]);
     }
 
-    public function createPlatform(Request $request) {
-        if($request->ajax()) {
-            if($request->isMethod('POST')) {
+    public function createPlatform(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->isMethod('POST')) {
                 $request->validate([
                     'add_nama' => 'required|unique:platform_digital_ebook,nama',
                 ], [
@@ -307,7 +314,8 @@ class ImprintController extends Controller
         ]);
     }
 
-    public function updatePlatform(Request $request) {
+    public function updatePlatform(Request $request)
+    {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $request->validate([
@@ -315,7 +323,7 @@ class ImprintController extends Controller
                 ], [
                     'required' => 'This field is requried'
                 ]);
-                $history = DB::table('platform_digital_ebook')->where('id',$request->id)->first();
+                $history = DB::table('platform_digital_ebook')->where('id', $request->id)->first();
                 $update = [
                     'params' => 'Update Platform',
                     'id' => $request->id,
@@ -341,35 +349,37 @@ class ImprintController extends Controller
         }
         $id = $request->get('p');
         $data = DB::table('platform_digital_ebook')
-                    ->where('id', $id)
-                    ->first();
+            ->where('id', $id)
+            ->first();
         return view('master_data.platform_digital.update', [
             'title' => 'Update Platform Digital',
             'data' => $data
         ]);
     }
 
-    public function deletePlatform(Request $request) {
+    public function deletePlatform(Request $request)
+    {
         $id = $request->get('p');
-        $deleted = DB::table('platform_digital_ebook')->where('id',$id)->update([
+        $deleted = DB::table('platform_digital_ebook')->where('id', $id)->update([
             'deleted_by' => auth()->id(),
             'deleted_at' => date('Y-m-d H:i:s')
         ]);
         if ($deleted) {
             echo '<script>
 
-            window.location = "'.route('platform.view').'";
+            window.location = "' . route('platform.view') . '";
             </script>';
         }
     }
 
-    public function lihatHistoryPlatform(Request $request) {
+    public function lihatHistoryPlatform(Request $request)
+    {
         $id = $request->input('id');
-        $data = DB::table('platform_digital_ebook_history as pl')->join('users as u','pl.author_id','=','u.id')
-        ->where('pl.platform_id',$id)
-        ->select('pl.*','u.nama')
-        ->get();
-        foreach ($data as $d){
+        $data = DB::table('platform_digital_ebook_history as pl')->join('users as u', 'pl.author_id', '=', 'u.id')
+            ->where('pl.platform_id', $id)
+            ->select('pl.*', 'u.nama')
+            ->get();
+        foreach ($data as $d) {
             $result[] = [
                 'platform_history' => $d->platform_history,
                 'platform_new' => $d->platform_new,
