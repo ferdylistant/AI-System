@@ -31,8 +31,6 @@ class PracetakDesainerController extends Controller
                         )
                     ->orderBy('pc.tgl_masuk_cover','ASC')
                     ->get();
-                $update = Gate::allows('do_create', 'ubah-atau-buat-des-final');
-
                 return DataTables::of($data)
                         // ->addIndexColumn()
                         ->addColumn('kode', function($data) {
@@ -101,52 +99,549 @@ class PracetakDesainerController extends Controller
                                 return $date;
                             }
                         })
-                        ->addColumn('action', function($data) use ($update) {
-                            $btn = '<a href="'.url('penerbitan/pracetak/designer/detail?desc='.$data->id.'&kode='.$data->kode).'"
+                        ->addColumn('action', function($data) {
+                            $btn = '<a href="'.url('penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode).'"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                            if($update) {
-                                if ($data->status == 'Selesai') {
-                                    if (Gate::allows('do_approval','approval-deskripsi-produk')) {
-                                        $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?desc='.$data->id.'&kode='.$data->kode).'"
-                                        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                        <div><i class="fas fa-edit"></i></div></a>';
+                            switch ($data->jalur_buku) {
+                                case 'Reguler':
+                                    $kabag = Gate::allows('do_create','otorisasi-kabag-prades-reguler');
+                                    $editor = Gate::allows('do_create','otorisasi-editor-prades-reguler');
+                                    $desainer = Gate::allows('do_create','otorisasi-desainer-prades-reguler');
+                                    $korektorBC = Gate::allows('do_create','otorisasi-korektor-prades-reguler');
+                                    $korektorSF = Gate::allows('do_create','otorisasi-korektor-prades-reguler');
+                                    $korektorF = Gate::allows('do_create','otorisasi-korektor-prades-reguler');
+                                    if($kabag) {
+                                        if ($data->status == 'Selesai') {
+                                            if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                <div><i class="fas fa-edit"></i></div></a>';
+                                            }
+                                        } else {
+                                            if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                <div><i class="fas fa-edit"></i></div></a>';
+                                            }
+                                        }
+                                    } elseif ($editor) {
+                                        foreach (json_decode($data->editor,true) as $ed) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $ed) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($desainer) {
+                                        foreach (json_decode($data->desainer,true) as $des) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $des) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorBC) {
+                                        foreach (json_decode($data->korektor_back_cover,true) as $kbc) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $kbc) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorSF) {
+                                        foreach (json_decode($data->korektor_sbl_film,true) as $ksf) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $ksf) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorF) {
+                                        foreach (json_decode($data->korektor_film,true) as $kf) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $kf) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
                                     }
-                                } else {
-                                    if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
-                                        $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?desc='.$data->id.'&kode='.$data->kode).'"
-                                        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                        <div><i class="fas fa-edit"></i></div></a>';
+                                    break;
+                                case 'MoU':
+                                    $kabag = Gate::allows('do_create','otorisasi-kabag-prades-mou');
+                                    $editor = Gate::allows('do_create','otorisasi-editor-prades-mou');
+                                    $desainer = Gate::allows('do_create','otorisasi-desainer-prades-mou');
+                                    $korektorBC = Gate::allows('do_create','otorisasi-korektor-prades-mou');
+                                    $korektorSF = Gate::allows('do_create','otorisasi-korektor-prades-mou');
+                                    $korektorF = Gate::allows('do_create','otorisasi-korektor-prades-mou');
+                                    if($kabag) {
+                                        if ($data->status == 'Selesai') {
+                                            if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                <div><i class="fas fa-edit"></i></div></a>';
+                                            }
+                                        } else {
+                                            if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                <div><i class="fas fa-edit"></i></div></a>';
+                                            }
+                                        }
+                                    } elseif ($editor) {
+                                        foreach (json_decode($data->editor,true) as $ed) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $ed) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($desainer) {
+                                        foreach (json_decode($data->desainer,true) as $des) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $des) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorBC) {
+                                        foreach (json_decode($data->korektor_back_cover,true) as $kbc) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $kbc) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorSF) {
+                                        foreach (json_decode($data->korektor_sbl_film,true) as $ksf) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $ksf) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorF) {
+                                        foreach (json_decode($data->korektor_film,true) as $kf) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $kf) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
                                     }
-                                }
+                                    break;
+                                case 'MoU-Reguler':
+                                    $kabag = Gate::allows('do_create','otorisasi-kabag-prades-reguler');
+                                    $editor = Gate::allows('do_create','otorisasi-editor-prades-reguler');
+                                    $desainer = Gate::allows('do_create','otorisasi-desainer-prades-reguler');
+                                    $korektorBC = Gate::allows('do_create','otorisasi-korektor-prades-reguler');
+                                    $korektorSF = Gate::allows('do_create','otorisasi-korektor-prades-reguler');
+                                    $korektorF = Gate::allows('do_create','otorisasi-korektor-prades-reguler');
+                                    $kabagMou = Gate::allows('do_create','otorisasi-kabag-prades-mou');
+                                    $editorMou = Gate::allows('do_create','otorisasi-editor-prades-mou');
+                                    $desainerMou = Gate::allows('do_create','otorisasi-desainer-prades-mou');
+                                    $korektorBCMou = Gate::allows('do_create','otorisasi-korektor-prades-mou');
+                                    $korektorSFMou = Gate::allows('do_create','otorisasi-korektor-prades-mou');
+                                    $korektorFMou = Gate::allows('do_create','otorisasi-korektor-prades-mou');
+                                    if($kabag) {
+                                        if ($data->status == 'Selesai') {
+                                            if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                <div><i class="fas fa-edit"></i></div></a>';
+                                            }
+                                        } else {
+                                            if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                <div><i class="fas fa-edit"></i></div></a>';
+                                            }
+                                        }
+                                    } elseif ($editor) {
+                                        foreach (json_decode($data->editor,true) as $ed) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $ed) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($desainer) {
+                                        foreach (json_decode($data->desainer,true) as $des) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $des) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorBC) {
+                                        foreach (json_decode($data->korektor_back_cover,true) as $kbc) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $kbc) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorSF) {
+                                        foreach (json_decode($data->korektor_sbl_film,true) as $ksf) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $ksf) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorF) {
+                                        foreach (json_decode($data->korektor_film,true) as $kf) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $kf) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif($kabagMou) {
+                                        if ($data->status == 'Selesai') {
+                                            if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                <div><i class="fas fa-edit"></i></div></a>';
+                                            }
+                                        } else {
+                                            if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                <div><i class="fas fa-edit"></i></div></a>';
+                                            }
+                                        }
+                                    } elseif ($editorMou) {
+                                        foreach (json_decode($data->editor,true) as $ed) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $ed) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($desainerMou) {
+                                        foreach (json_decode($data->desainer,true) as $des) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $des) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorBCMou) {
+                                        foreach (json_decode($data->korektor_back_cover,true) as $kbc) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $kbc) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorSFMou) {
+                                        foreach (json_decode($data->korektor_sbl_film,true) as $ksf) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $ksf) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorFMou) {
+                                        foreach (json_decode($data->korektor_film,true) as $kf) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $kf) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case 'SMK/NonSMK':
+                                    $kabag = Gate::allows('do_create','otorisasi-kabag-prades-smk');
+                                    $editor = Gate::allows('do_create','otorisasi-editor-prades-smk');
+                                    $desainer = Gate::allows('do_create','otorisasi-desainer-prades-smk');
+                                    $korektorBC = Gate::allows('do_create','otorisasi-korektor-prades-smk');
+                                    $korektorSF = Gate::allows('do_create','otorisasi-korektor-prades-smk');
+                                    $korektorF = Gate::allows('do_create','otorisasi-korektor-prades-smk');
+                                    if($kabag) {
+                                        if ($data->status == 'Selesai') {
+                                            if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                <div><i class="fas fa-edit"></i></div></a>';
+                                            }
+                                        } else {
+                                            if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                <div><i class="fas fa-edit"></i></div></a>';
+                                            }
+                                        }
+                                    } elseif ($editor) {
+                                        foreach (json_decode($data->editor,true) as $ed) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $ed) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($desainer) {
+                                        foreach (json_decode($data->desainer,true) as $des) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $des) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorBC) {
+                                        foreach (json_decode($data->korektor_back_cover,true) as $kbc) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $kbc) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorSF) {
+                                        foreach (json_decode($data->korektor_sbl_film,true) as $ksf) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $ksf) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    } elseif ($korektorF) {
+                                        foreach (json_decode($data->korektor_film,true) as $kf) {
+                                            if ($data->status == 'Selesai') {
+                                                if (Gate::allows('do_approval','approval-deskripsi-produk')) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            } else {
+                                                if ((auth()->id() == $kf) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval','approval-deskripsi-produk'))) {
+                                                    $btn .= '<a href="'.url('penerbitan/pracetak/designer/edit?pra='.$data->id.'&kode='.$data->kode).'"
+                                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                    <div><i class="fas fa-edit"></i></div></a>';
+                                                }
+                                            }
+                                        }
+                                    }
+                                    break;
+
+                                default:
+                                    return abort(410);
+                                    break;
                             }
-                            if (Gate::allows('do_approval','action-progress-des-final')) {
-                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
-                                    switch ($data->status) {
-                                        case 'Antrian':
-                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-prades" style="background:#34395E;color:white" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_final.'" data-toggle="modal" data-target="#md_UpdateStatusPracetakDesainer" title="Update Status">
-                                            <div>'.$data->status.'</div></a>';
-                                            break;
-                                        case 'Pending':
-                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-prades" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_final.'" data-toggle="modal" data-target="#md_UpdateStatusPracetakDesainer" title="Update Status">
-                                            <div>'.$data->status.'</div></a>';
-                                            break;
-                                        case 'Proses':
-                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-prades" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_final.'" data-toggle="modal" data-target="#md_UpdateStatusPracetakDesainer" title="Update Status">
-                                            <div>'.$data->status.'</div></a>';
-                                            break;
-                                        case 'Selesai':
-                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-prades" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_final.'" data-toggle="modal" data-target="#md_UpdateStatusPracetakDesainer" title="Update Status">
-                                            <div>'.$data->status.'</div></a>';
-                                            break;
-                                        case 'Revisi':
-                                            $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-info btn-icon mr-1 mt-1 btn-status-prades" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_final.'" data-toggle="modal" data-target="#md_UpdateStatusPracetakDesainer" title="Update Status">
-                                            <div>'.$data->status.'</div></a>';
-                                            break;
-                                        default:
-                                            return abort(410);
-                                            break;
-                                    }
+                            if ($kabag) {
+                                switch ($data->status) {
+                                    case 'Antrian':
+                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-prades" style="background:#34395E;color:white" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_final.'" data-toggle="modal" data-target="#md_UpdateStatusPracetakDesainer" title="Update Status">
+                                        <div>'.$data->status.'</div></a>';
+                                        break;
+                                    case 'Pending':
+                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-prades" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_final.'" data-toggle="modal" data-target="#md_UpdateStatusPracetakDesainer" title="Update Status">
+                                        <div>'.$data->status.'</div></a>';
+                                        break;
+                                    case 'Proses':
+                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-prades" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_final.'" data-toggle="modal" data-target="#md_UpdateStatusPracetakDesainer" title="Update Status">
+                                        <div>'.$data->status.'</div></a>';
+                                        break;
+                                    case 'Selesai':
+                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-prades" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_final.'" data-toggle="modal" data-target="#md_UpdateStatusPracetakDesainer" title="Update Status">
+                                        <div>'.$data->status.'</div></a>';
+                                        break;
+                                    default:
+                                        return abort(410);
+                                        break;
                                 }
                             } else {
                                 switch ($data->status) {
@@ -162,9 +657,6 @@ class PracetakDesainerController extends Controller
                                     case 'Selesai':
                                         $btn .= '<span class="d-block badge badge-light mr-1 mt-1">'.$data->status.'</span>';
                                         break;
-                                    case 'Revisi':
-                                        $btn .= '<span class="d-block badge badge-info mr-1 mt-1">'.$data->status.'</span>';
-                                        break;
                                     default:
                                         return abort(410);
                                         break;
@@ -174,12 +666,11 @@ class PracetakDesainerController extends Controller
                         })
                         ->rawColumns([
                             'kode',
-                            'judul_asli',
+                            'judul_final',
                             'penulis',
                             'jalur_buku',
-                            'imprint',
-                            'judul_final',
-                            'tgl_deskripsi',
+                            'desainer',
+                            'tgl_masuk_cover',
                             'pic_prodev',
                             'history',
                             'action'
@@ -205,12 +696,12 @@ class PracetakDesainerController extends Controller
         ->orderBy('pc.tgl_masuk_cover','ASC')
         ->get();
                     //Isi Warna Enum
-            $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_final WHERE Field = 'status'"))[0]->Type;
+            $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_cover WHERE Field = 'status'"))[0]->Type;
             preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
             $statusProgress = explode("','", $matches[1]);
 
-        return view('penerbitan.des_final.index', [
-            'title' => 'Deskripsi Final',
+        return view('penerbitan.pracetak_desainer.index', [
+            'title' => 'Pracetak Desainer',
             'status_progress' => Arr::sort($statusProgress),
             'count' => count($data)
         ]);
