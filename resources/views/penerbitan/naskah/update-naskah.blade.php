@@ -1,192 +1,181 @@
 @extends('layouts.app')
 
 @section('cssRequired')
-    <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css') }}">
+<link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
+<link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
+<link rel="stylesheet" href="{{ url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css') }}">
 @endsection
 
 @section('cssNeeded')
-    <style>
-        /*Select2 ReadOnly Start*/
-        select[readonly].select2-hidden-accessible+.select2-container {
-            pointer-events: none;
-            touch-action: none;
-        }
+<style>
+    /*Select2 ReadOnly Start*/
+    select[readonly].select2-hidden-accessible+.select2-container {
+        pointer-events: none;
+        touch-action: none;
+    }
 
-        select[readonly].select2-hidden-accessible+.select2-container .select2-selection {
-            background: #eee;
-            box-shadow: none;
-        }
+    select[readonly].select2-hidden-accessible+.select2-container .select2-selection {
+        background: #eee;
+        box-shadow: none;
+    }
 
-        select[readonly].select2-hidden-accessible+.select2-container .select2-selection__arrow,
-        select[readonly].select2-hidden-accessible+.select2-container .select2-selection__clear {
-            display: none;
-        }
+    select[readonly].select2-hidden-accessible+.select2-container .select2-selection__arrow,
+    select[readonly].select2-hidden-accessible+.select2-container .select2-selection__clear {
+        display: none;
+    }
 
-        /*Select2 ReadOnly End*/
-    </style>
+    /*Select2 ReadOnly End*/
+</style>
 @endsection
 
 @section('content')
-    <section class="section">
-        <div class="section-header">
-            <div class="section-header-back">
-                <a href="{{ url('penerbitan/naskah') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
-            </div>
-            <h1>Ubah Data Naskah</h1>
+<section class="section">
+    <div class="section-header">
+        <div class="section-header-back">
+            <a href="{{ url('penerbitan/naskah') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
+        <h1>Ubah Data Naskah</h1>
+    </div>
 
-        <div class="section-body">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card card-warning">
-                        <form id="fedit_Naskah">
-                            <div class="card-header">
-                                <h4>Form Naskah</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Judul Asli: <span class="text-danger">*</span></label>
-                                        <textarea class="form-control" name="edit_judul_asli" placeholder="Judul Asli Naskah"></textarea>
-                                        <input type="hidden" name="edit_id">
-                                        <div id="err_edit_judul_asli"></div>
-                                    </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Kode Naskah: <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text"><i class="fas fa-user"></i></div>
-                                            </div>
-                                            <input type="text" class="form-control" name="edit_kode" value=""
-                                                placeholder="Kode Naskah" readonly>
-                                            <div id="err_edit_kode"></div>
+    <div class="section-body">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-warning">
+                    <form id="fedit_Naskah">
+                        <div class="card-header">
+                            <h4>Form Naskah</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group col-12 col-md-6 mb-4">
+                                    <label>Judul Asli: <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" name="edit_judul_asli" placeholder="Judul Asli Naskah"></textarea>
+                                    <input type="hidden" name="edit_id">
+                                    <div id="err_edit_judul_asli"></div>
+                                </div>
+                                <div class="form-group col-12 col-md-6 mb-4">
+                                    <label>Kode Naskah: <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text"><i class="fas fa-user"></i></div>
                                         </div>
+                                        <input type="text" class="form-control" name="edit_kode" value="" placeholder="Kode Naskah" readonly>
+                                        <div id="err_edit_kode"></div>
                                     </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Kelompok Buku: <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text"><i class="fas fa-flag"></i></div>
-                                            </div>
-                                            <select class="form-control select2" name="edit_kelompok_buku">
-                                                <option label="Pilih"></option>
-                                                @foreach ($kbuku as $kb)
-                                                    <option value="{{ $kb->id }}">{{ $kb->nama }}</option>
-                                                @endforeach
-                                            </select>
-                                            <div id="err_edit_kelompok_buku"></div>
+                                </div>
+                                <div class="form-group col-12 col-md-6 mb-4">
+                                    <label>Kelompok Buku: <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text"><i class="fas fa-flag"></i></div>
                                         </div>
+                                        <select class="form-control select2" name="edit_kelompok_buku">
+                                            <option label="Pilih"></option>
+                                            @foreach ($kbuku as $kb)
+                                            <option value="{{ $kb->id }}">{{ $kb->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div id="err_edit_kelompok_buku"></div>
                                     </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Jalur Buku: <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text"><i class="fas fa-flag"></i></div>
-                                            </div>
-                                            <select class="form-control select2" name="edit_jalur_buku" readonly>
-                                                <option label="Pilih"></option>
-                                                @php $arrJB = ['Reguler', 'MoU', 'MoU-Reguler', 'SMK/NonSMK', 'Pro Literasi']; @endphp
-                                                @foreach ($arrJB as $v)
-                                                    <option value="{{ $v }}">{{ $v }}</option>
-                                                @endforeach
-                                            </select>
-                                            <div id="err_edit_jalur_buku"></div>
+                                </div>
+                                <div class="form-group col-12 col-md-6 mb-4">
+                                    <label>Jalur Buku: <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text"><i class="fas fa-flag"></i></div>
                                         </div>
+                                        <select class="form-control select2" name="edit_jalur_buku" readonly>
+                                            <option label="Pilih"></option>
+                                            @php $arrJB = ['Reguler', 'MoU', 'MoU-Reguler', 'SMK/NonSMK', 'Pro Literasi']; @endphp
+                                            @foreach ($arrJB as $v)
+                                            <option value="{{ $v }}">{{ $v }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div id="err_edit_jalur_buku"></div>
                                     </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Tanggal Masuk Naskah: <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
-                                            </div>
-                                            <input type="text" class="form-control datepicker"
-                                                name="edit_tanggal_masuk_naskah" placeholder="Hari Bulan Tahun">
-                                            <div id="err_edit_tanggal_masuk_naskah"></div>
+                                </div>
+                                <div class="form-group col-12 col-md-6 mb-4">
+                                    <label>Tanggal Masuk Naskah: <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                         </div>
+                                        <input type="text" class="form-control datepicker" name="edit_tanggal_masuk_naskah" placeholder="Hari Bulan Tahun">
+                                        <div id="err_edit_tanggal_masuk_naskah"></div>
                                     </div>
-                                    <div class="form-group col-12 col-md-3 mb-4">
-                                        <label class="d-block">Sumber Naskah: <span class="text-danger">*</span></label>
-                                        @foreach ($hcsc as $v)
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="checkbox" name="edit_sumber_naskah[]"
-                                                    id="cb{{ $v }}" value="{{ $v }}">
-                                                <label class="form-check-label"
-                                                    for="cb{{ $v }}">{{ $v == 'SC' ? 'Soft Copy' : 'Hard Copy' }}</label>
-                                            </div>
-                                        @endforeach
-                                        <div id="err_sumber_naskah"></div>
+                                </div>
+                                <div class="form-group col-12 col-md-3 mb-4">
+                                    <label>Rencana CD/QR Code: <span class="text-danger">*</span></label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="edit_cdqr_code" value="1" id="edit_cdqr_yes">
+                                        <label class="form-check-label mr-4" for="edit_cdqr_yes">Ya</label>
+                                        <input class="form-check-input" type="radio" name="edit_cdqr_code" value="0" id="edit_cdqr_no">
+                                        <label class="form-check-label" for="edit_cdqr_no">Tidak</label>
                                     </div>
-                                    <div class="form-group col-12 col-md-3 mb-4">
-                                        <label>Rencana CD/QR Code: <span class="text-danger">*</span></label>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="edit_cdqr_code"
-                                                value="1" id="edit_cdqr_yes">
-                                            <label class="form-check-label mr-4" for="edit_cdqr_yes">Ya</label>
-                                            <input class="form-check-input" type="radio" name="edit_cdqr_code"
-                                                value="0" id="edit_cdqr_no">
-                                            <label class="form-check-label" for="edit_cdqr_no">Tidak</label>
+                                    <div id="err_edit_cdqr_code" style="display: block;"></div>
+                                </div>
+                                <div class="form-group col-12 col-md-3 mb-4">
+                                    <label class="d-block">Sumber Naskah: <span class="text-danger">*</span></label>
+                                    @foreach ($hcsc as $v)
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="edit_sumber_naskah[]" id="cb{{ $v }}" value="{{ $v }}">
+                                        <label class="form-check-label" for="cb{{ $v }}">{{ $v == 'SC' ? 'Soft Copy' : 'Hard Copy' }}</label>
+                                    </div>
+                                    @endforeach
+                                    <div id="err_sumber_naskah"></div>
+                                </div>
+                                <div class="col-12 col-md-12" id="urlFile"></div>
+                                <div class="form-group col-12 col-md-6 mb-4">
+                                    <label>PIC Prodev: <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text"><i class="fas fa-flag"></i></div>
                                         </div>
-                                        <div id="err_edit_cdqr_code" style="display: block;"></div>
+                                        <select class="form-control select2" name="edit_pic_prodev">
+                                            <option label="Pilih"></option>
+                                            @foreach ($user as $u)
+                                            <option value="{{ $u->id }}">{{ $u->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div id="err_edit_pic_prodev"></div>
                                     </div>
-                                    <div class="form-group col-12 col-md-12 mb-4" style="display:none" id="SC">
-                                        <label>URL File: <span class="text-danger">*</span></label>
-                                        <input type="url" class="form-control" name="edit_url_file" required>
-                                        <div id="err_edit_url_file"></div>
-                                    </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>PIC Prodev: <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text"><i class="fas fa-flag"></i></div>
-                                            </div>
-                                            <select class="form-control select2" name="edit_pic_prodev">
-                                                <option label="Pilih"></option>
-                                                @foreach ($user as $u)
-                                                    <option value="{{ $u->id }}">{{ $u->nama }}</option>
-                                                @endforeach
-                                            </select>
-                                            <div id="err_edit_pic_prodev"></div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Penulis: <span class="text-danger">*</span></label>
-                                        <select id="edit_penulis" class="form-control select2" name="edit_penulis[]"
-                                            multiple="" required></select>
-                                        <div id="err_edit_penulis"></div>
-                                    </div>
-                                    <div class="form-group col-12 mb-4 table-responsive ">
-                                        <table id="tb_selectedPenulis" class="table table-bordered">
-                                            <thead class="thead-dark">
-                                                <tr>
-                                                    <th scope="col">Nama</th>
-                                                    <th scope="col">Email</th>
-                                                    <th scope="col">Telepon / Ponsel</th>
-                                                    <th scope="col">Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                    <div class="form-group col-12 mb-4">
-                                        <label>Keterangan: <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <textarea class="form-control" name="edit_keterangan" placeholder="Keterangan Tambahan Naskah" required></textarea>
-                                            <div id="err_edit_keterangan"></div>
-                                        </div>
+                                </div>
+                                <div class="form-group col-12 col-md-6 mb-4">
+                                    <label>Penulis: <span class="text-danger">*</span></label>
+                                    <select id="edit_penulis" class="form-control select2" name="edit_penulis[]" multiple="" required></select>
+                                    <div id="err_edit_penulis"></div>
+                                </div>
+                                <div class="form-group col-12 mb-4 table-responsive ">
+                                    <table id="tb_selectedPenulis" class="table table-bordered">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col">Nama</th>
+                                                <th scope="col">Email</th>
+                                                <th scope="col">Telepon / Ponsel</th>
+                                                <th scope="col">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="form-group col-12 mb-4">
+                                    <label>Keterangan: <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <textarea class="form-control" name="edit_keterangan" placeholder="Keterangan Tambahan Naskah" required></textarea>
+                                        <div id="err_edit_keterangan"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer text-right">
-                                <button type="submit" class="btn btn-warning">Simpan</button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                        <div class="card-footer text-right">
+                            <button type="submit" class="btn btn-warning">Simpan</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 @endsection
 
 @section('jsRequired')
@@ -230,7 +219,7 @@
             cardWrap = $('.section-body').find('.card');
 
         $.ajax({
-            url: '{!! url("penerbitan/naskah/mengubah-naskah/'+id+'") !!}',
+            url: '{!! url("penerbitan/naskah/mengubah-naskah/' + id + '") !!}',
             beforeSend: function() {
                 cardWrap.addClass('card-progress');
             },
@@ -239,8 +228,6 @@
                     naskah,
                     penulis
                 } = result;
-                var hcsc = ['HC','SC'];
-
                 for (let p of penulis) {
                     $("#edit_penulis").select2("trigger", "select", {
                         data: {
@@ -260,9 +247,26 @@
                     } else if (n == 'kelompok_buku_id') {
                         $('[name="edit_kelompok_buku"]').val([naskah[n]]).change();
                     } else if (n == 'sumber_naskah') {
-                        $('[name="edit_sumber_naskah').prop('checked', true).val([naskah[n]])
-                    }
-                     else {
+                        $('#fedit_Naskah').find(':checkbox[name^="edit_sumber_naskah"]').each(function() {
+                            $(this).prop("checked", ($.inArray($(this).val(), JSON.parse(naskah[n])) != -1));
+                        });
+                    } else if (n == 'url_file') {
+                        if (naskah[n]) {
+                            $('#urlFile').html(`<div class="form-group" style="display:none" id="SC">
+                                    <label>URL File: <span class="text-danger">*</span></label>
+                                    <input type="url" class="form-control" name="edit_url_file" required>
+                                    <div id="err_edit_url_file"></div>
+                                </div>`);
+                            $('[name="edit_' + n + '"]').val(naskah[n]).change();
+                            $('#SC').show('slow');
+                        } else {
+                            $('#urlFile').html(`<div class="form-group" style="display:none" id="SC">
+                                    <label>URL File: <span class="text-danger">*</span></label>
+                                    <input type="url" class="form-control" name="edit_url_file" required>
+                                    <div id="err_edit_url_file"></div>
+                                </div>`);
+                        }
+                    } else {
                         $('[name="edit_' + n + '"]').val(naskah[n]).change();
                     }
                 }
@@ -367,7 +371,7 @@
 
             $.ajax({
                 type: "POST",
-                url: '{!! url("penerbitan/naskah/mengubah-naskah/'+id+'") !!}',
+                url: '{!! url("penerbitan/naskah/mengubah-naskah/' + id + '") !!}',
                 data: new FormData(el),
                 processData: false,
                 contentType: false,
@@ -376,7 +380,7 @@
                     addClass('btn-progress')
                 },
                 success: function(result) {
-                    // console.log(result)
+                    console.log(result)
                     notifToast('success', 'Data naskah berhasil diubah!');
                 },
                 error: function(err) {

@@ -382,6 +382,14 @@ class NaskahController extends Controller
                         ]);
                     }
                 }
+                if((count($request->input('edit_sumber_naskah')) == 1) && ($request->input('edit_sumber_naskah')[0] != 'SC')){
+                    $url_file = NULL;
+                }
+                elseif ((count($request->input('edit_sumber_naskah')) == 2) && ($request->input('edit_sumber_naskah')[1] != 'SC')) {
+                    $url_file = NULL;
+                } else {
+                    $url_file = $request->input('edit_url_file');
+                }
                 DB::beginTransaction();
                 try {
 
@@ -415,7 +423,7 @@ class NaskahController extends Controller
                         'cdqr_code' => $request->input('edit_cdqr_code'),
                         'keterangan' => $request->input('edit_keterangan'),
                         'pic_prodev' => $request->input('edit_pic_prodev'),
-                        'url_file' => $request->input('edit_url_file'),
+                        'url_file' => $url_file,
                         'updated_by' => auth()->id(),
                         'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ];
@@ -436,12 +444,8 @@ class NaskahController extends Controller
                             ->format('Y-m-d') == Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
                             ->format('Y-m-d') ? NULL : Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
                             ->format('Y-m-d'),
-                        'tentang_penulis_his' => $naskah->tentang_penulis == $request->input('edit_tentang_penulis') ? NULL : $naskah->tentang_penulis,
-                        'tentang_penulis_new' => $naskah->tentang_penulis == $request->input('edit_tentang_penulis') ? NULL : $request->input('edit_tentang_penulis'),
-                        'hard_copy_his' => $naskah->sumber_naskah == $request->input('edit_sumber_naskah') ? NULL : $naskah->sumber_naskah,
-                        'sumber_naskah_new' => $naskah->sumber_naskah == $request->input('edit_sumber_naskah') ? NULL : $request->input('edit_sumber_naskah'),
-                        'soft_copy_his' => $naskah->soft_copy == $request->input('edit_soft_copy') ? NULL : $naskah->soft_copy,
-                        'soft_copy_new' => $naskah->soft_copy == $request->input('edit_soft_copy') ? NULL : $request->input('edit_soft_copy'),
+                        'sumber_naskah_his' => $naskah->sumber_naskah == json_encode($request->input('edit_sumber_naskah')) ? NULL : $naskah->sumber_naskah,
+                        'sumber_naskah_new' => $naskah->sumber_naskah == json_encode($request->input('edit_sumber_naskah')) ? NULL : json_encode($request->input('edit_sumber_naskah')),
                         'cdqr_code_his' => $naskah->cdqr_code == $request->input('edit_cdqr_code') ? NULL : $naskah->cdqr_code,
                         'cdqr_code_new' => $naskah->cdqr_code == $request->input('edit_cdqr_code') ? NULL : $request->input('edit_cdqr_code'),
                         'pic_prodev_his' => $naskah->pic_prodev == $request->input('edit_pic_prodev') ? NULL : $naskah->pic_prodev,
@@ -461,27 +465,16 @@ class NaskahController extends Controller
                 return abort(404);
             }
         }
-        $naskah = DB::table('penerbitan_naskah as pn')
-            ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
-            ->whereNull('pn.deleted_at')
-            ->where('pn.id', $request->id)
-            ->select(DB::raw('pn.*, pns.tgl_pn_prodev'))
-            ->first();
-
-        if (is_null($naskah)) {
-            return abort(404);
-        }
         $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
         $user = DB::table('users as u')->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
             ->where('j.nama', 'LIKE', '%Prodev%')
             ->select('u.nama', 'u.id')
             ->get();
-        $hcsc = ['HC','SC'];
+        $hcsc = ['HC', 'SC'];
         return view('penerbitan.naskah.update-naskah', [
             'kbuku' => $kbuku,
             'user' => $user,
             'hcsc' => $hcsc,
-            'dnaskah' => $naskah,
             'title' => 'Update Naskah',
         ]);
     }
