@@ -100,6 +100,7 @@
                                         <input class="form-check-input" type="checkbox" name="add_sumber_naskah[]" id="softCopy" value="SC">
                                         <label class="form-check-label" for="softCopy">Soft Copy</label>
                                     </div>
+                                    <div id="err_sumber_naskah"></div>
                                 </div>
                                 <div class="form-group col-12 col-md-3 mb-4">
                                     <label>Rencana CD/QR Code: <span class="text-danger">*</span></label>
@@ -113,7 +114,7 @@
                                 </div>
                                 <div class="form-group col-12 col-md-12 mb-4" style="display:none" id="SC">
                                     <label>URL File: <span class="text-danger">*</span></label>
-                                    <input type="url" class="form-control" name="add_url_file" required>
+                                    <input type="url" class="form-control" name="add_url_file">
                                     <div id="err_add_url_file"></div>
                                 </div>
                                 <div class="form-group col-12 col-md-6 mb-4">
@@ -136,23 +137,6 @@
                                     <select id="add_penulis" class="form-control select2" name="add_penulis[]" multiple="" required></select>
                                     <div id="err_add_penulis"></div>
                                 </div>
-                                {{-- <div class="form-group col-12 col-md-6 mb-4">
-                                <label>File Naskah (.pdf) <span class="text-danger">*</span></label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="add_file_naskah" id="fileNaskah">
-                                    <label class="custom-file-label" for="fileNaskah">Choose file</label>
-                                </div>
-                                <div id="err_add_file_naskah" style="display: block;"></div>
-                            </div> --}}
-
-                                {{-- <div class="form-group col-12 col-md-6 mb-4">
-                                <label>File Tambahan Naskah (.rar; .zip)</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="add_file_tambahan_naskah" id="fileTambahanNaskah">
-                                    <label class="custom-file-label" for="fileTambahanNaskah">Choose file</label>
-                                </div>
-                                <div id="err_add_file_tambahan_naskah" style="display: block;"></div>
-                            </div> --}}
                                 <div class="form-group col-12 mb-4">
                                     <table id="tb_selectedPenulis" class="table table-bordered">
                                         <thead class="thead-dark">
