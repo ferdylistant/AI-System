@@ -226,10 +226,14 @@ class NaskahController extends Controller
                 'name' => $nameSudah
             ]
         ];
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM penerbitan_naskah WHERE Field = 'jalur_buku'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $jalurB = explode("','", $matches[1]);
         return view('penerbitan.naskah.index', [
             'title' => 'Naskah Penerbitan',
             'data_naskah_penulis' => $dataLengkap,
-            'count' => count($data)
+            'count' => count($data),
+            'jalur_b' => $jalurB
         ]);
     }
 
@@ -631,23 +635,22 @@ class NaskahController extends Controller
                     if (!is_null($d->judul_asli_his)) {
                         $html .= ' Judul asli <b class="text-dark">' . $d->judul_asli_his . '</b> diubah menjadi <b class="text-dark">' . $d->judul_asli_new . '</b>.<br>';
                     }
-                    if (!is_null($d->email_his)) {
-                        $html .= ' Email <b class="text-dark">' . $d->email_his . '</b> diubah menjadi <b class="text-dark">' . $d->email_new . '</b>.<br>';
-                    }
                     if (!is_null($d->kelompok_buku_his)) {
                         $html .= ' Kelompok buku <b class="text-dark">' . DB::table('penerbitan_m_kelompok_buku')->where('id', $d->kelompok_buku_his)->whereNull('deleted_at')->first()->nama . '</b> diubah menjadi <b class="text-dark">' . DB::table('penerbitan_m_kelompok_buku')->where('id', $d->kelompok_buku_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
                     }
                     if (!is_null($d->tgl_masuk_nas_his)) {
                         $html .= ' Tanggal masuk naskah <b class="text-dark">' . Carbon::parse($d->tgl_masuk_nas_his)->translatedFormat('l d F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->tgl_masuk_nas_new)->translatedFormat('l d F Y') . '</b>.<br>';
                     }
-                    if (!is_null($d->tentang_penulis_his)) {
-                        $html .= ' Tentang penulis <b class="text-dark">' . $d->tentang_penulis_his . '</b> diubah menjadi <b class="text-dark">' . $d->tentang_penulis_new . '</b>.<br>';
-                    }
-                    if (!is_null($d->hard_copy_his)) {
-                        $html .= ' Hardcopy <b class="text-dark">' . $d->hard_copy_his . '</b> diubah menjadi <b class="text-dark">' . $d->hard_copy_new . '</b>.<br>';
-                    }
-                    if (!is_null($d->soft_copy_his)) {
-                        $html .= ' Soft <b class="text-dark">' . $d->soft_copy_his . '</b> diubah menjadi <b class="text-dark">' . $d->soft_copy_new . '</b>.<br>';
+                    if (!is_null($d->sumber_naskah_his)) {
+                        $loopSN = '';
+                        $loopSNN = '';
+                        foreach (json_decode($d->sumber_naskah_his, true) as $fc) {
+                            $loopSN .= '<b class="text-dark">' . ($fc=='SC'?'Soft Copy':'Hard Copy') . '</b>, ';
+                        }
+                        foreach (json_decode($d->sumber_naskah_new, true) as $fcn) {
+                            $loopSNN .= '<span class="bullet"></span>' . ($fcn=='SC'?'Soft Copy':'Hard Copy');
+                        }
+                        $html .= ' Sumber Naskah <b class="text-dark">' . $loopSN . '</b>diubah menjadi <b class="text-dark">' . $loopSNN . '</b>.<br>';
                     }
                     if (!is_null($d->cdqr_code_his)) {
                         $html .= ' Cdqr code <b class="text-dark">' . $d->cdqr_code_his . '</b> diubah menjadi <b class="text-dark">' . $d->cdqr_code_new . '</b>.<br>';

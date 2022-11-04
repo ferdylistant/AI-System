@@ -91,6 +91,16 @@
                                     </div>
                                 </div>
                                 <div class="form-group col-12 col-md-3 mb-4">
+                                    <label>Rencana CD/QR Code: <span class="text-danger">*</span></label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="add_cdqr_code" value="1" id="add_cdqr_yes">
+                                        <label class="form-check-label mr-4" for="add_cdqr_yes">Ya</label>
+                                        <input class="form-check-input" type="radio" name="add_cdqr_code" value="0" id="add_cdqr_no">
+                                        <label class="form-check-label" for="add_cdqr_no">Tidak</label>
+                                    </div>
+                                    <div id="err_add_cdqr_code" style="display: block;"></div>
+                                </div>
+                                <div class="form-group col-12 col-md-3 mb-4">
                                     <label class="d-block">Sumber Naskah: <span class="text-danger">*</span></label>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" name="add_sumber_naskah[]" id="hardCopy" value="HC">
@@ -101,16 +111,6 @@
                                         <label class="form-check-label" for="softCopy">Soft Copy</label>
                                     </div>
                                     <div id="err_sumber_naskah"></div>
-                                </div>
-                                <div class="form-group col-12 col-md-3 mb-4">
-                                    <label>Rencana CD/QR Code: <span class="text-danger">*</span></label>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="add_cdqr_code" value="1" id="add_cdqr_yes">
-                                        <label class="form-check-label mr-4" for="add_cdqr_yes">Ya</label>
-                                        <input class="form-check-input" type="radio" name="add_cdqr_code" value="0" id="add_cdqr_no">
-                                        <label class="form-check-label" for="add_cdqr_no">Tidak</label>
-                                    </div>
-                                    <div id="err_add_cdqr_code" style="display: block;"></div>
                                 </div>
                                 <div class="form-group col-12 col-md-12 mb-4" style="display:none" id="SC">
                                     <label>URL File: <span class="text-danger">*</span></label>

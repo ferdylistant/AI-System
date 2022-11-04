@@ -9,24 +9,7 @@
 //         }
 //     });
 // });
-$(document).ready(function () {
-    $(".select-filter-jb")
-        .select2({
-            placeholder: "Pilih Jalur Buku",
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(".clear_field_jb").removeAttr("hidden");
-                $(this).valid();
-            }
-        });
-});
-$(document).ready(function () {
-    $(".clear_field_jb").click(function () {
-        $(".select-filter-jb").val("").trigger("change");
-        $(".clear_field_jb").attr("hidden", "hidden");
-    });
-});
+
 function resetFrom(form) {
     form.trigger("reset");
     $('[name="bukti_upload[]"]').val("").trigger("change");
