@@ -319,23 +319,11 @@
 
                         <h5>#3</h5><hr>
                         <div class="row  mb-5">
-                            <div class="form-group col-12 col-md-4 mb-4">
-                                <label>File Tentang Penulis (<span class="text-danger">.pdf</span>) </label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="edit_file_tentang_penulis" id="fileTP">
-                                    <label class="custom-file-label" for="fileTP">Choose file</label>
-                                </div>
-                                <div id="err_edit_file_tentang_penulis" style="display: block;"></div>
-                                @if(!is_null($penulis->file_tentang_penulis))
-                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->file_tentang_penulis)}}"
-                                    data-book-engine="onepageswipe" style="max-height: 300px;"></div>
-                                @endif
-                            </div>
-                            <div class="form-group col-8 mb-4">
-                                <label>Tentang Penulis: </label>
+                            <div class="form-group col-12 mb-4">
+                                <label>URL File Tentang Penulis: (<span class="text-danger">-Format URL</span>)</label>
                                 <div class="input-group">
-                                    <textarea class="form-control summernote-penulis" name="edit_tentang_penulis">{{$penulis->tentang_penulis}}</textarea>
-                                    <div id="err_edit_tentang_penulis"></div>
+                                    <textarea class="form-control" name="edit_url_tentang_penulis">{{$penulis->url_tentang_penulis}}</textarea>
+                                    <div id="err_edit_url_tentang_penulis"></div>
                                 </div>
                             </div>
                         </div>
@@ -425,16 +413,16 @@ $(function() {
         ],
     });
 
-    $(".summernote-penulis").summernote({
-        dialogsInBody: true,
-        minHeight: 300,
-        width: 1920,
-        toolbar: [
-            ['style', ['bold', 'italic', 'underline', 'clear']],
-            ['font', ['strikethrough']],
-            ['para', ['paragraph']]
-        ]
-    });
+    // $(".summernote-penulis").summernote({
+    //     dialogsInBody: true,
+    //     minHeight: 300,
+    //     width: 1920,
+    //     toolbar: [
+    //         ['style', ['bold', 'italic', 'underline', 'clear']],
+    //         ['font', ['strikethrough']],
+    //         ['para', ['paragraph']]
+    //     ]
+    // });
 
     $('.ipgs-flipbook').ipages({
         toolbarControls: [
@@ -484,7 +472,6 @@ $(function() {
         edit_telp: {min:0, maxlength:20,  number: true},
         edit_ponsel: {min:0, maxlength:20,  number: true},
         edit_telp_kantor: {min:0, maxlength:20,  number: true},
-        edit_file_tentang_penulis: { extension: "pdf", maxsize: 500000, },
         edit_file_hibah_royalti: { extension: "pdf", maxsize: 500000, },
         edit_scan_ktp: { extension: "jpg,jpeg,png", maxsize: 500000, },
         edit_scan_npwp: { extension: "jpg,jpeg,png", maxsize: 500000, },

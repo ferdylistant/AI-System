@@ -566,6 +566,7 @@ class NaskahController extends Controller
                     ->whereNotNull('no_rekening')
                     ->whereNotNull('ktp')
                     ->whereNotNull('scan_ktp')
+                    ->whereNotNull('url_tentang_penulis')
                     ->first();
                 if (is_null($resPen)) {
                     return response()->json([

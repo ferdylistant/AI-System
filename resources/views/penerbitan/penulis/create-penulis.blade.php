@@ -298,19 +298,11 @@
 
                         <h5>#3</h5><hr>
                         <div class="row">
-                            <div class="form-group col-12 col-md-12 mb-4">
-                                <label>File Tentang Penulis (<span class="text-danger">.pdf</span>) </label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="add_file_tentang_penulis" id="fileTP">
-                                    <label class="custom-file-label" for="fileTP">Choose file</label>
-                                </div>
-                                <div id="err_add_file_tentang_penulis" style="display: block;"></div>
-                            </div>
                             <div class="form-group col-12 mb-4">
-                                <label>Tentang Penulis: </label>
+                                <label>URL File Tentang Penulis: (<span class="text-danger">-Format URL</span>)</label>
                                 <div class="input-group">
-                                    <textarea class="form-control summernote-penulis" name="add_tentang_penulis"></textarea>
-                                    <div id="err_add_tentang_penulis"></div>
+                                    <textarea class="form-control" name="add_url_tentang_penulis"></textarea>
+                                    <div id="err_add_url_tentang_penulis"></div>
                                 </div>
                             </div>
                         </div>
@@ -392,16 +384,16 @@ $(function() {
         format: 'dd MM yyyy'
     });
 
-    $(".summernote-penulis").summernote({
-        dialogsInBody: true,
-        minHeight: 150,
-        width: 1920,
-        toolbar: [
-            ['style', ['bold', 'italic', 'underline', 'clear']],
-            ['font', ['strikethrough']],
-            ['para', ['paragraph']]
-        ]
-    });
+    // $(".summernote-penulis").summernote({
+    //     dialogsInBody: true,
+    //     minHeight: 150,
+    //     width: 1920,
+    //     toolbar: [
+    //         ['style', ['bold', 'italic', 'underline', 'clear']],
+    //         ['font', ['strikethrough']],
+    //         ['para', ['paragraph']]
+    //     ]
+    // });
 
     $.uploadPreview({
         input_field: "#iu_npwp",
@@ -432,7 +424,6 @@ $(function() {
         add_telp: {required: true,min:0, maxlength:20,  number: true},
         add_ponsel: {required: true,min:0, maxlength:20,  number: true},
         add_telp_kantor: {min:0, maxlength:20,  number: true},
-        add_file_tentang_penulis: { extension: "pdf", maxsize: 2000000, },
         add_file_hibah_royalti: { extension: "pdf", maxsize: 2000000, },
         add_scan_ktp: { extension: "jpg,jpeg,png" },
         add_scan_npwp: { extension: "jpg,jpeg,png" },

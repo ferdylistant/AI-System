@@ -242,20 +242,11 @@
                         </div>
 
                         <div class="row mb-5">
-                            <div class="form-group col-8 mb-4">
-                                <label>Tentang Penulis: </label>
+                            <div class="form-group col-12 mb-4">
+                                <label>URL File Tentang Penulis: (<span class="text-danger">-Format URL</span>)</label>
                                 <div class="input-group">
-                                    <textarea class="form-control summernote-penulis" disabled>{{$penulis->tentang_penulis}}</textarea>
+                                    <textarea class="form-control" disabled>{{is_null($penulis->url_tentang_penulis)?'-':$penulis->url_tentang_penulis}}</textarea>
                                 </div>
-                            </div>
-                            <div class="form-group col-12 col-md-4 mb-4">
-                                <label>File Tentang Penulis (<span class="text-danger">.pdf</span>) </label>
-                                @if(!is_null($penulis->file_tentang_penulis))
-                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->file_tentang_penulis)}}"
-                                    data-book-engine="onepageswipe" style="max-height: 300px;"></div>
-                                @else
-                                <div><small class="text-muted">#Tidak ada file diupload.</small></div>
-                                @endif
                             </div>
                         </div>
                     </div>

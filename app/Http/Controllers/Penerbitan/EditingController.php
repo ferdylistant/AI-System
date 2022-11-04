@@ -71,14 +71,6 @@ class EditingController extends Controller
                     }
                     return $res;
                 })
-                ->addColumn('kelompok_buku', function ($data) {
-                    if (!is_null($data->kelompok_buku_id)) {
-                        $res = DB::table('penerbitan_m_kelompok_buku')->where('id', $data->kelompok_buku_id)->first()->nama;
-                    } else {
-                        $res = '-';
-                    }
-                    return $res;
-                })
                 ->addColumn('tgl_masuk_editing', function ($data) {
                     return Carbon::parse($data->tgl_masuk_editing)->translatedFormat('l d M Y H:i');
                 })
@@ -96,6 +88,17 @@ class EditingController extends Controller
                     if (!is_null($data->editor)) {
                         $res = '';
                         foreach (json_decode($data->editor, true) as $q) {
+                            $res .= '<span class="d-block">-&nbsp;' . DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama . '</span>';
+                        }
+                    } else {
+                        $res = '-';
+                    }
+                    return $res;
+                })
+                ->addColumn('copy_editor', function ($data) {
+                    if (!is_null($data->copy_editor)) {
+                        $res = '';
+                        foreach (json_decode($data->copy_editor, true) as $q) {
                             $res .= '<span class="d-block">-&nbsp;' . DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama . '</span>';
                         }
                     } else {
@@ -121,169 +124,73 @@ class EditingController extends Controller
                         if (Gate::allows('do_create', 'ubah-atau-buat-editing-reguler')) {
                             if ($data->status == 'Selesai') {
                                 if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                                    $btn .= '<a href="' . url('penerbitan/editing/edit?editing=' . $data->id . '&kode=' . $data->kode) . '"
-                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
                                 }
                             } else {
                                 if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                    $btn .= '<a href="' . url('penerbitan/editing/edit?editing=' . $data->id . '&kode=' . $data->kode) . '"
-                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
                                 }
                             }
                         }
 
                         if (Gate::allows('do_create', 'ubah-atau-buat-editing-reguler')) {
-                            if ($data->status == 'Antrian') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-editing" style="background:#34395E;color:white" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Pending') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Proses') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Selesai') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            }
+                            $btn = $this->panelStatusKabag($data->status, $data->id, $data->kode, $data->judul_final, $btn);
                         } else {
-                            if ($data->status == 'Antrian') {
-                                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Pending') {
-                                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Proses') {
-                                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Selesai') {
-                                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $data->status . '</span>';
-                            }
+                            $btn = $this->panelStatusGuest($data->status, $btn);
                         }
                     } elseif ($data->jalur_buku == 'MOU') { //MOU
                         if (Gate::allows('do_create', 'ubah-atau-buat-editing-mou')) {
                             if ($data->status == 'Selesai') {
                                 if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                                    $btn .= '<a href="' . url('penerbitan/editing/edit?editing=' . $data->id . '&kode=' . $data->kode) . '"
-                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
                                 }
                             } else {
                                 if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                    $btn .= '<a href="' . url('penerbitan/editing/edit?editing=' . $data->id . '&kode=' . $data->kode) . '"
-                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
                                 }
                             }
                         }
 
                         if (Gate::allows('do_create', 'ubah-atau-buat-editing-mou')) {
-                            if ($data->status == 'Antrian') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-editing" style="background:#34395E;color:white" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Pending') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Proses') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Selesai') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            }
+                            $btn = $this->panelStatusKabag($data->status, $data->id, $data->kode, $data->judul_final, $btn);
                         } else {
-                            if ($data->status == 'Antrian') {
-                                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Pending') {
-                                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Proses') {
-                                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Selesai') {
-                                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $data->status . '</span>';
-                            }
+                            $btn = $this->panelStatusGuest($data->status, $btn);
                         }
                     } elseif ($data->jalur_buku == 'SMK/NonSMK') { //SMK
                         if (Gate::allows('do_create', 'ubah-atau-buat-editing-smk')) {
                             if ($data->status == 'Selesai') {
                                 if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                                    $btn .= '<a href="' . url('penerbitan/editing/edit?editing=' . $data->id . '&kode=' . $data->kode) . '"
-                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
                                 }
                             } else {
                                 if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                    $btn .= '<a href="' . url('penerbitan/editing/edit?editing=' . $data->id . '&kode=' . $data->kode) . '"
-                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
                                 }
                             }
                         }
 
                         if (Gate::allows('do_create', 'ubah-atau-buat-editing-smk')) {
-                            if ($data->status == 'Antrian') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-editing" style="background:#34395E;color:white" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Pending') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Proses') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Selesai') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            }
+                            $btn = $this->panelStatusKabag($data->status, $data->id, $data->kode, $data->judul_final, $btn);
                         } else {
-                            if ($data->status == 'Antrian') {
-                                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Pending') {
-                                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Proses') {
-                                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Selesai') {
-                                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $data->status . '</span>';
-                            }
+                            $btn = $this->panelStatusGuest($data->status, $btn);
                         }
                     } else {
                         if (Gate::allows('do_create', 'ubah-atau-buat-editing-reguler') || Gate::allows('do_create', 'ubah-atau-buat-editing-mou')) {
                             if ($data->status == 'Selesai') {
                                 if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                                    $btn .= '<a href="' . url('penerbitan/editing/edit?editing=' . $data->id . '&kode=' . $data->kode) . '"
-                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
                                 }
                             } else {
                                 if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                    $btn .= '<a href="' . url('penerbitan/editing/edit?editing=' . $data->id . '&kode=' . $data->kode) . '"
-                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
                                 }
                             }
                         }
 
                         if (Gate::allows('do_create', 'ubah-atau-buat-editing-reguler') || Gate::allows('do_create', 'ubah-atau-buat-editing-mou')) {
-                            if ($data->status == 'Antrian') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-editing" style="background:#34395E;color:white" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Pending') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Proses') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            } elseif ($data->status == 'Selesai') {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                                        <div>' . $data->status . '</div></a>';
-                            }
+                            $btn = $this->panelStatusKabag($data->status, $data->id, $data->kode, $data->judul_final, $btn);
                         } else {
-                            if ($data->status == 'Antrian') {
-                                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Pending') {
-                                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Proses') {
-                                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $data->status . '</span>';
-                            } elseif ($data->status == 'Selesai') {
-                                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $data->status . '</span>';
-                            }
+                            $btn = $this->panelStatusGuest($data->status, $btn);
                         }
                     }
                     return $btn;
@@ -293,10 +200,10 @@ class EditingController extends Controller
                     'judul_final',
                     'penulis',
                     'jalur_buku',
-                    'kelompok_buku',
                     'tgl_masuk_editing',
                     'pic_prodev',
                     'editor',
+                    'copy_editor',
                     'history',
                     'action'
                 ])
@@ -329,167 +236,204 @@ class EditingController extends Controller
             'count' => count($data)
         ]);
     }
-    // public function editEditing(Request $request)
-    // {
-    //     if($request->ajax()) {
-    //         if ($request->isMethod('POST')) {
-    //             $history = DB::table('editing_proses as ep')
-    //             ->join('deskripsi_final as df','df.id','=','ep.deskripsi_final_id')
-    //             ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
-    //             ->where('ep.id', $request->id)
-    //             ->select('dc.*','dp.judul_final','dp.format_buku','df.sub_judul_final','df.bullet')
-    //             ->first();
-    //             foreach ($request->bullet as $value) {
-    //                 $bullet[] = $value;
-    //             }
-    //             if (!$request->has('finishing_cover')) {
-    //                 if ((!is_null($history->finishing_cover)) || ($history->finishing_cover != [])) {
-    //                     $finishing_cover = json_decode($history->finishing_cover);
-    //                 }
-    //             } else {
-    //                 foreach ($request->finishing_cover as $value) {
-    //                     $finishing_cover[] = $value;
-    //                 }
-    //             }
-    //             $update = [
-    //                 'params' => 'Edit Descov',
-    //                 'id' => $request->id,
-    //                 'sub_judul_final' => $request->sub_judul_final, //Deskripsi Final
-    //                 'des_front_cover' => $request->des_front_cover,
-    //                 'des_back_cover' => $request->des_back_cover,
-    //                 'finishing_cover' => json_encode(array_filter($finishing_cover)), //Array
-    //                 'format_buku' => $request->format_buku, //Deskripsi Produk
-    //                 'jilid' => $request->jilid,
-    //                 'tipografi' => $request->tipografi,
-    //                 'warna' => $request->warna,
-    //                 'kelengkapan' => $request->kelengkapan,
-    //                 'catatan' => $request->catatan,
-    //                 'bullet' =>  json_encode(array_filter($bullet)), //Deskripsi Final
-    //                 'desainer' => $request->desainer,
-    //                 'contoh_cover' => $request->contoh_cover,
-    //                 'bulan' => Carbon::createFromDate($request->bulan),
-    //                 'updated_by'=> auth()->id()
-    //             ];
-    //             event(new DescovEvent($update));
+    public function editEditing(Request $request)
+    {
+        if($request->ajax()) {
+            if ($request->isMethod('POST')) {
+                $history = DB::table('editing_proses as ep')
+                ->join('deskripsi_final as df','df.id','=','ep.deskripsi_final_id')
+                ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
+                ->where('ep.id', $request->id)
+                ->select('dc.*','dp.judul_final','dp.format_buku','df.sub_judul_final','df.bullet')
+                ->first();
+                foreach ($request->bullet as $value) {
+                    $bullet[] = $value;
+                }
+                if (!$request->has('finishing_cover')) {
+                    if ((!is_null($history->finishing_cover)) || ($history->finishing_cover != [])) {
+                        $finishing_cover = json_decode($history->finishing_cover);
+                    }
+                } else {
+                    foreach ($request->finishing_cover as $value) {
+                        $finishing_cover[] = $value;
+                    }
+                }
+                $update = [
+                    'params' => 'Edit Descov',
+                    'id' => $request->id,
+                    'sub_judul_final' => $request->sub_judul_final, //Deskripsi Final
+                    'des_front_cover' => $request->des_front_cover,
+                    'des_back_cover' => $request->des_back_cover,
+                    'finishing_cover' => json_encode(array_filter($finishing_cover)), //Array
+                    'format_buku' => $request->format_buku, //Deskripsi Produk
+                    'jilid' => $request->jilid,
+                    'tipografi' => $request->tipografi,
+                    'warna' => $request->warna,
+                    'kelengkapan' => $request->kelengkapan,
+                    'catatan' => $request->catatan,
+                    'bullet' =>  json_encode(array_filter($bullet)), //Deskripsi Final
+                    'desainer' => $request->desainer,
+                    'contoh_cover' => $request->contoh_cover,
+                    'bulan' => Carbon::createFromDate($request->bulan),
+                    'updated_by'=> auth()->id()
+                ];
+                // event(new DescovEvent($update));
 
-    //             $insert = [
-    //                 'params' => 'Insert History Edit Descov',
-    //                 'deskripsi_cover_id' => $request->id,
-    //                 'type_history' => 'Update',
-    //                 'format_buku_his' => $history->format_buku==$request->format_buku?NULL:$history->format_buku,
-    //                 'format_buku_new' => $history->format_buku==$request->format_buku?NULL:$request->format_buku,
-    //                 'sub_judul_final_his' => $history->sub_judul_final==$request->sub_judul_final?NULL:$history->sub_judul_final,
-    //                 'sub_judul_final_new' => $history->sub_judul_final==$request->sub_judul_final?NULL:$request->sub_judul_final,
-    //                 'des_front_cover_his' => $history->des_front_cover==$request->des_front_cover?NULL:$history->des_front_cover,
-    //                 'des_front_cover_new' => $history->des_front_cover==$request->des_front_cover?NULL:$request->des_front_cover,
-    //                 'des_back_cover_his' => $history->des_back_cover==$request->des_back_cover?NULL:$history->des_back_cover,
-    //                 'des_back_cover_new' => $history->des_back_cover==$request->des_back_cover?NULL:$request->des_back_cover,
-    //                 'finishing_cover_his' => $history->finishing_cover==json_encode(array_filter($finishing_cover))?NULL:$history->finishing_cover,
-    //                 'finishing_cover_new' => $history->finishing_cover==json_encode(array_filter($finishing_cover))?NULL:json_encode(array_filter($finishing_cover)),
-    //                 'jilid_his' => $history->jilid==$request->jilid?NULL:$history->jilid,
-    //                 'jilid_new' => $history->jilid==$request->jilid?NULL:$request->jilid,
-    //                 'tipografi_his' => $history->tipografi==$request->tipografi?NULL:$history->tipografi,
-    //                 'tipografi_new' => $history->tipografi==$request->tipografi?NULL:$request->tipografi,
-    //                 'warna_his' => $history->warna==$request->warna?NULL:$history->warna,
-    //                 'warna_new' => $history->warna==$request->warna?NULL:$request->warna,
-    //                 'bullet_his' => $history->bullet==json_encode(array_filter($bullet))?NULL:$history->bullet,
-    //                 'bullet_new' => $history->bullet==json_encode(array_filter($bullet))?NULL:json_encode(array_filter($bullet)),
-    //                 'desainer_his' => $history->desainer==$request->desainer?NULL:$history->desainer,
-    //                 'desainer_new' => $history->desainer==$request->desainer?NULL:$request->desainer,
-    //                 'contoh_cover_his' => $history->contoh_cover==$request->contoh_cover?NULL:$history->contoh_cover,
-    //                 'contoh_cover_new' => $history->contoh_cover==$request->contoh_cover?NULL:$request->contoh_cover,
-    //                 'kelengkapan_his' => $history->kelengkapan==$request->kelengkapan?NULL:$history->kelengkapan,
-    //                 'kelengkapan_new' => $history->kelengkapan==$request->kelengkapan?NULL:$request->kelengkapan,
-    //                 'catatan_his' => $history->catatan==$request->catatan?NULL:$history->catatan,
-    //                 'catatan_new' => $history->catatan==$request->catatan?NULL:$request->catatan,
-    //                 'bulan_his' => $history->bulan==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
-    //                 'bulan_new' => $history->bulan==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromDate($request->bulan),
-    //                 'author_id' => auth()->id(),
-    //                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-    //             ];
-    //             event(new DescovEvent($insert));
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'message' => 'Data deskripsi cover berhasil ditambahkan',
-    //                 'route' => route('descov.view')
-    //             ]);
-    //         }
-    //     }
-    //     $id = $request->get('desc');
-    //     $kodenaskah = $request->get('kode');
-    //     $data = DB::table('deskripsi_cover as dc')
-    //         ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
-    //         ->join('deskripsi_final as df','df.deskripsi_produk_id','=','dp.id')
-    //         ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-    //         ->join('penerbitan_m_kelompok_buku as kb',function($q){
-    //             $q->on('pn.kelompok_buku_id','=','kb.id')
-    //             ->whereNull('kb.deleted_at');
-    //         })
-    //         ->where('dc.id',$id)
-    //         ->where('pn.kode',$kodenaskah)
-    //         ->whereNull('dc.deleted_at')
-    //         ->whereNull('pn.deleted_at')
-    //         ->select(
-    //             'dc.*',
-    //             'df.sub_judul_final',
-    //             'df.bullet',
-    //             'dp.naskah_id',
-    //             'dp.judul_final',
-    //             'dp.format_buku',
-    //             'dp.imprint',
-    //             'pn.kode',
-    //             'pn.judul_asli',
-    //             'pn.pic_prodev',
-    //             'kb.nama',
-    //             )
-    //         ->first();
-    //     is_null($data)?abort(404):
-    //     $desainer = DB::table('users as u')
-    //         ->join('jabatan as j','u.jabatan_id', '=', 'j.id')
-    //         ->join('divisi as d', 'u.divisi_id','=','d.id')
-    //         ->where('j.nama','LIKE','%Design%')
-    //         ->where('d.nama','LIKE','%Penerbitan%')
-    //         ->select('u.nama','u.id')
-    //         ->get();
-    //     if(!is_null($data->desainer)){
-    //         $namaDesainer = DB::table('users')
-    //             ->where('id',$data->desainer)
-    //             ->first();
-    //     } else {
-    //         $namaDesainer = NULL;
-    //     }
-    //     $penulis = DB::table('penerbitan_naskah_penulis as pnp')
-    //     ->join('penerbitan_penulis as pp',function($q) {
-    //         $q->on('pnp.penulis_id','=','pp.id')
-    //         ->whereNull('pp.deleted_at');
-    //     })
-    //     ->where('pnp.naskah_id','=',$data->naskah_id)
-    //     ->select('pp.nama')
-    //     ->get();
-    //     $format_buku = DB::table('format_buku')->whereNull('deleted_at')->get();
-
-    //     //Jilid Enum
-    //     $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_cover WHERE Field = 'jilid'"))[0]->Type;
-    //     preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-    //     $jilid = explode("','", $matches[1]);
-    //     //Finishing Cover
-    //     $finishingCover = ['Embosh','Foil','Glossy','Laminasi Dof','UV','UV Spot'];
-    //     //Kelengkapan Enum
-    //     $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_final WHERE Field = 'kelengkapan'"))[0]->Type;
-    //     preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-    //     $kelengkapan = explode("','", $matches[1]);
-    //     // $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
-    //     return view('penerbitan.des_cover.edit',[
-    //         'title' => 'Edit Deskripsi Cover',
-    //         'data' => $data,
-    //         'desainer' => $desainer,
-    //         'penulis' => $penulis,
-    //         'format_buku' => $format_buku,
-    //         'jilid' => $jilid,
-    //         'nama_desainer' => $namaDesainer,
-    //         'finishing_cover' => $finishingCover,
-    //         'kelengkapan' => $kelengkapan
-    //         // 'imprint' => $imprint
-    //     ]);
-    // }
+                $insert = [
+                    'params' => 'Insert History Edit Descov',
+                    'deskripsi_cover_id' => $request->id,
+                    'type_history' => 'Update',
+                    'format_buku_his' => $history->format_buku==$request->format_buku?NULL:$history->format_buku,
+                    'format_buku_new' => $history->format_buku==$request->format_buku?NULL:$request->format_buku,
+                    'sub_judul_final_his' => $history->sub_judul_final==$request->sub_judul_final?NULL:$history->sub_judul_final,
+                    'sub_judul_final_new' => $history->sub_judul_final==$request->sub_judul_final?NULL:$request->sub_judul_final,
+                    'des_front_cover_his' => $history->des_front_cover==$request->des_front_cover?NULL:$history->des_front_cover,
+                    'des_front_cover_new' => $history->des_front_cover==$request->des_front_cover?NULL:$request->des_front_cover,
+                    'des_back_cover_his' => $history->des_back_cover==$request->des_back_cover?NULL:$history->des_back_cover,
+                    'des_back_cover_new' => $history->des_back_cover==$request->des_back_cover?NULL:$request->des_back_cover,
+                    'finishing_cover_his' => $history->finishing_cover==json_encode(array_filter($finishing_cover))?NULL:$history->finishing_cover,
+                    'finishing_cover_new' => $history->finishing_cover==json_encode(array_filter($finishing_cover))?NULL:json_encode(array_filter($finishing_cover)),
+                    'jilid_his' => $history->jilid==$request->jilid?NULL:$history->jilid,
+                    'jilid_new' => $history->jilid==$request->jilid?NULL:$request->jilid,
+                    'tipografi_his' => $history->tipografi==$request->tipografi?NULL:$history->tipografi,
+                    'tipografi_new' => $history->tipografi==$request->tipografi?NULL:$request->tipografi,
+                    'warna_his' => $history->warna==$request->warna?NULL:$history->warna,
+                    'warna_new' => $history->warna==$request->warna?NULL:$request->warna,
+                    'bullet_his' => $history->bullet==json_encode(array_filter($bullet))?NULL:$history->bullet,
+                    'bullet_new' => $history->bullet==json_encode(array_filter($bullet))?NULL:json_encode(array_filter($bullet)),
+                    'desainer_his' => $history->desainer==$request->desainer?NULL:$history->desainer,
+                    'desainer_new' => $history->desainer==$request->desainer?NULL:$request->desainer,
+                    'contoh_cover_his' => $history->contoh_cover==$request->contoh_cover?NULL:$history->contoh_cover,
+                    'contoh_cover_new' => $history->contoh_cover==$request->contoh_cover?NULL:$request->contoh_cover,
+                    'kelengkapan_his' => $history->kelengkapan==$request->kelengkapan?NULL:$history->kelengkapan,
+                    'kelengkapan_new' => $history->kelengkapan==$request->kelengkapan?NULL:$request->kelengkapan,
+                    'catatan_his' => $history->catatan==$request->catatan?NULL:$history->catatan,
+                    'catatan_new' => $history->catatan==$request->catatan?NULL:$request->catatan,
+                    'bulan_his' => $history->bulan==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
+                    'bulan_new' => $history->bulan==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromDate($request->bulan),
+                    'author_id' => auth()->id(),
+                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                // event(new DescovEvent($insert));
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data deskripsi cover berhasil ditambahkan',
+                    'route' => route('descov.view')
+                ]);
+            }
+        }
+        $id = $request->get('editing');
+        $kodenaskah = $request->get('kode');
+        $data = DB::table('editing_proses as ep')
+            ->join('deskripsi_final as df','ep.deskripsi_final_id','=','df.id')
+            ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+            ->join('penerbitan_m_kelompok_buku as kb',function($q){
+                $q->on('pn.kelompok_buku_id','=','kb.id')
+                ->whereNull('kb.deleted_at');
+            })
+            ->where('ep.id',$id)
+            ->where('pn.kode',$kodenaskah)
+            ->select(
+                'ep.*',
+                'df.sub_judul_final',
+                'df.bullet',
+                'df.sinopsis',
+                'df.isi_warna',
+                'df.isi_huruf',
+                'dp.naskah_id',
+                'dp.judul_final',
+                'dp.format_buku',
+                'dp.jml_hal_perkiraan',
+                'pn.kode',
+                'pn.jalur_buku',
+                'pn.pic_prodev',
+                'kb.nama',
+                )
+            ->first();
+        is_null($data)?abort(404):
+        $editor = DB::table('users as u')
+            ->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+            ->join('divisi as d', 'u.divisi_id','=','d.id')
+            ->where('j.nama','LIKE','%Editor%')
+            ->where('d.nama','LIKE','%Penerbitan%')
+            ->select('u.nama','u.id')
+            ->get();
+        $copyEditor = DB::table('users as u')
+            ->join('jabatan as j','u.jabatan_id', '=', 'j.id')
+            ->join('divisi as d', 'u.divisi_id','=','d.id')
+            ->where('j.nama','LIKE','%Editor%')
+            ->orWhere('j.nama','LIKE','%Korektor%')
+            ->where('d.nama','LIKE','%Penerbitan%')
+            ->select('u.nama','u.id')
+            ->get();
+        $penulis = DB::table('penerbitan_naskah_penulis as pnp')
+        ->join('penerbitan_penulis as pp',function($q) {
+            $q->on('pnp.penulis_id','=','pp.id')
+            ->whereNull('pp.deleted_at');
+        })
+        ->where('pnp.naskah_id','=',$data->naskah_id)
+        ->select('pp.nama')
+        ->get();
+        return view('penerbitan.editing.edit',[
+            'title' => 'Editing Proses',
+            'data' => $data,
+            'editor' => $editor,
+            'copy_editor' => $copyEditor,
+            'penulis' => $penulis,
+            // 'imprint' => $imprint
+        ]);
+    }
+    protected function panelStatusGuest($status = null, $btn)
+    {
+        switch ($status) {
+            case 'Antrian':
+                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Pending':
+                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Proses':
+                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Selesai':
+                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
+                break;
+            default:
+                return abort(410);
+                break;
+        }
+        return $btn;
+    }
+    protected function panelStatusKabag($status = null, $id, $kode, $judul_final, $btn)
+    {
+        switch ($status) {
+            case 'Antrian':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-editing" style="background:#34395E;color:white" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Pending':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Proses':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Selesai':
+                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
+                break;
+            default:
+                return abort(410);
+                break;
+        }
+        return $btn;
+    }
+    protected function buttonEdit($id, $kode, $btn)
+    {
+        $btn .= '<a href="' . url('penerbitan/editing/edit?editing=' . $id . '&kode=' . $kode) . '"
+                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                <div><i class="fas fa-edit"></i></div></a>';
+        return $btn;
+    }
 }

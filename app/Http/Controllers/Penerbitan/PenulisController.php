@@ -64,7 +64,7 @@ class PenulisController extends Controller
 
         $penulis = (object)collect($penulis)->map(function ($val, $key) {
             if (
-                !in_array($key, ['scan_ktp', 'scan_npwp', 'foto_penulis', 'file_tentang_penulis', 'file_hibah_royalti'])
+                !in_array($key, ['scan_ktp', 'scan_npwp', 'foto_penulis', 'file_hibah_royalti'])
                 and $val == ''
             ) {
                 return '-';
@@ -94,7 +94,7 @@ class PenulisController extends Controller
                     'add_scan_ktp' => 'nullable|mimes:jpg,jpeg,png',
                     'add_scan_npwp' => 'nullable|mimes:jpg,jpeg,png',
                     'add_file_hibah_royalti' => 'nullable|mimes:pdf',
-                    'add_file_tentang_penulis' => 'nullable|mimes:pdf'
+                    'add_url_tentang_penulis' => 'nullable|url'
                 ], [
                     'required' => 'This field is requried'
                 ]);
@@ -103,7 +103,6 @@ class PenulisController extends Controller
                 $scanktp = null;
                 $scannpwp = null;
                 $fotoPenulis = null;
-                $fTentangPenulis = null;
                 $fHibahRoyalti = null;
                 if (!is_null($request->file('add_scan_npwp'))) {
                     $scannpwp = explode('/', $request->file('add_scan_npwp')->store('penerbitan/penulis/' . $idPenulis . '/'));
@@ -127,10 +126,6 @@ class PenulisController extends Controller
                     $fHibahRoyalti = explode('/', $request->file('add_file_hibah_royalti')->store('penerbitan/penulis/' . $idPenulis . '/'));
                     $fHibahRoyalti = end($fHibahRoyalti);
                 }
-                if (!is_null($request->file('add_file_tentang_penulis'))) {
-                    $fTentangPenulis = explode('/', $request->file('add_file_tentang_penulis')->store('penerbitan/penulis/' . $idPenulis . '/'));
-                    $fTentangPenulis = end($fTentangPenulis);
-                }
 
                 DB::table('penerbitan_penulis')->insert([
                     'id' => $idPenulis,
@@ -150,7 +145,6 @@ class PenulisController extends Controller
                     'sosmed_fb' => $request->input('add_sosmed_fb'),
                     'sosmed_ig' => $request->input('add_sosmed_ig'),
                     'sosmed_tw' => $request->input('add_sosmed_tw'),
-                    'tentang_penulis' => $request->input('add_tentang_penulis'),
                     'no_rekening' => $request->input('add_no_rek'),
                     'bank' => $request->input('add_bank'),
                     'bank_atasnama' => $request->input('add_bank_atasnama'),
@@ -159,7 +153,7 @@ class PenulisController extends Controller
                     'scan_npwp' => $scannpwp,
                     'scan_ktp' => $scanktp,
                     'foto_penulis' => $fotoPenulis,
-                    'file_tentang_penulis' => $fTentangPenulis,
+                    'url_tentang_penulis' => $request->input('add_url_tentang_penulis'),
                     'file_hibah_royalti' => $fHibahRoyalti,
                     'created_by' => auth()->id()
                 ]);
@@ -188,7 +182,6 @@ class PenulisController extends Controller
                 $scanktp = $penulis->scan_ktp;
                 $scannpwp = $penulis->scan_npwp;
                 $fotoPenulis = $penulis->foto_penulis;
-                $fTentangPenulis = $penulis->file_tentang_penulis;
                 $fHibahRoyalti = $penulis->file_hibah_royalti;
                 try {
                     if (!is_null($request->file('edit_scan_npwp'))) {
@@ -211,11 +204,6 @@ class PenulisController extends Controller
                             ->store('penerbitan/penulis/' . $request->id . '/'));
                         $fHibahRoyalti = end($fHibahRoyalti);
                     }
-                    if (!is_null($request->file('edit_file_tentang_penulis'))) {
-                        $fTentangPenulis = explode('/', $request->file('edit_file_tentang_penulis')
-                            ->store('penerbitan/penulis/' . $request->id . '/'));
-                        $fTentangPenulis = end($fTentangPenulis);
-                    }
                     DB::table('penerbitan_penulis')->where('id', $request->id)
                         ->update([
                             'nama' => $request->input('edit_nama'),
@@ -234,13 +222,12 @@ class PenulisController extends Controller
                             'sosmed_fb' => $request->input('edit_sosmed_fb'),
                             'sosmed_ig' => $request->input('edit_sosmed_ig'),
                             'sosmed_tw' => $request->input('edit_sosmed_tw'),
-                            'tentang_penulis' => $request->input('edit_tentang_penulis'),
+                            'url_tentang_penulis' => $request->input('edit_url_tentang_penulis'),
                             'no_rekening' => $request->input('edit_no_rek'),
                             'bank' => $request->input('edit_bank'),
                             'bank_atasnama' => $request->input('edit_bank_atasnama'),
                             'npwp' => $request->input('edit_npwp'),
                             'ktp' => $request->input('edit_ktp'),
-                            'file_tentang_penulis' => $fTentangPenulis,
                             'file_hibah_royalti' => $fHibahRoyalti,
                             'scan_npwp' => $scannpwp,
                             'scan_ktp' => $scanktp,
@@ -258,9 +245,6 @@ class PenulisController extends Controller
                     if ($fotoPenulis !== $penulis->foto_penulis) {
                         Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $fotoPenulis);
                     }
-                    if ($fTentangPenulis !== $penulis->file_tentang_penulis) {
-                        Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $fTentangPenulis);
-                    }
                     if ($fHibahRoyalti !== $penulis->file_hibah_royalti) {
                         Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $fHibahRoyalti);
                     }
@@ -275,9 +259,6 @@ class PenulisController extends Controller
                 }
                 if ($penulis->foto_penulis != $fotoPenulis) {
                     Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $penulis->foto_penulis);
-                }
-                if ($penulis->file_tentang_penulis != $fTentangPenulis) {
-                    Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $penulis->file_tentang_penulis);
                 }
                 if ($penulis->file_hibah_royalti != $fHibahRoyalti) {
                     Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $penulis->file_hibah_royalti);
