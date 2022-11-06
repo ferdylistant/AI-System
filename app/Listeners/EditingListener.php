@@ -37,7 +37,56 @@ class EditingListener
                     'tgl_masuk_editing' => $data['tgl_masuk_editing']
                 ]);
                 break;
-
+            case 'Update Status Editing':
+                $res = DB::table('editing_proses')->where('id', $data['id'])->whereNull('deleted_at')->update([
+                    'status' => $data['status']
+                ]);
+                break;
+            case 'Insert History Status Editing':
+                $res = DB::table('editing_proses_history')->insert([
+                    'deskripsi_final_id' => $data['deskripsi_final_id'],
+                    'type_history' => $data['type_history'],
+                    'status_his' => $data['status_his'],
+                    'status_new' => $data['status_new'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Edit Editing':
+                $res = DB::table('editing_proses as ep')
+                ->join('deskripsi_final as df','df.id','=','ep.deskripsi_final_id')
+                ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
+                ->where('ep.id',$data['id'])
+                ->update([
+                    'dp.jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
+                    'df.bullet' => $data['bullet'],
+                    'ep.catatan' => $data['catatan'],
+                    'ep.editor' => $data['editor'],
+                    'ep.copy_editor' => $data['copy_editor'],
+                    'ep.proses' => $data['proses'],
+                    'ep.bulan' => $data['bulan']
+                ]);
+                break;
+            case 'Insert History Edit Editing':
+                $res = DB::table('editing_proses_history')->insert([
+                    'deskripsi_final_id' => $data['deskripsi_final_id'],
+                    'type_history' => $data['type_history'],
+                    'editor_his' => $data['editor_his'],
+                    'editor_new' => $data['editor_new'],
+                    'jml_hal_perkiraan_his' => $data['jml_hal_perkiraan_his'],
+                    'jml_hal_perkiraan_new' => $data['jml_hal_perkiraan_new'],
+                    'bullet_his' => $data['bullet_his'],
+                    'bullet_new' => $data['bullet_new'],
+                    'copy_editor_his' => $data['copy_editor_his'],
+                    'copy_editor_new' => $data['copy_editor_new'],
+                    'catatan_his' => $data['catatan_his'],
+                    'catatan_new' => $data['catatan_new'],
+                    'bulan_his' => $data['bulan_his'],
+                    'bulan_new' => $data['bulan_new'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
             default:
                 abort(500);
                 break;

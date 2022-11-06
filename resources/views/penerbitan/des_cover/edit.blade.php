@@ -179,18 +179,12 @@
                                                         <div class="input-group">
                                                             <select name="finishing_cover[]" class="form-control select-finishing-cover" multiple="multiple">
                                                                 <option label="Pilih finishing cover"></option>
-                                                                <?php $ci = 0; ?>
-                                                                <?php $cj = 0; ?>
-                                                                <?php $selected = ''; ?>
                                                                 @foreach ($finishing_cover as $i => $f)
-                                                                    @foreach (json_decode($data->finishing_cover,true) as $j => $fc)
-                                                                    @if ($ci > $i)
-                                                                    @continue
-                                                                    @endif
-                                                                    <option value="{{$f}}">{{$f}}&nbsp;&nbsp;</option>
-                                                                    <?php $ci++; ?>
-                                                                    @endforeach
-                                                                    <?php $cj++; ?>
+                                                                {{$sel = '';}}
+                                                                @if (in_array($f,json_decode($data->finishing_cover,true)))
+                                                                {{$sel = ' selected="selected" ';}}
+                                                                @endif
+                                                                    <option value="{{$f}}" {{$sel}}>{{$f}}&nbsp;&nbsp;</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="input-group-append">

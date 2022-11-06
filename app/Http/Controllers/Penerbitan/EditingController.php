@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use App\Events\EditingEvent;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
@@ -238,102 +239,85 @@ class EditingController extends Controller
     }
     public function editEditing(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $history = DB::table('editing_proses as ep')
-                ->join('deskripsi_final as df','df.id','=','ep.deskripsi_final_id')
-                ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
-                ->where('ep.id', $request->id)
-                ->select('dc.*','dp.judul_final','dp.format_buku','df.sub_judul_final','df.bullet')
-                ->first();
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->where('ep.id', $request->id)
+                    ->select('ep.*', 'dp.judul_final', 'df.bullet','dp.jml_hal_perkiraan')
+                    ->first();
                 foreach ($request->bullet as $value) {
                     $bullet[] = $value;
                 }
-                if (!$request->has('finishing_cover')) {
-                    if ((!is_null($history->finishing_cover)) || ($history->finishing_cover != [])) {
-                        $finishing_cover = json_decode($history->finishing_cover);
+                if ($request->has('proses')) {
+                    $proses = '1';
+                } else{
+                    if ($request->has('editor') && is_null($history->editor)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Harap switch tombol mulai proses editor di samping tombol update.'
+                        ]);
+                    } elseif ($request->has('copy_editor') && is_null($history->copy_editor)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Harap switch tombol mulai proses copy editor di samping tombol update.'
+                        ]);
                     }
-                } else {
-                    foreach ($request->finishing_cover as $value) {
-                        $finishing_cover[] = $value;
-                    }
+                    $proses = '0';
                 }
                 $update = [
-                    'params' => 'Edit Descov',
+                    'params' => 'Edit Editing',
                     'id' => $request->id,
-                    'sub_judul_final' => $request->sub_judul_final, //Deskripsi Final
-                    'des_front_cover' => $request->des_front_cover,
-                    'des_back_cover' => $request->des_back_cover,
-                    'finishing_cover' => json_encode(array_filter($finishing_cover)), //Array
-                    'format_buku' => $request->format_buku, //Deskripsi Produk
-                    'jilid' => $request->jilid,
-                    'tipografi' => $request->tipografi,
-                    'warna' => $request->warna,
-                    'kelengkapan' => $request->kelengkapan,
+                    'jml_hal_perkiraan' => $request->jml_hal_perkiraan,//Deskripsi Produk
                     'catatan' => $request->catatan,
                     'bullet' =>  json_encode(array_filter($bullet)), //Deskripsi Final
-                    'desainer' => $request->desainer,
-                    'contoh_cover' => $request->contoh_cover,
-                    'bulan' => Carbon::createFromDate($request->bulan),
-                    'updated_by'=> auth()->id()
+                    'editor' => json_encode($request->editor),
+                    'copy_editor' => json_encode($request->copy_editor),
+                    'proses' => $proses,
+                    'bulan' => Carbon::createFromDate($request->bulan)
                 ];
-                // event(new DescovEvent($update));
+                event(new EditingEvent($update));
 
                 $insert = [
-                    'params' => 'Insert History Edit Descov',
-                    'deskripsi_cover_id' => $request->id,
+                    'params' => 'Insert History Edit Editing',
+                    'deskripsi_final_id' => $request->id,
                     'type_history' => 'Update',
-                    'format_buku_his' => $history->format_buku==$request->format_buku?NULL:$history->format_buku,
-                    'format_buku_new' => $history->format_buku==$request->format_buku?NULL:$request->format_buku,
-                    'sub_judul_final_his' => $history->sub_judul_final==$request->sub_judul_final?NULL:$history->sub_judul_final,
-                    'sub_judul_final_new' => $history->sub_judul_final==$request->sub_judul_final?NULL:$request->sub_judul_final,
-                    'des_front_cover_his' => $history->des_front_cover==$request->des_front_cover?NULL:$history->des_front_cover,
-                    'des_front_cover_new' => $history->des_front_cover==$request->des_front_cover?NULL:$request->des_front_cover,
-                    'des_back_cover_his' => $history->des_back_cover==$request->des_back_cover?NULL:$history->des_back_cover,
-                    'des_back_cover_new' => $history->des_back_cover==$request->des_back_cover?NULL:$request->des_back_cover,
-                    'finishing_cover_his' => $history->finishing_cover==json_encode(array_filter($finishing_cover))?NULL:$history->finishing_cover,
-                    'finishing_cover_new' => $history->finishing_cover==json_encode(array_filter($finishing_cover))?NULL:json_encode(array_filter($finishing_cover)),
-                    'jilid_his' => $history->jilid==$request->jilid?NULL:$history->jilid,
-                    'jilid_new' => $history->jilid==$request->jilid?NULL:$request->jilid,
-                    'tipografi_his' => $history->tipografi==$request->tipografi?NULL:$history->tipografi,
-                    'tipografi_new' => $history->tipografi==$request->tipografi?NULL:$request->tipografi,
-                    'warna_his' => $history->warna==$request->warna?NULL:$history->warna,
-                    'warna_new' => $history->warna==$request->warna?NULL:$request->warna,
-                    'bullet_his' => $history->bullet==json_encode(array_filter($bullet))?NULL:$history->bullet,
-                    'bullet_new' => $history->bullet==json_encode(array_filter($bullet))?NULL:json_encode(array_filter($bullet)),
-                    'desainer_his' => $history->desainer==$request->desainer?NULL:$history->desainer,
-                    'desainer_new' => $history->desainer==$request->desainer?NULL:$request->desainer,
-                    'contoh_cover_his' => $history->contoh_cover==$request->contoh_cover?NULL:$history->contoh_cover,
-                    'contoh_cover_new' => $history->contoh_cover==$request->contoh_cover?NULL:$request->contoh_cover,
-                    'kelengkapan_his' => $history->kelengkapan==$request->kelengkapan?NULL:$history->kelengkapan,
-                    'kelengkapan_new' => $history->kelengkapan==$request->kelengkapan?NULL:$request->kelengkapan,
-                    'catatan_his' => $history->catatan==$request->catatan?NULL:$history->catatan,
-                    'catatan_new' => $history->catatan==$request->catatan?NULL:$request->catatan,
-                    'bulan_his' => $history->bulan==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
-                    'bulan_new' => $history->bulan==Carbon::createFromDate($request->bulan)?NULL:Carbon::createFromDate($request->bulan),
+                    'editor_his' => $history->editor == json_encode(array_filter($request->editor)) ? NULL : $history->editor,
+                    'editor_new' => $history->editor == json_encode(array_filter($request->editor)) ? NULL : json_encode(array_filter($request->editor)),
+                    'jml_hal_perkiraan_his' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? NULL : $history->jml_hal_perkiraan,
+                    'jml_hal_perkiraan_new' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? NULL : $request->jml_hal_perkiraan,
+                    'bullet_his' => $history->bullet == json_encode(array_filter($bullet)) ? NULL : $history->bullet,
+                    'bullet_new' => $history->bullet == json_encode(array_filter($bullet)) ? NULL : json_encode(array_filter($bullet)),
+                    'copy_editor_his' => $history->copy_editor == json_encode($request->copy_editor) ? NULL : $history->copy_editor,
+                    'copy_editor_new' => $history->copy_editor == json_encode($request->copy_editor) ? NULL : json_encode(array_filter($request->copy_editor)),
+                    'catatan_his' => $history->catatan == $request->catatan ? NULL : $history->catatan,
+                    'catatan_new' => $history->catatan == $request->catatan ? NULL : $request->catatan,
+                    'bulan_his' => $history->bulan == Carbon::createFromDate($request->bulan) ? NULL : Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
+                    'bulan_new' => $history->bulan == Carbon::createFromDate($request->bulan) ? NULL : Carbon::createFromDate($request->bulan),
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
-                // event(new DescovEvent($insert));
+                event(new EditingEvent($insert));
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'Data deskripsi cover berhasil ditambahkan',
-                    'route' => route('descov.view')
+                    'message' => 'Data editing proses berhasil ditambahkan',
+                    'route' => route('editing.view')
                 ]);
             }
         }
         $id = $request->get('editing');
         $kodenaskah = $request->get('kode');
         $data = DB::table('editing_proses as ep')
-            ->join('deskripsi_final as df','ep.deskripsi_final_id','=','df.id')
-            ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
+            ->join('deskripsi_final as df', 'ep.deskripsi_final_id', '=', 'df.id')
+            ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
             ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-            ->join('penerbitan_m_kelompok_buku as kb',function($q){
-                $q->on('pn.kelompok_buku_id','=','kb.id')
-                ->whereNull('kb.deleted_at');
+            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
             })
-            ->where('ep.id',$id)
-            ->where('pn.kode',$kodenaskah)
+            ->where('ep.id', $id)
+            ->where('pn.kode', $kodenaskah)
             ->select(
                 'ep.*',
                 'df.sub_judul_final',
@@ -349,40 +333,165 @@ class EditingController extends Controller
                 'pn.jalur_buku',
                 'pn.pic_prodev',
                 'kb.nama',
-                )
+            )
             ->first();
-        is_null($data)?abort(404):
-        $editor = DB::table('users as u')
-            ->join('jabatan as j','u.jabatan_id', '=', 'j.id')
-            ->join('divisi as d', 'u.divisi_id','=','d.id')
-            ->where('j.nama','LIKE','%Editor%')
-            ->where('d.nama','LIKE','%Penerbitan%')
-            ->select('u.nama','u.id')
+        is_null($data) ? abort(404) :
+            $editor = DB::table('users as u')
+            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+            ->where('j.nama', 'LIKE', '%Editor%')
+            ->where('d.nama', 'LIKE', '%Penerbitan%')
+            ->select('u.nama', 'u.id')
             ->get();
-        $copyEditor = DB::table('users as u')
-            ->join('jabatan as j','u.jabatan_id', '=', 'j.id')
-            ->join('divisi as d', 'u.divisi_id','=','d.id')
-            ->where('j.nama','LIKE','%Editor%')
-            ->orWhere('j.nama','LIKE','%Korektor%')
-            ->where('d.nama','LIKE','%Penerbitan%')
-            ->select('u.nama','u.id')
+        if (!is_null($data->editor)) {
+            foreach (json_decode($data->editor) as $e) {
+                $namaEditor[] = DB::table('users')->where('id', $e)->first()->nama;
+            }
+            $copyEditor = DB::table('users as u')
+            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+            ->where('j.nama', 'LIKE', '%Editor%')
+            ->orWhere('j.nama', 'LIKE', '%Korektor%')
+            ->where('d.nama', 'LIKE', '%Penerbitan%')
+            ->whereNotIn('u.id',json_decode($data->editor))
+            ->select('u.nama', 'u.id')
             ->get();
+        } else {
+            $namaEditor = NULL;
+            $copyEditor = NULL;
+        }
+        if (!is_null($data->copy_editor)) {
+            foreach (json_decode($data->copy_editor) as $ce) {
+                $namaCopyEditor[] = DB::table('users')->where('id', $ce)->first()->nama;
+            }
+        } else {
+            $namaCopyEditor = NULL;
+        }
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
-        ->join('penerbitan_penulis as pp',function($q) {
-            $q->on('pnp.penulis_id','=','pp.id')
-            ->whereNull('pp.deleted_at');
-        })
-        ->where('pnp.naskah_id','=',$data->naskah_id)
-        ->select('pp.nama')
-        ->get();
-        return view('penerbitan.editing.edit',[
+            ->join('penerbitan_penulis as pp', function ($q) {
+                $q->on('pnp.penulis_id', '=', 'pp.id')
+                    ->whereNull('pp.deleted_at');
+            })
+            ->where('pnp.naskah_id', '=', $data->naskah_id)
+            ->select('pp.nama')
+            ->get();
+        return view('penerbitan.editing.edit', [
             'title' => 'Editing Proses',
             'data' => $data,
             'editor' => $editor,
+            'nama_editor' => $namaEditor,
             'copy_editor' => $copyEditor,
+            'nama_copyeditor' => $namaCopyEditor,
             'penulis' => $penulis,
             // 'imprint' => $imprint
         ]);
+    }
+    public function updateStatusProgress(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $data = DB::table('editing_proses as ep')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                        ->whereNull('kb.deleted_at');
+                })
+                ->where('ep.id', $id)
+                ->select(
+                    'ep.*',
+                    'df.id as deskripsi_final_id',
+                    'df.setter',
+                    'df.korektor',
+                    'dp.naskah_id',
+                    'dp.format_buku',
+                    'dp.judul_final',
+                    'dp.editor',
+                    'dp.imprint',
+                    'dp.jml_hal_perkiraan',
+                    'dp.kelengkapan',
+                    'dp.catatan',
+                    'pn.kode',
+                    'pn.judul_asli',
+                    'pn.pic_prodev',
+                    'pn.jalur_buku',
+                    'kb.nama'
+                )
+                ->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data corrupt...'
+                ], 404);
+            }
+            if ($data->status == $request->status) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pilih status yang berbeda dengan status saat ini!'
+                ]);
+            }
+            $update = [
+                'params' => 'Update Status Editing',
+                'id' => $data->id,
+                'status' => $request->status,
+            ];
+            $insert = [
+                'params' => 'Insert History Status Editing',
+                'deskripsi_final_id' => $data->id,
+                'type_history' => 'Status',
+                'status_his' => $data->status,
+                'status_new'  => $request->status,
+                'author_id' => auth()->user()->id,
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            if ($request->status == 'Selesai') {
+                // event(new DescovEvent($update));
+                // event(new DescovEvent($insert));
+                // $insertEditingProses = [
+                //     'params' => 'Insert Editing',
+                //     'id' => Uuid::uuid4()->toString(),
+                //     'deskripsi_final_id' => $data->deskripsi_final_id,
+                //     'editor' => json_encode([$data->editor]),
+                //     'tgl_masuk_editing' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                // ];
+                // event(new EditingEvent($insertEditingProses));
+                // $insertPracetakSetter = [
+                //     'params' => 'Insert Pracetak Setter',
+                //     'id' => Uuid::uuid4()->toString(),
+                //     'deskripsi_final_id' => $data->deskripsi_final_id,
+                //     'setter' => json_encode([$data->setter]),
+                //     'korektor_komp' => json_encode([$data->korektor]),
+                //     'korektor_manual' => json_encode([$data->korektor]),
+                //     'jml_hal_final' => $data->jml_hal_perkiraan,
+                //     'tgl_masuk_pracetak' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                // ];
+                // event(new PracetakSetterEvent($insertPracetakSetter));
+                // $insertPracetakCover = [
+                //     'params' => 'Insert Pracetak Cover',
+                //     'id' => Uuid::uuid4()->toString(),
+                //     'deskripsi_cover_id' => $data->id,
+                //     'desainer' => json_encode([$data->desainer]),
+                //     'editor' => json_encode([$data->editor]),
+                //     'tgl_masuk_cover' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                // ];
+                // event(new PracetakCoverEvent($insertPracetakCover));
+                // $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
+            } else {
+                event(new EditingEvent($update));
+                event(new EditingEvent($insert));
+                $msg = 'Status progress editing proses berhasil diupdate';
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => $msg
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
     protected function panelStatusGuest($status = null, $btn)
     {

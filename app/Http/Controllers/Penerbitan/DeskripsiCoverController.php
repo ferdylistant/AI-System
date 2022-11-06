@@ -282,22 +282,13 @@ class DeskripsiCoverController extends Controller
                 foreach ($request->bullet as $value) {
                     $bullet[] = $value;
                 }
-                if (!$request->has('finishing_cover')) {
-                    if ((!is_null($history->finishing_cover)) || ($history->finishing_cover != [])) {
-                        $finishing_cover = json_decode($history->finishing_cover);
-                    }
-                } else {
-                    foreach ($request->finishing_cover as $value) {
-                        $finishing_cover[] = $value;
-                    }
-                }
                 $update = [
                     'params' => 'Edit Descov',
                     'id' => $request->id,
                     'sub_judul_final' => $request->sub_judul_final, //Deskripsi Final
                     'des_front_cover' => $request->des_front_cover,
                     'des_back_cover' => $request->des_back_cover,
-                    'finishing_cover' => json_encode(array_filter($finishing_cover)), //Array
+                    'finishing_cover' => json_encode(array_filter($request->finishing_cover)), //Array
                     'format_buku' => $request->format_buku, //Deskripsi Produk
                     'jilid' => $request->jilid,
                     'tipografi' => $request->tipografi,
@@ -324,8 +315,8 @@ class DeskripsiCoverController extends Controller
                     'des_front_cover_new' => $history->des_front_cover == $request->des_front_cover ? NULL : $request->des_front_cover,
                     'des_back_cover_his' => $history->des_back_cover == $request->des_back_cover ? NULL : $history->des_back_cover,
                     'des_back_cover_new' => $history->des_back_cover == $request->des_back_cover ? NULL : $request->des_back_cover,
-                    'finishing_cover_his' => $history->finishing_cover == json_encode(array_filter($finishing_cover)) ? NULL : $history->finishing_cover,
-                    'finishing_cover_new' => $history->finishing_cover == json_encode(array_filter($finishing_cover)) ? NULL : json_encode(array_filter($finishing_cover)),
+                    'finishing_cover_his' => $history->finishing_cover == json_encode(array_filter($request->finishing_cover)) ? NULL : $history->finishing_cover,
+                    'finishing_cover_new' => $history->finishing_cover == json_encode(array_filter($request->finishing_cover)) ? NULL : json_encode(array_filter($request->finishing_cover)),
                     'jilid_his' => $history->jilid == $request->jilid ? NULL : $history->jilid,
                     'jilid_new' => $history->jilid == $request->jilid ? NULL : $request->jilid,
                     'tipografi_his' => $history->tipografi == $request->tipografi ? NULL : $history->tipografi,
