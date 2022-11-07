@@ -245,14 +245,29 @@ class EditingController extends Controller
                     ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
                     ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
                     ->where('ep.id', $request->id)
-                    ->select('ep.*', 'dp.judul_final', 'df.bullet','dp.jml_hal_perkiraan')
+                    ->select('ep.*', 'dp.judul_final', 'df.bullet', 'dp.jml_hal_perkiraan')
                     ->first();
-                foreach ($request->bullet as $value) {
-                    $bullet[] = $value;
+                if ($request->has('copy_editor')) {
+                    foreach ($request->copy_editor as $ce) {
+                        $req_copyeditor[] = $ce;
+                    }
+                    $copyeditor = json_encode($req_copyeditor);
+                } else {
+                    $copyeditor = NULL;
                 }
                 if ($request->has('proses')) {
                     $proses = '1';
-                } else{
+                    if ($request->has('editor') && !is_null($history->tgl_mulai_edit)) {
+                        $tglEditor = $history->tgl_mulai_edit;
+                    } else {
+                        $tglEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    }
+                    if (is_null($history->tgl_selesai_edit)) {
+                        $tglCopyEditor = $history->tgl_mulai_copyeditor;
+                    } else {
+                        $tglCopyEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    }
+                } else {
                     if ($request->has('editor') && is_null($history->editor)) {
                         return response()->json([
                             'status' => 'error',
@@ -269,11 +284,13 @@ class EditingController extends Controller
                 $update = [
                     'params' => 'Edit Editing',
                     'id' => $request->id,
-                    'jml_hal_perkiraan' => $request->jml_hal_perkiraan,//Deskripsi Produk
+                    'jml_hal_perkiraan' => $request->jml_hal_perkiraan, //Deskripsi Produk
                     'catatan' => $request->catatan,
-                    'bullet' =>  json_encode(array_filter($bullet)), //Deskripsi Final
+                    'bullet' =>  json_encode(array_filter($request->bullet)), //Deskripsi Final
                     'editor' => json_encode($request->editor),
-                    'copy_editor' => json_encode($request->copy_editor),
+                    'tgl_mulai_edit' => $tglEditor,
+                    'copy_editor' => $request->has('copy_editor') ? json_encode($request->copy_editor) : NULL,
+                    'tgl_mulai_copyeditor' => $tglCopyEditor,
                     'proses' => $proses,
                     'bulan' => Carbon::createFromDate($request->bulan)
                 ];
@@ -287,10 +304,10 @@ class EditingController extends Controller
                     'editor_new' => $history->editor == json_encode(array_filter($request->editor)) ? NULL : json_encode(array_filter($request->editor)),
                     'jml_hal_perkiraan_his' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? NULL : $history->jml_hal_perkiraan,
                     'jml_hal_perkiraan_new' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? NULL : $request->jml_hal_perkiraan,
-                    'bullet_his' => $history->bullet == json_encode(array_filter($bullet)) ? NULL : $history->bullet,
-                    'bullet_new' => $history->bullet == json_encode(array_filter($bullet)) ? NULL : json_encode(array_filter($bullet)),
-                    'copy_editor_his' => $history->copy_editor == json_encode($request->copy_editor) ? NULL : $history->copy_editor,
-                    'copy_editor_new' => $history->copy_editor == json_encode($request->copy_editor) ? NULL : json_encode(array_filter($request->copy_editor)),
+                    'bullet_his' => $history->bullet == json_encode(array_filter($request->bullet)) ? NULL : $history->bullet,
+                    'bullet_new' => $history->bullet == json_encode(array_filter($request->bullet)) ? NULL : json_encode(array_filter($request->bullet)),
+                    'copy_editor_his' => $history->copy_editor == $copyeditor ? NULL : $history->copy_editor,
+                    'copy_editor_new' => $history->copy_editor == $copyeditor ? NULL : $copyeditor,
                     'catatan_his' => $history->catatan == $request->catatan ? NULL : $history->catatan,
                     'catatan_new' => $history->catatan == $request->catatan ? NULL : $request->catatan,
                     'bulan_his' => $history->bulan == Carbon::createFromDate($request->bulan) ? NULL : Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
@@ -342,20 +359,22 @@ class EditingController extends Controller
             ->where('j.nama', 'LIKE', '%Editor%')
             ->where('d.nama', 'LIKE', '%Penerbitan%')
             ->select('u.nama', 'u.id')
+            ->orderBy('u.nama', 'Asc')
             ->get();
         if (!is_null($data->editor)) {
             foreach (json_decode($data->editor) as $e) {
                 $namaEditor[] = DB::table('users')->where('id', $e)->first()->nama;
             }
             $copyEditor = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-            ->where('j.nama', 'LIKE', '%Editor%')
-            ->orWhere('j.nama', 'LIKE', '%Korektor%')
-            ->where('d.nama', 'LIKE', '%Penerbitan%')
-            ->whereNotIn('u.id',json_decode($data->editor))
-            ->select('u.nama', 'u.id')
-            ->get();
+                ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+                ->where('j.nama', 'LIKE', '%Editor%')
+                ->where('d.nama', 'LIKE', '%Penerbitan%')
+                ->whereNotIn('u.id', json_decode($data->editor))
+                ->orWhere('j.nama', 'LIKE', '%Korektor%')
+                ->select('u.nama', 'u.id')
+                ->orderBy('u.nama', 'Asc')
+                ->get();
         } else {
             $namaEditor = NULL;
             $copyEditor = NULL;
@@ -383,7 +402,6 @@ class EditingController extends Controller
             'copy_editor' => $copyEditor,
             'nama_copyeditor' => $namaCopyEditor,
             'penulis' => $penulis,
-            // 'imprint' => $imprint
         ]);
     }
     public function updateStatusProgress(Request $request)

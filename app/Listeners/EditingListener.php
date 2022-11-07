@@ -62,7 +62,9 @@ class EditingListener
                     'df.bullet' => $data['bullet'],
                     'ep.catatan' => $data['catatan'],
                     'ep.editor' => $data['editor'],
+                    'ep.tgl_mulai_edit' => $data['tgl_mulai_edit'],
                     'ep.copy_editor' => $data['copy_editor'],
+                    'ep.tgl_mulai_copyeditor' => $data['tgl_mulai_copyeditor'],
                     'ep.proses' => $data['proses'],
                     'ep.bulan' => $data['bulan']
                 ]);
