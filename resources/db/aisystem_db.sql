@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 07 Nov 2022 pada 11.08
+-- Waktu pembuatan: 08 Nov 2022 pada 11.18
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -572,6 +572,19 @@ CREATE TABLE `editing_proses_history` (
 INSERT INTO `editing_proses_history` (`id`, `deskripsi_final_id`, `type_history`, `editor_his`, `editor_new`, `copy_editor_his`, `copy_editor_new`, `bullet_his`, `bullet_new`, `jml_hal_perkiraan_his`, `jml_hal_perkiraan_new`, `bulan_his`, `bulan_new`, `status_his`, `status_new`, `catatan_his`, `catatan_new`, `author_id`, `modified_at`) VALUES
 (1, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-06 11:32:21'),
 (8, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Update', NULL, '[\"fc2ba902bcfa410397bbd3331bda13ec\",\"fab4f858e0314d1dbf6b5b834007313e\"]', NULL, NULL, NULL, NULL, NULL, NULL, '2022-11-07', '2022-11-07', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-07 16:52:53');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `editing_proses_selesai`
+--
+
+CREATE TABLE `editing_proses_selesai` (
+  `id` bigint(20) NOT NULL,
+  `editing_proses_id` char(36) DEFAULT NULL,
+  `editor_id` varchar(36) DEFAULT NULL,
+  `tgl_proses_selesai` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -2962,7 +2975,11 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('ceadd9fb648445eab1e350357e51d1ce', 'ac61ff38a6854298919a06a5b4f34242'),
 ('ceadd9fb648445eab1e350357e51d1ce', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
 ('ceadd9fb648445eab1e350357e51d1ce', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
-('ceadd9fb648445eab1e350357e51d1ce', '0ce44192fb05400fb51f33c3c7a3d601');
+('ceadd9fb648445eab1e350357e51d1ce', '0ce44192fb05400fb51f33c3c7a3d601'),
+('fab4f858e0314d1dbf6b5b834007313e', '29feb750adfa496fa4822fadd4ac1367'),
+('fab4f858e0314d1dbf6b5b834007313e', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
+('fc2ba902bcfa410397bbd3331bda13ec', '29feb750adfa496fa4822fadd4ac1367'),
+('fc2ba902bcfa410397bbd3331bda13ec', '808ab7987c9b4f0ab025b1b9e3ed1d43');
 
 --
 -- Indexes for dumped tables
@@ -3041,6 +3058,12 @@ ALTER TABLE `editing_proses`
 -- Indeks untuk tabel `editing_proses_history`
 --
 ALTER TABLE `editing_proses_history`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `editing_proses_selesai`
+--
+ALTER TABLE `editing_proses_selesai`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -3296,6 +3319,12 @@ ALTER TABLE `deskripsi_produk_history`
 --
 ALTER TABLE `editing_proses_history`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT untuk tabel `editing_proses_selesai`
+--
+ALTER TABLE `editing_proses_selesai`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT untuk tabel `failed_jobs`
