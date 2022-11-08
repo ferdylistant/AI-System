@@ -404,6 +404,71 @@ class EditingController extends Controller
             'penulis' => $penulis,
         ]);
     }
+    public function detailEditing(Request $request)
+    {
+        $id = $request->get('editing');
+        $kode = $request->get('kode');
+        $data = DB::table('editing_proses as ep')
+            ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
+            ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
+            })
+            ->where('ep.id', $id)
+            ->where('pn.kode', $kode)
+            ->select(
+                'ep.*',
+                'df.sub_judul_final',
+                'df.bullet',
+                'df.sinopsis',
+                'df.isi_warna',
+                'df.isi_huruf',
+                'dp.naskah_id',
+                'dp.judul_final',
+                'dp.jml_hal_perkiraan',
+                'pn.kode',
+                'pn.jalur_buku',
+                'pn.pic_prodev',
+                'kb.nama'
+            )
+            ->first();
+        if (is_null($data)) {
+            return abort(404);
+        }
+        $penulis = DB::table('penerbitan_naskah_penulis as pnp')
+            ->join('penerbitan_penulis as pp', function ($q) {
+                $q->on('pnp.penulis_id', '=', 'pp.id')
+                    ->whereNull('pp.deleted_at');
+            })
+            ->where('pnp.naskah_id', '=', $data->naskah_id)
+            ->select('pp.nama')
+            ->get();
+        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->select('nama')->first();
+        if (!is_null($data->editor)) {
+            foreach (json_decode($data->editor,true) as $ed) {
+                $namaEditor[] = DB::table('users')->where('id', $ed)->first()->nama;
+            }
+        } else {
+            $namaEditor = NULL;
+        }
+        if (!is_null($data->copy_editor)) {
+            foreach (json_decode($data->copy_editor,true) as $cpe) {
+                $namaCopyEditor[] = DB::table('users')->where('id', $cpe)->first()->nama;
+            }
+        } else {
+            $namaCopyEditor = NULL;
+        }
+        return view('penerbitan.editing.detail', [
+            'title' => 'Detail Editing Proses',
+            'data' => $data,
+            'penulis' => $penulis,
+            'pic' => $pic,
+            'nama_editor' => $namaEditor,
+            'nama_copyeditor' => $namaCopyEditor
+        ]);
+    }
     public function updateStatusProgress(Request $request)
     {
         try {

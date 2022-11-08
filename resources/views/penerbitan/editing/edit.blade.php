@@ -421,8 +421,12 @@
                                 </div>
                                 <div class="card-footer text-right">
                                     <div class="custom-control custom-switch">
+                                        {{$dis= '';}}
+                                        @if (!is_null($data->tgl_mulai_edit) || !is_null($data->tgl_mulai_copyeditor))
+                                            <?php $dis = 'readonly disabled'?>
+                                        @endif
                                         <input type="checkbox" name="proses" class="custom-control-input"
-                                            id="prosesKerja" {{ $data->proses == '1' ? 'checked' : '' }}>
+                                            id="prosesKerja" {{$dis}} {{ $data->proses == '1' ? 'checked' : '' }}>
                                         <label class="custom-control-label mr-3 text-dark" for="prosesKerja">
                                             {{ is_null($data->tgl_selesai_edit) ? 'Mulai proses editor' : 'Mulai proses copy editor' }}
                                         </label>
@@ -589,5 +593,11 @@
 
 
 @section('jsNeeded')
+    <script>
+        $(function () {
+            $("i[data-toggle='tooltip']").tooltip();
+        });
+    </script>
     <script src="{{ url('js/edit_editing.js') }}"></script>
+
 @endsection
