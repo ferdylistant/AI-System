@@ -255,11 +255,27 @@ class EditingController extends Controller
                 } else {
                     $copyeditor = NULL;
                 }
-                if ($request->has('proses')) {
-                    $proses = '1';
-                    if ($request->has('editor') && !is_null($history->tgl_mulai_edit)) {
-                        $tglEditor = $history->tgl_mulai_edit;
+                if ($request->has('proses') && $history->proses == '1') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => [$request->has('proses'),$request->input('proses'),'if']
+                    ]);
+                    if ($request->has('editor')) {
+                        $proses = '1';
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => [$request->has('editor'),$request->input('editor')]
+                        ]);
+                        if (in_array($request->editor,$history->editor)) {
+                            $tglEditor = $history->tgl_mulai_edit;
+                        } else {
+                            $tglEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                        }
                     } else {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => [$request->has('editor'),$request->input('editor')]
+                        ]);
                         $tglEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
                     }
                     if (is_null($history->tgl_selesai_edit)) {
@@ -268,6 +284,11 @@ class EditingController extends Controller
                         $tglCopyEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
                     }
                 } else {
+                    $proses = '0';
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => [$request->has('editor'),$request->input('editor'),'else']
+                    ]);
                     if ($request->has('editor') && is_null($history->editor)) {
                         return response()->json([
                             'status' => 'error',
@@ -278,8 +299,10 @@ class EditingController extends Controller
                             'status' => 'error',
                             'message' => 'Harap switch tombol mulai proses copy editor di samping tombol update.'
                         ]);
+                    } else {
+                        $tglEditor = NULL;
+                        $tglCopyEditor = NULL;
                     }
-                    $proses = '0';
                 }
                 $update = [
                     'params' => 'Edit Editing',

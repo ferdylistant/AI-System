@@ -120,7 +120,7 @@
                                             @foreach (json_decode($data->editor) as $edt)
                                                 @if (auth()->id() == $edt)
                                                     @if (Gate::allows('do_create', 'otorisasi-editor-editing-reguler') ||
-                                                        Gate::allows('do_create', 'editor-editing-mou'))
+                                                        Gate::allows('do_create', 'otorisasi-editor-editing-mou'))
                                                     @endif
                                                 @endif
                                             @endforeach

@@ -223,6 +223,7 @@ $(function () {
             success: function (result) {
                 // resetFrom(data);
                 if (result.status == 'error'){
+                    console.log(result.message);
                     notifToast(result.status, result.message);
                 } else {
                     notifToast(result.status, result.message);
