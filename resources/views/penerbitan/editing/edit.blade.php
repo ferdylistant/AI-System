@@ -422,7 +422,7 @@
                                 <div class="card-footer text-right">
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" name="proses" class="custom-control-input"
-                                            id="prosesKerja" value="{{ $data->proses }}"
+                                            id="prosesKerja" data-id="{{ $data->id }}"
                                             {{ $data->proses == '1' ? 'checked' : '' }}>
                                         <label class="custom-control-label mr-3 text-dark" for="prosesKerja">
                                             {{ is_null($data->tgl_selesai_edit) ? 'Mulai proses editor' : 'Mulai proses copy editor' }}
@@ -592,7 +592,38 @@
 @section('jsNeeded')
     <script>
         $(function() {
-            $("i[data-toggle='tooltip']").tooltip();
+            $(document).ajaxSend(function() {
+                $("#overlay").fadeIn(300);
+            });
+            $('#prosesKerja').click(function() {
+                var id = $(this).data('id');
+                var editor = $('.select-editor-editing').val()
+                if (this.checked) {
+                    value = '1';
+                } else {
+                    value = '0';
+                }
+                let val = value;
+                $.ajax({
+                    url: "{{ route('editing.proses') }}",
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        proses: val,
+                        editor: editor
+                    },
+                    dataType: 'json',
+                    success: function(result) {
+                        console.log(result);
+                        notifToast(result.status, result.message);
+                    }
+                }).done(function() {
+                    setTimeout(function() {
+                        $("#overlay").fadeOut(300);
+                    }, 500);
+                });
+
+            });
         });
     </script>
     <script src="{{ url('js/edit_editing.js') }}"></script>

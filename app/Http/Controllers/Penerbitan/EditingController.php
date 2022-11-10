@@ -255,53 +255,56 @@ class EditingController extends Controller
                 } else {
                     $copyeditor = NULL;
                 }
-                if ($request->has('proses') && $history->proses == '1') {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => [$request->has('proses'),$request->input('proses'),'if']
-                    ]);
-                    if ($request->has('editor')) {
-                        $proses = '1';
+                if ($request->has('proses')) {
+                    if ((json_decode($history->editor,true) != $request->editor) && (!is_null($history->tgl_mulai_edit))) {
                         return response()->json([
                             'status' => 'error',
-                            'message' => [$request->has('editor'),$request->input('editor')]
+                            'message' => 'Hentikan proses untuk mengubah editor'
                         ]);
-                        if (in_array($request->editor,$history->editor)) {
+                    }
+                    if ((json_decode($history->copy_editor,true) != $request->copy_editor) && (!is_null($history->tgl_mulai_edit))) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Hentikan proses untuk mengubah copy editor'
+                        ]);
+                    }
+                    if ($request->has('editor')) {
+                        if (json_decode($history->editor, true) == $request->editor) {
                             $tglEditor = $history->tgl_mulai_edit;
                         } else {
                             $tglEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
                         }
-                    } else {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => [$request->has('editor'),$request->input('editor')]
-                        ]);
+                    }  else {
                         $tglEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
                     }
                     if (is_null($history->tgl_selesai_edit)) {
                         $tglCopyEditor = $history->tgl_mulai_copyeditor;
                     } else {
-                        $tglCopyEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                        if ($request->has('copy_editor')) {
+                            if (json_decode($history->copy_editor, true) == $request->copy_editor) {
+                                $tglCopyEditor = $history->tgl_mulai_copyeditor;
+                            } else {
+                                $tglCopyEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                            }
+                        } else {
+                            $tglCopyEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                        }
                     }
+                    $proses = '1';
                 } else {
                     $proses = '0';
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => [$request->has('editor'),$request->input('editor'),'else']
-                    ]);
-                    if ($request->has('editor') && is_null($history->editor)) {
+                    $tglEditor = NULL;
+                    $tglCopyEditor = NULL;
+                    if ($request->has('editor')) {
                         return response()->json([
                             'status' => 'error',
                             'message' => 'Harap switch tombol mulai proses editor di samping tombol update.'
                         ]);
-                    } elseif ($request->has('copy_editor') && is_null($history->copy_editor)) {
+                    } elseif ($request->has('copy_editor')) {
                         return response()->json([
                             'status' => 'error',
                             'message' => 'Harap switch tombol mulai proses copy editor di samping tombol update.'
                         ]);
-                    } else {
-                        $tglEditor = NULL;
-                        $tglCopyEditor = NULL;
                     }
                 }
                 $update = [
@@ -470,14 +473,14 @@ class EditingController extends Controller
             ->get();
         $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->select('nama')->first();
         if (!is_null($data->editor)) {
-            foreach (json_decode($data->editor,true) as $ed) {
+            foreach (json_decode($data->editor, true) as $ed) {
                 $namaEditor[] = DB::table('users')->where('id', $ed)->first()->nama;
             }
         } else {
             $namaEditor = NULL;
         }
         if (!is_null($data->copy_editor)) {
-            foreach (json_decode($data->copy_editor,true) as $cpe) {
+            foreach (json_decode($data->copy_editor, true) as $cpe) {
                 $namaCopyEditor[] = DB::table('users')->where('id', $cpe)->first()->nama;
             }
         } else {
@@ -650,5 +653,32 @@ class EditingController extends Controller
                 class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                 <div><i class="fas fa-edit"></i></div></a>';
         return $btn;
+    }
+    public function prosesKerjaEditing(Request $request)
+    {
+        if ($request->ajax()) {
+            try {
+                $id = $request->id;
+                $value = $request->proses;
+                // if ($value == '0') {
+                //     if (condition) {
+                //         # code...
+                //     }
+                //     $tglEditor = NULL;
+                //     $tglCopyEditor = NULL;
+                // } else {
+
+                // }
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $request->editor
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ],500);
+            }
+        }
     }
 }

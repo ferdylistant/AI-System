@@ -130,6 +130,7 @@ Route::middleware(['auth'])->group(function() {
         Route::match(['get', 'post'],'/editing/edit',[EditingController::class, 'editEditing'])->name('editing.edit');
         Route::post('/editing/update-status-progress',[EditingController::class, 'updateStatusProgress']);
         Route::post('/editing/lihat-history', [EditingController::class, 'lihatHistoryEditing'])->name('editing.history');
+        Route::post('/editing/proses-kerja', [EditingController::class, 'prosesKerjaEditing'])->name('editing.proses');
         //Pracetak Desainer
         Route::get('/pracetak/designer', [PracetakDesainerController::class, 'index'])->name('prades.view');
         Route::get('/pracetak/designer/detail', [PracetakDesainerController::class, 'detailPracetakDesainer'])->name('prades.detail');
