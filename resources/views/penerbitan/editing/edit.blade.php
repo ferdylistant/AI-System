@@ -614,8 +614,8 @@
                     },
                     dataType: 'json',
                     success: function(result) {
-                        console.log(result);
                         notifToast(result.status, result.message);
+                        location.reload();
                     }
                 }).done(function() {
                     setTimeout(function() {

@@ -54,20 +54,20 @@ class EditingListener
                 break;
             case 'Edit Editing':
                 $res = DB::table('editing_proses as ep')
-                ->join('deskripsi_final as df','df.id','=','ep.deskripsi_final_id')
-                ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
-                ->where('ep.id',$data['id'])
-                ->update([
-                    'dp.jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
-                    'df.bullet' => $data['bullet'],
-                    'ep.catatan' => $data['catatan'],
-                    'ep.editor' => $data['editor'],
-                    'ep.tgl_mulai_edit' => $data['tgl_mulai_edit'],
-                    'ep.copy_editor' => $data['copy_editor'],
-                    'ep.tgl_mulai_copyeditor' => $data['tgl_mulai_copyeditor'],
-                    'ep.proses' => $data['proses'],
-                    'ep.bulan' => $data['bulan']
-                ]);
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->where('ep.id', $data['id'])
+                    ->update([
+                        'dp.jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
+                        'df.bullet' => $data['bullet'],
+                        'ep.catatan' => $data['catatan'],
+                        'ep.editor' => $data['editor'],
+                        'ep.tgl_mulai_edit' => $data['tgl_mulai_edit'],
+                        'ep.copy_editor' => $data['copy_editor'],
+                        'ep.tgl_mulai_copyeditor' => $data['tgl_mulai_copyeditor'],
+                        'ep.proses' => $data['proses'],
+                        'ep.bulan' => $data['bulan']
+                    ]);
                 break;
             case 'Insert History Edit Editing':
                 $res = DB::table('editing_proses_history')->insert([
@@ -89,8 +89,20 @@ class EditingListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
+            case 'Progress Editor':
+                $res = DB::table('editing_proses')->where('id',$data['id'])->update([
+                    'tgl_mulai_edit' => $data['tgl_mulai_edit'],
+                    'proses' => $data['proses']
+                ]);
+                break;
+            case 'Progress Copy Editor':
+                $res = DB::table('editing_proses')->where('id',$data['id'])->update([
+                    'tgl_mulai_copyeditor' => $data['tgl_mulai_copyeditor'],
+                    'proses' => $data['proses']
+                ]);
+                break;
             default:
-                abort(500);
+                return abort(500);
                 break;
         }
         return $res;
