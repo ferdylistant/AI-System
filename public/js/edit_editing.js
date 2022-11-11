@@ -216,19 +216,11 @@ $(function () {
             processData: false,
             contentType: false,
             beforeSend: function () {
-                $('button[type="submit"]')
-                    .prop("disabled", true)
-                    .addClass("btn-progress");
+                $("#overlay").fadeIn(300);
             },
             success: function (result) {
-                // resetFrom(data);
-                if (result.status == 'error'){
-                    console.log(result.message);
-                    notifToast(result.status, result.message);
-                } else {
-                    notifToast(result.status, result.message);
-                    location.href = result.route;
-                }
+                notifToast(result.status, result.message);
+                location.reload();
             },
             error: function (err) {
                 console.log(err.responseJSON);
@@ -244,9 +236,9 @@ $(function () {
                 notifToast("error", "Data editing proses gagal disimpan!");
             },
             complete: function () {
-                $('button[type="submit"]')
-                    .prop("disabled", false)
-                    .removeClass("btn-progress");
+                setTimeout(function() {
+                    $("#overlay").fadeOut(300);
+                }, 500);
             },
         });
     }

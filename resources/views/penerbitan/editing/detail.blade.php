@@ -56,7 +56,7 @@
                                                                 <button type="submit" class="btn btn-success"
                                                                     id="btn-approve-editing" data-id="{{ $data->id }}"
                                                                     data-kode="{{ $data->kode }}">
-                                                                    <i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                                                    <i class="fas fa-check"></i>&nbsp;Selesai</button>
                                                             </div>
                                                         </div>
                                                     @endif
@@ -73,7 +73,7 @@
                                                                 <button type="submit" class="btn btn-success"
                                                                     id="btn-approve-editing" data-id="{{ $data->id }}"
                                                                     data-kode="{{ $data->kode }}">
-                                                                    <i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                                                    <i class="fas fa-check"></i>&nbsp;Selesai</button>
                                                             </div>
                                                         </div>
                                                     @endif
@@ -91,7 +91,7 @@
                                                                 <button type="submit" class="btn btn-success"
                                                                     id="btn-approve-editing" data-id="{{ $data->id }}"
                                                                     data-kode="{{ $data->kode }}">
-                                                                    <i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                                                    <i class="fas fa-check"></i>&nbsp;Selesai</button>
                                                             </div>
                                                         </div>
                                                     @endif
@@ -108,7 +108,7 @@
                                                                 <button type="submit" class="btn btn-success"
                                                                     id="btn-approve-editing" data-id="{{ $data->id }}"
                                                                     data-kode="{{ $data->kode }}">
-                                                                    <i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                                                    <i class="fas fa-check"></i>&nbsp;Selesai</button>
                                                             </div>
                                                         </div>
                                                     @endif

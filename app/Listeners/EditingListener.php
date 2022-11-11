@@ -62,16 +62,13 @@ class EditingListener
                         'df.bullet' => $data['bullet'],
                         'ep.catatan' => $data['catatan'],
                         'ep.editor' => $data['editor'],
-                        'ep.tgl_mulai_edit' => $data['tgl_mulai_edit'],
                         'ep.copy_editor' => $data['copy_editor'],
-                        'ep.tgl_mulai_copyeditor' => $data['tgl_mulai_copyeditor'],
-                        'ep.proses' => $data['proses'],
                         'ep.bulan' => $data['bulan']
                     ]);
                 break;
             case 'Insert History Edit Editing':
                 $res = DB::table('editing_proses_history')->insert([
-                    'deskripsi_final_id' => $data['deskripsi_final_id'],
+                    'editing_proses_id' => $data['editing_proses_id'],
                     'type_history' => $data['type_history'],
                     'editor_his' => $data['editor_his'],
                     'editor_new' => $data['editor_new'],
@@ -92,13 +89,27 @@ class EditingListener
             case 'Progress Editor':
                 $res = DB::table('editing_proses')->where('id',$data['id'])->update([
                     'tgl_mulai_edit' => $data['tgl_mulai_edit'],
-                    'proses' => $data['proses']
+                    'proses' => $data['proses'],
+                ]);
+                DB::table('editing_proses_history')->insert([
+                    'editing_proses_id' => $data['id'],
+                    'type_history' => $data['type_history'],
+                    'progress' => $data['proses'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
                 ]);
                 break;
             case 'Progress Copy Editor':
-                $res = DB::table('editing_proses')->where('id',$data['id'])->update([
+                $res =  DB::table('editing_proses')->where('id',$data['id'])->update([
                     'tgl_mulai_copyeditor' => $data['tgl_mulai_copyeditor'],
-                    'proses' => $data['proses']
+                    'proses' => $data['proses'],
+                ]);
+                DB::table('editing_proses_history')->insert([
+                    'editing_proses_id' => $data['id'],
+                    'type_history' => $data['type_history'],
+                    'progress' => $data['proses'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
                 ]);
                 break;
             default:

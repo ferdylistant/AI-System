@@ -56,6 +56,40 @@
             overflow-y: scroll;
             height: 200px;
         }
+        .beep-success {
+        position: relative; }
+        .beep-success:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 8px;
+            width: 7px;
+            height: 7px;
+            background-color: #63ed7a;
+            border-radius: 50%;
+            animation: pulsate 1s ease-out;
+            animation-iteration-count: infinite;
+            opacity: 1; }
+        .beep-success.beep-success-sidebar:after {
+            position: static;
+            margin-left: 10px; }
+        .beep-danger {
+        position: relative; }
+        .beep-danger:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 8px;
+            width: 7px;
+            height: 7px;
+            background-color: #fc544b;
+            border-radius: 50%;
+            animation: pulsate 1s ease-out;
+            animation-iteration-count: infinite;
+            opacity: 1; }
+        .beep-danger.beep-danger-sidebar:after {
+            position: static;
+            margin-left: 10px; }
     </style>
 @endsection
 
@@ -140,13 +174,13 @@
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content ">
                 <div class="modal-header bg-light">
-                    <h5 class="modal-title" id="titleModalDescov"></h5>
+                    <h5 class="modal-title" id="titleModalEditing"></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body example-1 scrollbar-deep-purple bordered-deep-purple thin">
-                    <div class="tickets-list" id="dataHistoryDescov">
+                    <div class="tickets-list" id="dataHistoryEditing">
 
                     </div>
 
@@ -264,6 +298,7 @@
             $.post("{{ route('editing.history') }}", {
                 id: id
             }, function(data) {
+                console.log(data);
                 $('#titleModalEditing').html(
                     '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
                 $('#load_more').data('id', id);

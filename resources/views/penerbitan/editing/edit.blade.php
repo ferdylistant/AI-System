@@ -421,11 +421,16 @@
                                 </div>
                                 <div class="card-footer text-right">
                                     <div class="custom-control custom-switch">
+                                        @if ($data->proses == '1')
+                                            <?php $label = 'Stop' ?>
+                                        @else
+                                            <?php $label = 'Mulai' ?>
+                                        @endif
                                         <input type="checkbox" name="proses" class="custom-control-input"
                                             id="prosesKerja" data-id="{{ $data->id }}"
                                             {{ $data->proses == '1' ? 'checked' : '' }}>
                                         <label class="custom-control-label mr-3 text-dark" for="prosesKerja">
-                                            {{ is_null($data->tgl_selesai_edit) ? 'Mulai proses editor' : 'Mulai proses copy editor' }}
+                                            {{ is_null($data->tgl_selesai_edit) ? $label.' proses editor' : $label.' proses copy editor' }}
                                         </label>
                                     </div>
                                     <button type="submit" class="btn btn-success">Update</button>
@@ -590,11 +595,10 @@
 
 
 @section('jsNeeded')
+    <script src="{{ url('js/edit_editing.js') }}"></script>
     <script>
         $(function() {
-            $(document).ajaxSend(function() {
-                $("#overlay").fadeIn(300);
-            });
+
             $('#prosesKerja').click(function() {
                 var id = $(this).data('id');
                 var editor = $('.select-editor-editing').val()
@@ -613,6 +617,9 @@
                         editor: editor
                     },
                     dataType: 'json',
+                    beforeSend: function() {
+                        $("#overlay").fadeIn(300);
+                    },
                     success: function(result) {
                         notifToast(result.status, result.message);
                         location.reload();
@@ -626,5 +633,4 @@
             });
         });
     </script>
-    <script src="{{ url('js/edit_editing.js') }}"></script>
 @endsection

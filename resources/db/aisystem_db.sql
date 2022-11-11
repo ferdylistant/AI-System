@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 08 Nov 2022 pada 11.18
+-- Waktu pembuatan: 11 Nov 2022 pada 11.09
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -535,7 +535,7 @@ CREATE TABLE `editing_proses` (
 --
 
 INSERT INTO `editing_proses` (`id`, `deskripsi_final_id`, `editor`, `tgl_masuk_editing`, `bulan`, `tgl_mulai_edit`, `tgl_selesai_edit`, `copy_editor`, `tgl_mulai_copyeditor`, `tgl_selesai_copyeditor`, `turun_pracetak`, `catatan`, `proses`, `status`, `deleted_at`, `deleted_by`) VALUES
-('d85a1255-1b27-4135-8346-54c593419f2f', '44dfe332-5755-4191-8158-e79d496e1473', '[\"fc2ba902bcfa410397bbd3331bda13ec\",\"fab4f858e0314d1dbf6b5b834007313e\"]', '2022-11-02 14:42:25', '2022-11-07', '2022-11-07 16:52:53', NULL, NULL, NULL, NULL, NULL, NULL, '1', 'Proses', NULL, '');
+('d85a1255-1b27-4135-8346-54c593419f2f', '44dfe332-5755-4191-8158-e79d496e1473', '[\"e829fe4fb03f45f482f77653158d461c\"]', '2022-11-02 14:42:25', '2022-11-11', '2022-11-11 17:05:50', NULL, NULL, NULL, NULL, NULL, NULL, '1', 'Proses', NULL, '');
 
 -- --------------------------------------------------------
 
@@ -545,8 +545,8 @@ INSERT INTO `editing_proses` (`id`, `deskripsi_final_id`, `editor`, `tgl_masuk_e
 
 CREATE TABLE `editing_proses_history` (
   `id` bigint(20) NOT NULL,
-  `deskripsi_final_id` char(36) DEFAULT NULL,
-  `type_history` enum('Status','Update') DEFAULT NULL,
+  `editing_proses_id` char(36) DEFAULT NULL,
+  `type_history` enum('Status','Update','Progress') DEFAULT NULL,
   `editor_his` longtext,
   `editor_new` longtext,
   `copy_editor_his` longtext,
@@ -561,6 +561,7 @@ CREATE TABLE `editing_proses_history` (
   `status_new` varchar(8) DEFAULT NULL,
   `catatan_his` text,
   `catatan_new` text,
+  `progress` tinyint(4) DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -569,9 +570,27 @@ CREATE TABLE `editing_proses_history` (
 -- Dumping data untuk tabel `editing_proses_history`
 --
 
-INSERT INTO `editing_proses_history` (`id`, `deskripsi_final_id`, `type_history`, `editor_his`, `editor_new`, `copy_editor_his`, `copy_editor_new`, `bullet_his`, `bullet_new`, `jml_hal_perkiraan_his`, `jml_hal_perkiraan_new`, `bulan_his`, `bulan_new`, `status_his`, `status_new`, `catatan_his`, `catatan_new`, `author_id`, `modified_at`) VALUES
-(1, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-06 11:32:21'),
-(8, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Update', NULL, '[\"fc2ba902bcfa410397bbd3331bda13ec\",\"fab4f858e0314d1dbf6b5b834007313e\"]', NULL, NULL, NULL, NULL, NULL, NULL, '2022-11-07', '2022-11-07', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-07 16:52:53');
+INSERT INTO `editing_proses_history` (`id`, `editing_proses_id`, `type_history`, `editor_his`, `editor_new`, `copy_editor_his`, `copy_editor_new`, `bullet_his`, `bullet_new`, `jml_hal_perkiraan_his`, `jml_hal_perkiraan_new`, `bulan_his`, `bulan_new`, `status_his`, `status_new`, `catatan_his`, `catatan_new`, `progress`, `author_id`, `modified_at`) VALUES
+(1, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 13:54:23'),
+(2, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 13:55:50'),
+(3, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Update', '[\"e829fe4fb03f45f482f77653158d461c\"]', '[\"e829fe4fb03f45f482f77653158d461c\",\"08a09b6b1c554d8f8a9b847d9e6586e0\"]', NULL, NULL, NULL, NULL, NULL, NULL, '2022-11-11', '2022-11-11', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 13:55:57'),
+(4, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 14:25:08'),
+(5, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 14:28:41'),
+(6, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 14:28:55'),
+(7, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 14:56:10'),
+(8, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 14:57:05'),
+(9, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 14:59:18'),
+(10, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Update', '[\"e829fe4fb03f45f482f77653158d461c\",\"08a09b6b1c554d8f8a9b847d9e6586e0\"]', '[\"e829fe4fb03f45f482f77653158d461c\"]', NULL, NULL, NULL, NULL, NULL, NULL, '2022-11-11', '2022-11-11', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 14:59:23'),
+(11, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 14:59:30'),
+(12, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 15:35:13'),
+(13, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 16:09:00'),
+(14, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-11-11', '2022-11-11', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 16:11:42'),
+(15, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-11-11', '2022-11-11', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 16:12:06'),
+(16, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 17:04:59'),
+(17, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 17:05:12'),
+(18, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 17:05:36'),
+(19, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-11-11', '2022-11-11', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 17:05:45'),
+(20, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 17:05:50');
 
 -- --------------------------------------------------------
 
@@ -2979,7 +2998,9 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('fab4f858e0314d1dbf6b5b834007313e', '29feb750adfa496fa4822fadd4ac1367'),
 ('fab4f858e0314d1dbf6b5b834007313e', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
 ('fc2ba902bcfa410397bbd3331bda13ec', '29feb750adfa496fa4822fadd4ac1367'),
-('fc2ba902bcfa410397bbd3331bda13ec', '808ab7987c9b4f0ab025b1b9e3ed1d43');
+('fc2ba902bcfa410397bbd3331bda13ec', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
+('e829fe4fb03f45f482f77653158d461c', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
+('e829fe4fb03f45f482f77653158d461c', 'c85dbeca3e87406f97d9e10f6d5970d4');
 
 --
 -- Indexes for dumped tables
@@ -3318,7 +3339,7 @@ ALTER TABLE `deskripsi_produk_history`
 -- AUTO_INCREMENT untuk tabel `editing_proses_history`
 --
 ALTER TABLE `editing_proses_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT untuk tabel `editing_proses_selesai`

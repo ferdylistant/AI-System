@@ -36,7 +36,11 @@ class EditingController extends Controller
             return DataTables::of($data)
                 // ->addIndexColumn()
                 ->addColumn('kode', function ($data) {
-                    return $data->kode;
+                    $tandaProses = '';
+                    if ($data->status == 'Proses') {
+                        $tandaProses = $data->proses == '1' ? '<span class="beep-success "></span>' : '<span class="beep-danger"></span>';
+                    }
+                    return $tandaProses . $data->kode;
                 })
                 ->addColumn('judul_final', function ($data) {
                     if (is_null($data->judul_final)) {
@@ -108,7 +112,7 @@ class EditingController extends Controller
                     return $res;
                 })
                 ->addColumn('history', function ($data) {
-                    $historyData = DB::table('deskripsi_cover_history')->where('deskripsi_cover_id', $data->id)->get();
+                    $historyData = DB::table('editing_proses_history')->where('editing_proses_id', $data->id)->get();
                     if ($historyData->isEmpty()) {
                         return '-';
                     } else {
@@ -255,56 +259,21 @@ class EditingController extends Controller
                 } else {
                     $copyeditor = NULL;
                 }
-                if ($request->has('proses')) {
-                    if ((json_decode($history->editor, true) != $request->editor) && (!is_null($history->tgl_mulai_edit))) {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Hentikan proses untuk mengubah editor'
-                        ]);
-                    }
-                    if ((json_decode($history->copy_editor, true) != $request->copy_editor) && (!is_null($history->tgl_mulai_edit))) {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Hentikan proses untuk mengubah copy editor'
-                        ]);
-                    }
-                    if ($request->has('editor')) {
-                        if (json_decode($history->editor, true) == $request->editor) {
-                            $tglEditor = $history->tgl_mulai_edit;
-                        } else {
-                            $tglEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                        }
-                    } else {
-                        $tglEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                    }
+                if ($history->proses == '1') {
                     if (is_null($history->tgl_selesai_edit)) {
-                        $tglCopyEditor = $history->tgl_mulai_copyeditor;
-                    } else {
-                        if ($request->has('copy_editor')) {
-                            if (json_decode($history->copy_editor, true) == $request->copy_editor) {
-                                $tglCopyEditor = $history->tgl_mulai_copyeditor;
-                            } else {
-                                $tglCopyEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                            }
-                        } else {
-                            $tglCopyEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                        if ((json_decode($history->editor, true) != $request->editor) && (!is_null($history->tgl_mulai_edit))) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Hentikan proses untuk mengubah editor'
+                            ]);
                         }
-                    }
-                    $proses = '1';
-                } else {
-                    $proses = '0';
-                    $tglEditor = NULL;
-                    $tglCopyEditor = NULL;
-                    if ($request->has('editor')) {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Harap switch tombol mulai proses editor di samping tombol update.'
-                        ]);
-                    } elseif ($request->has('copy_editor')) {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Harap switch tombol mulai proses copy editor di samping tombol update.'
-                        ]);
+                    } else {
+                        if ((json_decode($history->copy_editor, true) != $request->copy_editor) && (!is_null($history->tgl_mulai_edit))) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Hentikan proses untuk mengubah copy editor'
+                            ]);
+                        }
                     }
                 }
                 $update = [
@@ -314,17 +283,14 @@ class EditingController extends Controller
                     'catatan' => $request->catatan,
                     'bullet' =>  json_encode(array_filter($request->bullet)), //Deskripsi Final
                     'editor' => json_encode($request->editor),
-                    'tgl_mulai_edit' => $tglEditor,
                     'copy_editor' => $request->has('copy_editor') ? json_encode($request->copy_editor) : NULL,
-                    'tgl_mulai_copyeditor' => $tglCopyEditor,
-                    'proses' => $proses,
                     'bulan' => Carbon::createFromDate($request->bulan)
                 ];
                 event(new EditingEvent($update));
 
                 $insert = [
                     'params' => 'Insert History Edit Editing',
-                    'deskripsi_final_id' => $request->id,
+                    'editing_proses_id' => $request->id,
                     'type_history' => 'Update',
                     'editor_his' => $history->editor == json_encode(array_filter($request->editor)) ? NULL : $history->editor,
                     'editor_new' => $history->editor == json_encode(array_filter($request->editor)) ? NULL : json_encode(array_filter($request->editor)),
@@ -602,6 +568,122 @@ class EditingController extends Controller
             ]);
         }
     }
+    public function lihatHistoryEditing(Request $request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('editing_proses_history as eph')
+                ->join('deskripsi_final as df', 'df.id', '=', 'eph.editing_proses_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('users as u', 'eph.author_id', '=', 'u.id')
+                ->where('eph.editing_proses_id', $id)
+                ->select('eph.*', 'dp.judul_final', 'u.nama')
+                ->orderBy('eph.id', 'desc')
+                ->paginate(2);
+            foreach ($data as $key => $d) {
+                if ($d->type_history == 'Status') {
+                    $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Status editing proses <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                } elseif ($d->type_history == 'Update') {
+                    $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                    if (!is_null($d->editor_his)) {
+                        $loopEDHIS = '';
+                        $loopEDNEW = '';
+                        foreach (json_decode($d->editor_his, true) as $edhis) {
+                            $loopEDHIS .= '<b class="text-dark">' . DB::table('users')->where('id', $edhis)->first()->nama . '</b>, ';
+                        }
+                        foreach (json_decode($d->editor_new, true) as $ednew) {
+                            $loopEDNEW .= '<span class="bullet"></span>' . DB::table('users')->where('id', $ednew)->first()->nama;
+                        }
+                        $html .= ' Editor <b class="text-dark">' . $loopEDHIS . '</b> diubah menjadi <b class="text-dark">' . $loopEDNEW . '</b>.<br>';
+                    } elseif (!is_null($d->editor_new)) {
+                        $loopEDNEW = '';
+                        foreach (json_decode($d->editor_new, true) as $ednew) {
+                            $loopEDNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $ednew)->first()->nama . '</b>, ';
+                        }
+                        $html .= ' Editor <b class="text-dark">' . $loopEDNEW . '</b> ditambahkan.<br>';
+                    }
+                    if (!is_null($d->copy_editor_his)) {
+                        $loopCEDHIS = '';
+                        $loopCEDNEW = '';
+                        foreach (json_decode($d->copy_editor_his, true) as $cedhis) {
+                            $loopCEDHIS .= '<b class="text-dark">' . DB::table('users')->where('id', $cedhis)->first()->nama . '</b>, ';
+                        }
+                        foreach (json_decode($d->copy_editor_new, true) as $cednew) {
+                            $loopCEDNEW .= '<span class="bullet"></span>' . DB::table('users')->where('id', $cednew)->first()->nama;
+                        }
+                        $html .= ' Copy Editor <b class="text-dark">' . $loopCEDHIS . '</b> diubah menjadi <b class="text-dark">' . $loopCEDNEW . '</b>.<br>';
+                    } elseif (!is_null($d->copy_editor_new)) {
+                        $loopCEDNEW = '';
+                        foreach (json_decode($d->copy_editor_new, true) as $cednew) {
+                            $loopEDNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $cednew)->first()->nama . '</b>, ';
+                        }
+                        $html .= ' Editor <b class="text-dark">' . $loopCEDNEW . '</b> ditambahkan.<br>';
+                    }
+                    if (!is_null($d->bullet_his)) {
+                        $loopFC = '';
+                        $loopFCN = '';
+                        foreach (json_decode($d->bullet_his, true) as $fc) {
+                            $loopFC .= '<span class="bullet"></span>' . $fc;
+                        }
+                        foreach (json_decode($d->bullet_new, true) as $fcn) {
+                            $loopFCN .= '<span class="bullet"></span>' . $fcn;
+                        }
+                        $html .= ' Bullet <b class="text-dark">' . $loopFC . '</b> diubah menjadi <b class="text-dark">' . $loopFCN . '</b>.<br>';
+                    } elseif (!is_null($d->bullet_new)) {
+                        $loopFCNew = '';
+                        foreach (json_decode($d->bullet_new, true) as $fcn) {
+                            $loopFCNew .= '<span class="bullet"></span>' . $fcn;
+                        }
+                        $html .= ' Bullet ' . $loopFCNew . '</b> ditambahkan.<br>';
+                    }
+                    if (!is_null($d->jml_hal_perkiraan_his)) {
+                        $html .= ' Jumlah halaman final <b class="text-dark">' . $d->jml_hal_perkiraan_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b>.<br>';
+                    } elseif (!is_null($d->jml_hal_perkiraan_new)) {
+                        $html .= ' Jumlah halaman final <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b> ditambahkan.';
+                    }
+                    if (!is_null($d->catatan_his)) {
+                        $html .= ' Catatan <b class="text-dark">' . $d->catatan_his . '</b> diubah menjadi <b class="text-dark">' . $d->catatan_new . '</b>.<br>';
+                    } elseif (!is_null($d->catatan_new)) {
+                        $html .= ' Catatan <b class="text-dark">' . $d->catatan_new . '</b> ditambahkan.<br>';
+                    }
+                    if (!is_null($d->bulan_his)) {
+                        $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->bulan_new)->translatedFormat('F Y') . '</b>.';
+                    }
+                    $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                } elseif ($d->type_history == 'Progress') {
+                    $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Progress editing <b class="text-dark">' . $d->progress == 1 ? 'Dimulai' : 'Dihentikan' . '</b> pada tanggal <b class="text-dark">' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . '</b>.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                }
+            }
+            return $html;
+        }
+    }
     protected function panelStatusGuest($status = null, $btn)
     {
         switch ($status) {
@@ -673,14 +755,20 @@ class EditingController extends Controller
                             'params' => 'Progress Editor',
                             'id' => $id,
                             'tgl_mulai_edit' => NULL,
-                            'proses' => $value
+                            'proses' => $value,
+                            'type_history' => 'Progress',
+                            'author_id' => auth()->id(),
+                            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
                     } else {
                         $dataProgress = [
                             'params' => 'Progress Copy Editor',
                             'id' => $id,
                             'tgl_mulai_copyeditor' => NULL,
-                            'proses' => $value
+                            'proses' => $value,
+                            'type_history' => 'Progress',
+                            'author_id' => auth()->id(),
+                            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
                     }
                     event(new EditingEvent($dataProgress));
@@ -706,7 +794,10 @@ class EditingController extends Controller
                                 'params' => 'Progress Editor',
                                 'id' => $id,
                                 'tgl_mulai_edit' => $tglEditor,
-                                'proses' => $value
+                                'proses' => $value,
+                                'type_history' => 'Progress',
+                                'author_id' => auth()->id(),
+                                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                             ];
                             event(new EditingEvent($dataEditor));
                         }
@@ -730,7 +821,10 @@ class EditingController extends Controller
                                 'params' => 'Progress Copy Editor',
                                 'id' => $id,
                                 'tgl_mulai_copyeditor' => $tglCopyEditor,
-                                'proses' => $value
+                                'proses' => $value,
+                                'type_history' => 'Progress',
+                                'author_id' => auth()->id(),
+                                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                             ];
                             event(new EditingEvent($dataCopyEditor));
                         }
