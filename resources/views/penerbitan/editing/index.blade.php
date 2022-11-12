@@ -298,7 +298,7 @@
             $.post("{{ route('editing.history') }}", {
                 id: id
             }, function(data) {
-                console.log(data);
+                // console.log(data);
                 $('#titleModalEditing').html(
                     '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
                 $('#load_more').data('id', id);

@@ -312,38 +312,38 @@ class DeskripsiFinalController extends Controller
                     'params' => 'Insert History Desfin',
                     'deskripsi_final_id' => $request->id,
                     'type_history' => 'Update',
-                    'format_buku_his' => $history->format_buku == $request->format_buku ? NULL : $history->format_buku,
-                    'format_buku_new' => $history->format_buku == $request->format_buku ? NULL : $request->format_buku,
-                    'judul_final_his' => $history->judul_final == $request->judul_final ? NULL : $history->judul_final,
-                    'judul_final_new' => $history->judul_final == $request->judul_final ? NULL : $request->judul_final,
-                    'sub_judul_final_his' => $history->sub_judul_final == $request->sub_judul_final ? NULL : $history->sub_judul_final,
-                    'sub_judul_final_new' => $history->sub_judul_final == $request->sub_judul_final ? NULL : $request->sub_judul_final,
-                    'kertas_isi_his' => $history->kertas_isi == $request->kertas_isi ? NULL : $history->kertas_isi,
-                    'kertas_isi_new' => $history->kertas_isi == $request->kertas_isi ? NULL : $request->kertas_isi,
-                    'jml_hal_perkiraan_his' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? NULL : $history->jml_hal_perkiraan,
-                    'jml_hal_perkiraan_new' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? NULL : $request->jml_hal_perkiraan,
-                    'jml_hal_asli_his' => $history->jml_hal_asli == $request->jml_hal_asli ? NULL : $history->jml_hal_asli,
-                    'jml_hal_asli_new' => $history->jml_hal_asli == $request->jml_hal_asli ? NULL : $request->jml_hal_asli,
-                    'ukuran_asli_his' => $history->ukuran_asli == $request->ukuran_asli ? NULL : $history->ukuran_asli,
-                    'ukuran_asli_new' => $history->ukuran_asli == $request->ukuran_asli ? NULL : $request->ukuran_asli,
-                    'isi_warna_his' => $history->isi_warna == $request->isi_warna ? NULL : $history->isi_warna,
-                    'isi_warna_new' => $history->isi_warna == $request->isi_warna ? NULL : $request->isi_warna,
-                    'isi_huruf_his' => $history->isi_huruf == $request->isi_huruf ? NULL : $history->isi_huruf,
-                    'isi_huruf_new' => $history->isi_huruf == $request->isi_huruf ? NULL : $request->isi_huruf,
-                    'bullet_his' => $history->bullet == json_encode(array_filter($bullet)) ? NULL : $history->bullet,
-                    'bullet_new' => $history->bullet == json_encode(array_filter($bullet)) ? NULL : json_encode(array_filter($bullet)),
-                    'setter_his' => $history->setter == $request->setter ? NULL : $history->setter,
-                    'setter_new' => $history->setter == $request->setter ? NULL : $request->setter,
-                    'korektor_his' => $history->korektor == $request->korektor ? NULL : $history->korektor,
-                    'korektor_new' => $history->korektor == $request->korektor ? NULL : $request->korektor,
-                    'sinopsis_his' => $history->sinopsis == $request->sinopsis ? NULL : $history->sinopsis,
-                    'sinopsis_new' => $history->sinopsis == $request->sinopsis ? NULL : $request->sinopsis,
-                    'kelengkapan_his' => $history->kelengkapan == $request->kelengkapan ? NULL : $history->kelengkapan,
-                    'kelengkapan_new' => $history->kelengkapan == $request->kelengkapan ? NULL : $request->kelengkapan,
-                    'catatan_his' => $history->catatan == $request->catatan ? NULL : $history->catatan,
-                    'catatan_new' => $history->catatan == $request->catatan ? NULL : $request->catatan,
-                    'bulan_his' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d') == Carbon::createFromDate($request->bulan) ? NULL : Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
-                    'bulan_new' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d') == Carbon::createFromDate($request->bulan) ? NULL : Carbon::createFromDate($request->bulan),
+                    'format_buku_his' => $history->format_buku == $request->format_buku ? null : $history->format_buku,
+                    'format_buku_new' => $history->format_buku == $request->format_buku ? null : $request->format_buku,
+                    'judul_final_his' => $history->judul_final == $request->judul_final ? null : $history->judul_final,
+                    'judul_final_new' => $history->judul_final == $request->judul_final ? null : $request->judul_final,
+                    'sub_judul_final_his' => $history->sub_judul_final == $request->sub_judul_final ? null : $history->sub_judul_final,
+                    'sub_judul_final_new' => $history->sub_judul_final == $request->sub_judul_final ? null : $request->sub_judul_final,
+                    'kertas_isi_his' => $history->kertas_isi == $request->kertas_isi ? null : $history->kertas_isi,
+                    'kertas_isi_new' => $history->kertas_isi == $request->kertas_isi ? null : $request->kertas_isi,
+                    'jml_hal_perkiraan_his' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $history->jml_hal_perkiraan,
+                    'jml_hal_perkiraan_new' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $request->jml_hal_perkiraan,
+                    'jml_hal_asli_his' => $history->jml_hal_asli == $request->jml_hal_asli ? null : $history->jml_hal_asli,
+                    'jml_hal_asli_new' => $history->jml_hal_asli == $request->jml_hal_asli ? null : $request->jml_hal_asli,
+                    'ukuran_asli_his' => $history->ukuran_asli == $request->ukuran_asli ? null : $history->ukuran_asli,
+                    'ukuran_asli_new' => $history->ukuran_asli == $request->ukuran_asli ? null : $request->ukuran_asli,
+                    'isi_warna_his' => $history->isi_warna == $request->isi_warna ? null : $history->isi_warna,
+                    'isi_warna_new' => $history->isi_warna == $request->isi_warna ? null : $request->isi_warna,
+                    'isi_huruf_his' => $history->isi_huruf == $request->isi_huruf ? null : $history->isi_huruf,
+                    'isi_huruf_new' => $history->isi_huruf == $request->isi_huruf ? null : $request->isi_huruf,
+                    'bullet_his' => $history->bullet == json_encode(array_filter($bullet)) ? null : $history->bullet,
+                    'bullet_new' => $history->bullet == json_encode(array_filter($bullet)) ? null : json_encode(array_filter($bullet)),
+                    'setter_his' => $history->setter == $request->setter ? null : $history->setter,
+                    'setter_new' => $history->setter == $request->setter ? null : $request->setter,
+                    'korektor_his' => $history->korektor == $request->korektor ? null : $history->korektor,
+                    'korektor_new' => $history->korektor == $request->korektor ? null : $request->korektor,
+                    'sinopsis_his' => $history->sinopsis == $request->sinopsis ? null : $history->sinopsis,
+                    'sinopsis_new' => $history->sinopsis == $request->sinopsis ? null : $request->sinopsis,
+                    'kelengkapan_his' => $history->kelengkapan == $request->kelengkapan ? null : $history->kelengkapan,
+                    'kelengkapan_new' => $history->kelengkapan == $request->kelengkapan ? null : $request->kelengkapan,
+                    'catatan_his' => $history->catatan == $request->catatan ? null : $history->catatan,
+                    'catatan_new' => $history->catatan == $request->catatan ? null : $request->catatan,
+                    'bulan_his' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d') == Carbon::createFromDate($request->bulan) ? null : Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
+                    'bulan_new' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d') == Carbon::createFromDate($request->bulan) ? null : Carbon::createFromDate($request->bulan),
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
@@ -394,14 +394,14 @@ class DeskripsiFinalController extends Controller
                 ->where('id', $data->setter)
                 ->first();
         } else {
-            $namaSetter = NULL;
+            $namaSetter = null;
         }
         if (!is_null($data->korektor)) {
             $namaKorektor = DB::table('users')
                 ->where('id', $data->korektor)
                 ->first();
         } else {
-            $namaKorektor = NULL;
+            $namaKorektor = null;
         }
         $Korektor = DB::table('users as u')
             ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
@@ -533,8 +533,9 @@ class DeskripsiFinalController extends Controller
                 ->orderBy('dfh.id', 'desc')
                 ->paginate(2);
             foreach ($data as $key => $d) {
-                if ($d->type_history == 'Status') {
-                    $html .= '<span class="ticket-item" id="newAppend">
+                switch ($d->type_history) {
+                    case 'Status':
+                        $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title">
                         <span><span class="bullet"></span> Status deskripsi final <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
                     </div>
@@ -544,8 +545,9 @@ class DeskripsiFinalController extends Controller
                         <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                     </div>
                     </span>';
-                } elseif ($d->type_history == 'Update') {
-                    $html .= '<span class="ticket-item" id="newAppend">
+                        break;
+                    case 'Update':
+                        $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
                     if (!is_null($d->judul_final_his)) {
                         $html .= ' Judul final <b class="text-dark">' . $d->judul_final_his . '</b> diubah menjadi <b class="text-dark">' . $d->judul_final_new . '</b>.<br>';
@@ -553,36 +555,32 @@ class DeskripsiFinalController extends Controller
                     if (!is_null($d->format_buku_his)) {
                         $html .= ' Format buku <b class="text-dark">' . $d->format_buku_his . ' cm</b> diubah menjadi <b class="text-dark">' . $d->format_buku_new . ' cm</b>.<br>';
                     }
-                    if (!is_null($d->jml_hal_his)) {
-                        $html .= ' Jumlah halaman perkiraan <b class="text-dark">' . $d->jml_hal_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_new . '</b>.<br>';
+                    if (!is_null($d->jml_hal_perkiraan_his)) {
+                        $html .= ' Jumlah halaman perkiraan <b class="text-dark">' . $d->jml_hal_perkiraan_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b>.<br>';
                     }
                     if (!is_null($d->jml_hal_asli_his)) {
                         $html .= ' Jumlah halaman asli <b class="text-dark">' . $d->jml_hal_asli_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_asli_new . '</b>.<br>';
                     }
                     if (!is_null($d->ukuran_asli_his)) {
                         $html .= ' Ukuran asli <b class="text-dark">' . $d->ukuran_asli_his . '</b> diubah menjadi <b class="text-dark">' . $d->ukuran_asli_new . '</b>.<br>';
-                    }
-                    if (!is_null($d->ukuran_asli_new)) {
+                    } elseif (!is_null($d->ukuran_asli_new)) {
                         $html .= ' Ukuran asli <b class="text-dark">' . $d->ukuran_asli_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->isi_warna_his)) {
                         $html .= ' Isi warna <b class="text-dark">' . $d->isi_warna_his . '</b> diubah menjadi <b class="text-dark">' . $d->isi_warna_new . '</b>.<br>';
-                    }
-                    if (!is_null($d->isi_warna_new)) {
+                    } elseif (!is_null($d->isi_warna_new)) {
                         $html .= ' Isi warna <b class="text-dark">' . $d->isi_warna_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->isi_huruf_his)) {
                         $html .= ' Isi warna <b class="text-dark">' . $d->isi_huruf_his . '</b> diubah menjadi <b class="text-dark">' . $d->isi_huruf_new . '</b>.<br>';
-                    }
-                    if (!is_null($d->isi_huruf_new)) {
+                    } elseif (!is_null($d->isi_huruf_new)) {
                         $html .= ' Isi warna <b class="text-dark">' . $d->isi_huruf_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->setter_his)) {
                         $html .= ' Setter <b class="text-dark">'
                             . DB::table('users')->where('id', $d->setter_his)->whereNull('deleted_at')->first()->nama .
                             '</b> diubah menjadi <b class="text-dark">' . DB::table('users')->where('id', $d->setter_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
-                    }
-                    if (!is_null($d->setter_new)) {
+                    } elseif (!is_null($d->setter_new)) {
                         $html .= ' Setter <b class="text-dark">'
                             . DB::table('users')->where('id', $d->setter_new)->whereNull('deleted_at')->first()->nama .
                             '</b> ditambahkan.<br>';
@@ -591,20 +589,17 @@ class DeskripsiFinalController extends Controller
                         $html .= ' Korektor <b class="text-dark">'
                             . DB::table('users')->where('id', $d->korektor_his)->whereNull('deleted_at')->first()->nama .
                             '</b> diubah menjadi <b class="text-dark">' . DB::table('users')->where('id', $d->korektor_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
-                    }
-                    if (!is_null($d->korektor_new)) {
+                    } elseif (!is_null($d->korektor_new)) {
                         $html .= ' Korektor <b class="text-dark">' . DB::table('users')->where('id', $d->korektor_new)->whereNull('deleted_at')->first()->nama . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->kelengkapan_his)) {
                         $html .= ' Kelengkapan <b class="text-dark">' . $d->kelengkapan_his . '</b> diubah menjadi <b class="text-dark">' . $d->kelengkapan_new . '</b>.<br>';
-                    }
-                    if (!is_null($d->kelengkapan_new)) {
+                    } elseif (!is_null($d->kelengkapan_new)) {
                         $html .= ' Kelengkapan <b class="text-dark">' . $d->kelengkapan_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->catatan_his)) {
                         $html .= ' Catatan <b class="text-dark">' . $d->catatan_his . '</b> diubah menjadi <b class="text-dark">' . $d->catatan_new . '</b>.<br>';
-                    }
-                    if (!is_null($d->catatan_new)) {
+                    } elseif (!is_null($d->catatan_new)) {
                         $html .= ' Catatan <b class="text-dark">' . $d->catatan_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->bulan_his)) {
@@ -618,6 +613,7 @@ class DeskripsiFinalController extends Controller
 
                     </div>
                     </span>';
+                        break;
                 }
             }
             return $html;

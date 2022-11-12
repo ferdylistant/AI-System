@@ -430,8 +430,9 @@ class DeskripsiProdukController extends Controller
                 ->orderBy('pd.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
-                if ($d->type_history == 'Status') {
-                    $html .= '<span class="ticket-item" id="newAppend">
+                switch ($d->type_history) {
+                    case 'Status':
+                        $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title">
                         <span><span class="bullet"></span> Status deskripsi produk <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
                     </div>
@@ -441,37 +442,47 @@ class DeskripsiProdukController extends Controller
                         <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                     </div>
                     </span>';
-                } elseif ($d->type_history == 'Update') {
-                    $html .= '<span class="ticket-item" id="newAppend">
+                        break;
+
+                    case 'Update':
+                        $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
                     if (!is_null($d->judul_final_his)) {
                         $html .= ' Judul final <b class="text-dark">' . $d->judul_final_his . '</b> diubah menjadi <b class="text-dark">' . $d->judul_final_new . '</b>.<br>';
-                    }
-                    if (!is_null($d->judul_final_new)) {
+                    } elseif (!is_null($d->judul_final_new)) {
                         $html .= ' Judul alternatif <b class="text-dark">' . $d->judul_final_new . '</b> telah dipilih menjadi judul final.<br>';
                     }
                     if (!is_null($d->format_buku_his)) {
                         $html .= ' Format buku <b class="text-dark">' . $d->format_buku_his . ' cm</b> diubah menjadi <b class="text-dark">' . $d->format_buku_new . ' cm</b>.<br>';
+                    } elseif (!is_null($d->format_buku_new)) {
+                        $html .= ' Format buku <b class="text-dark">' . $d->format_buku_new . ' cm</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->jml_hal_his)) {
                         $html .= ' Jumlah halaman perkiraan <b class="text-dark">' . $d->jml_hal_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_new . '</b>.<br>';
+                    } elseif (!is_null($d->jml_hal_new)) {
+                        $html .= ' Jumlah halaman perkiraan <b class="text-dark">' . $d->jml_hal_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->imprint_his)) {
                         $html .= ' Imprint <b class="text-dark">' . $d->imprint_his . '</b> diubah menjadi <b class="text-dark">' . $d->imprint_new . '</b>.<br>';
+                    } elseif (!is_null($d->imprint_new)) {
+                        $html .= ' Imprint <b class="text-dark">' . $d->imprint_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->editor_his)) {
                         $html .= ' Editor <b class="text-dark">'
                             . DB::table('users')->where('id', $d->editor_his)->whereNull('deleted_at')->first()->nama .
                             '</b> diubah menjadi <b class="text-dark">' . DB::table('users')->where('id', $d->editor_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
-                    }
-                    if (!is_null($d->editor_new)) {
+                    } elseif (!is_null($d->editor_new)) {
                         $html .= ' Editor <b class="text-dark">' . DB::table('users')->where('id', $d->editor_new)->whereNull('deleted_at')->first()->nama . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->kelengkapan_his)) {
                         $html .= ' Kelengkapan <b class="text-dark">' . $d->kelengkapan_his . '</b> diubah menjadi <b class="text-dark">' . $d->kelengkapan_new . '</b>.<br>';
+                    } elseif (!is_null($d->kelengkapan_new)) {
+                        $html .= ' Kelengkapan <b class="text-dark">' . $d->kelengkapan_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->catatan_his)) {
                         $html .= ' Catatan <b class="text-dark">' . $d->catatan_his . '</b> diubah menjadi <b class="text-dark">' . $d->catatan_new . '</b>.<br>';
+                    } elseif (!is_null($d->catatan_new)) {
+                        $html .= ' Catatan <b class="text-dark">' . $d->catatan_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->bulan_his)) {
                         if ($d->bulan_his != $d->bulan_new) {
@@ -486,8 +497,10 @@ class DeskripsiProdukController extends Controller
 
                     </div>
                     </span>';
-                } elseif ($d->type_history == 'Revisi') {
-                    $html .= '<span class="ticket-item" id="newAppend">
+                        break;
+
+                    case 'Revisi':
+                        $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title">
                         <span><span class="bullet"></span> Deskripsi produk naskah ini diminta untuk direvisi selambatnya tanggal <b class="text-dark">' . Carbon::parse($d->deadline_revisi_his)->translatedFormat('l d F Y, H:i') . '</b>. Direvisi dengan alasan <b class="text-dark">"' . $d->alasan_revisi_his . '"</b>.</span>
                     </div>
@@ -497,8 +510,10 @@ class DeskripsiProdukController extends Controller
                         <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                     </div>
                     </span>';
-                } elseif ($d->type_history == 'Approval') {
-                    $html .= '<span class="ticket-item" id="newAppend">
+                        break;
+
+                    case 'Approval':
+                        $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title">
                         <span><span class="bullet"></span> Deskripsi produk naskah ini telah disetujui direksi. <i class="fas fa-check text-success"></i></span>
                     </div>
@@ -508,6 +523,7 @@ class DeskripsiProdukController extends Controller
                         <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                     </div>
                     </span>';
+                        break;
                 }
             }
             return $html;

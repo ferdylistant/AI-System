@@ -116,15 +116,11 @@ class DeskripsiCoverController extends Controller
                         if ($update) {
                             if ($data->status == 'Selesai') {
                                 if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                                    $btn .= '<a href="' . url('penerbitan/deskripsi/cover/edit?desc=' . $data->id . '&kode=' . $data->kode) . '"
-                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
                                 }
                             } else {
                                 if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                    $btn .= '<a href="' . url('penerbitan/deskripsi/cover/edit?desc=' . $data->id . '&kode=' . $data->kode) . '"
-                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
                                 }
                             }
                         }
@@ -132,43 +128,10 @@ class DeskripsiCoverController extends Controller
 
                     if (Gate::allows('do_approval', 'action-progress-des-cover')) {
                         if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
-                            switch ($data->status) {
-                                case 'Terkunci':
-                                    $btn .= '<span class="d-block badge badge-dark mr-1 mt-1"><i class="fas fa-lock"></i>&nbsp;' . $data->status . '</span>';
-                                    break;
-                                case 'Antrian':
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-descov" style="background:#34395E;color:white" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
-                                            <div>' . $data->status . '</div></a>';
-                                    break;
-                                case 'Pending':
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-descov" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
-                                            <div>' . $data->status . '</div></a>';
-                                    break;
-                                case 'Proses':
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-descov" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
-                                            <div>' . $data->status . '</div></a>';
-                                    break;
-                                case 'Selesai':
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-descov" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
-                                            <div>' . $data->status . '</div></a>';
-                                    break;
-                                default:
-                                    return abort(410);
-                                    break;
-                            }
+                            $btn = $this->panelStatusProdev($data->status, $data->id, $data->kode, $data->judul_final, $btn);
                         }
                     } else {
-                        if ($data->status == 'Terkunci') {
-                            $btn .= '<span class="d-block badge badge-dark mr-1 mt-1"><i class="fas fa-lock"></i>&nbsp;' . $data->status . '</span>';
-                        } elseif ($data->status == 'Antrian') {
-                            $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $data->status . '</span>';
-                        } elseif ($data->status == 'Pending') {
-                            $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $data->status . '</span>';
-                        } elseif ($data->status == 'Proses') {
-                            $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $data->status . '</span>';
-                        } elseif ($data->status == 'Selesai') {
-                            $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $data->status . '</span>';
-                        }
+                        $btn = $this->panelStatusGuest($data->status,$btn);
                     }
                     return $btn;
                 })
@@ -546,11 +509,12 @@ class DeskripsiCoverController extends Controller
                 ->select('dch.*', 'dp.judul_final', 'u.nama',)
                 ->orderBy('dch.id', 'desc')
                 ->paginate(2);
-            foreach ($data as $key => $d) {
-                if ($d->type_history == 'Status') {
-                    $html .= '<span class="ticket-item" id="newAppend">
+            foreach ($data as $d) {
+                switch ($d->type_history) {
+                    case 'Status':
+                        $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title">
-                        <span><span class="bullet"></span> Status deskripsi final <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
+                        <span><span class="bullet"></span> Status deskripsi cover <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
                     </div>
                     <div class="ticket-info">
                         <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -558,8 +522,9 @@ class DeskripsiCoverController extends Controller
                         <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                     </div>
                     </span>';
-                } elseif ($d->type_history == 'Update') {
-                    $html .= '<span class="ticket-item" id="newAppend">
+                        break;
+                    case 'Update':
+                        $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
                     if (!is_null($d->sub_judul_final_his)) {
                         $html .= ' Sub Judul final <b class="text-dark">' . $d->sub_judul_final_his . '</b> diubah menjadi <b class="text-dark">' . $d->sub_judul_final_new . '</b>.<br>';
@@ -568,9 +533,13 @@ class DeskripsiCoverController extends Controller
                     }
                     if (!is_null($d->des_front_cover_his)) {
                         $html .= ' Deskripsi cover depan <b class="text-dark">' . $d->des_front_cover_his . '</b> diubah menjadi <b class="text-dark">' . $d->des_front_cover_new . '</b>.<br>';
+                    } elseif (!is_null($d->des_front_cover_new)) {
+                        $html .= ' Deskripsi cover depan <b class="text-dark">' . $d->des_front_cover_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->des_back_cover_his)) {
                         $html .= ' Deskripsi cover belakang <b class="text-dark">' . $d->des_back_cover_his . '</b> diubah menjadi <b class="text-dark">' . $d->des_back_cover_new . '</b>.<br>';
+                    } elseif (!is_null($d->des_back_cover_new)) {
+                        $html .= ' Deskripsi cover belakang <b class="text-dark">' . $d->des_back_cover_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->finishing_cover_his)) {
                         $loopFC = '';
@@ -581,7 +550,7 @@ class DeskripsiCoverController extends Controller
                         foreach (json_decode($d->finishing_cover_new, true) as $fcn) {
                             $loopFCN .= '<span class="bullet"></span>' . $fcn;
                         }
-                        $html .= ' Finishing cover <b class="text-dark">' . $loopFC . '</b>diubah menjadi <b class="text-dark">' . $loopFCN . '</b>.<br>';
+                        $html .= ' Finishing cover <b class="text-dark">' . $loopFC . '</b> diubah menjadi <b class="text-dark">' . $loopFCN . '</b>.<br>';
                     } elseif (!is_null($d->finishing_cover_new)) {
                         $loopFCNew = '';
                         foreach (json_decode($d->finishing_cover_new, true) as $fcn) {
@@ -591,9 +560,13 @@ class DeskripsiCoverController extends Controller
                     }
                     if (!is_null($d->format_buku_his)) {
                         $html .= ' Format buku <b class="text-dark">' . $d->format_buku_his . ' cm</b> diubah menjadi <b class="text-dark">' . $d->format_buku_new . ' cm</b>.<br>';
+                    } elseif (!is_null($d->format_buku_new)) {
+                        $html .= ' Format buku <b class="text-dark">' . $d->format_buku_new . ' cm</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->jilid_his)) {
                         $html .= ' Jilid <b class="text-dark">' . $d->jilid_his . '</b> diubah menjadi <b class="text-dark">' . $d->jilid_new . '</b>.<br>';
+                    } elseif (!is_null($d->jilid_new)) {
+                        $html .= ' Jilid <b class="text-dark">' . $d->jilid_new . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->tipografi_his)) {
                         $html .= ' Tipografi <b class="text-dark">' . $d->tipografi_his . '</b> diubah menjadi <b class="text-dark">' . $d->tipografi_new . '</b>.<br>';
@@ -609,6 +582,10 @@ class DeskripsiCoverController extends Controller
                         $html .= ' Desainer <b class="text-dark">'
                             . DB::table('users')->where('id', $d->desainer_his)->whereNull('deleted_at')->first()->nama .
                             '</b> diubah menjadi <b class="text-dark">' . DB::table('users')->where('id', $d->desainer_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
+                    } elseif (!is_null($d->desainer_new)) {
+                        $html .= ' Desainer <b class="text-dark">'
+                            . DB::table('users')->where('id', $d->desainer_new)->whereNull('deleted_at')->first()->nama .
+                            '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->kelengkapan_his)) {
                         $html .= ' Kelengkapan <b class="text-dark">' . $d->kelengkapan_his . '</b> diubah menjadi <b class="text-dark">' . $d->kelengkapan_new . '</b>.<br>';
@@ -653,9 +630,69 @@ class DeskripsiCoverController extends Controller
 
                     </div>
                     </span>';
+                        break;
                 }
             }
             return $html;
         }
+    }
+    protected function panelStatusProdev($status = null, $id, $kode, $judul_final, $btn)
+    {
+        switch ($status) {
+            case 'Terkunci':
+                $btn .= '<span class="d-block badge badge-dark mr-1 mt-1"><i class="fas fa-lock"></i>&nbsp;' . $status . '</span>';
+                break;
+            case 'Antrian':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-descov" style="background:#34395E;color:white" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                        <div>' . $status . '</div></a>';
+                break;
+            case 'Pending':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-descov" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                        <div>' . $status . '</div></a>';
+                break;
+            case 'Proses':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-descov" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                        <div>' . $status . '</div></a>';
+                break;
+            case 'Selesai':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-descov" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                        <div>' . $status . '</div></a>';
+                break;
+            default:
+                return abort(410);
+                break;
+        }
+        return $btn;
+    }
+    protected function panelStatusGuest($status = null, $btn)
+    {
+        switch ($status) {
+            case 'Terkunci':
+                $btn .= '<span class="d-block badge badge-dark mr-1 mt-1"><i class="fas fa-lock"></i>&nbsp;' . $status . '</span>';
+                break;
+            case 'Antrian':
+                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Pending':
+                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Proses':
+                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Selesai':
+                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
+                break;
+            default:
+                return abort(410);
+                break;
+        }
+        return $btn;
+    }
+    protected function buttonEdit($id, $kode, $btn)
+    {
+        $btn .= '<a href="' . url('penerbitan/deskripsi/cover/edit?desc=' . $id . '&kode=' . $kode) . '"
+            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+            <div><i class="fas fa-edit"></i></div></a>';
+        return $btn;
     }
 }
