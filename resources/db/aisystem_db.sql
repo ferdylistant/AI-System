@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 11 Nov 2022 pada 11.09
+-- Waktu pembuatan: 14 Nov 2022 pada 10.46
 -- Versi server: 10.1.38-MariaDB
 -- Versi PHP: 7.4.11
 
@@ -535,7 +535,7 @@ CREATE TABLE `editing_proses` (
 --
 
 INSERT INTO `editing_proses` (`id`, `deskripsi_final_id`, `editor`, `tgl_masuk_editing`, `bulan`, `tgl_mulai_edit`, `tgl_selesai_edit`, `copy_editor`, `tgl_mulai_copyeditor`, `tgl_selesai_copyeditor`, `turun_pracetak`, `catatan`, `proses`, `status`, `deleted_at`, `deleted_by`) VALUES
-('d85a1255-1b27-4135-8346-54c593419f2f', '44dfe332-5755-4191-8158-e79d496e1473', '[\"e829fe4fb03f45f482f77653158d461c\"]', '2022-11-02 14:42:25', '2022-11-11', '2022-11-11 17:05:50', NULL, NULL, NULL, NULL, NULL, NULL, '1', 'Proses', NULL, '');
+('d85a1255-1b27-4135-8346-54c593419f2f', '44dfe332-5755-4191-8158-e79d496e1473', '[\"e829fe4fb03f45f482f77653158d461c\"]', '2022-11-02 14:42:25', '2022-11-14', '2022-11-11 17:05:50', NULL, NULL, NULL, NULL, NULL, NULL, '1', 'Proses', NULL, '');
 
 -- --------------------------------------------------------
 
@@ -590,7 +590,14 @@ INSERT INTO `editing_proses_history` (`id`, `editing_proses_id`, `type_history`,
 (17, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 17:05:12'),
 (18, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 17:05:36'),
 (19, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-11-11', '2022-11-11', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 17:05:45'),
-(20, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 17:05:50');
+(20, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-11 17:05:50'),
+(21, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-14 14:45:44'),
+(22, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Update', NULL, NULL, NULL, '[\"0c5a151afe204df2bf6c38485055da16\"]', NULL, NULL, NULL, NULL, '2022-11-11', '2022-11-14', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-14 16:11:50'),
+(23, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-14 16:21:24'),
+(24, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-14 16:33:32'),
+(25, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-14 16:39:27'),
+(26, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-14 16:41:11'),
+(27, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-14 16:42:15');
 
 -- --------------------------------------------------------
 
@@ -600,8 +607,9 @@ INSERT INTO `editing_proses_history` (`id`, `editing_proses_id`, `type_history`,
 
 CREATE TABLE `editing_proses_selesai` (
   `id` bigint(20) NOT NULL,
+  `type` enum('Editor','Copy Editor') DEFAULT NULL,
   `editing_proses_id` char(36) DEFAULT NULL,
-  `editor_id` varchar(36) DEFAULT NULL,
+  `users_id` varchar(36) DEFAULT NULL,
   `tgl_proses_selesai` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -3339,7 +3347,7 @@ ALTER TABLE `deskripsi_produk_history`
 -- AUTO_INCREMENT untuk tabel `editing_proses_history`
 --
 ALTER TABLE `editing_proses_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT untuk tabel `editing_proses_selesai`

@@ -92,8 +92,20 @@ class EditingController extends Controller
                 ->addColumn('editor', function ($data) {
                     if (!is_null($data->editor)) {
                         $res = '';
+                        $tgl = '';
+                        $edpros = DB::table('editing_proses_selesai')
+                        ->where('type','Editor')
+                        ->where('editing_proses_id',$data->id)
+                        ->get();
+                        if (!$edpros->isEmpty()) {
+                            foreach ($edpros as $v) {
+                                if (in_array($v->users_id,json_decode($data->editor, true))) {
+                                    $tgl = '('.Carbon::parse($v->tgl_proses_selesai)->translatedFormat('l d M Y, H:i').')';
+                                }
+                            }
+                        }
                         foreach (json_decode($data->editor, true) as $q) {
-                            $res .= '<span class="d-block">-&nbsp;' . DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama . '</span>';
+                            $res .= '<span class="d-block">-&nbsp;' . DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama . ' <span class="text-success">'.$tgl.'</span></span>';
                         }
                     } else {
                         $res = '-';
@@ -579,7 +591,7 @@ class EditingController extends Controller
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
                 ->join('users as u', 'eph.author_id', '=', 'u.id')
                 ->where('eph.editing_proses_id', $id)
-                ->select('eph.*', 'dp.judul_final', 'u.nama')
+                ->select('eph.*','dp.judul_final', 'u.nama')
                 ->orderBy('eph.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
@@ -753,7 +765,7 @@ class EditingController extends Controller
                     return response()->json([
                         'status' => 'error',
                         'message' => 'naskah sudah tidak ada'
-                    ], 410);
+                    ]);
                 }
                 if ($value == '0') {
                     if (is_null($data->tgl_selesai_edit)) {
@@ -785,7 +797,7 @@ class EditingController extends Controller
                             return response()->json([
                                 'status' => 'error',
                                 'message' => 'Pilih editor terlebih dahulu!'
-                            ], 403);
+                            ]);
                         } else {
                             if (json_decode($data->editor, true) == $request->editor) {
                                 if (is_null($data->tgl_mulai_edit)) {
@@ -812,7 +824,7 @@ class EditingController extends Controller
                             return response()->json([
                                 'status' => 'error',
                                 'message' => 'Pilih copy editor terlebih dahulu!'
-                            ], 403);
+                            ]);
                         } else {
                             if (json_decode($data->copy_editor, true) == $request->copy_editor) {
                                 if (is_null($data->tgl_mulai_copyeditor)) {
@@ -847,6 +859,95 @@ class EditingController extends Controller
                     'message' => $e->getMessage()
                 ], 500);
             }
+        }
+    }
+    public function prosesSelesaiEditing($autor,$id)
+    {
+        switch ($autor) {
+            case 'editor':
+                return $this->selesaiEditor($id);
+                break;
+            case 'copyeditor':
+                return $this->selesaiCopyEditor($id);
+                break;
+            default:
+                return abort(500);
+                break;
+        }
+    }
+    protected function selesaiEditor($id)
+    {
+        try {
+            $data = DB::table('editing_proses')->where('id',$id)->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data editing tidak ada'
+                ],404);
+            }
+            $dataProsesSelf = DB::table('editing_proses_selesai')
+            ->where('type','Editor')
+            ->where('editing_proses_id',$data->id)
+            ->where('users_id',auth()->id())
+            ->get();
+            if (!$dataProsesSelf->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda sudah selesai melakukan editing'
+                ]);
+            }
+            $dataProses = DB::table('editing_proses_selesai')
+            ->where('type','Editor')
+            ->where('editing_proses_id',$data->id)
+            ->get();
+            $edPros = count($dataProses) + 1;
+            if ($edPros == count(json_decode($data->editor,true))) {
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                $pros = [
+                    'params' => 'Proses Selesai',
+                    'type' => 'Editor',
+                    'editing_proses_id' => $data->id,
+                    'users_id' => auth()->id(),
+                    'tgl_proses_selesai' => $tgl
+                ];
+                event(new EditingEvent($pros));
+                $done = [
+                    'params' => 'Editing Selesai',
+                    'id' => $data->id,
+                    'tgl_selesai_edit' => $tgl,
+                    'proses' => '0'
+                ];
+                event(new EditingEvent($done));
+            } else {
+                $pros = [
+                    'params' => 'Proses Selesai',
+                    'type' => 'Editor',
+                    'editing_proses_id' => $data->id,
+                    'users_id' => auth()->id(),
+                    'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                event(new EditingEvent($pros));
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pengerjaan selesai'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function selesaiCopyEditor($id)
+    {
+        try {
+            return;
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
         }
     }
 }

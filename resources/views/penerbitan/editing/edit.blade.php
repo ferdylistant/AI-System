@@ -55,17 +55,10 @@
                                     @default
                                 @endswitch
                             </div>
-                            @if (!is_null($data->tgl_mulai_edit))
+                            @if ($data->proses == '1')
                                 <div class="col-auto">
-                                    @if (is_null($data->tgl_mulai_copyeditor))
-                                        <span class="text-danger"><i class="fas fa-exclamation-circle"></i> Sedang dalam
-                                            proses
-                                            pengerjaan editor.</span>
-                                    @else
-                                        <span class="text-danger"><i class="fas fa-exclamation-circle"></i> Sedang dalam
-                                            proses
-                                            pengerjaan copy editor.</span>
-                                    @endif
+                                    <span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Sedang proses
+                                        pengerjaan {{ is_null($data->tgl_selesai_edit) ? 'editor' : 'copy editor' }}</span>
                                 </div>
                             @endif
 
@@ -274,10 +267,13 @@
                                                                         <span
                                                                             class="bullet"></span>{{ $aj }}<br>
                                                                     @endforeach
-                                                                    <p class="text-small">
-                                                                        <a href="javascript:void(0)" id="editorButton"><i
-                                                                                class="fa fa-pen"></i>&nbsp;Add / Edit</a>
-                                                                    </p>
+                                                                    @if (is_null($data->tgl_selesai_edit))
+                                                                        <p class="text-small">
+                                                                            <a href="javascript:void(0)" id="editorButton"><i
+                                                                                    class="fa fa-pen"></i>&nbsp;Add / Edit</a>
+                                                                        </p>
+                                                                    @endif
+
                                                                 </td>
                                                                 <td class="table-active text-left" id="editorColInput"
                                                                     hidden>
@@ -358,12 +354,12 @@
                                                                             multiple="multiple">
                                                                             <option label="Pilih copy editor"></option>
                                                                             @foreach ($copy_editor as $i => $cpeList)
-                                                                                {{ $sel = '' }}
+                                                                                {{ $sl = '' }}
                                                                                 @if (in_array($cpeList->nama, $nama_copyeditor))
-                                                                                    {{ $sel = ' selected="selected" ' }}
+                                                                                    {{ $sl = ' selected="selected" ' }}
                                                                                 @endif
                                                                                 <option value="{{ $cpeList->id }}"
-                                                                                    {{ $sel }}>
+                                                                                    {{ $sl }}>
                                                                                     {{ $cpeList->nama }}&nbsp;&nbsp;
                                                                                 </option>
                                                                             @endforeach
@@ -422,15 +418,15 @@
                                 <div class="card-footer text-right">
                                     <div class="custom-control custom-switch">
                                         @if ($data->proses == '1')
-                                            <?php $label = 'Stop' ?>
+                                            <?php $label = 'Stop'; ?>
                                         @else
-                                            <?php $label = 'Mulai' ?>
+                                            <?php $label = 'Mulai'; ?>
                                         @endif
                                         <input type="checkbox" name="proses" class="custom-control-input"
                                             id="prosesKerja" data-id="{{ $data->id }}"
                                             {{ $data->proses == '1' ? 'checked' : '' }}>
                                         <label class="custom-control-label mr-3 text-dark" for="prosesKerja">
-                                            {{ is_null($data->tgl_selesai_edit) ? $label.' proses editor' : $label.' proses copy editor' }}
+                                            {{ is_null($data->tgl_selesai_edit) ? $label . ' proses editor' : $label . ' proses copy editor' }}
                                         </label>
                                     </div>
                                     <button type="submit" class="btn btn-success">Update</button>
@@ -621,6 +617,7 @@
                         $("#overlay").fadeIn(300);
                     },
                     success: function(result) {
+                        console.log(result);
                         notifToast(result.status, result.message);
                         location.reload();
                     }

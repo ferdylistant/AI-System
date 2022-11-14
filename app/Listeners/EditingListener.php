@@ -112,6 +112,20 @@ class EditingListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
+            case 'Proses Selesai':
+                $res = DB::table('editing_proses_selesai')->insert([
+                    'type' => $data['type'],
+                    'editing_proses_id' => $data['editing_proses_id'],
+                    'users_id' => $data['users_id'],
+                    'tgl_proses_selesai' => $data['tgl_proses_selesai']
+                ]);
+                break;
+            case 'Editing Selesai':
+                $res = DB::table('editing_proses')->where('id',$data['id'])->update([
+                    'tgl_selesai_edit' => $data['tgl_selesai_edit'],
+                    'proses' => $data['proses']
+                ]);
+                break;
             default:
                 return abort(500);
                 break;

@@ -131,6 +131,7 @@ Route::middleware(['auth'])->group(function() {
         Route::post('/editing/update-status-progress',[EditingController::class, 'updateStatusProgress']);
         Route::post('/editing/lihat-history', [EditingController::class, 'lihatHistoryEditing'])->name('editing.history');
         Route::post('/editing/proses-kerja', [EditingController::class, 'prosesKerjaEditing'])->name('editing.proses');
+        Route::post('/editing/selesai/{cat}/{id}', [EditingController::class, 'prosesSelesaiEditing'])->name('editing.selesai');
         //Pracetak Desainer
         Route::get('/pracetak/designer', [PracetakDesainerController::class, 'index'])->name('prades.view');
         Route::get('/pracetak/designer/detail', [PracetakDesainerController::class, 'detailPracetakDesainer'])->name('prades.detail');

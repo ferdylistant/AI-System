@@ -20,9 +20,9 @@
         <div class="section-body">
             <div class="row">
                 <div class="col-12 col-md-12">
-                    <div class="card card-primary">
+                    <div class="card card-warning">
                         <div class="card-header">
-                            <h4>Data Editing Proses&nbsp;
+                            <h4>Data Detail Editing Proses&nbsp;
                                 -
                             </h4>
                             @switch($data->status)
@@ -42,20 +42,27 @@
                                     <span class="badge badge-light">{{ $data->status }}</span>
                                 @break
                             @endswitch
+                            <div class="col">
+                                @if ($data->proses == '1')
+                                    <span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Sedang proses
+                                            pengerjaan {{is_null($data->tgl_selesai_edit)?'editor':'copy editor'}}</span>
+                                @endif
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                @if ((!is_null($data->tgl_mulai_edit)) && ($data->proses == '1'))
+                                @if ($data->proses == '1')
+                                    <?php $label = is_null($data->tgl_selesai_edit)?"editor":"copyeditor"; ?>
                                     @switch($data->jalur_buku)
                                         @case('Reguler')
-                                            @foreach (json_decode($data->editor,true) as $edt)
+                                            @foreach (json_decode($data->editor, true) as $edt)
                                                 @if (auth()->id() == $edt)
-                                                    @if (Gate::allows('do_create', 'otorisasi-editor-editing-reguler'))
+                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler'))
                                                         <div class="col-auto">
                                                             <div class="mb-4">
                                                                 <button type="submit" class="btn btn-success"
-                                                                    id="btn-approve-editing" data-id="{{ $data->id }}"
-                                                                    data-kode="{{ $data->kode }}">
+                                                                    id="btn-done-editing" data-id="{{ $data->id }}"
+                                                                    data-kode="{{ $data->kode }}" data-autor="{{$label}}">
                                                                     <i class="fas fa-check"></i>&nbsp;Selesai</button>
                                                             </div>
                                                         </div>
@@ -67,12 +74,12 @@
                                         @case('MoU')
                                             @foreach (json_decode($data->editor) as $edt)
                                                 @if (auth()->id() == $edt)
-                                                    @if (Gate::allows('do_create', 'otorisasi-editor-editing-mou'))
+                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-mou'))
                                                         <div class="col-auto">
                                                             <div class="mb-4">
                                                                 <button type="submit" class="btn btn-success"
-                                                                    id="btn-approve-editing" data-id="{{ $data->id }}"
-                                                                    data-kode="{{ $data->kode }}">
+                                                                    id="btn-done-editing" data-id="{{ $data->id }}"
+                                                                    data-kode="{{ $data->kode }}" data-autor="{{$label}}">
                                                                     <i class="fas fa-check"></i>&nbsp;Selesai</button>
                                                             </div>
                                                         </div>
@@ -84,13 +91,13 @@
                                         @case('MoU-Reguler')
                                             @foreach (json_decode($data->editor) as $edt)
                                                 @if (auth()->id() == $edt)
-                                                    @if (Gate::allows('do_create', 'otorisasi-editor-editing-reguler') ||
-                                                        Gate::allows('do_create', 'otorisasi-editor-editing-mou'))
+                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler') ||
+                                                        Gate::allows('do_create', 'otorisasi-'.$label.'-editing-mou'))
                                                         <div class="col-auto">
                                                             <div class="mb-4">
                                                                 <button type="submit" class="btn btn-success"
-                                                                    id="btn-approve-editing" data-id="{{ $data->id }}"
-                                                                    data-kode="{{ $data->kode }}">
+                                                                    id="btn-done-editing" data-id="{{ $data->id }}"
+                                                                    data-kode="{{ $data->kode }}" data-autor="{{$label}}">
                                                                     <i class="fas fa-check"></i>&nbsp;Selesai</button>
                                                             </div>
                                                         </div>
@@ -102,12 +109,12 @@
                                         @case('SMK/NonSMK')
                                             @foreach (json_decode($data->editor) as $edt)
                                                 @if (auth()->id() == $edt)
-                                                    @if (Gate::allows('do_create', 'otorisasi-editor-editing-smk'))
+                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-smk'))
                                                         <div class="col-auto">
                                                             <div class="mb-4">
                                                                 <button type="submit" class="btn btn-success"
-                                                                    id="btn-approve-editing" data-id="{{ $data->id }}"
-                                                                    data-kode="{{ $data->kode }}">
+                                                                    id="btn-done-editing" data-id="{{ $data->id }}"
+                                                                    data-kode="{{ $data->kode }}" data-autor="{{$label}}">
                                                                     <i class="fas fa-check"></i>&nbsp;Selesai</button>
                                                             </div>
                                                         </div>
@@ -119,7 +126,7 @@
                                         @case('Pro Literasi')
                                             @foreach (json_decode($data->editor) as $edt)
                                                 @if (auth()->id() == $edt)
-                                                    @if (Gate::allows('do_create', 'otorisasi-editor-editing-reguler') ||
+                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler') ||
                                                         Gate::allows('do_create', 'otorisasi-editor-editing-mou'))
                                                     @endif
                                                 @endif
@@ -417,12 +424,13 @@
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/sweetalert/dist/sweetalert.min.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
-    <script src="{{ url('vendors/flipbook/min_version/pdf.min.js') }}"></script>
-    <script src="{{ url('vendors/flipbook/min_version/jquery.ipages.min.js') }}"></script>
+    {{-- <script src="{{ url('vendors/flipbook/min_version/pdf.min.js') }}"></script>
+    <script src="{{ url('vendors/flipbook/min_version/jquery.ipages.min.js') }}"></script> --}}
     <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
 @endsection
 
 @section('jsNeeded')
+<script src="{{url('js/done_editing.js')}}"></script>
 @endsection
 
 @yield('jsNeededForm')

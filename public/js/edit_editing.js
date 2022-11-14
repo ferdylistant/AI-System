@@ -219,6 +219,7 @@ $(function () {
                 $("#overlay").fadeIn(300);
             },
             success: function (result) {
+                console.log(result);
                 notifToast(result.status, result.message);
                 location.reload();
             },
