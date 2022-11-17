@@ -52,10 +52,13 @@
                         <div class="card-body">
                             <div class="row">
                                 @if ($data->proses == '1')
-                                    <?php $label = is_null($data->tgl_selesai_edit)?"editor":"copyeditor"; ?>
+                                    <?php
+                                    $label = is_null($data->tgl_selesai_edit)?"editor":"copyeditor";
+                                    $dataRole  = is_null($data->tgl_selesai_edit)?$data->editor:$data->copy_editor;
+                                    ?>
                                     @switch($data->jalur_buku)
                                         @case('Reguler')
-                                            @foreach (json_decode($data->editor, true) as $edt)
+                                            @foreach (json_decode($dataRole, true) as $edt)
                                                 @if (auth()->id() == $edt)
                                                     @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler'))
                                                         <div class="col-auto">
@@ -72,7 +75,7 @@
                                         @break
 
                                         @case('MoU')
-                                            @foreach (json_decode($data->editor) as $edt)
+                                            @foreach (json_decode($dataRole) as $edt)
                                                 @if (auth()->id() == $edt)
                                                     @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-mou'))
                                                         <div class="col-auto">
@@ -89,7 +92,7 @@
                                         @break
 
                                         @case('MoU-Reguler')
-                                            @foreach (json_decode($data->editor) as $edt)
+                                            @foreach (json_decode($dataRole) as $edt)
                                                 @if (auth()->id() == $edt)
                                                     @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler') ||
                                                         Gate::allows('do_create', 'otorisasi-'.$label.'-editing-mou'))
@@ -107,7 +110,7 @@
                                         @break
 
                                         @case('SMK/NonSMK')
-                                            @foreach (json_decode($data->editor) as $edt)
+                                            @foreach (json_decode($dataRole) as $edt)
                                                 @if (auth()->id() == $edt)
                                                     @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-smk'))
                                                         <div class="col-auto">
@@ -124,7 +127,7 @@
                                         @break
 
                                         @case('Pro Literasi')
-                                            @foreach (json_decode($data->editor) as $edt)
+                                            @foreach (json_decode($dataRole) as $edt)
                                                 @if (auth()->id() == $edt)
                                                     @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler') ||
                                                         Gate::allows('do_create', 'otorisasi-editor-editing-mou'))
@@ -315,7 +318,7 @@
                                             @else
                                                 @foreach ($nama_editor as $ne)
                                                     <span class="bullet"></span>
-                                                    {{ $ne }}
+                                                    <a href="{{url('/manajemen-web/user/' . $ne->id)}}">{{ $ne->nama }}</a>
                                                     <br>
                                                 @endforeach
                                             @endif
@@ -355,7 +358,7 @@
                                             @else
                                                 @foreach ($nama_copyeditor as $nc)
                                                     <span class="bullet"></span>
-                                                    {{ $nc }}
+                                                    <a href="{{url('/manajemen-web/user/' . $nc->id)}}">{{ $nc->nama }}</a>
                                                     <br>
                                                 @endforeach
                                             @endif

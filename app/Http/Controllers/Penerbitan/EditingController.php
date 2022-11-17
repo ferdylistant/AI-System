@@ -452,14 +452,14 @@ class EditingController extends Controller
         $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->select('nama')->first();
         if (!is_null($data->editor)) {
             foreach (json_decode($data->editor, true) as $ed) {
-                $namaEditor[] = DB::table('users')->where('id', $ed)->first()->nama;
+                $namaEditor[] = DB::table('users')->where('id', $ed)->first();
             }
         } else {
             $namaEditor = null;
         }
         if (!is_null($data->copy_editor)) {
             foreach (json_decode($data->copy_editor, true) as $cpe) {
-                $namaCopyEditor[] = DB::table('users')->where('id', $cpe)->first()->nama;
+                $namaCopyEditor[] = DB::table('users')->where('id', $cpe)->first();
             }
         } else {
             $namaCopyEditor = null;
@@ -641,7 +641,7 @@ class EditingController extends Controller
                         } elseif (!is_null($d->copy_editor_new)) {
                             $loopCEDNEW = '';
                             foreach (json_decode($d->copy_editor_new, true) as $cednew) {
-                                $loopEDNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $cednew)->first()->nama . '</b>, ';
+                                $loopCEDNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $cednew)->first()->nama . '</b>, ';
                             }
                             $html .= ' Editor <b class="text-dark">' . $loopCEDNEW . '</b> ditambahkan.<br>';
                         }
@@ -820,7 +820,7 @@ class EditingController extends Controller
                             event(new EditingEvent($dataEditor));
                         }
                     } else {
-                        if (!$request->has('copy_editor')) {
+                        if (is_null($data->copy_editor)) {
                             return response()->json([
                                 'status' => 'error',
                                 'message' => 'Pilih copy editor terlebih dahulu!'
@@ -942,7 +942,60 @@ class EditingController extends Controller
     protected function selesaiCopyEditor($id)
     {
         try {
-            return;
+            $data = DB::table('editing_proses')->where('id',$id)->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data editing tidak ada'
+                ],404);
+            }
+            $dataProsesSelf = DB::table('editing_proses_selesai')
+            ->where('type','Copy Editor')
+            ->where('editing_proses_id',$data->id)
+            ->where('users_id',auth()->id())
+            ->get();
+            if (!$dataProsesSelf->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda sudah selesai melakukan koreksi'
+                ]);
+            }
+            $dataProses = DB::table('editing_proses_selesai')
+            ->where('type','Copy Editor')
+            ->where('editing_proses_id',$data->id)
+            ->get();
+            $edPros = count($dataProses) + 1;
+            if ($edPros == count(json_decode($data->copy_editor,true))) {
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                $pros = [
+                    'params' => 'Proses Selesai',
+                    'type' => 'Copy Editor',
+                    'editing_proses_id' => $data->id,
+                    'users_id' => auth()->id(),
+                    'tgl_proses_selesai' => $tgl
+                ];
+                event(new EditingEvent($pros));
+                $done = [
+                    'params' => 'Copy Editing Selesai',
+                    'id' => $data->id,
+                    'tgl_selesai_copyeditor' => $tgl,
+                    'proses' => '0'
+                ];
+                event(new EditingEvent($done));
+            } else {
+                $pros = [
+                    'params' => 'Proses Selesai',
+                    'type' => 'Copy Editor',
+                    'editing_proses_id' => $data->id,
+                    'users_id' => auth()->id(),
+                    'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                event(new EditingEvent($pros));
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pengerjaan selesai'
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

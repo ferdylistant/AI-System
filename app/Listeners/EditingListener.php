@@ -126,6 +126,12 @@ class EditingListener
                     'proses' => $data['proses']
                 ]);
                 break;
+            case 'Copy Editing Selesai':
+                $res = DB::table('editing_proses')->where('id',$data['id'])->update([
+                    'tgl_selesai_copyeditor' => $data['tgl_selesai_copyeditor'],
+                    'proses' => $data['proses']
+                ]);
+                break;
             default:
                 return abort(500);
                 break;
