@@ -38,13 +38,14 @@ class EditingListener
                 ]);
                 break;
             case 'Update Status Editing':
-                $res = DB::table('editing_proses')->where('id', $data['id'])->whereNull('deleted_at')->update([
+                $res = DB::table('editing_proses')->where('id', $data['id'])->update([
+                    'tgl_selesai_proses' => $data['tgl_selesai_proses'],
                     'status' => $data['status']
                 ]);
                 break;
             case 'Insert History Status Editing':
                 $res = DB::table('editing_proses_history')->insert([
-                    'deskripsi_final_id' => $data['deskripsi_final_id'],
+                    'editing_proses_id' => $data['editing_proses_id'],
                     'type_history' => $data['type_history'],
                     'status_his' => $data['status_his'],
                     'status_new' => $data['status_new'],

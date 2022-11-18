@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
+use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
 use App\Events\EditingEvent;
 use Illuminate\Http\Request;
@@ -489,8 +490,6 @@ class EditingController extends Controller
                 ->select(
                     'ep.*',
                     'df.id as deskripsi_final_id',
-                    'df.setter',
-                    'df.korektor',
                     'dp.naskah_id',
                     'dp.format_buku',
                     'dp.judul_final',
@@ -518,52 +517,49 @@ class EditingController extends Controller
                     'message' => 'Pilih status yang berbeda dengan status saat ini!'
                 ]);
             }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             $update = [
                 'params' => 'Update Status Editing',
                 'id' => $data->id,
+                'tgl_selesai_proses' => $request->status=='Selesai'?$tgl:NULL,
+                'turun_pracetak' => $request->status=='Selesai'?$tgl:NULL,
                 'status' => $request->status,
             ];
             $insert = [
                 'params' => 'Insert History Status Editing',
-                'deskripsi_final_id' => $data->id,
+                'editing_proses_id' => $data->id,
                 'type_history' => 'Status',
                 'status_his' => $data->status,
                 'status_new'  => $request->status,
                 'author_id' => auth()->user()->id,
-                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'modified_at' => $tgl
             ];
+            if ($data->proses == '1') {
+                $label = is_null($data->tgl_selesai_edit)?'editor':'copy editor';
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak bisa mengubah status, karena sedang proses kerja '.$label
+                ]);
+            }
             if ($request->status == 'Selesai') {
-                // event(new DescovEvent($update));
-                // event(new DescovEvent($insert));
-                // $insertEditingProses = [
-                //     'params' => 'Insert Editing',
-                //     'id' => Uuid::uuid4()->toString(),
-                //     'deskripsi_final_id' => $data->deskripsi_final_id,
-                //     'editor' => json_encode([$data->editor]),
-                //     'tgl_masuk_editing' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                // ];
-                // event(new EditingEvent($insertEditingProses));
-                // $insertPracetakSetter = [
-                //     'params' => 'Insert Pracetak Setter',
-                //     'id' => Uuid::uuid4()->toString(),
-                //     'deskripsi_final_id' => $data->deskripsi_final_id,
-                //     'setter' => json_encode([$data->setter]),
-                //     'korektor_komp' => json_encode([$data->korektor]),
-                //     'korektor_manual' => json_encode([$data->korektor]),
-                //     'jml_hal_final' => $data->jml_hal_perkiraan,
-                //     'tgl_masuk_pracetak' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
-                // ];
-                // event(new PracetakSetterEvent($insertPracetakSetter));
-                // $insertPracetakCover = [
-                //     'params' => 'Insert Pracetak Cover',
-                //     'id' => Uuid::uuid4()->toString(),
-                //     'deskripsi_cover_id' => $data->id,
-                //     'desainer' => json_encode([$data->desainer]),
-                //     'editor' => json_encode([$data->editor]),
-                //     'tgl_masuk_cover' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
-                // ];
-                // event(new PracetakCoverEvent($insertPracetakCover));
-                // $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
+                if (is_null($data->tgl_selesai_edit)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Editor belum selesai'
+                    ]);
+                }
+                if (is_null($data->tgl_selesai_copyeditor)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Copy Editor belum selesai'
+                    ]);
+                }
+                event(new EditingEvent($update));
+                event(new EditingEvent($insert));
+                DB::table('pracetak_setter')->where('deskripsi_final_id',$data->deskripsi_final_id)->update([
+                    'jml_hal_final' => $data->jml_hal_perkiraan
+                ]);
+                $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
             } else {
                 event(new EditingEvent($update));
                 event(new EditingEvent($insert));

@@ -38,6 +38,11 @@ $(document).ready(function () {
             placeholder: "Pilih Status",
         })
         .on("change", function (e) {
+            // if (this.value == 'Pending') {
+            //     $("#ketStatusPending").show('slow');
+            // } else {
+            //     $("#ketStatusPending").hide('slow');
+            // }
             if (this.value) {
                 $(this).valid();
             }
@@ -90,12 +95,13 @@ $(document).ready(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
+                console.log(result);
                 if (result.status == "error") {
                     notifToast(result.status, result.message);
                     $("#fm_UpdateStatusEditing").trigger("reset");
+                    $('[name="status"]').val("").trigger("change");
                 } else {
                     notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusEditing").trigger("reset");
                     location.reload();
                 }
             },

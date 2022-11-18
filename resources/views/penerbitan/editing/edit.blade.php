@@ -51,8 +51,6 @@
                             Status Progress:
                             <span class="badge badge-light">{{ $data->status }}</span>
                             @break
-
-                            @default
                             @endswitch
                         </div>
                         @if ($data->proses == '1')
@@ -464,7 +462,9 @@
                                                 <th class="table-secondary" style="width: 25%">Editor: <span class="text-danger">*</span></th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->editor))
-                                                    {{ $nama_editor }}
+                                                    @foreach ($nama_editor as $ne)
+                                                    <span class="bullet"></span>{{ $ne }}<br>
+                                                    @endforeach
                                                     @else
                                                     <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
@@ -475,7 +475,9 @@
                                                 </th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->copy_editor))
-                                                    {{ $nama_copyeditor }}
+                                                    @foreach ($nama_copyeditor as $nc)
+                                                        <span class="bullet"></span>{{ $nc }}<br>
+                                                        @endforeach
                                                     @else
                                                     <span class="text-danger text-small">Belum diinput</span>
                                                     @endif

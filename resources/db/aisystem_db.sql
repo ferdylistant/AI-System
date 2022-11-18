@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 17, 2022 at 10:11 AM
+-- Generation Time: Nov 18, 2022 at 04:56 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -516,6 +516,7 @@ CREATE TABLE `editing_proses` (
   `deskripsi_final_id` char(36) DEFAULT NULL,
   `editor` longtext DEFAULT NULL COMMENT 'Array',
   `tgl_masuk_editing` datetime DEFAULT NULL,
+  `tgl_selesai_proses` datetime DEFAULT NULL,
   `bulan` date DEFAULT NULL,
   `tgl_mulai_edit` datetime DEFAULT NULL,
   `tgl_selesai_edit` datetime DEFAULT NULL,
@@ -525,17 +526,16 @@ CREATE TABLE `editing_proses` (
   `turun_pracetak` datetime DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `proses` set('0','1') DEFAULT '0',
-  `status` enum('Antrian','Pending','Proses','Selesai','Revisi') DEFAULT 'Antrian',
-  `deleted_at` datetime DEFAULT NULL,
-  `deleted_by` varchar(36) NOT NULL
+  `status` enum('Antrian','Pending','Proses','Selesai') DEFAULT 'Antrian',
+  `ket_pending` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `editing_proses`
 --
 
-INSERT INTO `editing_proses` (`id`, `deskripsi_final_id`, `editor`, `tgl_masuk_editing`, `bulan`, `tgl_mulai_edit`, `tgl_selesai_edit`, `copy_editor`, `tgl_mulai_copyeditor`, `tgl_selesai_copyeditor`, `turun_pracetak`, `catatan`, `proses`, `status`, `deleted_at`, `deleted_by`) VALUES
-('d85a1255-1b27-4135-8346-54c593419f2f', '44dfe332-5755-4191-8158-e79d496e1473', '[\"e829fe4fb03f45f482f77653158d461c\"]', '2022-11-02 14:42:25', '2022-11-17', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0', 'Proses', NULL, '');
+INSERT INTO `editing_proses` (`id`, `deskripsi_final_id`, `editor`, `tgl_masuk_editing`, `tgl_selesai_proses`, `bulan`, `tgl_mulai_edit`, `tgl_selesai_edit`, `copy_editor`, `tgl_mulai_copyeditor`, `tgl_selesai_copyeditor`, `turun_pracetak`, `catatan`, `proses`, `status`, `ket_pending`) VALUES
+('d85a1255-1b27-4135-8346-54c593419f2f', '44dfe332-5755-4191-8158-e79d496e1473', '[\"e829fe4fb03f45f482f77653158d461c\"]', '2022-11-02 14:42:25', NULL, '2022-11-17', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0', 'Antrian', NULL);
 
 -- --------------------------------------------------------
 
@@ -565,6 +565,19 @@ CREATE TABLE `editing_proses_history` (
   `author_id` varchar(36) DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `editing_proses_history`
+--
+
+INSERT INTO `editing_proses_history` (`id`, `editing_proses_id`, `type_history`, `editor_his`, `editor_new`, `copy_editor_his`, `copy_editor_new`, `bullet_his`, `bullet_new`, `jml_hal_perkiraan_his`, `jml_hal_perkiraan_new`, `bulan_his`, `bulan_new`, `status_his`, `status_new`, `catatan_his`, `catatan_new`, `progress`, `author_id`, `modified_at`) VALUES
+(1, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:21:00'),
+(2, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:22:31'),
+(3, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Antrian', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:28:06'),
+(4, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Pending', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:30:05'),
+(5, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Proses', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:30:22'),
+(6, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Pending', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:31:15'),
+(7, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Antrian', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:45:22');
 
 -- --------------------------------------------------------
 
@@ -3319,7 +3332,7 @@ ALTER TABLE `deskripsi_produk_history`
 -- AUTO_INCREMENT for table `editing_proses_history`
 --
 ALTER TABLE `editing_proses_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `editing_proses_selesai`
