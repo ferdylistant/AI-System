@@ -51,7 +51,7 @@ $(document).ready(function () {
         .on("change", function (e) {
             if (this.value) {
                 $(".clear_field").removeAttr("hidden");
-                $(this).valid();
+                // $(this).valid();
             }
         });
 });

@@ -162,7 +162,7 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/upload_link.js') }}"></script>
+    <script src="{{ url('js/tandai_naskah_lengkap.js') }}"></script>
     <script>
         $(function() {
             let tableNaskah = $('#tb_Naskah').DataTable({
@@ -279,40 +279,6 @@
                         $(".load-more").text("Load more").fadeIn("slow");
                     }
                 });
-            });
-        });
-        $(document).ready(function() {
-            $(".select-filter-jb")
-                .select2({
-                    placeholder: "Filter Jalur Buku",
-                })
-                .on("change", function(e) {
-                    if (this.value) {
-                        $(".clear_field_jb").removeAttr("hidden");
-                        $(this).valid();
-                    }
-                });
-        });
-        $(document).ready(function() {
-            $(".clear_field_jb").click(function() {
-                $(".select-filter-jb").val("").trigger("change");
-                $(".clear_field_jb").attr("hidden", "hidden");
-            });
-        });
-        $(document).ready(function() {
-            $(".select-filter").select2({
-                placeholder: 'Filter Data Lengkap/Belum\xa0\xa0',
-            }).on('change', function(e) {
-                if (this.value) {
-                    $('.clear_field').removeAttr('hidden');
-                    $(this).valid();
-                }
-            });
-        });
-        $(document).ready(function() {
-            $('.clear_field').click(function() {
-                $(".select-filter").val('').trigger('change');
-                $('.clear_field').attr('hidden', 'hidden');
             });
         });
     </script>

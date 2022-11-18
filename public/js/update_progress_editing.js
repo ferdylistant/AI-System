@@ -56,7 +56,7 @@ $(document).ready(function () {
         .on("change", function (e) {
             if (this.value) {
                 $(".clear_field").removeAttr("hidden");
-                $(this).valid();
+                // $(this).valid();
             }
         });
 });
@@ -95,7 +95,7 @@ $(document).ready(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                console.log(result);
+                // console.log(result);
                 if (result.status == "error") {
                     notifToast(result.status, result.message);
                     $("#fm_UpdateStatusEditing").trigger("reset");
