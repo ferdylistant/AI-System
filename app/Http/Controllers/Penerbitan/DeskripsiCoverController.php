@@ -464,8 +464,7 @@ class DeskripsiCoverController extends Controller
                     'id' => Uuid::uuid4()->toString(),
                     'deskripsi_final_id' => $data->deskripsi_final_id,
                     'setter' => json_encode([$data->setter]),
-                    'korektor_komp' => json_encode([$data->korektor]),
-                    'korektor_manual' => json_encode([$data->korektor]),
+                    'korektor' => json_encode([$data->korektor]),
                     'jml_hal_final' => $data->jml_hal_perkiraan,
                     'tgl_masuk_pracetak' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                 ];

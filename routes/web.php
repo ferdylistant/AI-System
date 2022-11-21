@@ -4,13 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ManWeb\UsersController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ManWeb\StrukturAoController;
+use App\Http\Controllers\ManWeb\{StrukturAoController,UsersController};
 use App\Http\Controllers\Penerbitan\DeskripsiCoverController;
 use App\Http\Controllers\MasterData\{ImprintController,KelompokBukuController,FormatBukuController};
 use App\Http\Controllers\Produksi\{ProduksiController, EbookController,ProsesProduksiController,ProsesEbookController};
-use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiFinalController, DeskripsiProdukController, EditingController, PracetakDesainerController};
+use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiFinalController, DeskripsiProdukController, EditingController, PracetakSetterController, PracetakDesainerController};
 
 /*
 |--------------------------------------------------------------------------
@@ -132,6 +131,14 @@ Route::middleware(['auth'])->group(function() {
         Route::post('/editing/lihat-history', [EditingController::class, 'lihatHistoryEditing'])->name('editing.history');
         Route::post('/editing/proses-kerja', [EditingController::class, 'prosesKerjaEditing'])->name('editing.proses');
         Route::post('/editing/selesai/{cat}/{id}', [EditingController::class, 'prosesSelesaiEditing'])->name('editing.selesai');
+        //Editing
+        Route::get('/pracetak/setter', [PracetakSetterController::class, 'index'])->name('setter.view');
+        Route::get('/pracetak/setter/detail', [PracetakSetterController::class, 'detailSetter'])->name('setter.detail');
+        Route::match(['get', 'post'],'/pracetak/setter/edit',[PracetakSetterController::class, 'editSetter'])->name('setter.edit');
+        Route::post('/pracetak/setter/update-status-progress',[PracetakSetterController::class, 'updateStatusProgress']);
+        Route::post('/pracetak/setter/lihat-history', [PracetakSetterController::class, 'lihatHistorySetter'])->name('setter.history');
+        Route::post('/pracetak/setter/proses-kerja', [PracetakSetterController::class, 'prosesKerjaSetter'])->name('setter.proses');
+        Route::post('/pracetak/setter/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('setter.selesai');
         //Pracetak Desainer
         Route::get('/pracetak/designer', [PracetakDesainerController::class, 'index'])->name('prades.view');
         Route::get('/pracetak/designer/detail', [PracetakDesainerController::class, 'detailPracetakDesainer'])->name('prades.detail');

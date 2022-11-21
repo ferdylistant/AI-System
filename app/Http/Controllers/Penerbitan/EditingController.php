@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
-use Ramsey\Uuid\Uuid;
-use Illuminate\Support\Arr;
 use App\Events\EditingEvent;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -38,10 +36,12 @@ class EditingController extends Controller
                 // ->addIndexColumn()
                 ->addColumn('kode', function ($data) {
                     $tandaProses = '';
+                    $dataKode = $data->kode;
                     if ($data->status == 'Proses') {
-                        $tandaProses = $data->proses == '1' ? '<span class="beep-success "></span>' : '<span class="beep-danger"></span>';
+                        $tandaProses = $data->proses == '1' ? '<span class="beep-success"></span>' : '<span class="beep-danger"></span>';
+                        $dataKode = $data->proses == '1'  ? '<span class="text-success">'.$data->kode.'</span>':'<span class="text-danger">'.$data->kode.'</span>';
                     }
-                    return $tandaProses . $data->kode;
+                    return $tandaProses . $dataKode;
                 })
                 ->addColumn('judul_final', function ($data) {
                     if (is_null($data->judul_final)) {
@@ -123,7 +123,7 @@ class EditingController extends Controller
                         ->get();
                         if (!$edpros->isEmpty()) {
                             foreach ($edpros as $v) {
-                                if (in_array($v->users_id,json_decode($data->editor, true))) {
+                                if (in_array($v->users_id,json_decode($data->copy_editor, true))) {
                                     $tgl = '('.Carbon::parse($v->tgl_proses_selesai)->translatedFormat('l d M Y, H:i').')';
                                 }
                             }

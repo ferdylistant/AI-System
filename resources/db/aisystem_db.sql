@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 18, 2022 at 04:56 AM
+-- Generation Time: Nov 21, 2022 at 10:25 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -535,7 +535,7 @@ CREATE TABLE `editing_proses` (
 --
 
 INSERT INTO `editing_proses` (`id`, `deskripsi_final_id`, `editor`, `tgl_masuk_editing`, `tgl_selesai_proses`, `bulan`, `tgl_mulai_edit`, `tgl_selesai_edit`, `copy_editor`, `tgl_mulai_copyeditor`, `tgl_selesai_copyeditor`, `turun_pracetak`, `catatan`, `proses`, `status`, `ket_pending`) VALUES
-('d85a1255-1b27-4135-8346-54c593419f2f', '44dfe332-5755-4191-8158-e79d496e1473', '[\"e829fe4fb03f45f482f77653158d461c\"]', '2022-11-02 14:42:25', NULL, '2022-11-17', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0', 'Antrian', NULL);
+('d85a1255-1b27-4135-8346-54c593419f2f', '44dfe332-5755-4191-8158-e79d496e1473', '[\"e829fe4fb03f45f482f77653158d461c\"]', '2022-11-02 14:42:25', '2022-11-21 14:52:50', '2022-11-21', '2022-11-21 08:56:48', '2022-11-21 08:58:54', '[\"0c5a151afe204df2bf6c38485055da16\"]', '2022-11-21 09:00:32', '2022-11-21 14:52:15', NULL, NULL, '0', 'Selesai', NULL);
 
 -- --------------------------------------------------------
 
@@ -577,7 +577,12 @@ INSERT INTO `editing_proses_history` (`id`, `editing_proses_id`, `type_history`,
 (4, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Pending', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:30:05'),
 (5, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Proses', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:30:22'),
 (6, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Pending', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:31:15'),
-(7, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Antrian', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:45:22');
+(7, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Antrian', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-18 10:45:22'),
+(8, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-21 08:47:00'),
+(9, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-21 08:56:48'),
+(10, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Update', NULL, NULL, NULL, '[\"0c5a151afe204df2bf6c38485055da16\"]', NULL, NULL, NULL, NULL, '2022-11-17', '2022-11-21', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-21 09:00:27'),
+(11, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-21 09:00:32'),
+(12, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-21 14:52:50');
 
 -- --------------------------------------------------------
 
@@ -592,6 +597,14 @@ CREATE TABLE `editing_proses_selesai` (
   `users_id` varchar(36) DEFAULT NULL,
   `tgl_proses_selesai` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `editing_proses_selesai`
+--
+
+INSERT INTO `editing_proses_selesai` (`id`, `type`, `editing_proses_id`, `users_id`, `tgl_proses_selesai`) VALUES
+(1, 'Editor', 'd85a1255-1b27-4135-8346-54c593419f2f', 'e829fe4fb03f45f482f77653158d461c', '2022-11-21 08:58:54'),
+(2, 'Copy Editor', 'd85a1255-1b27-4135-8346-54c593419f2f', '0c5a151afe204df2bf6c38485055da16', '2022-11-21 14:52:15');
 
 -- --------------------------------------------------------
 
@@ -2034,11 +2047,13 @@ INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALU
 ('1b89744217b04f79a8c1d7a967a46912', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis', 'Read', 'lihat-penulis', 'Lihat Data Penulis'),
 ('1c1940da68fa4f8ba2325e83c303c47c', '131899f9a9204e0baa1b23cd2eedff6a', 'manajemen-web/user', 'Update', 'ubah-data-user', 'Ubah Data User'),
 ('1f4e5b3752b8475cb5261940ef62532d', 'fb6c8f0dcc9e43199642f08a0fe1fd56', 'penerbitan/penulis/membuat-penulis', 'Create', 'tambah-data-penulis', 'Buat Data Penulis'),
+('25b1853c-6952-11ed-9234-4cedfb61fb39', '365190039fb44c8ab629806a5490addf', '', 'Create', 'ubah-atau-buat-setter-mou', 'Kabag Pracetak Setter MOU'),
 ('26a74e3097b94bd882bd1a9f6feace68', 'e32aa5bb41144ac58f2e6eeca81604ac', '', 'Create', 'ubah-atau-buat-des-final', 'Buat/Ubah Deskripsi Final'),
 ('276682372c5c45eca2139b32e4e5cc7a', 'be061671a86c4437803f7c225e117799', '', 'Create', 'otorisasi-korektor-prades-smk', 'Otorisasi Korektor SMK'),
 ('28c3460bb5cf4c618ba8ec6f3c12ddbd', '31a0187d88d94ddc83db4b71524b5b2d', '', 'Delete', 'hapus-kelompok-buku', 'Hapus Kelompok Buku'),
 ('29feb750adfa496fa4822fadd4ac1367', '92463f9e96394c19a979a3290fde5745', '', 'Create', 'otorisasi-editor-editing-reguler', 'Otorisasi Editor Reguler'),
 ('2b6032ef8a73463ba2c761c86be5ed5d', '8bc1be5db97545e2ab1c79e0d68d4896', '', 'Create', 'buat-platform-digital', 'Buat Platform Digital'),
+('2c2753d3-6951-11ed-9234-4cedfb61fb39', '365190039fb44c8ab629806a5490addf', '', 'Create', 'ubah-atau-buat-setter-reguler', 'Kabag Pracetak Setter Reguler'),
 ('2e5924c8cc0e444dae36bafd2c89d727', 'be061671a86c4437803f7c225e117799', '', 'Create', 'otorisasi-kabag-prades-mou', 'Otorisasi Kabag MOU'),
 ('2ea1d4e7a4ae4677a0fc85b859cc5738', '365190039fb44c8ab629806a5490addf', '', 'Read', 'lihat-pracetak-setter', 'Lihat Pracetak Setter'),
 ('33c3711d787d416082c0519356547b0c', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-setter', 'Penilaian Setter'),
@@ -2047,6 +2062,7 @@ INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALU
 ('3a70433b-16f5-11ed-ae5c-1078d2a38ee5', 'bc5eb3aa02394dcca7692764e1328cee', '', 'Create', 'tambah-data-imprint', 'Buat Data Imprint'),
 ('3afa314e14904a1da386b2d8ede3582b', 'e32aa5bb41144ac58f2e6eeca81604ac', '', 'Approval', 'action-progress-des-final', 'Action Progress Des.Final'),
 ('405c0fcdbef14d49abd9ffcc53984c6e', '6b6e6377467d4b67911ef1b915244ed2', '', 'Read', 'lihat-deskripsi-turuncetak', 'Lihat Deskripsi Turun Cetak'),
+('457aca55-6952-11ed-9234-4cedfb61fb39', '365190039fb44c8ab629806a5490addf', '', 'Create', 'ubah-atau-buat-setter-smk', 'Kabag Pracetak Setter SMK'),
 ('4943c707-1e08-11ed-87ce-1078d2a38ee5', '5646908e-1e06-11ed-87ce-1078d2a38ee5', '', 'Read', 'lihat-proses-produksi', 'Lihat Data Proses Produksi'),
 ('4b3413e795944f48af97085069fb6855', 'be061671a86c4437803f7c225e117799', '', 'Create', 'otorisasi-korektor-prades-reguler', 'Otorisasi Korektor Reguler'),
 ('4bb1a8713c0644c794ff1ea6a7669cab', 'be061671a86c4437803f7c225e117799', '', 'Create', 'otorisasi-editor-prades-smk', 'Otorisasi Editor SMK'),
@@ -2218,28 +2234,42 @@ CREATE TABLE `pracetak_setter` (
   `setter` longtext DEFAULT NULL COMMENT 'Array',
   `mulai_proof` datetime DEFAULT NULL,
   `selesai_proof` datetime DEFAULT NULL,
-  `mulai_koreksi_komp` datetime DEFAULT NULL,
-  `selesai_koreksi_komp` datetime DEFAULT NULL,
-  `korektor_komp` longtext DEFAULT NULL COMMENT 'Array',
-  `mulai_koreksi_manual` datetime DEFAULT NULL,
-  `selesai_koreksi_manual` datetime DEFAULT NULL,
-  `korektor_manual` longtext DEFAULT NULL COMMENT 'Array',
+  `status_proof` set('0','1') DEFAULT NULL COMMENT '0: Revisi,\r\n1: Selesai.\r\nDilakukan oleh prodev',
+  `ket_revisi` text DEFAULT NULL,
+  `mulai_koreksi` datetime DEFAULT NULL,
+  `selesai_koreksi` datetime DEFAULT NULL,
+  `korektor` longtext DEFAULT NULL COMMENT 'Array',
   `turun_cetak` datetime DEFAULT NULL,
   `edisi_cetak` varchar(100) DEFAULT NULL,
   `mulai_p_copyright` datetime DEFAULT NULL,
   `selesai_p_copyright` datetime DEFAULT NULL,
   `proses_saat_ini` enum('Antri Koreksi','Antri Setting','Setting','Proof Reading','Koreksi Manual','Koreksi Komputer','Siap Turcet','Koreksi Gandeng','Turun Cetak','Upload E-Book') DEFAULT NULL,
+  `proses` set('0','1') DEFAULT '0',
   `bulan` date DEFAULT NULL,
   `catatan` text DEFAULT NULL,
-  `status` enum('Belum Mulai','Pending','Proses','Selesai') DEFAULT 'Belum Mulai'
+  `status` enum('Antrian','Pending','Proses','Selesai','Revisi') DEFAULT 'Antrian'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `pracetak_setter`
 --
 
-INSERT INTO `pracetak_setter` (`id`, `deskripsi_final_id`, `jml_hal_final`, `tgl_masuk_pracetak`, `mulai_setting`, `selesai_setting`, `setter`, `mulai_proof`, `selesai_proof`, `mulai_koreksi_komp`, `selesai_koreksi_komp`, `korektor_komp`, `mulai_koreksi_manual`, `selesai_koreksi_manual`, `korektor_manual`, `turun_cetak`, `edisi_cetak`, `mulai_p_copyright`, `selesai_p_copyright`, `proses_saat_ini`, `bulan`, `catatan`, `status`) VALUES
-('b7c5387e-d145-402a-8116-47c5ab8c414b', '44dfe332-5755-4191-8158-e79d496e1473', 1000, '2022-11-02 14:42:25', NULL, NULL, '[\"a4f8d1d67d2e4b9aa2a8e8680a953194\"]', NULL, NULL, NULL, NULL, '[\"12c8a8639d814102b01c7ffc0cd52e71\"]', NULL, NULL, '[\"12c8a8639d814102b01c7ffc0cd52e71\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Belum Mulai');
+INSERT INTO `pracetak_setter` (`id`, `deskripsi_final_id`, `jml_hal_final`, `tgl_masuk_pracetak`, `mulai_setting`, `selesai_setting`, `setter`, `mulai_proof`, `selesai_proof`, `status_proof`, `ket_revisi`, `mulai_koreksi`, `selesai_koreksi`, `korektor`, `turun_cetak`, `edisi_cetak`, `mulai_p_copyright`, `selesai_p_copyright`, `proses_saat_ini`, `proses`, `bulan`, `catatan`, `status`) VALUES
+('b7c5387e-d145-402a-8116-47c5ab8c414b', '44dfe332-5755-4191-8158-e79d496e1473', 1000, '2022-11-02 14:42:25', NULL, NULL, '[\"a4f8d1d67d2e4b9aa2a8e8680a953194\"]', NULL, NULL, NULL, NULL, NULL, NULL, '[\"12c8a8639d814102b01c7ffc0cd52e71\"]', NULL, NULL, NULL, NULL, NULL, '0', NULL, NULL, 'Antrian');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pracetak_setter_selesai`
+--
+
+CREATE TABLE `pracetak_setter_selesai` (
+  `id` bigint(20) NOT NULL,
+  `type` enum('Setter','Korektor') DEFAULT NULL,
+  `pracetak_setter_id` char(36) DEFAULT NULL,
+  `users_id` varchar(36) DEFAULT NULL,
+  `tgl_proses_selesai` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -2898,6 +2928,34 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('ee2c544aa4dc4c1eb12472cd84406358', '9d69d18ff5184804990bc21cb1005ab7'),
 ('ee2c544aa4dc4c1eb12472cd84406358', '4943c707-1e08-11ed-87ce-1078d2a38ee5'),
 ('ee2c544aa4dc4c1eb12472cd84406358', 'eecbccb6-1e08-11ed-87ce-1078d2a38ee5'),
+('c94ad7236255430b82c0546dd82b917e', '1b89744217b04f79a8c1d7a967a46912'),
+('c94ad7236255430b82c0546dd82b917e', '6903e82e7e94478f87df3cf80de6b587'),
+('c94ad7236255430b82c0546dd82b917e', '9beba245308543ce821efe8a3ba965e3'),
+('7ff48adfec9b44b4bfce7173c012a8c7', '6903e82e7e94478f87df3cf80de6b587'),
+('7ff48adfec9b44b4bfce7173c012a8c7', 'a213b689b8274f4dbe19b3fb24d66840'),
+('ceadd9fb648445eab1e350357e51d1ce', '1b89744217b04f79a8c1d7a967a46912'),
+('ceadd9fb648445eab1e350357e51d1ce', '1098a56970114e18898367d334658b47'),
+('ceadd9fb648445eab1e350357e51d1ce', '6903e82e7e94478f87df3cf80de6b587'),
+('ceadd9fb648445eab1e350357e51d1ce', 'ebca07da8aad42c4aee304e3a6b81001'),
+('ceadd9fb648445eab1e350357e51d1ce', '569c1d340cea4b21a54910177eeaf51f'),
+('ceadd9fb648445eab1e350357e51d1ce', '5a1bd42cca6f412cb1795a1aeddac2fe'),
+('ceadd9fb648445eab1e350357e51d1ce', '7527e84e47f94304b39525fa770dd904'),
+('ceadd9fb648445eab1e350357e51d1ce', '26a74e3097b94bd882bd1a9f6feace68'),
+('ceadd9fb648445eab1e350357e51d1ce', '3afa314e14904a1da386b2d8ede3582b'),
+('ceadd9fb648445eab1e350357e51d1ce', 'db87d2605a68440fbf8e148744e243e8'),
+('ceadd9fb648445eab1e350357e51d1ce', '6b4e3b36783d4a488101da7639c40de0'),
+('ceadd9fb648445eab1e350357e51d1ce', 'ac61ff38a6854298919a06a5b4f34242'),
+('ceadd9fb648445eab1e350357e51d1ce', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
+('ceadd9fb648445eab1e350357e51d1ce', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
+('ceadd9fb648445eab1e350357e51d1ce', '0ce44192fb05400fb51f33c3c7a3d601'),
+('fab4f858e0314d1dbf6b5b834007313e', '29feb750adfa496fa4822fadd4ac1367'),
+('fab4f858e0314d1dbf6b5b834007313e', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
+('fc2ba902bcfa410397bbd3331bda13ec', '29feb750adfa496fa4822fadd4ac1367'),
+('fc2ba902bcfa410397bbd3331bda13ec', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
+('e829fe4fb03f45f482f77653158d461c', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
+('e829fe4fb03f45f482f77653158d461c', 'c85dbeca3e87406f97d9e10f6d5970d4'),
+('0c5a151afe204df2bf6c38485055da16', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
+('0c5a151afe204df2bf6c38485055da16', '87b2c263-663c-11ed-94ad-4cedfb61fb39'),
 ('be8d42fa88a14406ac201974963d9c1b', '068adb0171304c628b267874004d7e8c'),
 ('be8d42fa88a14406ac201974963d9c1b', '2b6032ef8a73463ba2c761c86be5ed5d'),
 ('be8d42fa88a14406ac201974963d9c1b', 'bc6b9c821e3f42ccb57532930c8d92be'),
@@ -2944,7 +3002,10 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', '88f281e83aff47d08f555a2961420bf5'),
 ('be8d42fa88a14406ac201974963d9c1b', 'a9354dd060524bce8278e2cd75ce349a'),
 ('be8d42fa88a14406ac201974963d9c1b', 'ce3589b822a14011ba581c803ef50f5b'),
+('be8d42fa88a14406ac201974963d9c1b', '25b1853c-6952-11ed-9234-4cedfb61fb39'),
+('be8d42fa88a14406ac201974963d9c1b', '2c2753d3-6951-11ed-9234-4cedfb61fb39'),
 ('be8d42fa88a14406ac201974963d9c1b', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
+('be8d42fa88a14406ac201974963d9c1b', '457aca55-6952-11ed-9234-4cedfb61fb39'),
 ('be8d42fa88a14406ac201974963d9c1b', '0ce44192fb05400fb51f33c3c7a3d601'),
 ('be8d42fa88a14406ac201974963d9c1b', '09179170e6e643eca66b282e2ffae1f8'),
 ('be8d42fa88a14406ac201974963d9c1b', '4d64a842e08344b9aeec88ed9eb2eb72'),
@@ -2965,35 +3026,7 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', 'eecbccb6-1e08-11ed-87ce-1078d2a38ee5'),
 ('be8d42fa88a14406ac201974963d9c1b', '4bb845580b464d7db3d7c3b3e4fd213b'),
 ('be8d42fa88a14406ac201974963d9c1b', '1c1940da68fa4f8ba2325e83c303c47c'),
-('be8d42fa88a14406ac201974963d9c1b', '38645f82ae7c468abad1ab191e7a8ad9'),
-('c94ad7236255430b82c0546dd82b917e', '1b89744217b04f79a8c1d7a967a46912'),
-('c94ad7236255430b82c0546dd82b917e', '6903e82e7e94478f87df3cf80de6b587'),
-('c94ad7236255430b82c0546dd82b917e', '9beba245308543ce821efe8a3ba965e3'),
-('7ff48adfec9b44b4bfce7173c012a8c7', '6903e82e7e94478f87df3cf80de6b587'),
-('7ff48adfec9b44b4bfce7173c012a8c7', 'a213b689b8274f4dbe19b3fb24d66840'),
-('ceadd9fb648445eab1e350357e51d1ce', '1b89744217b04f79a8c1d7a967a46912'),
-('ceadd9fb648445eab1e350357e51d1ce', '1098a56970114e18898367d334658b47'),
-('ceadd9fb648445eab1e350357e51d1ce', '6903e82e7e94478f87df3cf80de6b587'),
-('ceadd9fb648445eab1e350357e51d1ce', 'ebca07da8aad42c4aee304e3a6b81001'),
-('ceadd9fb648445eab1e350357e51d1ce', '569c1d340cea4b21a54910177eeaf51f'),
-('ceadd9fb648445eab1e350357e51d1ce', '5a1bd42cca6f412cb1795a1aeddac2fe'),
-('ceadd9fb648445eab1e350357e51d1ce', '7527e84e47f94304b39525fa770dd904'),
-('ceadd9fb648445eab1e350357e51d1ce', '26a74e3097b94bd882bd1a9f6feace68'),
-('ceadd9fb648445eab1e350357e51d1ce', '3afa314e14904a1da386b2d8ede3582b'),
-('ceadd9fb648445eab1e350357e51d1ce', 'db87d2605a68440fbf8e148744e243e8'),
-('ceadd9fb648445eab1e350357e51d1ce', '6b4e3b36783d4a488101da7639c40de0'),
-('ceadd9fb648445eab1e350357e51d1ce', 'ac61ff38a6854298919a06a5b4f34242'),
-('ceadd9fb648445eab1e350357e51d1ce', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
-('ceadd9fb648445eab1e350357e51d1ce', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
-('ceadd9fb648445eab1e350357e51d1ce', '0ce44192fb05400fb51f33c3c7a3d601'),
-('fab4f858e0314d1dbf6b5b834007313e', '29feb750adfa496fa4822fadd4ac1367'),
-('fab4f858e0314d1dbf6b5b834007313e', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
-('fc2ba902bcfa410397bbd3331bda13ec', '29feb750adfa496fa4822fadd4ac1367'),
-('fc2ba902bcfa410397bbd3331bda13ec', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
-('e829fe4fb03f45f482f77653158d461c', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
-('e829fe4fb03f45f482f77653158d461c', 'c85dbeca3e87406f97d9e10f6d5970d4'),
-('0c5a151afe204df2bf6c38485055da16', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
-('0c5a151afe204df2bf6c38485055da16', '87b2c263-663c-11ed-94ad-4cedfb61fb39');
+('be8d42fa88a14406ac201974963d9c1b', '38645f82ae7c468abad1ab191e7a8ad9');
 
 --
 -- Indexes for dumped tables
@@ -3251,6 +3284,12 @@ ALTER TABLE `pracetak_setter`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `pracetak_setter_selesai`
+--
+ALTER TABLE `pracetak_setter_selesai`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `produksi_order_cetak`
 --
 ALTER TABLE `produksi_order_cetak`
@@ -3332,13 +3371,13 @@ ALTER TABLE `deskripsi_produk_history`
 -- AUTO_INCREMENT for table `editing_proses_history`
 --
 ALTER TABLE `editing_proses_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `editing_proses_selesai`
 --
 ALTER TABLE `editing_proses_selesai`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -3375,6 +3414,12 @@ ALTER TABLE `penerbitan_naskah_history`
 --
 ALTER TABLE `platform_digital_ebook_history`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `pracetak_setter_selesai`
+--
+ALTER TABLE `pracetak_setter_selesai`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

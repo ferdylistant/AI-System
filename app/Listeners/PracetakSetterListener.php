@@ -34,8 +34,7 @@ class PracetakSetterListener
                     'id' => $data['id'],
                     'deskripsi_final_id' => $data['deskripsi_final_id'],
                     'setter' => $data['setter'],
-                    'korektor_komp' => $data['korektor_komp'],
-                    'korektor_manual' => $data['korektor_manual'],
+                    'korektor' => $data['korektor'],
                     'jml_hal_final' => $data['jml_hal_final'],
                     'tgl_masuk_pracetak' => $data['tgl_masuk_pracetak']
                 ]);
