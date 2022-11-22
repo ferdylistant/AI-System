@@ -16,7 +16,7 @@
 <section class="section">
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('editing.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('setter.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
         <h1>Edit/Buat Penerbitan Pracetak Setter Proses</h1>
     </div>
@@ -26,7 +26,7 @@
             <div class="col-12">
                 <div class="card card-warning">
                     <div class="row card-header justify-content-between">
-                        <div class="col-auto card-header-action lead">
+                        <div class="col-auto">
                             @switch($data->status)
                             @case('Antrian')
                             <i class="far fa-circle" style="color:#34395E;"></i>
@@ -59,17 +59,43 @@
                             @break
                             @endswitch
                         </div>
-                        <!-- @if ($data->proses == '1')
                         <div class="col-auto">
-                            <span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Sedang proses
-                                pengerjaan {{ is_null($data->tgl_selesai_edit) ? 'editor' : 'copy editor' }}</span>
+                            <i class="fas fa-exclamation-circle"></i>&nbsp;Proses Saat Ini:
+                            @switch($data->proses_saat_ini)
+                                @case('Antri Koreksi')
+                                    <span> Antri Koreksi</span>
+                                    @break
+                                @case('Antri Setting')
+                                    <span> Antri Setting</span>
+                                    @break
+                                @case('Setting')
+                                    <span> Setting</span>
+                                    @break
+                                @case('Proof Reading')
+                                    <span> Proof Reading</span>
+                                    @break
+                                @case('Koreksi')
+                                    <span> Koreksi</span>
+                                    @break
+                                @case('Siap Turcet')
+                                    <span> Siap Turcet</span>
+                                    @break
+                                @case('Turun Cetak')
+                                    <span> Turun Cetak</span>
+                                    @break
+                                @case('Upload E-Book')
+                                    <span> Upload E-Book</span>
+                                    @break
+                                @default
+                                    <span class="text-danger"> Belum ada proses</span>
+                                    @break
+                            @endswitch
                         </div>
-                        @endif -->
 
                     </div>
                     @if ($data->status == 'Proses' ||
                     ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
-                    <form id="fup_editingProses">
+                    <form id="fup_pracetakSetter">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-12">
@@ -122,6 +148,14 @@
                                                     <th class="table-secondary" style="width: 25%">Sinopsis:</th>
                                                     <td class="table-active text-right">
                                                         {{ is_null($data->sinopsis) ? '-' : $data->sinopsis }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="table-secondary" style="width: 25%">Bullet:</th>
+                                                    <td class="table-active text-right">
+                                                        @foreach (json_decode($data->bullet, true) as $key => $aj)
+                                                        <span class="bullet"></span>{{ $aj }}<br>
+                                                        @endforeach
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -180,43 +214,6 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 25%">Bullet:</th>
-                                                    @if (is_null($data->bullet) || $data->bullet == '[]')
-                                                    <td class="table-active text-left">
-                                                        <div class="input_fields_wrap">
-                                                            <button class="add_field_button btn btn-outline-primary mb-1"><i class="fas fa-plus-circle"></i> More
-                                                                Fields</button>
-                                                            <div class="input-group">
-                                                                <input type="text" name="bullet[]" placeholder="Bullet" class="form-control">
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    @else
-                                                    <td class="table-active text-right" id="bulletCol">
-                                                        @foreach (json_decode($data->bullet, true) as $key => $aj)
-                                                        <span class="bullet"></span>{{ $aj }}<br>
-                                                        @endforeach
-                                                        <p class="text-small">
-                                                            <a href="javascript:void(0)" id="bulletButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
-                                                        </p>
-                                                    </td>
-                                                    <td class="table-active text-left" id="bulletColInput" hidden>
-                                                        <div class="input_fields_wrap">
-                                                            <button class="add_field_button btn btn-outline-primary mb-1"><i class="fas fa-plus-circle"></i> More
-                                                                Fields</button>
-                                                            <button class="btn btn-outline-danger batal_edit_bullet text-danger align-self-center mb-1" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
-                                                            @foreach (Illuminate\Support\Arr::whereNotNull(json_decode($data->bullet, true)) as $k => $bullet)
-                                                            <div>
-                                                                <div class="input-group">
-                                                                    <input type="text" name="bullet[]" value="{{ $bullet }}" placeholder="Bullet" class="form-control">
-                                                                </div>
-                                                            </div>
-                                                            @endforeach
-                                                        </div>
-                                                    </td>
-                                                    @endif
-                                                </tr>
-                                                <tr>
                                                     <th class="table-secondary" style="width: 25%">Editor: <span class="text-danger">*</span></th>
                                                     @if (is_null($data->setter) || $data->setter == '[]')
                                                     <td class="table-active text-left">
@@ -234,7 +231,7 @@
                                                         @foreach ($nama_setter as $key => $aj)
                                                         <span class="bullet"></span>{{ $aj }}<br>
                                                         @endforeach
-                                                        @if (is_null($data->tgl_selesai_edit))
+                                                        @if (is_null($data->selesai_setting))
                                                         <p class="text-small">
                                                             <a href="javascript:void(0)" id="setterButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
                                                         </p>
@@ -243,7 +240,7 @@
                                                     </td>
                                                     <td class="table-active text-left" id="setterColInput" hidden>
                                                         <div class="input-group">
-                                                            <select name="setter[]" class="form-control select-setter-editing" multiple="multiple">
+                                                            <select name="setter[]" class="form-control select-setter" multiple="multiple">
                                                                 <option label="Pilih setter"></option>
                                                                 @foreach ($setter as $i => $edList)
                                                                 {{ $sel = '' }}
@@ -268,7 +265,7 @@
                                                         <span class="text-danger">*</span>
                                                         @endif
                                                     </th>
-                                                    @if (is_null($data->copy_editor) || $data->copy_editor == '[]')
+                                                    @if (is_null($data->korektor) || $data->korektor == '[]')
                                                     <td class="table-active text-left">
                                                         {{ $dis = '' }}
                                                         @if (is_null($data->selesai_proof))
@@ -305,7 +302,7 @@
                                                                 <option label="Pilih copy editor"></option>
                                                                 @foreach ($korektor as $i => $cpeList)
                                                                 {{ $sl = '' }}
-                                                                @if (in_array($cpeList->nama, $nama_copyeditor))
+                                                                @if (in_array($cpeList->nama, $nama_korektor))
                                                                 {{ $sl = ' selected="selected" ' }}
                                                                 @endif
                                                                 <option value="{{ $cpeList->id }}" {{ $sl }}>
@@ -317,6 +314,29 @@
                                                                 <button type="button" class="btn btn-outline-danger batal_edit_korektor text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                                             </div>
                                                         </div>
+                                                    </td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
+                                                    <th class="table-secondary" style="width: 25%">Edisi Cetak:</th>
+                                                    @if (!is_null($data->edisi_cetak))
+                                                    <td class="table-active text-right" id="edCetakCol">
+                                                        {{ $data->edisi_cetak }}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="edCetakButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="edCetakColInput" hidden>
+                                                        <div class="input-group">
+                                                            <input type="text" name="edisi_cetak" value="{{ $data->edisi_cetak }}" class="form-control">
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_edisicetak text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @else
+                                                    <td class="table-active text-left">
+                                                        <input type="text" name="edisi_cetak" class="form-control">
                                                     </td>
                                                     @endif
                                                 </tr>
@@ -357,9 +377,24 @@
                                 @else
                                 <?php $label = 'Mulai'; ?>
                                 @endif
-                                <input type="checkbox" name="proses" class="custom-control-input" id="prosesKerja" data-id="{{ $data->id }}" {{ $data->proses == '1' ? 'checked' : '' }}>
+                                <?php $disable = ''; ?>
+                                @if (!is_null($data->mulai_proof) && is_null($data->selesai_proof))
+                                    <?php
+                                    $disable = 'disabled';
+                                    $lbl = 'Sedang proses proof prodev';
+                                    ?>
+                                @elseif (is_null($data->selesai_setting))
+                                    <?php
+                                    $lbl = $label.' proses setting';
+                                    ?>
+                                @else
+                                    <?php
+                                    $lbl = $label.' proses koreksi';
+                                    ?>
+                                @endif
+                                <input type="checkbox" name="proses" class="custom-control-input" id="prosesKerja" data-id="{{ $data->id }}" {{ $data->proses == '1' ? 'checked' : '' }} {{$disable}}>
                                 <label class="custom-control-label mr-3 text-dark" for="prosesKerja">
-                                    {{ is_null($data->tgl_selesai_edit) ? $label . ' proses editor' : $label . ' proses copy editor' }}
+                                    {{ $lbl }}
                                 </label>
                             </div>
                             <button type="submit" class="btn btn-success">Update</button>
@@ -432,6 +467,18 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <th class="table-secondary" style="width: 25%">Bullet</th>
+                                                <td class="table-active text-right">
+                                                    @if (is_null($data->bullet) || $data->bullet == '[]')
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @else
+                                                    @foreach (json_decode($data->bullet, true) as $key => $aj)
+                                                    <span class="bullet"></span>{{ $aj }}<br>
+                                                    @endforeach
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <th class="table-secondary" style="width: 25%">Jumlah halaman
                                                     final: <span class="text-danger">*</span></th>
                                                 <td class="table-active text-right">
@@ -449,18 +496,6 @@
                                                     {{ $data->catatan }}
                                                     @else
                                                     <span class="text-danger text-small">Belum diinput</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th class="table-secondary" style="width: 25%">Bullet</th>
-                                                <td class="table-active text-right">
-                                                    @if (is_null($data->bullet) || $data->bullet == '[]')
-                                                    <span class="text-danger text-small">Belum diinput</span>
-                                                    @else
-                                                    @foreach (json_decode($data->bullet, true) as $key => $aj)
-                                                    <span class="bullet"></span>{{ $aj }}<br>
-                                                    @endforeach
                                                     @endif
                                                 </td>
                                             </tr>
@@ -484,6 +519,16 @@
                                                     @foreach ($nama_korektor as $nc)
                                                         <span class="bullet"></span>{{ $nc }}<br>
                                                         @endforeach
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Edisi Cetak: <span class="text-danger">*</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->edisi_cetak))
+                                                    {{ $data->edisi_cetak }}
                                                     @else
                                                     <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
@@ -524,7 +569,7 @@
 
 
 @section('jsNeeded')
-<script src="{{ url('js/edit_editing.js') }}"></script>
+<script src="{{ url('js/edit_pracetak_setter.js') }}"></script>
 <script>
     function resetFrom(form) {
         form.trigger("reset");
@@ -533,7 +578,8 @@
     $(function() {
         $('#prosesKerja').click(function() {
             var id = $(this).data('id');
-            var editor = $('.select-editor-editing').val()
+            var setter = $('.select-setter').val();
+            var korektor = $('.select-korektor').val();
             if (this.checked) {
                 value = '1';
             } else {
@@ -541,22 +587,23 @@
             }
             let val = value;
             $.ajax({
-                url: "{{ route('editing.proses') }}",
+                url: "{{ route('setter.proses') }}",
                 type: 'POST',
                 data: {
                     id: id,
                     proses: val,
-                    editor: editor
+                    setter: setter,
+                    korektor: korektor,
                 },
                 dataType: 'json',
                 beforeSend: function() {
                     $("#overlay").fadeIn(300);
                 },
                 success: function(result) {
-                    console.log(result);
+                    // console.log(result);
                     if (result.status == 'error') {
                         notifToast(result.status, result.message);
-                        resetFrom($('#fup_editingProses'));
+                        resetFrom($('#fup_pracetakSetter'));
                     } else {
                         notifToast(result.status, result.message);
                         location.reload();

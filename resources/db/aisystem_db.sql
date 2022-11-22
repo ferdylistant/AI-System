@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 21, 2022 at 10:25 AM
+-- Generation Time: Nov 22, 2022 at 11:01 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -535,7 +535,7 @@ CREATE TABLE `editing_proses` (
 --
 
 INSERT INTO `editing_proses` (`id`, `deskripsi_final_id`, `editor`, `tgl_masuk_editing`, `tgl_selesai_proses`, `bulan`, `tgl_mulai_edit`, `tgl_selesai_edit`, `copy_editor`, `tgl_mulai_copyeditor`, `tgl_selesai_copyeditor`, `turun_pracetak`, `catatan`, `proses`, `status`, `ket_pending`) VALUES
-('d85a1255-1b27-4135-8346-54c593419f2f', '44dfe332-5755-4191-8158-e79d496e1473', '[\"e829fe4fb03f45f482f77653158d461c\"]', '2022-11-02 14:42:25', '2022-11-21 14:52:50', '2022-11-21', '2022-11-21 08:56:48', '2022-11-21 08:58:54', '[\"0c5a151afe204df2bf6c38485055da16\"]', '2022-11-21 09:00:32', '2022-11-21 14:52:15', NULL, NULL, '0', 'Selesai', NULL);
+('d85a1255-1b27-4135-8346-54c593419f2f', '44dfe332-5755-4191-8158-e79d496e1473', '[\"e829fe4fb03f45f482f77653158d461c\"]', '2022-11-02 14:42:25', '2022-11-21 14:52:50', '2022-11-21', '2022-11-21 08:56:48', '2022-11-21 08:58:54', '[\"0c5a151afe204df2bf6c38485055da16\"]', '2022-11-22 16:22:00', NULL, NULL, NULL, '1', 'Proses', NULL);
 
 -- --------------------------------------------------------
 
@@ -582,7 +582,8 @@ INSERT INTO `editing_proses_history` (`id`, `editing_proses_id`, `type_history`,
 (9, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-21 08:56:48'),
 (10, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Update', NULL, NULL, NULL, '[\"0c5a151afe204df2bf6c38485055da16\"]', NULL, NULL, NULL, NULL, '2022-11-17', '2022-11-21', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-21 09:00:27'),
 (11, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-21 09:00:32'),
-(12, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-21 14:52:50');
+(12, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-21 14:52:50'),
+(13, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-22 16:22:00');
 
 -- --------------------------------------------------------
 
@@ -603,8 +604,7 @@ CREATE TABLE `editing_proses_selesai` (
 --
 
 INSERT INTO `editing_proses_selesai` (`id`, `type`, `editing_proses_id`, `users_id`, `tgl_proses_selesai`) VALUES
-(1, 'Editor', 'd85a1255-1b27-4135-8346-54c593419f2f', 'e829fe4fb03f45f482f77653158d461c', '2022-11-21 08:58:54'),
-(2, 'Copy Editor', 'd85a1255-1b27-4135-8346-54c593419f2f', '0c5a151afe204df2bf6c38485055da16', '2022-11-21 14:52:15');
+(1, 'Editor', 'd85a1255-1b27-4135-8346-54c593419f2f', 'e829fe4fb03f45f482f77653158d461c', '2022-11-21 08:58:54');
 
 -- --------------------------------------------------------
 
@@ -2234,8 +2234,6 @@ CREATE TABLE `pracetak_setter` (
   `setter` longtext DEFAULT NULL COMMENT 'Array',
   `mulai_proof` datetime DEFAULT NULL,
   `selesai_proof` datetime DEFAULT NULL,
-  `status_proof` set('0','1') DEFAULT NULL COMMENT '0: Revisi,\r\n1: Selesai.\r\nDilakukan oleh prodev',
-  `ket_revisi` text DEFAULT NULL,
   `mulai_koreksi` datetime DEFAULT NULL,
   `selesai_koreksi` datetime DEFAULT NULL,
   `korektor` longtext DEFAULT NULL COMMENT 'Array',
@@ -2243,7 +2241,7 @@ CREATE TABLE `pracetak_setter` (
   `edisi_cetak` varchar(100) DEFAULT NULL,
   `mulai_p_copyright` datetime DEFAULT NULL,
   `selesai_p_copyright` datetime DEFAULT NULL,
-  `proses_saat_ini` enum('Antri Koreksi','Antri Setting','Setting','Proof Reading','Koreksi Manual','Koreksi Komputer','Siap Turcet','Koreksi Gandeng','Turun Cetak','Upload E-Book') DEFAULT NULL,
+  `proses_saat_ini` enum('Antrian Setting','Setting','Proof Reading','Antrian Koreksi','Koreksi','Siap Turcet','Turun Cetak','Upload E-Book') DEFAULT NULL,
   `proses` set('0','1') DEFAULT '0',
   `bulan` date DEFAULT NULL,
   `catatan` text DEFAULT NULL,
@@ -2254,8 +2252,77 @@ CREATE TABLE `pracetak_setter` (
 -- Dumping data for table `pracetak_setter`
 --
 
-INSERT INTO `pracetak_setter` (`id`, `deskripsi_final_id`, `jml_hal_final`, `tgl_masuk_pracetak`, `mulai_setting`, `selesai_setting`, `setter`, `mulai_proof`, `selesai_proof`, `status_proof`, `ket_revisi`, `mulai_koreksi`, `selesai_koreksi`, `korektor`, `turun_cetak`, `edisi_cetak`, `mulai_p_copyright`, `selesai_p_copyright`, `proses_saat_ini`, `proses`, `bulan`, `catatan`, `status`) VALUES
-('b7c5387e-d145-402a-8116-47c5ab8c414b', '44dfe332-5755-4191-8158-e79d496e1473', 1000, '2022-11-02 14:42:25', NULL, NULL, '[\"a4f8d1d67d2e4b9aa2a8e8680a953194\"]', NULL, NULL, NULL, NULL, NULL, NULL, '[\"12c8a8639d814102b01c7ffc0cd52e71\"]', NULL, NULL, NULL, NULL, NULL, '0', NULL, NULL, 'Antrian');
+INSERT INTO `pracetak_setter` (`id`, `deskripsi_final_id`, `jml_hal_final`, `tgl_masuk_pracetak`, `mulai_setting`, `selesai_setting`, `setter`, `mulai_proof`, `selesai_proof`, `mulai_koreksi`, `selesai_koreksi`, `korektor`, `turun_cetak`, `edisi_cetak`, `mulai_p_copyright`, `selesai_p_copyright`, `proses_saat_ini`, `proses`, `bulan`, `catatan`, `status`) VALUES
+('b7c5387e-d145-402a-8116-47c5ab8c414b', '44dfe332-5755-4191-8158-e79d496e1473', 1000, '2022-11-02 14:42:25', NULL, NULL, '[\"a4f8d1d67d2e4b9aa2a8e8680a953194\"]', NULL, NULL, NULL, NULL, '[\"12c8a8639d814102b01c7ffc0cd52e71\"]', NULL, NULL, NULL, NULL, NULL, '0', NULL, NULL, 'Proses');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pracetak_setter_history`
+--
+
+CREATE TABLE `pracetak_setter_history` (
+  `id` bigint(20) NOT NULL,
+  `pracetak_setter_id` char(36) DEFAULT NULL,
+  `type_history` enum('Status','Update','Progress') DEFAULT NULL,
+  `jml_hal_final_his` int(11) DEFAULT NULL,
+  `jml_hal_final_new` int(11) DEFAULT NULL,
+  `setter_his` longtext DEFAULT NULL,
+  `setter_new` longtext DEFAULT NULL,
+  `korektor_his` longtext DEFAULT NULL,
+  `korektor_new` longtext DEFAULT NULL,
+  `bulan_his` date DEFAULT NULL,
+  `bulan_new` date DEFAULT NULL,
+  `status_his` varchar(8) DEFAULT NULL,
+  `status_new` varchar(8) DEFAULT NULL,
+  `progress` tinyint(4) DEFAULT NULL,
+  `catatan_his` text DEFAULT NULL,
+  `catatan_new` text DEFAULT NULL,
+  `edisi_cetak_his` varchar(100) DEFAULT NULL,
+  `edisi_cetak_new` varchar(100) DEFAULT NULL,
+  `mulai_setting` datetime DEFAULT NULL,
+  `selesai_setting` datetime DEFAULT NULL,
+  `mulai_proof` datetime DEFAULT NULL,
+  `selesai_proof` datetime DEFAULT NULL,
+  `status_proof` tinyint(4) DEFAULT NULL,
+  `ket_revisi` text DEFAULT NULL,
+  `mulai_koreksi` datetime DEFAULT NULL,
+  `selesai_koreksi` datetime DEFAULT NULL,
+  `mulai_p_copyright` datetime DEFAULT NULL,
+  `selesai_p_copyright` datetime DEFAULT NULL,
+  `author_id` varchar(36) DEFAULT NULL,
+  `modified_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `pracetak_setter_history`
+--
+
+INSERT INTO `pracetak_setter_history` (`id`, `pracetak_setter_id`, `type_history`, `jml_hal_final_his`, `jml_hal_final_new`, `setter_his`, `setter_new`, `korektor_his`, `korektor_new`, `bulan_his`, `bulan_new`, `status_his`, `status_new`, `progress`, `catatan_his`, `catatan_new`, `edisi_cetak_his`, `edisi_cetak_new`, `mulai_setting`, `selesai_setting`, `mulai_proof`, `selesai_proof`, `status_proof`, `ket_revisi`, `mulai_koreksi`, `selesai_koreksi`, `mulai_p_copyright`, `selesai_p_copyright`, `author_id`, `modified_at`) VALUES
+(1, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-22 11:22:34'),
+(2, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Antrian', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-22 11:25:44'),
+(3, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-22 11:30:08'),
+(4, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-22 16:50:17'),
+(5, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-22 16:56:44'),
+(6, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-22 16:59:38'),
+(7, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-11-22 17:00:04');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pracetak_setter_proof`
+--
+
+CREATE TABLE `pracetak_setter_proof` (
+  `id` bigint(20) NOT NULL,
+  `type_user` enum('Setter','Editor') DEFAULT NULL,
+  `type_action` enum('Proof','Revisi') DEFAULT NULL,
+  `pracetak_setter_id` char(36) DEFAULT NULL,
+  `users_id` varchar(36) DEFAULT NULL,
+  `prodev` varchar(36) DEFAULT NULL,
+  `ket_revisi` text DEFAULT NULL,
+  `tgl_action` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -3284,6 +3351,18 @@ ALTER TABLE `pracetak_setter`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `pracetak_setter_history`
+--
+ALTER TABLE `pracetak_setter_history`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `pracetak_setter_proof`
+--
+ALTER TABLE `pracetak_setter_proof`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `pracetak_setter_selesai`
 --
 ALTER TABLE `pracetak_setter_selesai`
@@ -3371,7 +3450,7 @@ ALTER TABLE `deskripsi_produk_history`
 -- AUTO_INCREMENT for table `editing_proses_history`
 --
 ALTER TABLE `editing_proses_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `editing_proses_selesai`
@@ -3414,6 +3493,12 @@ ALTER TABLE `penerbitan_naskah_history`
 --
 ALTER TABLE `platform_digital_ebook_history`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `pracetak_setter_history`
+--
+ALTER TABLE `pracetak_setter_history`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `pracetak_setter_selesai`

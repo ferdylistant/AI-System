@@ -26,7 +26,7 @@
             <div class="col-12">
                 <div class="card card-warning">
                     <div class="card-header">
-                        <div class="card-header-action lead">
+                        <div class="card-header-action">
                             @if ($data->status == 'Antrian')
                                 <i class="far fa-circle" style="color:#34395E;"></i>
                                 Status Progress:

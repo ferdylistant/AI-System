@@ -131,7 +131,7 @@ Route::middleware(['auth'])->group(function() {
         Route::post('/editing/lihat-history', [EditingController::class, 'lihatHistoryEditing'])->name('editing.history');
         Route::post('/editing/proses-kerja', [EditingController::class, 'prosesKerjaEditing'])->name('editing.proses');
         Route::post('/editing/selesai/{cat}/{id}', [EditingController::class, 'prosesSelesaiEditing'])->name('editing.selesai');
-        //Editing
+        //Pracetak Setter
         Route::get('/pracetak/setter', [PracetakSetterController::class, 'index'])->name('setter.view');
         Route::get('/pracetak/setter/detail', [PracetakSetterController::class, 'detailSetter'])->name('setter.detail');
         Route::match(['get', 'post'],'/pracetak/setter/edit',[PracetakSetterController::class, 'editSetter'])->name('setter.edit');

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use App\Events\PracetakSetterEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -277,7 +278,7 @@ class PracetakSetterController extends Controller
                     ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
                     ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
                     ->where('ps.id', $request->id)
-                    ->select('ps.*', 'dp.judul_final', 'df.bullet', 'dp.jml_hal_perkiraan')
+                    ->select('ps.*', 'dp.judul_final')
                     ->first();
                 if ($request->has('copy_editor')) {
                     foreach ($request->copy_editor as $ce) {
@@ -396,7 +397,7 @@ class PracetakSetterController extends Controller
                 ->orderBy('u.nama', 'Asc')
                 ->get();
         } else {
-            $namaEditor = null;
+            $namaSetter = null;
             $korektor = null;
         }
         if (!is_null($data->korektor)) {
@@ -423,6 +424,279 @@ class PracetakSetterController extends Controller
             'nama_korektor' => $namakorektor,
             'penulis' => $penulis,
         ]);
+    }
+    public function updateStatusProgress(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $data = DB::table('pracetak_setter as ps')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                        ->whereNull('kb.deleted_at');
+                })
+                ->where('ps.id', $id)
+                ->select(
+                    'ps.*',
+                    'df.id as deskripsi_final_id',
+                    'dp.naskah_id',
+                    'dp.format_buku',
+                    'dp.judul_final',
+                    'dp.editor',
+                    'dp.imprint',
+                    'dp.kelengkapan',
+                    'dp.catatan',
+                    'pn.kode',
+                    'pn.judul_asli',
+                    'pn.pic_prodev',
+                    'pn.jalur_buku',
+                    'kb.nama'
+                )
+                ->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data corrupt...'
+                ], 404);
+            }
+            if ($data->status == $request->status) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pilih status yang berbeda dengan status saat ini!'
+                ]);
+            }
+            switch ($request->status) {
+                case 'Selesai':
+                    $proses_saat_ini = 'Turun Cetak';
+                    break;
+                case 'Pending':
+                    if (is_null($data->selesai_setting)) {
+                        if (is_null($data->mulai_setting)) {
+                            $proses_saat_ini = NULL;
+                        } else {
+                            $proses_saat_ini = 'Setting';
+                        }
+                    } else {
+                        if (is_null($data->mulai_koreksi)) {
+                            $proses_saat_ini = NULL;
+                        } else {
+                            $proses_saat_ini = 'Koreksi';
+                        }
+                    }
+                    break;
+                case 'Proses':
+                    if (is_null($data->selesai_setting)) {
+                        if (is_null($data->mulai_setting)) {
+                            $proses_saat_ini = NULL;
+                        } else {
+                            $proses_saat_ini = 'Setting';
+                        }
+                    } else {
+                        if (is_null($data->mulai_koreksi)) {
+                            $proses_saat_ini = NULL;
+                        } else {
+                            $proses_saat_ini = 'Koreksi';
+                        }
+                    }
+                    break;
+                case 'Antrian':
+                    if (is_null($data->selesai_setting)) {
+                        if (is_null($data->mulai_setting)) {
+                            $proses_saat_ini = NULL;
+                        } else {
+                            $proses_saat_ini = 'Antrian Setting';
+                        }
+                    } else {
+                        if (is_null($data->mulai_koreksi)) {
+                            $proses_saat_ini = NULL;
+                        } else {
+                            $proses_saat_ini = 'Antrian Koreksi';
+                        }
+                    }
+                    break;
+            }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $update = [
+                'params' => 'Update Status Pracetak Setter',
+                'id' => $data->id,
+                'proses_saat_ini' => $proses_saat_ini?$proses_saat_ini:$data->proses_saat_ini,
+                'turun_cetak' => $request->status=='Selesai'?$tgl:NULL,
+                'status' => $request->status,
+            ];
+            $insert = [
+                'params' => 'Insert History Status Pracetak Setter',
+                'pracetak_setter_id' => $data->id,
+                'type_history' => 'Status',
+                'status_his' => $data->status,
+                'status_new'  => $request->status,
+                'author_id' => auth()->user()->id,
+                'modified_at' => $tgl
+            ];
+            if ($data->proses == '1') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak bisa mengubah status, karena sedang proses kerja.'
+                ]);
+            }
+            if ($request->status == 'Selesai') {
+                if (is_null($data->selesai_setting)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Proses setting belum selesai'
+                    ]);
+                }
+                if (is_null($data->selesai_proof)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Proses proof prodev belum selesai'
+                    ]);
+                }
+                if (is_null($data->selesai_koreksi)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Proses koreksi belum selesai'
+                    ]);
+                }
+                if (is_null($data->selesai_p_copyright)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Proses copyright belum selesai'
+                    ]);
+                }
+                event(new PracetakSetterEvent($update));
+                event(new PracetakSetterEvent($insert));
+                // DB::table('pracetak_setter')->where('deskripsi_final_id',$data->deskripsi_final_id)->update([
+                //     'jml_hal_final' => $data->jml_hal_perkiraan
+                // ]);
+                $msg = 'Pracetak Setter selesai, silahkan lanjut ke proses deskripsi turun cetak..';
+            } else {
+                event(new PracetakSetterEvent($update));
+                event(new PracetakSetterEvent($insert));
+                $msg = 'Status progress pracetak setter berhasil diupdate';
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => $msg
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    public function prosesKerjaSetter(Request $request)
+    {
+        if ($request->ajax()) {
+            try {
+                $id = $request->id;
+                $value = $request->proses;
+                $data = DB::table('pracetak_setter')->where('id', $id)->first();
+                if (is_null($data)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'naskah sudah tidak ada'
+                    ]);
+                }
+                if ($value == '0') {
+                    if (is_null($data->selesai_setting)) {
+                        $dataProgress = [
+                            'params' => 'Progress Setter',
+                            'id' => $id,
+                            'mulai_setting' => null,
+                            'proses' => $value,
+                            'proses_saat_ini' => NULL,
+                            'type_history' => 'Progress',
+                            'author_id' => auth()->id(),
+                            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        ];
+                    } else {
+                        $dataProgress = [
+                            'params' => 'Progress Korektor',
+                            'id' => $id,
+                            'mulai_korektor' => null,
+                            'proses' => $value,
+                            'proses_saat_ini' => NULL,
+                            'type_history' => 'Progress',
+                            'author_id' => auth()->id(),
+                            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        ];
+                    }
+                    event(new PracetakSetterEvent($dataProgress));
+                    $msg = 'Proses diberhentikan!';
+                } else {
+                    if (is_null($data->selesai_setting)) {
+                        if (!$request->has('setter')) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Pilih setter terlebih dahulu!'
+                            ]);
+                        } else {
+                            if (json_decode($data->setter, true) == $request->setter) {
+                                if (is_null($data->mulai_setting)) {
+                                    $tglSetter = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                                } else {
+                                    $tglSetter = $data->mulai_setting;
+                                }
+                            } else {
+                                $tglSetter = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                            }
+                            $dataSetter = [
+                                'params' => 'Progress Setter',
+                                'id' => $id,
+                                'mulai_setting' => $tglSetter,
+                                'proses' => $value,
+                                'proses_saat_ini' => 'Setting',
+                                'type_history' => 'Progress',
+                                'author_id' => auth()->id(),
+                                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                            ];
+                            event(new PracetakSetterEvent($dataSetter));
+                        }
+                    } else {
+                        if (!$request->has('korektor')) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Pilih korektor terlebih dahulu!'
+                            ]);
+                        } else {
+                            if (json_decode($data->korektor, true) == $request->korektor) {
+                                if (is_null($data->mulai_koreksi)) {
+                                    $tglKorektor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                                } else {
+                                    $tglKorektor = $data->mulai_koreksi;
+                                }
+                            } else {
+                                $tglKorektor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                            }
+                            $dataKorektor = [
+                                'params' => 'Progress Korektor',
+                                'id' => $id,
+                                'mulai_koreksi' => $tglKorektor,
+                                'proses' => $value,
+                                'proses_saat_ini' => 'Koreksi',
+                                'type_history' => 'Progress',
+                                'author_id' => auth()->id(),
+                                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                            ];
+                            event(new PracetakSetterEvent($dataKorektor));
+                        }
+                    }
+                    $msg = 'Proses dimulai!';
+                }
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $msg
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+        }
     }
     protected function panelStatusGuest($status = null, $btn)
     {

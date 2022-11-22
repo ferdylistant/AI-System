@@ -26,7 +26,7 @@
             <div class="col-12">
                 <div class="card card-warning">
                     <div class="row card-header justify-content-between">
-                        <div class="col-auto card-header-action lead">
+                        <div class="col-auto card-header-action">
                             @switch($data->status)
                             @case('Antrian')
                             <i class="far fa-circle" style="color:#34395E;"></i>
@@ -527,7 +527,8 @@
     $(function() {
         $('#prosesKerja').click(function() {
             var id = $(this).data('id');
-            var editor = $('.select-editor-editing').val()
+            var editor = $('.select-editor-editing').val();
+            var copy_editor = $('.select-copyeditor').val();
             if (this.checked) {
                 value = '1';
             } else {
@@ -540,14 +541,15 @@
                 data: {
                     id: id,
                     proses: val,
-                    editor: editor
+                    editor: editor,
+                    copy_editor: copy_editor
                 },
                 dataType: 'json',
                 beforeSend: function() {
                     $("#overlay").fadeIn(300);
                 },
                 success: function(result) {
-                    console.log(result);
+                    // console.log(result);
                     if (result.status == 'error') {
                         notifToast(result.status, result.message);
                         resetFrom($('#fup_editingProses'));

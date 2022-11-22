@@ -828,7 +828,7 @@ class EditingController extends Controller
                             event(new EditingEvent($dataEditor));
                         }
                     } else {
-                        if (is_null($data->copy_editor)) {
+                        if (!$request->has('copy_editor')) {
                             return response()->json([
                                 'status' => 'error',
                                 'message' => 'Pilih copy editor terlebih dahulu!'
