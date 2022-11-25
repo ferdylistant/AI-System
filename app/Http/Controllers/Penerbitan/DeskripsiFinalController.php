@@ -342,8 +342,8 @@ class DeskripsiFinalController extends Controller
                     'kelengkapan_new' => $history->kelengkapan == $request->kelengkapan ? null : $request->kelengkapan,
                     'catatan_his' => $history->catatan == $request->catatan ? null : $history->catatan,
                     'catatan_new' => $history->catatan == $request->catatan ? null : $request->catatan,
-                    'bulan_his' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d') == Carbon::createFromDate($request->bulan) ? null : Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
-                    'bulan_new' => Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d') == Carbon::createFromDate($request->bulan) ? null : Carbon::createFromDate($request->bulan),
+                    'bulan_his' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
+                    'bulan_new' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : Carbon::createFromDate($request->bulan),
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];

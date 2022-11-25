@@ -41,7 +41,7 @@ class PracetakSetterListener
                 break;
             case 'Update Status Pracetak Setter':
                 $res = DB::table('pracetak_setter')->where('id', $data['id'])->update([
-                    'proses_saat_ini' => $data['proses_saat_ini'],
+                    // 'proses_saat_ini' => $data['proses_saat_ini'],
                     'turun_cetak' => $data['turun_cetak'],
                     'status' => $data['status']
                 ]);
@@ -80,6 +80,41 @@ class PracetakSetterListener
                     'editing_proses_id' => $data['id'],
                     'type_history' => $data['type_history'],
                     'progress' => $data['proses'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Edit Pracetak Setter':
+                $res = DB::table('pracetak_setter')->where('id',$data['id'])->update([
+                    'jml_hal_final' => $data['jml_hal_final'],
+                    'catatan' => $data['catatan'],
+                    'setter' => $data['setter'],
+                    'korektor' => $data['korektor'],
+                    'edisi_cetak' => $data['edisi_cetak'],
+                    'mulai_p_copyright' => $data['mulai_p_copyright'],
+                    'selesai_p_copyright' => $data['selesai_p_copyright'],
+                    'proses_saat_ini' => $data['proses_saat_ini'],
+                    'bulan' => $data['bulan']
+                ]);
+                break;
+            case 'Insert History Edit Pracetak Setter':
+                $res = DB::table('pracetak_setter_history')->insert([
+                    'pracetak_setter_id' => $data['pracetak_setter_id'],
+                    'type_history' => $data['type_history'],
+                    'setter_his' => $data['setter_his'],
+                    'setter_new' => $data['setter_new'],
+                    'jml_hal_final_his' => $data['jml_hal_final_his'],
+                    'jml_hal_final_new' => $data['jml_hal_final_new'],
+                    'edisi_cetak_his' => $data['edisi_cetak_his'],
+                    'edisi_cetak_new' => $data['edisi_cetak_new'],
+                    'korektor_his' => $data['korektor_his'],
+                    'korektor_new' => $data['korektor_new'],
+                    'catatan_his' => $data['catatan_his'],
+                    'catatan_new' => $data['catatan_new'],
+                    'mulai_p_copyright' => $data['mulai_p_copyright'],
+                    'selesai_p_copyright' => $data['selesai_p_copyright'],
+                    'bulan_his' => $data['bulan_his'],
+                    'bulan_new' => $data['bulan_new'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);

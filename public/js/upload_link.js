@@ -40,7 +40,7 @@ function ajaxUpProsesProduksiEbook(data) {
             }
         },
         error: function (err) {
-            console.log(err.responseJSON);
+            // console.log(err.responseJSON);
             rs = err.responseJSON.errors;
             if (rs != undefined) {
                 err = {};

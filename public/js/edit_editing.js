@@ -219,12 +219,12 @@ $(function () {
                 $("#overlay").fadeIn(300);
             },
             success: function (result) {
-                console.log(result);
+                // console.log(result);
                 notifToast(result.status, result.message);
                 location.reload();
             },
             error: function (err) {
-                console.log(err.responseJSON);
+                // console.log(err.responseJSON);
                 rs = err.responseJSON.errors;
                 if (rs != undefined) {
                     err = {};

@@ -16,15 +16,11 @@ $(function () {
                 $(".load-more").text("Loading...");
             },
             success: function (response) {
+                // $("div , .tickets-list").slice(0, 2).slideDown();
                 if (response.length == 0) {
                     notifToast("error", "Tidak ada data lagi");
                 }
                 $("#dataHistoryEditing").append(response);
-                // Setting little delay while displaying new content
-                // setTimeout(function() {
-                //     // appending posts after last post with class="post"
-                //     $("#dataHistory:last").htnl(response).show().fadeIn("slow");
-                // }, 2000);
             },
             complete: function (params) {
                 $(".load-more").text("Load more").fadeIn("slow");

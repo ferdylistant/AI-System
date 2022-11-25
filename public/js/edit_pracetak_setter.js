@@ -64,6 +64,45 @@ $(document).ready(function () {
     });
 });
 $(document).ready(function () {
+    $("#prosButton").click(function (e) {
+        e.preventDefault();
+        $("#prosCol").attr("hidden", "hidden");
+        $("#prosColInput").removeAttr("hidden");
+    });
+    $(".batal_edit_proses").click(function (e) {
+        //user click on remove text
+        e.preventDefault();
+        $("#prosColInput").attr("hidden", "hidden");
+        $("#prosCol").removeAttr("hidden");
+    });
+});
+$(document).ready(function () {
+    $("#copyrightButton").click(function (e) {
+        e.preventDefault();
+        $("#copyrightCol").attr("hidden", "hidden");
+        $("#copyrightColInput").removeAttr("hidden");
+    });
+    $(".batal_edit_copyright").click(function (e) {
+        //user click on remove text
+        e.preventDefault();
+        $("#copyrightColInput").attr("hidden", "hidden");
+        $("#copyrightCol").removeAttr("hidden");
+    });
+});
+$(document).ready(function () {
+    $("#copyrightSelButton").click(function (e) {
+        e.preventDefault();
+        $("#copyrightSelCol").attr("hidden", "hidden");
+        $("#copyrightSelColInput").removeAttr("hidden");
+    });
+    $(".batal_edit_selesaicopyright").click(function (e) {
+        //user click on remove text
+        e.preventDefault();
+        $("#copyrightSelColInput").attr("hidden", "hidden");
+        $("#copyrightSelCol").removeAttr("hidden");
+    });
+});
+$(document).ready(function () {
     $("#bulanButton").click(function (e) {
         e.preventDefault();
         $("#bulanCol").attr("hidden", "hidden");
@@ -77,6 +116,15 @@ $(document).ready(function () {
     });
 });
 $(function () {
+    $(".select-proses")
+        .select2({
+            placeholder: "Pilih proses saat ini",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(this).valid();
+            }
+        });
     $(".select-setter")
         .select2({
             placeholder: "Pilih setter",
@@ -98,6 +146,12 @@ $(function () {
             }
         });
 
+    $(".datepicker-copyright").datepicker({
+        format: "dd MM yyyy",
+        autoclose: true,
+        clearBtn: true,
+        todayHighlight: true,
+    });
     $(".datepicker").datepicker({
         format: "MM yyyy",
         viewMode: "months",
@@ -118,12 +172,12 @@ $(function () {
                 $("#overlay").fadeIn(300);
             },
             success: function (result) {
-                console.log(result);
+                // console.log(result);
                 notifToast(result.status, result.message);
                 location.reload();
             },
             error: function (err) {
-                console.log(err.responseJSON);
+                // console.log(err.responseJSON);
                 rs = err.responseJSON.errors;
                 if (rs != undefined) {
                     err = {};
@@ -133,10 +187,10 @@ $(function () {
                     });
                     // upNaskah.showErrors(err);
                 }
-                notifToast("error", "Data editing proses gagal disimpan!");
+                notifToast("error", "Data pracetak setter gagal disimpan!");
             },
             complete: function () {
-                setTimeout(function() {
+                setTimeout(function () {
                     $("#overlay").fadeOut(300);
                 }, 500);
             },

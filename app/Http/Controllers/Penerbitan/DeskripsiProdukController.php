@@ -301,8 +301,8 @@ class DeskripsiProdukController extends Controller
                     'kelengkapan_new' => $history->kelengkapan == $request->kelengkapan ? NULL : $request->kelengkapan,
                     'catatan_his' => $history->catatan == $request->catatan ? NULL : $history->catatan,
                     'catatan_new' => $history->catatan == $request->catatan ? NULL : $request->catatan,
-                    'bulan_his' => $history->bulan == Carbon::createFromDate($request->bulan) ? NULL : Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
-                    'bulan_new' => $history->bulan == Carbon::createFromDate($request->bulan) ? NULL : Carbon::createFromDate($request->bulan),
+                    'bulan_his' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
+                    'bulan_new' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : Carbon::createFromDate($request->bulan),
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];

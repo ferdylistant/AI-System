@@ -62,29 +62,29 @@
                         <div class="col-auto">
                             <i class="fas fa-exclamation-circle"></i>&nbsp;Proses Saat Ini:
                             @switch($data->proses_saat_ini)
-                                @case('Antri Koreksi')
-                                    <span> Antri Koreksi</span>
+                                @case('Antrian Koreksi')
+                                    <span class="text-dark"> Antri Koreksi</span>
                                     @break
-                                @case('Antri Setting')
-                                    <span> Antri Setting</span>
+                                @case('Antrian Setting')
+                                    <span class="text-dark"> Antrian Setting</span>
                                     @break
                                 @case('Setting')
-                                    <span> Setting</span>
+                                    <span class="text-dark" class="text-dark"> Setting</span>
                                     @break
                                 @case('Proof Reading')
-                                    <span> Proof Reading</span>
+                                    <span class="text-dark"> Proof Reading</span>
                                     @break
                                 @case('Koreksi')
-                                    <span> Koreksi</span>
+                                    <span class="text-dark"> Koreksi</span>
                                     @break
                                 @case('Siap Turcet')
-                                    <span> Siap Turcet</span>
+                                    <span class="text-dark"> Siap Turcet</span>
                                     @break
                                 @case('Turun Cetak')
-                                    <span> Turun Cetak</span>
+                                    <span class="text-dark"> Turun Cetak</span>
                                     @break
                                 @case('Upload E-Book')
-                                    <span> Upload E-Book</span>
+                                    <span class="text-dark"> Upload E-Book</span>
                                     @break
                                 @default
                                     <span class="text-danger"> Belum ada proses</span>
@@ -103,7 +103,7 @@
                                         <table class="table table-bordered">
                                             <tbody>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 25%">Kode naskah:</th>
+                                                    <th class="table-secondary" style="width: 25%">Kode Naskah:</th>
                                                     <td class="table-active text-right">{{ $data->kode }}</td>
                                                 </tr>
                                                 <tr>
@@ -159,8 +159,8 @@
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 25%">Jumlah halaman
-                                                        final: <span class="text-danger">*</span></th>
+                                                    <th class="table-secondary" style="width: 25%">Jumlah Halaman
+                                                        Final: <span class="text-danger">*</span></th>
                                                     @if (!is_null($data->jml_hal_final))
                                                     <td class="table-active text-right" id="jmlHalCol">
                                                         {{ $data->jml_hal_final }}
@@ -214,7 +214,7 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 25%">Editor: <span class="text-danger">*</span></th>
+                                                    <th class="table-secondary" style="width: 25%">Setter: <span class="text-danger">*</span></th>
                                                     @if (is_null($data->setter) || $data->setter == '[]')
                                                     <td class="table-active text-left">
                                                         <select name="setter[]" class="form-control select-setter-editing" multiple="multiple" required>
@@ -299,7 +299,7 @@
                                                     <td class="table-active text-left" id="korektorColInput" hidden>
                                                         <div class="input-group">
                                                             <select name="korektor[]" class="form-control select-korektor" multiple="multiple">
-                                                                <option label="Pilih copy editor"></option>
+                                                                <option label="Pilih korektor"></option>
                                                                 @foreach ($korektor as $i => $cpeList)
                                                                 {{ $sl = '' }}
                                                                 @if (in_array($cpeList->nama, $nama_korektor))
@@ -341,6 +341,87 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
+                                                    <th class="table-secondary" style="width: 25%">Mulai Proses Copyright:</th>
+                                                    @if (!is_null($data->mulai_p_copyright))
+                                                    <td class="table-active text-right" id="copyrightCol">
+                                                        {{ Carbon\Carbon::parse($data->mulai_p_copyright)->translatedFormat('l d F Y, H:i') }}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="copyrightButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="copyrightColInput" hidden>
+                                                        <div class="input-group">
+                                                            <input name="mulai_p_copyright" class="form-control datepicker-copyright" placeholder="Tanggal mulai proses copyright" readonly>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_copyright text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @else
+                                                    <td class="table-active text-left">
+                                                        <input name="mulai_p_copyright" class="form-control datepicker-copyright" placeholder="Tanggal mulai proses copyright" readonly>
+                                                    </td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
+                                                    <th class="table-secondary" style="width: 25%">Selesai Proses Copyright:</th>
+                                                    @if (!is_null($data->selesai_p_copyright))
+                                                    <td class="table-active text-right" id="copyrightSelCol">
+                                                        {{ Carbon\Carbon::parse($data->selesai_p_copyright)->translatedFormat('l d F Y, H:i') }}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="copyrightSelButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="copyrightSelColInput" hidden>
+                                                        <div class="input-group">
+                                                            <input name="selesai_p_copyright" class="form-control datepicker-copyright" placeholder="Tanggal selesai proses copyright" readonly>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_selesaicopyright text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @else
+                                                    <td class="table-active text-left">
+                                                        <input name="selesai_p_copyright" class="form-control datepicker-copyright" placeholder="Tanggal selesai proses copyright" readonly>
+                                                    </td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
+                                                    <th class="table-secondary" style="width: 25%">Proses Saat Ini: <span class="text-danger">*</span></th>
+                                                    @if (!is_null($data->proses_saat_ini))
+                                                    <td class="table-active text-right" id="prosCol">
+                                                        {{$data->proses_saat_ini}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="prosButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="prosColInput" hidden>
+                                                        <div class="input-group">
+                                                            <select name="proses_saat_ini" class="form-control select-proses" required>
+                                                                <option label="Pilih proses saat ini"></option>
+                                                                @foreach ($proses_saat_ini as $k)
+                                                                    <option value="{{$k}}" {{$data->proses_saat_ini==$k?'Selected':''}}>{{$k}}&nbsp;&nbsp;</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_proses text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @else
+                                                    <td class="table-active text-left">
+                                                        <div class="input-group">
+                                                            <select name="proses_saat_ini" class="form-control select-proses" required>
+                                                                <option label="Pilih proses saat ini"></option>
+                                                                @foreach ($proses_saat_ini as $k)
+                                                                    <option value="{{$k}}" {{$data->proses_saat_ini==$k?'Selected':''}}>{{$k}}&nbsp;&nbsp;</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
                                                     <th class="table-secondary" style="width: 25%">Bulan: <span class="text-danger">*</span></th>
                                                     @if (!is_null($data->bulan))
                                                     <td class="table-active text-right" id="bulanCol">
@@ -351,7 +432,7 @@
                                                     </td>
                                                     <td class="table-active text-left" id="bulanColInput" hidden>
                                                         <div class="input-group">
-                                                            <input name="bulan" class="form-control datepicker" readonly required>
+                                                            <input name="bulan" class="form-control datepicker" value="{{Carbon\Carbon::parse($data->bulan)->translatedFormat('F Y')}}" placeholder="Bulan proses" readonly required>
                                                             <div class="input-group-append">
                                                                 <button type="button" class="btn btn-outline-danger batal_edit_bulan text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                                             </div>
@@ -359,7 +440,7 @@
                                                     </td>
                                                     @else
                                                     <td class="table-active text-left">
-                                                        <input name="bulan" class="form-control datepicker" readonly required>
+                                                        <input name="bulan" class="form-control datepicker" placeholder="Bulan proses" readonly required>
                                                     </td>
                                                     @endif
                                                 </tr>
@@ -529,6 +610,36 @@
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->edisi_cetak))
                                                     {{ $data->edisi_cetak }}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Mulai Proses Copyright: <span class="text-danger">*</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->mulai_p_copyright))
+                                                    {{ Carbon\Carbon::parse($data->mulai_p_copyright)->translatedFormat('l d F Y, H:i') }}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Selesai Proses Copyright: <span class="text-danger">*</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->selesai_p_copyright))
+                                                    {{ Carbon\Carbon::parse($data->selesai_p_copyright)->translatedFormat('l d F Y, H:i') }}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Proses Saat Ini: <span class="text-danger">*</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->proses_saat_ini))
+                                                    {{ $data->proses_saat_ini }}
                                                     @else
                                                     <span class="text-danger text-small">Belum diinput</span>
                                                     @endif

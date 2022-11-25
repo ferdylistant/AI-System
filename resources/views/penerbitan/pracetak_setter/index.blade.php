@@ -265,5 +265,5 @@
         });
     });
 </script>
-<script src="{{ url('js/update_progress_setter.js') }}"></script>
+<script src="{{ url('js/update_progress_praset.js') }}"></script>
 @endsection

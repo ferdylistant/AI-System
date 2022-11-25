@@ -293,7 +293,7 @@ class EditingController extends Controller
                             ]);
                         }
                     } else {
-                        if ((json_decode($history->copy_editor, true) != $request->copy_editor) && (!is_null($history->tgl_mulai_edit))) {
+                        if ((json_decode($history->copy_editor, true) != $request->copy_editor) && (!is_null($history->tgl_mulai_copyeditor))) {
                             return response()->json([
                                 'status' => 'error',
                                 'message' => 'Hentikan proses untuk mengubah copy editor'
@@ -327,8 +327,8 @@ class EditingController extends Controller
                     'copy_editor_new' => $history->copy_editor == $copyeditor ? null : $copyeditor,
                     'catatan_his' => $history->catatan == $request->catatan ? null : $history->catatan,
                     'catatan_new' => $history->catatan == $request->catatan ? null : $request->catatan,
-                    'bulan_his' => $history->bulan == Carbon::createFromDate($request->bulan) ? null : Carbon::createFromFormat('Y-m-d', $history->bulan)->format('Y-m-d'),
-                    'bulan_new' => $history->bulan == Carbon::createFromDate($request->bulan) ? null : Carbon::createFromDate($request->bulan),
+                    'bulan_his' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
+                    'bulan_new' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : Carbon::createFromDate($request->bulan),
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
@@ -571,7 +571,7 @@ class EditingController extends Controller
                 DB::table('pracetak_setter')->where('deskripsi_final_id',$data->deskripsi_final_id)->update([
                     'jml_hal_final' => $data->jml_hal_perkiraan
                 ]);
-                $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
+                $msg = 'Proses editing selesai, proses akan dilanjukan ke tahap pracetak..';
             } else {
                 event(new EditingEvent($update));
                 event(new EditingEvent($insert));

@@ -529,7 +529,7 @@
                                                     </td>
                                                     <td class="table-active text-left" id="bulanColInput" hidden>
                                                         <div class="input-group">
-                                                            <input name="bulan" class="form-control datepicker" readonly required>
+                                                            <input name="bulan" class="form-control datepicker" value="{{Carbon\Carbon::parse($data->bulan)->translatedFormat('F Y')}}" placeholder="Bulan proses" readonly required>
                                                             <div class="input-group-append">
                                                                 <button type="button" class="btn btn-outline-danger batal_edit_bulan text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                                             </div>
@@ -537,7 +537,7 @@
                                                     </td>
                                                     @else
                                                     <td class="table-active text-left">
-                                                        <input name="bulan" class="form-control datepicker" readonly required>
+                                                        <input name="bulan" class="form-control datepicker" placeholder="Bulan proses" readonly required>
                                                     </td>
                                                     @endif
                                                 </tr>
