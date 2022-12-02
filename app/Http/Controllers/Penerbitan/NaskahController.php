@@ -112,7 +112,7 @@ class NaskahController extends Controller
                                     $badge .= '<span class="badge badge-primary">Selesai Dinilai</span>';
                                     if ($data->pic_prodev == auth()->user()->id) {
                                         if (is_null($data->bukti_email_penulis)) {
-                                            $badge .= '&nbsp;|&nbsp;<a href="' . url('penerbitan/naskah/tandai-data-lengkap?n=' . $data->id) . '" class="text-primary mark-sent-email">Tandai data sudah lengkap</a>';
+                                            $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" class="text-primary mark-sent-email">Tandai data sudah lengkap</a>';
                                         } else {
                                             $badge .= '&nbsp;|&nbsp;<span class="badge badge-success">Data sudah lengkap</span>';
                                         }
@@ -131,7 +131,7 @@ class NaskahController extends Controller
                                 $badge .= '<span class="badge badge-primary">Tidak Dinilai</span>';
                                 if ($data->pic_prodev == auth()->user()->id) {
                                     if (is_null($data->bukti_email_penulis)) {
-                                        $badge .= '&nbsp;|&nbsp;<a href="' . url('penerbitan/naskah/tandai-data-lengkap?n=' . $data->id) . '" class="text-primary mark-sent-email">Tandai data sudah lengkap</a>';
+                                        $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" class="text-primary mark-sent-email">Tandai data sudah lengkap</a>';
                                     } else {
                                         $badge .= '&nbsp;|&nbsp;<span class="badge badge-success">Data sudah lengkap</span>';
                                     }
@@ -386,10 +386,9 @@ class NaskahController extends Controller
                         ]);
                     }
                 }
-                if((count($request->input('edit_sumber_naskah')) == 1) && ($request->input('edit_sumber_naskah')[0] != 'SC')){
+                if ((count($request->input('edit_sumber_naskah')) == 1) && ($request->input('edit_sumber_naskah')[0] != 'SC')) {
                     $url_file = NULL;
-                }
-                elseif ((count($request->input('edit_sumber_naskah')) == 2) && ($request->input('edit_sumber_naskah')[1] != 'SC')) {
+                } elseif ((count($request->input('edit_sumber_naskah')) == 2) && ($request->input('edit_sumber_naskah')[1] != 'SC')) {
                     $url_file = NULL;
                 } else {
                     $url_file = $request->input('edit_url_file');
@@ -540,13 +539,13 @@ class NaskahController extends Controller
 
     public function tandaDataLengkap(Request $request)
     {
-        $id = $request->id;
-        // return response()->json($id);
-        $data = DB::table('penerbitan_naskah as pn')->whereNull('deleted_at')->where('id', $id)->first();
-        if (is_null($data)) {
-            abort(404);
-        }
         try {
+            $id = $request->id;
+            // return response()->json($id);
+            $data = DB::table('penerbitan_naskah as pn')->where('id', $id)->first();
+            if (is_null($data)) {
+                abort(404);
+            }
             $penulis = DB::table('penerbitan_naskah_penulis as pnp')
                 ->join('penerbitan_penulis as pp', 'pnp.penulis_id', '=', 'pp.id')
                 ->where('pnp.naskah_id', $id)
@@ -603,7 +602,10 @@ class NaskahController extends Controller
                 'message' => 'Naskah selesai, silahkan lanjut pada proses Deskripsi Produk'
             ]);
         } catch (\Exception $e) {
-            return abort(500, $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
         }
     }
     public function lihatHistoryNaskah(Request $request)
@@ -646,10 +648,10 @@ class NaskahController extends Controller
                         $loopSN = '';
                         $loopSNN = '';
                         foreach (json_decode($d->sumber_naskah_his, true) as $fc) {
-                            $loopSN .= '<b class="text-dark">' . ($fc=='SC'?'Soft Copy':'Hard Copy') . '</b>, ';
+                            $loopSN .= '<b class="text-dark">' . ($fc == 'SC' ? 'Soft Copy' : 'Hard Copy') . '</b>, ';
                         }
                         foreach (json_decode($d->sumber_naskah_new, true) as $fcn) {
-                            $loopSNN .= '<span class="bullet"></span>' . ($fcn=='SC'?'Soft Copy':'Hard Copy');
+                            $loopSNN .= '<span class="bullet"></span>' . ($fcn == 'SC' ? 'Soft Copy' : 'Hard Copy');
                         }
                         $html .= ' Sumber Naskah <b class="text-dark">' . $loopSN . '</b>diubah menjadi <b class="text-dark">' . $loopSNN . '</b>.<br>';
                     }

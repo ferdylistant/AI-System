@@ -78,10 +78,8 @@ function ajaxTandaDataLengkap(data) {
 }
 $(document).on("click", ".mark-sent-email", function (e) {
     e.preventDefault();
-    let id = $(this).data("id");
     let judul_asli = $(this).data("judul");
     let kode = $(this).data("kode");
-    var getLink = $(this).attr("href");
     swal({
         title:
             "Apakah anda yakin data " +
