@@ -958,4 +958,88 @@ class PracetakSetterController extends Controller
                 <div><i class="fas fa-edit"></i></div></a>';
         return $btn;
     }
+    public function prosesSelesaiSetter($autor,$id)
+    {
+        switch ($autor) {
+            case 'setter':
+                return $this->selesaiSetter($id);
+                break;
+            case 'korektor':
+                return $this->selesaiKorektor($id);
+                break;
+            default:
+                return abort(500);
+                break;
+        }
+    }
+    protected function selesaiSetter($id)
+    {
+        try {
+            $data = DB::table('pracetak_setter')->where('id',$id)->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data setting tidak ada'
+                ],404);
+            }
+            $dataProsesSelf = DB::table('pracetak_setter_selesai')
+            ->where('type','Setter')
+            ->where('type_selesai','Sample')
+            ->where('pracetak_setter_id',$data->id)
+            ->where('users_id',auth()->id())
+            ->get();
+            if (!$dataProsesSelf->isEmpty()) {
+                // foreach ($dataProsesSelf as $value) {
+                //     if ($value->keterangan == '0') {
+
+                //     }
+                // }
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda sudah selesai melakukan editing'
+                ]);
+            }
+            $dataProses = DB::table('editing_proses_selesai')
+            ->where('type','Editor')
+            ->where('editing_proses_id',$data->id)
+            ->get();
+            $edPros = count($dataProses) + 1;
+            if ($edPros == count(json_decode($data->editor,true))) {
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                $pros = [
+                    'params' => 'Proses Selesai',
+                    'type' => 'Editor',
+                    'editing_proses_id' => $data->id,
+                    'users_id' => auth()->id(),
+                    'tgl_proses_selesai' => $tgl
+                ];
+                //* event(new EditingEvent($pros));
+                $done = [
+                    'params' => 'Editing Selesai',
+                    'id' => $data->id,
+                    'tgl_selesai_edit' => $tgl,
+                    'proses' => '0'
+                ];
+                //* event(new EditingEvent($done));
+            } else {
+                $pros = [
+                    'params' => 'Proses Selesai',
+                    'type' => 'Editor',
+                    'editing_proses_id' => $data->id,
+                    'users_id' => auth()->id(),
+                    'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                //* event(new EditingEvent($pros));
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pengerjaan selesai'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }

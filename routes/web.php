@@ -5,8 +5,9 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ManWeb\{StrukturAoController,UsersController};
+use App\Http\Controllers\ManWeb\SettingController;
 use App\Http\Controllers\Penerbitan\DeskripsiCoverController;
+use App\Http\Controllers\ManWeb\{StrukturAoController,UsersController};
 use App\Http\Controllers\MasterData\{ImprintController,KelompokBukuController,FormatBukuController};
 use App\Http\Controllers\Produksi\{ProduksiController, EbookController,ProsesProduksiController,ProsesEbookController};
 use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiFinalController, DeskripsiProdukController, EditingController, PracetakSetterController, PracetakDesainerController};
@@ -49,15 +50,24 @@ Route::middleware(['auth'])->group(function() {
     Route::post('home/penerbitan/{cat}', [HomeController::class, 'ajaxPenerbitan']);
     Route::post('public/penerbitan/fullcalendar/{cat}', [NaskahController::class, 'ajaxFromCalendar']);
 
-    Route::get('manajemen-web/users', [UsersController::class, 'index']);
-    Route::match(['get', 'post'], 'manajemen-web/user/ajax/{act}/{id?}', [UsersController::class, 'ajaxUser']);
-    Route::get('manajemen-web/user/{id}', [UsersController::class, 'selectUser'])->name('user.view');
-    Route::post('manajemen-web/user/update-access', [UsersController::class, 'updateAccess']);
 
-    /* Menu Struktur Organisasi [cabang, divisi, jabatan] */
-    Route::get('manajemen-web/struktur-ao', [StrukturAoController::class, 'index']);
-    Route::match(['get', 'post'], 'manajemen-web/struktur-ao/{act}/{type}/{id?}', [StrukturAoController::class, 'crudSO']);
-
+    // Manajemen User
+    Route::prefix('manajemen-web')->group(function () {
+        //Users
+        Route::get('/users', [UsersController::class, 'index']);
+        Route::match(['get', 'post'], '/user/ajax/{act}/{id?}', [UsersController::class, 'ajaxUser']);
+        Route::get('/user/{id}', [UsersController::class, 'selectUser'])->name('user.view');
+        Route::post('/user/update-access', [UsersController::class, 'updateAccess']);
+        //Struktur AO
+        Route::get('/struktur-ao', [StrukturAoController::class, 'index']);
+        Route::match(['get', 'post'], '/struktur-ao/{act}/{type}/{id?}', [StrukturAoController::class, 'crudSO']);
+    });
+    //Setting
+    Route::prefix('setting')->group(function () {
+        Route::get('/', [SettingController::class, 'index'])->name('setting.view');
+        Route::match(['get', 'post'], '/{act}/{type}/{id?}', [SettingController::class, 'crudSetting']);
+    });
+    //Master Data
     Route::prefix('master')->group(function () {
         //Imprint
         Route::get('/imprint', [ImprintController::class, 'index'])->name('imprint.view');

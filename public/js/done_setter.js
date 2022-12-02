@@ -29,7 +29,7 @@ $(function () {
                         err[key] = value;
                     });
                 }
-                notifToast("error", "Gagal melakukan penyetujuan!");
+                notifToast("error", "Terjadi Kesalahan!");
             },
             complete: function () {
                 // $('button[type="submit"]').prop('disabled', false).

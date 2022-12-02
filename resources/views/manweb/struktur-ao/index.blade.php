@@ -253,7 +253,7 @@
             },
             columns: [
                 { data: 'kode', name: 'kode', title: 'Kode' },
-                { data: 'nama', name: 'Nama', title: 'Nama' },
+                { data: 'nama', name: 'nama', title: 'Nama' },
                 { data: 'telp', name: 'telp', sDefaultContent: '-', title: 'Telepon' },
                 { data: 'alamat', name: 'alamat', sDefaultContent: '-', title: 'Alamat' },
                 { data: 'action', name: 'action', title: 'Aksi', searchable: false, orderable: false },
@@ -277,7 +277,7 @@
             },
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "10%" },
-                { data: 'nama', name: 'Nama', title: 'Nama' },
+                { data: 'nama', name: 'nama', title: 'Nama' },
                 { data: 'action', name: 'action', title: 'Aksi', searchable: false, orderable: false },
             ],
         });
@@ -299,7 +299,7 @@
             },
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "10%" },
-                { data: 'nama', name: 'Nama', title: 'Nama' },
+                { data: 'nama', name: 'nama', title: 'Nama' },
                 { data: 'action', name: 'action', title: 'Aksi', searchable: false, orderable: false },
             ],
         });

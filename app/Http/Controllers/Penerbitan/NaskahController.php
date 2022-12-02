@@ -500,7 +500,7 @@ class NaskahController extends Controller
         $naskah = (object)collect($naskah)->map(function ($item, $key) {
             switch ($key) {
                 case 'tanggal_masuk_naskah':
-                    return $item != '' ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                    return $item != '' ? Carbon::parse($item)->translatedFormat('l, d F Y') : '-';
                 case 'cdqr_code':
                     return $item ? 'Ya' : 'Tidak';
                 default:
