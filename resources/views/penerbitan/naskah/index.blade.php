@@ -98,7 +98,7 @@
                                             class="form-control select-filter status_filter">
                                             <option label="Pilih Filter Data"></option>
                                             @foreach ($data_naskah_penulis as $val)
-                                                <option value="{{ $val['value'] }}">{{ $val['name'] }}&nbsp;&nbsp;</option>
+                                                <option value="{{ $val['value'] }}">{{ $val['value'] }}&nbsp;&nbsp;</option>
                                             @endforeach
 
                                         </select>

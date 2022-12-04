@@ -149,79 +149,23 @@ class EditingController extends Controller
                     $btn = '<a href="' . url('penerbitan/editing/detail?editing=' . $data->id . '&kode=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
-
-                    if ($data->jalur_buku == 'Reguler') { //REGULER
-                        if (Gate::allows('do_create', 'ubah-atau-buat-editing-reguler')) {
-                            if ($data->status == 'Selesai') {
-                                if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
-                                }
-                            } else {
-                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
-                                }
-                            }
-                        }
-
-                        if (Gate::allows('do_create', 'ubah-atau-buat-editing-reguler')) {
-                            $btn = $this->panelStatusKabag($data->status, $data->id, $data->kode, $data->judul_final, $btn);
-                        } else {
-                            $btn = $this->panelStatusGuest($data->status, $btn);
-                        }
-                    } elseif ($data->jalur_buku == 'MOU') { //MOU
-                        if (Gate::allows('do_create', 'ubah-atau-buat-editing-mou')) {
-                            if ($data->status == 'Selesai') {
-                                if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
-                                }
-                            } else {
-                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
-                                }
-                            }
-                        }
-
-                        if (Gate::allows('do_create', 'ubah-atau-buat-editing-mou')) {
-                            $btn = $this->panelStatusKabag($data->status, $data->id, $data->kode, $data->judul_final, $btn);
-                        } else {
-                            $btn = $this->panelStatusGuest($data->status, $btn);
-                        }
-                    } elseif ($data->jalur_buku == 'SMK/NonSMK') { //SMK
-                        if (Gate::allows('do_create', 'ubah-atau-buat-editing-smk')) {
-                            if ($data->status == 'Selesai') {
-                                if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
-                                }
-                            } else {
-                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
-                                }
-                            }
-                        }
-
-                        if (Gate::allows('do_create', 'ubah-atau-buat-editing-smk')) {
-                            $btn = $this->panelStatusKabag($data->status, $data->id, $data->kode, $data->judul_final, $btn);
-                        } else {
-                            $btn = $this->panelStatusGuest($data->status, $btn);
-                        }
-                    } else {
-                        if (Gate::allows('do_create', 'ubah-atau-buat-editing-reguler') || Gate::allows('do_create', 'ubah-atau-buat-editing-mou')) {
-                            if ($data->status == 'Selesai') {
-                                if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
-                                }
-                            } else {
-                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
-                                }
-                            }
-                        }
-
-                        if (Gate::allows('do_create', 'ubah-atau-buat-editing-reguler') || Gate::allows('do_create', 'ubah-atau-buat-editing-mou')) {
-                            $btn = $this->panelStatusKabag($data->status, $data->id, $data->kode, $data->judul_final, $btn);
-                        } else {
-                            $btn = $this->panelStatusGuest($data->status, $btn);
-                        }
+                    switch ($data->jalur_buku) {
+                        case 'Reguler':
+                            $jb = 'reguler';
+                            $btn = $this->logicPermissionAction($data->status,$jb,$data->pic_prodev,$data->id, $data->kode, $data->judul_final, $btn);
+                            break;
+                        case 'MoU':
+                            $jb = 'mou';
+                            $btn = $this->logicPermissionAction($data->status,$jb,$data->pic_prodev,$data->id, $data->kode, $data->judul_final, $btn);
+                            break;
+                        case 'SMK/NonSMK':
+                            $jb = 'smk';
+                            $btn = $this->logicPermissionAction($data->status,$jb,$data->pic_prodev,$data->id, $data->kode, $data->judul_final, $btn);
+                            break;
+                        default:
+                            $jb = 'MoU-Reguler';
+                            $btn = $this->logicPermissionAction($data->status,$jb,$data->pic_prodev,$data->id, $data->kode, $data->judul_final, $btn);
+                            break;
                     }
                     return $btn;
                 })
@@ -709,6 +653,35 @@ class EditingController extends Controller
             }
             return $html;
         }
+    }
+    protected function logicPermissionAction($status = null, $jb = null, $pic_prodev,$id, $kode, $judul_final, $btn)
+    {
+        switch ($jb) {
+            case 'MoU-Reguler':
+                $gate = Gate::allows('do_create', 'ubah-atau-buat-editing-reguler') || Gate::allows('do_create', 'ubah-atau-buat-editing-mou');
+                break;
+            default:
+                $gate = Gate::allows('do_create', 'ubah-atau-buat-editing-'.$jb);
+                break;
+        }
+        if ($gate) {
+            if ($status == 'Selesai') {
+                if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
+                    $btn = $this->buttonEdit($id, $kode, $btn);
+                }
+            } else {
+                if ((auth()->id() == $pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                    $btn = $this->buttonEdit($id, $kode, $btn);
+                }
+            }
+        }
+
+        if ($gate) {
+            $btn = $this->panelStatusKabag($status, $id, $kode, $judul_final, $btn);
+        } else {
+            $btn = $this->panelStatusGuest($status, $btn);
+        }
+        return $btn;
     }
     protected function panelStatusGuest($status = null, $btn)
     {

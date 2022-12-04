@@ -89,7 +89,8 @@ class NaskahController extends Controller
                                     $badge .= '<span class="badge badge-primary">Selesai Dinilai</span>';
                                     if ($data->pic_prodev == auth()->user()->id) {
                                         if (is_null($data->bukti_email_penulis)) {
-                                            $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" class="text-primary mark-sent-email">Tandai data sudah lengkap</a>';
+                                            $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning">Data belum lengkap</span>';
+                                            $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" class="text-primary mark-sent-email">Tandai data lengkap</a>';
                                         } else {
                                             $badge .= '&nbsp;|&nbsp;<span class="badge badge-success">Data sudah lengkap</span>';
                                         }
@@ -112,7 +113,8 @@ class NaskahController extends Controller
                                     $badge .= '<span class="badge badge-primary">Selesai Dinilai</span>';
                                     if ($data->pic_prodev == auth()->user()->id) {
                                         if (is_null($data->bukti_email_penulis)) {
-                                            $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" class="text-primary mark-sent-email">Tandai data sudah lengkap</a>';
+                                            $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning">Data belum lengkap</span>';
+                                            $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" class="text-primary mark-sent-email">Tandai data lengkap</a>';
                                         } else {
                                             $badge .= '&nbsp;|&nbsp;<span class="badge badge-success">Data sudah lengkap</span>';
                                         }
@@ -131,7 +133,8 @@ class NaskahController extends Controller
                                 $badge .= '<span class="badge badge-primary">Tidak Dinilai</span>';
                                 if ($data->pic_prodev == auth()->user()->id) {
                                     if (is_null($data->bukti_email_penulis)) {
-                                        $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="'.$data->id.'" data-kode="'.$data->kode.'" data-judul="'.$data->judul_asli.'" class="text-primary mark-sent-email">Tandai data sudah lengkap</a>';
+                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning">Data belum lengkap</span>';
+                                        $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" class="text-primary mark-sent-email">Tandai sudah lengkap</a>';
                                     } else {
                                         $badge .= '&nbsp;|&nbsp;<span class="badge badge-success">Data sudah lengkap</span>';
                                     }
@@ -196,34 +199,12 @@ class NaskahController extends Controller
             )
             ->orderBy('pn.tanggal_masuk_naskah', 'asc')
             ->get();
-
-        foreach ($data as  $val) {
-            if ($val->pic_prodev == auth()->user()->id) {
-                if (is_null($val->bukti_email_penulis)) {
-                    $valueBelum = 'Tandai data sudah lengkap';
-                    $nameBelum = 'Data Belum Lengkap';
-                } else {
-                    $valueSudah = 'Data sudah lengkap';
-                    $nameSudah = 'Data Sudah Lengkap';
-                }
-            } else {
-                if (is_null($val->bukti_email_penulis)) {
-                    $valueBelum = 'Data belum lengkap';
-                    $nameBelum = 'Data Belum Lengkap';
-                } else {
-                    $valueSudah = 'Data sudah lengkap';
-                    $nameSudah = 'Data Sudah Lengkap';
-                }
-            }
-        }
         $dataLengkap = [
             [
-                'value' => $valueBelum,
-                'name' => $nameBelum
+                'value' => 'Data Belum Lengkap'
             ],
             [
-                'value' => $valueSudah,
-                'name' => $nameSudah
+                'value' => 'Data Sudah Lengkap',
             ]
         ];
         $type = DB::select(DB::raw("SHOW COLUMNS FROM penerbitan_naskah WHERE Field = 'jalur_buku'"))[0]->Type;
