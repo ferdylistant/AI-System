@@ -387,6 +387,56 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
+                                                    <th class="table-secondary" style="width: 25%">ISBN: <span class="text-danger">*Wajib ketika ingin menyelesaikan proses</span></th>
+                                                    @if (!is_null($data->isbn))
+                                                    <td class="table-active text-right" id="isbnCol">
+                                                        {{$data->isbn}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="isbnButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="isbnColInput" hidden>
+                                                        <div class="input-group">
+                                                            <input type="text" name="isbn" class="form-control" value="{{ $data->isbn }}"  placeholder="000000000000" id="ISBN">
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_isbn text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @else
+                                                    <td class="table-active text-left">
+                                                        <div class="input-group">
+                                                            <input type="text" name="isbn" class="form-control"  placeholder="000000000000" id="ISBN">
+                                                        </div>
+                                                    </td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
+                                                    <th class="table-secondary" style="width: 25%">Pengajuan Harga: <span class="text-danger">*Wajib ketika ingin menyelesaikan proses</span></th>
+                                                    @if (!is_null($data->pengajuan_harga))
+                                                    <td class="table-active text-right" id="hargaCol">
+                                                        {{$data->pengajuan_harga}}
+                                                        <p class="text-small">
+                                                            <a href="javascript:void(0)" id="hargaButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                        </p>
+                                                    </td>
+                                                    <td class="table-active text-left" id="hargaColInput" hidden>
+                                                        <div class="input-group">
+                                                            <input type="text" name="pengajuan_harga" class="form-control" value="{{ $data->pengajuan_harga }}"  placeholder="000000000000" id="HARGA">
+                                                            <div class="input-group-append">
+                                                                <button type="button" class="btn btn-outline-danger batal_edit_pengajuan_harga text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    @else
+                                                    <td class="table-active text-left">
+                                                        <div class="input-group">
+                                                            <input type="text" name="pengajuan_harga" class="form-control" placeholder="000000000000" id="HARGA">
+                                                        </div>
+                                                    </td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
                                                     <th class="table-secondary" style="width: 25%">Proses Saat Ini: <span class="text-danger">*</span></th>
                                                     @if (!is_null($data->proses_saat_ini))
                                                     <td class="table-active text-right" id="prosCol">
@@ -636,6 +686,26 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <th class="table-secondary" style="width: 25%">ISBN: <span class="text-danger">*Wajib ketika ingin menyelesaikan proses</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->isbn))
+                                                    {{ $data->isbn }}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-secondary" style="width: 25%">Pengajuan Harga: <span class="text-danger">*Wajib ketika ingin menyelesaikan proses</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->pengajuan_harga))
+                                                    {{ $data->pengajuan_harga }}
+                                                    @else
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <th class="table-secondary" style="width: 25%">Proses Saat Ini: <span class="text-danger">*</span></th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->proses_saat_ini))
@@ -671,6 +741,7 @@
 
 @section('jsRequired')
 <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
+<script src="https://unpkg.com/imask"></script>
 <script src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
 <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
 <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
@@ -681,52 +752,4 @@
 
 @section('jsNeeded')
 <script src="{{ url('js/edit_pracetak_setter.js') }}"></script>
-<script>
-    function resetFrom(form) {
-        form.trigger("reset");
-        $('[name="proses"]').val("").trigger("change");
-    }
-    $(function() {
-        $('#prosesKerja').click(function() {
-            var id = $(this).data('id');
-            var setter = $('.select-setter').val();
-            var korektor = $('.select-korektor').val();
-            if (this.checked) {
-                value = '1';
-            } else {
-                value = '0';
-            }
-            let val = value;
-            $.ajax({
-                url: "{{ route('setter.proses') }}",
-                type: 'POST',
-                data: {
-                    id: id,
-                    proses: val,
-                    setter: setter,
-                    korektor: korektor,
-                },
-                dataType: 'json',
-                beforeSend: function() {
-                    $("#overlay").fadeIn(300);
-                },
-                success: function(result) {
-                    // console.log(result);
-                    if (result.status == 'error') {
-                        notifToast(result.status, result.message);
-                        resetFrom($('#fup_pracetakSetter'));
-                    } else {
-                        notifToast(result.status, result.message);
-                        location.reload();
-                    }
-                }
-            }).done(function() {
-                setTimeout(function() {
-                    $("#overlay").fadeOut(300);
-                }, 500);
-            });
-
-        });
-    });
-</script>
 @endsection

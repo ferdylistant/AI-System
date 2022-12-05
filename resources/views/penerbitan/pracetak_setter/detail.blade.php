@@ -134,8 +134,15 @@
                                         @case('Pro Literasi')
                                             @foreach (json_decode($dataRole) as $edt)
                                                 @if (auth()->id() == $edt)
-                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-praset-reguler') ||
-                                                        Gate::allows('do_create', 'otorisasi-editor-praset-mou'))
+                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-praset-proliterasi'))
+                                                    <div class="col-auto">
+                                                            <div class="mb-4">
+                                                                <button type="submit" class="btn btn-success"
+                                                                    id="btn-done-praset" data-id="{{ $data->id }}"
+                                                                    data-kode="{{ $data->kode }}" data-autor="{{$label}}">
+                                                                    <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                                            </div>
+                                                        </div>
                                                     @endif
                                                 @endif
                                             @endforeach
