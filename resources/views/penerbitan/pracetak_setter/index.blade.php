@@ -218,14 +218,9 @@
                     title: 'PIC Prodev'
                 },
                 {
-                    data: 'setter',
-                    name: 'setter',
-                    title: 'Setter'
-                },
-                {
-                    data: 'korektor',
-                    name: 'korektor',
-                    title: 'Korektor '
+                    data: 'proses_saat_ini',
+                    name: 'proses_saat_ini',
+                    title: 'Proses Saat Ini'
                 },
                 {
                     data: 'history',

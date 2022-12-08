@@ -852,7 +852,10 @@ class EditingController extends Controller
                 return $this->selesaiCopyEditor($id);
                 break;
             default:
-                return abort(500);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terjadi kesalahan!'
+                ]);
                 break;
         }
     }

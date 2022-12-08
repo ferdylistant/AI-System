@@ -70,6 +70,19 @@ class PracetakSetterListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
+            case 'Progress Proof Prodev':
+                $res = DB::table('pracetak_setter')->where('id',$data['id'])->update([
+                    'mulai_proof' => $data['mulai_proof'],
+                    'proses' => $data['proses']
+                ]);
+                DB::table('pracetak_setter_history')->insert([
+                    'pracetak_setter_id' => $data['id'],
+                    'type_history' => $data['type_history'],
+                    'progress' => $data['proses'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
             case 'Progress Korektor':
                 $res =  DB::table('pracetak_setter')->where('id', $data['id'])->update([
                     'mulai_koreksi' => $data['mulai_koreksi'],
@@ -123,6 +136,21 @@ class PracetakSetterListener
                     'bulan_new' => $data['bulan_new'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Proses Setting Selesai':
+                $res = DB::table('pracetak_setter_selesai')->insert([
+                    'type' => $data['type'],
+                    'pracetak_setter_id' => $data['pracetak_setter_id'],
+                    'users_id' => $data['users_id'],
+                    'tgl_proses_selesai' => $data['tgl_proses_selesai']
+                ]);
+                break;
+            case 'Setting Selesai':
+                $res = DB::table('pracetak_setter')->where('id',$data['id'])->update([
+                    'selesai_setting' => $data['selesai_setting'],
+                    'proses' => $data['proses'],
+                    'proses_saat_ini' => $data['proses_saat_ini']
                 ]);
                 break;
             default:
