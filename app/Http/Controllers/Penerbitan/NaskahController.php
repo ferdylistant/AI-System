@@ -577,7 +577,7 @@ class NaskahController extends Controller
                 'author_id' => auth()->id()
             ];
             event(new NaskahEvent($buktiEmailHistory));
-            return redirect()->json([
+            return response()->json([
                 'status' => 'success',
                 'message' => 'Naskah selesai, silahkan lanjut pada proses Deskripsi Produk'
             ]);
