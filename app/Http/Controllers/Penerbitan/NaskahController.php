@@ -559,7 +559,6 @@ class NaskahController extends Controller
                 'params' => 'Create Despro',
                 'id' => Uuid::uuid4()->toString(),
                 'naskah_id' => $id,
-                'pembuat_deskripsi' => $data->pic_prodev,
                 'status' => 'Antrian'
             ];
             event(new DesproEvent($createDespro));
