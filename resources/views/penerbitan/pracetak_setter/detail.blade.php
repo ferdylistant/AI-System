@@ -49,13 +49,22 @@
                         </div>
                         <div class="col-auto">
                             @if ($data->proses == '1')
-                            <span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Sedang proses
-                                pengerjaan {{is_null($data->selesai_setting)?'setter':'korektor'}}</span>
+                            <span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;
+                            @if (!is_null($data->mulai_proof) && is_null($data->selesai_proof))
+                                Sedang proses proof prodev
+                            @else
+                                Sedang proses pengerjaan {{is_null($data->selesai_setting)?'setter':'korektor'}}
+                            @endif
+                            </span>
                             @endif
                         </div>
                     </div>
                     <div class="card-body">
-                        @include('penerbitan.pracetak_setter.include.access_setkor')
+                        @if (auth()->id() == $data->pic_prodev)
+                            @include('penerbitan.pracetak_setter.include.access_prodev')
+                        @else
+                            @include('penerbitan.pracetak_setter.include.access_setkor')
+                        @endif
                         <div class="row mb-4">
                             <div class="col-12 col-md-4">
                                 <div class="list-group-item flex-column align-items-start">
@@ -118,7 +127,7 @@
                                             @foreach ($penulis as $pen)
                                             <p class="mb-1 text-monospace">
                                                 <span class="bullet"></span>
-                                                <span>{{ $pen->nama }}</span>
+                                                <a href="{{url('/penerbitan/penulis/detail-penulis/'.$pen->id)}}">{{ $pen->nama }}</a>
                                             </p>
                                             @endforeach
                                         </li>
@@ -153,10 +162,10 @@
                                         <h6 class="mb-1">PIC Prodev</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
-                                        @if (is_null($pic))
+                                        @if (is_null($pic->nama))
                                         -
                                         @else
-                                        {{ $pic }}
+                                        <a href="{{url('/manajemen-web/user/' . $pic->id)}}">{{ $pic->nama }}</a>
                                         @endif
                                     </p>
                                 </div>
@@ -208,6 +217,31 @@
                                         -
                                         @else
                                         {{ $data->sinopsis }}
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">ISBN</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                        @if (is_null($data->isbn))
+                                        -
+                                        @else
+                                        {{ $data->isbn }}
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Pengajuan Harga</h6>
+                                    </div>
+                                    <p class="mb-1 text-monospace">
+                                        @if (is_null($data->pengajuan_harga))
+                                        -
+                                        @else
+
+                                        @format_rupiah($data->pengajuan_harga)
                                         @endif
                                     </p>
                                 </div>

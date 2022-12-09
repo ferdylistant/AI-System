@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 08, 2022 at 09:29 AM
+-- Generation Time: Dec 09, 2022 at 08:40 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -1208,7 +1208,7 @@ INSERT INTO `notif` (`id`, `section`, `type`, `url`, `raw_data`, `permission_id`
 ('79a4142ddd71455eacf53ff35db4efd8', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'a213b689b8274f4dbe19b3fb24d66840', 'be2c0f93a0db462a81f69081b4991a5a', '2022-11-03 03:53:53', NULL),
 ('7e5b44dbb2ce4c888ece623a0bfdc5dc', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'a213b689b8274f4dbe19b3fb24d66840', '4430fe9a3ae5499c8759d3225f0aa7b5', '2022-06-13 02:59:39', NULL),
 ('8113379a4afa41bb84c5502cd6b95fb8', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'ebca07da8aad42c4aee304e3a6b81001', '1a97e49ef92945d58bbc26b388771d9c', '2022-10-28 20:17:52', '2022-10-28 20:19:43'),
-('819fc953fe8e4c42926dbb0272fbef1c', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'ebca07da8aad42c4aee304e3a6b81001', '266da2c74b774d45a6717421208134e1', '2022-09-27 03:49:48', NULL),
+('819fc953fe8e4c42926dbb0272fbef1c', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'ebca07da8aad42c4aee304e3a6b81001', '266da2c74b774d45a6717421208134e1', '2022-09-27 03:49:48', '2022-12-09 02:56:16'),
 ('85f33d0ac64e4dc893c1f6490da11de1', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, '8791f143a90e42e2a4d1d0d6b1254bad', 'fd9c40ad3c62499e9e9b10af7bfae40c', '2022-10-26 09:33:09', '2022-10-26 10:30:56'),
 ('880c968752e74d63b6c6b250b8973d14', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'a213b689b8274f4dbe19b3fb24d66840', '5707a19dd4804b25899e57b37b335ab6', '2022-06-09 01:55:46', NULL),
 ('8ae9d60c987a4712b89aa376d72b2f55', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, '12b852d92d284ab5a654c26e8856fffd', 'f56c0df2ccd24207b5a18e660bcf6f1a', '2022-06-09 01:57:38', '2022-10-27 09:01:42'),
@@ -1290,7 +1290,7 @@ INSERT INTO `notif_detail` (`notif_id`, `user_id`, `seen`, `raw_data`, `created_
 ('26ed01756da5476cadbf1ab5226c556d', 'f88116e1873c4403a7fb76a08f5266cb', '1', NULL, '2022-06-23 04:12:52', '2022-06-30 23:20:44'),
 ('26ed01756da5476cadbf1ab5226c556d', 'a400e4bcf70d40d78224043cc95e6241', '1', NULL, '2022-07-01 05:59:53', '2022-06-30 23:20:44'),
 ('26ed01756da5476cadbf1ab5226c556d', 'f88116e1873c4403a7fb76a08f5266cb', '0', NULL, '2022-07-01 06:20:44', NULL),
-('819fc953fe8e4c42926dbb0272fbef1c', 'e83ca4537495486c8d3b5d7e6ae2407a', '0', NULL, '2022-09-27 03:49:48', NULL),
+('819fc953fe8e4c42926dbb0272fbef1c', 'e83ca4537495486c8d3b5d7e6ae2407a', '1', NULL, '2022-09-27 03:49:48', '2022-12-09 02:56:16'),
 ('47ad161c7f4b4b9a9cbf8f4958f2d0c0', 'e83ca4537495486c8d3b5d7e6ae2407a', '0', NULL, '2022-10-26 14:36:48', NULL),
 ('0e38d8c09867465fb642a8bec32d3a88', '072df3b932394d6caacb5c9c0960d42b', '0', NULL, '2022-10-26 14:54:10', NULL),
 ('46938d7897b04bfa8af2a04d4bf1ffe6', 'f88116e1873c4403a7fb76a08f5266cb', '0', NULL, '2022-10-27 09:08:32', NULL),
@@ -1970,7 +1970,8 @@ INSERT INTO `penerbitan_pn_prodev` (`id`, `naskah_id`, `sistematika`, `nilai_kei
 ('6dc6cbeb8a584b3f9f5e5ce698384783', 'f56c0df2ccd24207b5a18e660bcf6f1a', 'Baik', 'Baik', 'c16a55c4b1c54e12b3c79d292a340f84', 'Naskah seri Keselamatan di tempat umum ini terdiri dari 4 cerita, yaitu saat di Mal, di kebun binatang, di angkutan umum dan di kolam renang. Tema cukup menarik dan yang jelas dibutuhkan untuk anak-anak maupun orang tua. Yang perlu diperhatikan dalam pembahasannya (oleh penulis) adalah untuk mengecek penatalaksanaan penanganan jika ada darurat di tempat-tempat umum tersebut. Misalnya dengan melakukan survei atau riset kecil-kecilan di tempat-tempat yang menjadi background dari masing-masing cerita ini. Yaitu di mall, kebun binatang, angkutan umum maupun di kolam renang. Kali ini topik khusus keselamatan umum yang diangkat adalah SAAT DI KOLAM RENANG, bercerita tentang Andin dan Kayla yang diajak oleh Kak Tami untuk menemani Kak Tami berlatih renang. Mereka berdua sambil menunggu kakaknya bermain di kolam renang bermain. Mereka berhati-hati dengan tidak berlari di kolam, menjaga kebersihan dengan tidak buang air di kolam renang serta tidak berenang di kolam dewasa. Ada beberapa hal yang perlu ditekankan lagi baik dalam cerita maupun dalam tips aman di akhir cerita, yaitu untuk tidak menggunakan perhiasan, melakukan pemanasan sebentar sebelum berenang serta menghindari tepi kolam.  Hal-hal tersebut mungkin perlu ditambahkan baik dalam alur cerita ataupun dalam Tips Aman  di akhir cerita.  Perlu dicek juga untuk ilustrasi dari masing-masing judul ini. Topik khusus di Kolam Renang ini dalam seri ini cukup menarik. dibutuhkan dan cukup menjual, karena banyak anak-anak yang suka bermain air, salah satunya adalah di kolam renang, selain di laut.', 'anak usia 6+, praktisi pendidikan dan pendamping anak, orang tua, dan masyarakat pada umumnya', 'toko buku, sekolah dan proyek', NULL, 'Baik', 'Diterima', 'Sangat baik', NULL, '072df3b932394d6caacb5c9c0960d42b', NULL, '2022-07-29 08:55:04', NULL),
 ('9d427d5341af4a5cbc6a470a58bd359d', '1a97e49ef92945d58bbc26b388771d9c', 'Baik', 'Cukup', '338668ba6f424786881b6e3db917be71', NULL, NULL, NULL, NULL, 'Baik', 'Diterima', NULL, NULL, 'ceadd9fb648445eab1e350357e51d1ce', NULL, '2022-10-28 20:19:43', NULL),
 ('a8852a7a6ae24ceb9e0e426c58955310', '95d9ebcd691e477eaeaf7c1aba4dd04d', 'Baik', 'Baik', 'c16a55c4b1c54e12b3c79d292a340f84', 'Naskah seri Keselamatan di tempat umum ini terdiri dari 4 cerita, yaitu saat di Mal, di kebun binatang, di angkutan umum dan di kolam renang. Tema cukup menarik dan yang jelas dibutuhkan untuk anak-anak maupun orang tua. Yang perlu diperhatikan dalam pembahasannya (oleh penulis) adalah untuk mengecek penatalaksanaan penanganan jika ada darurat di tempat-tempat umum tersebut. Misalnya dengan melakukan survei atau riset kecil-kecilan di tempat-tempat yang menjadi background dari masing-masing cerita ini. Yaitu di mall, kebun binatang, angkutan umum maupun di kolam renang. Kali ini topik khusus keselamatan umum yang diangkat adalah SAAT DI ANGKUTAN UMUM, bercerita tentang Meta dan Tia yang akan pulang bersama menggunakan angkutan umum. Meta memperingatkan Tia untuk tidak bermain HP di angkot, tidak tidur di angkot dan menjaga untuk tidak sampai ketiduran di angkutan umum, untuk menghindari hal-hal yang tidak diinginkan serta memeriksa barang-barang yang dibawa jangan sampai tertinggal. Perlu dicek juga untuk ilustrasi dari masing-masing judul ini. Topik di angkutan umum ini  dalam seri ini cukup menarik meski mungkin sudah tidak terlalu populer karena sekarang lebih banyak menggunakan ojol. Tetapi topik ini masih cukup dibutuhkan dan cukup menjual, karena tetap bisa diterapkan menggunakan alat transportasi umum lainnya, seperti kereta api listrik, dll.', 'anak usia 6+, praktisi pendidikan dan pendamping anak, orang tua, dan masyarakat pada umumnya', 'toko buku, sekolah, proyek', NULL, 'Baik', 'Diterima', 'Sangat baik', NULL, '072df3b932394d6caacb5c9c0960d42b', NULL, '2022-07-29 09:21:06', NULL),
-('b1a7ec6148df4d5898923fbf33f869be', 'dc29daf30b16470baebd899424abf819', 'Baik', 'Baik', 'c16a55c4b1c54e12b3c79d292a340f84', 'Naskah seri Keselamatan di tempat umum ini terdiri dari 4 cerita, yaitu saat di Mal, di kebun binatang, di angkutan umum dan di kolam renang. Tema cukup menarik dan yang jelas dibutuhkan untuk anak-anak maupun orang tua. Yang perlu diperhatikan dalam pembahasannya (oleh penulis) adalah untuk mengecek penatalaksanaan penanganan jika ada darurat di tempat-tempat umum tersebut. Misalnya dengan melakukan survei atau riset kecil-kecilan di tempat-tempat yang menjadi background dari masing-masing cerita ini. Yaitu di mall, kebun binatang, angkutan umum maupun di kolam renang. Untuk naskah dengan topik khusus keselamatan umum SAAT DI MALL, ini bercerita tentang dua orang anak yang saking asyiknya bermain di mall, hingga mereka akhirnya terpisah dari Pamannya yang mengajak mereka untuk bermain di Mall. Anak tersebut kemudian mencari petugas keamanan Mall (satpam) yang kemudian membantu mereka, dan akhirnya mereka dapat bertemu lagi dengan pamannya. Perlu dicek juga untuk ilustrasi dari masing-masing judul ini. Tetapi secara keseluruhan tema seri ini cukup menarik. dibutuhkan dan cukup menjual.', 'anak usia 7+, praktisi pendidikan, orang tua, dan masyarakat pada umumnya', 'proyek sekolah, perpustakaan, toko buku', 'Penerbitan', 'Baik', 'Diterima', 'Sangat baik', '[{\"judul\":\"Seri Keselamatan di Tempat Umum - Saat di Mal\"}]', '072df3b932394d6caacb5c9c0960d42b', '072df3b932394d6caacb5c9c0960d42b', '2022-06-09 01:39:32', '2022-07-29 01:10:45');
+('b1a7ec6148df4d5898923fbf33f869be', 'dc29daf30b16470baebd899424abf819', 'Baik', 'Baik', 'c16a55c4b1c54e12b3c79d292a340f84', 'Naskah seri Keselamatan di tempat umum ini terdiri dari 4 cerita, yaitu saat di Mal, di kebun binatang, di angkutan umum dan di kolam renang. Tema cukup menarik dan yang jelas dibutuhkan untuk anak-anak maupun orang tua. Yang perlu diperhatikan dalam pembahasannya (oleh penulis) adalah untuk mengecek penatalaksanaan penanganan jika ada darurat di tempat-tempat umum tersebut. Misalnya dengan melakukan survei atau riset kecil-kecilan di tempat-tempat yang menjadi background dari masing-masing cerita ini. Yaitu di mall, kebun binatang, angkutan umum maupun di kolam renang. Untuk naskah dengan topik khusus keselamatan umum SAAT DI MALL, ini bercerita tentang dua orang anak yang saking asyiknya bermain di mall, hingga mereka akhirnya terpisah dari Pamannya yang mengajak mereka untuk bermain di Mall. Anak tersebut kemudian mencari petugas keamanan Mall (satpam) yang kemudian membantu mereka, dan akhirnya mereka dapat bertemu lagi dengan pamannya. Perlu dicek juga untuk ilustrasi dari masing-masing judul ini. Tetapi secara keseluruhan tema seri ini cukup menarik. dibutuhkan dan cukup menjual.', 'anak usia 7+, praktisi pendidikan, orang tua, dan masyarakat pada umumnya', 'proyek sekolah, perpustakaan, toko buku', 'Penerbitan', 'Baik', 'Diterima', 'Sangat baik', '[{\"judul\":\"Seri Keselamatan di Tempat Umum - Saat di Mal\"}]', '072df3b932394d6caacb5c9c0960d42b', '072df3b932394d6caacb5c9c0960d42b', '2022-06-09 01:39:32', '2022-07-29 01:10:45'),
+('c0560b0cbc0d4700b6151f07a50dff2a', '266da2c74b774d45a6717421208134e1', 'Baik', 'Kurang', '0e3c62efe1c34fc595505860ddee1376', NULL, NULL, NULL, NULL, 'Cukup', 'Diterima', NULL, NULL, 'e83ca4537495486c8d3b5d7e6ae2407a', NULL, '2022-12-09 02:56:16', NULL);
 
 -- --------------------------------------------------------
 
@@ -2019,7 +2020,7 @@ INSERT INTO `penerbitan_pn_stts` (`id`, `naskah_id`, `tgl_input_admin`, `tgl_nas
 ('9e81321a28cb4d3b91e9c39541f62547', '1a71b26e23094c39a62f6c8d62ec6665', '2022-07-22 09:32:45', '2022-07-06 00:00:00', '2022-07-22 10:13:39', NULL, NULL, '2022-07-22 09:46:53', '2022-07-22 10:15:14', '2022-07-22 10:11:56', '2022-07-22 10:15:41', '2022-07-22 10:15:41'),
 ('8cd52b19503448a9965bf25519115419', '53ab006dae6b4fbab6b5077ded2751f7', NULL, '2022-09-12 17:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-09-12 02:59:02'),
 ('689621c52584453087a8c367e28cb757', '16fdb6f329c544c6824cf85ec38501b7', NULL, '2022-09-13 17:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-09-14 02:58:18'),
-('3c365640aa224ca18ad9d3c9c2cd7e7c', '266da2c74b774d45a6717421208134e1', NULL, '2022-09-22 17:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+('3c365640aa224ca18ad9d3c9c2cd7e7c', '266da2c74b774d45a6717421208134e1', NULL, '2022-09-22 17:00:00', '2022-12-09 02:56:16', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 ('f93964b1198543c490ab26a33e0a51e8', '84df36f9b0074c9e93028e3e2257a7d1', NULL, '2022-10-25 17:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-10-26 03:28:58'),
 ('4f21e2cd28ca4a71b86978b05fef8787', 'a8d7134ffedb4bf69b551074195ecce6', NULL, '2022-10-26 17:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 ('d957c25e80da4c619483efb4e5c0ed9b', '7067273f1d904108981ed70925b3728e', NULL, '2022-10-25 17:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -2263,7 +2264,7 @@ CREATE TABLE `pracetak_setter` (
   `selesai_p_copyright` datetime DEFAULT NULL,
   `isbn` char(13) DEFAULT NULL,
   `pengajuan_harga` int(11) DEFAULT NULL,
-  `proses_saat_ini` enum('Antrian Setting','Setting','Proof Reading','Antrian Koreksi','Koreksi','Siap Turcet','Turun Cetak','Upload E-Book') DEFAULT NULL,
+  `proses_saat_ini` enum('Antrian Setting','Setting','Proof Prodev','Antrian Koreksi','Koreksi','Siap Turcet','Turun Cetak','Upload E-Book') DEFAULT NULL,
   `proses` set('0','1') DEFAULT '0',
   `bulan` date DEFAULT NULL,
   `catatan` text DEFAULT NULL,
@@ -2275,7 +2276,7 @@ CREATE TABLE `pracetak_setter` (
 --
 
 INSERT INTO `pracetak_setter` (`id`, `deskripsi_final_id`, `jml_hal_final`, `tgl_masuk_pracetak`, `mulai_setting`, `selesai_setting`, `setter`, `mulai_proof`, `selesai_proof`, `mulai_koreksi`, `selesai_koreksi`, `korektor`, `turun_cetak`, `edisi_cetak`, `mulai_p_copyright`, `selesai_p_copyright`, `isbn`, `pengajuan_harga`, `proses_saat_ini`, `proses`, `bulan`, `catatan`, `status`) VALUES
-('b7c5387e-d145-402a-8116-47c5ab8c414b', '44dfe332-5755-4191-8158-e79d496e1473', 1000, '2022-11-02 14:42:25', '2022-12-06 13:02:34', '2022-12-08 15:12:38', '[\"a4f8d1d67d2e4b9aa2a8e8680a953194\",\"ba360e2a572f45979cb83648fc5e2ec7\"]', NULL, NULL, NULL, NULL, '[\"12c8a8639d814102b01c7ffc0cd52e71\"]', NULL, '1', NULL, NULL, '2132342435234', 345234234, 'Antrian Koreksi', '0', '2022-11-01', NULL, 'Proses');
+('b7c5387e-d145-402a-8116-47c5ab8c414b', '44dfe332-5755-4191-8158-e79d496e1473', 1000, '2022-11-02 14:42:25', '2022-12-06 13:02:34', '2022-12-08 15:12:38', '[\"a4f8d1d67d2e4b9aa2a8e8680a953194\",\"ba360e2a572f45979cb83648fc5e2ec7\"]', '2022-12-09 09:14:40', NULL, NULL, NULL, '[\"12c8a8639d814102b01c7ffc0cd52e71\"]', NULL, '1', NULL, NULL, '2132342435234', 345234234, 'Proof Prodev', '1', '2022-11-01', NULL, 'Proses');
 
 -- --------------------------------------------------------
 
@@ -2386,7 +2387,9 @@ INSERT INTO `pracetak_setter_history` (`id`, `pracetak_setter_id`, `type_history
 (59, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-08 15:14:20'),
 (60, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-08 15:15:04'),
 (61, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-08 15:15:09'),
-(62, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-08 15:22:33');
+(62, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-08 15:22:33'),
+(63, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-09 09:14:33'),
+(64, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-09 09:14:40');
 
 -- --------------------------------------------------------
 
@@ -2810,7 +2813,9 @@ INSERT INTO `user_log` (`id`, `users_id`, `ip_address`, `last_login`, `user_agen
 (13, 'a4f8d1d67d2e4b9aa2a8e8680a953194', '192.168.6.42', '2022-12-05 15:19:21', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
 (14, 'a4f8d1d67d2e4b9aa2a8e8680a953194', '192.168.6.42', '2022-12-07 08:50:18', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
 (15, 'a4f8d1d67d2e4b9aa2a8e8680a953194', '192.168.6.42', '2022-12-08 11:47:40', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
-(16, 'ba360e2a572f45979cb83648fc5e2ec7', '192.168.6.42', '2022-12-08 13:24:40', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0');
+(16, 'ba360e2a572f45979cb83648fc5e2ec7', '192.168.6.42', '2022-12-08 13:24:40', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
+(17, 'e83ca4537495486c8d3b5d7e6ae2407a', '192.168.6.42', '2022-12-09 09:55:30', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
+(18, 'e83ca4537495486c8d3b5d7e6ae2407a', '192.168.6.42', '2022-12-09 10:29:50', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0');
 
 -- --------------------------------------------------------
 
@@ -3015,10 +3020,6 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('0ecea60f2691405585fa1aa535368bee', 'ebca07da8aad42c4aee304e3a6b81001'),
 ('0ecea60f2691405585fa1aa535368bee', '1b89744217b04f79a8c1d7a967a46912'),
 ('0ecea60f2691405585fa1aa535368bee', 'cc93223a47764195ac15aacf266673d9'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '6903e82e7e94478f87df3cf80de6b587'),
-('e83ca4537495486c8d3b5d7e6ae2407a', 'ebca07da8aad42c4aee304e3a6b81001'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '1b89744217b04f79a8c1d7a967a46912'),
-('e83ca4537495486c8d3b5d7e6ae2407a', 'cc93223a47764195ac15aacf266673d9'),
 ('7c4f86aba34f430884fb87fee84bc870', '3a70433b-16f5-11ed-ae5c-1078d2a38ee5'),
 ('7c4f86aba34f430884fb87fee84bc870', '60b2f2ca-16f5-11ed-ae5c-1078d2a38ee5'),
 ('7c4f86aba34f430884fb87fee84bc870', '8baa9163-16f5-11ed-ae5c-1078d2a38ee5'),
@@ -3228,7 +3229,23 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('a4f8d1d67d2e4b9aa2a8e8680a953194', 'ad4c0acc-6c71-11ed-9e64-4cedfb61fb39'),
 ('0007828bc2a5496bbdd8fbaefe2e1565', '63759b4b-663c-11ed-94ad-4cedfb61fb39'),
 ('0007828bc2a5496bbdd8fbaefe2e1565', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
-('0007828bc2a5496bbdd8fbaefe2e1565', '2ea1d4e7a4ae4677a0fc85b859cc5738');
+('0007828bc2a5496bbdd8fbaefe2e1565', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '1b89744217b04f79a8c1d7a967a46912'),
+('e83ca4537495486c8d3b5d7e6ae2407a', 'cc93223a47764195ac15aacf266673d9'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '6903e82e7e94478f87df3cf80de6b587'),
+('e83ca4537495486c8d3b5d7e6ae2407a', 'ebca07da8aad42c4aee304e3a6b81001'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '569c1d340cea4b21a54910177eeaf51f'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '5a1bd42cca6f412cb1795a1aeddac2fe'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '7527e84e47f94304b39525fa770dd904'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '26a74e3097b94bd882bd1a9f6feace68'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '3afa314e14904a1da386b2d8ede3582b'),
+('e83ca4537495486c8d3b5d7e6ae2407a', 'db87d2605a68440fbf8e148744e243e8'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '6b4e3b36783d4a488101da7639c40de0'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '8b3d0b17c9a045fbb76600e5044b0121'),
+('e83ca4537495486c8d3b5d7e6ae2407a', 'ac61ff38a6854298919a06a5b4f34242'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '405c0fcdbef14d49abd9ffcc53984c6e'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '0ce44192fb05400fb51f33c3c7a3d601');
 
 --
 -- Indexes for dumped tables
@@ -3639,7 +3656,7 @@ ALTER TABLE `platform_digital_ebook_history`
 -- AUTO_INCREMENT for table `pracetak_setter_history`
 --
 ALTER TABLE `pracetak_setter_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `pracetak_setter_selesai`
@@ -3651,7 +3668,7 @@ ALTER TABLE `pracetak_setter_selesai`
 -- AUTO_INCREMENT for table `user_log`
 --
 ALTER TABLE `user_log`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

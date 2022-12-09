@@ -390,9 +390,9 @@ class PracetakSetterController extends Controller
                     ->whereNull('pp.deleted_at');
             })
             ->where('pnp.naskah_id', '=', $data->naskah_id)
-            ->select('pp.nama')
+            ->select('pp.id','pp.nama')
             ->get();
-        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first()->nama;
+        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first();
         if (!is_null($data->setter)) {
             foreach (json_decode($data->setter, true) as $set) {
                 $namaSetter[] = DB::table('users')->where('id', $set)->first();
@@ -786,7 +786,7 @@ class PracetakSetterController extends Controller
                             if (!is_null($data->selesai_setting)) {
                                 return response()->json([
                                     'status' => 'error',
-                                    'message' => 'Proses setting selesai, silahkan ubah proses saat ini menjadi "Proof Reading".'
+                                    'message' => 'Proses setting selesai, silahkan ubah proses saat ini menjadi "Proof Prodev".'
                                 ]);
                             }
                             break;
@@ -800,7 +800,7 @@ class PracetakSetterController extends Controller
                             if (is_null($data->mulai_proof)) {
                                 return response()->json([
                                     'status' => 'error',
-                                    'message' => 'Proses proof belum dilakukan, silahkan ubah proses saat ini menjadi "Proof Reading".'
+                                    'message' => 'Proses proof belum dilakukan, silahkan ubah proses saat ini menjadi "Proof Prodev".'
                                 ]);
                             }
                             if (!is_null($data->selesai_koreksi)) {
@@ -810,17 +810,17 @@ class PracetakSetterController extends Controller
                                 ]);
                             }
                             break;
-                        case 'Proof Reading':
+                        case 'Proof Prodev':
                             if (is_null($data->selesai_setting)) {
                                 return response()->json([
                                     'status' => 'error',
-                                    'message' => 'Proses setting belum selesai. Belum bisa melakukan proses "Proof Reading".'
+                                    'message' => 'Proses setting belum selesai. Belum bisa melakukan proses "Proof Prodev".'
                                 ]);
                             }
                             if (!is_null($data->selesai_proof)) {
                                 return response()->json([
                                     'status' => 'error',
-                                    'message' => 'Proses proof reading selesai, silahkan ubah proses saat ini menjadi proses selanjutnya atau mengubah status proses menjadi selesai.'
+                                    'message' => 'Proses proof prodev selesai, silahkan ubah proses saat ini menjadi proses selanjutnya atau mengubah status proses menjadi selesai.'
                                 ]);
                             }
                             if (!is_null($data->mulai_proof)) {

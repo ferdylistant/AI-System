@@ -71,8 +71,8 @@
                                 @case('Setting')
                                     <span class="text-dark" class="text-dark"> Setting</span>
                                     @break
-                                @case('Proof Reading')
-                                    <span class="text-dark"> Proof Reading</span>
+                                @case('Proof Prodev')
+                                    <span class="text-dark"> Proof Prodev</span>
                                     @break
                                 @case('Koreksi')
                                     <span class="text-dark"> Koreksi</span>
