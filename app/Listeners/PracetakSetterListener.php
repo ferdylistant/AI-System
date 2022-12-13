@@ -84,6 +84,7 @@ class PracetakSetterListener
                 ]);
                 break;
             case 'Progress Korektor':
+                DB::beginTransaction();
                 $res =  DB::table('pracetak_setter')->where('id', $data['id'])->update([
                     'mulai_koreksi' => $data['mulai_koreksi'],
                     'proses_saat_ini' => $data['proses_saat_ini'],
@@ -96,6 +97,7 @@ class PracetakSetterListener
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
+                DB::commit();
                 break;
             case 'Edit Pracetak Setter':
                 $res = DB::table('pracetak_setter')->where('id',$data['id'])->update([
@@ -134,6 +136,8 @@ class PracetakSetterListener
                     'pengajuan_harga_new' => $data['pengajuan_harga_new'],
                     'bulan_his' => $data['bulan_his'],
                     'bulan_new' => $data['bulan_new'],
+                    'proses_ini_his' => $data['proses_ini_his'],
+                    'proses_ini_new' => $data['proses_ini_new'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
@@ -153,7 +157,37 @@ class PracetakSetterListener
                     'proses_saat_ini' => $data['proses_saat_ini']
                 ]);
                 break;
+            case 'Act Prodev':
+                DB::beginTransaction();
+                $res = DB::table('pracetak_setter')->where('id',$data['pracetak_setter_id'])->update([
+                    'selesai_proof' => $data['selesai_proof'],
+                    'proses_saat_ini' => $data['proses_saat_ini'],
+                    'proses' => $data['proses'],
+                    'status' => $data['status']
+                ]);
+                DB::table('pracetak_setter_proof')->insert([
+                    'type_user' => $data['type_user'],
+                    'type_action' => $data['type_action'],
+                    'pracetak_setter_id' => $data['pracetak_setter_id'],
+                    'users_id' => $data['users_id'],
+                    'ket_revisi' => $data['ket_revisi'],
+                    'tgl_action' => $data['tgl_action'],
+                ]);
+                DB::table('pracetak_setter_history')
+                ->insert([
+                    'type_history' => $data['type_history'],
+                    'pracetak_setter_id' => $data['pracetak_setter_id'],
+                    'ket_revisi' => $data['ket_revisi'],
+                    'selesai_proof' => $data['selesai_proof'],
+                    'status_his' => $data['status_his'],
+                    'status_new' => $data['status'],
+                    'author_id' => $data['users_id'],
+                    'modified_at' => $data['tgl_action']
+                ]);
+                DB::commit();
+                break;
             default:
+
                 abort(500);
                 break;
         }

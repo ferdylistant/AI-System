@@ -91,9 +91,9 @@ class PracetakSetterController extends Controller
                     }
                     return $result;
                 })
-                ->addColumn('proses_saat_ini', function ($data){
+                ->addColumn('proses_saat_ini', function ($data) {
                     if (!is_null($data->proses_saat_ini)) {
-                        $res = '<span class="badge badge-light">'.$data->proses_saat_ini.'</span>';
+                        $res = '<span class="badge badge-light">' . $data->proses_saat_ini . '</span>';
                     } else {
                         $res = '<span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada proses</span>';
                     }
@@ -254,6 +254,8 @@ class PracetakSetterController extends Controller
                     'selesai_p_copyright' => $history->selesai_p_copyright == $selesaiCopyright ? null : $history->selesai_p_copyright,
                     'bulan_his' => date('Y-m', strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
                     'bulan_new' => date('Y-m', strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : Carbon::createFromDate($request->bulan),
+                    'proses_ini_his' => $history->proses_saat_ini == $request->proses_saat_ini ? null : $history->proses_saat_ini,
+                    'proses_ini_new' => $history->proses_saat_ini == $request->proses_saat_ini ? null : $request->proses_saat_ini,
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
@@ -340,7 +342,7 @@ class PracetakSetterController extends Controller
         $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_setter WHERE Field = 'proses_saat_ini'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $prosesSaatIni = explode("','", $matches[1]);
-        $prosesFilter = Arr::except($prosesSaatIni, ['1', '4']);
+        $prosesFilter = Arr::except($prosesSaatIni, ['1', '4', '8']);
         return view('penerbitan.pracetak_setter.edit', [
             'title' => 'Pracetak Setter Proses',
             'data' => $data,
@@ -384,13 +386,14 @@ class PracetakSetterController extends Controller
         if (is_null($data)) {
             return abort(404);
         }
+        $proofRevisi = DB::table('pracetak_setter_proof')->where('pracetak_setter_id',$id)->where('type_action','Revisi')->get();
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', function ($q) {
                 $q->on('pnp.penulis_id', '=', 'pp.id')
                     ->whereNull('pp.deleted_at');
             })
             ->where('pnp.naskah_id', '=', $data->naskah_id)
-            ->select('pp.id','pp.nama')
+            ->select('pp.id', 'pp.nama')
             ->get();
         $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first();
         if (!is_null($data->setter)) {
@@ -407,13 +410,13 @@ class PracetakSetterController extends Controller
         } else {
             $namaKorektor = null;
         }
-        $label = is_null($data->selesai_setting)?"setter":"korektor";
-        $dataRole  = is_null($data->selesai_setting)?$data->setter:$data->korektor;
+        $label = is_null($data->selesai_setting) ? "setter" : "korektor";
+        $dataRole  = is_null($data->selesai_setting) ? $data->setter : $data->korektor;
         $doneProses = DB::table('pracetak_setter_selesai')
-        ->where('type',ucfirst($label))
-        ->where('pracetak_setter_id',$data->id)
-        ->where('users_id',auth()->user()->id)
-        ->first();
+            ->where('type', ucfirst($label))
+            ->where('pracetak_setter_id', $data->id)
+            ->where('users_id', auth()->user()->id)
+            ->first();
         if (is_null($doneProses)) {
             $result = FALSE;
         } else {
@@ -428,7 +431,8 @@ class PracetakSetterController extends Controller
             'nama_korektor' => $namaKorektor,
             'label' => $label,
             'dataRole' => $dataRole,
-            'done_proses' => $result
+            'done_proses' => $result,
+            'proof_revisi' => $proofRevisi
         ]);
     }
     public function lihatHistorySetter(Request $request)
@@ -462,6 +466,12 @@ class PracetakSetterController extends Controller
                     case 'Update':
                         $html .= '<span class="ticket-item" id="newAppend">
                         <div class="ticket-title"><span><span class="bullet"></span>';
+                        if (!is_null($d->status_his)) {
+                            $html .= ' Status pracetak setter <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.';
+                        }
+                        if (!is_null($d->ket_revisi)) {
+                            $html .= ' Status pracetak setter <b class="text-dark">' . $d->status_new . '</b> dengan keterangan revisi: <b class="text-dark">' . $d->ket_revisi . '</b>.';
+                        }
                         if (!is_null($d->setter_his)) {
                             $loopSetHIS = '';
                             $loopSetNEW = '';
@@ -510,6 +520,11 @@ class PracetakSetterController extends Controller
                             $html .= ' Edisi cetak <b class="text-dark">' . $d->edisi_cetak_his . '</b> diubah menjadi <b class="text-dark">' . $d->edisi_cetak_new . '</b>.<br>';
                         } elseif (!is_null($d->edisi_cetak_new)) {
                             $html .= ' Edisi cetak <b class="text-dark">' . $d->edisi_cetak_new . '</b> ditambahkan.<br>';
+                        }
+                        if (!is_null($d->proses_ini_his)) {
+                            $html .= ' Proses saat ini <b class="text-dark">' . $d->proses_ini_his . '</b> diubah menjadi <b class="text-dark">' . $d->proses_ini_new . '</b>.<br>';
+                        } elseif (!is_null($d->proses_ini_new)) {
+                            $html .= ' Proses saat ini <b class="text-dark">' . $d->proses_ini_new . '</b> ditambahkan.<br>';
                         }
                         if (!is_null($d->isbn_his)) {
                             $html .= ' ISBN <b class="text-dark">' . $d->isbn_his . '</b> diubah menjadi <b class="text-dark">' . $d->isbn_new . '</b>.<br>';
@@ -565,6 +580,63 @@ class PracetakSetterController extends Controller
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
                             <div class="bullet pt-2"></div>
                             <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                }
+            }
+            return $html;
+        }
+    }
+    public function lihatInformasiProof(Request $request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('pracetak_setter_proof as psp')
+                ->join('pracetak_setter as ps', 'ps.id', '=', 'psp.pracetak_setter_id')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('users as u', 'psp.users_id', '=', 'u.id')
+                ->where('psp.pracetak_setter_id', $id)
+                ->select('psp.*', 'dp.judul_final', 'u.nama')
+                ->orderBy('psp.id', 'desc')
+                ->paginate(2);
+            foreach ($data as $d) {
+                switch ($d->type_action) {
+                    case 'Proof':
+                        $html .= '<span class="ticket-item">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Prodev menyetujui hasil setting.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->tgl_action, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->tgl_action)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                    case 'Revisi':
+                        $html .= '<span class="ticket-item">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Status pracetak setter <b>Revisi</b> dengan keterangan revisi: <b>'.$d->ket_revisi.'</b>.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->tgl_action, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->tgl_action)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                    case 'Selesai Revisi':
+                        $html .= '<span class="ticket-item">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Setter telah menyelesaikan revisi dengan persetujuan kabag.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->tgl_action, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->tgl_action)->translatedFormat('l d M Y, H:i') . ')</div>
                         </div>
                         </span>';
                         break;
@@ -753,7 +825,7 @@ class PracetakSetterController extends Controller
                         $dataProgress = [
                             'params' => 'Progress Setter',
                             'id' => $id,
-                            'mulai_setting' => null,
+                            'mulai_setting' => NULL,
                             'proses' => $value,
                             'proses_saat_ini' => NULL,
                             'type_history' => 'Progress',
@@ -764,7 +836,7 @@ class PracetakSetterController extends Controller
                         $dataProgress = [
                             'params' => 'Progress Korektor',
                             'id' => $id,
-                            'mulai_korektor' => null,
+                            'mulai_koreksi' => null,
                             'proses' => $value,
                             'proses_saat_ini' => NULL,
                             'type_history' => 'Progress',
@@ -911,11 +983,151 @@ class PracetakSetterController extends Controller
                     'message' => $msg
                 ]);
             } catch (\Exception $e) {
+                DB::rollBack();
                 return response()->json([
                     'status' => 'error',
                     'message' => $e->getMessage()
                 ], 500);
             }
+        }
+    }
+    public function actionAjaxProdev(Request $request)
+    {
+        try {
+            switch ($request->act) {
+                case 'revision':
+                    return $this->revisionActProdev($request);
+                    break;
+                case 'approve':
+                    return $this->approveActProdev($request);
+                    break;
+                case 'revision-done':
+                    return $this->donerevisionActKabag($request);
+                    break;
+                default:
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Terjadi kesalahan!'
+                    ]);
+                    break;
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function revisionActProdev($request)
+    {
+        try {
+            $data = DB::table('pracetak_setter')->where('id', $request->id)->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terjadi kesalahan!'
+                ]);
+            }
+            $rev = [
+                'params' => 'Act Prodev',
+                'type_user' => 'Setter',
+                'type_action' => 'Revisi',
+                'pracetak_setter_id' => $request->id, //?Pracetak Setter, Pracetak Setter Proof, & Pracetak Setter History
+                'users_id' => auth()->id(), //?Pracetak Setter Proof & Pracetak Setter History
+                'ket_revisi' => $request->ket_revisi, //?Pracetak Setter Proof, & Pracetak Setter History
+                'tgl_action' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'selesai_proof' => NULL, //?Pracetak Setter & Pracetak Setter History
+                'proses_saat_ini' => 'Setting Revisi', //?Pracetak Setter
+                'proses' => '1', //?Pracetak Setter
+                'type_history' => 'Update', //? Pracetak Setter History
+                'status_his' => $data->status,
+                'status' => 'Revisi' //?Pracetak Setter & Pracetak Setter History
+            ];
+            event(new PracetakSetterEvent($rev));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Setting naskah direvisi!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function approveActProdev($request)
+    {
+        try {
+            $data = DB::table('pracetak_setter')->where('id', $request->id)->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terjadi kesalahan!'
+                ]);
+            }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $done = [
+                'params' => 'Act Prodev',
+                'type_user' => 'Setter',
+                'type_action' => 'Proof',
+                'pracetak_setter_id' => $request->id, //?Pracetak Setter, Pracetak Setter Proof, & Pracetak Setter History
+                'users_id' => auth()->id(), //?Pracetak Setter Proof & Pracetak Setter History
+                'ket_revisi' => NULL, //?Pracetak Setter Proof, & Pracetak Setter History
+                'tgl_action' => $tgl,
+                'selesai_proof' => $tgl, //?Pracetak Setter & Pracetak Setter History
+                'proses_saat_ini' => NULL, //?Pracetak Setter
+                'proses' => '0', //?Pracetak Setter
+                'type_history' => 'Update', //? Pracetak Setter History
+                'status_his' => $data->status, //? Pracetak Setter History
+                'status' => 'Proses' //?Pracetak Setter & Pracetak Setter History
+            ];
+            event(new PracetakSetterEvent($done));
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function donerevisionActKabag($request)
+    {
+        try {
+            $data = DB::table('pracetak_setter')->where('id', $request->id)->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terjadi kesalahan!'
+                ]);
+            }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $done = [
+                'params' => 'Act Prodev',
+                'type_user' => 'Setter',
+                'type_action' => 'Selesai Revisi',
+                'pracetak_setter_id' => $request->id, //?Pracetak Setter, Pracetak Setter Proof, & Pracetak Setter History
+                'users_id' => auth()->id(), //?Pracetak Setter Proof & Pracetak Setter History
+                'ket_revisi' => NULL, //?Pracetak Setter Proof, & Pracetak Setter History
+                'tgl_action' => $tgl,
+                'selesai_proof' => NULL, //?Pracetak Setter & Pracetak Setter History
+                'proses_saat_ini' => 'Proof Prodev', //?Pracetak Setter
+                'proses' => '1', //?Pracetak Setter
+                'type_history' => 'Update', //? Pracetak Setter History
+                'status_his' => $data->status, //? Pracetak Setter History
+                'status' => 'Proses' //?Pracetak Setter & Pracetak Setter History
+            ];
+            event(new PracetakSetterEvent($done));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Setting naskah telah selesai direvisi!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
         }
     }
     protected function logicPermissionAction($status = null, $jb = null, $pic_prodev, $id, $kode, $judul_final, $btn)
@@ -962,6 +1174,9 @@ class PracetakSetterController extends Controller
             case 'Selesai':
                 $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
                 break;
+            case 'Revisi':
+                $btn .= '<span class="d-block badge badge-info mr-1 mt-1">' . $status . '</span>';
+                break;
             default:
                 return abort(410);
                 break;
@@ -985,6 +1200,9 @@ class PracetakSetterController extends Controller
                 break;
             case 'Selesai':
                 $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Revisi':
+                $btn .= '<span class="d-block badge badge-info mr-1 mt-1">' . $status . '</span>';
                 break;
             default:
                 return abort(410);

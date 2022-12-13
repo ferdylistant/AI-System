@@ -86,14 +86,24 @@
                                 @case('Upload E-Book')
                                     <span class="text-dark"> Upload E-Book</span>
                                     @break
+                                @case('Setting Revisi')
+                                    <span class="text-dark"> Setting Revisi</span>
+                                    @break
                                 @default
                                     <span class="text-danger"> Belum ada proses</span>
                                     @break
                             @endswitch
+                            @if ($data->status == 'Revisi')
+                            <br>
+                                <button type="button" class="btn btn-warning" id="done-revision"
+                                data-id="{{$data->id}}" data-judul="{{$data->judul_final}}" data-kode="{{$data->kode}}">
+                                    <i class="fas fa-check"></i>&nbsp;Selesai Revisi
+                                </button>
+                            @endif
                         </div>
 
                     </div>
-                    @if ($data->status == 'Proses' ||
+                    @if ($data->status == 'Proses' || $data->status == 'Revisi' ||
                     ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
                     <form id="fup_pracetakSetter">
                         <div class="card-body">
@@ -231,11 +241,9 @@
                                                         @foreach ($nama_setter as $key => $aj)
                                                         <span class="bullet"></span>{{ $aj }}<br>
                                                         @endforeach
-                                                        @if (is_null($data->selesai_setting))
                                                         <p class="text-small">
                                                             <a href="javascript:void(0)" id="setterButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
                                                         </p>
-                                                        @endif
 
                                                     </td>
                                                     <td class="table-active text-left" id="setterColInput" hidden>

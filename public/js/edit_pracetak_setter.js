@@ -80,6 +80,44 @@ $(function () {
             },
         });
     }
+    function ajaxSelesaiRevisiSetter(id) {
+        $.ajax({
+            type: "POST",
+            url:
+                window.location.origin +
+                "/penerbitan/pracetak/setter/revision-done?id="+id,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $("#overlay").fadeIn(300);
+            },
+            success: function (result) {
+                if (result.status == "error") {
+                    notifToast(result.status, result.message);
+                } else {
+                    notifToast(result.status, result.message);
+                    location.reload();
+                }
+            },
+            error: function (err) {
+                // console.log(err.responseJSON)
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                }
+                notifToast("error", "Gagal melakukan penyetujuan!");
+            },
+            complete: function () {
+                setTimeout(function () {
+                    $("#overlay").fadeOut(300);
+                }, 500);
+            },
+        });
+    }
     //! CONFIRM SWEETALERT
     $("#fup_pracetakSetter").on("submit", function (e) {
         e.preventDefault();
@@ -98,6 +136,23 @@ $(function () {
         } else {
             notifToast("error", "Periksa kembali form Anda!");
         }
+    });
+    $("#done-revision").on("click", function (e) {
+        e.preventDefault();
+        let id = $(this).data("id");
+        let kode = $(this).data("kode");
+        let judul = $(this).data("judul");
+        swal({
+            title: "Yakin setter telah selesai merevisi naskah " + judul + "-" + kode + "?",
+            text: "Harap diperiksa kembali, supaya tidak terjadi kekeliruan data.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((confirm_) => {
+            if (confirm_) {
+                ajaxSelesaiRevisiSetter(id);
+            }
+        });
     });
 });
 
