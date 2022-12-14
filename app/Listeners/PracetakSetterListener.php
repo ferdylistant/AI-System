@@ -142,17 +142,19 @@ class PracetakSetterListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
-            case 'Proses Setting Selesai':
+            case 'Proses Setting-Koreksi Selesai':
                 $res = DB::table('pracetak_setter_selesai')->insert([
                     'type' => $data['type'],
+                    'section' => $data['section'],
+                    'tahap' => $data['tahap'],
                     'pracetak_setter_id' => $data['pracetak_setter_id'],
                     'users_id' => $data['users_id'],
                     'tgl_proses_selesai' => $data['tgl_proses_selesai']
                 ]);
                 break;
-            case 'Setting Selesai':
+            case 'Setting-Koreksi Selesai':
                 $res = DB::table('pracetak_setter')->where('id',$data['id'])->update([
-                    'selesai_setting' => $data['selesai_setting'],
+                    'selesai_'.$data['label'] => $data['selesai_'].$data['label'],
                     'proses' => $data['proses'],
                     'proses_saat_ini' => $data['proses_saat_ini']
                 ]);
