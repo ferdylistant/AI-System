@@ -60,14 +60,12 @@
                             @endif
                             @if (!$proof_revisi->isEmpty())
                                 <?php $gate = Gate::allows('do_approval', 'approval-deskripsi-produk'); ?>
-                                @if (auth()->id() == $data->pic_prodev || auth()->id() == 'be8d42fa88a14406ac201974963d9c1b' || $gate)
-                                    &mdash;&mdash;
-                                    <button type="button" class="btn btn-primary" id="btn-history-revision"
-                                        data-id="{{ $data->id }}" data-kode="{{ $data->kode }}"
-                                        data-judul="{{ $data->judul_final }}"><i class="fas fa-history"></i>&nbsp;Riwayat
-                                        Setter/Korektor</button>
-                                    &mdash;&mdash;
-                                @endif
+                                &mdash;&mdash;
+                                <button type="button" class="btn btn-primary" id="btn-history-setkor"
+                                    data-id="{{ $data->id }}" data-kode="{{ $data->kode }}"
+                                    data-judul="{{ $data->judul_final }}"><i class="fas fa-history"></i>&nbsp;Riwayat
+                                    Setter/Korektor</button>
+                                &mdash;&mdash;
                             @endif
                             <div class="col-auto">
                                 @if ($data->proses == '1')

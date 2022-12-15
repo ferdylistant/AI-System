@@ -522,13 +522,22 @@
                                     $disable = 'disabled';
                                     $lbl = 'Sedang proses proof prodev';
                                     ?>
-                                @elseif (is_null($data->selesai_setting))
+                                @elseif (is_null($data->selesai_setting) && is_null($data->selesai_koreksi))
                                     <?php
                                     $lbl = $label.' proses setting';
                                     ?>
-                                @else
+                                @elseif (is_null($data->selesai_koreksi) && !is_null($data->selesai_setting))
                                     <?php
                                     $lbl = $label.' proses koreksi';
+                                    ?>
+                                @elseif ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Setting Revisi') && ($data->status == 'Proses'))
+                                    <?php
+                                    $lbl = $label.' proses revisi setting';
+                                    ?>
+                                @else
+                                    <?php
+                                    $disable = 'disabled';
+                                    $lbl = '-';
                                     ?>
                                 @endif
                                 <input type="checkbox" name="proses" class="custom-control-input" id="prosesKerja" data-id="{{ $data->id }}" {{ $data->proses == '1' ? 'checked' : '' }} {{$disable}}>

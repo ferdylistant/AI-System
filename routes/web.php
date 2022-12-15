@@ -146,11 +146,9 @@ Route::middleware(['auth'])->group(function() {
         Route::get('/pracetak/setter/detail', [PracetakSetterController::class, 'detailSetter'])->name('setter.detail');
         Route::match(['get', 'post'],'/pracetak/setter/edit',[PracetakSetterController::class, 'editSetter'])->name('setter.edit');
         Route::post('/pracetak/setter/update-status-progress',[PracetakSetterController::class, 'updateStatusProgress']);
-        Route::post('/pracetak/setter/lihat-history', [PracetakSetterController::class, 'lihatHistorySetter'])->name('setter.history');
-        Route::post('/pracetak/setter/lihat-informasi-proof', [PracetakSetterController::class, 'lihatInformasiProof'])->name('setter.revisi');
         Route::post('/pracetak/setter/proses-kerja', [PracetakSetterController::class, 'prosesKerjaSetter'])->name('setter.proses');
         Route::post('/pracetak/setter/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('setter.selesai');
-        Route::post('/pracetak/setter/{act}',[PracetakSetterController::class, 'actionAjaxProdev']);
+        Route::post('/pracetak/setter/{act}',[PracetakSetterController::class, 'actionAjax']);
         //Pracetak Desainer
         Route::get('/pracetak/designer', [PracetakDesainerController::class, 'index'])->name('prades.view');
         Route::get('/pracetak/designer/detail', [PracetakDesainerController::class, 'detailPracetakDesainer'])->name('prades.detail');

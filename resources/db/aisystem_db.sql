@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 13, 2022 at 10:17 AM
+-- Generation Time: Dec 15, 2022 at 10:45 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -596,7 +596,9 @@ INSERT INTO `editing_proses_history` (`id`, `editing_proses_id`, `type_history`,
 (22, 'd85a1255-1b27-4135-8346-54c593419f2f', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-08 14:07:47'),
 (23, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-13 14:57:29'),
 (24, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-13 15:48:24'),
-(25, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-13 16:04:29');
+(25, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-13 16:04:29'),
+(26, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-15 10:19:49'),
+(27, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-15 10:20:00');
 
 -- --------------------------------------------------------
 
@@ -2267,7 +2269,7 @@ CREATE TABLE `pracetak_setter` (
   `selesai_p_copyright` datetime DEFAULT NULL,
   `isbn` char(13) DEFAULT NULL,
   `pengajuan_harga` int(11) DEFAULT NULL,
-  `proses_saat_ini` enum('Antrian Setting','Setting','Proof Prodev','Antrian Koreksi','Koreksi','Siap Turcet','Turun Cetak','Upload E-Book','Setting Revisi') DEFAULT NULL,
+  `proses_saat_ini` enum('Antrian Setting','Setting','Proof Prodev','Antrian Koreksi','Koreksi','Siap Turcet','Turun Cetak','Setting Revisi') DEFAULT NULL,
   `proses` set('0','1') DEFAULT '0',
   `bulan` date DEFAULT NULL,
   `catatan` text DEFAULT NULL,
@@ -2279,7 +2281,7 @@ CREATE TABLE `pracetak_setter` (
 --
 
 INSERT INTO `pracetak_setter` (`id`, `deskripsi_final_id`, `jml_hal_final`, `tgl_masuk_pracetak`, `mulai_setting`, `selesai_setting`, `setter`, `mulai_proof`, `selesai_proof`, `mulai_koreksi`, `selesai_koreksi`, `korektor`, `turun_cetak`, `edisi_cetak`, `mulai_p_copyright`, `selesai_p_copyright`, `isbn`, `pengajuan_harga`, `proses_saat_ini`, `proses`, `bulan`, `catatan`, `status`) VALUES
-('b7c5387e-d145-402a-8116-47c5ab8c414b', '44dfe332-5755-4191-8158-e79d496e1473', 1000, '2022-11-02 14:42:25', '2022-12-06 13:02:34', '2022-12-08 15:12:38', '[\"a4f8d1d67d2e4b9aa2a8e8680a953194\",\"ba360e2a572f45979cb83648fc5e2ec7\"]', '2022-12-09 09:14:40', '2022-12-13 14:55:47', '2022-12-13 16:04:29', NULL, '[\"12c8a8639d814102b01c7ffc0cd52e71\"]', NULL, '1', NULL, NULL, '2132342435234', 345234234, 'Koreksi', '1', '2022-11-01', NULL, 'Proses');
+('b7c5387e-d145-402a-8116-47c5ab8c414b', '44dfe332-5755-4191-8158-e79d496e1473', 1000, '2022-11-02 14:42:25', '2022-12-15 16:36:18', NULL, '[\"a4f8d1d67d2e4b9aa2a8e8680a953194\",\"ba360e2a572f45979cb83648fc5e2ec7\"]', '2022-12-09 09:14:40', '2022-12-13 14:55:47', '2022-12-09 09:14:40', '2022-12-15 16:35:22', '[\"12c8a8639d814102b01c7ffc0cd52e71\"]', NULL, '1', NULL, NULL, '2132342435234', 345234234, 'Setting Revisi', '1', '2022-11-01', NULL, 'Proses');
 
 -- --------------------------------------------------------
 
@@ -2399,7 +2401,12 @@ INSERT INTO `pracetak_setter_history` (`id`, `pracetak_setter_id`, `type_history
 (68, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Revisi', 'Proses', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-13 11:23:28'),
 (69, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Proses', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-12-13 14:55:47', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'e83ca4537495486c8d3b5d7e6ae2407a', '2022-12-13 14:55:47'),
 (70, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-13 14:56:56'),
-(71, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian Koreksi', 'be8d42fa88a14406ac201974963d9c1b', '2022-12-13 16:04:18');
+(71, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian Koreksi', 'be8d42fa88a14406ac201974963d9c1b', '2022-12-13 16:04:18'),
+(73, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-12-15 10:13:46', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '12c8a8639d814102b01c7ffc0cd52e71', '2022-12-15 10:13:46'),
+(74, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-12-15 13:47:59', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '12c8a8639d814102b01c7ffc0cd52e71', '2022-12-15 13:47:59'),
+(75, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-15 16:20:35'),
+(76, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-12-15 16:35:22', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '12c8a8639d814102b01c7ffc0cd52e71', '2022-12-15 16:35:22'),
+(77, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-15 16:36:18');
 
 -- --------------------------------------------------------
 
@@ -2435,6 +2442,8 @@ INSERT INTO `pracetak_setter_proof` (`id`, `type_user`, `type_action`, `pracetak
 CREATE TABLE `pracetak_setter_selesai` (
   `id` bigint(20) NOT NULL,
   `type` enum('Setter','Korektor') DEFAULT NULL,
+  `section` enum('Proof Setting','Proof Setting Revision','Setting Revision','Koreksi') DEFAULT NULL,
+  `tahap` tinyint(4) DEFAULT NULL,
   `pracetak_setter_id` char(36) DEFAULT NULL,
   `users_id` varchar(36) DEFAULT NULL,
   `tgl_proses_selesai` datetime DEFAULT NULL
@@ -2444,9 +2453,10 @@ CREATE TABLE `pracetak_setter_selesai` (
 -- Dumping data for table `pracetak_setter_selesai`
 --
 
-INSERT INTO `pracetak_setter_selesai` (`id`, `type`, `pracetak_setter_id`, `users_id`, `tgl_proses_selesai`) VALUES
-(1, 'Setter', 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'a4f8d1d67d2e4b9aa2a8e8680a953194', '2022-12-07 08:51:49'),
-(5, 'Setter', 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'ba360e2a572f45979cb83648fc5e2ec7', '2022-12-08 15:12:38');
+INSERT INTO `pracetak_setter_selesai` (`id`, `type`, `section`, `tahap`, `pracetak_setter_id`, `users_id`, `tgl_proses_selesai`) VALUES
+(1, 'Setter', 'Proof Setting', 1, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'a4f8d1d67d2e4b9aa2a8e8680a953194', '2022-12-07 08:51:49'),
+(5, 'Setter', 'Proof Setting', 1, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'ba360e2a572f45979cb83648fc5e2ec7', '2022-12-08 15:12:38'),
+(15, 'Korektor', 'Koreksi', 1, 'b7c5387e-d145-402a-8116-47c5ab8c414b', '12c8a8639d814102b01c7ffc0cd52e71', '2022-12-15 16:35:22');
 
 -- --------------------------------------------------------
 
@@ -2836,7 +2846,11 @@ INSERT INTO `user_log` (`id`, `users_id`, `ip_address`, `last_login`, `user_agen
 (18, 'e83ca4537495486c8d3b5d7e6ae2407a', '192.168.6.42', '2022-12-09 10:29:50', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
 (19, 'ceadd9fb648445eab1e350357e51d1ce', '192.168.6.42', '2022-12-09 16:30:38', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
 (20, 'e83ca4537495486c8d3b5d7e6ae2407a', '192.168.6.42', '2022-12-12 09:14:56', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
-(21, 'e83ca4537495486c8d3b5d7e6ae2407a', '192.168.6.42', '2022-12-13 09:42:29', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0');
+(21, 'e83ca4537495486c8d3b5d7e6ae2407a', '192.168.6.42', '2022-12-13 09:42:29', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
+(22, '12c8a8639d814102b01c7ffc0cd52e71', '192.168.6.42', '2022-12-14 08:13:12', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
+(23, '12c8a8639d814102b01c7ffc0cd52e71', '192.168.6.42', '2022-12-15 08:31:21', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
+(24, 'a4f8d1d67d2e4b9aa2a8e8680a953194', '192.168.6.42', '2022-12-15 16:19:52', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
+(25, '12c8a8639d814102b01c7ffc0cd52e71', '192.168.6.42', '2022-12-15 16:35:09', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0');
 
 -- --------------------------------------------------------
 
@@ -3266,7 +3280,11 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('e83ca4537495486c8d3b5d7e6ae2407a', 'ac61ff38a6854298919a06a5b4f34242'),
 ('e83ca4537495486c8d3b5d7e6ae2407a', '405c0fcdbef14d49abd9ffcc53984c6e'),
 ('e83ca4537495486c8d3b5d7e6ae2407a', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '0ce44192fb05400fb51f33c3c7a3d601');
+('e83ca4537495486c8d3b5d7e6ae2407a', '0ce44192fb05400fb51f33c3c7a3d601'),
+('12c8a8639d814102b01c7ffc0cd52e71', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
+('12c8a8639d814102b01c7ffc0cd52e71', '7d574866-6c74-11ed-9e64-4cedfb61fb39'),
+('12c8a8639d814102b01c7ffc0cd52e71', '0ce44192fb05400fb51f33c3c7a3d601'),
+('12c8a8639d814102b01c7ffc0cd52e71', '276682372c5c45eca2139b32e4e5cc7a');
 
 --
 -- Indexes for dumped tables
@@ -3629,7 +3647,7 @@ ALTER TABLE `deskripsi_produk_history`
 -- AUTO_INCREMENT for table `editing_proses_history`
 --
 ALTER TABLE `editing_proses_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `editing_proses_selesai`
@@ -3677,7 +3695,7 @@ ALTER TABLE `platform_digital_ebook_history`
 -- AUTO_INCREMENT for table `pracetak_setter_history`
 --
 ALTER TABLE `pracetak_setter_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- AUTO_INCREMENT for table `pracetak_setter_proof`
@@ -3689,13 +3707,13 @@ ALTER TABLE `pracetak_setter_proof`
 -- AUTO_INCREMENT for table `pracetak_setter_selesai`
 --
 ALTER TABLE `pracetak_setter_selesai`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `user_log`
 --
 ALTER TABLE `user_log`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

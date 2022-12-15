@@ -90,8 +90,11 @@
         .is-hide {
             display: none;
         }
+
         .beep-success {
-        position: relative; }
+            position: relative;
+        }
+
         .beep-success:after {
             content: '';
             position: absolute;
@@ -103,12 +106,18 @@
             border-radius: 50%;
             animation: pulsate 1s ease-out;
             animation-iteration-count: infinite;
-            opacity: 1; }
+            opacity: 1;
+        }
+
         .beep-success.beep-success-sidebar:after {
             position: static;
-            margin-left: 10px; }
+            margin-left: 10px;
+        }
+
         .beep-danger {
-        position: relative; }
+            position: relative;
+        }
+
         .beep-danger:after {
             content: '';
             position: absolute;
@@ -120,10 +129,13 @@
             border-radius: 50%;
             animation: pulsate 1s ease-out;
             animation-iteration-count: infinite;
-            opacity: 1; }
+            opacity: 1;
+        }
+
         .beep-danger.beep-danger-sidebar:after {
             position: static;
-            margin-left: 10px; }
+            margin-left: 10px;
+        }
     </style>
     @yield('cssNeeded')
 </head>
@@ -215,10 +227,16 @@
         function notifToast(stts, msg, reload = false) {
             if (stts == 'success') {
                 iziToast.success({
-                    title: 'Berhasil,',
+                    title: 'Okay!',
+                    icon: 'fas fa-check-circle',
                     message: msg,
                     position: 'topRight',
                     timeout: 2000,
+                    overlayColor: 'rgba(0, 0, 0, 0.6)',
+                    transitionIn: 'flipInX',
+                    transitionOut: 'flipOutX',
+                    transitionInMobile: 'flipInX',
+                    transitionOutMobile: 'flipOutX',
                     onClosing: function() {
                         if (reload) {
                             location.reload();
@@ -227,10 +245,16 @@
                 });
             } else if (stts == 'error') {
                 iziToast.error({
-                    title: 'Gagal,',
+                    title: 'Oops!',
+                    icon: 'fas fa-times-circle',
                     message: msg,
                     position: 'topRight',
                     timeout: 2000,
+                    overlayColor: 'rgba(0, 0, 0, 0.6)',
+                    transitionIn: 'flipInX',
+                    transitionOut: 'flipOutX',
+                    transitionInMobile: 'flipInX',
+                    transitionOutMobile: 'flipOutX',
                 });
             }
         }

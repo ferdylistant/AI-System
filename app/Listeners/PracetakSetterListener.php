@@ -57,6 +57,7 @@ class PracetakSetterListener
                 ]);
                 break;
             case 'Progress Setter':
+                DB::beginTransaction();
                 $res = DB::table('pracetak_setter')->where('id', $data['id'])->update([
                     'mulai_setting' => $data['mulai_setting'],
                     'proses_saat_ini' => $data['proses_saat_ini'],
@@ -69,6 +70,7 @@ class PracetakSetterListener
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
+                DB::commit();
                 break;
             case 'Progress Proof Prodev':
                 $res = DB::table('pracetak_setter')->where('id',$data['id'])->update([
@@ -143,6 +145,7 @@ class PracetakSetterListener
                 ]);
                 break;
             case 'Proses Setting-Koreksi Selesai':
+                DB::beginTransaction();
                 $res = DB::table('pracetak_setter_selesai')->insert([
                     'type' => $data['type'],
                     'section' => $data['section'],
@@ -151,13 +154,24 @@ class PracetakSetterListener
                     'users_id' => $data['users_id'],
                     'tgl_proses_selesai' => $data['tgl_proses_selesai']
                 ]);
+                DB::commit();
                 break;
             case 'Setting-Koreksi Selesai':
+                DB::beginTransaction();
+                $label = 'selesai_'.$data['label'];
                 $res = DB::table('pracetak_setter')->where('id',$data['id'])->update([
-                    'selesai_'.$data['label'] => $data['selesai_'].$data['label'],
+                    $label => $data[$label],
                     'proses' => $data['proses'],
                     'proses_saat_ini' => $data['proses_saat_ini']
                 ]);
+                DB::table('pracetak_setter_history')->insert([
+                    'type_history' => $data['type_history'],
+                    'pracetak_setter_id' => $data['id'],
+                    $label => $data[$label],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data[$label]
+                ]);
+                DB::commit();
                 break;
             case 'Act Prodev':
                 DB::beginTransaction();

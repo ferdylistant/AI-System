@@ -248,7 +248,7 @@
     $('#tb_Setter').on('click', '.btn-history', function(e) {
         var id = $(this).data('id');
         var judul = $(this).data('judulfinal');
-        $.post("{{ route('setter.history') }}", {
+        $.post("{{ url('/penerbitan/pracetak/setter/lihat-history') }}", {
             id: id
         }, function(data) {
             // console.log(data);

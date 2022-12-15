@@ -303,4 +303,52 @@ $(function () {
             },
         });
     });
+    //* HISTORY SETTER-KOREKTOR
+    $('#btn-history-setkor').click(function(e) {
+        var id = $(this).data('id');
+        var judul = $(this).data('judul');
+        // console.log(id);
+        $.post(window.location.origin + "/penerbitan/pracetak/setter/lihat-proses-setkor", {
+            id: id
+        }, function(data) {
+            // console.log(data);
+            $('#titleModalSetter').html(
+                '<i class="fas fa-history"></i>&nbsp;Riwayat progress Setter & Korektor naskah"' + judul + '"');
+            $('#load_more').data('id', id);
+            $('#dataInformasiProof').html(data);
+            $('#md_InformasiProof').modal('show');
+        });
+    });
+    $(".load-more").click(function (e) {
+        e.preventDefault();
+        var page = $(this).data("paginate");
+        var id = $(this).data("id");
+        $(this).data("paginate", page + 1);
+
+        $.ajax({
+            url: window.location.origin + "/penerbitan/pracetak/setter/lihat-proses-setkor",
+            data: {
+                id: id,
+                page: page,
+            },
+            type: "post",
+            beforeSend: function () {
+                $(".load-more").text("Loading...");
+            },
+            success: function (response) {
+                if (response.length == 0) {
+                    notifToast("error", "Tidak ada data lagi");
+                }
+                $("#dataInformasiProof").append(response);
+                // Setting little delay while displaying new content
+                // setTimeout(function() {
+                //     // appending posts after last post with class="post"
+                //     $("#dataHistory:last").htnl(response).show().fadeIn("slow");
+                // }, 2000);
+            },
+            complete: function (params) {
+                $(".load-more").text("Load more").fadeIn("slow");
+            },
+        });
+    });
 });
