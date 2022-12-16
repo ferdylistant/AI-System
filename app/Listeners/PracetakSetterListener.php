@@ -56,22 +56,6 @@ class PracetakSetterListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
-            case 'Progress Setter':
-                DB::beginTransaction();
-                $res = DB::table('pracetak_setter')->where('id', $data['id'])->update([
-                    'mulai_setting' => $data['mulai_setting'],
-                    'proses_saat_ini' => $data['proses_saat_ini'],
-                    'proses' => $data['proses'],
-                ]);
-                DB::table('pracetak_setter_history')->insert([
-                    'pracetak_setter_id' => $data['id'],
-                    'type_history' => $data['type_history'],
-                    'progress' => $data['proses'],
-                    'author_id' => $data['author_id'],
-                    'modified_at' => $data['modified_at']
-                ]);
-                DB::commit();
-                break;
             case 'Progress Proof Prodev':
                 $res = DB::table('pracetak_setter')->where('id',$data['id'])->update([
                     'mulai_proof' => $data['mulai_proof'],
@@ -85,15 +69,16 @@ class PracetakSetterListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
-            case 'Progress Korektor':
+            case 'Progress Setter-Korektor':
                 DB::beginTransaction();
-                $res =  DB::table('pracetak_setter')->where('id', $data['id'])->update([
-                    'mulai_koreksi' => $data['mulai_koreksi'],
+                $label = 'mulai_'.$data['label'];
+                $res = DB::table('pracetak_setter')->where('id', $data['id'])->update([
+                    $label => $data[$label],
                     'proses_saat_ini' => $data['proses_saat_ini'],
                     'proses' => $data['proses'],
                 ]);
-                DB::table('editing_proses_history')->insert([
-                    'editing_proses_id' => $data['id'],
+                DB::table('pracetak_setter_history')->insert([
+                    'pracetak_setter_id' => $data['id'],
                     'type_history' => $data['type_history'],
                     'progress' => $data['proses'],
                     'author_id' => $data['author_id'],

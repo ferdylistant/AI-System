@@ -386,7 +386,7 @@ class PracetakSetterController extends Controller
         if (is_null($data)) {
             return abort(404);
         }
-        $proofRevisi = DB::table('pracetak_setter_proof')->where('pracetak_setter_id',$id)->where('type_action','Revisi')->get();
+        $proofRevisi = DB::table('pracetak_setter_proof')->where('pracetak_setter_id', $id)->where('type_action', 'Revisi')->get();
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', function ($q) {
                 $q->on('pnp.penulis_id', '=', 'pp.id')
@@ -416,12 +416,33 @@ class PracetakSetterController extends Controller
             ->where('type', ucfirst($label))
             ->where('pracetak_setter_id', $data->id)
             ->where('users_id', auth()->user()->id)
-            ->first();
-        if (is_null($doneProses)) {
-            $result = FALSE;
-        } else {
-            $result = TRUE;
+            ->get();
+
+        switch ($label) {
+            case 'setter':
+                if ($doneProses->isEmpty()) {
+                    $result = FALSE;
+                } else {
+                    if (!is_null($data->selesai_koreksi) && is_null($data->selesai_setting)) {
+                        $result = FALSE;
+                    } else {
+                        $result = TRUE;
+                    }
+                }
+                break;
+            default:
+                if ($doneProses->isEmpty()) {
+                    $result = FALSE;
+                } else {
+                    if (is_null($data->selesai_koreksi) && !is_null($data->selesai_setting)) {
+                        $result = FALSE;
+                    } else {
+                        $result = TRUE;
+                    }
+                }
+                break;
         }
+
         return view('penerbitan.pracetak_setter.detail', [
             'title' => 'Detail Pracetak Setter',
             'data' => $data,
@@ -613,7 +634,8 @@ class PracetakSetterController extends Controller
                 if ($value == '0') {
                     if (is_null($data->selesai_setting)) {
                         $dataProgress = [
-                            'params' => 'Progress Setter',
+                            'params' => 'Progress Setter-Korektor',
+                            'label' => 'setting',
                             'id' => $id,
                             'mulai_setting' => NULL,
                             'proses' => $value,
@@ -624,9 +646,10 @@ class PracetakSetterController extends Controller
                         ];
                     } else {
                         $dataProgress = [
-                            'params' => 'Progress Korektor',
+                            'params' => 'Progress Setter-Korektor',
+                            'label' => 'koreksi',
                             'id' => $id,
-                            'mulai_koreksi' => null,
+                            'mulai_koreksi' => NULL,
                             'proses' => $value,
                             'proses_saat_ini' => NULL,
                             'type_history' => 'Progress',
@@ -694,7 +717,7 @@ class PracetakSetterController extends Controller
                             break;
                     }
                     if ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Setting Revisi')) {
-                        DB::table('pracetak_setter')->where('id',$id)->update([
+                        DB::table('pracetak_setter')->where('id', $id)->update([
                             'selesai_setting' => NULL
                         ]);
                         if (!$request->has('setter')) {
@@ -705,7 +728,8 @@ class PracetakSetterController extends Controller
                         } else {
                             $tglSetter = Carbon::now('Asia/Jakarta')->toDateTimeString();
                             $dataSetter = [
-                                'params' => 'Progress Setter',
+                                'params' => 'Progress Setter-Korektor',
+                                'label' => 'setting',
                                 'id' => $id,
                                 'mulai_setting' => $tglSetter,
                                 'proses' => $value,
@@ -733,7 +757,8 @@ class PracetakSetterController extends Controller
                                 $tglSetter = Carbon::now('Asia/Jakarta')->toDateTimeString();
                             }
                             $dataSetter = [
-                                'params' => 'Progress Setter',
+                                'params' => 'Progress Setter-Korektor',
+                                'label' => 'setting',
                                 'id' => $id,
                                 'mulai_setting' => $tglSetter,
                                 'proses' => $value,
@@ -777,7 +802,8 @@ class PracetakSetterController extends Controller
                                 $tglKorektor = Carbon::now('Asia/Jakarta')->toDateTimeString();
                             }
                             $dataKorektor = [
-                                'params' => 'Progress Korektor',
+                                'params' => 'Progress Setter-Korektor',
+                                'label' => 'koreksi',
                                 'id' => $id,
                                 'mulai_koreksi' => $tglKorektor,
                                 'proses' => $value,
@@ -1024,7 +1050,7 @@ class PracetakSetterController extends Controller
                     case 'Revisi':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Status pracetak setter <b>Revisi</b> dengan keterangan revisi: <b>'.$d->ket_revisi.'</b>.</span>
+                            <span><span class="bullet"></span> Status pracetak setter <b>Revisi</b> dengan keterangan revisi: <b>' . $d->ket_revisi . '</b>.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1070,7 +1096,7 @@ class PracetakSetterController extends Controller
                     case 'Proof Setting':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> '.$labelSetkor.' untuk proof oleh prodev telah diselesaikan.</span>
+                            <span><span class="bullet"></span> ' . $labelSetkor . ' untuk proof oleh prodev telah diselesaikan.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1082,7 +1108,7 @@ class PracetakSetterController extends Controller
                     case 'Proof Setting Revision':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> '.$labelSetkor.' hasil revisi untuk proof oleh prodev telah diselesaikan.</span>
+                            <span><span class="bullet"></span> ' . $labelSetkor . ' hasil revisi untuk proof oleh prodev telah diselesaikan.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1094,7 +1120,7 @@ class PracetakSetterController extends Controller
                     case 'Setting Revision':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> '.$labelSetkor.' hasil revisi oleh korektor telah diselesaikan.</span>
+                            <span><span class="bullet"></span> ' . $labelSetkor . ' hasil revisi oleh korektor telah diselesaikan.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1106,7 +1132,7 @@ class PracetakSetterController extends Controller
                     case 'Koreksi':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> '.$labelSetkor.' naskah hasil setting oleh setter telah diselesaikan.</span>
+                            <span><span class="bullet"></span> ' . $labelSetkor . ' naskah hasil setting oleh setter telah diselesaikan.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1343,55 +1369,159 @@ class PracetakSetterController extends Controller
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Data setting tidak ada'
+                    'message' => 'Data tidak ada'
                 ]);
             }
             $dataProsesSelf = DB::table('pracetak_setter_selesai')
                 ->where('type', 'Setter')
-                ->where('section','Proof Setting')
-                ->where('tahap',1)
+                ->where('section', 'Proof Setting')
                 ->where('pracetak_setter_id', $data->id)
                 ->where('users_id', auth()->id())
                 ->first();
             if (!is_null($dataProsesSelf)) {
-
-            }
-            $dataProses = DB::table('pracetak_setter_selesai')
-                ->where('type', 'Setter')
-                ->where('section','Proof Setting')
-                ->where('tahap',1)
-                ->where('pracetak_setter_id', $data->id)
-                ->get();
-            $setPros = count($dataProses) + 1;
-            if ($setPros == count(json_decode($data->setter, true))) {
-                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                $pros = [
-                    'params' => 'Proses Setting-Koreksi Selesai',
-                    'type' => 'Setter',
-                    'pracetak_setter_id' => $data->id,
-                    'users_id' => auth()->id(),
-                    'tgl_proses_selesai' => $tgl
-                ];
-                event(new PracetakSetterEvent($pros));
-                $done = [
-                    'params' => 'Setting-Koreksi Selesai',
-                    'label' => 'setting',
-                    'id' => $data->id,
-                    'selesai_setting' => $tgl,
-                    'proses' => '0',
-                    'proses_saat_ini' => NULL
-                ];
-                event(new PracetakSetterEvent($done));
+                $dataProsesSettRevision = DB::table('pracetak_setter_selesai')
+                    ->where('type', 'Setter')
+                    ->where('section', 'Setting Revision')
+                    ->where('pracetak_setter_id', $data->id)
+                    ->where('users_id', auth()->id())
+                    ->where('tahap',DB::raw("(select max(`tahap`) from pracetak_setter_selesai)"))
+                    ->first();
+                if (!is_null($dataProsesSettRevision)) {
+                    $dataProses = DB::table('pracetak_setter_selesai')
+                        ->where('type', 'Setter')
+                        ->where('section', 'Setting Revision')
+                        ->where('tahap', $dataProsesSettRevision->tahap)
+                        ->where('pracetak_setter_id', $data->id)
+                        ->get();
+                    $tahapSelanjtnya = $dataProsesSettRevision->tahap + 1;
+                    $setPros = count($dataProses) + 1;
+                    if ($setPros == count(json_decode($data->setter, true))) {
+                        $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                        $pros = [
+                            'params' => 'Proses Setting-Koreksi Selesai',
+                            'type' => 'Setter',
+                            'section' => 'Setting Revision',
+                            'tahap' => $tahapSelanjtnya,
+                            'pracetak_setter_id' => $data->id,
+                            'users_id' => auth()->id(),
+                            'tgl_proses_selesai' => $tgl
+                        ];
+                        event(new PracetakSetterEvent($pros));
+                        $done = [
+                            'params' => 'Setting-Koreksi Selesai',
+                            'label' => 'setting',
+                            'id' => $data->id,
+                            'selesai_setting' => $tgl,
+                            'proses' => '0',
+                            'proses_saat_ini' => 'Antrian Koreksi',
+                            //Pracetak Setter History
+                            'type_history' => 'Update',
+                            'author_id' => auth()->id()
+                        ];
+                        event(new PracetakSetterEvent($done));
+                    } else {
+                        $pros = [
+                            'params' => 'Proses Setting-Koreksi Selesai',
+                            'type' => 'Setter',
+                            'section' => 'Setting Revision',
+                            'tahap' => $tahapSelanjtnya,
+                            'pracetak_setter_id' => $data->id,
+                            'users_id' => auth()->id(),
+                            'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        ];
+                        event(new PracetakSetterEvent($pros));
+                    }
+                } else {
+                    $dataProses = DB::table('pracetak_setter_selesai')
+                        ->where('type', 'Setter')
+                        ->where('section', 'Setting Revision')
+                        ->where('tahap', 1)
+                        ->where('pracetak_setter_id', $data->id)
+                        ->get();
+                    $setPros = count($dataProses) + 1;
+                    if ($setPros == count(json_decode($data->setter, true))) {
+                        $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                        $pros = [
+                            'params' => 'Proses Setting-Koreksi Selesai',
+                            'type' => 'Setter',
+                            'section' => 'Setting Revision',
+                            'tahap' => 1,
+                            'pracetak_setter_id' => $data->id,
+                            'users_id' => auth()->id(),
+                            'tgl_proses_selesai' => $tgl
+                        ];
+                        event(new PracetakSetterEvent($pros));
+                        $done = [
+                            'params' => 'Setting-Koreksi Selesai',
+                            'label' => 'setting',
+                            'id' => $data->id,
+                            'selesai_setting' => $tgl,
+                            'proses' => '0',
+                            'proses_saat_ini' => 'Antrian Koreksi',
+                            //Pracetak Setter History
+                            'type_history' => 'Update',
+                            'author_id' => auth()->id()
+                        ];
+                        event(new PracetakSetterEvent($done));
+                    } else {
+                        $pros = [
+                            'params' => 'Proses Setting-Koreksi Selesai',
+                            'type' => 'Setter',
+                            'section' => 'Setting Revision',
+                            'tahap' => 1,
+                            'pracetak_setter_id' => $data->id,
+                            'users_id' => auth()->id(),
+                            'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        ];
+                        event(new PracetakSetterEvent($pros));
+                    }
+                }
             } else {
-                $pros = [
-                    'params' => 'Proses Setting-Koreksi Selesai',
-                    'type' => 'Setter',
-                    'pracetak_setter_id' => $data->id,
-                    'users_id' => auth()->id(),
-                    'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                ];
-                event(new PracetakSetterEvent($pros));
+                $dataProses = DB::table('pracetak_setter_selesai')
+                    ->where('type', 'Setter')
+                    ->where('section', 'Proof Setting')
+                    ->where('tahap', 1)
+                    ->where('pracetak_setter_id', $data->id)
+                    ->get();
+                $setPros = count($dataProses) + 1;
+                if ($setPros == count(json_decode($data->setter, true))) {
+                    $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    $pros = [
+                        'params' => 'Proses Setting-Koreksi Selesai',
+                        'type' => 'Setter',
+                        'section' =>  'Proof Setting',
+                        'tahap' => 1,
+                        'pracetak_setter_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => $tgl
+                    ];
+                    event(new PracetakSetterEvent($pros));
+                    $done = [
+                        'params' => 'Setting-Koreksi Selesai',
+                        'label' => 'setting',
+                        'id' => $data->id,
+                        'selesai_setting' => $tgl,
+                        'proses' => '0',
+                        'proses_saat_ini' => NULL,
+                        //Pracetak Setter History
+                        'type_history' => 'Update',
+                        'author_id' => auth()->id()
+                    ];
+                    event(new PracetakSetterEvent($done));
+                } else {
+                    $pros = [
+                        'params' => 'Proses Setting-Koreksi Selesai',
+                        'type' => 'Setter',
+                        'section' =>  'Proof Setting',
+                        'tahap' => 1,
+                        'pracetak_setter_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new PracetakSetterEvent($pros));
+                }
             }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Pengerjaan selesai'
@@ -1411,20 +1541,21 @@ class PracetakSetterController extends Controller
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Data setting tidak ada'
+                    'message' => 'Data tidak ada'
                 ]);
             }
             $dataProsesSelf = DB::table('pracetak_setter_selesai')
                 ->where('type', 'Korektor')
-                ->where('section','Koreksi')
+                ->where('section', 'Koreksi')
                 ->where('pracetak_setter_id', $data->id)
                 ->where('users_id', auth()->id())
-                ->max('tahap');
+                ->where('tahap',DB::raw("(select max(`tahap`) from pracetak_setter_selesai)"))
+                ->first();
             if (!is_null($dataProsesSelf)) {
                 $dataProses = DB::table('pracetak_setter_selesai')
                     ->where('type', 'Korektor')
-                    ->where('section','Koreksi')
-                    ->where('tahap',$dataProsesSelf->tahap)
+                    ->where('section', 'Koreksi')
+                    ->where('tahap', $dataProsesSelf->tahap)
                     ->where('pracetak_setter_id', $data->id)
                     ->get();
                 $tahapSelanjtnya = $dataProsesSelf->tahap + 1;
@@ -1456,7 +1587,53 @@ class PracetakSetterController extends Controller
                 } else {
                     $pros = [
                         'params' => 'Proses Setting-Koreksi Selesai',
-                        'type' => 'Setter',
+                        'type' => 'Korektor',
+                        'section' => 'Koreksi',
+                        'tahap' => $tahapSelanjtnya,
+                        'pracetak_setter_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new PracetakSetterEvent($pros));
+                }
+            } else {
+                $dataProses = DB::table('pracetak_setter_selesai')
+                    ->where('type', 'Korektor')
+                    ->where('section', 'Koreksi')
+                    ->where('tahap', 1)
+                    ->where('pracetak_setter_id', $data->id)
+                    ->get();
+                $korPros = count($dataProses) + 1;
+                if ($korPros == count(json_decode($data->korektor, true))) {
+                    $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    $pros = [
+                        'params' => 'Proses Setting-Koreksi Selesai',
+                        'type' => 'Korektor',
+                        'section' => 'Koreksi',
+                        'tahap' => 1,
+                        'pracetak_setter_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => $tgl
+                    ];
+                    event(new PracetakSetterEvent($pros));
+                    $done = [
+                        'params' => 'Setting-Koreksi Selesai',
+                        'label' => 'koreksi',
+                        'id' => $data->id,
+                        'selesai_koreksi' => $tgl,
+                        'proses' => '0',
+                        'proses_saat_ini' => 'Setting Revisi',
+                        //Pracetak Setter History
+                        'type_history' => 'Update',
+                        'author_id' => auth()->id()
+                    ];
+                    event(new PracetakSetterEvent($done));
+                } else {
+                    $pros = [
+                        'params' => 'Proses Setting-Koreksi Selesai',
+                        'type' => 'Korektor',
+                        'section' => 'Koreksi',
+                        'tahap' => 1,
                         'pracetak_setter_id' => $data->id,
                         'users_id' => auth()->id(),
                         'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
@@ -1464,49 +1641,7 @@ class PracetakSetterController extends Controller
                     event(new PracetakSetterEvent($pros));
                 }
             }
-            $dataProses = DB::table('pracetak_setter_selesai')
-                ->where('type', 'Korektor')
-                ->where('section','Koreksi')
-                ->where('tahap',1)
-                ->where('pracetak_setter_id', $data->id)
-                ->get();
-            $korPros = count($dataProses) + 1;
-            if ($korPros == count(json_decode($data->korektor, true))) {
-                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                $pros = [
-                    'params' => 'Proses Setting-Koreksi Selesai',
-                    'type' => 'Korektor',
-                    'section' => 'Koreksi',
-                    'tahap' => 1,
-                    'pracetak_setter_id' => $data->id,
-                    'users_id' => auth()->id(),
-                    'tgl_proses_selesai' => $tgl
-                ];
-                event(new PracetakSetterEvent($pros));
-                $done = [
-                    'params' => 'Setting-Koreksi Selesai',
-                    'label' => 'koreksi',
-                    'id' => $data->id,
-                    'selesai_koreksi' => $tgl,
-                    'proses' => '0',
-                    'proses_saat_ini' => 'Setting Revisi',
-                    //Pracetak Setter History
-                    'type_history' => 'Update',
-                    'author_id' => auth()->id()
-                ];
-                event(new PracetakSetterEvent($done));
-            } else {
-                $pros = [
-                    'params' => 'Proses Setting-Koreksi Selesai',
-                    'type' => 'Setter',
-                    'section' => 'Koreksi',
-                    'tahap' => 1,
-                    'pracetak_setter_id' => $data->id,
-                    'users_id' => auth()->id(),
-                    'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                ];
-                event(new PracetakSetterEvent($pros));
-            }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Pengerjaan selesai'
@@ -1522,7 +1657,6 @@ class PracetakSetterController extends Controller
     protected function notifikasi()
     {
         try {
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

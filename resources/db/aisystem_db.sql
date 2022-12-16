@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 15, 2022 at 10:45 AM
+-- Generation Time: Dec 16, 2022 at 10:33 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -2406,7 +2406,8 @@ INSERT INTO `pracetak_setter_history` (`id`, `pracetak_setter_id`, `type_history
 (74, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-12-15 13:47:59', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '12c8a8639d814102b01c7ffc0cd52e71', '2022-12-15 13:47:59'),
 (75, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-15 16:20:35'),
 (76, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-12-15 16:35:22', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '12c8a8639d814102b01c7ffc0cd52e71', '2022-12-15 16:35:22'),
-(77, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-15 16:36:18');
+(77, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-15 16:36:18'),
+(78, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-12-16 15:28:59', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'a4f8d1d67d2e4b9aa2a8e8680a953194', '2022-12-16 15:28:59');
 
 -- --------------------------------------------------------
 
@@ -2456,7 +2457,8 @@ CREATE TABLE `pracetak_setter_selesai` (
 INSERT INTO `pracetak_setter_selesai` (`id`, `type`, `section`, `tahap`, `pracetak_setter_id`, `users_id`, `tgl_proses_selesai`) VALUES
 (1, 'Setter', 'Proof Setting', 1, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'a4f8d1d67d2e4b9aa2a8e8680a953194', '2022-12-07 08:51:49'),
 (5, 'Setter', 'Proof Setting', 1, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'ba360e2a572f45979cb83648fc5e2ec7', '2022-12-08 15:12:38'),
-(15, 'Korektor', 'Koreksi', 1, 'b7c5387e-d145-402a-8116-47c5ab8c414b', '12c8a8639d814102b01c7ffc0cd52e71', '2022-12-15 16:35:22');
+(15, 'Korektor', 'Koreksi', 1, 'b7c5387e-d145-402a-8116-47c5ab8c414b', '12c8a8639d814102b01c7ffc0cd52e71', '2022-12-15 16:35:22'),
+(16, 'Setter', 'Setting Revision', 1, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'a4f8d1d67d2e4b9aa2a8e8680a953194', '2022-12-16 15:10:54');
 
 -- --------------------------------------------------------
 
@@ -2850,7 +2852,11 @@ INSERT INTO `user_log` (`id`, `users_id`, `ip_address`, `last_login`, `user_agen
 (22, '12c8a8639d814102b01c7ffc0cd52e71', '192.168.6.42', '2022-12-14 08:13:12', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
 (23, '12c8a8639d814102b01c7ffc0cd52e71', '192.168.6.42', '2022-12-15 08:31:21', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
 (24, 'a4f8d1d67d2e4b9aa2a8e8680a953194', '192.168.6.42', '2022-12-15 16:19:52', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
-(25, '12c8a8639d814102b01c7ffc0cd52e71', '192.168.6.42', '2022-12-15 16:35:09', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0');
+(25, '12c8a8639d814102b01c7ffc0cd52e71', '192.168.6.42', '2022-12-15 16:35:09', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'),
+(26, 'a4f8d1d67d2e4b9aa2a8e8680a953194', '192.168.6.42', '2022-12-16 08:34:50', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(27, '12c8a8639d814102b01c7ffc0cd52e71', '192.168.6.42', '2022-12-16 10:53:09', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(28, 'a4f8d1d67d2e4b9aa2a8e8680a953194', '192.168.6.42', '2022-12-16 10:57:19', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(29, 'ba360e2a572f45979cb83648fc5e2ec7', '192.168.6.42', '2022-12-16 16:01:55', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0');
 
 -- --------------------------------------------------------
 
@@ -3695,7 +3701,7 @@ ALTER TABLE `platform_digital_ebook_history`
 -- AUTO_INCREMENT for table `pracetak_setter_history`
 --
 ALTER TABLE `pracetak_setter_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- AUTO_INCREMENT for table `pracetak_setter_proof`
@@ -3707,13 +3713,13 @@ ALTER TABLE `pracetak_setter_proof`
 -- AUTO_INCREMENT for table `pracetak_setter_selesai`
 --
 ALTER TABLE `pracetak_setter_selesai`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `user_log`
 --
 ALTER TABLE `user_log`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
