@@ -91,6 +91,28 @@
             display: none;
         }
 
+        .beep-primary {
+            position: relative;
+        }
+
+        .beep-primary:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 8px;
+            width: 7px;
+            height: 7px;
+            background-color: #6777ef;
+            border-radius: 50%;
+            animation: pulsate 1s ease-out;
+            animation-iteration-count: infinite;
+            opacity: 1;
+        }
+
+        .beep-primary.beep-primary-sidebar:after {
+            position: static;
+            margin-left: 10px;
+        }
         .beep-success {
             position: relative;
         }

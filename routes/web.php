@@ -1,16 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ApiController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ManWeb\SettingController;
-use App\Http\Controllers\Penerbitan\DeskripsiCoverController;
-use App\Http\Controllers\ManWeb\{StrukturAoController,UsersController};
+use App\Http\Controllers\{AuthController, ApiController,HomeController,NotificationController};
+use App\Http\Controllers\ManWeb\{StrukturAoController,UsersController,SettingController};
 use App\Http\Controllers\MasterData\{ImprintController,KelompokBukuController,FormatBukuController};
 use App\Http\Controllers\Produksi\{ProduksiController, EbookController,ProsesProduksiController,ProsesEbookController};
-use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiFinalController, DeskripsiProdukController, EditingController, PracetakSetterController, PracetakDesainerController};
+use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiCoverController, DeskripsiFinalController, DeskripsiProdukController, EditingController, PracetakSetterController, PracetakDesainerController};
 
 /*
 |--------------------------------------------------------------------------
