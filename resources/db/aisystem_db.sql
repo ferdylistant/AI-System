@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 21, 2022 at 09:40 AM
+-- Generation Time: Dec 22, 2022 at 10:36 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -52,7 +52,6 @@ INSERT INTO `access` (`id`, `parent_id`, `bagian_id`, `level`, `order_menu`, `ur
 ('5646908e-1e06-11ed-87ce-1078d2a38ee5', NULL, '8a3ca046fb54492a86aaead53f36bec7', 1, 1, 'produksi/proses/cetak', 'fas fa-chalkboard-teacher', 'Proses Produksi Cetak'),
 ('583a723cf036449d80d3742dcf695e38', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 9, 'penerbitan/naskah/timeline', 'fas fa-question-circle', 'Timeline'),
 ('5ce34256ce1f4a8989ac8f3510576600', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 3, '#', 'fas fa-clipboard-check', 'Deskripsi'),
-('6160850bca4d4866b13b04c8f005451c', '63a1825ffe574c00929e532fd6241629', '063203a5c5124b399ab76f8a03b93c0d', 2, 3, 'penerbitan/pracetak/pengajuan-harga', 'fas fa-money', 'Pengajuan Harga'),
 ('63a1825ffe574c00929e532fd6241629', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 5, '#', 'fas fa-file-powerpoint', 'Pracetak'),
 ('6b6e6377467d4b67911ef1b915244ed2', '5ce34256ce1f4a8989ac8f3510576600', '063203a5c5124b399ab76f8a03b93c0d', 2, 4, 'penerbitan/deskripsi/turun-cetak', 'fas fa-question-circle', 'Turun Cetak'),
 ('70410774a1e0433bb213a9625aceb0bb', NULL, '063203a5c5124b399ab76f8a03b93c0d', 1, 6, 'penerbitan/order-cetak', 'fas fa-print', 'Order Cetak'),
@@ -2215,7 +2214,6 @@ CREATE TABLE `pracetak_cover` (
   `id` char(36) NOT NULL,
   `deskripsi_cover_id` char(36) DEFAULT NULL,
   `desainer` longtext DEFAULT NULL COMMENT 'Array',
-  `editor` longtext DEFAULT NULL COMMENT 'Array',
   `tgl_masuk_cover` datetime DEFAULT NULL,
   `mulai_kerja_cover` datetime DEFAULT NULL COMMENT 'Tanggal ketika desainer mulai memproses cover buku yang di assign kabag pracetak',
   `selesai_kerja_cover` datetime DEFAULT NULL COMMENT 'Tanggal ketika desainer selesai proses cover buku yang di assign kabag pracetak',
@@ -2223,26 +2221,63 @@ CREATE TABLE `pracetak_cover` (
   `proses_front_cover_selesai` datetime DEFAULT NULL,
   `proses_back_cover` datetime DEFAULT NULL,
   `proses_back_cover_selesai` datetime DEFAULT NULL,
-  `korektor_back_cover` varchar(36) DEFAULT NULL,
-  `koreksi_sbl_film` datetime DEFAULT NULL COMMENT 'Tanggal korektor melakukan koreksi akhir sebelum pembuatan setting plat',
-  `koreksi_sbl_film_selesai` datetime DEFAULT NULL COMMENT 'Tanggal korektor selesai melakukan koreksi sebelum pembuatan setting plat',
-  `korektor_sbl_film` varchar(36) DEFAULT NULL,
-  `mulai_koreksi_film` datetime DEFAULT NULL COMMENT 'Tanggal mulai korektor melakukan koreksi settingan plat',
-  `mulai_koreksi_film_selesai` datetime DEFAULT NULL,
-  `korektor_film` datetime DEFAULT NULL,
-  `keterangan` text DEFAULT NULL,
+  `korektor` varchar(36) DEFAULT NULL,
+  `mulai_koreksi` datetime DEFAULT NULL,
+  `selesai_koreksi` datetime DEFAULT NULL,
+  `catatan` text DEFAULT NULL,
+  `proses` set('0','1') DEFAULT '0',
+  `proses_saat_ini` enum('Antrian Desainer Front','Desain Front Cover','Approval Prodev','Antrian Koreksi','Koreksi','Antrian Desainer Back','Desain Back Cover','Siap Turcet','Turun Cetak') DEFAULT NULL,
   `bulan` date DEFAULT NULL,
-  `status` enum('Pending','Proses','Selesai','Antrian') DEFAULT 'Antrian',
-  `updated_at` datetime DEFAULT NULL,
-  `updated_by` varchar(36) DEFAULT NULL
+  `status` enum('Pending','Proses','Selesai','Antrian') DEFAULT 'Antrian'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `pracetak_cover`
 --
 
-INSERT INTO `pracetak_cover` (`id`, `deskripsi_cover_id`, `desainer`, `editor`, `tgl_masuk_cover`, `mulai_kerja_cover`, `selesai_kerja_cover`, `proses_front_cover`, `proses_front_cover_selesai`, `proses_back_cover`, `proses_back_cover_selesai`, `korektor_back_cover`, `koreksi_sbl_film`, `koreksi_sbl_film_selesai`, `korektor_sbl_film`, `mulai_koreksi_film`, `mulai_koreksi_film_selesai`, `korektor_film`, `keterangan`, `bulan`, `status`, `updated_at`, `updated_by`) VALUES
-('f850c6dc-f70e-4994-990d-e3e75c598002', '2c05015a-d003-42d9-8a90-3bb62fc1103a', '[\"3d43ab399ec24c30b39c9b052686416d\"]', '[\"fab4f858e0314d1dbf6b5b834007313e\"]', '2022-11-02 14:42:25', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', NULL, NULL);
+INSERT INTO `pracetak_cover` (`id`, `deskripsi_cover_id`, `desainer`, `tgl_masuk_cover`, `mulai_kerja_cover`, `selesai_kerja_cover`, `proses_front_cover`, `proses_front_cover_selesai`, `proses_back_cover`, `proses_back_cover_selesai`, `korektor`, `mulai_koreksi`, `selesai_koreksi`, `catatan`, `proses`, `proses_saat_ini`, `bulan`, `status`) VALUES
+('f850c6dc-f70e-4994-990d-e3e75c598002', '2c05015a-d003-42d9-8a90-3bb62fc1103a', '[\"3d43ab399ec24c30b39c9b052686416d\"]', '2022-11-02 14:42:25', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, NULL, 'Antrian');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pracetak_cover_history`
+--
+
+CREATE TABLE `pracetak_cover_history` (
+  `id` bigint(20) NOT NULL,
+  `pracetak_cover_id` char(36) DEFAULT NULL,
+  `type_history` enum('Update','Progress','Status') DEFAULT NULL,
+  `desainer_his` longtext DEFAULT NULL,
+  `desainer_new` longtext DEFAULT NULL,
+  `korektor_his` longtext DEFAULT NULL,
+  `korektor_new` longtext DEFAULT NULL,
+  `bulan_his` date DEFAULT NULL,
+  `bulan_new` date DEFAULT NULL,
+  `status_his` varchar(8) DEFAULT NULL,
+  `status_new` varchar(8) DEFAULT NULL,
+  `progress` tinyint(4) DEFAULT NULL,
+  `catatan_his` text DEFAULT NULL,
+  `catatan_new` text DEFAULT NULL,
+  `author_id` varchar(36) DEFAULT NULL,
+  `modified_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pracetak_cover_selesai`
+--
+
+CREATE TABLE `pracetak_cover_selesai` (
+  `id` bigint(20) NOT NULL,
+  `type` enum('Desainer','Korektor') DEFAULT NULL,
+  `section` enum('Front Cover Design','Front Cover Design Revision','Back Cover Design','Back Cover Design Revision','Koreksi') DEFAULT NULL,
+  `tahap` tinyint(4) DEFAULT NULL,
+  `pracetak_cover_id` char(36) DEFAULT NULL,
+  `users_id` varchar(36) DEFAULT NULL,
+  `tgl_proses_selesai` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -3601,6 +3636,18 @@ ALTER TABLE `pracetak_cover`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `pracetak_cover_history`
+--
+ALTER TABLE `pracetak_cover_history`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `pracetak_cover_selesai`
+--
+ALTER TABLE `pracetak_cover_selesai`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `pracetak_setter`
 --
 ALTER TABLE `pracetak_setter`
@@ -3755,6 +3802,12 @@ ALTER TABLE `penerbitan_naskah_history`
 --
 ALTER TABLE `platform_digital_ebook_history`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `pracetak_cover_selesai`
+--
+ALTER TABLE `pracetak_cover_selesai`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pracetak_setter_history`
