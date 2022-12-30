@@ -61,7 +61,7 @@ class PracetakCoverListener
                 break;
             case 'Edit Pracetak Desainer':
                 DB::beginTransaction();
-                $res = DB::table('pracetak_setter')->where('id', $data['id'])->update([
+                $res = DB::table('pracetak_cover')->where('id', $data['id'])->update([
                     'catatan' => $data['catatan'],
                     'desainer' => $data['desainer'],
                     'korektor' => $data['korektor'],
@@ -72,7 +72,7 @@ class PracetakCoverListener
                 break;
             case 'Insert History Edit Pracetak Desainer':
                 DB::beginTransaction();
-                $res = DB::table('pracetak_setter_history')->insert([
+                $res = DB::table('pracetak_cover_history')->insert([
                     'pracetak_cover_id' => $data['pracetak_cover_id'],
                     'type_history' => $data['type_history'],
                     'desainer_his' => $data['desainer_his'],
@@ -94,5 +94,6 @@ class PracetakCoverListener
                 abort(500);
                 break;
         }
+        return $res;
     }
 }
