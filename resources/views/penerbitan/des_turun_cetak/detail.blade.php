@@ -48,10 +48,10 @@
                                             <h6 class="mb-1">Judul Final</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @if (is_null($data->judul_asli))
+                                            @if (is_null($data->judul_final))
                                                 -
                                             @else
-                                                {{ $data->judul_asli }}
+                                                {{ $data->judul_final }}
                                             @endif
                                         </p>
                                     </div>
@@ -77,6 +77,7 @@
                                         <p class="mb-1 text-monospace">
                                             @if (is_null($data->edisi_cetak))
                                                 -
+                                            @else
                                                 {{ $data->edisi_cetak }}
                                             @endif
                                         </p>
@@ -88,43 +89,11 @@
                                         <p class="mb-1 text-monospace">
                                             @if (is_null($data->isbn))
                                                 -
+                                            @else
                                                 {{ $data->isbn }}
                                             @endif
                                         </p>
                                     </div>
-                                    {{-- <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Sub-Judul Final</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace">
-                                            @if (is_null($data->sub_judul_final))
-                                                -
-                                            @else
-                                                {{ $data->sub_judul_final }}
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Bullet</h6>
-                                        </div>
-                                        @if (is_null($data->bullet) || $data->bullet == '[]')
-                                            <p class="mb-1 text-monospace">
-                                                -
-                                            </p>
-                                        @else
-                                            <ul class="list-unstyled list-inline">
-                                                @foreach (json_decode($data->bullet) as $bullet)
-                                                    <li class="list-inline-item">
-                                                        <p class="mb-1 text-monospace">
-                                                            <span class="bullet"></span>
-                                                            <span>{{ $bullet }}</span>
-                                                        </p>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        @endif
-                                    </div> --}}
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
@@ -159,11 +128,11 @@
                                             @if (is_null($data->jml_hal_final))
                                                 -
                                             @else
-                                                {{ $data->jml_hal_final }}
+                                                {{ $data->jml_hal_final }} Halaman
                                             @endif
                                         </p>
                                     </div>
-                                    <div class="list-group-item flex-column align-items-start">
+                                    {{-- <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Deskripsi Produk</h6>
                                         </div>
@@ -174,93 +143,33 @@
                                                 {{ $data->des_produk }}
                                             @endif
                                         </p>
-                                    </div>
+                                    </div> --}}
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Tanggal Deskripsi</h6>
+                                            <h6 class="mb-1">Tanggal Masuk</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @if (is_null($data->tgl_deskripsi))
+                                            @if (is_null($data->tgl_masuk))
                                                 -
                                             @else
-                                                {{ $data->tgl_deskripsi }}
+                                                {{ Carbon\Carbon::parse($data->tgl_masuk)->translatedFormat('l d F Y, H:i') }}
                                             @endif
                                         </p>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <div class="list-group-item flex-column align-items-start">
+                                    {{-- <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Sasaran Pasar</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @if (is_null($data->kelengkapan))
+                                            @if (is_null($data->sasaran_pasar))
                                                 -
                                             @else
-                                                {{ $data->kelengkapan }}
+                                                {{ $data->sasaran_pasar }}
                                             @endif
                                         </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Catatan</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace">
-                                            @if (is_null($data->catatan))
-                                                -
-                                            @else
-                                                {{ $data->catatan }}
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Deskripsi Front Cover</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace">
-                                            @if (is_null($data->des_front_cover))
-                                                -
-                                            @else
-                                                {{ $data->des_front_cover }}
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Deskripsi Back Cover</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace">
-                                            @if (is_null($data->des_back_cover))
-                                                -
-                                            @else
-                                                {{ $data->des_back_cover }}
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">PIC Prodev</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace">
-                                            @if (is_null($data->pic_prodev))
-                                                -
-                                            @else
-                                                {{ $pic }}
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Tanggal Deskripsi</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace">
-                                            @if (is_null($data->tgl_deskripsi))
-                                                -
-                                            @else
-                                                {{ Carbon\Carbon::parse($data->tgl_deskripsi)->translatedFormat('l d F Y, H:i') }}
-                                            @endif
-                                        </p>
-                                    </div>
+                                    </div> --}}
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Bulan</h6>
@@ -269,10 +178,34 @@
                                             @if (is_null($data->bulan))
                                                 -
                                             @else
-                                                {{ Carbon\Carbon::parse($data->bulan)->translatedFormat('F Y') }}
+                                                {{ $data->bulan }}
                                             @endif
                                         </p>
                                     </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">PIC Prodev</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            @if (is_null($pic))
+                                                -
+                                            @else
+                                                {{ $pic }}
+                                            @endif
+                                        </p>
+                                    </div>{{--
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Contoh Cover</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            {{-- @if (is_null($data->des_front_cover))
+                                                -
+                                            @else
+                                                {{ $data->des_front_cover }}
+                                            @endif
+                                        </p>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>

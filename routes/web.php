@@ -1,16 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ApiController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ManWeb\SettingController;
-use App\Http\Controllers\Penerbitan\DeskripsiCoverController;
-use App\Http\Controllers\ManWeb\{StrukturAoController, UsersController};
+use App\Http\Controllers\{AuthController, ApiController, HomeController, NotificationController};
+use App\Http\Controllers\ManWeb\{StrukturAoController, UsersController, SettingController};
 use App\Http\Controllers\MasterData\{ImprintController, KelompokBukuController, FormatBukuController};
 use App\Http\Controllers\Produksi\{ProduksiController, EbookController, ProsesProduksiController, ProsesEbookController};
-use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController, DeskripsiFinalController, DeskripsiProdukController, DeskripsiTurunCetakController, EditingController, PracetakSetterController, PracetakDesainerController};
+use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController, DeskripsiCoverController, DeskripsiFinalController, DeskripsiProdukController, DeskripsiTurunCetakController, EditingController, PracetakSetterController, PracetakDesainerController};
 
 /*
 |--------------------------------------------------------------------------
@@ -133,12 +128,12 @@ Route::middleware(['auth'])->group(function () {
         Route::match(['get', 'post'], '/deskripsi/cover/edit', [DeskripsiCoverController::class, 'editDeskripsiCover'])->name('descov.edit');
         Route::post('/deskripsi/cover/update-status-progress', [DeskripsiCoverController::class, 'updateStatusProgress']);
         Route::post('/deskripsi/cover/lihat-history', [DeskripsiCoverController::class, 'lihatHistoryDescov'])->name('descov.history');
-        //Turun Cetak
+        //Deskripsi Turun Cetak
         Route::get('/deskripsi/turun-cetak', [DeskripsiTurunCetakController::class, 'index'])->name('desturcet.view');
-        Route::get('/deskripsi/turun-cetak/detail', [DeskripsiTurunCetakController::class, 'detailDeskripsiCover'])->name('desturcet.detail');
-        Route::match(['get', 'post'], '/deskripsi/turun-cetak/edit', [DeskripsiTurunCetakController::class, 'editDeskripsiCover'])->name('desturcet.edit');
+        Route::get('/deskripsi/turun-cetak/detail', [DeskripsiTurunCetakController::class, 'detailDeskripsiTurunCetak'])->name('desturcet.detail');
+        Route::match(['get', 'post'], '/deskripsi/turun-cetak/edit', [DeskripsiTurunCetakController::class, 'editDeskripsiTurunCetak'])->name('desturcet.edit');
         Route::post('/deskripsi/turun-cetak/update-status-progress', [DeskripsiTurunCetakController::class, 'updateStatusProgress']);
-        Route::post('/deskripsi/turun-cetak/lihat-history', [DeskripsiTurunCetakController::class, 'lihatHistoryDescov'])->name('desturcet.history');
+        Route::post('/deskripsi/turun-cetak/lihat-history', [DeskripsiTurunCetakController::class, 'lihatHistoryDesTurunCetak'])->name('desturcet.history');
         //Editing
         Route::get('/editing', [EditingController::class, 'index'])->name('editing.view');
         Route::get('/editing/detail', [EditingController::class, 'detailEditing'])->name('editing.detail');

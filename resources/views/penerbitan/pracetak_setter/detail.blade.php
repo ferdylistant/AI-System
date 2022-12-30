@@ -5,6 +5,55 @@
     <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/flipbook/min_version/ipages.min.css') }}">
+    <style>
+        .scrollbar-deep-purple::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #F5F5F5;
+            border-radius: 10px;
+        }
+    
+        .scrollbar-deep-purple::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
+    
+        .scrollbar-deep-purple::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #6777EF;
+        }
+    
+        .scrollbar-deep-purple {
+            scrollbar-color: #6777EF #F5F5F5;
+        }
+    
+        .bordered-deep-purple::-webkit-scrollbar-track {
+            -webkit-box-shadow: none;
+            border: 1px solid #6777EF;
+        }
+    
+        .bordered-deep-purple::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: none;
+        }
+    
+        .square::-webkit-scrollbar-track {
+            border-radius: 0 !important;
+        }
+    
+        .square::-webkit-scrollbar-thumb {
+            border-radius: 0 !important;
+        }
+    
+        .thin::-webkit-scrollbar {
+            width: 6px;
+        }
+    
+        .example-1 {
+            position: relative;
+            overflow-y: scroll;
+            height: 200px;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -445,17 +494,9 @@
         </div>
 
     </section>
-    <style>
-        #md_updateSubtimeline table {
-            width: 100%;
-        }
-
-        #md_updateSubtimeline table tr th {
-            text-align: center;
-        }
-    </style>
     @include('penerbitan.pracetak_setter.include.modal_revisi')
     @include('penerbitan.pracetak_setter.include.modal_detailrevisi')
+    @include('penerbitan.pracetak_setter.include.modal_riwayatsetkor')
 @endsection
 @section('jsRequired')
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>

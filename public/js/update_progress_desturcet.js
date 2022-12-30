@@ -8,7 +8,7 @@ $(function () {
         $.ajax({
             url:
                 window.location.origin +
-                "/penerbitan/deskripsi/cover/lihat-history",
+                "/penerbitan/deskripsi/turun-cetak/lihat-history",
             data: {
                 id: id,
                 page: page,
@@ -64,7 +64,7 @@ $(document).ready(function () {
     });
 });
 $(document).ready(function () {
-    $("#tb_DesCover").on("click", ".btn-status-descov", function (e) {
+    $("#tb_DesTurCet").on("click", ".btn-status-desturcet", function (e) {
         e.preventDefault();
         let id = $(this).data("id"),
             kode = $(this).data("kode"),
@@ -75,14 +75,14 @@ $(document).ready(function () {
     });
 });
 $(document).ready(function () {
-    function ajaxUpdateStatusDeskripsiCover(data) {
+    function ajaxUpdateStatusDeskripsiTurunCetak(data) {
         let el = data.get(0);
         // console.log(el);
         $.ajax({
             type: "POST",
             url:
                 window.location.origin +
-                "/penerbitan/deskripsi/cover/update-status-progress",
+                "/penerbitan/deskripsi/turun-cetak/update-status-progress",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -94,10 +94,10 @@ $(document).ready(function () {
             success: function (result) {
                 if (result.status == "error") {
                     notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusDescov").trigger("reset");
+                    $("#fm_UpdateStatusDesturcet").trigger("reset");
                 } else {
                     notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusDescov").trigger("reset");
+                    $("#fm_UpdateStatusDesturcet").trigger("reset");
                     location.reload();
                 }
             },
@@ -122,14 +122,14 @@ $(document).ready(function () {
         });
     }
 
-    $("#fm_UpdateStatusDescov").on("submit", function (e) {
+    $("#fm_UpdateStatusDesturcet").on("submit", function (e) {
         e.preventDefault();
         if ($(this).valid()) {
             let kode = $(this).find('[name="kode"]').val();
             let judul = $(this).find('[name="judul_asli"]').val();
             swal({
                 title:
-                    "Yakin mengubah status deskripsi cover " +
+                    "Yakin mengubah status deskripsi turun cetak " +
                     kode +
                     "-" +
                     judul +
@@ -140,7 +140,7 @@ $(document).ready(function () {
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxUpdateStatusDeskripsiCover($(this));
+                    ajaxUpdateStatusDeskripsiTurunCetak($(this));
                 }
             });
         }

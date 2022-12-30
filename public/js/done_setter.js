@@ -313,14 +313,14 @@ $(function () {
             id: id
         }, function(data) {
             // console.log(data);
-            $('#titleModalSetter').html(
+            $('#titleModalSetkor').html(
                 '<i class="fas fa-history"></i>&nbsp;Riwayat progress Setter & Korektor naskah"' + judul + '"');
-            $('#load_more').data('id', id);
-            $('#dataInformasiProof').html(data);
-            $('#md_InformasiProof').modal('show');
+            $('#load_more_setkor').data('id', id);
+            $('#dataRiwayatSetkor').html(data);
+            $('#md_RiwayatSetkor').modal('show');
         });
     });
-    $(".load-more").click(function (e) {
+    $(".load-more-setkor").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
@@ -334,13 +334,13 @@ $(function () {
             },
             type: "post",
             beforeSend: function () {
-                $(".load-more").text("Loading...");
+                $(".load-more-setkor").text("Loading...");
             },
             success: function (response) {
                 if (response.length == 0) {
                     notifToast("error", "Tidak ada data lagi");
                 }
-                $("#dataInformasiProof").append(response);
+                $("#dataRiwayatSetkor").append(response);
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
                 //     // appending posts after last post with class="post"
@@ -348,7 +348,7 @@ $(function () {
                 // }, 2000);
             },
             complete: function (params) {
-                $(".load-more").text("Load more").fadeIn("slow");
+                $(".load-more-setkor").text("Load more").fadeIn("slow");
             },
         });
     });

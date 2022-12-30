@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
-use App\Events\DescovEvent;
+use App\Events\DesturcetEvent;
 use Illuminate\Support\Arr;
 use App\Events\EditingEvent;
 use Illuminate\Http\Request;
@@ -20,29 +20,37 @@ class DeskripsiTurunCetakController extends Controller
     {
         if ($request->ajax()) {
             $data = DB::table('deskripsi_turun_cetak as dtc')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dtc.deskripsi_produk_id')
-                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                 ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                 ->select(
                     'dtc.*',
                     'pn.kode',
                     'pn.pic_prodev',
                     'pn.jalur_buku',
-                    'pn.kelompok_buku_id',
                     'dp.naskah_id',
                     'dp.judul_final',
                     'dp.format_buku',
-                    'df.sub_judul_final',
-                    'df.bullet'
                 )
-                ->orderBy('dtc.tgl_deskripsi', 'ASC')
+                ->orderBy('dtc.tgl_masuk', 'ASC')
                 ->get();
             $update = Gate::allows('do_create', 'ubah-atau-buat-des-cover');
 
             return DataTables::of($data)
-                ->addIndexColumn()
+                // ->addIndexColumn()
                 ->addColumn('kode', function ($data) {
                     return $data->kode;
+                })
+                ->addColumn('judul_final', function ($data) {
+                    if (is_null($data->judul_final)) {
+                        $res = '-';
+                    } else {
+                        $res = $data->judul_final;
+                    }
+                    return $res;
                 })
                 ->addColumn('penulis', function ($data) {
                     // return $data->penulis;
@@ -64,30 +72,32 @@ class DeskripsiTurunCetakController extends Controller
                 })
                 ->addColumn('format_buku', function ($data) {
                     if (!is_null($data->format_buku)) {
-                        $res = $data->format_buku;
+                        $res = $data->format_buku . ' cm';
                     } else {
                         $res = '-';
                     }
                     return $res;
                 })
-                ->addColumn('kelompok_buku', function ($data) {
-                    if (!is_null($data->kelompok_buku_id)) {
-                        $res = DB::table('penerbitan_m_kelompok_buku')->where('id', $data->kelompok_buku_id)->first()->nama;
+                ->addColumn('format_buku', function ($data) {
+                    if (!is_null($data->format_buku)) {
+                        $res = $data->format_buku . ' cm';
                     } else {
                         $res = '-';
                     }
                     return $res;
                 })
-                ->addColumn('judul_final', function ($data) {
-                    if (is_null($data->judul_final)) {
-                        $res = '-';
-                    } else {
-                        $res = $data->judul_final;
-                    }
-                    return $res;
+                ->addColumn('tgl_masuk', function ($data) {
+                    return Carbon::parse($data->tgl_masuk)->translatedFormat('l d M Y H:i');
                 })
-                ->addColumn('tgl_deskripsi', function ($data) {
-                    return Carbon::parse($data->tgl_deskripsi)->translatedFormat('l d M Y H:i');
+                ->addColumn('pic_prodev', function ($data) {
+                    $result = '';
+                    $res = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')
+                        ->select('nama')
+                        ->get();
+                    foreach (json_decode($res) as $q) {
+                        $result .= $q->nama;
+                    }
+                    return $result;
                 })
                 ->addColumn('history', function ($data) {
                     $historyData = DB::table('deskripsi_cover_history')->where('deskripsi_cover_id', $data->id)->get();
@@ -128,13 +138,11 @@ class DeskripsiTurunCetakController extends Controller
                 })
                 ->rawColumns([
                     'kode',
-                    'judul_asli',
+                    'judul_final',
                     'penulis',
                     'format_buku',
-                    'kelompok_buku',
-                    'judul_final',
-                    'tgl_deskripsi',
                     'pic_prodev',
+                    'tgl_masuk',
                     'history',
                     'action'
                 ])
@@ -168,14 +176,16 @@ class DeskripsiTurunCetakController extends Controller
             'count' => count($data)
         ]);
     }
-    public function detailDeskripsiCover(Request $request)
+    public function detailDeskripsiTurunCetak(Request $request)
     {
         $id = $request->get('desc');
         $kode = $request->get('kode');
         $data = DB::table('deskripsi_turun_cetak as dtc')
-            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dtc.deskripsi_produk_id')
             ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
-            ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+            ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+            ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+            ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
             ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
             ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
                 $q->on('pn.kelompok_buku_id', '=', 'kb.id')
@@ -215,21 +225,21 @@ class DeskripsiTurunCetakController extends Controller
             ->select('pp.nama')
             ->get();
         $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first()->nama;
-        $desainer = DB::table('users')->where('id', $data->desainer)->whereNull('deleted_at')->first()->nama;
+        // $desainer = DB::table('users')->where('id', $data->desainer)->whereNull('deleted_at')->first()->nama;
         return view('penerbitan.des_turun_cetak.detail', [
             'title' => 'Detail Deskripsi Turun Cetak',
             'data' => $data,
             'penulis' => $penulis,
             'pic' => $pic,
-            'desainer' => $desainer,
+            // 'desainer' => $desainer,
         ]);
     }
-    public function editDeskripsiCover(Request $request)
+    public function editDeskripsiTurunCetak(Request $request)
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
-                $history = DB::table('deskripsi_cover as dc')
-                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                $history = DB::table('deskripsi_turun_cetak as dtc')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dtc.deskripsi_produk_id')
                     ->join('deskripsi_final as df', 'df.deskripsi_produk_id', '=', 'dp.id')
                     ->where('dc.id', $request->id)
                     ->whereNull('dc.deleted_at')
@@ -239,25 +249,14 @@ class DeskripsiTurunCetakController extends Controller
                     $bullet[] = $value;
                 }
                 $update = [
-                    'params' => 'Edit Descov',
+                    'params' => 'Edit Desturcet',
                     'id' => $request->id,
-                    'sub_judul_final' => $request->sub_judul_final, //Deskripsi Final
-                    'des_front_cover' => $request->des_front_cover,
-                    'des_back_cover' => $request->des_back_cover,
-                    'finishing_cover' => json_encode(array_filter($request->finishing_cover)), //Array
+                    'edisi_cetak' => $request->edisi_cetak, //Deskripsi Final
                     'format_buku' => $request->format_buku, //Deskripsi Produk
-                    'jilid' => $request->jilid,
-                    'tipografi' => $request->tipografi,
-                    'warna' => $request->warna,
-                    'kelengkapan' => $request->kelengkapan,
-                    'catatan' => $request->catatan,
-                    'bullet' =>  json_encode(array_filter($bullet)), //Deskripsi Final
-                    'desainer' => $request->desainer,
-                    'contoh_cover' => $request->contoh_cover,
                     'bulan' => Carbon::createFromDate($request->bulan),
                     'updated_by' => auth()->id()
                 ];
-                event(new DescovEvent($update));
+                event(new DesturcetEvent($update));
 
                 $insert = [
                     'params' => 'Insert History Edit Descov',
@@ -294,63 +293,59 @@ class DeskripsiTurunCetakController extends Controller
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
-                event(new DescovEvent($insert));
+                event(new DesturcetEvent($insert));
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'Data deskripsi cover berhasil ditambahkan',
-                    'route' => route('descov.view')
+                    'message' => 'Data deskripsi turun cetak berhasil ditambahkan',
+                    'route' => route('desturcet.view')
                 ]);
             }
         }
         $id = $request->get('desc');
         $kodenaskah = $request->get('kode');
-        $data = DB::table('deskripsi_cover as dc')
+        $data = DB::table('deskripsi_turun_cetak as dtc')
+            ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+            ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+            ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+            ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
             ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-            ->join('deskripsi_final as df', 'df.deskripsi_produk_id', '=', 'dp.id')
             ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
             ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
                 $q->on('pn.kelompok_buku_id', '=', 'kb.id')
                     ->whereNull('kb.deleted_at');
             })
-            ->where('dc.id', $id)
+            ->where('dtc.id', $id)
             ->where('pn.kode', $kodenaskah)
-            ->whereNull('dc.deleted_at')
             ->whereNull('pn.deleted_at')
             ->select(
-                'dc.*',
-                'df.sub_judul_final',
-                'df.bullet',
+                'dtc.*',
+                'ps.edisi_cetak',
+                'ps.isbn',
+                'ps.jml_hal_final',
                 'dp.naskah_id',
                 'dp.judul_final',
                 'dp.format_buku',
-                'dp.imprint',
+                'pn.id',
                 'pn.kode',
+                'pn.jalur_buku',
                 'pn.judul_asli',
                 'pn.pic_prodev',
                 'kb.nama',
             )
             ->first();
-        is_null($data) ? abort(404) :
-            $desainer = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-            ->where('j.nama', 'LIKE', '%Design%')
-            ->where('d.nama', 'LIKE', '%Penerbitan%')
-            ->select('u.nama', 'u.id')
-            ->get();
-        if (!is_null($data->desainer)) {
-            $namaDesainer = DB::table('users')
-                ->where('id', $data->desainer)
-                ->first();
-        } else {
-            $namaDesainer = NULL;
+        if (is_null($data)) {
+            abort(404);
         }
+        $sasaranPasar = DB::table('penerbitan_pn_prodev')
+            ->where('naskah_id', $data->naskah_id)
+            ->first();
+        $sasaran_pasar = is_null($sasaranPasar) ? null : $sasaranPasar->sasaran_pasar;
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', function ($q) {
                 $q->on('pnp.penulis_id', '=', 'pp.id')
                     ->whereNull('pp.deleted_at');
             })
-            ->where('pnp.naskah_id', '=', $data->naskah_id)
+            ->where('pnp.naskah_id', '=', $data->id)
             ->select('pp.nama')
             ->get();
         $format_buku = DB::table('format_buku')->whereNull('deleted_at')->get();
@@ -366,16 +361,15 @@ class DeskripsiTurunCetakController extends Controller
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $kelengkapan = explode("','", $matches[1]);
         // $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
-        return view('penerbitan.des_cover.edit', [
-            'title' => 'Edit Deskripsi Cover',
+        return view('penerbitan.des_turun_cetak.edit', [
+            'title' => 'Edit Deskripsi Turun Cetak',
             'data' => $data,
-            'desainer' => $desainer,
             'penulis' => $penulis,
             'format_buku' => $format_buku,
             'jilid' => $jilid,
-            'nama_desainer' => $namaDesainer,
             'finishing_cover' => $finishingCover,
-            'kelengkapan' => $kelengkapan
+            'kelengkapan' => $kelengkapan,
+            'sasaran_pasar' => $sasaran_pasar
             // 'imprint' => $imprint
         ]);
     }
@@ -442,8 +436,8 @@ class DeskripsiTurunCetakController extends Controller
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
             if ($request->status == 'Selesai') {
-                event(new DescovEvent($update));
-                event(new DescovEvent($insert));
+                event(new DesturcetEvent($update));
+                event(new DesturcetEvent($insert));
                 $insertEditingProses = [
                     'params' => 'Insert Editing',
                     'id' => Uuid::uuid4()->toString(),
@@ -473,8 +467,8 @@ class DeskripsiTurunCetakController extends Controller
                 event(new PracetakCoverEvent($insertPracetakCover));
                 $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
             } else {
-                event(new DescovEvent($update));
-                event(new DescovEvent($insert));
+                event(new DesturcetEvent($update));
+                event(new DesturcetEvent($insert));
                 $msg = 'Status progress deskripsi cover berhasil diupdate';
             }
             return response()->json([
@@ -488,18 +482,17 @@ class DeskripsiTurunCetakController extends Controller
             ]);
         }
     }
-    public function lihatHistoryDescov(Request $request)
+    public function lihatHistoryDesTurunCetak(Request $request)
     {
         if ($request->ajax()) {
             $html = '';
             $id = $request->id;
-            $data = DB::table('deskripsi_cover_history as dch')
-                ->join('deskripsi_cover as dc', 'dc.id', '=', 'dch.deskripsi_cover_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->join('users as u', 'dch.author_id', '=', 'u.id')
-                ->where('dch.deskripsi_cover_id', $id)
-                ->select('dch.*', 'dp.judul_final', 'u.nama',)
-                ->orderBy('dch.id', 'desc')
+            $data = DB::table('deskripsi_turun_cetak_history as dtch')
+                ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'dtch.deskripsi_turun_cetak_id')
+                ->join('users as u', 'dtch.author_id', '=', 'u.id')
+                ->where('dtch.deskripsi_turun_cetak_id', $id)
+                ->select('dtch.*', 'u.nama',)
+                ->orderBy('dtch.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
                 switch ($d->type_history) {
@@ -635,19 +628,19 @@ class DeskripsiTurunCetakController extends Controller
                 $btn .= '<span class="d-block badge badge-dark mr-1 mt-1"><i class="fas fa-lock"></i>&nbsp;' . $status . '</span>';
                 break;
             case 'Antrian':
-                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-descov" style="background:#34395E;color:white" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-desturcet" style="background:#34395E;color:white" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
                         <div>' . $status . '</div></a>';
                 break;
             case 'Pending':
-                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-descov" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-desturcet" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
                         <div>' . $status . '</div></a>';
                 break;
             case 'Proses':
-                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-descov" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-desturcet" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
                         <div>' . $status . '</div></a>';
                 break;
             case 'Selesai':
-                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-descov" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesCover" title="Update Status">
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-desturcet" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
                         <div>' . $status . '</div></a>';
                 break;
             default:
@@ -682,7 +675,7 @@ class DeskripsiTurunCetakController extends Controller
     }
     protected function buttonEdit($id, $kode, $btn)
     {
-        $btn .= '<a href="' . url('penerbitan/deskripsi/cover/edit?desc=' . $id . '&kode=' . $kode) . '"
+        $btn .= '<a href="' . url('penerbitan/deskripsi/turun-cetak/edit?desc=' . $id . '&kode=' . $kode) . '"
             class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
             <div><i class="fas fa-edit"></i></div></a>';
         return $btn;

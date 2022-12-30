@@ -117,7 +117,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="fm_UpdateStatusDescov">
+                <form id="fm_UpdateStatusDesturcet">
                     <div class="modal-body">
                         <div class="form-group">
                             <input type="hidden" name="id" id="id" value="">
@@ -141,18 +141,18 @@
             </div>
         </div>
     </div>
-    <div id="md_DescovHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalDescov"
+    <div id="md_DesturcetHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalDesturcet"
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content ">
                 <div class="modal-header bg-light">
-                    <h5 class="modal-title" id="titleModalDescov"></h5>
+                    <h5 class="modal-title" id="titleModalDesturcet"></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body example-1 scrollbar-deep-purple bordered-deep-purple thin">
-                    <div class="tickets-list" id="dataHistoryDescov">
+                    <div class="tickets-list" id="dataHistoryDesturcet">
 
                     </div>
 
@@ -186,7 +186,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-            let tableDesCover = $('#tb_DesTurCet').DataTable({
+            let tableDesTurunCetak = $('#tb_DesTurCet').DataTable({
                 "bSort": false,
                 "responsive": true,
                 "autoWidth": true,
@@ -199,14 +199,6 @@
                 },
                 ajax: "{{ route('desturcet.view') }}",
                 columns: [{
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        title: 'No',
-                        orderable: false,
-                        searchable: false,
-                        "width": "5%"
-                    },
-                    {
                         data: 'kode',
                         name: 'kode',
                         title: 'Kode'
@@ -220,23 +212,21 @@
                         data: 'penulis',
                         name: 'penulis',
                         title: 'Penulis',
-                        "width": "15%"
                     },
                     {
                         data: 'format_buku',
                         name: 'format_buku',
                         title: 'Format Buku',
-                        "width": "15%"
                     },
                     {
-                        data: 'kelompok_buku',
-                        name: 'kelompok_buku',
-                        title: 'Kelompok Buku'
+                        data: 'pic_prodev',
+                        name: 'pic_prodev',
+                        title: 'PIC Prodev'
                     },
                     {
-                        data: 'tgl_deskripsi',
-                        name: 'tgl_deskripsi',
-                        title: 'Tgl Deskripsi'
+                        data: 'tgl_masuk',
+                        name: 'tgl_masuk',
+                        title: 'Tgl Masuk'
                     },
                     {
                         data: 'history',
@@ -254,26 +244,26 @@
             });
             $('[name="status_filter"]').on('change', function() {
                 var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                tableDesCover.column($(this).data('column'))
+                tableDesTurunCetak.column($(this).data('column'))
                     .search(val ? val : '', true, false)
                     .draw();
             });
         });
     </script>
     <script>
-        $('#tb_DesCover').on('click', '.btn-history', function(e) {
+        $('#tb_DesTurCet').on('click', '.btn-history', function(e) {
             var id = $(this).data('id');
             var judul = $(this).data('judulfinal');
-            $.post("{{ route('descov.history') }}", {
+            $.post("{{ route('desturcet.history') }}", {
                 id: id
             }, function(data) {
-                $('#titleModalDescov').html(
+                $('#titleModalDesturcet').html(
                     '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
                 $('#load_more').data('id', id);
-                $('#dataHistoryDescov').html(data);
-                $('#md_DescovHistory').modal('show');
+                $('#dataHistoryDesturcet').html(data);
+                $('#md_DesturcetHistory').modal('show');
             });
         });
     </script>
-    <script src="{{ url('js/update_progress_descov.js') }}"></script>
+    <script src="{{ url('js/update_progress_desturcet.js') }}"></script>
 @endsection
