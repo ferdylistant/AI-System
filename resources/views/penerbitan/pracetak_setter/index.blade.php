@@ -72,7 +72,7 @@
                         <div class="row justify-content-between">
                             <div class="form-group col-auto col-md-3">
                                 <div class="input-group">
-                                    <select data-column="9" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
+                                    <select data-column="8" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
                                         <option label="Pilih Filter Status"></option>
                                         @foreach ($status_progress as $val)
                                         <option value="{{ $val }}">{{ $val }}&nbsp;&nbsp;</option>
@@ -167,13 +167,7 @@
 @section('jsNeeded')
 <script>
     $(function() {
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
         let tableDesProduk = $('#tb_Setter').DataTable({
-            "bSort": false,
             "responsive": true,
             "autoWidth": true,
             processing: true,
@@ -241,22 +235,6 @@
             tableDesProduk.column($(this).data('column'))
                 .search(val ? val : '', true, false)
                 .draw();
-        });
-    });
-</script>
-<script>
-    $('#tb_Setter').on('click', '.btn-history', function(e) {
-        var id = $(this).data('id');
-        var judul = $(this).data('judulfinal');
-        $.post("{{ url('/penerbitan/pracetak/setter/lihat-history') }}", {
-            id: id
-        }, function(data) {
-            // console.log(data);
-            $('#titleModalSetter').html(
-                '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
-            $('#load_more').data('id', id);
-            $('#dataHistorySetter').html(data);
-            $('#md_SetterHistory').modal('show');
         });
     });
 </script>

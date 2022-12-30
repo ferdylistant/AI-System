@@ -1,3 +1,17 @@
+$('#tb_PraDes').on('click', '.btn-history', function(e) {
+    var id = $(this).data('id');
+    var judul = $(this).data('judulfinal');
+    $.post(window.location.origin + "/penerbitan/pracetak/designer/lihat-history", {
+        id: id
+    }, function(data) {
+        $('#titleModalPraDes').html(
+            '<i class="fas fa-history"></i>&nbsp;History Progress Pracetak Desainer "' + judul +
+            '"');
+        $('#load_more').data('id', id);
+        $('#dataHistoryPraDes').html(data);
+        $('#md_PraDesHistory').modal('show');
+    });
+});
 $(function () {
     $(".load-more").click(function (e) {
         e.preventDefault();
@@ -6,7 +20,7 @@ $(function () {
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/penerbitan/editing/lihat-history",
+            url: window.location.origin + "/penerbitan/pracetak/designer/lihat-history",
             data: {
                 id: id,
                 page: page,
@@ -19,7 +33,7 @@ $(function () {
                 if (response.length == 0) {
                     notifToast("error", "Tidak ada data lagi");
                 }
-                $("#dataHistoryEditing").append(response);
+                $("#dataHistoryPraDes").append(response);
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
                 //     // appending posts after last post with class="post"
@@ -62,7 +76,7 @@ $(document).ready(function () {
     });
 });
 $(document).ready(function () {
-    $("#tb_PraDes").on("click", ".btn-status-prades", function (e) {
+    $("#tb_PraDes").on("click", ".btn-status-designer", function (e) {
         e.preventDefault();
         let id = $(this).data("id"),
             kode = $(this).data("kode"),

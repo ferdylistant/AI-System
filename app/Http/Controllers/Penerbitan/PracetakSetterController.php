@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
+use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Events\DesturcetEvent;
 use Yajra\DataTables\DataTables;
 use App\Events\PracetakSetterEvent;
 use App\Http\Controllers\Controller;
@@ -160,10 +162,8 @@ class PracetakSetterController extends Controller
                 'pn.kode',
                 'pn.pic_prodev',
                 'pn.jalur_buku',
-                'pn.kelompok_buku_id',
                 'dp.naskah_id',
                 'dp.judul_final',
-                'df.bullet'
             )
             ->orderBy('ps.tgl_masuk_pracetak', 'ASC')
             ->get();
@@ -206,6 +206,7 @@ class PracetakSetterController extends Controller
                             'message' => 'Hentikan proses untuk update data'
                         ]);
                     }
+                    $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
                     if ($request->proses_saat_ini == 'Turun Cetak') {
                         $cekTidakKosong = DB::table('pracetak_setter')
                             ->where('id', $request->id)
@@ -218,6 +219,20 @@ class PracetakSetterController extends Controller
                                 'status' => 'error',
                                 'message' => 'Proses Copyright, ISBN, atau Pengajuan Harga belum diinput!'
                             ]);
+                        }
+                        $cekSelesaiCover = DB::table('pracetak_cover')
+                            ->where('id', $request->id_pracov)
+                            ->where('status', 'Selesai')
+                            ->first();
+                        if (!is_null($cekSelesaiCover)) {
+                            $turcet = [
+                                'params' => 'Insert Turun Cetak',
+                                'id' => Uuid::uuid4()->toString(),
+                                'pracetak_cover_id' => $request->id_pracov,
+                                'pracetak_setter_id' => $history->id,
+                                'tgl_masuk' => $tgl
+                            ];
+                            event(new DesturcetEvent($turcet));
                         }
                         DB::table('pracetak_setter')->where('id', $request->id)->update([
                             'status' => 'Selesai'
@@ -266,7 +281,7 @@ class PracetakSetterController extends Controller
                         'proses_ini_his' => $history->proses_saat_ini == $request->proses_saat_ini ? null : $history->proses_saat_ini,
                         'proses_ini_new' => $history->proses_saat_ini == $request->proses_saat_ini ? null : $request->proses_saat_ini,
                         'author_id' => auth()->id(),
-                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        'modified_at' => $tgl
                     ];
                     event(new PracetakSetterEvent($insert));
                     DB::commit();
@@ -289,6 +304,8 @@ class PracetakSetterController extends Controller
         $data = DB::table('pracetak_setter as ps')
             ->join('deskripsi_final as df', 'ps.deskripsi_final_id', '=', 'df.id')
             ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+            ->join('deskripsi_cover as dc', 'dp.id','=','dc.deskripsi_produk_id')
+            ->join('pracetak_cover as pc','dc.id','=','pc.deskripsi_cover_id')
             ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
             ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
                 $q->on('pn.kelompok_buku_id', '=', 'kb.id')
@@ -301,16 +318,20 @@ class PracetakSetterController extends Controller
                 'df.sub_judul_final',
                 'df.bullet',
                 'df.sinopsis',
+                'df.kertas_isi',
                 'df.isi_warna',
                 'df.isi_huruf',
+                'df.ukuran_asli',
                 'dp.naskah_id',
                 'dp.judul_final',
+                'dp.imprint',
                 'dp.format_buku',
                 'dp.jml_hal_perkiraan',
                 'pn.kode',
                 'pn.jalur_buku',
                 'pn.pic_prodev',
                 'kb.nama',
+                'pc.id as id_pracov'
             )
             ->first();
         is_null($data) ? abort(404) :
@@ -390,14 +411,19 @@ class PracetakSetterController extends Controller
                 'df.sub_judul_final',
                 'df.bullet',
                 'df.sinopsis',
+                'df.kertas_isi',
                 'df.isi_warna',
                 'df.isi_huruf',
+                'df.ukuran_asli',
                 'dp.naskah_id',
                 'dp.judul_final',
+                'dp.imprint',
+                'dp.format_buku',
+                'dp.jml_hal_perkiraan',
                 'pn.kode',
                 'pn.jalur_buku',
                 'pn.pic_prodev',
-                'kb.nama'
+                'kb.nama',
             )
             ->first();
         if (is_null($data)) {
@@ -1000,7 +1026,7 @@ class PracetakSetterController extends Controller
             foreach ($data as $d) {
                 switch ($d->type_history) {
                     case 'Status':
-                        $html .= '<span class="ticket-item" id="newAppend">
+                        $html .= '<span class="ticket-item">
                         <div class="ticket-title">
                             <span><span class="bullet"></span> Status pracetak setter <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
                         </div>
@@ -1012,7 +1038,7 @@ class PracetakSetterController extends Controller
                         </span>';
                         break;
                     case 'Update':
-                        $html .= '<span class="ticket-item" id="newAppend">
+                        $html .= '<span class="ticket-item">
                         <div class="ticket-title"><span><span class="bullet"></span>';
                         if (!is_null($d->status_his)) {
                             $html .= ' Status pracetak setter <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.';
@@ -1386,12 +1412,10 @@ class PracetakSetterController extends Controller
                 break;
         }
         if ($gate) {
+            $btn = $this->buttonEdit($id, $kode, $btn);
+        } else {
             if ($status == 'Selesai') {
-                if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                    $btn = $this->buttonEdit($id, $kode, $btn);
-                }
-            } else {
-                if ((auth()->id() == $pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                if (Gate::allows('do_approval', 'approval-deskripsi-produk') || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
                     $btn = $this->buttonEdit($id, $kode, $btn);
                 }
             }

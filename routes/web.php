@@ -147,9 +147,11 @@ Route::middleware(['auth'])->group(function() {
         //Pracetak Desainer
         Route::get('/pracetak/designer', [PracetakDesainerController::class, 'index'])->name('prades.view');
         Route::get('/pracetak/designer/detail', [PracetakDesainerController::class, 'detailPracetakDesainer'])->name('prades.detail');
-        Route::match(['get', 'post'],'/pracetak/designer/edit',[PracetakDesainerController::class, 'editPracetakDesainer'])->name('prades.edit');
+        Route::match(['get', 'post'],'/pracetak/designer/edit',[PracetakDesainerController::class, 'editDesigner'])->name('prades.edit');
         Route::post('/pracetak/designer/update-status-progress',[PracetakDesainerController::class, 'updateStatusProgress']);
-        Route::post('/pracetak/designer/lihat-history', [PracetakDesainerController::class, 'lihatHistoryPracetakDesainer'])->name('prades.history');
+        Route::post('/pracetak/designer/proses-kerja', [PracetakSetterController::class, 'prosesKerjaSetter'])->name('prades.proses');
+        Route::post('/pracetak/designer/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('prades.selesai');
+        Route::post('/pracetak/designer/{act}', [PracetakDesainerController::class, 'actionAjax']);
         //Order Cetak
         Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('cetak.view');
         Route::get('/order-cetak/detail', [ProduksiController::class, 'detailProduksi'])->name('cetak.detail');

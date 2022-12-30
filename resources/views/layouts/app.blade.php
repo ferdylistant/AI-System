@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
-    <meta http-equiv="refresh" content="600" />
     <title>{{ $title }} &mdash; Andi Intelligent System</title>
 
     <!-- General CSS Files -->
@@ -113,6 +112,7 @@
             position: static;
             margin-left: 10px;
         }
+
         .beep-success {
             position: relative;
         }
@@ -208,7 +208,17 @@
     <script src="{{ url('vendors/stisla/js/custom.js') }}"></script>
 
     <!-- Specific JS File -->
-    <script src="{{url('js/main.js')}}"></script>
+    <script src="{{ url('js/main.js') }}"></script>
+    {{-- <script>
+        // Reload the page when the user's internet connection is restored
+        setInterval(function() {
+            if (navigator.onLine) {
+                console.log(navigator.onLine);
+                location.reload();
+            }
+            console.log(navigator.onLine);
+        }, 120000);
+    </script> --}}
     @yield('jsNeeded')
 
 </body>

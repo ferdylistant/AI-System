@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 22, 2022 at 10:36 AM
+-- Generation Time: Dec 30, 2022 at 09:03 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -2087,18 +2087,15 @@ INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALU
 ('457aca55-6952-11ed-9234-4cedfb61fb39', '365190039fb44c8ab629806a5490addf', '', 'Create', 'ubah-atau-buat-setter-smk', 'Kabag Pracetak Setter SMK'),
 ('4943c707-1e08-11ed-87ce-1078d2a38ee5', '5646908e-1e06-11ed-87ce-1078d2a38ee5', '', 'Read', 'lihat-proses-produksi', 'Lihat Data Proses Produksi'),
 ('4b3413e795944f48af97085069fb6855', 'be061671a86c4437803f7c225e117799', '', 'Create', 'otorisasi-korektor-prades-reguler', 'Otorisasi Korektor Reguler'),
-('4bb1a8713c0644c794ff1ea6a7669cab', 'be061671a86c4437803f7c225e117799', '', 'Create', 'otorisasi-editor-prades-smk', 'Otorisasi Editor SMK'),
 ('4bb845580b464d7db3d7c3b3e4fd213b', '4e1627c1489844f985cbe2c485b2e162', 'manajemen-web/struktur-ao', 'Read', NULL, 'Lihat Struktur AO'),
 ('4cea10b3a4434bc3b342407a78a9ab2a', 'bfb8b970f85c4a42bac1dc56181dc96b', '', 'Delete', 'hapus-produksi-ebook', 'Hapus Order E-book'),
 ('4d64a842e08344b9aeec88ed9eb2eb72', '70410774a1e0433bb213a9625aceb0bb', '', 'Update', 'update-produksi', 'Mengubah Data Produksi Order Cetak'),
 ('539f5991-6c74-11ed-9e64-4cedfb61fb39', '365190039fb44c8ab629806a5490addf', '', 'Create', 'otorisasi-korektor-praset-mou', 'Otorisasi Korektor Setting MOU'),
 ('569c1d340cea4b21a54910177eeaf51f', 'bd09e803c41245a49ef23987c27b20ac', '', 'Read', 'lihat-deskripsi-produk', 'Lihat Deskripsi Produk'),
 ('5a1bd42cca6f412cb1795a1aeddac2fe', 'bd09e803c41245a49ef23987c27b20ac', '', 'Approval', 'action-progress-des-produk', 'Action Progress Des.Produk'),
-('5c5da37377e44136bf3677e3ce15419d', 'be061671a86c4437803f7c225e117799', '', 'Create', 'otorisasi-editor-prades-reguler', 'Otorisasi Editor Reguler'),
 ('5d793b19c75046b9a4d75d067e8e33b2', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah/penilaian', 'Update', 'naskah-pn-editor', 'Penilaian Editor'),
 ('60b2f2ca-16f5-11ed-ae5c-1078d2a38ee5', 'bc5eb3aa02394dcca7692764e1328cee', '', 'Update', 'ubah-data-imprint', 'Ubah Data Imprint'),
 ('63759b4b-663c-11ed-94ad-4cedfb61fb39', '92463f9e96394c19a979a3290fde5745', '', 'Create', 'otorisasi-copyeditor-editing-reguler', 'Otorisasi Copy Editor Reguler'),
-('6758a6bca3574a91bbca0ab3c235b269', 'be061671a86c4437803f7c225e117799', '', 'Create', 'otorisasi-editor-prades-mou', 'Otorisasi Editor MOU'),
 ('683c46bd6f8d48e286f0da3767098c2e', 'be061671a86c4437803f7c225e117799', '', 'Create', 'otorisasi-kabag-prades-reguler', 'Otorisasi Kabag Reguler'),
 ('6903e82e7e94478f87df3cf80de6b587', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah', 'Read', NULL, 'Lihat Data Naskah'),
 ('6b4e3b36783d4a488101da7639c40de0', '71d6b5671ebb4e128215fccc458fbf09', '', 'Read', 'lihat-deskripsi-cover', 'Lihat Deskripsi Cover'),
@@ -2215,28 +2212,29 @@ CREATE TABLE `pracetak_cover` (
   `deskripsi_cover_id` char(36) DEFAULT NULL,
   `desainer` longtext DEFAULT NULL COMMENT 'Array',
   `tgl_masuk_cover` datetime DEFAULT NULL,
-  `mulai_kerja_cover` datetime DEFAULT NULL COMMENT 'Tanggal ketika desainer mulai memproses cover buku yang di assign kabag pracetak',
-  `selesai_kerja_cover` datetime DEFAULT NULL COMMENT 'Tanggal ketika desainer selesai proses cover buku yang di assign kabag pracetak',
-  `proses_front_cover` datetime DEFAULT NULL,
-  `proses_front_cover_selesai` datetime DEFAULT NULL,
-  `proses_back_cover` datetime DEFAULT NULL,
-  `proses_back_cover_selesai` datetime DEFAULT NULL,
+  `mulai_pengajuan_cover` datetime DEFAULT NULL,
+  `selesai_pengajuan_cover` datetime DEFAULT NULL,
+  `mulai_proof` datetime DEFAULT NULL,
+  `selesai_proof` datetime DEFAULT NULL,
+  `mulai_cover` datetime DEFAULT NULL,
+  `selesai_cover` datetime DEFAULT NULL,
   `korektor` varchar(36) DEFAULT NULL,
   `mulai_koreksi` datetime DEFAULT NULL,
   `selesai_koreksi` datetime DEFAULT NULL,
+  `turun_cetak` datetime DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `proses` set('0','1') DEFAULT '0',
-  `proses_saat_ini` enum('Antrian Desainer Front','Desain Front Cover','Approval Prodev','Antrian Koreksi','Koreksi','Antrian Desainer Back','Desain Back Cover','Siap Turcet','Turun Cetak') DEFAULT NULL,
+  `proses_saat_ini` enum('Antrian Pengajuan Desain','Pengajuan Desain','Approval Prodev','Antrian Desain Back Cover','Desain Back Cover','Antrian Koreksi','Koreksi','Siap Turcet','Turun Cetak') DEFAULT NULL,
   `bulan` date DEFAULT NULL,
-  `status` enum('Pending','Proses','Selesai','Antrian') DEFAULT 'Antrian'
+  `status` enum('Antrian','Pending','Proses','Selesai','Revisi') DEFAULT 'Antrian'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `pracetak_cover`
 --
 
-INSERT INTO `pracetak_cover` (`id`, `deskripsi_cover_id`, `desainer`, `tgl_masuk_cover`, `mulai_kerja_cover`, `selesai_kerja_cover`, `proses_front_cover`, `proses_front_cover_selesai`, `proses_back_cover`, `proses_back_cover_selesai`, `korektor`, `mulai_koreksi`, `selesai_koreksi`, `catatan`, `proses`, `proses_saat_ini`, `bulan`, `status`) VALUES
-('f850c6dc-f70e-4994-990d-e3e75c598002', '2c05015a-d003-42d9-8a90-3bb62fc1103a', '[\"3d43ab399ec24c30b39c9b052686416d\"]', '2022-11-02 14:42:25', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, NULL, 'Antrian');
+INSERT INTO `pracetak_cover` (`id`, `deskripsi_cover_id`, `desainer`, `tgl_masuk_cover`, `mulai_pengajuan_cover`, `selesai_pengajuan_cover`, `mulai_proof`, `selesai_proof`, `mulai_cover`, `selesai_cover`, `korektor`, `mulai_koreksi`, `selesai_koreksi`, `turun_cetak`, `catatan`, `proses`, `proses_saat_ini`, `bulan`, `status`) VALUES
+('f850c6dc-f70e-4994-990d-e3e75c598002', '2c05015a-d003-42d9-8a90-3bb62fc1103a', '[\"3d43ab399ec24c30b39c9b052686416d\"]', '2022-11-02 14:42:25', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, NULL, 'Proses');
 
 -- --------------------------------------------------------
 
@@ -2259,9 +2257,23 @@ CREATE TABLE `pracetak_cover_history` (
   `progress` tinyint(4) DEFAULT NULL,
   `catatan_his` text DEFAULT NULL,
   `catatan_new` text DEFAULT NULL,
+  `proses_ini_his` varchar(20) DEFAULT NULL,
+  `proses_ini_new` varchar(20) DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `pracetak_cover_history`
+--
+
+INSERT INTO `pracetak_cover_history` (`id`, `pracetak_cover_id`, `type_history`, `desainer_his`, `desainer_new`, `korektor_his`, `korektor_new`, `bulan_his`, `bulan_new`, `status_his`, `status_new`, `progress`, `catatan_his`, `catatan_new`, `proses_ini_his`, `proses_ini_new`, `author_id`, `modified_at`) VALUES
+(1, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Pending', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-29 16:48:39'),
+(2, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Antrian', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-29 16:51:11'),
+(3, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-29 16:51:37'),
+(4, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Pending', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-29 16:57:32'),
+(5, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Antrian', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-29 16:58:31'),
+(6, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-30 09:13:27');
 
 -- --------------------------------------------------------
 
@@ -2950,7 +2962,12 @@ INSERT INTO `user_log` (`id`, `users_id`, `ip_address`, `last_login`, `user_agen
 (52, '12c8a8639d814102b01c7ffc0cd52e71', '192.168.6.42', '2022-12-21 14:30:28', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
 (53, 'a4f8d1d67d2e4b9aa2a8e8680a953194', '192.168.6.42', '2022-12-21 14:33:10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
 (54, 'ba360e2a572f45979cb83648fc5e2ec7', '192.168.6.42', '2022-12-21 14:33:43', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
-(55, '12c8a8639d814102b01c7ffc0cd52e71', '192.168.6.42', '2022-12-21 14:34:44', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0');
+(55, '12c8a8639d814102b01c7ffc0cd52e71', '192.168.6.42', '2022-12-21 14:34:44', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(56, 'be8d42fa88a14406ac201974963d9c1b', '192.168.6.42', '2022-12-27 08:35:32', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(57, 'be8d42fa88a14406ac201974963d9c1b', '127.0.0.1', '2022-12-28 09:40:22', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(58, 'be8d42fa88a14406ac201974963d9c1b', '127.0.0.1', '2022-12-28 09:43:35', 'Mozilla/5.0 (X11; Linux x86_64; rv:107.0) Gecko/20100101 Firefox/107.0'),
+(59, 'be8d42fa88a14406ac201974963d9c1b', '127.0.0.1', '2022-12-28 09:43:36', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(60, 'be8d42fa88a14406ac201974963d9c1b', '127.0.0.1', '2022-12-28 11:20:11', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0');
 
 -- --------------------------------------------------------
 
@@ -3286,6 +3303,34 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('e829fe4fb03f45f482f77653158d461c', 'c85dbeca3e87406f97d9e10f6d5970d4'),
 ('0c5a151afe204df2bf6c38485055da16', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
 ('0c5a151afe204df2bf6c38485055da16', '87b2c263-663c-11ed-94ad-4cedfb61fb39'),
+('ba360e2a572f45979cb83648fc5e2ec7', '2ad0efee-6c72-11ed-9e64-4cedfb61fb39'),
+('ba360e2a572f45979cb83648fc5e2ec7', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
+('a4f8d1d67d2e4b9aa2a8e8680a953194', '2ad0efee-6c72-11ed-9e64-4cedfb61fb39'),
+('a4f8d1d67d2e4b9aa2a8e8680a953194', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
+('a4f8d1d67d2e4b9aa2a8e8680a953194', 'ad4c0acc-6c71-11ed-9e64-4cedfb61fb39'),
+('0007828bc2a5496bbdd8fbaefe2e1565', '63759b4b-663c-11ed-94ad-4cedfb61fb39'),
+('0007828bc2a5496bbdd8fbaefe2e1565', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
+('0007828bc2a5496bbdd8fbaefe2e1565', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '1b89744217b04f79a8c1d7a967a46912'),
+('e83ca4537495486c8d3b5d7e6ae2407a', 'cc93223a47764195ac15aacf266673d9'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '6903e82e7e94478f87df3cf80de6b587'),
+('e83ca4537495486c8d3b5d7e6ae2407a', 'ebca07da8aad42c4aee304e3a6b81001'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '569c1d340cea4b21a54910177eeaf51f'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '5a1bd42cca6f412cb1795a1aeddac2fe'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '7527e84e47f94304b39525fa770dd904'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '26a74e3097b94bd882bd1a9f6feace68'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '3afa314e14904a1da386b2d8ede3582b'),
+('e83ca4537495486c8d3b5d7e6ae2407a', 'db87d2605a68440fbf8e148744e243e8'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '6b4e3b36783d4a488101da7639c40de0'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '8b3d0b17c9a045fbb76600e5044b0121'),
+('e83ca4537495486c8d3b5d7e6ae2407a', 'ac61ff38a6854298919a06a5b4f34242'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '405c0fcdbef14d49abd9ffcc53984c6e'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
+('e83ca4537495486c8d3b5d7e6ae2407a', '0ce44192fb05400fb51f33c3c7a3d601'),
+('12c8a8639d814102b01c7ffc0cd52e71', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
+('12c8a8639d814102b01c7ffc0cd52e71', '7d574866-6c74-11ed-9e64-4cedfb61fb39'),
+('12c8a8639d814102b01c7ffc0cd52e71', '0ce44192fb05400fb51f33c3c7a3d601'),
+('12c8a8639d814102b01c7ffc0cd52e71', '276682372c5c45eca2139b32e4e5cc7a'),
 ('be8d42fa88a14406ac201974963d9c1b', '068adb0171304c628b267874004d7e8c'),
 ('be8d42fa88a14406ac201974963d9c1b', '2b6032ef8a73463ba2c761c86be5ed5d'),
 ('be8d42fa88a14406ac201974963d9c1b', 'bc6b9c821e3f42ccb57532930c8d92be'),
@@ -3337,6 +3382,9 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
 ('be8d42fa88a14406ac201974963d9c1b', '457aca55-6952-11ed-9234-4cedfb61fb39'),
 ('be8d42fa88a14406ac201974963d9c1b', '0ce44192fb05400fb51f33c3c7a3d601'),
+('be8d42fa88a14406ac201974963d9c1b', '2e5924c8cc0e444dae36bafd2c89d727'),
+('be8d42fa88a14406ac201974963d9c1b', '683c46bd6f8d48e286f0da3767098c2e'),
+('be8d42fa88a14406ac201974963d9c1b', '8f6fb226ee414c5ea7afd565cf099d7d'),
 ('be8d42fa88a14406ac201974963d9c1b', '09179170e6e643eca66b282e2ffae1f8'),
 ('be8d42fa88a14406ac201974963d9c1b', '4d64a842e08344b9aeec88ed9eb2eb72'),
 ('be8d42fa88a14406ac201974963d9c1b', '9b4e52c30f974844ac7a050000a0ee6a'),
@@ -3356,35 +3404,7 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', 'eecbccb6-1e08-11ed-87ce-1078d2a38ee5'),
 ('be8d42fa88a14406ac201974963d9c1b', '4bb845580b464d7db3d7c3b3e4fd213b'),
 ('be8d42fa88a14406ac201974963d9c1b', '1c1940da68fa4f8ba2325e83c303c47c'),
-('be8d42fa88a14406ac201974963d9c1b', '38645f82ae7c468abad1ab191e7a8ad9'),
-('ba360e2a572f45979cb83648fc5e2ec7', '2ad0efee-6c72-11ed-9e64-4cedfb61fb39'),
-('ba360e2a572f45979cb83648fc5e2ec7', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
-('a4f8d1d67d2e4b9aa2a8e8680a953194', '2ad0efee-6c72-11ed-9e64-4cedfb61fb39'),
-('a4f8d1d67d2e4b9aa2a8e8680a953194', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
-('a4f8d1d67d2e4b9aa2a8e8680a953194', 'ad4c0acc-6c71-11ed-9e64-4cedfb61fb39'),
-('0007828bc2a5496bbdd8fbaefe2e1565', '63759b4b-663c-11ed-94ad-4cedfb61fb39'),
-('0007828bc2a5496bbdd8fbaefe2e1565', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
-('0007828bc2a5496bbdd8fbaefe2e1565', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '1b89744217b04f79a8c1d7a967a46912'),
-('e83ca4537495486c8d3b5d7e6ae2407a', 'cc93223a47764195ac15aacf266673d9'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '6903e82e7e94478f87df3cf80de6b587'),
-('e83ca4537495486c8d3b5d7e6ae2407a', 'ebca07da8aad42c4aee304e3a6b81001'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '569c1d340cea4b21a54910177eeaf51f'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '5a1bd42cca6f412cb1795a1aeddac2fe'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '7527e84e47f94304b39525fa770dd904'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '26a74e3097b94bd882bd1a9f6feace68'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '3afa314e14904a1da386b2d8ede3582b'),
-('e83ca4537495486c8d3b5d7e6ae2407a', 'db87d2605a68440fbf8e148744e243e8'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '6b4e3b36783d4a488101da7639c40de0'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '8b3d0b17c9a045fbb76600e5044b0121'),
-('e83ca4537495486c8d3b5d7e6ae2407a', 'ac61ff38a6854298919a06a5b4f34242'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '405c0fcdbef14d49abd9ffcc53984c6e'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
-('e83ca4537495486c8d3b5d7e6ae2407a', '0ce44192fb05400fb51f33c3c7a3d601'),
-('12c8a8639d814102b01c7ffc0cd52e71', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
-('12c8a8639d814102b01c7ffc0cd52e71', '7d574866-6c74-11ed-9e64-4cedfb61fb39'),
-('12c8a8639d814102b01c7ffc0cd52e71', '0ce44192fb05400fb51f33c3c7a3d601'),
-('12c8a8639d814102b01c7ffc0cd52e71', '276682372c5c45eca2139b32e4e5cc7a');
+('be8d42fa88a14406ac201974963d9c1b', '38645f82ae7c468abad1ab191e7a8ad9');
 
 --
 -- Indexes for dumped tables
@@ -3804,6 +3824,12 @@ ALTER TABLE `platform_digital_ebook_history`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `pracetak_cover_history`
+--
+ALTER TABLE `pracetak_cover_history`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- AUTO_INCREMENT for table `pracetak_cover_selesai`
 --
 ALTER TABLE `pracetak_cover_selesai`
@@ -3831,7 +3857,7 @@ ALTER TABLE `pracetak_setter_selesai`
 -- AUTO_INCREMENT for table `user_log`
 --
 ALTER TABLE `user_log`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

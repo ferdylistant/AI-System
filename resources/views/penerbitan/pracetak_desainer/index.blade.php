@@ -72,10 +72,11 @@
                             <div class="row justify-content-between">
                                 <div class="form-group col-auto col-md-3">
                                     <div class="input-group">
-                                        <select data-column="9" name="status_filter" id="status_filter"
+                                        <select data-column="8" name="status_filter" id="status_filter"
                                             class="form-control select-filter status_filter" style="width: 200px">
                                             <option label="Pilih Filter Status"></option>
                                             @foreach ($status_progress as $val)
+
                                                 <option value="{{ $val }}">{{ $val }}&nbsp;&nbsp;</option>
                                             @endforeach
 
@@ -120,7 +121,7 @@
                             <label for="adduser_name">Status: <span class="text-danger">*</span></label>
                             <select name="status" class="form-control select-status"required>
                                 <option label="Pilih Status"></option>
-                                @foreach ($status_progress as $sp)
+                                @foreach ($status_action as $sp)
                                     <option value="{{ $sp }}">{{ $sp }}</option>
                                 @endforeach
                             </select>
@@ -175,13 +176,7 @@
 @section('jsNeeded')
     <script>
         $(function() {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
             let tableDesCover = $('#tb_PraDes').DataTable({
-                "bSort": false,
                 "responsive": true,
                 "autoWidth": true,
                 processing: true,
@@ -216,11 +211,6 @@
                         title: 'Jalur Buku'
                     },
                     {
-                        data: 'desainer',
-                        name: 'desainer',
-                        title: 'Desainer'
-                    },
-                    {
                         data: 'tgl_masuk_cover',
                         name: 'tgl_masuk_cover',
                         title: 'Tgl Masuk'
@@ -229,6 +219,11 @@
                         data: 'pic_prodev',
                         name: 'pic_prodev',
                         title: 'PIC Prodev'
+                    },
+                    {
+                        data: 'proses_saat_ini',
+                        name: 'proses_saat_ini',
+                        title: 'Proses Saat Ini'
                     },
                     {
                         data: 'history',
@@ -249,22 +244,6 @@
                 tableDesCover.column($(this).data('column'))
                     .search(val ? val : '', true, false)
                     .draw();
-            });
-        });
-    </script>
-    <script>
-        $('#tb_PraDes').on('click', '.btn-history', function(e) {
-            var id = $(this).data('id');
-            var judul = $(this).data('judulfinal');
-            $.post("{{ route('prades.history') }}", {
-                id: id
-            }, function(data) {
-                $('#titleModalPraDes').html(
-                    '<i class="fas fa-history"></i>&nbsp;History Progress Pracetak Desainer "' + judul +
-                    '"');
-                $('#load_more').data('id', id);
-                $('#dataHistoryPraDes').html(data);
-                $('#md_PraDesHistory').modal('show');
             });
         });
     </script>

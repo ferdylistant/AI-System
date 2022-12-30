@@ -642,8 +642,8 @@
                                             <tr>
                                                 <th class="table-secondary" style="width: 25%">Jilid: <span class="text-danger">*</span></th>
                                                 <td class="table-active text-right">
-                                                    @if (!is_null($data->kertas_isi))
-                                                        {{$data->kertas_isi}}
+                                                    @if (!is_null($data->jilid))
+                                                        {{$data->jilid}}
                                                     @else
                                                     <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
