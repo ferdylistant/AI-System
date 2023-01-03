@@ -299,7 +299,7 @@ function resetFrom(form) {
 $(function() {
     $('#prosesKerja').click(function() {
         var id = $(this).data('id');
-        var setter = $('.select-setter').val();
+        var desainer = $('.select-desainer').val();
         var korektor = $('.select-korektor').val();
         if (this.checked) {
             value = '1';
@@ -308,12 +308,12 @@ $(function() {
         }
         let val = value;
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/setter/proses-kerja",
+            url: window.location.origin + "/penerbitan/pracetak/designer/proses-kerja",
             type: 'POST',
             data: {
                 id: id,
                 proses: val,
-                setter: setter,
+                desainer: desainer,
                 korektor: korektor,
             },
             dataType: 'json',
@@ -324,7 +324,7 @@ $(function() {
                 // console.log(result);
                 if (result.status == 'error') {
                     notifToast(result.status, result.message);
-                    resetFrom($('#fup_pracetakSetter'));
+                    resetFrom($('#fup_pracetakDesainer'));
                 } else {
                     notifToast(result.status, result.message);
                     location.reload();

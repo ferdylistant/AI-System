@@ -143,7 +143,7 @@
                                 <th class="table-secondary" style="width: 25%">Setter: <span class="text-danger">*</span></th>
                                 @if (is_null($data->setter) || $data->setter == '[]')
                                 <td class="table-active text-left">
-                                    <select name="setter[]" class="form-control select-setter-editing" multiple="multiple" required>
+                                    <select name="setter[]" class="form-control select-setter" multiple="multiple" required>
                                         <option label="Pilih setter"></option>
                                         @foreach ($setter as $i => $edList)
                                         <option value="{{ $edList->id }}">

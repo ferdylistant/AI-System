@@ -115,7 +115,7 @@ class PracetakDesainerController extends Controller
                     }
                 })
                 ->addColumn('action', function ($data) {
-                    $btn = '<a href="' . url('penerbitan/pracetak/designer/detail?cover=' . $data->id . '&kode=' . $data->kode) . '"
+                    $btn = '<a href="' . url('penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode) . '"
                         class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                         <div><i class="fas fa-envelope-open-text"></i></div></a>';
                     switch ($data->jalur_buku) {
@@ -446,7 +446,7 @@ class PracetakDesainerController extends Controller
         $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_cover WHERE Field = 'proses_saat_ini'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $prosesSaatIni = explode("','", $matches[1]);
-        $prosesFilter = Arr::except($prosesSaatIni, ['1', '4','6']);
+        $prosesFilter = Arr::except($prosesSaatIni, ['1', '4','6','9']);
         return view('penerbitan.pracetak_desainer.edit', [
             'title' => 'Pracetak Setter Proses',
             'data' => $data,
@@ -458,7 +458,553 @@ class PracetakDesainerController extends Controller
             'penulis' => $penulis,
         ]);
     }
-    public function updateStatusProgress(Request $request)
+    public function detailPracetakDesainer(Request $request)
+    {
+        $id = $request->get('pra');
+        $kode = $request->get('kode');
+        $data = DB::table('pracetak_cover as pc')
+            ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
+            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+            ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+            ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
+            })
+            ->where('pc.id', $id)
+            ->where('pn.kode', $kode)
+            ->select(
+                'pc.*',
+                'df.sub_judul_final',
+                'df.bullet',
+                'df.sinopsis',
+                'dc.des_front_cover',
+                'dc.des_back_cover',
+                'dc.finishing_cover',
+                'dc.jilid',
+                'dc.tipografi',
+                'dc.warna',
+                'dc.contoh_cover',
+                'dp.naskah_id',
+                'dp.judul_final',
+                'dp.imprint',
+                'dp.format_buku',
+                'pn.kode',
+                'pn.jalur_buku',
+                'pn.pic_prodev',
+                'kb.nama',
+
+            )
+            ->first();
+        if (is_null($data)) {
+            return abort(404);
+        }
+        $proofRevisi = DB::table('pracetak_cover_proof')->where('pracetak_cover_id', $id)->where('type_action', 'Revisi')->get();
+        $penulis = DB::table('penerbitan_naskah_penulis as pnp')
+            ->join('penerbitan_penulis as pp', function ($q) {
+                $q->on('pnp.penulis_id', '=', 'pp.id')
+                    ->whereNull('pp.deleted_at');
+            })
+            ->where('pnp.naskah_id', '=', $data->naskah_id)
+            ->select('pp.id', 'pp.nama')
+            ->get();
+        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first();
+        if (!is_null($data->desainer)) {
+            foreach (json_decode($data->desainer, true) as $set) {
+                $namaDesainer[] = DB::table('users')->where('id', $set)->first();
+            }
+        } else {
+            $namaDesainer = null;
+        }
+        if (!is_null($data->korektor)) {
+            foreach (json_decode($data->korektor, true) as $kor) {
+                $namaKorektor[] = DB::table('users')->where('id', $kor)->first();
+            }
+        } else {
+            $namaKorektor = null;
+        }
+        if (is_null($data->selesai_pengajuan_cover)) {
+            $label = "desainer";
+            $dataRole  = $data->desainer;
+        } elseif (is_null($data->selesai_cover)) {
+            $label = "desainer";
+            $dataRole  = $data->desainer;
+        } else {
+            $label = "korektor";
+            $dataRole  = $data->korektor;
+        }
+        $doneProses = DB::table('pracetak_cover_selesai')
+            ->where('type', ucfirst($label))
+            ->where('pracetak_cover_id', $data->id)
+            ->where('users_id', auth()->user()->id)
+            ->orderBy('id', 'desc')
+            ->first();
+        switch ($label) {
+            case 'setter':
+                if (is_null($doneProses)) {
+                    $result = FALSE;
+                } else {
+                    if (!is_null($data->selesai_koreksi) && is_null($data->selesai_setting)) {
+                        switch ($doneProses->section) {
+                            case 'Proof Setting':
+                                $result = $data->proses_saat_ini == 'Setting Revisi' ? FALSE : TRUE;
+                                break;
+                            case 'Setting Revision':
+                                $lastKoreksi = DB::table('pracetak_setter_selesai')
+                                    ->where('type', 'Korektor')
+                                    ->where('section', 'Koreksi')
+                                    ->where('pracetak_setter_id', $data->id)
+                                    ->orderBy('id', 'desc')
+                                    ->first();
+                                if ($lastKoreksi->tahap > 1) {
+                                    // $tahapKoreksi = $lastKoreksi->tahap + 1;
+                                    $doneSelf = DB::table('pracetak_setter_selesai')
+                                        ->where('type', ucfirst($label))
+                                        ->where('section', 'Setting Revision')
+                                        ->where('tahap', $lastKoreksi->tahap)
+                                        ->where('pracetak_setter_id', $data->id)
+                                        ->get();
+                                    if (!$doneSelf->isEmpty()) {
+
+                                        foreach ($doneSelf as $d) {
+                                            $userId[] = $d->users_id;
+                                        }
+                                        if (in_array(auth()->user()->id, $userId)) {
+                                            $result = TRUE;
+                                        } else {
+                                            $tahap = $doneProses->tahap + 1;
+                                            $doneNext = DB::table('pracetak_setter_selesai')
+                                                ->where('type', ucfirst($label))
+                                                ->where('section', 'Setting Revision')
+                                                ->where('tahap', $tahap)
+                                                ->where('pracetak_setter_id', $data->id)
+                                                ->where('users_id', auth()->user()->id)
+                                                ->first();
+                                            if (!is_null($doneNext)) {
+                                                $result = TRUE;
+                                            } else {
+                                                $result = FALSE;
+                                            }
+                                        }
+                                    } else {
+                                        $result = FALSE;
+                                    }
+                                } else {
+                                    $doneSelf = DB::table('pracetak_setter_selesai')
+                                        ->where('type', ucfirst($label))
+                                        ->where('section', 'Setting Revision')
+                                        ->where('tahap', $doneProses->tahap)
+                                        ->where('pracetak_setter_id', $data->id)
+                                        ->get();
+                                    if (!$doneSelf->isEmpty()) {
+
+                                        foreach ($doneSelf as $d) {
+                                            $userId[] = $d->users_id;
+                                        }
+                                        if (in_array(auth()->user()->id, $userId)) {
+
+                                            $result = TRUE;
+                                        } else {
+                                            $tahap = $doneProses->tahap + 1;
+                                            $doneNext = DB::table('pracetak_setter_selesai')
+                                                ->where('type', ucfirst($label))
+                                                ->where('section', 'Setting Revision')
+                                                ->where('tahap', $tahap)
+                                                ->where('pracetak_setter_id', $data->id)
+                                                ->where('users_id', auth()->user()->id)
+                                                ->first();
+                                            if (!is_null($doneNext)) {
+                                                $result = TRUE;
+                                            } else {
+                                                $result = FALSE;
+                                            }
+                                        }
+                                    } else {
+                                        $result = FALSE;
+                                    }
+                                }
+
+                                break;
+                            default:
+                                $result = FALSE;
+                                break;
+                        }
+                    } else {
+                        $result = TRUE;
+                    }
+                }
+                break;
+            default:
+                if (is_null($doneProses)) {
+                    $result = FALSE;
+                } else {
+                    if (is_null($data->selesai_koreksi) && !is_null($data->selesai_setting)) {
+                        $lastSetting = DB::table('pracetak_setter_selesai')
+                            ->where('type', 'Setter')
+                            ->where('pracetak_setter_id', $data->id)
+                            ->orderBy('id', 'desc')
+                            ->first();
+                        if ($lastSetting->tahap > 1) {
+                            $doneSelf = DB::table('pracetak_setter_selesai')
+                                ->where('type', ucfirst($label))
+                                ->where('section', 'Koreksi')
+                                ->where('tahap', $lastSetting->tahap + 1)
+                                ->where('pracetak_setter_id', $data->id)
+                                ->get();
+                            if (!$doneSelf->isEmpty()) {
+                                foreach ($doneSelf as $d) {
+                                    $userId[] = $d->users_id;
+                                }
+                                if (in_array(auth()->user()->id, $userId)) {
+                                    $result = TRUE;
+                                } else {
+                                    $tahap = $doneProses->tahap + 1;
+                                    $doneNext = DB::table('pracetak_setter_selesai')
+                                        ->where('type', ucfirst($label))
+                                        ->where('section', 'Koreksi')
+                                        ->where('tahap', $tahap)
+                                        ->where('pracetak_setter_id', $data->id)
+                                        ->where('users_id', auth()->user()->id)
+                                        ->first();
+                                    if (!is_null($doneNext)) {
+                                        $result = TRUE;
+                                    } else {
+                                        $result = FALSE;
+                                    }
+                                }
+                            } else {
+                                $result = FALSE;
+                            }
+                        } else {
+                            $doneSelf = DB::table('pracetak_setter_selesai')
+                                ->where('type', ucfirst($label))
+                                ->where('section', 'Koreksi')
+                                ->where('tahap', $doneProses->tahap)
+                                ->where('pracetak_setter_id', $data->id)
+                                ->get();
+                            if (!$doneSelf->isEmpty()) {
+                                foreach ($doneSelf as $d) {
+                                    $userId[] = $d->users_id;
+                                }
+                                if (in_array(auth()->user()->id, $userId)) {
+                                    $result = TRUE;
+                                } else {
+                                    $tahap = $doneProses->tahap + 1;
+                                    $doneNext = DB::table('pracetak_setter_selesai')
+                                        ->where('type', ucfirst($label))
+                                        ->where('section', 'Koreksi')
+                                        ->where('tahap', $tahap)
+                                        ->where('pracetak_setter_id', $data->id)
+                                        ->where('users_id', auth()->user()->id)
+                                        ->first();
+                                    if (!is_null($doneNext)) {
+                                        $result = TRUE;
+                                    } else {
+                                        $result = FALSE;
+                                    }
+                                }
+                            } else {
+                                $result = FALSE;
+                            }
+                        }
+                    } else {
+                        $result = TRUE;
+                    }
+                }
+                break;
+        }
+
+        return view('penerbitan.pracetak_setter.detail', [
+            'title' => 'Detail Pracetak Setter',
+            'data' => $data,
+            'penulis' => $penulis,
+            'pic' => $pic,
+            'nama_setter' => $namaSetter,
+            'nama_korektor' => $namaKorektor,
+            'label' => $label,
+            'dataRole' => $dataRole,
+            'done_proses' => $result,
+            'proof_revisi' => $proofRevisi,
+        ]);
+    }
+    public function actionAjax(Request $request)
+    {
+        try {
+            switch ($request->act) {
+                case 'proses-kerja':
+                    return $this->prosesKerjaDesigner($request);
+                    break;
+                case 'update-status-progress':
+                    return $this->updateStatusProgress($request);
+                    break;
+                case 'revision':
+                    return $this->revisionActProdev($request);
+                    break;
+                case 'approve':
+                    return $this->approveActProdev($request);
+                    break;
+                case 'revision-done':
+                    return $this->donerevisionActKabag($request);
+                    break;
+                case 'lihat-history':
+                    return $this->lihatHistoryPrades($request);
+                    break;
+                case 'lihat-informasi-proof':
+                    return $this->lihatInformasiProof($request);
+                    break;
+                case 'lihat-proses-setkor':
+                    return $this->lihatProgressSetterKorektor($request);
+                    break;
+                default:
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Terjadi kesalahan!'
+                    ]);
+                    break;
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function prosesKerjaDesigner($request)
+    {
+        if ($request->ajax()) {
+            try {
+                $id = $request->id;
+                $value = $request->proses;
+                $data = DB::table('pracetak_cover')->where('id', $id)->first();
+                if (is_null($data)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'naskah sudah tidak ada'
+                    ]);
+                }
+                if ($value == '0') {
+                    if (is_null($data->selesai_pengajuan_cover) || is_null($data->selesai_cover)) {
+                        $part = is_null($data->selesai_pengajuan_cover)?'pengajuan_cover':'cover';
+                        $mulai = 'mulai_'.$part;
+                        $dataProgress = [
+                            'params' => 'Progress Designer-Korektor',
+                            'label' => $part,
+                            'id' => $id,
+                            $mulai => NULL,
+                            'proses' => $value,
+                            'proses_saat_ini' => NULL,
+                            'type_history' => 'Progress',
+                            'author_id' => auth()->id(),
+                            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        ];
+                    } else {
+                        $dataProgress = [
+                            'params' => 'Progress Designer-Korektor',
+                            'label' => 'koreksi',
+                            'id' => $id,
+                            'mulai_koreksi' => NULL,
+                            'proses' => $value,
+                            'proses_saat_ini' => NULL,
+                            'type_history' => 'Progress',
+                            'author_id' => auth()->id(),
+                            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        ];
+                    }
+                    event(new PracetakCoverEvent($dataProgress));
+                    $msg = 'Proses diberhentikan!';
+                } else {
+                    if (is_null($data->proses_saat_ini)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Pilih proses saat ini!'
+                        ]);
+                    }
+                    switch ($data->proses_saat_ini) {
+                        case 'Antrian Pengajuan Desain':
+                            if (!is_null($data->selesai_pengajuan_cover)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses pengajuan cover selesai, silahkan ubah proses saat ini menjadi "Approval Prodev".'
+                                ]);
+                            }
+                            break;
+                        case 'Antrian Desain Back Cover':
+                            if (!is_null($data->selesai_cover)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses back cover selesai, silahkan ubah proses saat ini menjadi "Antrian Koreksi".'
+                                ]);
+                            }
+                            break;
+                        case 'Antrian Koreksi':
+                            if (is_null($data->selesai_pengajuan_cover)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses pengajuan cover belum selesai. Belum bisa melakukan proses "Antrian Koreksi".'
+                                ]);
+                            }
+                            if (is_null($data->selesai_cover)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses back cover belum selesai. Belum bisa melakukan proses "Antrian Koreksi".'
+                                ]);
+                            }
+                            if (is_null($data->mulai_proof)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses proof belum dilakukan, silahkan ubah proses saat ini menjadi "Approval Prodev".'
+                                ]);
+                            }
+                            if (!is_null($data->selesai_koreksi)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses koreksi selesai, silahkan ubah proses saat ini!.'
+                                ]);
+                            }
+                            break;
+                        case 'Approval Prodev':
+                            if (!is_null($data->selesai_cover)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses approval telah berakhir, silahkan ubah proses saat ini ke proses selanjutnya.'
+                                ]);
+                            }
+                            if (is_null($data->selesai_pengajuan_cover)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses pengajuan cover belum selesai. Belum bisa melakukan proses "Approval Prodev".'
+                                ]);
+                            }
+                            if (!is_null($data->selesai_proof)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses approval prodev selesai, silahkan ubah proses saat ini menjadi proses selanjutnya atau mengubah status proses menjadi selesai.'
+                                ]);
+                            }
+                            if (!is_null($data->mulai_proof)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses approval prodev sudah dimulai.'
+                                ]);
+                            }
+                            break;
+                    }
+                    if ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Desain Revisi')) {
+                        DB::table('pracetak_cover')->where('id', $id)->update([
+                            'selesai_cover' => NULL
+                        ]);
+                        if (!$request->has('desainer')) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Pilih desainer terlebih dahulu!'
+                            ]);
+                        } else {
+                            $tglCover = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                            $dataCover = [
+                                'params' => 'Progress Designer-Korektor',
+                                'label' => 'cover',
+                                'id' => $id,
+                                'mulai_cover' => $tglCover,
+                                'proses' => $value,
+                                'proses_saat_ini' => 'Desain Revisi',
+                                'type_history' => 'Progress',
+                                'author_id' => auth()->id(),
+                                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                            ];
+                            event(new PracetakCoverEvent($dataCover));
+                        }
+                    } elseif (is_null($data->selesai_pengajuan_cover)) {
+                        if (!$request->has('desainer')) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Pilih desainer terlebih dahulu!'
+                            ]);
+                        } else {
+                            if (json_decode($data->desainer, true) == $request->desainer) {
+                                if (is_null($data->mulai_pengajuan_cover)) {
+                                    $tglPengajuan = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                                } else {
+                                    $tglPengajuan = $data->mulai_pengajuan_cover;
+                                }
+                            } else {
+                                $tglPengajuan = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                            }
+                            $dataPengajuan = [
+                                'params' => 'Progress Designer-Korektor',
+                                'label' => 'pengajuan_cover',
+                                'id' => $id,
+                                'mulai_pengajuan_cover' => $tglPengajuan,
+                                'proses' => $value,
+                                'proses_saat_ini' => 'Pengajuan Desain',
+                                'type_history' => 'Progress',
+                                'author_id' => auth()->id(),
+                                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                            ];
+                            event(new PracetakCoverEvent($dataPengajuan));
+                        }
+                    } elseif (is_null($data->selesai_proof)) {
+                        if (is_null($data->mulai_proof)) {
+                            $tglProof = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                        } else {
+                            $tglProof = $data->mulai_proof;
+                        }
+                        $dataProof = [
+                            'params' => 'Progress Proof Prodev',
+                            'id' => $id,
+                            'mulai_proof' => $tglProof,
+                            'proses' => $value,
+                            'type_history' => 'Progress',
+                            'author_id' => auth()->id(),
+                            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        ];
+                        event(new PracetakCoverEvent($dataProof));
+                    } else {
+                        if (!$request->has('korektor')) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Pilih korektor terlebih dahulu!'
+                            ]);
+                        } else {
+                            if (json_decode($data->korektor, true) == $request->korektor) {
+                                if (is_null($data->mulai_koreksi)) {
+                                    $tglKorektor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                                } else {
+                                    $tglKorektor = $data->mulai_koreksi;
+                                }
+                            } else {
+                                $tglKorektor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                            }
+                            $dataKorektor = [
+                                'params' => 'Progress Designer-Korektor',
+                                'label' => 'koreksi',
+                                'id' => $id,
+                                'mulai_koreksi' => $tglKorektor,
+                                'proses' => $value,
+                                'proses_saat_ini' => 'Koreksi',
+                                'type_history' => 'Progress',
+                                'author_id' => auth()->id(),
+                                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                            ];
+                            event(new PracetakCoverEvent($dataKorektor));
+                        }
+                    }
+                    $msg = 'Proses dimulai!';
+                }
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $msg
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+        }
+    }
+    protected function updateStatusProgress($request)
     {
         try {
             $id = $request->id;
@@ -582,42 +1128,6 @@ class PracetakDesainerController extends Controller
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-    public function actionAjax(Request $request)
-    {
-        try {
-            switch ($request->act) {
-                case 'revision':
-                    return $this->revisionActProdev($request);
-                    break;
-                case 'approve':
-                    return $this->approveActProdev($request);
-                    break;
-                case 'revision-done':
-                    return $this->donerevisionActKabag($request);
-                    break;
-                case 'lihat-history':
-                    return $this->lihatHistoryPrades($request);
-                    break;
-                case 'lihat-informasi-proof':
-                    return $this->lihatInformasiProof($request);
-                    break;
-                case 'lihat-proses-setkor':
-                    return $this->lihatProgressSetterKorektor($request);
-                    break;
-                default:
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Terjadi kesalahan!'
-                    ]);
-                    break;
-            }
-        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

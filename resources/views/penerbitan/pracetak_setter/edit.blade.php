@@ -74,6 +74,9 @@
                                 @case('Proof Prodev')
                                     <span class="text-dark"> Proof Prodev</span>
                                     @break
+                                @case('Antrian Koreksi')
+                                    <span class="text-dark"> Antrian Koreksi</span>
+                                    @break
                                 @case('Koreksi')
                                     <span class="text-dark"> Koreksi</span>
                                     @break
@@ -82,9 +85,6 @@
                                     @break
                                 @case('Turun Cetak')
                                     <span class="text-dark"> Turun Cetak</span>
-                                    @break
-                                @case('Upload E-Book')
-                                    <span class="text-dark"> Upload E-Book</span>
                                     @break
                                 @case('Setting Revisi')
                                     <span class="text-dark"> Setting Revisi</span>

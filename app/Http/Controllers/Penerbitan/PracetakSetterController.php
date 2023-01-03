@@ -652,111 +652,41 @@ class PracetakSetterController extends Controller
             'proof_revisi' => $proofRevisi,
         ]);
     }
-    public function updateStatusProgress(Request $request)
+    public function actionAjax(Request $request)
     {
         try {
-            $id = $request->id;
-            $data = DB::table('pracetak_setter as ps')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                        ->whereNull('kb.deleted_at');
-                })
-                ->where('ps.id', $id)
-                ->select(
-                    'ps.*',
-                    'df.id as deskripsi_final_id',
-                    'dp.naskah_id',
-                    'dp.format_buku',
-                    'dp.judul_final',
-                    'dp.editor',
-                    'dp.imprint',
-                    'dp.kelengkapan',
-                    'dp.catatan',
-                    'pn.kode',
-                    'pn.judul_asli',
-                    'pn.pic_prodev',
-                    'pn.jalur_buku',
-                    'kb.nama'
-                )
-                ->first();
-            if (is_null($data)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data corrupt...'
-                ], 404);
-            }
-            if ($data->status == $request->status) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Pilih status yang berbeda dengan status saat ini!'
-                ]);
-            }
-            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-            $update = [
-                'params' => 'Update Status Pracetak Setter',
-                'id' => $data->id,
-                // 'proses_saat_ini' => $proses_saat_ini?$proses_saat_ini:$data->proses_saat_ini,
-                'turun_cetak' => $request->status == 'Selesai' ? $tgl : NULL,
-                'status' => $request->status,
-            ];
-            $insert = [
-                'params' => 'Insert History Status Pracetak Setter',
-                'pracetak_setter_id' => $data->id,
-                'type_history' => 'Status',
-                'status_his' => $data->status,
-                'status_new'  => $request->status,
-                'author_id' => auth()->user()->id,
-                'modified_at' => $tgl
-            ];
-            if ($data->proses == '1') {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Tidak bisa mengubah status, karena sedang proses kerja.'
-                ]);
-            }
-            if ($request->status == 'Selesai') {
-                if (is_null($data->selesai_setting)) {
+            switch ($request->act) {
+                case 'proses-kerja':
+                    return $this->prosesKerjaSetter($request);
+                    break;
+                case 'update-status-progress':
+                    return $this->updateStatusProgress($request);
+                    break;
+                case 'revision':
+                    return $this->revisionActProdev($request);
+                    break;
+                case 'approve':
+                    return $this->approveActProdev($request);
+                    break;
+                case 'revision-done':
+                    return $this->donerevisionActKabag($request);
+                    break;
+                case 'lihat-history':
+                    return $this->lihatHistorySetter($request);
+                    break;
+                case 'lihat-informasi-proof':
+                    return $this->lihatInformasiProof($request);
+                    break;
+                case 'lihat-proses-setkor':
+                    return $this->lihatProgressSetterKorektor($request);
+                    break;
+                default:
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Proses setting belum selesai'
+                        'message' => 'Terjadi kesalahan!'
                     ]);
-                }
-                if (is_null($data->selesai_proof)) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Proses proof prodev belum selesai'
-                    ]);
-                }
-                if (is_null($data->selesai_koreksi)) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Proses koreksi belum selesai'
-                    ]);
-                }
-                if (is_null($data->selesai_p_copyright)) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Proses copyright belum selesai'
-                    ]);
-                }
-                event(new PracetakSetterEvent($update));
-                event(new PracetakSetterEvent($insert));
-                DB::table('pracetak_setter')->where('id',$data->id)->update([
-                    'proses_saat_ini' => 'Turun Cetak'
-                ]);
-                $msg = 'Pracetak Setter selesai, silahkan lanjut ke proses deskripsi turun cetak..';
-            } else {
-                event(new PracetakSetterEvent($update));
-                event(new PracetakSetterEvent($insert));
-                $msg = 'Status progress pracetak setter berhasil diupdate';
+                    break;
             }
-            return response()->json([
-                'status' => 'success',
-                'message' => $msg
-            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -764,7 +694,7 @@ class PracetakSetterController extends Controller
             ]);
         }
     }
-    public function prosesKerjaSetter(Request $request)
+    protected function prosesKerjaSetter($request)
     {
         if ($request->ajax()) {
             try {
@@ -976,35 +906,110 @@ class PracetakSetterController extends Controller
             }
         }
     }
-    public function actionAjax(Request $request)
+    protected function updateStatusProgress($request)
     {
         try {
-            switch ($request->act) {
-                case 'revision':
-                    return $this->revisionActProdev($request);
-                    break;
-                case 'approve':
-                    return $this->approveActProdev($request);
-                    break;
-                case 'revision-done':
-                    return $this->donerevisionActKabag($request);
-                    break;
-                case 'lihat-history':
-                    return $this->lihatHistorySetter($request);
-                    break;
-                case 'lihat-informasi-proof':
-                    return $this->lihatInformasiProof($request);
-                    break;
-                case 'lihat-proses-setkor':
-                    return $this->lihatProgressSetterKorektor($request);
-                    break;
-                default:
+            $id = $request->id;
+            $data = DB::table('pracetak_setter as ps')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                        ->whereNull('kb.deleted_at');
+                })
+                ->where('ps.id', $id)
+                ->select(
+                    'ps.*',
+                    'df.id as deskripsi_final_id',
+                    'dp.naskah_id',
+                    'dp.format_buku',
+                    'dp.judul_final',
+                    'dp.imprint',
+                    'dp.kelengkapan',
+                    'dp.catatan',
+                    'pn.kode',
+                    'pn.judul_asli',
+                    'pn.pic_prodev',
+                    'pn.jalur_buku',
+                    'kb.nama'
+                )
+                ->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data corrupt...'
+                ], 404);
+            }
+            if ($data->status == $request->status) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pilih status yang berbeda dengan status saat ini!'
+                ]);
+            }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $update = [
+                'params' => 'Update Status Pracetak Setter',
+                'id' => $data->id,
+                // 'proses_saat_ini' => $proses_saat_ini?$proses_saat_ini:$data->proses_saat_ini,
+                'turun_cetak' => $request->status == 'Selesai' ? $tgl : NULL,
+                'status' => $request->status,
+            ];
+            $insert = [
+                'params' => 'Insert History Status Pracetak Setter',
+                'pracetak_setter_id' => $data->id,
+                'type_history' => 'Status',
+                'status_his' => $data->status,
+                'status_new'  => $request->status,
+                'author_id' => auth()->user()->id,
+                'modified_at' => $tgl
+            ];
+            if ($data->proses == '1') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak bisa mengubah status, karena sedang proses kerja.'
+                ]);
+            }
+            if ($request->status == 'Selesai') {
+                if (is_null($data->selesai_setting)) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Terjadi kesalahan!'
+                        'message' => 'Proses setting belum selesai'
                     ]);
-                    break;
+                }
+                if (is_null($data->selesai_proof)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Proses proof prodev belum selesai'
+                    ]);
+                }
+                if (is_null($data->selesai_koreksi)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Proses koreksi belum selesai'
+                    ]);
+                }
+                if (is_null($data->selesai_p_copyright)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Proses copyright belum selesai'
+                    ]);
+                }
+                event(new PracetakSetterEvent($update));
+                event(new PracetakSetterEvent($insert));
+                DB::table('pracetak_setter')->where('id',$data->id)->update([
+                    'proses_saat_ini' => 'Turun Cetak'
+                ]);
+                $msg = 'Pracetak Setter selesai, silahkan lanjut ke proses deskripsi turun cetak..';
+            } else {
+                event(new PracetakSetterEvent($update));
+                event(new PracetakSetterEvent($insert));
+                $msg = 'Status progress pracetak setter berhasil diupdate';
             }
+            return response()->json([
+                'status' => 'success',
+                'message' => $msg
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

@@ -146,18 +146,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pracetak/setter', [PracetakSetterController::class, 'index'])->name('setter.view');
         Route::get('/pracetak/setter/detail', [PracetakSetterController::class, 'detailSetter'])->name('setter.detail');
         Route::match(['get', 'post'], '/pracetak/setter/edit', [PracetakSetterController::class, 'editSetter'])->name('setter.edit');
-        Route::post('/pracetak/setter/update-status-progress', [PracetakSetterController::class, 'updateStatusProgress'])->middleware('throttle:5,1');
-        Route::post('/pracetak/setter/proses-kerja', [PracetakSetterController::class, 'prosesKerjaSetter'])->name('setter.proses')->middleware('throttle:5,1');
-        Route::post('/pracetak/setter/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('setter.selesai')->middleware('throttle:5,1');
-        Route::post('/pracetak/setter/{act}', [PracetakSetterController::class, 'actionAjax'])->middleware('throttle:5,1');
+        Route::post('/pracetak/setter/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('setter.selesai')->middleware('throttle:3,1');
+        Route::post('/pracetak/setter/{act}', [PracetakSetterController::class, 'actionAjax']);
         //Pracetak Desainer
         Route::get('/pracetak/designer', [PracetakDesainerController::class, 'index'])->name('prades.view');
         Route::get('/pracetak/designer/detail', [PracetakDesainerController::class, 'detailPracetakDesainer'])->name('prades.detail');
         Route::match(['get', 'post'], '/pracetak/designer/edit', [PracetakDesainerController::class, 'editDesigner'])->name('prades.edit');
-        Route::post('/pracetak/designer/update-status-progress', [PracetakDesainerController::class, 'updateStatusProgress']);
-        Route::post('/pracetak/designer/proses-kerja', [PracetakSetterController::class, 'prosesKerjaSetter'])->name('prades.proses')->middleware('throttle:5,1');
-        Route::post('/pracetak/designer/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('prades.selesai')->middleware('throttle:5,1');
-        Route::post('/pracetak/designer/{act}', [PracetakDesainerController::class, 'actionAjax'])->middleware('throttle:5,1');
+        Route::post('/pracetak/designer/selesai/{cat}/{id}', [PracetakDesainerController::class, 'prosesSelesaiDesigner'])->name('prades.selesai')->middleware('throttle:3,1');
+        Route::post('/pracetak/designer/{act}', [PracetakDesainerController::class, 'actionAjax']);
         //Order Cetak
         Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('cetak.view');
         Route::get('/order-cetak/detail', [ProduksiController::class, 'detailProduksi'])->name('cetak.detail');
