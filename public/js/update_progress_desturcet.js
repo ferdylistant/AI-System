@@ -1,32 +1,4 @@
-
-$('#tb_PraDes').on('click', '.btn-history', function(e) {
-    var id = $(this).data('id');
-    var judul = $(this).data('judulfinal');
-    $.post(window.location.origin + "/penerbitan/pracetak/designer/lihat-history", {
-        id: id
-    }, function(data) {
-        $('#titleModalPraDes').html(
-            '<i class="fas fa-history"></i>&nbsp;History Progress Pracetak Desainer "' + judul +
-            '"');
-        $('#load_more').data('id', id);
-        $('#dataHistoryPraDes').html(data);
-        $('#md_PraDesHistory').modal('show');
-    });
-});
 $(function () {
-    $(document).ajaxError(function(event, xhr, settings, thrownError) {
-        if (xhr.status == 429) {
-          // handle the error case
-          swal({
-            title:
-                "429" ,
-            text: "Too many request!",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        });
-        }
-      });
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
@@ -34,7 +6,9 @@ $(function () {
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/designer/lihat-history",
+            url:
+                window.location.origin +
+                "/penerbitan/deskripsi/turun-cetak/lihat-history",
             data: {
                 id: id,
                 page: page,
@@ -47,7 +21,7 @@ $(function () {
                 if (response.length == 0) {
                     notifToast("error", "Tidak ada data lagi");
                 }
-                $("#dataHistoryPraDes").append(response);
+                $("#dataHistoryDesturcet").append(response);
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
                 //     // appending posts after last post with class="post"
@@ -59,6 +33,7 @@ $(function () {
             },
         });
     });
+
 });
 $(document).ready(function () {
     $(".select-status")
@@ -90,25 +65,25 @@ $(document).ready(function () {
     });
 });
 $(document).ready(function () {
-    $("#tb_PraDes").on("click", ".btn-status-designer", function (e) {
+    $("#tb_DesTurCet").on("click", ".btn-status-desturcet", function (e) {
         e.preventDefault();
         let id = $(this).data("id"),
             kode = $(this).data("kode"),
             judul = $(this).data("judul");
         $("#id").val(id);
         $("#kode").val(kode);
-        $("#judulFinal").val(judul);
+        $("#judulAsli").val(judul);
     });
 });
 $(document).ready(function () {
-    function ajaxUpdateStatusPrades(data) {
+    function ajaxUpdateStatusDeskripsiTurunCetak(data) {
         let el = data.get(0);
         // console.log(el);
         $.ajax({
             type: "POST",
             url:
                 window.location.origin +
-                "/penerbitan/pracetak/designer/update-status-progress",
+                "/penerbitan/deskripsi/turun-cetak/update-status-progress",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -120,10 +95,10 @@ $(document).ready(function () {
             success: function (result) {
                 if (result.status == "error") {
                     notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusPraDes").trigger("reset");
+                    $("#fm_UpdateStatusDesturcet").trigger("reset");
                 } else {
                     notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusPraDes").trigger("reset");
+                    $("#fm_UpdateStatusDesturcet").trigger("reset");
                     location.reload();
                 }
             },
@@ -148,27 +123,28 @@ $(document).ready(function () {
         });
     }
 
-    $("#fm_UpdateStatusPraDes").on("submit", function (e) {
+    $("#fm_UpdateStatusDesturcet").on("submit", function (e) {
         e.preventDefault();
         if ($(this).valid()) {
             let kode = $(this).find('[name="kode"]').val();
-            let judul = $(this).find('[name="judul_final"]').val();
+            let judul = $(this).find('[name="judul_asli"]').val();
             swal({
                 title:
-                    "Yakin mengubah status proses pracetak desainer " +
+                    "Yakin mengubah status deskripsi turun cetak " +
                     kode +
                     "-" +
                     judul +
                     "?",
-                text: "Anda sebagai Kabag Pracetak tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
+                text: "Anda sebagai Prodev tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxUpdateStatusPrades($(this));
+                    ajaxUpdateStatusDeskripsiTurunCetak($(this));
                 }
             });
         }
     });
+
 });

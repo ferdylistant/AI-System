@@ -785,113 +785,113 @@ class NaskahController extends Controller
         }
     }
 
-    protected function timeline($request)
-    {
-        if ($request->input('request_') == 'form') { // Load modal
-            $naskah = DB::table('penerbitan_naskah as pn')->whereNull('deleted_at')
-                ->where('id', $request->input('id'))->first();
-            $timeline = [];
+    // protected function timeline($request)
+    // {
+    //     if ($request->input('request_') == 'form') { // Load modal
+    //         $naskah = DB::table('penerbitan_naskah as pn')->whereNull('deleted_at')
+    //             ->where('id', $request->input('id'))->first();
+    //         $timeline = [];
 
-            if ($request->input('method_') == 'add') {
-                $arrPic = [];
-            } elseif ($request->input('method_') == 'edit') {
-                $timeline = DB::table('timeline as t')->join('timeline_detail as td', 't.id', '=', 'td.timeline_id')
-                    ->where('t.naskah_id', $request->input('id'))->get();
+    //         if ($request->input('method_') == 'add') {
+    //             $arrPic = [];
+    //         } elseif ($request->input('method_') == 'edit') {
+    //             $timeline = DB::table('timeline as t')->join('timeline_detail as td', 't.id', '=', 'td.timeline_id')
+    //                 ->where('t.naskah_id', $request->input('id'))->get();
 
-                foreach ($timeline as $t) {
-                    if ($t->proses == 'Proses Produksi') {
-                        $produksi = Carbon::createFromFormat('Y-m-d', $t->tanggal_mulai)->format('d M Y') . ' - ' .
-                            Carbon::createFromFormat('Y-m-d', $t->tanggal_selesai)->format('d M Y');
-                    } else {
-                        $penerbitan = Carbon::createFromFormat('Y-m-d', $t->tanggal_mulai)->format('d M Y') . ' - ' .
-                            Carbon::createFromFormat('Y-m-d', $t->tanggal_selesai)->format('d M Y');
-                    }
-                    $tgl_buku_jadi = $t->tgl_buku_jadi;
-                }
+    //             foreach ($timeline as $t) {
+    //                 if ($t->proses == 'Proses Produksi') {
+    //                     $produksi = Carbon::createFromFormat('Y-m-d', $t->tanggal_mulai)->format('d M Y') . ' - ' .
+    //                         Carbon::createFromFormat('Y-m-d', $t->tanggal_selesai)->format('d M Y');
+    //                 } else {
+    //                     $penerbitan = Carbon::createFromFormat('Y-m-d', $t->tanggal_mulai)->format('d M Y') . ' - ' .
+    //                         Carbon::createFromFormat('Y-m-d', $t->tanggal_selesai)->format('d M Y');
+    //                 }
+    //                 $tgl_buku_jadi = $t->tgl_buku_jadi;
+    //             }
 
-                $timeline->produksi = $produksi;
-                $timeline->penerbitan = $penerbitan;
-                $timeline->tgl_buku_jadi = Carbon::createFromFormat('Y-m-d', $tgl_buku_jadi)->format('d M Y');
-            } else {
-                return abort(404);
-            }
+    //             $timeline->produksi = $produksi;
+    //             $timeline->penerbitan = $penerbitan;
+    //             $timeline->tgl_buku_jadi = Carbon::createFromFormat('Y-m-d', $tgl_buku_jadi)->format('d M Y');
+    //         } else {
+    //             return abort(404);
+    //         }
 
-            $naskah = (object)collect($naskah)->map(function ($v, $i) {
-                if ($i == 'tanggal_masuk_naskah') {
-                    return Carbon::createFromFormat('Y-m-d', $v)->format('d M Y');
-                } else {
-                    return $v;
-                }
-            })->all();
+    //         $naskah = (object)collect($naskah)->map(function ($v, $i) {
+    //             if ($i == 'tanggal_masuk_naskah') {
+    //                 return Carbon::createFromFormat('Y-m-d', $v)->format('d M Y');
+    //             } else {
+    //                 return $v;
+    //             }
+    //         })->all();
 
-            return view('penerbitan.naskah.page.modal-timeline', [
-                'naskah' => $naskah,
-                'method' => $request->input('method_'),
-                'timeline' => $timeline,
-                'title' => 'Timeline Naskah',
-            ]);
-        } elseif ($request->input('request_') == 'submit') {
-            $tlId = Str::uuid()->getHex();
-            $tlDet = [];
-            $subtl = [];
+    //         return view('penerbitan.naskah.page.modal-timeline', [
+    //             'naskah' => $naskah,
+    //             'method' => $request->input('method_'),
+    //             'timeline' => $timeline,
+    //             'title' => 'Timeline Naskah',
+    //         ]);
+    //     } elseif ($request->input('request_') == 'submit') {
+    //         $tlId = Str::uuid()->getHex();
+    //         $tlDet = [];
+    //         $subtl = [];
 
-            try {
-                $master = DB::table('timeline_m_tb')->whereNull('deleted_at')->orderBy('order_tb')->get();
-                foreach ($master->where('kategori', 'PROSES')->all() as $v) {
-                    $masterSubTl = DB::table('timeline_m_subtl as ms')
-                        ->join('timeline_m_tb as mt', 'ms.bagian', '=', 'mt.detail')
-                        ->where('ms.proses', $v->detail)
-                        ->whereNull('ms.deleted_at')->get();
+    //         try {
+    //             $master = DB::table('timeline_m_tb')->whereNull('deleted_at')->orderBy('order_tb')->get();
+    //             foreach ($master->where('kategori', 'PROSES')->all() as $v) {
+    //                 $masterSubTl = DB::table('timeline_m_subtl as ms')
+    //                     ->join('timeline_m_tb as mt', 'ms.bagian', '=', 'mt.detail')
+    //                     ->where('ms.proses', $v->detail)
+    //                     ->whereNull('ms.deleted_at')->get();
 
-                    if ($v->detail == 'Proses Produksi') {
-                        $date = explode(' - ', $request->input('add_proses_produksi'));
-                    } else {
-                        $date = explode(' - ', $request->input('add_proses_penerbitan'));
-                    }
+    //                 if ($v->detail == 'Proses Produksi') {
+    //                     $date = explode(' - ', $request->input('add_proses_produksi'));
+    //                 } else {
+    //                     $date = explode(' - ', $request->input('add_proses_penerbitan'));
+    //                 }
 
-                    $tlDetId = Str::uuid()->getHex();
-                    $tlDet[] = [
-                        'id' => $tlDetId,
-                        'timeline_id' => $tlId,
-                        'proses' => $v->detail,
-                        'tanggal_mulai' => Carbon::createFromFormat('d M Y', $date[0])->format('Y-m-d'),
-                        'tanggal_selesai' => Carbon::createFromFormat('d M Y', $date[1])->format('Y-m-d'),
-                    ];
-                    foreach ($masterSubTl as $vv) {
-                        $subtl[] = [
-                            'id' => Str::uuid()->getHex(),
-                            'timeline_det_id' => $tlDetId,
-                            'deskripsi' => $vv->deskripsi,
-                            'pic' => $vv->user_id,
-                            'created_by' => auth()->id()
-                        ];
-                    }
-                }
+    //                 $tlDetId = Str::uuid()->getHex();
+    //                 $tlDet[] = [
+    //                     'id' => $tlDetId,
+    //                     'timeline_id' => $tlId,
+    //                     'proses' => $v->detail,
+    //                     'tanggal_mulai' => Carbon::createFromFormat('d M Y', $date[0])->format('Y-m-d'),
+    //                     'tanggal_selesai' => Carbon::createFromFormat('d M Y', $date[1])->format('Y-m-d'),
+    //                 ];
+    //                 foreach ($masterSubTl as $vv) {
+    //                     $subtl[] = [
+    //                         'id' => Str::uuid()->getHex(),
+    //                         'timeline_det_id' => $tlDetId,
+    //                         'deskripsi' => $vv->deskripsi,
+    //                         'pic' => $vv->user_id,
+    //                         'created_by' => auth()->id()
+    //                     ];
+    //                 }
+    //             }
 
-                DB::beginTransaction();
+    //             DB::beginTransaction();
 
-                DB::table('timeline')->insert([
-                    'id' => $tlId,
-                    'naskah_id' => $request->input('add_tl_naskah_id'),
-                    'tgl_masuk_naskah' => Carbon::createFromFormat('d M Y', $request->input('add_naskah_masuk'))->format('Y-m-d'),
-                    'tgl_buku_jadi' => Carbon::createFromFormat('d M Y', $request->input('add_buku_jadi'))->format('Y-m-d'),
-                    'created_by' => auth()->id()
-                ]);
-                DB::table('timeline_detail')->insert($tlDet);
-                DB::table('timeline_sub')->insert($subtl);
+    //             DB::table('timeline')->insert([
+    //                 'id' => $tlId,
+    //                 'naskah_id' => $request->input('add_tl_naskah_id'),
+    //                 'tgl_masuk_naskah' => Carbon::createFromFormat('d M Y', $request->input('add_naskah_masuk'))->format('Y-m-d'),
+    //                 'tgl_buku_jadi' => Carbon::createFromFormat('d M Y', $request->input('add_buku_jadi'))->format('Y-m-d'),
+    //                 'created_by' => auth()->id()
+    //             ]);
+    //             DB::table('timeline_detail')->insert($tlDet);
+    //             DB::table('timeline_sub')->insert($subtl);
 
-                DB::commit();
-                return;
-            } catch (\Exception $e) {
-                return $e->getMessage();
-            }
+    //             DB::commit();
+    //             return;
+    //         } catch (\Exception $e) {
+    //             return $e->getMessage();
+    //         }
 
 
-            die();
-        } else {
-            abort(404);
-        }
-    }
+    //         die();
+    //     } else {
+    //         abort(404);
+    //     }
+    // }
 
     protected function subTimeline($request)
     {

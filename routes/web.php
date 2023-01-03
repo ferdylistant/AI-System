@@ -1,11 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{AuthController, ApiController,HomeController,NotificationController};
-use App\Http\Controllers\ManWeb\{StrukturAoController,UsersController,SettingController};
-use App\Http\Controllers\MasterData\{ImprintController,KelompokBukuController,FormatBukuController};
-use App\Http\Controllers\Produksi\{ProduksiController, EbookController,ProsesProduksiController,ProsesEbookController};
-use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController , DeskripsiCoverController, DeskripsiFinalController, DeskripsiProdukController, EditingController, PracetakSetterController, PracetakDesainerController};
+use App\Http\Controllers\{AuthController, ApiController, HomeController, NotificationController};
+use App\Http\Controllers\ManWeb\{StrukturAoController, UsersController, SettingController};
+use App\Http\Controllers\MasterData\{ImprintController, KelompokBukuController, FormatBukuController};
+use App\Http\Controllers\Produksi\{ProduksiController, EbookController, ProsesProduksiController, ProsesEbookController};
+use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, PenilaianNaskahController, DeskripsiCoverController, DeskripsiFinalController, DeskripsiProdukController,DeskripsiTurunCetakController, EditingController, PracetakSetterController, PracetakDesainerController};
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +20,7 @@ use App\Http\Controllers\Penerbitan\{PenulisController, NaskahController, Penila
 
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('do-login', [AuthController::class, 'doLogin']);
-Route::middleware(['auth'])->group(function() {
+Route::middleware(['auth'])->group(function () {
     //API
     Route::get('/get-layout', [ApiController::class, 'getPosisiLayout']);
     Route::get('/list-dami', [ApiController::class, 'listDami']);
@@ -68,7 +68,7 @@ Route::middleware(['auth'])->group(function() {
         Route::get('/imprint', [ImprintController::class, 'index'])->name('imprint.view');
         Route::match(['get', 'post'], '/imprint/tambah-imprint', [ImprintController::class, 'createImprint'])->name('imprint.create');
         Route::match(['get', 'post'], '/imprint/ubah-imprint', [ImprintController::class, 'updateImprint'])->name('imprint.update');
-        Route::get('/imprint/hapus',[ImprintController::class, 'deleteImprint'])->name('imprint.delete');
+        Route::get('/imprint/hapus', [ImprintController::class, 'deleteImprint'])->name('imprint.delete');
         Route::post('/imprint/lihat-history', [ImprintController::class, 'lihatHistory'])->name('imprint.history');
         //Platform Digital
         Route::get('/platform-digital', [ImprintController::class, 'indexPlatform'])->name('platform.view');
@@ -77,16 +77,16 @@ Route::middleware(['auth'])->group(function() {
         Route::post('/platform-digital/hapus', [ImprintController::class, 'deletePlatform'])->name('platform.delete');
         Route::post('/platform-digital/lihat-history', [ImprintController::class, 'lihatHistoryPlatform'])->name('platform.history');
         //Kelompok Buku
-        Route::get('/kelompok-buku',[KelompokBukuController::class,'index'])->name('kb.view');
+        Route::get('/kelompok-buku', [KelompokBukuController::class, 'index'])->name('kb.view');
         Route::match(['get', 'post'], '/kelompok-buku/tambah', [KelompokBukuController::class, 'createKbuku'])->name('kb.create');
         Route::match(['get', 'post'], '/kelompok-buku/ubah', [KelompokBukuController::class, 'updateKbuku'])->name('kb.update');
-        Route::get('/kelompok-buku/hapus',[KelompokBukuController::class, 'deleteKbuku'])->name('kb.delete');
+        Route::get('/kelompok-buku/hapus', [KelompokBukuController::class, 'deleteKbuku'])->name('kb.delete');
         Route::post('/kelompok-buku/lihat-history', [KelompokBukuController::class, 'lihatHistory'])->name('kb.history');
         //Format Buku
-        Route::get('/format-buku',[FormatBukuController::class,'index'])->name('fb.view');
+        Route::get('/format-buku', [FormatBukuController::class, 'index'])->name('fb.view');
         Route::match(['get', 'post'], '/format-buku/tambah', [FormatBukuController::class, 'createFbuku'])->name('fb.create');
         Route::match(['get', 'post'], '/format-buku/ubah', [FormatBukuController::class, 'updateFbuku'])->name('fb.update');
-        Route::get('/format-buku/hapus',[FormatBukuController::class, 'deleteFbuku'])->name('fb.delete');
+        Route::get('/format-buku/hapus', [FormatBukuController::class, 'deleteFbuku'])->name('fb.delete');
         Route::post('/format-buku/lihat-history', [FormatBukuController::class, 'lihatHistory'])->name('fb.history');
     });
     //Penerbitan
@@ -108,63 +108,69 @@ Route::middleware(['auth'])->group(function() {
         Route::post('/naskah/tandai-data-lengkap', [NaskahController::class, 'tandaDataLengkap']);
         Route::post('/naskah/lihat-history', [NaskahController::class, 'lihatHistoryNaskah'])->name('naskah.history');
         //Deskripsi Produk
-        Route::get('/deskripsi/produk',[DeskripsiProdukController::class, 'index'])->name('despro.view');
-        Route::get('/deskripsi/produk/detail',[DeskripsiProdukController::class, 'detailDeskripsiProduk'])->name('despro.detail');
-        Route::match(['get', 'post'],'/deskripsi/produk/edit',[DeskripsiProdukController::class, 'editDeskripsiProduk'])->name('despro.edit');
-        Route::post('/deskripsi/produk/update-status-progress',[DeskripsiProdukController::class, 'updateStatusProgress']);
+        Route::get('/deskripsi/produk', [DeskripsiProdukController::class, 'index'])->name('despro.view');
+        Route::get('/deskripsi/produk/detail', [DeskripsiProdukController::class, 'detailDeskripsiProduk'])->name('despro.detail');
+        Route::match(['get', 'post'], '/deskripsi/produk/edit', [DeskripsiProdukController::class, 'editDeskripsiProduk'])->name('despro.edit');
+        Route::post('/deskripsi/produk/update-status-progress', [DeskripsiProdukController::class, 'updateStatusProgress']);
         Route::post('/deskripsi/produk/lihat-history', [DeskripsiProdukController::class, 'lihatHistoryDespro'])->name('despro.history');
-        Route::post('/deskripsi/produk/revisi',[DeskripsiProdukController::class, 'revisiDespro']);
-        Route::post('/deskripsi/produk/pilih-judul',[DeskripsiProdukController::class, 'pilihJudul'])->name('despro.pilihjudul');
-        Route::post('/deskripsi/produk/approve',[DeskripsiProdukController::class, 'approveDespro'])->name('despro.approve');
+        Route::post('/deskripsi/produk/revisi', [DeskripsiProdukController::class, 'revisiDespro']);
+        Route::post('/deskripsi/produk/pilih-judul', [DeskripsiProdukController::class, 'pilihJudul'])->name('despro.pilihjudul');
+        Route::post('/deskripsi/produk/approve', [DeskripsiProdukController::class, 'approveDespro'])->name('despro.approve');
         //Deskripsi Final
-        Route::get('/deskripsi/final',[DeskripsiFinalController::class,'index'])->name('desfin.view');
-        Route::get('/deskripsi/final/detail',[DeskripsiFinalController::class, 'detailDeskripsiFinal'])->name('desfin.detail');
-        Route::match(['get', 'post'],'/deskripsi/final/edit',[DeskripsiFinalController::class, 'editDeskripsiFinal'])->name('desfin.edit');
-        Route::post('/deskripsi/final/update-status-progress',[DeskripsiFinalController::class, 'updateStatusProgress']);
+        Route::get('/deskripsi/final', [DeskripsiFinalController::class, 'index'])->name('desfin.view');
+        Route::get('/deskripsi/final/detail', [DeskripsiFinalController::class, 'detailDeskripsiFinal'])->name('desfin.detail');
+        Route::match(['get', 'post'], '/deskripsi/final/edit', [DeskripsiFinalController::class, 'editDeskripsiFinal'])->name('desfin.edit');
+        Route::post('/deskripsi/final/update-status-progress', [DeskripsiFinalController::class, 'updateStatusProgress']);
         Route::post('/deskripsi/final/lihat-history', [DeskripsiFinalController::class, 'lihatHistoryDesfin'])->name('desfin.history');
         //Deskripsi Cover
-        Route::get('/deskripsi/cover',[DeskripsiCoverController::class,'index'])->name('descov.view');
-        Route::get('/deskripsi/cover/detail',[DeskripsiCoverController::class, 'detailDeskripsiCover'])->name('descov.detail');
-        Route::match(['get', 'post'],'/deskripsi/cover/edit',[DeskripsiCoverController::class, 'editDeskripsiCover'])->name('descov.edit');
-        Route::post('/deskripsi/cover/update-status-progress',[DeskripsiCoverController::class, 'updateStatusProgress']);
+        Route::get('/deskripsi/cover', [DeskripsiCoverController::class, 'index'])->name('descov.view');
+        Route::get('/deskripsi/cover/detail', [DeskripsiCoverController::class, 'detailDeskripsiCover'])->name('descov.detail');
+        Route::match(['get', 'post'], '/deskripsi/cover/edit', [DeskripsiCoverController::class, 'editDeskripsiCover'])->name('descov.edit');
+        Route::post('/deskripsi/cover/update-status-progress', [DeskripsiCoverController::class, 'updateStatusProgress']);
         Route::post('/deskripsi/cover/lihat-history', [DeskripsiCoverController::class, 'lihatHistoryDescov'])->name('descov.history');
+        //Deskripsi Turun Cetak
+        Route::get('/deskripsi/turun-cetak', [DeskripsiTurunCetakController::class, 'index'])->name('desturcet.view');
+        Route::get('/deskripsi/turun-cetak/detail', [DeskripsiTurunCetakController::class, 'detailDeskripsiTurunCetak'])->name('desturcet.detail');
+        Route::match(['get', 'post'], '/deskripsi/turun-cetak/edit', [DeskripsiTurunCetakController::class, 'editDeskripsiTurunCetak'])->name('desturcet.edit');
+        Route::post('/deskripsi/turun-cetak/update-status-progress', [DeskripsiTurunCetakController::class, 'updateStatusProgress']);
+        Route::post('/deskripsi/turun-cetak/lihat-history', [DeskripsiTurunCetakController::class, 'lihatHistoryDesTurunCetak'])->name('desturcet.history');
         //Editing
         Route::get('/editing', [EditingController::class, 'index'])->name('editing.view');
         Route::get('/editing/detail', [EditingController::class, 'detailEditing'])->name('editing.detail');
-        Route::match(['get', 'post'],'/editing/edit',[EditingController::class, 'editEditing'])->name('editing.edit');
-        Route::post('/editing/update-status-progress',[EditingController::class, 'updateStatusProgress']);
+        Route::match(['get', 'post'], '/editing/edit', [EditingController::class, 'editEditing'])->name('editing.edit');
+        Route::post('/editing/update-status-progress', [EditingController::class, 'updateStatusProgress']);
         Route::post('/editing/lihat-history', [EditingController::class, 'lihatHistoryEditing'])->name('editing.history');
         Route::post('/editing/proses-kerja', [EditingController::class, 'prosesKerjaEditing'])->name('editing.proses');
         Route::post('/editing/selesai/{cat}/{id}', [EditingController::class, 'prosesSelesaiEditing'])->name('editing.selesai');
         //Pracetak Setter
         Route::get('/pracetak/setter', [PracetakSetterController::class, 'index'])->name('setter.view');
         Route::get('/pracetak/setter/detail', [PracetakSetterController::class, 'detailSetter'])->name('setter.detail');
-        Route::match(['get', 'post'],'/pracetak/setter/edit',[PracetakSetterController::class, 'editSetter'])->name('setter.edit');
-        Route::post('/pracetak/setter/update-status-progress',[PracetakSetterController::class, 'updateStatusProgress']);
-        Route::post('/pracetak/setter/proses-kerja', [PracetakSetterController::class, 'prosesKerjaSetter'])->name('setter.proses');
-        Route::post('/pracetak/setter/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('setter.selesai');
-        Route::post('/pracetak/setter/{act}',[PracetakSetterController::class, 'actionAjax']);
+        Route::match(['get', 'post'], '/pracetak/setter/edit', [PracetakSetterController::class, 'editSetter'])->name('setter.edit');
+        Route::post('/pracetak/setter/update-status-progress', [PracetakSetterController::class, 'updateStatusProgress'])->middleware('throttle:5,1');
+        Route::post('/pracetak/setter/proses-kerja', [PracetakSetterController::class, 'prosesKerjaSetter'])->name('setter.proses')->middleware('throttle:5,1');
+        Route::post('/pracetak/setter/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('setter.selesai')->middleware('throttle:5,1');
+        Route::post('/pracetak/setter/{act}', [PracetakSetterController::class, 'actionAjax'])->middleware('throttle:5,1');
         //Pracetak Desainer
         Route::get('/pracetak/designer', [PracetakDesainerController::class, 'index'])->name('prades.view');
         Route::get('/pracetak/designer/detail', [PracetakDesainerController::class, 'detailPracetakDesainer'])->name('prades.detail');
-        Route::match(['get', 'post'],'/pracetak/designer/edit',[PracetakDesainerController::class, 'editDesigner'])->name('prades.edit');
-        Route::post('/pracetak/designer/update-status-progress',[PracetakDesainerController::class, 'updateStatusProgress']);
-        Route::post('/pracetak/designer/proses-kerja', [PracetakSetterController::class, 'prosesKerjaSetter'])->name('prades.proses');
-        Route::post('/pracetak/designer/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('prades.selesai');
-        Route::post('/pracetak/designer/{act}', [PracetakDesainerController::class, 'actionAjax']);
+        Route::match(['get', 'post'], '/pracetak/designer/edit', [PracetakDesainerController::class, 'editDesigner'])->name('prades.edit');
+        Route::post('/pracetak/designer/update-status-progress', [PracetakDesainerController::class, 'updateStatusProgress']);
+        Route::post('/pracetak/designer/proses-kerja', [PracetakSetterController::class, 'prosesKerjaSetter'])->name('prades.proses')->middleware('throttle:5,1');
+        Route::post('/pracetak/designer/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('prades.selesai')->middleware('throttle:5,1');
+        Route::post('/pracetak/designer/{act}', [PracetakDesainerController::class, 'actionAjax'])->middleware('throttle:5,1');
         //Order Cetak
         Route::get('/order-cetak', [ProduksiController::class, 'index'])->name('cetak.view');
         Route::get('/order-cetak/detail', [ProduksiController::class, 'detailProduksi'])->name('cetak.detail');
-        Route::match(['get', 'post'], '/order-cetak/create', [ProduksiController::class,'createProduksi'])->name('cetak.create');
-        Route::match(['get', 'post'], '/order-cetak/edit', [ProduksiController::class,'updateProduksi'])->name('cetak.update');
-        Route::post('/hapus-order-cetak-buku', [ProduksiController::class,'deleteProduksi'])->name('cetak.delete');
+        Route::match(['get', 'post'], '/order-cetak/create', [ProduksiController::class, 'createProduksi'])->name('cetak.create');
+        Route::match(['get', 'post'], '/order-cetak/edit', [ProduksiController::class, 'updateProduksi'])->name('cetak.update');
+        Route::post('/hapus-order-cetak-buku', [ProduksiController::class, 'deleteProduksi'])->name('cetak.delete');
         Route::post('/order-cetak/ajax/{cat}', [ProduksiController::class, 'ajaxRequest']);
         //Order Ebook
         Route::get('/order-ebook', [EbookController::class, 'index'])->name('ebook.view');
         Route::get('/order-ebook/detail', [EbookController::class, 'detailProduksi'])->name('ebook.detail');
-        Route::match(['get', 'post'], '/order-ebook/create', [EbookController::class,'createProduksi'])->name('ebook.create');
-        Route::match(['get', 'post'], '/order-ebook/edit', [EbookController::class,'updateProduksi'])->name('ebook.update');
-        Route::post('/hapus-order-ebook-buku', [EbookController::class,'deleteProduksi'])->name('ebook.delete');
+        Route::match(['get', 'post'], '/order-ebook/create', [EbookController::class, 'createProduksi'])->name('ebook.create');
+        Route::match(['get', 'post'], '/order-ebook/edit', [EbookController::class, 'updateProduksi'])->name('ebook.update');
+        Route::post('/hapus-order-ebook-buku', [EbookController::class, 'deleteProduksi'])->name('ebook.delete');
         Route::post('/order-ebook/ajax/{cat}', [EbookController::class, 'ajaxRequest']);
     });
     //Produksi
@@ -172,12 +178,11 @@ Route::middleware(['auth'])->group(function() {
         //Proses Produksi Cetak
         Route::get('/proses/cetak', [ProsesProduksiController::class, 'index'])->name('proses.cetak.view');
         Route::get('/proses/cetak/detail', [ProsesProduksiController::class, 'detailProduksi'])->name('proses.cetak.detail');
-        Route::match(['get', 'post'], '/proses/cetak/edit', [ProsesProduksiController::class,'updateProduksi'])->name('proses.cetak.update');
+        Route::match(['get', 'post'], '/proses/cetak/edit', [ProsesProduksiController::class, 'updateProduksi'])->name('proses.cetak.update');
 
         //Proses Produksi E-book Multimedia
-        Route::get('/proses/ebook-multimedia', [ProsesEbookController::class,'index'])->name('proses.ebook.view');
-        Route::get('/proses/ebook-multimedia/detail', [ProsesEbookController::class,'detailProduksi'])->name('proses.ebook.detail');
-        Route::match(['get', 'post'], '/proses/ebook-multimedia/edit', [ProsesEbookController::class,'updateProduksi'])->name('proses.ebook.update');
+        Route::get('/proses/ebook-multimedia', [ProsesEbookController::class, 'index'])->name('proses.ebook.view');
+        Route::get('/proses/ebook-multimedia/detail', [ProsesEbookController::class, 'detailProduksi'])->name('proses.ebook.detail');
+        Route::match(['get', 'post'], '/proses/ebook-multimedia/edit', [ProsesEbookController::class, 'updateProduksi'])->name('proses.ebook.update');
     });
-
 });
