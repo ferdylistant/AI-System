@@ -511,7 +511,7 @@ class DeskripsiCoverController extends Controller
             foreach ($data as $d) {
                 switch ($d->type_history) {
                     case 'Status':
-                        $html .= '<span class="ticket-item" id="newAppend">
+                        $html .= '<span class="ticket-item">
                     <div class="ticket-title">
                         <span><span class="bullet"></span> Status deskripsi cover <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
                     </div>
@@ -523,7 +523,7 @@ class DeskripsiCoverController extends Controller
                     </span>';
                         break;
                     case 'Update':
-                        $html .= '<span class="ticket-item" id="newAppend">
+                        $html .= '<span class="ticket-item">
                     <div class="ticket-title"><span><span class="bullet"></span>';
                     if (!is_null($d->sub_judul_final_his)) {
                         $html .= ' Sub Judul final <b class="text-dark">' . $d->sub_judul_final_his . '</b> diubah menjadi <b class="text-dark">' . $d->sub_judul_final_new . '</b>.<br>';

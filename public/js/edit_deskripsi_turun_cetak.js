@@ -82,9 +82,10 @@ $(function () {
 
     function ajaxUpDeskripsiTurunCetak(data) {
         let el = data.get(0);
+        let id = data.data('id');
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/deskripsi/turun-cetak/edit",
+            url: window.location.origin + "/penerbitan/deskripsi/turun-cetak/edit?id="+id,
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -96,7 +97,8 @@ $(function () {
             success: function (result) {
                 // resetFrom(data);
                 notifToast(result.status, result.message);
-                location.href = result.route;
+                // location.href = result.route;
+                console.log(result);
             },
             error: function (err) {
                 // console.log(err.responseJSON);
@@ -123,6 +125,7 @@ $(function () {
         e.preventDefault();
         if ($(this).valid()) {
             let nama = $(this).find('[name="judul_final"]').val();
+            // let id = $(this).data('id');
             swal({
                 text: "Update data deskripsi turun cetak, (" + nama + ")?",
                 icon: "warning",

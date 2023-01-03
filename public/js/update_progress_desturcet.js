@@ -71,7 +71,7 @@ $(document).ready(function () {
             judul = $(this).data("judul");
         $("#id").val(id);
         $("#kode").val(kode);
-        $("#judulAsli").val(judul);
+        $("#judulFinal").val(judul);
     });
 });
 $(document).ready(function () {
@@ -126,7 +126,7 @@ $(document).ready(function () {
         e.preventDefault();
         if ($(this).valid()) {
             let kode = $(this).find('[name="kode"]').val();
-            let judul = $(this).find('[name="judul_asli"]').val();
+            let judul = $(this).find('[name="judul_final"]').val();
             swal({
                 title:
                     "Yakin mengubah status deskripsi turun cetak " +

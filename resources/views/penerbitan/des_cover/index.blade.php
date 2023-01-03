@@ -63,12 +63,6 @@
 <section class="section">
     <div class="section-header">
         <h1>Data Penerbitan Deskripsi Cover</h1>
-
-        {{-- @if(Gate::allows('do_create', 'tambah-produksi-cetak'))
-        <div class="section-header-button">
-            <a href="{{ route('cetak.create')}}" class="btn btn-success">Tambah</a>
-        </div>
-        @endif --}}
     </div>
     <div class="section-body">
         <div class="row">
@@ -211,18 +205,6 @@
             tableDesCover.column( $(this).data('column') )
             .search( val ? val : '', true, false )
             .draw();
-        });
-    });
-</script>
-<script>
-    $('#tb_DesCover').on('click','.btn-history',function(e){
-        var id = $(this).data('id');
-        var judul = $(this).data('judulfinal');
-        $.post("{{route('descov.history')}}", {id: id}, function(data){
-            $('#titleModalDescov').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "'+judul+'"');
-            $('#load_more').data('id',id);
-            $('#dataHistoryDescov').html(data);
-            $('#md_DescovHistory').modal('show');
         });
     });
 </script>

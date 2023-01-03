@@ -9,9 +9,9 @@ $(function () {
                 $(this).valid();
             }
         });
-    $(".select-setter")
+    $(".select-desainer")
         .select2({
-            placeholder: "Pilih setter",
+            placeholder: "Pilih desainer",
             multiple: true,
         })
         .on("change", function (e) {
@@ -44,13 +44,13 @@ $(function () {
         clearBtn: true,
     });
     //! PROSES UPDATE FORM
-    function ajaxUpPracetakSetter(data) {
+    function ajaxUpPracetakDesainer(data) {
         let el = data.get(0);
         let id = data.data('id');
-        let idp = data.data('id_pracov');
+        let idp = data.data('id_praset');
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/pracetak/setter/edit?id="+id+"&id_pracov="+idp,
+            url: window.location.origin + "/penerbitan/pracetak/designer/edit?id="+id+"&id_praset="+idp,
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -58,7 +58,6 @@ $(function () {
                 $("#overlay").fadeIn(300);
             },
             success: function (result) {
-                // console.log(result);
                 notifToast(result.status, result.message);
                 location.reload();
             },
@@ -73,7 +72,7 @@ $(function () {
                     });
                     // upNaskah.showErrors(err);
                 }
-                notifToast("error", "Data pracetak setter gagal disimpan!");
+                notifToast("error", "Data pracetak cover gagal disimpan!");
             },
             complete: function () {
                 setTimeout(function () {
@@ -82,12 +81,12 @@ $(function () {
             },
         });
     }
-    function ajaxSelesaiRevisiSetter(id) {
+    function ajaxSelesaiRevisiDesainer(id) {
         $.ajax({
             type: "POST",
             url:
                 window.location.origin +
-                "/penerbitan/pracetak/setter/revision-done?id="+id,
+                "/penerbitan/pracetak/designer/revision-done?id="+id,
             processData: false,
             contentType: false,
             beforeSend: function () {
@@ -121,18 +120,18 @@ $(function () {
         });
     }
     //! CONFIRM SWEETALERT
-    $("#fup_pracetakSetter").on("submit", function (e) {
+    $("#fup_pracetakDesainer").on("submit", function (e) {
         e.preventDefault();
         if ($(this).valid()) {
             let nama = $(this).find('[name="judul_final"]').val();
             swal({
-                text: "Update data pracetak setter naskah, (" + nama + ")?",
+                text: "Update data pracetak cover naskah, (" + nama + ")?",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxUpPracetakSetter($(this));
+                    ajaxUpPracetakDesainer($(this));
                 }
             });
         } else {
@@ -145,14 +144,14 @@ $(function () {
         let kode = $(this).data("kode");
         let judul = $(this).data("judul");
         swal({
-            title: "Yakin setter telah selesai merevisi naskah " + judul + "-" + kode + "?",
+            title: "Yakin desainer telah selesai merevisi naskah " + judul + "-" + kode + "?",
             text: "Harap diperiksa kembali, supaya tidak terjadi kekeliruan data.",
             icon: "warning",
             buttons: true,
             dangerMode: true,
         }).then((confirm_) => {
             if (confirm_) {
-                ajaxSelesaiRevisiSetter(id);
+                ajaxSelesaiRevisiDesainer(id);
             }
         });
     });
@@ -172,15 +171,15 @@ $(document).ready(function () {
     });
 });
 $(document).ready(function () {
-    $("#setterButton").click(function (e) {
+    $("#desainerButton").click(function (e) {
         e.preventDefault();
-        $("#setterCol").attr("hidden", "hidden");
-        $("#setterColInput").removeAttr("hidden");
+        $("#desainerCol").attr("hidden", "hidden");
+        $("#desainerColInput").removeAttr("hidden");
     });
-    $(".batal_edit_setter").click(function (e) {
+    $(".batal_edit_desainer").click(function (e) {
         e.preventDefault();
-        $("#setterColInput").attr("hidden", "hidden");
-        $("#setterCol").removeAttr("hidden");
+        $("#desainerColInput").attr("hidden", "hidden");
+        $("#desainerCol").removeAttr("hidden");
     });
 });
 $(document).ready(function () {
@@ -339,14 +338,4 @@ $(function() {
 
     });
 });
-//!Format Penulisan ISBN dan HARGA
-    var ISBN = document.getElementById('ISBN');
-    var HARGA = document.getElementById('HARGA');
-    var maskISBN = {
-        mask: '0000000000000'
-    };
-    var maskHARGA = {
-        mask: '000000000'
-    };
-    var mask = IMask(ISBN, maskISBN,reverse = true);
-    var mask = IMask(HARGA, maskHARGA,reverse = true);
+

@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\DesturcetEvent;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\DB;
 
 class DesturcetListener
@@ -22,39 +20,37 @@ class DesturcetListener
     /**
      * Handle the event.
      *
-     * @param  \App\Events\DescovEvent  $event
+     * @param  \App\Events\DesturcetEvent  $event
      * @return void
      */
     public function handle(DesturcetEvent $event)
     {
         $data = $event->data;
         switch ($data['params']) {
-            case 'Input Deskripsi':
-                $res = DB::table('deskripsi_turun_cetak')->insert([
-                    'id' => $data['id'],
-                    'deskripsi_produk_id' => $data['deskripsi_produk_id'],
-                    'tgl_deskripsi' => $data['tgl_deskripsi']
-                ]);
-                break;
-            case 'Update Status Descov':
+            case 'Update Status Desturcet':
                 $res = DB::table('deskripsi_turun_cetak')->where('deskripsi_produk_id', $data['deskripsi_produk_id'])->update([
                     'status' => $data['status'],
                     'updated_by' => $data['updated_by']
                 ]);
                 break;
             case 'Edit Desturcet':
+                DB::beginTransaction();
                 $res = DB::table('deskripsi_turun_cetak as dtc')
                     ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
-                    ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                    ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                    ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                     ->where('dtc.id', $data['id'])
                     ->update([
-                        'ps.edisi_cetak' => $data['edisi_cetak'],
-                        // 'dp.format_buku' => $data['format_buku'],
                         'dtc.bulan' => $data['bulan'],
-                        'dtc.updated_by' => $data['updated_by']
+                        'ps.edisi_cetak' => $data['edisi_cetak'],
+                        'dp.format_buku' => $data['format_buku'],
                     ]);
+                DB::commit();
                 break;
-            case 'Insert History Edit Descov':
+            case 'Insert History Edit Desturcet':
                 $res = DB::table('deskripsi_turun_cetak_history')->insert([
                     'deskripsi_turun_cetak_id' => $data['deskripsi_turun_cetak_id'],
                     'type_history' => $data['type_history'],
@@ -90,7 +86,7 @@ class DesturcetListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
-            case 'Insert History Status Descov':
+            case 'Insert History Status Desturcet':
                 $res = DB::table('deskripsi_turun_cetak_history')->insert([
                     'deskripsi_turun_cetak_id' => $data['deskripsi_turun_cetak_id'],
                     'type_history' => $data['type_history'],
@@ -99,6 +95,16 @@ class DesturcetListener
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
+                break;
+            case 'Insert Turun Cetak':
+                DB::beginTransaction();
+                $res = DB::table('deskripsi_turun_cetak')->insert([
+                    'id' => $data['id'],
+                    'pracetak_cover_id' => $data['pracetak_cover_id'],
+                    'pracetak_setter_id' => $data['pracetak_setter_id'],
+                    'tgl_masuk' => $data['tgl_masuk']
+                ]);
+                DB::commit();
                 break;
             default:
                 abort(500);

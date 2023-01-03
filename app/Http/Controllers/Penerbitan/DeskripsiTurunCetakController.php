@@ -198,16 +198,10 @@ class DeskripsiTurunCetakController extends Controller
                 'ps.edisi_cetak',
                 'ps.isbn',
                 'ps.jml_hal_final',
-                'df.sub_judul_final',
-                'df.bullet',
                 'dp.naskah_id',
                 'dp.format_buku',
                 'dp.judul_final',
-                'dp.imprint',
-                'dp.kelengkapan',
-                'dp.catatan',
                 'pn.kode',
-                'pn.judul_asli',
                 'pn.pic_prodev',
                 'pn.jalur_buku',
                 'kb.nama'
@@ -238,67 +232,53 @@ class DeskripsiTurunCetakController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
-                $history = DB::table('deskripsi_turun_cetak as dtc')
-                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dtc.deskripsi_produk_id')
-                    ->join('deskripsi_final as df', 'df.deskripsi_produk_id', '=', 'dp.id')
-                    ->where('dc.id', $request->id)
-                    ->whereNull('dc.deleted_at')
-                    ->select('dc.*', 'dp.judul_final', 'dp.format_buku', 'df.sub_judul_final', 'df.bullet')
-                    ->first();
-                foreach ($request->bullet as $value) {
-                    $bullet[] = $value;
-                }
-                $update = [
-                    'params' => 'Edit Desturcet',
-                    'id' => $request->id,
-                    'edisi_cetak' => $request->edisi_cetak, //Deskripsi Final
-                    'format_buku' => $request->format_buku, //Deskripsi Produk
-                    'bulan' => Carbon::createFromDate($request->bulan),
-                    'updated_by' => auth()->id()
-                ];
-                event(new DesturcetEvent($update));
+                try {
+                    // return response()->json([
+                    //     'status' => 'error',
+                    //     'message' => Carbon::createFromDate($request->bulan)
+                    // ]);
+                    $history = DB::table('deskripsi_turun_cetak as dtc')
+                        ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                        ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                        ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                        ->where('dtc.id', $request->id)
+                        ->select('dtc.*')
+                        ->first();
 
-                $insert = [
-                    'params' => 'Insert History Edit Descov',
-                    'deskripsi_cover_id' => $request->id,
-                    'type_history' => 'Update',
-                    'format_buku_his' => $history->format_buku == $request->format_buku ? NULL : $history->format_buku,
-                    'format_buku_new' => $history->format_buku == $request->format_buku ? NULL : $request->format_buku,
-                    'sub_judul_final_his' => $history->sub_judul_final == $request->sub_judul_final ? NULL : $history->sub_judul_final,
-                    'sub_judul_final_new' => $history->sub_judul_final == $request->sub_judul_final ? NULL : $request->sub_judul_final,
-                    'des_front_cover_his' => $history->des_front_cover == $request->des_front_cover ? NULL : $history->des_front_cover,
-                    'des_front_cover_new' => $history->des_front_cover == $request->des_front_cover ? NULL : $request->des_front_cover,
-                    'des_back_cover_his' => $history->des_back_cover == $request->des_back_cover ? NULL : $history->des_back_cover,
-                    'des_back_cover_new' => $history->des_back_cover == $request->des_back_cover ? NULL : $request->des_back_cover,
-                    'finishing_cover_his' => $history->finishing_cover == json_encode(array_filter($request->finishing_cover)) ? NULL : $history->finishing_cover,
-                    'finishing_cover_new' => $history->finishing_cover == json_encode(array_filter($request->finishing_cover)) ? NULL : json_encode(array_filter($request->finishing_cover)),
-                    'jilid_his' => $history->jilid == $request->jilid ? NULL : $history->jilid,
-                    'jilid_new' => $history->jilid == $request->jilid ? NULL : $request->jilid,
-                    'tipografi_his' => $history->tipografi == $request->tipografi ? NULL : $history->tipografi,
-                    'tipografi_new' => $history->tipografi == $request->tipografi ? NULL : $request->tipografi,
-                    'warna_his' => $history->warna == $request->warna ? NULL : $history->warna,
-                    'warna_new' => $history->warna == $request->warna ? NULL : $request->warna,
-                    'bullet_his' => $history->bullet == json_encode(array_filter($bullet)) ? NULL : $history->bullet,
-                    'bullet_new' => $history->bullet == json_encode(array_filter($bullet)) ? NULL : json_encode(array_filter($bullet)),
-                    'desainer_his' => $history->desainer == $request->desainer ? NULL : $history->desainer,
-                    'desainer_new' => $history->desainer == $request->desainer ? NULL : $request->desainer,
-                    'contoh_cover_his' => $history->contoh_cover == $request->contoh_cover ? NULL : $history->contoh_cover,
-                    'contoh_cover_new' => $history->contoh_cover == $request->contoh_cover ? NULL : $request->contoh_cover,
-                    'kelengkapan_his' => $history->kelengkapan == $request->kelengkapan ? NULL : $history->kelengkapan,
-                    'kelengkapan_new' => $history->kelengkapan == $request->kelengkapan ? NULL : $request->kelengkapan,
-                    'catatan_his' => $history->catatan == $request->catatan ? NULL : $history->catatan,
-                    'catatan_new' => $history->catatan == $request->catatan ? NULL : $request->catatan,
-                    'bulan_his' => date('Y-m', strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
-                    'bulan_new' => date('Y-m', strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : Carbon::createFromDate($request->bulan),
-                    'author_id' => auth()->id(),
-                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                ];
-                event(new DesturcetEvent($insert));
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Data deskripsi turun cetak berhasil ditambahkan',
-                    'route' => route('desturcet.view')
-                ]);
+                    $update = [
+                        'params' => 'Edit Desturcet',
+                        'id' => $request->id,
+                        'edisi_cetak' => $request->edisi_cetak, //Deskripsi Final
+                        'format_buku' => $request->format_buku, //Deskripsi Produk
+                        'bulan' => Carbon::createFromDate($request->bulan)
+                    ];
+                    event(new DesturcetEvent($update));
+
+                    $insert = [
+                        'params' => 'Insert History Edit Desturcet',
+                        'deskripsi_cover_id' => $request->id,
+                        'type_history' => 'Update',
+                        'format_buku_his' => $history->format_buku == $request->format_buku ? NULL : $history->format_buku,
+                        'format_buku_new' => $history->format_buku == $request->format_buku ? NULL : $request->format_buku,
+                        'bulan_his' => date('Y-m', strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
+                        'bulan_new' => date('Y-m', strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : Carbon::createFromDate($request->bulan),
+                        'author_id' => auth()->id(),
+                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new DesturcetEvent($insert));
+
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data deskripsi turun cetak berhasil ditambahkan',
+                        'route' => route('desturcet.view')
+                    ]);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $e->getMessage()
+                    ]);
+                }
             }
         }
         $id = $request->get('desc');
@@ -325,7 +305,6 @@ class DeskripsiTurunCetakController extends Controller
                 'dp.naskah_id',
                 'dp.judul_final',
                 'dp.format_buku',
-                'pn.id',
                 'pn.kode',
                 'pn.jalur_buku',
                 'pn.judul_asli',
@@ -345,7 +324,7 @@ class DeskripsiTurunCetakController extends Controller
                 $q->on('pnp.penulis_id', '=', 'pp.id')
                     ->whereNull('pp.deleted_at');
             })
-            ->where('pnp.naskah_id', '=', $data->id)
+            ->where('pnp.naskah_id', '=', $data->naskah_id)
             ->select('pp.nama')
             ->get();
         $format_buku = DB::table('format_buku')->whereNull('deleted_at')->get();
@@ -360,7 +339,6 @@ class DeskripsiTurunCetakController extends Controller
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_final WHERE Field = 'kelengkapan'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $kelengkapan = explode("','", $matches[1]);
-        // $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
         return view('penerbitan.des_turun_cetak.edit', [
             'title' => 'Edit Deskripsi Turun Cetak',
             'data' => $data,
@@ -370,42 +348,16 @@ class DeskripsiTurunCetakController extends Controller
             'finishing_cover' => $finishingCover,
             'kelengkapan' => $kelengkapan,
             'sasaran_pasar' => $sasaran_pasar
-            // 'imprint' => $imprint
         ]);
     }
     public function updateStatusProgress(Request $request)
     {
         try {
             $id = $request->id;
-            $data = DB::table('deskripsi_cover as dc')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                        ->whereNull('kb.deleted_at');
-                })
-                ->where('dc.id', $id)
-                ->whereNull('dp.deleted_at')
-                ->whereNull('pn.deleted_at')
+            $data = DB::table('deskripsi_turun_cetak as dtc')
+                ->where('dtc.id', $id)
                 ->select(
-                    'dc.*',
-                    'df.id as deskripsi_final_id',
-                    'df.setter',
-                    'df.korektor',
-                    'dp.naskah_id',
-                    'dp.format_buku',
-                    'dp.judul_final',
-                    'dp.editor',
-                    'dp.imprint',
-                    'dp.jml_hal_perkiraan',
-                    'dp.kelengkapan',
-                    'dp.catatan',
-                    'pn.kode',
-                    'pn.judul_asli',
-                    'pn.pic_prodev',
-                    'pn.jalur_buku',
-                    'kb.nama'
+                    'dtc.*',
                 )
                 ->first();
             if (is_null($data)) {
@@ -421,13 +373,13 @@ class DeskripsiTurunCetakController extends Controller
                 ]);
             }
             $update = [
-                'params' => 'Update Status Descov',
+                'params' => 'Update Status Desturcet',
                 'deskripsi_produk_id' => $data->deskripsi_produk_id,
                 'status' => $request->status,
                 'updated_by' => auth()->id()
             ];
             $insert = [
-                'params' => 'Insert History Status Descov',
+                'params' => 'Insert History Status Desturcet',
                 'deskripsi_cover_id' => $data->id,
                 'type_history' => 'Status',
                 'status_his' => $data->status,
@@ -624,9 +576,6 @@ class DeskripsiTurunCetakController extends Controller
     protected function panelStatusProdev($status = null, $id, $kode, $judul_final, $btn)
     {
         switch ($status) {
-            case 'Terkunci':
-                $btn .= '<span class="d-block badge badge-dark mr-1 mt-1"><i class="fas fa-lock"></i>&nbsp;' . $status . '</span>';
-                break;
             case 'Antrian':
                 $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-desturcet" style="background:#34395E;color:white" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
                         <div>' . $status . '</div></a>';

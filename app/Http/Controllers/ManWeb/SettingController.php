@@ -76,7 +76,7 @@ class SettingController extends Controller
                                     data-id="' . $data->id . '" data-nama="' . $data->name . '"
                                     data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
-                            $btn .= '<a href="#" class="d-block btn btn-sm btn_DelCabang btn-danger btn-icon mr-1 mt-1"
+                            $btn .= '<a href="#" class="d-block btn btn-sm btn_DelMenu btn-danger btn-icon mr-1 mt-1"
                                     data-toggle="tooltip" title="Hapus Data"
                                     data-id="' . $data->id . '" data-nama="' . $data->name . '">
                                     <div><i class="fas fa-trash-alt"></i></div></a>';
@@ -263,6 +263,32 @@ class SettingController extends Controller
                 'status' => 'success',
                 'message' => 'Data menu berhasil disimpan!'
             ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function deleteMenu($request)
+    {
+        try {
+            $access = DB::table('access')
+                    ->where('id', $request->id)
+                    ->first();
+                if (!is_null($access)) {
+                    DB::table('access')->where('id', $request->id)
+                        ->delete();
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Berhasil hapus data!'
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Terjadi kesalahan!'
+                    ]);
+                }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use App\Events\{NotifikasiPenyetujuan,DescovEvent,DesfinEvent,DesproEvent,NaskahEvent,EditingEvent,MasterDataEvent,PracetakCoverEvent,PracetakSetterEvent, UserLogEvent,SettingEvent};
-use App\Listeners\{NotifikasiPenyetujuanListener,DescovListener,DesfinListener,DesproListener,NaskahListener,EditingListener,MasterDataListener,PracetakCoverListener,PracetakSetterListener, UserLogListener, SettingListener};
+use App\Events\{NotifikasiPenyetujuan,DescovEvent,DesfinEvent,DesproEvent,DesturcetEvent,NaskahEvent,EditingEvent,MasterDataEvent,PracetakCoverEvent,PracetakSetterEvent, UserLogEvent,SettingEvent};
+use App\Listeners\{NotifikasiPenyetujuanListener,DescovListener,DesfinListener,DesproListener,DesturcetListener,NaskahListener,EditingListener,MasterDataListener,PracetakCoverListener,PracetakSetterListener, UserLogListener, SettingListener};
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -48,6 +48,10 @@ class EventServiceProvider extends ServiceProvider
         Event::listen(
             DescovEvent::class,
             [DescovListener::class, 'handle']
+        );
+        Event::listen(
+            DesturcetEvent::class,
+            [DesturcetListener::class, 'handle']
         );
         Event::listen(
             EditingEvent::class,

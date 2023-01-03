@@ -1,3 +1,17 @@
+$('#tb_Setter').on('click', '.btn-history', function (e) {
+    var id = $(this).data('id');
+    var judul = $(this).data('judulfinal');
+    $.post(window.location.origin + "/penerbitan/pracetak/setter/lihat-history", {
+        id: id
+    }, function (data) {
+        // console.log(data);
+        $('#titleModalSetter').html(
+            '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
+        $('#load_more').data('id', id);
+        $('#dataHistorySetter').html(data);
+        $('#md_SetterHistory').modal('show');
+    });
+});
 $(function () {
     $(".load-more").click(function (e) {
         e.preventDefault();

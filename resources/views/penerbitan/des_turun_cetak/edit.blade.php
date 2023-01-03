@@ -48,7 +48,7 @@
                         </div>
                         @if ($data->status == 'Proses' ||
                             ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
-                            <form id="fup_deskripsiTurunCetak">
+                            <form id="fup_deskripsiTurunCetak" data-id="{{ $data->id }}">
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-12">
@@ -211,7 +211,7 @@
                                                                     <div class="input-group">
                                                                         <input name="bulan"
                                                                             class="form-control datepicker"
-                                                                            value="{{ Carbon\Carbon::parse($data->bulan)->translatedFormat('F Y') }}"
+                                                                            value="{{ Carbon\Carbon::createFromFormat('Y-m-d', $data->bulan)->format('F Y') }}"
                                                                             placeholder="Bulan proses" readonly required>
                                                                         <div class="input-group-append">
                                                                             <button type="button"
@@ -234,7 +234,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <input type="hidden" name="id" value="{{ $data->id }}">
+
                                 </div>
                                 <div class="card-footer text-right">
                                     <button type="submit" class="btn btn-success">Update</button>
@@ -252,31 +252,10 @@
                                                         <td class="table-active text-right">{{ $data->kode }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <th class="table-secondary" style="width: 25%">Judul Asli:</th>
-                                                        <input type="hidden" name="judul_asli"
-                                                            value="{{ $data->judul_asli }}">
-                                                        <td class="table-active text-right">{{ $data->judul_asli }}</td>
-                                                    </tr>
-                                                    <tr>
                                                         <th class="table-secondary" style="width: 25%">Judul Final:</th>
                                                         <input type="hidden" name="judul_final"
                                                             value="{{ $data->judul_final }}">
                                                         <td class="table-active text-right">{{ $data->judul_final }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th class="table-secondary" style="width: 25%">Sub-Judul Final:
-                                                        </th>
-                                                        <td class="table-active text-right">
-                                                            @if (!is_null($data->sub_judul_final))
-                                                                {{ $data->sub_judul_final }}
-                                                            @else
-                                                                <span class="text-danger text-small">Belum diinput</span>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th class="table-secondary" style="width: 25%">Kelompok Buku:</th>
-                                                        <td class="table-active text-right">{{ $data->nama }}</td>
                                                     </tr>
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Penulis:</th>
@@ -298,14 +277,8 @@
                                                         </td>
                                                     </tr>
                                                     <tr>
-                                                        <th class="table-secondary" style="width: 25%">Catatan:</th>
-                                                        <td class="table-active text-right">
-                                                            @if (!is_null($data->catatan))
-                                                                {{ $data->catatan }}
-                                                            @else
-                                                                <span class="text-danger text-small">Belum diinput</span>
-                                                            @endif
-                                                        </td>
+                                                        <th class="table-secondary" style="width: 25%">Kelompok Buku:</th>
+                                                        <td class="table-active text-right">{{ $data->nama }}</td>
                                                     </tr>
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Bulan: <span

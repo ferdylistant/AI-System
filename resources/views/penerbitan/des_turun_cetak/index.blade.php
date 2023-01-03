@@ -107,7 +107,7 @@
             </div>
         </div>
     </section>
-    <div id="md_UpdateStatusDesCover" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal"
+    <div id="md_UpdateStatusDesTurCet" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -122,7 +122,7 @@
                         <div class="form-group">
                             <input type="hidden" name="id" id="id" value="">
                             <input type="hidden" name="kode" id="kode" value="">
-                            <input type="hidden" name="judul_asli" id="judulAsli" value="">
+                            <input type="hidden" name="judul_final" id="judulFinal" value="">
                             <label for="adduser_name">Status: <span class="text-danger">*</span></label>
                             <select name="status" class="form-control select-status"required>
                                 <option label="Pilih Status"></option>

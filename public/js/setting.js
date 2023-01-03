@@ -409,21 +409,23 @@ $(function () {
         })
     }
 
-    function ajaxDeleteCabang(data) {
+    function ajaxDeleteMenu(data) {
         $.ajax({
             type: "POST",
-            url: "{{url('manajemen-web/struktur-ao/delete/cabang')}}",
+            url: window.location.origin + "/setting/delete/menu",
             data: data,
             beforeSend: function () {
-                $('.btn_DelCabang').prop('disabled', true).addClass('btn-progress')
+                $('.btn_DelMenu').prop('disabled', true).addClass('btn-progress')
             },
             success: function (result) {
-                tableCabang.ajax.reload();
-                notifToast('success', 'Data cabang berhasil dihapus!');
+                if (result.status == 'success') {
+                    tableMenu.ajax.reload();
+                }
+                notifToast(result.status, result.message);
             },
             error: function (err) { },
             complete: function () {
-                $('.btn_DelCabang').prop('disabled', true).removeClass('btn-progress')
+                $('.btn_DelMenu').prop('disabled', true).removeClass('btn-progress')
             }
         })
     }
@@ -742,19 +744,19 @@ $(function () {
     })
 
     // Proses Hapus //
-    $('#tb_Cabang').on('click', '.btn_DelCabang', function (e) {
-        let cabang = $(this).data('nama'),
+    $('#tb_Menu').on('click', '.btn_DelMenu', function (e) {
+        let nama = $(this).data('nama'),
             id = $(this).data('id');
 
         swal({
-            text: 'Hapus data Cabang (' + cabang + ')?',
+            text: 'Hapus data menu (' + nama + ')?',
             icon: 'warning',
             buttons: true,
             dangerMode: true,
         })
             .then((confirm_) => {
                 if (confirm_) {
-                    ajaxDeleteCabang({
+                    ajaxDeleteMenu({
                         id: id
                     });
                 }
