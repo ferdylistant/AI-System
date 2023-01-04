@@ -181,11 +181,6 @@
 @section('jsNeeded')
     <script>
         $(function() {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
             let tableDesTurunCetak = $('#tb_DesTurCet').DataTable({
                 "bSort": false,
                 "responsive": true,
@@ -247,21 +242,6 @@
                 tableDesTurunCetak.column($(this).data('column'))
                     .search(val ? val : '', true, false)
                     .draw();
-            });
-        });
-    </script>
-    <script>
-        $('#tb_DesTurCet').on('click', '.btn-history', function(e) {
-            var id = $(this).data('id');
-            var judul = $(this).data('judulfinal');
-            $.post("{{ route('desturcet.history') }}", {
-                id: id
-            }, function(data) {
-                $('#titleModalDesturcet').html(
-                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
-                $('#load_more').data('id', id);
-                $('#dataHistoryDesturcet').html(data);
-                $('#md_DesturcetHistory').modal('show');
             });
         });
     </script>

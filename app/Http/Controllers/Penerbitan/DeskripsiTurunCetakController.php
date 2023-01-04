@@ -100,7 +100,7 @@ class DeskripsiTurunCetakController extends Controller
                     return $result;
                 })
                 ->addColumn('history', function ($data) {
-                    $historyData = DB::table('deskripsi_cover_history')->where('deskripsi_cover_id', $data->id)->get();
+                    $historyData = DB::table('deskripsi_turun_cetak_history')->where('deskripsi_turun_cetak_id', $data->id)->get();
                     if ($historyData->isEmpty()) {
                         return '-';
                     } else {
@@ -233,16 +233,13 @@ class DeskripsiTurunCetakController extends Controller
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 try {
-                    // return response()->json([
-                    //     'status' => 'error',
-                    //     'message' => Carbon::createFromDate($request->bulan)
-                    // ]);
                     $history = DB::table('deskripsi_turun_cetak as dtc')
                         ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                        ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
                         ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
                         ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                         ->where('dtc.id', $request->id)
-                        ->select('dtc.*')
+                        ->select('dtc.*', 'dp.format_buku', 'ps.edisi_cetak')
                         ->first();
 
                     $update = [
@@ -256,8 +253,10 @@ class DeskripsiTurunCetakController extends Controller
 
                     $insert = [
                         'params' => 'Insert History Edit Desturcet',
-                        'deskripsi_cover_id' => $request->id,
+                        'deskripsi_turun_cetak_id' => $request->id,
                         'type_history' => 'Update',
+                        'edisi_cetak_his' => $history->edisi_cetak == $request->edisi_cetak ? NULL : $history->edisi_cetak,
+                        'edisi_cetak_new' => $history->edisi_cetak == $request->edisi_cetak ? NULL : $request->edisi_cetak,
                         'format_buku_his' => $history->format_buku == $request->format_buku ? NULL : $history->format_buku,
                         'format_buku_new' => $history->format_buku == $request->format_buku ? NULL : $request->format_buku,
                         'bulan_his' => date('Y-m', strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
@@ -312,10 +311,8 @@ class DeskripsiTurunCetakController extends Controller
                 'kb.nama',
             )
             ->first();
-        if (is_null($data)) {
-            abort(404);
-        }
-        $sasaranPasar = DB::table('penerbitan_pn_prodev')
+        is_null($data) ? abort(404) :
+            $sasaranPasar = DB::table('penerbitan_pn_prodev')
             ->where('naskah_id', $data->naskah_id)
             ->first();
         $sasaran_pasar = is_null($sasaranPasar) ? null : $sasaranPasar->sasaran_pasar;
@@ -329,24 +326,11 @@ class DeskripsiTurunCetakController extends Controller
             ->get();
         $format_buku = DB::table('format_buku')->whereNull('deleted_at')->get();
 
-        //Jilid Enum
-        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_cover WHERE Field = 'jilid'"))[0]->Type;
-        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-        $jilid = explode("','", $matches[1]);
-        //Finishing Cover
-        $finishingCover = ['Embosh', 'Foil', 'Glossy', 'Laminasi Dof', 'UV', 'UV Spot'];
-        //Kelengkapan Enum
-        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_final WHERE Field = 'kelengkapan'"))[0]->Type;
-        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-        $kelengkapan = explode("','", $matches[1]);
         return view('penerbitan.des_turun_cetak.edit', [
             'title' => 'Edit Deskripsi Turun Cetak',
             'data' => $data,
             'penulis' => $penulis,
             'format_buku' => $format_buku,
-            'jilid' => $jilid,
-            'finishing_cover' => $finishingCover,
-            'kelengkapan' => $kelengkapan,
             'sasaran_pasar' => $sasaran_pasar
         ]);
     }
@@ -434,145 +418,6 @@ class DeskripsiTurunCetakController extends Controller
             ]);
         }
     }
-    public function lihatHistoryDesTurunCetak(Request $request)
-    {
-        if ($request->ajax()) {
-            $html = '';
-            $id = $request->id;
-            $data = DB::table('deskripsi_turun_cetak_history as dtch')
-                ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'dtch.deskripsi_turun_cetak_id')
-                ->join('users as u', 'dtch.author_id', '=', 'u.id')
-                ->where('dtch.deskripsi_turun_cetak_id', $id)
-                ->select('dtch.*', 'u.nama',)
-                ->orderBy('dtch.id', 'desc')
-                ->paginate(2);
-            foreach ($data as $d) {
-                switch ($d->type_history) {
-                    case 'Status':
-                        $html .= '<span class="ticket-item" id="newAppend">
-                    <div class="ticket-title">
-                        <span><span class="bullet"></span> Status deskripsi cover <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
-                    </div>
-                    <div class="ticket-info">
-                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                        <div class="bullet pt-2"></div>
-                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-                    </div>
-                    </span>';
-                        break;
-                    case 'Update':
-                        $html .= '<span class="ticket-item" id="newAppend">
-                    <div class="ticket-title"><span><span class="bullet"></span>';
-                        if (!is_null($d->sub_judul_final_his)) {
-                            $html .= ' Sub Judul final <b class="text-dark">' . $d->sub_judul_final_his . '</b> diubah menjadi <b class="text-dark">' . $d->sub_judul_final_new . '</b>.<br>';
-                        } elseif (!is_null($d->sub_judul_final_new)) {
-                            $html .= ' Sub Judul final <b class="text-dark">' . $d->sub_judul_final_new . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->des_front_cover_his)) {
-                            $html .= ' Deskripsi cover depan <b class="text-dark">' . $d->des_front_cover_his . '</b> diubah menjadi <b class="text-dark">' . $d->des_front_cover_new . '</b>.<br>';
-                        } elseif (!is_null($d->des_front_cover_new)) {
-                            $html .= ' Deskripsi cover depan <b class="text-dark">' . $d->des_front_cover_new . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->des_back_cover_his)) {
-                            $html .= ' Deskripsi cover belakang <b class="text-dark">' . $d->des_back_cover_his . '</b> diubah menjadi <b class="text-dark">' . $d->des_back_cover_new . '</b>.<br>';
-                        } elseif (!is_null($d->des_back_cover_new)) {
-                            $html .= ' Deskripsi cover belakang <b class="text-dark">' . $d->des_back_cover_new . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->finishing_cover_his)) {
-                            $loopFC = '';
-                            $loopFCN = '';
-                            foreach (json_decode($d->finishing_cover_his, true) as $fc) {
-                                $loopFC .= '<b class="text-dark">' . $fc . '</b>, ';
-                            }
-                            foreach (json_decode($d->finishing_cover_new, true) as $fcn) {
-                                $loopFCN .= '<span class="bullet"></span>' . $fcn;
-                            }
-                            $html .= ' Finishing cover <b class="text-dark">' . $loopFC . '</b> diubah menjadi <b class="text-dark">' . $loopFCN . '</b>.<br>';
-                        } elseif (!is_null($d->finishing_cover_new)) {
-                            $loopFCNew = '';
-                            foreach (json_decode($d->finishing_cover_new, true) as $fcn) {
-                                $loopFCNew .= '<b class="text-dark">' . $fcn . '</b>, ';
-                            }
-                            $html .= ' Finishing cover ' . $loopFCNew . 'ditambahkan.<br>';
-                        }
-                        if (!is_null($d->format_buku_his)) {
-                            $html .= ' Format buku <b class="text-dark">' . $d->format_buku_his . ' cm</b> diubah menjadi <b class="text-dark">' . $d->format_buku_new . ' cm</b>.<br>';
-                        } elseif (!is_null($d->format_buku_new)) {
-                            $html .= ' Format buku <b class="text-dark">' . $d->format_buku_new . ' cm</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->jilid_his)) {
-                            $html .= ' Jilid <b class="text-dark">' . $d->jilid_his . '</b> diubah menjadi <b class="text-dark">' . $d->jilid_new . '</b>.<br>';
-                        } elseif (!is_null($d->jilid_new)) {
-                            $html .= ' Jilid <b class="text-dark">' . $d->jilid_new . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->tipografi_his)) {
-                            $html .= ' Tipografi <b class="text-dark">' . $d->tipografi_his . '</b> diubah menjadi <b class="text-dark">' . $d->tipografi_new . '</b>.<br>';
-                        } elseif (!is_null($d->tipografi_new)) {
-                            $html .= ' Tipografi <b class="text-dark">' . $d->tipografi_new . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->warna_his)) {
-                            $html .= ' Warna <b class="text-dark">' . $d->warna_his . '</b> diubah menjadi <b class="text-dark">' . $d->warna_new . '</b>.<br>';
-                        } elseif (!is_null($d->warna_new)) {
-                            $html .= ' Warna <b class="text-dark">' . $d->warna_new . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->desainer_his)) {
-                            $html .= ' Desainer <b class="text-dark">'
-                                . DB::table('users')->where('id', $d->desainer_his)->whereNull('deleted_at')->first()->nama .
-                                '</b> diubah menjadi <b class="text-dark">' . DB::table('users')->where('id', $d->desainer_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
-                        } elseif (!is_null($d->desainer_new)) {
-                            $html .= ' Desainer <b class="text-dark">'
-                                . DB::table('users')->where('id', $d->desainer_new)->whereNull('deleted_at')->first()->nama .
-                                '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->kelengkapan_his)) {
-                            $html .= ' Kelengkapan <b class="text-dark">' . $d->kelengkapan_his . '</b> diubah menjadi <b class="text-dark">' . $d->kelengkapan_new . '</b>.<br>';
-                        } elseif (!is_null($d->kelengkapan_new)) {
-                            $html .= ' Kelengkapan <b class="text-dark">' . $d->kelengkapan_new . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->catatan_his)) {
-                            $html .= ' Catatan <b class="text-dark">' . $d->catatan_his . '</b> diubah menjadi <b class="text-dark">' . $d->catatan_new . '</b>.<br>';
-                        } elseif (!is_null($d->catatan_new)) {
-                            $html .= ' Catatan <b class="text-dark">' . $d->catatan_new . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->contoh_cover_his)) {
-                            $html .= ' Link contoh cover <a href="' . $d->contoh_cover_his . '" target="_blank" class="text-dark"><b>' . $d->contoh_cover_his . '</b></a> diubah menjadi <a href="' . $d->contoh_cover_new . '" target="_blank" class="text-dark"><b>' . $d->contoh_cover_new . '</b></a>.<br>';
-                        } elseif (!is_null($d->contoh_cover_new)) {
-                            $html .= ' Link contoh cover <a href="' . $d->contoh_cover_new . '" target="_blank" class="text-dark"><b>' . $d->contoh_cover_new . '</b></a> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->bullet_his)) {
-                            $loopFC = '';
-                            $loopFCN = '';
-                            foreach (json_decode($d->bullet_his, true) as $fc) {
-                                $loopFC .= '<span class="bullet"></span>' . $fc;
-                            }
-                            foreach (json_decode($d->bullet_new, true) as $fcn) {
-                                $loopFCN .= '<span class="bullet"></span>' . $fcn;
-                            }
-                            $html .= ' Bullet <b class="text-dark">' . $loopFC . '</b> diubah menjadi <b class="text-dark">' . $loopFCN . '</b>.<br>';
-                        } elseif (!is_null($d->bullet_new)) {
-                            $loopFCNew = '';
-                            foreach (json_decode($d->bullet_new, true) as $fcn) {
-                                $loopFCNew .= '<span class="bullet"></span>' . $fcn;
-                            }
-                            $html .= ' Bullet ' . $loopFCNew . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->bulan_his)) {
-                            $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->bulan_new)->translatedFormat('F Y') . '</b>.';
-                        }
-                        $html .= '</span></div>
-                    <div class="ticket-info">
-                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                        <div class="bullet pt-2"></div>
-                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                    </div>
-                    </span>';
-                        break;
-                }
-            }
-            return $html;
-        }
-    }
     protected function panelStatusProdev($status = null, $id, $kode, $judul_final, $btn)
     {
         switch ($status) {
@@ -628,5 +473,91 @@ class DeskripsiTurunCetakController extends Controller
             class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
             <div><i class="fas fa-edit"></i></div></a>';
         return $btn;
+    }
+    public function actionAjax(Request $request)
+    {
+        return response()->json([
+            'status' => 'error',
+            'message' => $request->act
+        ]);
+        try {
+            switch ($request->act) {
+                case 'lihat-history':
+                    return $this->lihatHistory($request);
+                    break;
+                case 'update-status-progress':
+                    # code...
+                    break;
+                default:
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Terjadi kesalahan!'
+                    ]);
+                    break;
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function lihatHistory($request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('deskripsi_turun_cetak_history as dtch')
+                ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'dtch.deskripsi_turun_cetak_id')
+                ->join('users as u', 'u.id', '=', 'dtch.author_id')
+                ->where('dtch.deskripsi_turun_cetak_id', $id)
+                ->select('dtch.*', 'u.nama')
+                ->orderBy('dtch.id', 'desc')
+                ->paginate(2);
+
+            foreach ($data as $d) {
+                switch ($d->type_history) {
+                    case 'Status':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Status deskripsi cover <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                    case 'Update':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                    <div class="ticket-title"><span><span class="bullet"></span>';
+
+                        if (!is_null($d->edisi_cetak_his)) {
+                            $html .= ' Edisi cetak tahun <b class="text-dark">' . $d->edisi_cetak_his . ' </b> diubah menjadi <b class="text-dark">' . $d->edisi_cetak_new . ' </b>.<br>';
+                        } elseif (!is_null($d->edisi_cetak_new)) {
+                            $html .= ' Edisi cetak tahun <b class="text-dark">' . $d->edisi_cetak_new . ' </b> ditambahkan.<br>';
+                        }
+                        if (!is_null($d->format_buku_his)) {
+                            $html .= ' Format buku <b class="text-dark">' . $d->format_buku_his . ' cm</b> diubah menjadi <b class="text-dark">' . $d->format_buku_new . ' cm</b>.<br>';
+                        } elseif (!is_null($d->format_buku_new)) {
+                            $html .= ' Format buku <b class="text-dark">' . $d->format_buku_new . ' cm</b> ditambahkan.<br>';
+                        }
+                        if (!is_null($d->bulan_his)) {
+                            $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->bulan_new)->translatedFormat('F Y') . '</b>.';
+                        }
+                        $html .= '</span></div>
+                    <div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                    </div>
+                    </span>';
+                        break;
+                }
+            }
+            return $html;
+        }
     }
 }

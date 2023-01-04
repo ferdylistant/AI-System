@@ -97,8 +97,9 @@ $(function () {
             success: function (result) {
                 // resetFrom(data);
                 notifToast(result.status, result.message);
-                // location.href = result.route;
-                console.log(result);
+                location.href = result.route;
+                // console.log(result);
+                // location.reload();
             },
             error: function (err) {
                 // console.log(err.responseJSON);
@@ -139,5 +140,44 @@ $(function () {
         } else {
             notifToast("error", "Periksa kembali form Anda!");
         }
+    });
+});
+$(document).ready(function () {
+    $("#isiEdisiCetakButton").click(function (e) {
+        e.preventDefault();
+        $("#isiEdisiCetakCol").attr("hidden", "hidden");
+        $("#isiEdisiCetakColInput").removeAttr("hidden");
+    });
+    $(".batal_edit_edisi_cetak").click(function (e) {
+        //user click on remove text
+        e.preventDefault();
+        $("#isiEdisiCetakColInput").attr("hidden", "hidden");
+        $("#isiEdisiCetakCol").removeAttr("hidden");
+    });
+});
+$(document).ready(function () {
+    $("#formatBukuButton").click(function (e) {
+        e.preventDefault();
+        $("#formatBukuCol").attr("hidden", "hidden");
+        $("#formatBukuColInput").removeAttr("hidden");
+    });
+    $(".batal_edit_format").click(function (e) {
+        //user click on remove text
+        e.preventDefault();
+        $("#formatBukuColInput").attr("hidden", "hidden");
+        $("#formatBukuCol").removeAttr("hidden");
+    });
+});
+$(document).ready(function () {
+    $("#bulanButton").click(function (e) {
+        e.preventDefault();
+        $("#bulanCol").attr("hidden", "hidden");
+        $("#bulanColInput").removeAttr("hidden");
+    });
+    $(".batal_edit_bulan").click(function (e) {
+        //user click on remove text
+        e.preventDefault();
+        $("#bulanColInput").attr("hidden", "hidden");
+        $("#bulanCol").removeAttr("hidden");
     });
 });

@@ -185,6 +185,10 @@ class PracetakSetterController extends Controller
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 try {
+                    // return response()->json([
+                    //     'status' => 'error',
+                    //     'message' => date('Y-m', strtotime($request->bulan))
+                    // ]);
                     DB::beginTransaction();
                     $history = DB::table('pracetak_setter as ps')
                         ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
@@ -210,14 +214,13 @@ class PracetakSetterController extends Controller
                     if ($request->proses_saat_ini == 'Turun Cetak') {
                         $cekTidakKosong = DB::table('pracetak_setter')
                             ->where('id', $request->id)
-                            ->whereNotNull('selesai_p_copyright')
                             ->whereNotNull('isbn')
                             ->whereNotNull('pengajuan_harga')
                             ->first();
                         if (is_null($cekTidakKosong)) {
                             return response()->json([
                                 'status' => 'error',
-                                'message' => 'Proses Copyright, ISBN, atau Pengajuan Harga belum diinput!'
+                                'message' => 'ISBN, atau Pengajuan Harga belum diinput!'
                             ]);
                         }
                         $cekSelesaiCover = DB::table('pracetak_cover')
@@ -1072,13 +1075,13 @@ class PracetakSetterController extends Controller
                             foreach (json_decode($d->korektor_new, true) as $kornew) {
                                 $loopKorNEW .= '<span class="bullet"></span>' . DB::table('users')->where('id', $kornew)->first()->nama;
                             }
-                            $html .= ' Copy Editor <b class="text-dark">' . $loopKorHIS . '</b> diubah menjadi <b class="text-dark">' . $loopKorNEW . '</b>.<br>';
+                            $html .= ' Korektot <b class="text-dark">' . $loopKorHIS . '</b> diubah menjadi <b class="text-dark">' . $loopKorNEW . '</b>.<br>';
                         } elseif (!is_null($d->korektor_new)) {
                             $loopKorNEW = '';
                             foreach (json_decode($d->korektor_new, true) as $kornew) {
                                 $loopKorNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $kornew)->first()->nama . '</b>, ';
                             }
-                            $html .= ' Editor <b class="text-dark">' . $loopKorNEW . '</b> ditambahkan.<br>';
+                            $html .= ' Korektor <b class="text-dark">' . $loopKorNEW . '</b> ditambahkan.<br>';
                         }
                         if (!is_null($d->jml_hal_final_his)) {
                             $html .= ' Jumlah halaman final <b class="text-dark">' . $d->jml_hal_final_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_final_new . '</b>.<br>';
