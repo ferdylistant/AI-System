@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 30, 2022 at 10:21 AM
+-- Generation Time: Jan 03, 2023 at 10:22 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -466,6 +466,29 @@ INSERT INTO `deskripsi_produk_history` (`id`, `deskripsi_produk_id`, `type_histo
 (55, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', 'CD', NULL, NULL, '2022-10-21', '2022-10-21', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-21 14:15:13'),
 (56, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'CD', 'DVD', NULL, NULL, '2022-10-21', '2022-10-21', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-21 14:24:45'),
 (57, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'fab4f858e0314d1dbf6b5b834007313e', NULL, NULL, NULL, NULL, '2022-10-21', '2022-10-21', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-21 15:09:50');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `deskripsi_turun_cetak`
+--
+
+CREATE TABLE `deskripsi_turun_cetak` (
+  `id` char(36) NOT NULL,
+  `pracetak_cover_id` char(36) DEFAULT NULL,
+  `pracetak_setter_id` char(36) DEFAULT NULL,
+  `bulan` date DEFAULT NULL,
+  `tgl_masuk` datetime DEFAULT NULL,
+  `tgl_selesai` datetime DEFAULT NULL,
+  `status` enum('Pending','Proses','Selesai','Antrian') DEFAULT 'Antrian'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `deskripsi_turun_cetak`
+--
+
+INSERT INTO `deskripsi_turun_cetak` (`id`, `pracetak_cover_id`, `pracetak_setter_id`, `bulan`, `tgl_masuk`, `tgl_selesai`, `status`) VALUES
+('2c05015a-d003-42d9-8a90-3bb62fc1103a', 'f850c6dc-f70e-4994-990d-e3e75c598002', 'b7c5387e-d145-402a-8116-47c5ab8c414b', '2022-12-01', '2022-10-04 16:34:45', NULL, 'Proses');
 
 -- --------------------------------------------------------
 
@@ -2224,7 +2247,7 @@ CREATE TABLE `pracetak_cover` (
   `turun_cetak` datetime DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `proses` set('0','1') DEFAULT '0',
-  `proses_saat_ini` enum('Antrian Pengajuan Desain','Pengajuan Desain','Approval Prodev','Antrian Desain Back Cover','Desain Back Cover','Antrian Koreksi','Koreksi','Siap Turcet','Turun Cetak') DEFAULT NULL,
+  `proses_saat_ini` enum('Antrian Pengajuan Desain','Pengajuan Desain','Approval Prodev','Antrian Desain Back Cover','Desain Back Cover','Antrian Koreksi','Koreksi','Siap Turcet','Turun Cetak','Desain Revisi') DEFAULT NULL,
   `bulan` date DEFAULT NULL,
   `status` enum('Antrian','Pending','Proses','Selesai','Revisi') DEFAULT 'Antrian'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -2234,7 +2257,7 @@ CREATE TABLE `pracetak_cover` (
 --
 
 INSERT INTO `pracetak_cover` (`id`, `deskripsi_cover_id`, `desainer`, `tgl_masuk_cover`, `mulai_pengajuan_cover`, `selesai_pengajuan_cover`, `mulai_proof`, `selesai_proof`, `mulai_cover`, `selesai_cover`, `korektor`, `mulai_koreksi`, `selesai_koreksi`, `turun_cetak`, `catatan`, `proses`, `proses_saat_ini`, `bulan`, `status`) VALUES
-('f850c6dc-f70e-4994-990d-e3e75c598002', '2c05015a-d003-42d9-8a90-3bb62fc1103a', '[\"3d43ab399ec24c30b39c9b052686416d\"]', '2022-11-02 14:42:25', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0', 'Antrian Pengajuan Desain', '2022-12-01', 'Proses');
+('f850c6dc-f70e-4994-990d-e3e75c598002', '2c05015a-d003-42d9-8a90-3bb62fc1103a', '[\"3d43ab399ec24c30b39c9b052686416d\"]', '2022-11-02 14:42:25', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0', NULL, '2022-12-01', 'Proses');
 
 -- --------------------------------------------------------
 
@@ -2273,7 +2296,36 @@ INSERT INTO `pracetak_cover_history` (`id`, `pracetak_cover_id`, `type_history`,
 (3, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-29 16:51:37'),
 (4, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Pending', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-29 16:57:32'),
 (5, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Antrian', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-29 16:58:31'),
-(6, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-30 09:13:27');
+(6, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-30 09:13:27'),
+(8, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 13:09:50'),
+(9, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 14:53:34'),
+(10, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 14:54:17'),
+(11, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Approval Prodev', 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:01:29'),
+(12, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Approval Prodev', 'Antrian Pengajuan Desain', 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:01:45'),
+(13, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:01:50'),
+(14, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:15:05'),
+(15, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian Pengajuan Desain', 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:18:28'),
+(16, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:18:44'),
+(17, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:19:15'),
+(18, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Progress', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:23:48'),
+(19, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Pending', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:31:08'),
+(20, 'f850c6dc-f70e-4994-990d-e3e75c598002', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Proses', NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:31:39');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pracetak_cover_proof`
+--
+
+CREATE TABLE `pracetak_cover_proof` (
+  `id` bigint(20) NOT NULL,
+  `type_user` enum('Desainer','Korektor') DEFAULT NULL,
+  `type_action` enum('Proof','Revisi','Selesai Revisi') DEFAULT NULL,
+  `pracetak_cover_id` char(36) DEFAULT NULL,
+  `users_id` varchar(36) DEFAULT NULL,
+  `ket_revisi` text DEFAULT NULL,
+  `tgl_action` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -2284,7 +2336,7 @@ INSERT INTO `pracetak_cover_history` (`id`, `pracetak_cover_id`, `type_history`,
 CREATE TABLE `pracetak_cover_selesai` (
   `id` bigint(20) NOT NULL,
   `type` enum('Desainer','Korektor') DEFAULT NULL,
-  `section` enum('Front Cover Design','Front Cover Design Revision','Back Cover Design','Back Cover Design Revision','Koreksi') DEFAULT NULL,
+  `section` enum('Pengajuan Cover','Revisi Pengajuan Cover','Back Cover Design','Back Cover Design Revision','Koreksi') DEFAULT NULL,
   `tahap` tinyint(4) DEFAULT NULL,
   `pracetak_cover_id` char(36) DEFAULT NULL,
   `users_id` varchar(36) DEFAULT NULL,
@@ -2328,7 +2380,7 @@ CREATE TABLE `pracetak_setter` (
 --
 
 INSERT INTO `pracetak_setter` (`id`, `deskripsi_final_id`, `jml_hal_final`, `tgl_masuk_pracetak`, `mulai_setting`, `selesai_setting`, `setter`, `mulai_proof`, `selesai_proof`, `mulai_koreksi`, `selesai_koreksi`, `korektor`, `turun_cetak`, `edisi_cetak`, `mulai_p_copyright`, `selesai_p_copyright`, `isbn`, `pengajuan_harga`, `proses_saat_ini`, `proses`, `bulan`, `catatan`, `status`) VALUES
-('b7c5387e-d145-402a-8116-47c5ab8c414b', '44dfe332-5755-4191-8158-e79d496e1473', 1000, '2022-11-02 14:42:25', '2022-12-21 14:32:49', '2022-12-21 14:33:56', '[\"a4f8d1d67d2e4b9aa2a8e8680a953194\",\"ba360e2a572f45979cb83648fc5e2ec7\"]', '2022-12-09 09:14:40', '2022-12-13 14:55:47', '2022-12-09 09:14:40', '2022-12-21 14:35:28', '[\"12c8a8639d814102b01c7ffc0cd52e71\"]', '2022-12-21 15:38:13', '1', '2022-12-13 15:36:57', '2022-12-22 15:36:57', '2334524534653', 345234234, 'Turun Cetak', '0', '2022-11-01', NULL, 'Selesai');
+('b7c5387e-d145-402a-8116-47c5ab8c414b', '44dfe332-5755-4191-8158-e79d496e1473', 1000, '2022-11-02 14:42:25', '2022-12-21 14:32:49', '2022-12-21 14:33:56', '[\"a4f8d1d67d2e4b9aa2a8e8680a953194\",\"ba360e2a572f45979cb83648fc5e2ec7\"]', '2022-12-09 09:14:40', '2022-12-13 14:55:47', '2022-12-09 09:14:40', '2022-12-21 14:35:28', '[\"12c8a8639d814102b01c7ffc0cd52e71\"]', '2022-12-21 15:38:13', '1', NULL, NULL, '2334524534653', 345234234, 'Turun Cetak', '0', '2022-12-01', NULL, 'Selesai');
 
 -- --------------------------------------------------------
 
@@ -2476,7 +2528,12 @@ INSERT INTO `pracetak_setter_history` (`id`, `pracetak_setter_id`, `type_history
 (97, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-21 15:22:20'),
 (98, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Siap Turcet', 'Turun Cetak', 'be8d42fa88a14406ac201974963d9c1b', '2022-12-21 15:22:37'),
 (99, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-21 15:36:57'),
-(100, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-21 15:38:13');
+(100, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-12-21 15:38:13'),
+(101, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2022-12-13 15:36:57', '2022-12-22 15:36:57', NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-02 14:46:54'),
+(102, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 09:55:32'),
+(103, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, '2022-11-01', '2022-12-01', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-01-02 09:55:32', NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 09:55:43'),
+(104, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-01-02 09:55:43', NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 09:57:33'),
+(105, 'b7c5387e-d145-402a-8116-47c5ab8c414b', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 10:01:09');
 
 -- --------------------------------------------------------
 
@@ -3467,6 +3524,12 @@ ALTER TABLE `deskripsi_produk_history`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `deskripsi_turun_cetak`
+--
+ALTER TABLE `deskripsi_turun_cetak`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `divisi`
 --
 ALTER TABLE `divisi`
@@ -3662,6 +3725,12 @@ ALTER TABLE `pracetak_cover_history`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `pracetak_cover_proof`
+--
+ALTER TABLE `pracetak_cover_proof`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `pracetak_cover_selesai`
 --
 ALTER TABLE `pracetak_cover_selesai`
@@ -3827,7 +3896,13 @@ ALTER TABLE `platform_digital_ebook_history`
 -- AUTO_INCREMENT for table `pracetak_cover_history`
 --
 ALTER TABLE `pracetak_cover_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `pracetak_cover_proof`
+--
+ALTER TABLE `pracetak_cover_proof`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pracetak_cover_selesai`
@@ -3839,7 +3914,7 @@ ALTER TABLE `pracetak_cover_selesai`
 -- AUTO_INCREMENT for table `pracetak_setter_history`
 --
 ALTER TABLE `pracetak_setter_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
 
 --
 -- AUTO_INCREMENT for table `pracetak_setter_proof`

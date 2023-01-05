@@ -132,18 +132,14 @@
                                             @endif
                                         </p>
                                     </div>
-                                    {{-- <div class="list-group-item flex-column align-items-start">
+                                    <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Deskripsi Produk</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @if (is_null($data->des_produk))
-                                                -
-                                            @else
-                                                {{ $data->des_produk }}
-                                            @endif
+                                            <span class="text-danger">Masih Kosong</span>
                                         </p>
-                                    </div> --}}
+                                    </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Tanggal Masuk</h6>
@@ -158,18 +154,18 @@
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    {{-- <div class="list-group-item flex-column align-items-start">
+                                    <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Sasaran Pasar</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @if (is_null($data->sasaran_pasar))
+                                            @if (is_null($sasaran_pasar))
                                                 -
                                             @else
-                                                {{ $data->sasaran_pasar }}
+                                                {{ $sasaran_pasar }}
                                             @endif
                                         </p>
-                                    </div> --}}
+                                    </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Bulan</h6>
@@ -193,19 +189,19 @@
                                                 {{ $pic }}
                                             @endif
                                         </p>
-                                    </div>{{--
+                                    </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Contoh Cover</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            {{-- @if (is_null($data->des_front_cover))
+                                            @if (is_null($data->url_file))
                                                 -
                                             @else
-                                                {{ $data->des_front_cover }}
+                                                <a href="{{ $data->url_file }}">{{ $data->url_file }}</a>
                                             @endif
                                         </p>
-                                    </div> --}}
+                                    </div>
                                 </div>
                             </div>
                         </div>

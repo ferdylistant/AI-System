@@ -181,6 +181,11 @@
 @section('jsNeeded')
     <script>
         $(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
             let tableDesTurunCetak = $('#tb_DesTurCet').DataTable({
                 "bSort": false,
                 "responsive": true,

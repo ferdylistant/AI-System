@@ -62,17 +62,23 @@
                         <div class="col-auto">
                             <i class="fas fa-exclamation-circle"></i>&nbsp;Proses Saat Ini:
                             @switch($data->proses_saat_ini)
+                                @case('Antrian Pengajuan Desain')
+                                    <span class="text-dark"> Antri Pengajuan Desain</span>
+                                    @break
+                                @case('Pengajuan Desain')
+                                    <span class="text-dark"> Pengajuan Desain</span>
+                                    @break
+                                @case('Antrian Desain Back Cover')
+                                    <span class="text-dark" class="text-dark"> Antri Desain Back Cover</span>
+                                    @break
+                                @case('Desain Back Cover')
+                                    <span class="text-dark" class="text-dark"> Desain Back Cover</span>
+                                    @break
+                                @case('Approval Prodev')
+                                    <span class="text-dark"> Approval Prodev</span>
+                                    @break
                                 @case('Antrian Koreksi')
-                                    <span class="text-dark"> Antri Koreksi</span>
-                                    @break
-                                @case('Antrian Setting')
-                                    <span class="text-dark"> Antrian Setting</span>
-                                    @break
-                                @case('Setting')
-                                    <span class="text-dark" class="text-dark"> Setting</span>
-                                    @break
-                                @case('Proof Prodev')
-                                    <span class="text-dark"> Proof Prodev</span>
+                                    <span class="text-dark"> Antrian Koreksi</span>
                                     @break
                                 @case('Koreksi')
                                     <span class="text-dark"> Koreksi</span>
@@ -83,11 +89,8 @@
                                 @case('Turun Cetak')
                                     <span class="text-dark"> Turun Cetak</span>
                                     @break
-                                @case('Upload E-Book')
-                                    <span class="text-dark"> Upload E-Book</span>
-                                    @break
-                                @case('Setting Revisi')
-                                    <span class="text-dark"> Setting Revisi</span>
+                                @case('Desain Revisi')
+                                    <span class="text-dark"> Desain Revisi</span>
                                     @break
                                 @default
                                     <span class="text-danger"> Belum ada proses</span>

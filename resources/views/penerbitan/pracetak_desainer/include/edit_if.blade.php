@@ -143,7 +143,7 @@
                                 <th class="table-secondary" style="width: 25%">Desainer: <span class="text-danger">*</span></th>
                                 @if (is_null($data->desainer) || $data->desainer == '[]')
                                 <td class="table-active text-left">
-                                    <select name="desainer[]" class="form-control select-desainer-editing" multiple="multiple" required>
+                                    <select name="desainer[]" class="form-control select-desainer" multiple="multiple" required>
                                         <option label="Pilih desainer"></option>
                                         @foreach ($desainer as $i => $edList)
                                         <option value="{{ $edList->id }}">
@@ -330,9 +330,9 @@
                 <?php
                 $lbl = $label.' proses koreksi';
                 ?>
-            @elseif ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Setting Revisi') && ($data->status == 'Proses'))
+            @elseif ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Desain Revisi') && ($data->status == 'Proses'))
                 <?php
-                $lbl = $label.' proses revisi setting';
+                $lbl = $label.' proses revisi desain cover';
                 ?>
             @else
                 <?php

@@ -35,9 +35,8 @@ class DesturcetListener
                 ]);
                 break;
             case 'Update Status Desturcet':
-                $res = DB::table('deskripsi_turun_cetak')->where('deskripsi_produk_id', $data['deskripsi_produk_id'])->update([
+                $res = DB::table('deskripsi_turun_cetak')->where('id', $data['id'])->update([
                     'status' => $data['status'],
-                    'updated_by' => $data['updated_by']
                 ]);
                 break;
             case 'Edit Desturcet':

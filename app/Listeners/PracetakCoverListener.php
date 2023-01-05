@@ -90,6 +90,38 @@ class PracetakCoverListener
                 ]);
                 DB::commit();
                 break;
+            case 'Progress Proof Prodev':
+                DB::beginTransaction();
+                $res = DB::table('pracetak_cover')->where('id', $data['id'])->update([
+                    'mulai_proof' => $data['mulai_proof'],
+                    'proses' => $data['proses']
+                ]);
+                DB::table('pracetak_cover_history')->insert([
+                    'pracetak_cover_id' => $data['id'],
+                    'type_history' => $data['type_history'],
+                    'progress' => $data['proses'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                DB::commit();
+                break;
+            case 'Progress Designer-Korektor':
+                DB::beginTransaction();
+                $label = 'mulai_' . $data['label'];
+                $res = DB::table('pracetak_cover')->where('id', $data['id'])->update([
+                    $label => $data[$label],
+                    'proses_saat_ini' => $data['proses_saat_ini'],
+                    'proses' => $data['proses'],
+                ]);
+                DB::table('pracetak_cover_history')->insert([
+                    'pracetak_cover_id' => $data['id'],
+                    'type_history' => $data['type_history'],
+                    'progress' => $data['proses'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                DB::commit();
+                break;
             default:
                 abort(500);
                 break;

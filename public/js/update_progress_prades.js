@@ -14,19 +14,6 @@ $('#tb_PraDes').on('click', '.btn-history', function(e) {
     });
 });
 $(function () {
-    $(document).ajaxError(function(event, xhr, settings, thrownError) {
-        if (xhr.status == 429) {
-          // handle the error case
-          swal({
-            title:
-                "429" ,
-            text: "Too many request!",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        });
-        }
-      });
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");

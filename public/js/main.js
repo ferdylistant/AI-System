@@ -3,18 +3,23 @@ $.ajaxSetup({
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
 });
-
+$(document).ajaxError(function (event, xhr, settings, thrownError) {
+    if (xhr.status == 429) {
+        // handle the error case
+        alert('Request too many!')
+    }
+});
 function jqueryValidation_(element, rules) {
     let _rules = rules === undefined ? {} : rules;
     return $(element).validate({
         errorElement: 'span',
-        errorPlacement: function(error, element) {
+        errorPlacement: function (error, element) {
             console.log(element)
             let name = element.attr('name');
             name = name.replace('[]', '');
             $('#err_' + name).addClass('invalid-feedback').append(error)
         },
-        highlight: function(element) {
+        highlight: function (element) {
             if ($(element).parent().hasClass('image-preview')) {
                 $(element).parent().css('border-color', '#dc3545')
             } else {
@@ -22,7 +27,7 @@ function jqueryValidation_(element, rules) {
             }
 
         },
-        unhighlight: function(element) {
+        unhighlight: function (element) {
             if ($(element).parent().hasClass('image-preview')) {
                 $(element).parent().css('border-color', '#ddd')
             } else {
@@ -48,7 +53,7 @@ function notifToast(stts, msg, reload = false) {
             transitionOut: 'flipOutX',
             transitionInMobile: 'flipInX',
             transitionOutMobile: 'flipOutX',
-            onClosing: function() {
+            onClosing: function () {
                 if (reload) {
                     location.reload();
                 }
@@ -70,13 +75,13 @@ function notifToast(stts, msg, reload = false) {
     }
 }
 
-let resizeImage = function(settings) {
+let resizeImage = function (settings) {
     let file = settings.file;
     let maxSize = settings.maxSize;
     let reader = new FileReader();
     let image = new Image();
     let canvas = document.createElement('canvas');
-    let dataURItoBlob = function(dataURI) {
+    let dataURItoBlob = function (dataURI) {
         let bytes = dataURI.split(',')[0].indexOf('base64') >= 0 ?
             atob(dataURI.split(',')[1]) :
             unescape(dataURI.split(',')[1]);
@@ -89,7 +94,7 @@ let resizeImage = function(settings) {
             type: mime
         });
     };
-    let resize = function() {
+    let resize = function () {
         let width = image.width;
         let height = image.height;
         if (width > height) {
@@ -109,13 +114,13 @@ let resizeImage = function(settings) {
         let dataUrl = canvas.toDataURL('image/jpeg');
         return dataURItoBlob(dataUrl);
     };
-    return new Promise(function(ok, no) {
+    return new Promise(function (ok, no) {
         if (!file.type.match(/image.*/)) {
             no(new Error("Not an image"));
             return;
         }
-        reader.onload = function(readerEvent) {
-            image.onload = function() {
+        reader.onload = function (readerEvent) {
+            image.onload = function () {
                 return ok(resize());
             };
             image.src = readerEvent.target.result;
@@ -124,18 +129,18 @@ let resizeImage = function(settings) {
     });
 };
 
-$(function() {
+$(function () {
     $.ajax({
         type: "POST",
         url: window.location.origin + "/notification",
         data: {},
-        success: function(result) {
+        success: function (result) {
             if (result != '') {
                 $('#containerNotf').children('a').addClass('beep');
                 $('#containerNotf').children('div').children().eq(1).append(result);
             }
         },
-        error: function(err) {
+        error: function (err) {
             $('#containerNotf').children('div').children().eq(1).append(err);
             // console.log(err)
         }

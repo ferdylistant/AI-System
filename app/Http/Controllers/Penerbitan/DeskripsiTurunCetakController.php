@@ -9,8 +9,6 @@ use Illuminate\Support\Arr;
 use App\Events\EditingEvent;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
-use App\Events\PracetakCoverEvent;
-use App\Events\PracetakSetterEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -202,6 +200,7 @@ class DeskripsiTurunCetakController extends Controller
                 'dp.format_buku',
                 'dp.judul_final',
                 'pn.kode',
+                'pn.url_file',
                 'pn.pic_prodev',
                 'pn.jalur_buku',
                 'kb.nama'
@@ -218,14 +217,19 @@ class DeskripsiTurunCetakController extends Controller
             ->where('pnp.naskah_id', '=', $data->naskah_id)
             ->select('pp.nama')
             ->get();
+
+        is_null($data) ? abort(404) :
+            $sasaranPasar = DB::table('penerbitan_pn_prodev')
+            ->where('naskah_id', $data->naskah_id)
+            ->first();
+        $sasaran_pasar = is_null($sasaranPasar) ? null : $sasaranPasar->sasaran_pasar;
         $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first()->nama;
-        // $desainer = DB::table('users')->where('id', $data->desainer)->whereNull('deleted_at')->first()->nama;
         return view('penerbitan.des_turun_cetak.detail', [
             'title' => 'Detail Deskripsi Turun Cetak',
             'data' => $data,
             'penulis' => $penulis,
+            'sasaran_pasar' => $sasaran_pasar,
             'pic' => $pic,
-            // 'desainer' => $desainer,
         ]);
     }
     public function editDeskripsiTurunCetak(Request $request)
@@ -358,13 +362,13 @@ class DeskripsiTurunCetakController extends Controller
             }
             $update = [
                 'params' => 'Update Status Desturcet',
-                'deskripsi_produk_id' => $data->deskripsi_produk_id,
+                'id' => $data->id,
                 'status' => $request->status,
                 'updated_by' => auth()->id()
             ];
             $insert = [
                 'params' => 'Insert History Status Desturcet',
-                'deskripsi_cover_id' => $data->id,
+                'deskripsi_turun_cetak_id' => $data->id,
                 'type_history' => 'Status',
                 'status_his' => $data->status,
                 'status_new'  => $request->status,
@@ -374,38 +378,12 @@ class DeskripsiTurunCetakController extends Controller
             if ($request->status == 'Selesai') {
                 event(new DesturcetEvent($update));
                 event(new DesturcetEvent($insert));
-                $insertEditingProses = [
-                    'params' => 'Insert Editing',
-                    'id' => Uuid::uuid4()->toString(),
-                    'deskripsi_final_id' => $data->deskripsi_final_id,
-                    'editor' => json_encode([$data->editor]),
-                    'tgl_masuk_editing' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                ];
-                event(new EditingEvent($insertEditingProses));
-                $insertPracetakSetter = [
-                    'params' => 'Insert Pracetak Setter',
-                    'id' => Uuid::uuid4()->toString(),
-                    'deskripsi_final_id' => $data->deskripsi_final_id,
-                    'setter' => json_encode([$data->setter]),
-                    'korektor' => json_encode([$data->korektor]),
-                    'jml_hal_final' => $data->jml_hal_perkiraan,
-                    'tgl_masuk_pracetak' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
-                ];
-                event(new PracetakSetterEvent($insertPracetakSetter));
-                $insertPracetakCover = [
-                    'params' => 'Insert Pracetak Cover',
-                    'id' => Uuid::uuid4()->toString(),
-                    'deskripsi_cover_id' => $data->id,
-                    'desainer' => json_encode([$data->desainer]),
-                    'editor' => json_encode([$data->editor]),
-                    'tgl_masuk_cover' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
-                ];
-                event(new PracetakCoverEvent($insertPracetakCover));
-                $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
+
+                $msg = 'Deskripsi turun cetak selesai';
             } else {
                 event(new DesturcetEvent($update));
                 event(new DesturcetEvent($insert));
-                $msg = 'Status progress deskripsi cover berhasil diupdate';
+                $msg = 'Status progress deskripsi turun cetak berhasil diupdate';
             }
             return response()->json([
                 'status' => 'success',
@@ -418,91 +396,8 @@ class DeskripsiTurunCetakController extends Controller
             ]);
         }
     }
-    protected function panelStatusProdev($status = null, $id, $kode, $judul_final, $btn)
-    {
-        switch ($status) {
-            case 'Antrian':
-                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-desturcet" style="background:#34395E;color:white" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
-                        <div>' . $status . '</div></a>';
-                break;
-            case 'Pending':
-                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-desturcet" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
-                        <div>' . $status . '</div></a>';
-                break;
-            case 'Proses':
-                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-desturcet" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
-                        <div>' . $status . '</div></a>';
-                break;
-            case 'Selesai':
-                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-desturcet" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
-                        <div>' . $status . '</div></a>';
-                break;
-            default:
-                return abort(410);
-                break;
-        }
-        return $btn;
-    }
-    protected function panelStatusGuest($status = null, $btn)
-    {
-        switch ($status) {
-            case 'Terkunci':
-                $btn .= '<span class="d-block badge badge-dark mr-1 mt-1"><i class="fas fa-lock"></i>&nbsp;' . $status . '</span>';
-                break;
-            case 'Antrian':
-                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $status . '</span>';
-                break;
-            case 'Pending':
-                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $status . '</span>';
-                break;
-            case 'Proses':
-                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $status . '</span>';
-                break;
-            case 'Selesai':
-                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
-                break;
-            default:
-                return abort(410);
-                break;
-        }
-        return $btn;
-    }
-    protected function buttonEdit($id, $kode, $btn)
-    {
-        $btn .= '<a href="' . url('penerbitan/deskripsi/turun-cetak/edit?desc=' . $id . '&kode=' . $kode) . '"
-            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-            <div><i class="fas fa-edit"></i></div></a>';
-        return $btn;
-    }
-    public function actionAjax(Request $request)
-    {
-        return response()->json([
-            'status' => 'error',
-            'message' => $request->act
-        ]);
-        try {
-            switch ($request->act) {
-                case 'lihat-history':
-                    return $this->lihatHistory($request);
-                    break;
-                case 'update-status-progress':
-                    # code...
-                    break;
-                default:
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Terjadi kesalahan!'
-                    ]);
-                    break;
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-    protected function lihatHistory($request)
+
+    protected function lihatHistoryDesTurunCetak(Request $request)
     {
         if ($request->ajax()) {
             $html = '';
@@ -559,5 +454,62 @@ class DeskripsiTurunCetakController extends Controller
             }
             return $html;
         }
+    }
+
+    protected function panelStatusProdev($status = null, $id, $kode, $judul_final, $btn)
+    {
+        switch ($status) {
+            case 'Antrian':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-desturcet" style="background:#34395E;color:white" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
+                        <div>' . $status . '</div></a>';
+                break;
+            case 'Pending':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-desturcet" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
+                        <div>' . $status . '</div></a>';
+                break;
+            case 'Proses':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-desturcet" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
+                        <div>' . $status . '</div></a>';
+                break;
+            case 'Selesai':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-desturcet" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesTurCet" title="Update Status">
+                        <div>' . $status . '</div></a>';
+                break;
+            default:
+                return abort(410);
+                break;
+        }
+        return $btn;
+    }
+    protected function panelStatusGuest($status = null, $btn)
+    {
+        switch ($status) {
+            case 'Terkunci':
+                $btn .= '<span class="d-block badge badge-dark mr-1 mt-1"><i class="fas fa-lock"></i>&nbsp;' . $status . '</span>';
+                break;
+            case 'Antrian':
+                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Pending':
+                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Proses':
+                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Selesai':
+                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
+                break;
+            default:
+                return abort(410);
+                break;
+        }
+        return $btn;
+    }
+    protected function buttonEdit($id, $kode, $btn)
+    {
+        $btn .= '<a href="' . url('penerbitan/deskripsi/turun-cetak/edit?desc=' . $id . '&kode=' . $kode) . '"
+            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+            <div><i class="fas fa-edit"></i></div></a>';
+        return $btn;
     }
 }
