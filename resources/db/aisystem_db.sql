@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 06, 2023 at 08:20 AM
+-- Generation Time: Jan 06, 2023 at 11:13 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -1326,6 +1326,89 @@ INSERT INTO `notif_detail` (`notif_id`, `user_id`, `seen`, `raw_data`, `created_
 ('c571bb9cd7084c109a3df33b0af3707b', '0ecea60f2691405585fa1aa535368bee', '0', NULL, '2022-11-03 03:23:05', NULL),
 ('1e71ca63928344bfa86c7fabc36089a2', '0ecea60f2691405585fa1aa535368bee', '0', NULL, '2022-11-03 03:52:47', NULL),
 ('921c845740d64daab93952fda72d8df5', 'a400e4bcf70d40d78224043cc95e6241', '0', NULL, '2022-11-03 03:53:53', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_cetak`
+--
+
+CREATE TABLE `order_cetak` (
+  `id` varchar(36) NOT NULL,
+  `kode_order` varchar(8) NOT NULL,
+  `tipe_order` enum('1','2') NOT NULL COMMENT '1:Umum | 2:Rohani',
+  `jenis_mesin` enum('1','2') DEFAULT NULL COMMENT '1= POD, 2= Mesin Besar',
+  `status_cetak` enum('1','2','3') NOT NULL COMMENT '1:Buku Baru | 2:Cetak Ulang Revisi | 3:Cetak Ulang',
+  `pilihan_terbit` enum('1','2') DEFAULT NULL COMMENT '1 = Cetak Fisik,\r\n2 = Cetak Fisik & E-Book',
+  `urgent` enum('0','1') NOT NULL DEFAULT '0' COMMENT '0:Tidak | 1:Ya',
+  `judul_buku` varchar(255) DEFAULT NULL,
+  `sub_judul` varchar(255) DEFAULT NULL,
+  `penulis` varchar(255) DEFAULT NULL,
+  `isbn` varchar(255) DEFAULT NULL,
+  `eisbn` varchar(255) DEFAULT NULL,
+  `penerbit` varchar(255) DEFAULT NULL,
+  `imprint` varchar(255) DEFAULT NULL,
+  `platform_digital` text DEFAULT NULL COMMENT 'array',
+  `status_buku` enum('1','2') DEFAULT NULL COMMENT '1= Reguler,\r\n2= MOU',
+  `kelompok_buku` varchar(255) DEFAULT NULL,
+  `edisi_cetakan` varchar(255) DEFAULT NULL,
+  `posisi_layout` enum('1','2') DEFAULT NULL COMMENT '1= Potrait (Tegak),\r\n2= Landscape (Tidur)',
+  `dami` varchar(2) DEFAULT NULL COMMENT 'Isian tergantung pada posisi_layout',
+  `format_buku` varchar(255) DEFAULT NULL COMMENT 'Isian tergantung pada data dami',
+  `jumlah_halaman` varchar(255) DEFAULT NULL,
+  `kertas_isi` varchar(255) DEFAULT NULL,
+  `warna_isi` varchar(255) DEFAULT NULL,
+  `kertas_cover` varchar(255) DEFAULT NULL,
+  `warna_cover` varchar(255) DEFAULT NULL,
+  `efek_cover` varchar(255) DEFAULT NULL,
+  `jenis_cover` varchar(255) DEFAULT NULL,
+  `jilid` enum('1','2','3','4') DEFAULT NULL COMMENT '1= Bending ,\r\n2= Jahit Kawat ,\r\n3= Jahit Benang,\r\n4= Hardcover',
+  `ukuran_jilid_bending` varchar(10) DEFAULT NULL COMMENT 'Terisi jika jilid nya adalah ''Bending'' (lihat kolom jilid)',
+  `tahun_terbit` year(4) DEFAULT NULL,
+  `buku_jadi` enum('Wrapping','Tidak Wrapping') DEFAULT NULL,
+  `jumlah_cetak` int(10) DEFAULT NULL,
+  `buku_contoh` text DEFAULT NULL,
+  `spp` varchar(30) DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
+  `perlengkapan` text DEFAULT NULL,
+  `tgl_permintaan_jadi` date DEFAULT NULL,
+  `status_penyetujuan` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1 = Pending ~~\r\n2 = Disetujui ~~\r\n3 = Ditolak ~~',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_by` varchar(36) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+  `updated_by` varchar(36) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `deleted_by` varchar(36) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_cetak_penyetujuan`
+--
+
+CREATE TABLE `order_cetak_penyetujuan` (
+  `id` char(36) NOT NULL,
+  `order_cetak_id` char(36) DEFAULT NULL,
+  `m_penerbitan` varchar(36) DEFAULT NULL,
+  `m_stok` varchar(36) DEFAULT NULL,
+  `d_operasional` varchar(36) DEFAULT NULL,
+  `d_keuangan` varchar(36) DEFAULT NULL,
+  `d_utama` varchar(36) DEFAULT NULL,
+  `m_penerbitan_act` enum('1','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 3= Setuju',
+  `m_stok_act` enum('1','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 3= Setuju',
+  `d_operasional_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
+  `d_keuangan_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
+  `d_utama_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
+  `tgl_permintaan_jadi_history` date DEFAULT NULL,
+  `jumlah_cetak_history` int(10) DEFAULT NULL,
+  `diubah_oleh` varchar(36) DEFAULT NULL,
+  `ket_pending` text DEFAULT NULL,
+  `pending_sampai` date DEFAULT NULL,
+  `status_general` enum('Proses','Pending','Selesai') NOT NULL DEFAULT 'Proses',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -2695,60 +2778,6 @@ INSERT INTO `pracetak_setter_selesai` (`id`, `type`, `section`, `tahap`, `pracet
 -- --------------------------------------------------------
 
 --
--- Table structure for table `produksi_order_cetak`
---
-
-CREATE TABLE `produksi_order_cetak` (
-  `id` varchar(36) NOT NULL,
-  `kode_order` varchar(8) NOT NULL,
-  `tipe_order` enum('1','2') NOT NULL COMMENT '1:Umum | 2:Rohani',
-  `jenis_mesin` enum('1','2') DEFAULT NULL COMMENT '1= POD, 2= Mesin Besar',
-  `status_cetak` enum('1','2','3') NOT NULL COMMENT '1:Buku Baru | 2:Cetak Ulang Revisi | 3:Cetak Ulang',
-  `pilihan_terbit` enum('1','2') DEFAULT NULL COMMENT '1 = Cetak Fisik,\r\n2 = Cetak Fisik & E-Book',
-  `urgent` enum('0','1') NOT NULL DEFAULT '0' COMMENT '0:Tidak | 1:Ya',
-  `judul_buku` varchar(255) DEFAULT NULL,
-  `sub_judul` varchar(255) DEFAULT NULL,
-  `penulis` varchar(255) DEFAULT NULL,
-  `isbn` varchar(255) DEFAULT NULL,
-  `eisbn` varchar(255) DEFAULT NULL,
-  `penerbit` varchar(255) DEFAULT NULL,
-  `imprint` varchar(255) DEFAULT NULL,
-  `platform_digital` text DEFAULT NULL COMMENT 'array',
-  `status_buku` enum('1','2') DEFAULT NULL COMMENT '1= Reguler,\r\n2= MOU',
-  `kelompok_buku` varchar(255) DEFAULT NULL,
-  `edisi_cetakan` varchar(255) DEFAULT NULL,
-  `posisi_layout` enum('1','2') DEFAULT NULL COMMENT '1= Potrait (Tegak),\r\n2= Landscape (Tidur)',
-  `dami` varchar(2) DEFAULT NULL COMMENT 'Isian tergantung pada posisi_layout',
-  `format_buku` varchar(255) DEFAULT NULL COMMENT 'Isian tergantung pada data dami',
-  `jumlah_halaman` varchar(255) DEFAULT NULL,
-  `kertas_isi` varchar(255) DEFAULT NULL,
-  `warna_isi` varchar(255) DEFAULT NULL,
-  `kertas_cover` varchar(255) DEFAULT NULL,
-  `warna_cover` varchar(255) DEFAULT NULL,
-  `efek_cover` varchar(255) DEFAULT NULL,
-  `jenis_cover` varchar(255) DEFAULT NULL,
-  `jilid` enum('1','2','3','4') DEFAULT NULL COMMENT '1= Bending ,\r\n2= Jahit Kawat ,\r\n3= Jahit Benang,\r\n4= Hardcover',
-  `ukuran_jilid_bending` varchar(10) DEFAULT NULL COMMENT 'Terisi jika jilid nya adalah ''Bending'' (lihat kolom jilid)',
-  `tahun_terbit` year(4) DEFAULT NULL,
-  `buku_jadi` enum('Wrapping','Tidak Wrapping') DEFAULT NULL,
-  `jumlah_cetak` int(10) DEFAULT NULL,
-  `buku_contoh` text DEFAULT NULL,
-  `spp` varchar(30) DEFAULT NULL,
-  `keterangan` text DEFAULT NULL,
-  `perlengkapan` text DEFAULT NULL,
-  `tgl_permintaan_jadi` date DEFAULT NULL,
-  `status_penyetujuan` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1 = Pending ~~\r\n2 = Disetujui ~~\r\n3 = Ditolak ~~',
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `created_by` varchar(36) DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
-  `updated_by` varchar(36) DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  `deleted_by` varchar(36) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `produksi_order_ebook`
 --
 
@@ -2786,35 +2815,6 @@ CREATE TABLE `produksi_order_ebook` (
 
 INSERT INTO `produksi_order_ebook` (`id`, `kode_order`, `tipe_order`, `judul_buku`, `sub_judul`, `platform_digital`, `penulis`, `eisbn`, `penerbit`, `imprint`, `edisi_cetakan`, `jumlah_halaman`, `kelompok_buku`, `tahun_terbit`, `status_buku`, `spp`, `perlengkapan`, `keterangan`, `tgl_upload`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
 ('62b39571-5192-496b-97df-d7663f2681dd', 'E22-1000', '1', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', '[\"Moco\",\"Indopustaka\",\"Bahanaflix\",\"Esentral\",\"Google Book\"]', 'Yohanes Hendra', '2453442341234', 'Andi', 'PBMR Andi', 'vii/1', 'viii + 325', 'ArchitectPhotop', 2022, '2', NULL, NULL, NULL, '2022-09-14 13:49:49', '2022-09-06 06:49:49', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `produksi_penyetujuan_order_cetak`
---
-
-CREATE TABLE `produksi_penyetujuan_order_cetak` (
-  `id` char(36) NOT NULL,
-  `produksi_order_cetak_id` varchar(36) NOT NULL,
-  `m_penerbitan` varchar(36) DEFAULT NULL,
-  `m_stok` varchar(36) DEFAULT NULL,
-  `d_operasional` varchar(36) DEFAULT NULL,
-  `d_keuangan` varchar(36) DEFAULT NULL,
-  `d_utama` varchar(36) DEFAULT NULL,
-  `m_penerbitan_act` enum('1','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 3= Setuju',
-  `m_stok_act` enum('1','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 3= Setuju',
-  `d_operasional_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
-  `d_keuangan_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
-  `d_utama_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
-  `tgl_permintaan_jadi_history` date DEFAULT NULL,
-  `jumlah_cetak_history` int(10) DEFAULT NULL,
-  `diubah_oleh` varchar(36) DEFAULT NULL,
-  `ket_pending` text DEFAULT NULL,
-  `pending_sampai` date DEFAULT NULL,
-  `status_general` enum('Proses','Pending','Selesai') NOT NULL DEFAULT 'Proses',
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -3729,6 +3729,19 @@ ALTER TABLE `notif`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `order_cetak`
+--
+ALTER TABLE `order_cetak`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `kode_order` (`kode_order`);
+
+--
+-- Indexes for table `order_cetak_penyetujuan`
+--
+ALTER TABLE `order_cetak_penyetujuan`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `password_resets`
 --
 ALTER TABLE `password_resets`
@@ -3884,24 +3897,11 @@ ALTER TABLE `pracetak_setter_selesai`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `produksi_order_cetak`
---
-ALTER TABLE `produksi_order_cetak`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `kode_order` (`kode_order`);
-
---
 -- Indexes for table `produksi_order_ebook`
 --
 ALTER TABLE `produksi_order_ebook`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `kode_order` (`kode_order`);
-
---
--- Indexes for table `produksi_penyetujuan_order_cetak`
---
-ALTER TABLE `produksi_penyetujuan_order_cetak`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `produksi_penyetujuan_order_ebook`
