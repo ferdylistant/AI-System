@@ -132,8 +132,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/deskripsi/turun-cetak', [DeskripsiTurunCetakController::class, 'index'])->name('desturcet.view');
         Route::get('/deskripsi/turun-cetak/detail', [DeskripsiTurunCetakController::class, 'detailDeskripsiTurunCetak'])->name('desturcet.detail');
         Route::match(['get', 'post'], '/deskripsi/turun-cetak/edit', [DeskripsiTurunCetakController::class, 'editDeskripsiTurunCetak'])->name('desturcet.edit');
-        Route::post('/deskripsi/turun-cetak/update-status-progress', [DeskripsiTurunCetakController::class, 'updateStatusProgress']);
-        Route::post('/deskripsi/turun-cetak/lihat-history', [DeskripsiTurunCetakController::class, 'lihatHistoryDesTurunCetak'])->name('desturcet.history');
+        Route::post('/deskripsi/turun-cetak/{act}', [DeskripsiTurunCetakController::class, 'actionAjax']);
         //Editing
         Route::get('/editing', [EditingController::class, 'index'])->name('editing.view');
         Route::get('/editing/detail', [EditingController::class, 'detailEditing'])->name('editing.detail');

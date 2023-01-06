@@ -13,6 +13,9 @@ class SettingController extends Controller
 {
     public function index(Request $request)
     {
+        if (auth()->id() != 'be8d42fa88a14406ac201974963d9c1b') {
+            abort(403);
+        }
         if ($request->ajax()) {
             switch ($request->input('request_')) {
                 case 'table-section':

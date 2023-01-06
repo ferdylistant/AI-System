@@ -301,23 +301,26 @@ class PracetakDesainerController extends Controller
                                 'message' => 'Belum melakukan proses pengajuan cover/desain back cover/koreksi!'
                             ]);
                         }
-                        $cekTidakKosong = DB::table('pracetak_setter')
-                            ->where('id', $request->id_praset)
-                            ->where('status', 'Selesai')
-                            ->first();
-                        if (!is_null($cekTidakKosong)) {
-                            $turcet = [
-                                'params' => 'Insert Turun Cetak',
-                                'id' => Uuid::uuid4()->toString(),
-                                'pracetak_cover_id' => $history->id,
-                                'pracetak_setter_id' => $request->id_praset,
-                                'tgl_masuk' => $tgl
-                            ];
-                            event(new DesturcetEvent($turcet));
+                        if ($history->status == 'Proses') {
+                            $cekTidakKosong = DB::table('pracetak_setter')
+                                ->where('id', $request->id_praset)
+                                ->where('status', 'Selesai')
+                                ->first();
+                            if (!is_null($cekTidakKosong)) {
+                                $turcet = [
+                                    'params' => 'Insert Turun Cetak',
+                                    'id' => Uuid::uuid4()->toString(),
+                                    'pracetak_cover_id' => $history->id,
+                                    'pracetak_setter_id' => $request->id_praset,
+                                    'tgl_masuk' => $tgl,
+                                ];
+                                event(new DesturcetEvent($turcet));
+                            }
+                            DB::table('pracetak_cover')->where('id', $history->id)->update([
+                                'turun_cetak' => $tgl,
+                                'status' => 'Selesai',
+                            ]);
                         }
-                        DB::table('pracetak_cover')->where('id', $history->id)->update([
-                            'status' => 'Selesai',
-                        ]);
                     }
                     $update = [
                         'params' => 'Edit Pracetak Desainer',
@@ -446,7 +449,7 @@ class PracetakDesainerController extends Controller
         $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_cover WHERE Field = 'proses_saat_ini'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $prosesSaatIni = explode("','", $matches[1]);
-        $prosesFilter = Arr::except($prosesSaatIni, ['1', '4','6','9']);
+        $prosesFilter = Arr::except($prosesSaatIni, ['1', '4', '6', '9']);
         return view('penerbitan.pracetak_desainer.edit', [
             'title' => 'Pracetak Setter Proses',
             'data' => $data,
@@ -541,29 +544,29 @@ class PracetakDesainerController extends Controller
             ->orderBy('id', 'desc')
             ->first();
         switch ($label) {
-            case 'setter':
+            case 'desainer':
                 if (is_null($doneProses)) {
                     $result = FALSE;
                 } else {
-                    if (!is_null($data->selesai_koreksi) && is_null($data->selesai_setting)) {
+                    if (is_null($data->selesai_pengajuan_cover) || is_null($data->selesai_cover)) {
                         switch ($doneProses->section) {
-                            case 'Proof Setting':
-                                $result = $data->proses_saat_ini == 'Setting Revisi' ? FALSE : TRUE;
+                            case 'Pengajuan Cover':
+                                $result = $data->proses_saat_ini == 'Desain Revisi' ? TRUE : FALSE;
                                 break;
-                            case 'Setting Revision':
-                                $lastKoreksi = DB::table('pracetak_setter_selesai')
+                            case 'Back Cover Design Revision':
+                                $lastKoreksi = DB::table('pracetak_cover_selesai')
                                     ->where('type', 'Korektor')
                                     ->where('section', 'Koreksi')
-                                    ->where('pracetak_setter_id', $data->id)
+                                    ->where('pracetak_cover_id', $data->id)
                                     ->orderBy('id', 'desc')
                                     ->first();
                                 if ($lastKoreksi->tahap > 1) {
                                     // $tahapKoreksi = $lastKoreksi->tahap + 1;
-                                    $doneSelf = DB::table('pracetak_setter_selesai')
+                                    $doneSelf = DB::table('pracetak_cover_selesai')
                                         ->where('type', ucfirst($label))
-                                        ->where('section', 'Setting Revision')
+                                        ->where('section', 'Back Cover Design')
                                         ->where('tahap', $lastKoreksi->tahap)
-                                        ->where('pracetak_setter_id', $data->id)
+                                        ->where('pracetak_cover_id', $data->id)
                                         ->get();
                                     if (!$doneSelf->isEmpty()) {
 
@@ -574,11 +577,11 @@ class PracetakDesainerController extends Controller
                                             $result = TRUE;
                                         } else {
                                             $tahap = $doneProses->tahap + 1;
-                                            $doneNext = DB::table('pracetak_setter_selesai')
+                                            $doneNext = DB::table('pracetak_cover_selesai')
                                                 ->where('type', ucfirst($label))
-                                                ->where('section', 'Setting Revision')
+                                                ->where('section', 'Back Cover Design')
                                                 ->where('tahap', $tahap)
-                                                ->where('pracetak_setter_id', $data->id)
+                                                ->where('pracetak_cover_id', $data->id)
                                                 ->where('users_id', auth()->user()->id)
                                                 ->first();
                                             if (!is_null($doneNext)) {
@@ -591,11 +594,11 @@ class PracetakDesainerController extends Controller
                                         $result = FALSE;
                                     }
                                 } else {
-                                    $doneSelf = DB::table('pracetak_setter_selesai')
+                                    $doneSelf = DB::table('pracetak_cover_selesai')
                                         ->where('type', ucfirst($label))
-                                        ->where('section', 'Setting Revision')
+                                        ->where('section', 'Back Cover Design')
                                         ->where('tahap', $doneProses->tahap)
-                                        ->where('pracetak_setter_id', $data->id)
+                                        ->where('pracetak_cover_id', $data->id)
                                         ->get();
                                     if (!$doneSelf->isEmpty()) {
 
@@ -607,11 +610,11 @@ class PracetakDesainerController extends Controller
                                             $result = TRUE;
                                         } else {
                                             $tahap = $doneProses->tahap + 1;
-                                            $doneNext = DB::table('pracetak_setter_selesai')
+                                            $doneNext = DB::table('pracetak_cover_selesai')
                                                 ->where('type', ucfirst($label))
-                                                ->where('section', 'Setting Revision')
+                                                ->where('section', 'Back Cover Design')
                                                 ->where('tahap', $tahap)
-                                                ->where('pracetak_setter_id', $data->id)
+                                                ->where('pracetak_cover_id', $data->id)
                                                 ->where('users_id', auth()->user()->id)
                                                 ->first();
                                             if (!is_null($doneNext)) {
@@ -639,18 +642,18 @@ class PracetakDesainerController extends Controller
                 if (is_null($doneProses)) {
                     $result = FALSE;
                 } else {
-                    if (is_null($data->selesai_koreksi) && !is_null($data->selesai_setting)) {
-                        $lastSetting = DB::table('pracetak_setter_selesai')
-                            ->where('type', 'Setter')
-                            ->where('pracetak_setter_id', $data->id)
+                    if (is_null($data->selesai_koreksi) && !is_null($data->selesai_cover)) {
+                        $lastDesign = DB::table('pracetak_cover_selesai')
+                            ->where('type', 'Desainer')
+                            ->where('pracetak_cover_id', $data->id)
                             ->orderBy('id', 'desc')
                             ->first();
-                        if ($lastSetting->tahap > 1) {
-                            $doneSelf = DB::table('pracetak_setter_selesai')
+                        if (($lastDesign->tahap >= 1) && ($lastDesign->section == 'Back Cover Design Revision')) {
+                            $doneSelf = DB::table('pracetak_cover_selesai')
                                 ->where('type', ucfirst($label))
                                 ->where('section', 'Koreksi')
-                                ->where('tahap', $lastSetting->tahap + 1)
-                                ->where('pracetak_setter_id', $data->id)
+                                ->where('tahap', $lastDesign->tahap + 1)
+                                ->where('pracetak_cover_id', $data->id)
                                 ->get();
                             if (!$doneSelf->isEmpty()) {
                                 foreach ($doneSelf as $d) {
@@ -660,11 +663,11 @@ class PracetakDesainerController extends Controller
                                     $result = TRUE;
                                 } else {
                                     $tahap = $doneProses->tahap + 1;
-                                    $doneNext = DB::table('pracetak_setter_selesai')
+                                    $doneNext = DB::table('pracetak_cover_selesai')
                                         ->where('type', ucfirst($label))
                                         ->where('section', 'Koreksi')
                                         ->where('tahap', $tahap)
-                                        ->where('pracetak_setter_id', $data->id)
+                                        ->where('pracetak_cover_id', $data->id)
                                         ->where('users_id', auth()->user()->id)
                                         ->first();
                                     if (!is_null($doneNext)) {
@@ -677,11 +680,11 @@ class PracetakDesainerController extends Controller
                                 $result = FALSE;
                             }
                         } else {
-                            $doneSelf = DB::table('pracetak_setter_selesai')
+                            $doneSelf = DB::table('pracetak_cover_selesai')
                                 ->where('type', ucfirst($label))
                                 ->where('section', 'Koreksi')
                                 ->where('tahap', $doneProses->tahap)
-                                ->where('pracetak_setter_id', $data->id)
+                                ->where('pracetak_cover_id', $data->id)
                                 ->get();
                             if (!$doneSelf->isEmpty()) {
                                 foreach ($doneSelf as $d) {
@@ -691,11 +694,11 @@ class PracetakDesainerController extends Controller
                                     $result = TRUE;
                                 } else {
                                     $tahap = $doneProses->tahap + 1;
-                                    $doneNext = DB::table('pracetak_setter_selesai')
+                                    $doneNext = DB::table('pracetak_cover_selesai')
                                         ->where('type', ucfirst($label))
                                         ->where('section', 'Koreksi')
                                         ->where('tahap', $tahap)
-                                        ->where('pracetak_setter_id', $data->id)
+                                        ->where('pracetak_cover_id', $data->id)
                                         ->where('users_id', auth()->user()->id)
                                         ->first();
                                     if (!is_null($doneNext)) {
@@ -715,12 +718,12 @@ class PracetakDesainerController extends Controller
                 break;
         }
 
-        return view('penerbitan.pracetak_setter.detail', [
-            'title' => 'Detail Pracetak Setter',
+        return view('penerbitan.pracetak_desainer.detail', [
+            'title' => 'Detail Pracetak Cover',
             'data' => $data,
             'penulis' => $penulis,
             'pic' => $pic,
-            'nama_setter' => $namaSetter,
+            'nama_desainer' => $namaDesainer,
             'nama_korektor' => $namaKorektor,
             'label' => $label,
             'dataRole' => $dataRole,
@@ -753,8 +756,8 @@ class PracetakDesainerController extends Controller
                 case 'lihat-informasi-proof':
                     return $this->lihatInformasiProof($request);
                     break;
-                case 'lihat-proses-setkor':
-                    return $this->lihatProgressSetterKorektor($request);
+                case 'lihat-proses-deskor':
+                    return $this->lihatProgressDesainerKorektor($request);
                     break;
                 default:
                     return response()->json([
@@ -785,8 +788,8 @@ class PracetakDesainerController extends Controller
                 }
                 if ($value == '0') {
                     if (is_null($data->selesai_pengajuan_cover) || is_null($data->selesai_cover)) {
-                        $part = is_null($data->selesai_pengajuan_cover)?'pengajuan_cover':'cover';
-                        $mulai = 'mulai_'.$part;
+                        $part = is_null($data->selesai_pengajuan_cover) ? 'pengajuan_cover' : 'cover';
+                        $mulai = 'mulai_' . $part;
                         $dataProgress = [
                             'params' => 'Progress Designer-Korektor',
                             'label' => $part,
@@ -959,6 +962,35 @@ class PracetakDesainerController extends Controller
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
                         event(new PracetakCoverEvent($dataProof));
+                    } elseif (is_null($data->selesai_cover)) {
+                        if (!$request->has('desainer')) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Pilih desainer terlebih dahulu!'
+                            ]);
+                        } else {
+                            if (json_decode($data->desainer, true) == $request->desainer) {
+                                if (is_null($data->mulai_cover)) {
+                                    $tglPengajuan = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                                } else {
+                                    $tglPengajuan = $data->mulai_cover;
+                                }
+                            } else {
+                                $tglPengajuan = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                            }
+                            $dataPengajuan = [
+                                'params' => 'Progress Designer-Korektor',
+                                'label' => 'cover',
+                                'id' => $id,
+                                'mulai_cover' => $tglPengajuan,
+                                'proses' => $value,
+                                'proses_saat_ini' => 'Desain Back Cover',
+                                'type_history' => 'Progress',
+                                'author_id' => auth()->id(),
+                                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                            ];
+                            event(new PracetakCoverEvent($dataPengajuan));
+                        }
                     } else {
                         if (!$request->has('korektor')) {
                             return response()->json([
@@ -1011,8 +1043,8 @@ class PracetakDesainerController extends Controller
             $data = DB::table('pracetak_cover as pc')
                 ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->join('deskripsi_final as df','df.deskripsi_produk_id','=','dp.id')
-                ->join('pracetak_setter as ps','ps.deskripsi_final_id','=','df.id')
+                ->join('deskripsi_final as df', 'df.deskripsi_produk_id', '=', 'dp.id')
+                ->join('pracetak_setter as ps', 'ps.deskripsi_final_id', '=', 'df.id')
                 ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                 ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
                     $q->on('pn.kelompok_buku_id', '=', 'kb.id')
@@ -1098,7 +1130,7 @@ class PracetakDesainerController extends Controller
                 }
                 event(new PracetakCoverEvent($update));
                 event(new PracetakCoverEvent($insert));
-                $dataPraset = DB::table('pracetak_setter')
+                $dataPraset = DB::table('pracetak_cover')
                     ->where('id', $data->praset_id)
                     ->where('status', 'Selesai')
                     ->first();
@@ -1111,7 +1143,7 @@ class PracetakDesainerController extends Controller
                         'params' => 'Insert Turun Cetak',
                         'id' => Uuid::uuid4()->toString(),
                         'pracetak_cover_id' => $data->id,
-                        'pracetak_setter_id' => $data->praset_id,
+                        'pracetak_cover_id' => $data->praset_id,
                         'tgl_masuk' => $tgl,
                     ];
                     event(new DesturcetEvent($in));
@@ -1163,15 +1195,35 @@ class PracetakDesainerController extends Controller
                         </span>';
                         break;
                     case 'Update':
-                        $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
                         if (!is_null($d->status_his)) {
+                            $html .= '<span class="ticket-item">
+                            <div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Status pracetak cover <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
                         }
                         if (!is_null($d->ket_revisi)) {
+                            $html .= '<span class="ticket-item">
+                            <div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Status pracetak cover <b class="text-dark">' . $d->status_new . '</b> dengan keterangan revisi: <b class="text-dark">' . $d->ket_revisi . '</b>.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
                         }
                         if (!is_null($d->desainer_his)) {
+                            $html .= '<span class="ticket-item">
+                            <div class="ticket-title"><span><span class="bullet"></span>';
                             $loopDesainerHIS = '';
                             $loopDesainNEW = '';
                             foreach (json_decode($d->desainer_his, true) as $sethis) {
@@ -1181,14 +1233,34 @@ class PracetakDesainerController extends Controller
                                 $loopDesainNEW .= '<span class="bullet"></span>' . DB::table('users')->where('id', $setnew)->first()->nama;
                             }
                             $html .= ' Desainer <b class="text-dark">' . $loopDesainerHIS . '</b> diubah menjadi <b class="text-dark">' . $loopDesainNEW . '</b>.<br>';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
                         } elseif (!is_null($d->desainer_new)) {
+                            $html .= '<span class="ticket-item">
+                            <div class="ticket-title"><span><span class="bullet"></span>';
                             $loopDesainNEW = '';
                             foreach (json_decode($d->desainer_new, true) as $setnew) {
                                 $loopDesainNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $setnew)->first()->nama . '</b>, ';
                             }
                             $html .= ' Desainer <b class="text-dark">' . $loopDesainNEW . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
                         }
                         if (!is_null($d->korektor_his)) {
+                            $html .= '<span class="ticket-item">
+                            <div class="ticket-title"><span><span class="bullet"></span>';
                             $loopKorHIS = '';
                             $loopKorNEW = '';
                             foreach (json_decode($d->korektor_his, true) as $korhis) {
@@ -1198,49 +1270,7 @@ class PracetakDesainerController extends Controller
                                 $loopKorNEW .= '<span class="bullet"></span>' . DB::table('users')->where('id', $kornew)->first()->nama;
                             }
                             $html .= ' Korektor <b class="text-dark">' . $loopKorHIS . '</b> diubah menjadi <b class="text-dark">' . $loopKorNEW . '</b>.<br>';
-                        } elseif (!is_null($d->korektor_new)) {
-                            $loopKorNEW = '';
-                            foreach (json_decode($d->korektor_new, true) as $kornew) {
-                                $loopKorNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $kornew)->first()->nama . '</b>, ';
-                            }
-                            $html .= ' Korektor <b class="text-dark">' . $loopKorNEW . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->catatan_his)) {
-                            $html .= ' Catatan <b class="text-dark">' . $d->catatan_his . '</b> diubah menjadi <b class="text-dark">' . $d->catatan_new . '</b>.<br>';
-                        } elseif (!is_null($d->catatan_new)) {
-                            $html .= ' Catatan <b class="text-dark">' . $d->catatan_new . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->proses_ini_his)) {
-                            $html .= ' Proses saat ini <b class="text-dark">' . $d->proses_ini_his . '</b> diubah menjadi <b class="text-dark">' . $d->proses_ini_new . '</b>.<br>';
-                        } elseif (!is_null($d->proses_ini_new)) {
-                            $html .= ' Proses saat ini <b class="text-dark">' . $d->proses_ini_new . '</b> ditambahkan.<br>';
-                        }
-                        if (!is_null($d->mulai_pengajuan_cover)) {
-                            $html .= ' Pengajuan desain cover dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_pengajuan_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
-                        } elseif (!is_null($d->selesai_pengajuan_cover)) {
-                            $html .= ' Pengajuan desain cover selesai pada <b class="text-dark">' . Carbon::parse($d->selesai_pengajuan_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
-                        }
-                        if (!is_null($d->mulai_proof)) {
-                            $html .= ' Approval desain cover oleh prodev dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_proof)->translatedFormat('l d F Y, H:i') . '</b>.';
-                        } elseif (!is_null($d->selesai_proof)) {
-                            $html .= ' Desain telah dipilih pada <b class="text-dark">' . Carbon::parse($d->selesai_proof)->translatedFormat('l d F Y, H:i') . '</b>.';
-                        }
-                        if (!is_null($d->mulai_koreksi)) {
-                            $html .= ' Koreksi dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_koreksi)->translatedFormat('l d F Y, H:i') . '</b>.';
-                        } elseif (!is_null($d->selesai_koreksi)) {
-                            $html .= ' Koreksi selesai pada <b class="text-dark">' . Carbon::parse($d->selesai_koreksi)->translatedFormat('l d F Y, H:i') . '</b>.';
-                        }
-                        if (!is_null($d->mulai_cover)) {
-                            $html .= ' Proses back cover dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
-                        } elseif (!is_null($d->selesai_cover)) {
-                            $html .= ' Proses back cover selesai pada <b class="text-dark">' . Carbon::parse($d->selesai_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
-                        }
-                        if (!is_null($d->bulan_his)) {
-                            $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->bulan_new)->translatedFormat('F Y') . '</b>.';
-                        } elseif (!is_null($d->bulan_new)) {
-                            $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> ditambahkan.';
-                        }
-                        $html .= '</span></div>
+                            $html .= '</span></div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
                             <div class="bullet pt-2"></div>
@@ -1248,6 +1278,198 @@ class PracetakDesainerController extends Controller
 
                         </div>
                         </span>';
+                        } elseif (!is_null($d->korektor_new)) {
+                            $html .= '<span class="ticket-item">
+                            <div class="ticket-title"><span><span class="bullet"></span>';
+                            $loopKorNEW = '';
+                            foreach (json_decode($d->korektor_new, true) as $kornew) {
+                                $loopKorNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $kornew)->first()->nama . '</b>, ';
+                            }
+                            $html .= ' Korektor <b class="text-dark">' . $loopKorNEW . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        }
+                        if (!is_null($d->catatan_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Catatan <b class="text-dark">' . $d->catatan_his . '</b> diubah menjadi <b class="text-dark">' . $d->catatan_new . '</b>.<br>';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        } elseif (!is_null($d->catatan_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Catatan <b class="text-dark">' . $d->catatan_new . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        }
+                        if (!is_null($d->proses_ini_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Proses saat ini <b class="text-dark">' . $d->proses_ini_his . '</b> diubah menjadi <b class="text-dark">' . $d->proses_ini_new . '</b>.<br>';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        } elseif (!is_null($d->proses_ini_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Proses saat ini <b class="text-dark">' . $d->proses_ini_new . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        }
+                        if (!is_null($d->mulai_pengajuan_cover)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Pengajuan desain cover dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_pengajuan_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        } elseif (!is_null($d->selesai_pengajuan_cover)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Pengajuan desain cover selesai pada <b class="text-dark">' . Carbon::parse($d->selesai_pengajuan_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        }
+                        if (!is_null($d->mulai_proof)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Approval desain cover oleh prodev dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_proof)->translatedFormat('l d F Y, H:i') . '</b>.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        } elseif (!is_null($d->selesai_proof)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Desain telah dipilih pada <b class="text-dark">' . Carbon::parse($d->selesai_proof)->translatedFormat('l d F Y, H:i') . '</b>.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        }
+                        if (!is_null($d->mulai_koreksi)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Koreksi dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_koreksi)->translatedFormat('l d F Y, H:i') . '</b>.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        } elseif (!is_null($d->selesai_koreksi)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Koreksi selesai pada <b class="text-dark">' . Carbon::parse($d->selesai_koreksi)->translatedFormat('l d F Y, H:i') . '</b>.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        }
+                        if (!is_null($d->mulai_cover)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Proses back cover dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        } elseif (!is_null($d->selesai_cover)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Proses back cover selesai pada <b class="text-dark">' . Carbon::parse($d->selesai_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        }
+                        if (!is_null($d->bulan_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->bulan_new)->translatedFormat('F Y') . '</b>.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        } elseif (!is_null($d->bulan_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> ditambahkan.';
+                            $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                        }
                         break;
                     case 'Progress':
                         $ket = $d->progress == 1 ? 'Dimulai' : 'Dihentikan';
@@ -1272,12 +1494,12 @@ class PracetakDesainerController extends Controller
         if ($request->ajax()) {
             $html = '';
             $id = $request->id;
-            $data = DB::table('pracetak_setter_proof as psp')
-                ->join('pracetak_setter as ps', 'ps.id', '=', 'psp.pracetak_setter_id')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+            $data = DB::table('pracetak_cover_proof as psp')
+                ->join('pracetak_cover as ps', 'ps.id', '=', 'psp.pracetak_cover_id')
+                ->join('deskripsi_cover as dc', 'dc.id', '=', 'ps.deskripsi_cover_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                 ->join('users as u', 'psp.users_id', '=', 'u.id')
-                ->where('psp.pracetak_setter_id', $id)
+                ->where('psp.pracetak_cover_id', $id)
                 ->select('psp.*', 'dp.judul_final', 'u.nama')
                 ->orderBy('psp.id', 'desc')
                 ->paginate(2);
@@ -1286,7 +1508,7 @@ class PracetakDesainerController extends Controller
                     case 'Proof':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Prodev menyetujui hasil setting.</span>
+                            <span><span class="bullet"></span> Prodev menyetujui pengajuan desain.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1298,7 +1520,7 @@ class PracetakDesainerController extends Controller
                     case 'Revisi':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Status pracetak setter <b>Revisi</b> dengan keterangan revisi: <b>' . $d->ket_revisi . '</b>.</span>
+                            <span><span class="bullet"></span> Status pracetak cover <b>Revisi</b> dengan keterangan revisi: <b>' . $d->ket_revisi . '</b>.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1310,7 +1532,7 @@ class PracetakDesainerController extends Controller
                     case 'Selesai Revisi':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Setter telah menyelesaikan revisi dengan persetujuan kabag.</span>
+                            <span><span class="bullet"></span> Desainer telah menyelesaikan revisi dengan persetujuan kabag.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1324,27 +1546,27 @@ class PracetakDesainerController extends Controller
             return $html;
         }
     }
-    protected function lihatProgressSetterKorektor($request)
+    protected function lihatProgressDesainerKorektor($request)
     {
         if ($request->ajax()) {
             $html = '';
             $id = $request->id;
-            $data = DB::table('pracetak_setter_selesai as pss')
-                ->join('pracetak_setter as ps', 'ps.id', '=', 'pss.pracetak_setter_id')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+            $data = DB::table('pracetak_cover_selesai as pss')
+                ->join('pracetak_cover as ps', 'ps.id', '=', 'pss.pracetak_cover_id')
+                ->join('deskripsi_cover as dc', 'dc.id', '=', 'ps.deskripsi_cover_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                 ->join('users as u', 'pss.users_id', '=', 'u.id')
-                ->where('pss.pracetak_setter_id', $id)
+                ->where('pss.pracetak_cover_id', $id)
                 ->select('pss.*', 'dp.judul_final', 'u.nama')
                 ->orderBy('pss.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
-                $labelSetkor = $d->type == 'Setter' ? 'Setting' : 'Koreksi';
+                $labelDeskor = $d->type == 'Desainer' ? 'Desain' : 'Koreksi';
                 switch ($d->section) {
-                    case 'Proof Setting':
+                    case 'Pengajuan Cover':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelSetkor . ' untuk proof oleh prodev telah diselesaikan.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' untuk approval oleh prodev telah diselesaikan.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1353,10 +1575,10 @@ class PracetakDesainerController extends Controller
                         </div>
                         </span>';
                         break;
-                    case 'Proof Setting Revision':
+                    case 'Back Cover Design':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelSetkor . ' hasil revisi untuk proof oleh prodev telah diselesaikan.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' cover selesai untuk dikoreksi.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1365,10 +1587,10 @@ class PracetakDesainerController extends Controller
                         </div>
                         </span>';
                         break;
-                    case 'Setting Revision':
+                    case 'Back Cover Design Revision':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelSetkor . ' hasil revisi tahap ' . $d->tahap . ' dari korektor telah diselesaikan setter.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' hasil revisi tahap ' . $d->tahap . ' dari korektor telah diselesaikan setter.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1380,7 +1602,7 @@ class PracetakDesainerController extends Controller
                     case 'Koreksi':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelSetkor . ' setting naskah tahap ' . $d->tahap . ' oleh korektor telah diselesaikan.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' desain cover tahap ' . $d->tahap . ' oleh korektor telah diselesaikan.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -1392,6 +1614,490 @@ class PracetakDesainerController extends Controller
                 }
             }
             return $html;
+        }
+    }
+    protected function revisionActProdev($request)
+    {
+        try {
+            $data = DB::table('pracetak_cover')->where('id', $request->id)->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terjadi kesalahan!'
+                ]);
+            }
+            $rev = [
+                'params' => 'Act Prodev',
+                'type_user' => 'Desainer',
+                'type_action' => 'Revisi',
+                'pracetak_cover_id' => $request->id, //?Pracetak Cover, Pracetak Cover Proof, & Pracetak Cover History
+                'users_id' => auth()->id(), //?Pracetak Cover Proof & Pracetak Cover History
+                'ket_revisi' => $request->ket_revisi, //?Pracetak Cover Proof, & Pracetak Cover History
+                'tgl_action' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'selesai_proof' => NULL, //?Pracetak Cover & Pracetak Cover History
+                'proses_saat_ini' => 'Desain Revisi', //?Pracetak Cover
+                'proses' => '1', //?Pracetak Cover
+                'type_history' => 'Update', //? Pracetak Cover History
+                'status_his' => $data->status,
+                'status' => 'Revisi' //?Pracetak Cover & Pracetak Cover History
+            ];
+            event(new PracetakCoverEvent($rev));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Desain cover direvisi dengan keterangan!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function approveActProdev($request)
+    {
+        try {
+            $data = DB::table('pracetak_cover')->where('id', $request->id)->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terjadi kesalahan!'
+                ]);
+            }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $done = [
+                'params' => 'Act Prodev',
+                'type_user' => 'Desainer',
+                'type_action' => 'Proof',
+                'pracetak_cover_id' => $request->id, //?Pracetak Cover, Pracetak Cover Proof, & Pracetak Cover History
+                'users_id' => auth()->id(), //?Pracetak Cover Proof & Pracetak Cover History
+                'ket_revisi' => NULL, //?Pracetak Cover Proof, & Pracetak Cover History
+                'tgl_action' => $tgl,
+                'selesai_proof' => $tgl, //?Pracetak Cover & Pracetak Cover History
+                'proses_saat_ini' => NULL, //?Pracetak Cover
+                'proses' => '0', //?Pracetak Cover
+                'type_history' => 'Update', //? Pracetak Cover History
+                'status_his' => $data->status, //? Pracetak Cover History
+                'status' => 'Proses' //?Pracetak Cover & Pracetak Cover History
+            ];
+            event(new PracetakCoverEvent($done));
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function donerevisionActKabag($request)
+    {
+        try {
+            $data = DB::table('pracetak_cover')->where('id', $request->id)->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terjadi kesalahan!'
+                ]);
+            }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $done = [
+                'params' => 'Act Prodev',
+                'type_user' => 'Desainer',
+                'type_action' => 'Selesai Revisi',
+                'pracetak_cover_id' => $request->id, //?Pracetak Cover, Pracetak Cover Proof, & Pracetak Cover History
+                'users_id' => auth()->id(), //?Pracetak Cover Proof & Pracetak Cover History
+                'ket_revisi' => NULL, //?Pracetak Cover Proof, & Pracetak Cover History
+                'tgl_action' => $tgl,
+                'selesai_proof' => NULL, //?Pracetak Cover & Pracetak Cover History
+                'proses_saat_ini' => 'Approval Prodev', //?Pracetak Cover
+                'proses' => '1', //?Pracetak Cover
+                'type_history' => 'Update', //? Pracetak Cover History
+                'status_his' => $data->status, //? Pracetak Cover History
+                'status' => 'Proses' //?Pracetak Cover & Pracetak Cover History
+            ];
+            event(new PracetakCoverEvent($done));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Desain cover telah selesai direvisi!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    public function prosesSelesaiDesigner($autor, $id)
+    {
+        switch ($autor) {
+            case 'desainer':
+                return $this->selesaiDesainer($id);
+                break;
+            case 'korektor':
+                return $this->selesaiKorektor($id);
+                break;
+            default:
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terjadi Kesalahan!'
+                ]);
+                break;
+        }
+    }
+    protected function selesaiDesainer($id)
+    {
+        try {
+            $data = DB::table('pracetak_cover')->where('id', $id)->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data tidak ada'
+                ]);
+            }
+            $dataProsesSelf = DB::table('pracetak_cover_selesai')
+                ->where('type', 'Desainer')
+                ->where('section', 'Pengajuan Cover')
+                ->where('pracetak_cover_id', $data->id)
+                ->where('users_id', auth()->id())
+                ->first();
+            if (!is_null($dataProsesSelf)) {
+                $dataProsesBackCover = DB::table('pracetak_cover_selesai')
+                    ->where('type', 'Desainer')
+                    ->where('section', 'Back Cover Design')
+                    ->where('pracetak_cover_id', $data->id)
+                    ->where('users_id', auth()->id())
+                    ->orderBy('id', 'desc')
+                    ->first();
+                if (!is_null($dataProsesBackCover)) {
+                    $dataProsesBackCoverRevisi = DB::table('pracetak_cover_selesai')
+                        ->where('type', 'Desainer')
+                        ->where('section', 'Back Cover Design Revision')
+                        ->where('pracetak_cover_id', $data->id)
+                        ->where('users_id', auth()->id())
+                        ->orderBy('id', 'desc')
+                        ->first();
+                    if (!is_null($dataProsesBackCoverRevisi)) {
+                        $tahapSelanjutnya = $dataProsesBackCoverRevisi->tahap + 1;
+                        $dataNew = DB::table('pracetak_cover_selesai')
+                            ->where('type', 'Desainer')
+                            ->where('section', 'Back Cover Design Revision')
+                            ->where('tahap', $tahapSelanjutnya)
+                            ->where('pracetak_cover_id', $data->id)
+                            ->get();
+                        $desPros = count($dataNew) + 1;
+                        if ($desPros == count(json_decode($data->desainer, true))) {
+                            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                            $pros = [
+                                'params' => 'Proses Desain-Koreksi Selesai',
+                                'type' => 'Desainer',
+                                'section' => 'Back Cover Design Revision',
+                                'tahap' => $tahapSelanjutnya,
+                                'pracetak_cover_id' => $data->id,
+                                'users_id' => auth()->id(),
+                                'tgl_proses_selesai' => $tgl
+                            ];
+                            event(new PracetakCoverEvent($pros));
+                            $done = [
+                                'params' => 'Desain-Koreksi Selesai',
+                                'label' => 'cover',
+                                'id' => $data->id,
+                                'selesai_cover' => $tgl,
+                                'proses' => '0',
+                                'proses_saat_ini' => 'Antrian Koreksi',
+                                //Pracetak Desainer History
+                                'type_history' => 'Update',
+                                'author_id' => auth()->id()
+                            ];
+                            event(new PracetakCoverEvent($done));
+                            DB::table('pracetak_cover')->where('id', $data->id)->update([
+                                'selesai_koreksi' => NULL
+                            ]);
+                        } else {
+                            $pros = [
+                                'params' => 'Proses Desain-Koreksi Selesai',
+                                'type' => 'Desainer',
+                                'section' => 'Back Cover Design Revision',
+                                'tahap' => $tahapSelanjutnya,
+                                'pracetak_cover_id' => $data->id,
+                                'users_id' => auth()->id(),
+                                'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                            ];
+                            event(new PracetakCoverEvent($pros));
+                        }
+                    } else {
+                        $dataProses = DB::table('pracetak_cover_selesai')
+                            ->where('type', 'Desainer')
+                            ->where('section', 'Back Cover Design Revision')
+                            ->where('tahap', 1)
+                            ->where('pracetak_cover_id', $data->id)
+                            ->get();
+                        $desPros = count($dataProses) + 1;
+                        if ($desPros == count(json_decode($data->desainer, true))) {
+                            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                            $pros = [
+                                'params' => 'Proses Desain-Koreksi Selesai',
+                                'type' => 'Desainer',
+                                'section' => 'Back Cover Design Revision',
+                                'tahap' => 1,
+                                'pracetak_cover_id' => $data->id,
+                                'users_id' => auth()->id(),
+                                'tgl_proses_selesai' => $tgl
+                            ];
+                            event(new PracetakCoverEvent($pros));
+                            $done = [
+                                'params' => 'Desain-Koreksi Selesai',
+                                'label' => 'cover',
+                                'id' => $data->id,
+                                'selesai_cover' => $tgl,
+                                'proses' => '0',
+                                'proses_saat_ini' => 'Antrian Koreksi',
+                                //Pracetak Desainer History
+                                'type_history' => 'Update',
+                                'author_id' => auth()->id()
+                            ];
+                            event(new PracetakCoverEvent($done));
+                            DB::table('pracetak_cover')->where('id', $data->id)->update([
+                                'selesai_koreksi' => NULL
+                            ]);
+                        } else {
+                            $pros = [
+                                'params' => 'Proses Desain-Koreksi Selesai',
+                                'type' => 'Desainer',
+                                'section' => 'Back Cover Design Revision',
+                                'tahap' => 1,
+                                'pracetak_cover_id' => $data->id,
+                                'users_id' => auth()->id(),
+                                'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                            ];
+                            event(new PracetakCoverEvent($pros));
+                        }
+                    }
+                } else {
+                    $dataProses = DB::table('pracetak_cover_selesai')
+                        ->where('type', 'Desainer')
+                        ->where('section', 'Back Cover Design')
+                        ->where('tahap', 1)
+                        ->where('pracetak_cover_id', $data->id)
+                        ->get();
+                    $desPros = count($dataProses) + 1;
+                    if ($desPros == count(json_decode($data->desainer, true))) {
+                        $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                        $pros = [
+                            'params' => 'Proses Desain-Koreksi Selesai',
+                            'type' => 'Desainer',
+                            'section' => 'Back Cover Design',
+                            'tahap' => 1,
+                            'pracetak_cover_id' => $data->id,
+                            'users_id' => auth()->id(),
+                            'tgl_proses_selesai' => $tgl
+                        ];
+                        event(new PracetakCoverEvent($pros));
+                        $done = [
+                            'params' => 'Desain-Koreksi Selesai',
+                            'label' => 'cover',
+                            'id' => $data->id,
+                            'selesai_cover' => $tgl,
+                            'proses' => '0',
+                            'proses_saat_ini' => 'Antrian Koreksi',
+                            //Pracetak Desainer History
+                            'type_history' => 'Update',
+                            'author_id' => auth()->id()
+                        ];
+                        event(new PracetakCoverEvent($done));
+                        DB::table('pracetak_cover')->where('id', $data->id)->update([
+                            'selesai_koreksi' => NULL
+                        ]);
+                    } else {
+                        $pros = [
+                            'params' => 'Proses Desain-Koreksi Selesai',
+                            'type' => 'Desainer',
+                            'section' => 'Back Cover Design',
+                            'tahap' => 1,
+                            'pracetak_cover_id' => $data->id,
+                            'users_id' => auth()->id(),
+                            'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        ];
+                        event(new PracetakCoverEvent($pros));
+                    }
+                }
+            } else {
+                $dataProses = DB::table('pracetak_cover_selesai')
+                    ->where('type', 'Desainer')
+                    ->where('section', 'Pengajuan Cover')
+                    ->where('tahap', 1)
+                    ->where('pracetak_cover_id', $data->id)
+                    ->get();
+                $desPros = count($dataProses) + 1;
+                if ($desPros == count(json_decode($data->desainer, true))) {
+                    $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    $pros = [
+                        'params' => 'Proses Desain-Koreksi Selesai',
+                        'type' => 'Desainer',
+                        'section' => 'Pengajuan Cover',
+                        'tahap' => 1,
+                        'pracetak_cover_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => $tgl
+                    ];
+                    event(new PracetakCoverEvent($pros));
+                    $done = [
+                        'params' => 'Desain-Koreksi Selesai',
+                        'label' => 'pengajuan_cover',
+                        'id' => $data->id,
+                        'selesai_pengajuan_cover' => $tgl,
+                        'proses' => '0',
+                        'proses_saat_ini' => NULL,
+                        //Pracetak Desainer History
+                        'type_history' => 'Update',
+                        'author_id' => auth()->id()
+                    ];
+                    event(new PracetakCoverEvent($done));
+                } else {
+                    $pros = [
+                        'params' => 'Proses Desain-Koreksi Selesai',
+                        'type' => 'Desainer',
+                        'section' => 'Pengajuan Cover',
+                        'tahap' => 1,
+                        'pracetak_cover_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new PracetakCoverEvent($pros));
+                }
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pengerjaan selesai'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function selesaiKorektor($id)
+    {
+        try {
+            $data = DB::table('pracetak_cover')->where('id', $id)->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data tidak ada'
+                ]);
+            }
+            $dataProsesSelf = DB::table('pracetak_cover_selesai')
+                ->where('type', 'Korektor')
+                ->where('section', 'Koreksi')
+                ->where('pracetak_cover_id', $data->id)
+                ->where('users_id', auth()->id())
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if (!is_null($dataProsesSelf)) {
+                $tahapSelanjutnya = $dataProsesSelf->tahap + 1;
+                $dataNew = DB::table('pracetak_cover_selesai')
+                    ->where('type', 'Korektor')
+                    ->where('section', 'Koreksi')
+                    ->where('tahap', $tahapSelanjutnya)
+                    ->where('pracetak_cover_id', $data->id)
+                    ->get();
+                $korPros = count($dataNew) + 1;
+                if ($korPros == count(json_decode($data->korektor, true))) {
+                    $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    $pros = [
+                        'params' => 'Proses Desain-Koreksi Selesai',
+                        'type' => 'Korektor',
+                        'section' => 'Koreksi',
+                        'tahap' => $tahapSelanjutnya,
+                        'pracetak_cover_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => $tgl
+                    ];
+                    event(new PracetakCoverEvent($pros));
+                    $done = [
+                        'params' => 'Desain-Koreksi Selesai',
+                        'label' => 'koreksi',
+                        'id' => $data->id,
+                        'selesai_koreksi' => $tgl,
+                        'proses' => '0',
+                        'proses_saat_ini' => 'Desain Revisi',
+                        //Pracetak Desain History
+                        'type_history' => 'Update',
+                        'author_id' => auth()->id()
+                    ];
+                    event(new PracetakCoverEvent($done));
+                } else {
+                    $pros = [
+                        'params' => 'Proses Desain-Koreksi Selesai',
+                        'type' => 'Korektor',
+                        'section' => 'Koreksi',
+                        'tahap' => $tahapSelanjutnya,
+                        'pracetak_cover_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new PracetakCoverEvent($pros));
+                }
+            } else {
+                $dataProses = DB::table('pracetak_cover_selesai')
+                    ->where('type', 'Korektor')
+                    ->where('section', 'Koreksi')
+                    ->where('tahap', 1)
+                    ->where('pracetak_cover_id', $data->id)
+                    ->get();
+                $korPros = count($dataProses) + 1;
+                if ($korPros == count(json_decode($data->korektor, true))) {
+                    $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    $pros = [
+                        'params' => 'Proses Desain-Koreksi Selesai',
+                        'type' => 'Korektor',
+                        'section' => 'Koreksi',
+                        'tahap' => 1,
+                        'pracetak_cover_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => $tgl
+                    ];
+                    event(new PracetakCoverEvent($pros));
+                    $done = [
+                        'params' => 'Desain-Koreksi Selesai',
+                        'label' => 'koreksi',
+                        'id' => $data->id,
+                        'selesai_koreksi' => $tgl,
+                        'proses' => '0',
+                        'proses_saat_ini' => 'Desain Revisi',
+                        //Pracetak Desainer History
+                        'type_history' => 'Update',
+                        'author_id' => auth()->id()
+                    ];
+                    event(new PracetakCoverEvent($done));
+                } else {
+                    $pros = [
+                        'params' => 'Proses Desain-Koreksi Selesai',
+                        'type' => 'Korektor',
+                        'section' => 'Koreksi',
+                        'tahap' => 1,
+                        'pracetak_cover_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new PracetakCoverEvent($pros));
+                }
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pengerjaan selesai'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
         }
     }
 }

@@ -337,5 +337,14 @@ $(function() {
         });
 
     });
+    $("input[type=\"checkbox\"]").click(function(){
+        //localStorage:
+        localStorage.setItem("option", value);
+    });
+    //localStorage:
+    var itemValue = localStorage.getItem("option");
+    if (itemValue !== null) {
+        $("input[value=\""+itemValue+"\"]").click();
+    }
 });
 
