@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 09, 2023 at 10:31 AM
--- Server version: 10.4.25-MariaDB
--- PHP Version: 7.4.30
+-- Generation Time: Jan 09, 2023 at 05:14 PM
+-- Server version: 10.4.24-MariaDB
+-- PHP Version: 7.4.29
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `andipubl_ais`
+-- Database: `ags_ai`
 --
 
 -- --------------------------------------------------------
@@ -490,7 +490,7 @@ CREATE TABLE `deskripsi_turun_cetak` (
 --
 
 INSERT INTO `deskripsi_turun_cetak` (`id`, `pracetak_cover_id`, `pracetak_setter_id`, `tipe_order`, `bulan`, `tgl_masuk`, `tgl_status_selesai`, `tgl_pil_terbit_selesai`, `status`) VALUES
-('ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', 'f850c6dc-f70e-4994-990d-e3e75c598002', 'b7c5387e-d145-402a-8116-47c5ab8c414b', '1', '2023-01-01', '2023-01-06 13:41:03', '2023-01-09 14:37:51', '2023-01-09 16:29:52', 'Selesai');
+('ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', 'f850c6dc-f70e-4994-990d-e3e75c598002', 'b7c5387e-d145-402a-8116-47c5ab8c414b', '1', '2023-01-01', '2023-01-06 13:41:03', '2023-01-09 14:37:51', '2023-01-09 19:56:54', 'Selesai');
 
 -- --------------------------------------------------------
 
@@ -1431,7 +1431,7 @@ CREATE TABLE `order_cetak` (
 --
 
 INSERT INTO `order_cetak` (`id`, `deskripsi_turun_cetak_id`, `kode_order`, `tipe_order`, `jenis_mesin`, `status_cetak`, `pilihan_terbit`, `urgent`, `penerbit`, `platform_digital`, `posisi_layout`, `dami`, `efek_cover`, `jenis_cover`, `jilid`, `ukuran_jilid_bending`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status_penyetujuan`, `status`, `tgl_masuk`) VALUES
-('6b1cdfd7-287a-4f0e-a98c-32a434f94f1b', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', '23-1000', '1', NULL, '1', NULL, '0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1', 'Antrian', '2023-01-09 16:29:52');
+('dd190773-e637-4459-9d52-d9aa9a5d09fa', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', '23-1000', '1', NULL, '1', NULL, '0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1', 'Antrian', '2023-01-09 19:56:54');
 
 -- --------------------------------------------------------
 
@@ -1507,6 +1507,13 @@ CREATE TABLE `order_ebook` (
   `status` enum('Antrian','Pending','Proses','Selesai') DEFAULT 'Antrian',
   `tgl_masuk` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `order_ebook`
+--
+
+INSERT INTO `order_ebook` (`id`, `deskripsi_turun_cetak_id`, `kode_order`, `tipe_order`, `judul_buku`, `sub_judul`, `platform_digital`, `penulis`, `eisbn`, `penerbit`, `imprint`, `edisi_cetakan`, `jumlah_halaman`, `kelompok_buku`, `tahun_terbit`, `status_buku`, `spp`, `perlengkapan`, `keterangan`, `tgl_upload`, `status`, `tgl_masuk`) VALUES
+('7916a422-105b-4996-ad12-8410720eda28', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', 'E23-1000', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', '2023-01-09 19:56:54');
 
 -- --------------------------------------------------------
 
@@ -2406,7 +2413,7 @@ CREATE TABLE `pilihan_penerbitan` (
 --
 
 INSERT INTO `pilihan_penerbitan` (`id`, `deskripsi_turun_cetak_id`, `pilihan_terbit`, `platform_digital_ebook_id`) VALUES
-('c81fd987-2526-492d-9c92-f6cc699ff077', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', '[\"cetak\"]', NULL);
+('1fa88554-b0e6-48e5-a067-be30e7de1156', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', '[\"cetak\",\"ebook\"]', '[\"Moco\",\"Indopustaka\",\"Bahanaflix\",\"Esentral\"]');
 
 -- --------------------------------------------------------
 
@@ -3219,7 +3226,8 @@ INSERT INTO `user_log` (`id`, `users_id`, `ip_address`, `last_login`, `user_agen
 (79, '0007828bc2a5496bbdd8fbaefe2e1565', '127.0.0.1', '2023-01-06 13:26:55', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
 (80, '3d43ab399ec24c30b39c9b052686416d', '127.0.0.1', '2023-01-06 13:28:39', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
 (81, '0007828bc2a5496bbdd8fbaefe2e1565', '127.0.0.1', '2023-01-06 13:36:52', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
-(82, 'be8d42fa88a14406ac201974963d9c1b', '127.0.0.1', '2023-01-09 11:53:22', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0');
+(82, 'be8d42fa88a14406ac201974963d9c1b', '127.0.0.1', '2023-01-09 11:53:22', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(83, 'be8d42fa88a14406ac201974963d9c1b', '127.0.0.1', '2023-01-09 22:31:02', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0');
 
 -- --------------------------------------------------------
 
@@ -4159,7 +4167,7 @@ ALTER TABLE `pracetak_setter_selesai`
 -- AUTO_INCREMENT for table `user_log`
 --
 ALTER TABLE `user_log`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
