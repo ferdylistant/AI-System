@@ -15,139 +15,164 @@ class OrderEbookController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            switch ($request->input('request_')) {
-                case 'table-order-ebook':
-                    $data = DB::table('order_ebook as ob')
-                        ->join('deskripsi_produk as dp', 'dp.id', '=', 'ob.deskripsi_produk_id')
-                        ->join('deskripsi_final as df', 'df.deskripsi_produk_id', '=', 'dp.id')
-                        ->join('deskripsi_cover as dc', 'dc.deskripsi_produk_id', '=', 'dp.id')
-                        ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                        ->select(
-                            'ob.*',
-                            'pn.kode',
-                            'pn.pic_prodev',
-                            'pn.jalur_buku',
-                            // 'pyoc.m_penerbitan',
-                            // 'pyoc.d_operasional',
-                            // 'pyoc.d_keuangan',
-                            // 'pyoc.d_utama',
-                            // 'pyoc.m_penerbitan_act',
-                            // 'pyoc.d_operasional_act',
-                            // 'pyoc.d_keuangan_act',
-                            // 'pyoc.d_utama_act',
-                            // 'pyoc.pending_sampai',
-                            // 'pyoc.status_general'
-                        )
-                        ->get();
-                    $update = Gate::allows('do_update', 'update-produksi-ebook');
+            $data = DB::table('order_ebook as ob')
+                ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'ob.deskripsi_turun_cetak_id')
+                ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->select(
+                    'ob.*',
+                    'pn.kode',
+                    'pn.pic_prodev',
+                    'pn.jalur_buku',
+                    'pn.id as naskah_id',
+                    'dtc.tipe_order',
+                    'dp.judul_final'
+                    // 'pyoc.m_penerbitan',
+                    // 'pyoc.d_operasional',
+                    // 'pyoc.d_keuangan',
+                    // 'pyoc.d_utama',
+                    // 'pyoc.m_penerbitan_act',
+                    // 'pyoc.d_operasional_act',
+                    // 'pyoc.d_keuangan_act',
+                    // 'pyoc.d_utama_act',
+                    // 'pyoc.pending_sampai',
+                    // 'pyoc.status_general'
+                )
+                ->get();
+            $update = Gate::allows('do_update', 'update-produksi-ebook');
 
-                    return DataTables::of($data)
-                        ->addColumn('no_order', function ($data) {
-                            return $data->kode_order;
+            return DataTables::of($data)
+                ->addColumn('no_order', function ($data) {
+                    return $data->kode_order;
+                })
+                ->addColumn('kode', function ($data) {
+                    return $data->kode;
+                })
+                ->addColumn('tipe_order', function ($data) {
+                    $res = $data->tipe_order == 1 ? 'Umum' : 'Rohani';
+                    return $res;
+                })
+                ->addColumn('judul_final', function ($data) {
+                    return $data->judul_final;
+                })
+                ->addColumn('jalur_buku', function ($data) {
+                    return $data->jalur_buku;
+                })
+                ->addColumn('penulis', function ($data) {
+                    // return $data->penulis;
+                    $result = '';
+                    $res = DB::table('penerbitan_naskah_penulis as pnp')
+                        ->join('penerbitan_penulis as pp', function ($q) {
+                            $q->on('pnp.penulis_id', '=', 'pp.id')
+                                ->whereNull('pp.deleted_at');
                         })
-                        ->addColumn('kode', function ($data) {
-                            return $data->kode;
-                        })
-                        ->addColumn('tipe_order', function ($data) {
-                            if ($data->tipe_order == 1) {
-                                $res = 'Umum';
-                            } elseif ($data->tipe_order == 2) {
-                                $res = 'Rohani';
-                            }
-                            return $res;
-                        })
-                        ->addColumn('judul_buku', function ($data) {
-                            return $data->judul_buku;
-                        })
-                        ->addColumn('tahun_terbit', function ($data) {
-                            if (!is_null($data->tahun_terbit)) {
-                                $res = $data->tahun_terbit;
-                            } else {
-                                $res = '-';
-                            }
-                            return $res;
-                        })
-                        ->addColumn('tgl_upload', function ($data) {
-                            return Carbon::parse($data->tgl_upload)->translatedFormat('d F Y');
-                        })
-                        ->addColumn('eisbn', function ($data) {
-                            if (is_null($data->eisbn)) {
-                                $res = '-';
-                            } else {
-                                $res = $data->eisbn;
-                            }
-                            return $res;
-                        })
-                        // ->addColumn('status_penyetujuan', function ($data) {
-                        //     $badge = '';
-                        //     if ($data->status_general == 'Selesai') {
-                        //         $badge .= '<span class="badge badge-primary">Selesai</span>';
-                        //     } elseif ($data->status_general == 'Pending') {
-                        //         $badge .= '<span class="badge badge-warning">Pending sampai ' . Carbon::parse($data->pending_sampai)->translatedFormat('d M Y') . '</span>';
-                        //     } else {
-                        //         //Manajer Penerbitan
-                        //         if ($data->m_penerbitan_act == '1') {
-                        //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
-                        //         } elseif ($data->m_penerbitan_act == '3') {
-                        //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
-                        //         }
-                        //         //Direksi Operasional
-                        //         if ($data->d_operasional_act == '1') {
-                        //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                        //         } elseif ($data->d_operasional_act == '2') {
-                        //             $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                        //         } elseif ($data->d_operasional_act == '3') {
-                        //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                        //         }
-                        //         //Direksi Keuangan
-                        //         if ($data->d_keuangan_act == '1') {
-                        //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                        //         } elseif ($data->d_keuangan_act == '2') {
-                        //             $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                        //         } elseif ($data->d_keuangan_act == '3') {
-                        //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                        //         }
-                        //         //Direksi Utama
-                        //         if ($data->d_utama_act == '1') {
-                        //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
-                        //         } elseif ($data->d_utama_act == '2') {
-                        //             $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
-                        //         } elseif ($data->d_utama_act == '3') {
-                        //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
-                        //         }
-                        //     }
-                        //     return $badge;
-                        // })
-                        ->addColumn('action', function ($data) use ($update) {
-                            $btn = '<a href="' . url('penerbitan/order-ebook/detail?kode=' . $data->id . '&author=' . $data->created_by) . '"
-                                            class="d-flex btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
+                        ->where('pnp.naskah_id', '=', $data->naskah_id)
+                        ->select('pp.nama')
+                        // ->pluck('pp.nama');
+                        ->get();
+                    foreach ($res as $q) {
+                        $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
+                    }
+                    return $result;
+                    //  $res;
+                })
+                ->addColumn('tahun_terbit', function ($data) {
+                    if (!is_null($data->tahun_terbit)) {
+                        $res = $data->tahun_terbit;
+                    } else {
+                        $res = '-';
+                    }
+                    return $res;
+                })
+                ->addColumn('tgl_upload', function ($data) {
+                    $res = is_null($data->tgl_upload) ? '-' : Carbon::parse($data->tgl_upload)->translatedFormat('d F Y');
+                    return $res;
+                })
+                ->addColumn('eisbn', function ($data) {
+                    if (is_null($data->eisbn)) {
+                        $res = '-';
+                    } else {
+                        $res = $data->eisbn;
+                    }
+                    return $res;
+                })
+                // ->addColumn('status_penyetujuan', function ($data) {
+                //     $badge = '';
+                //     if ($data->status_general == 'Selesai') {
+                //         $badge .= '<span class="badge badge-primary">Selesai</span>';
+                //     } elseif ($data->status_general == 'Pending') {
+                //         $badge .= '<span class="badge badge-warning">Pending sampai ' . Carbon::parse($data->pending_sampai)->translatedFormat('d M Y') . '</span>';
+                //     } else {
+                //         //Manajer Penerbitan
+                //         if ($data->m_penerbitan_act == '1') {
+                //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
+                //         } elseif ($data->m_penerbitan_act == '3') {
+                //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
+                //         }
+                //         //Direksi Operasional
+                //         if ($data->d_operasional_act == '1') {
+                //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                //         } elseif ($data->d_operasional_act == '2') {
+                //             $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                //         } elseif ($data->d_operasional_act == '3') {
+                //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
+                //         }
+                //         //Direksi Keuangan
+                //         if ($data->d_keuangan_act == '1') {
+                //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
+                //         } elseif ($data->d_keuangan_act == '2') {
+                //             $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
+                //         } elseif ($data->d_keuangan_act == '3') {
+                //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
+                //         }
+                //         //Direksi Utama
+                //         if ($data->d_utama_act == '1') {
+                //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+                //         } elseif ($data->d_utama_act == '2') {
+                //             $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+                //         } elseif ($data->d_utama_act == '3') {
+                //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+                //         }
+                //     }
+                //     return $badge;
+                // })
+                ->addColumn('action', function ($data) use ($update) {
+                    $btn = '<a href="' . url('penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode) . '"
+                                            class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                             <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                            if ($update) {
-                                $btn .= '<a href="' . url('penerbitan/order-ebook/edit?kode=' . $data->id . '&author=' . $data->created_by) . '"
-                                            class="d-flex btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
-                            }
-                            return $btn;
-                        })
-                        ->rawColumns([
-                            'no_order',
-                            'kode',
-                            'tipe_order',
-                            'judul_buku',
-                            'tahun_terbit',
-                            'tgl_upload',
-                            'eisbn',
-                            // 'status_penyetujuan',
-                            'action'
-                        ])
-                        ->make(true);
-                    break;
-                default:
-                    abort(500);
-            }
+                    $btn = $this->logicPermissionAction($update,$data->status, $data->id, $data->kode, $data->judul_final, $btn);
+                    return $btn;
+                })
+                ->rawColumns([
+                    'no_order',
+                    'kode',
+                    'tipe_order',
+                    'judul_final',
+                    'jalur_buku',
+                    'penulis',
+                    'tahun_terbit',
+                    'tgl_upload',
+                    'eisbn',
+                    // 'status_penyetujuan',
+                    'action'
+                ])
+                ->make(true);
         }
+        $data = DB::table('order_ebook as ps')
+            ->orderBy('tgl_masuk', 'ASC')
+            ->get();
+        //Status
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook WHERE Field = 'status'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $statusProgress = explode("','", $matches[1]);
         return view('penerbitan.order_ebook.index', [
             'title' => 'Order E-Book',
+            'count' => count($data),
+            'status_progress' => $statusProgress
         ]);
     }
     public function createProduksi(Request $request)
@@ -535,6 +560,77 @@ class OrderEbookController extends Controller
             'p_dirke' => $p_dirke,
             'p_dirut' => $p_dirut,
         ]);
+    }
+    protected function logicPermissionAction($update,$status = null, $id, $kode, $judul_final, $btn)
+    {
+        if ($update) {
+            $btn = $this->buttonEdit($id, $kode, $btn);
+        } else {
+            if ($status == 'Selesai') {
+                if (Gate::allows('do_approval', 'approval-deskripsi-produk') || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
+                    $btn = $this->buttonEdit($id, $kode, $btn);
+                }
+            }
+        }
+
+        if ($update) {
+            $btn = $this->panelStatusAdmin($status, $id, $kode, $judul_final, $btn);
+        } else {
+            $btn = $this->panelStatusGuest($status, $btn);
+        }
+        return $btn;
+    }
+    protected function panelStatusGuest($status = null, $btn)
+    {
+        switch ($status) {
+            case 'Antrian':
+                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Pending':
+                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Proses':
+                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Selesai':
+                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
+                break;
+            default:
+                return abort(410);
+                break;
+        }
+        return $btn;
+    }
+    protected function panelStatusAdmin($status = null, $id, $kode, $judul_final, $btn)
+    {
+        switch ($status) {
+            case 'Antrian':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-orebook" style="background:#34395E;color:white" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusSetter" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Pending':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-orebook" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusSetter" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Proses':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-orebook" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusSetter" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Selesai':
+                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
+                break;
+            default:
+                return abort(410);
+                break;
+        }
+        return $btn;
+    }
+    protected function buttonEdit($id, $kode, $btn)
+    {
+        $btn .= '<a href="' . url('penerbitan/order-ebook/edit?order=' . $id . '&naskah=' . $kode) . '"
+        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+        <div><i class="fas fa-edit"></i></div></a>';
+        return $btn;
     }
     public function ajaxRequest(Request $request, $cat)
     {
@@ -936,31 +1032,35 @@ class OrderEbookController extends Controller
     //         ]);
     //     }
     // }
-        protected function getOrderId($tipeOrder)
-        {
-            $year = date('y');
-            switch($tipeOrder) {
-                case 1: $lastId = DB::table('produksi_order_ebook')
-                                    ->where('kode_order', 'like', 'E'.$year.'-%')
-                                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 1000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 2999")
-                                    ->orderBy('kode_order', 'desc')->first();
+    protected function getOrderId($tipeOrder)
+    {
+        $year = date('y');
+        switch ($tipeOrder) {
+            case 1:
+                $lastId = DB::table('produksi_order_ebook')
+                    ->where('kode_order', 'like', 'E' . $year . '-%')
+                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 1000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 2999")
+                    ->orderBy('kode_order', 'desc')->first();
 
-                        $firstId = '1000';
+                $firstId = '1000';
                 break;
-                case 2: $lastId = DB::table('produksi_order_ebook')
-                                    ->where('kode_order', 'like', 'E'.$year.'-%')
-                                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 3000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 3999")
-                                    ->orderBy('kode_order', 'desc')->first();
-                        $firstId = '3000';
+            case 2:
+                $lastId = DB::table('produksi_order_ebook')
+                    ->where('kode_order', 'like', 'E' . $year . '-%')
+                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 3000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 3999")
+                    ->orderBy('kode_order', 'desc')->first();
+                $firstId = '3000';
                 break;
-                case 3: $lastId = DB::table('produksi_order_ebook')
-                                    ->where('kode_order', 'like', 'E'.$year.'-%')
-                                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 4000")
-                                    ->orderBy('kode_order', 'desc')->first();
-                        $firstId = '4000';
+            case 3:
+                $lastId = DB::table('produksi_order_ebook')
+                    ->where('kode_order', 'like', 'E' . $year . '-%')
+                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 4000")
+                    ->orderBy('kode_order', 'desc')->first();
+                $firstId = '4000';
                 break;
-                default: abort(500);
-            }
-    //  return $lastId.'1234';
+            default:
+                abort(500);
         }
+        //  return $lastId.'1234';
+    }
 }
