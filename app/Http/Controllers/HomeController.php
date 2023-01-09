@@ -68,10 +68,9 @@ class HomeController extends Controller
         $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
         $divisi = DB::table('divisi')->whereNull('deleted_at')->get();
         $naskah = DB::table('penerbitan_naskah')->whereNull('deleted_at')->get();
-        $or_ce = DB::table('produksi_order_cetak as poc')->join('produksi_penyetujuan_order_cetak as ppoc','ppoc.produksi_order_cetak_id','=','poc.id')
-        ->whereNotIn('ppoc.status_general',['Selesai'])
-        ->whereNull('poc.deleted_at')->get();
-        $or_eb = DB::table('produksi_order_ebook as poe')->join('produksi_penyetujuan_order_ebook as ppoe','ppoe.produksi_order_ebook_id','=','poe.id')
+        $or_ce = DB::table('order_cetak as poc')->join('order_cetak_penyetujuan as ppoc','ppoc.order_cetak_id','=','poc.id')
+        ->whereNotIn('ppoc.status_general',['Selesai'])->get();
+        $or_eb = DB::table('order_ebook as poe')->join('order_ebook_penyetujuan as ppoe','ppoe.order_ebook_id','=','poe.id')
         ->whereNotIn('ppoe.status_general',['Selesai'])
         ->whereNull('poe.deleted_at')->get();
         $proses_cetak = DB::table('proses_produksi_cetak')->whereNull('kirim_gudang')->get();

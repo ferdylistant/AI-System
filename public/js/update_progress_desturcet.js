@@ -1,16 +1,22 @@
-$('#tb_DesTurCet').on('click', '.btn-history', function(e) {
-    var id = $(this).data('id');
-    var judul = $(this).data('judulfinal');
-    $.post(window.location.origin +
-        "/penerbitan/deskripsi/turun-cetak/lihat-history", {
-        id: id
-    }, function(data) {
-        $('#titleModalDesturcet').html(
-            '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
-        $('#load_more').data('id', id);
-        $('#dataHistoryDesturcet').html(data);
-        $('#md_DesturcetHistory').modal('show');
-    });
+$("#tb_DesTurCet").on("click", ".btn-history", function (e) {
+    var id = $(this).data("id");
+    var judul = $(this).data("judulfinal");
+    console.log(judul);
+    $.post(
+        window.location.origin +
+            "/penerbitan/deskripsi/turun-cetak/lihat-history",
+        { id: id },
+        function (data) {
+            $("#titleModalDesturcet").html(
+                '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
+                    judul +
+                    '"'
+            );
+            $("#load_more").data("id", id);
+            $("#dataHistoryDesturcet").html(data);
+            $("#md_DesturcetHistory").modal("show");
+        }
+    );
 });
 $(function () {
     $(".load-more").click(function (e) {
@@ -32,6 +38,7 @@ $(function () {
                 $(".load-more").text("Loading...");
             },
             success: function (response) {
+                // console.log(response);
                 if (response.length == 0) {
                     notifToast("error", "Tidak ada data lagi");
                 }
@@ -47,7 +54,6 @@ $(function () {
             },
         });
     });
-
 });
 $(document).ready(function () {
     $(".select-status")
@@ -86,7 +92,7 @@ $(document).ready(function () {
             judul = $(this).data("judul");
         $("#id").val(id);
         $("#kode").val(kode);
-        $("#judulAsli").val(judul);
+        $("#judulFinal").val(judul);
     });
 });
 $(document).ready(function () {
@@ -141,7 +147,7 @@ $(document).ready(function () {
         e.preventDefault();
         if ($(this).valid()) {
             let kode = $(this).find('[name="kode"]').val();
-            let judul = $(this).find('[name="judul_asli"]').val();
+            let judul = $(this).find('[name="judul_final"]').val();
             swal({
                 title:
                     "Yakin mengubah status deskripsi turun cetak " +
@@ -160,5 +166,4 @@ $(document).ready(function () {
             });
         }
     });
-
 });

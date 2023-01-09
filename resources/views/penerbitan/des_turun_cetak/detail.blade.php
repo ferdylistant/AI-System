@@ -35,6 +35,42 @@
                             @endif
                         </div>
                         <div class="card-body">
+                            <?php $gate = Gate::allows('do_approval', 'pilih-penerbitan-turcet'); ?>
+                            @if (($data->status == 'Selesai') && ($gate) && (is_null($pilihan_terbit)))
+                                <form id="fadd_Pilihan_Terbit">
+                                    <h6>Pilihan Terbit :</h6>
+                                    <div class="form-group">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="add_pilihan_terbit[]"
+                                                id="Cetak" value="cetak">
+                                            <label class="form-check-label" for="Cetak">Cetak</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="add_pilihan_terbit[]"
+                                                id="eBook" value="ebook">
+                                            <label class="form-check-label" for="eBook">E-book</label>
+                                        </div>
+                                        <div id="err_pilihan_terbit"></div>
+                                    </div>
+                                    <div class="form-group" style="display:none" id="eB">
+                                        <h6>Platform Ebook :</h6>
+                                        @foreach ($platform_ebook as $ebook)
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="checkbox" name="add_platform_ebook[]"
+                                                    id="{{ $ebook->nama }}" value="{{ $ebook->nama }}">
+                                                <label class="form-check-label"
+                                                    for="{{ $ebook->nama }}">{{ $ebook->nama }}</label>
+                                            </div>
+                                        @endforeach
+                                        <div id="err_pilihan_terbit"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary btn-sm mt-2">Order</button>
+                                    </div>
+
+                                </form>
+                            @endif
+
                             <div class="row mb-4">
                                 <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
@@ -72,6 +108,18 @@
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Tipe Order</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            @if (is_null($data->tipe_order))
+                                                -
+                                            @else
+                                                {{ $data->tipe_order == '1'?'Umum':'Rohani' }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Edisi Cetak Tahun</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
@@ -82,6 +130,8 @@
                                             @endif
                                         </p>
                                     </div>
+                                </div>
+                                <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">ISBN</h6>
@@ -94,8 +144,6 @@
                                             @endif
                                         </p>
                                     </div>
-                                </div>
-                                <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Format Buku</h6>
@@ -132,18 +180,17 @@
                                             @endif
                                         </p>
                                     </div>
-                                    {{-- <div class="list-group-item flex-column align-items-start">
+                                    <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Deskripsi Produk</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @if (is_null($data->des_produk))
-                                                -
-                                            @else
-                                                {{ $data->des_produk }}
-                                            @endif
+                                            <span class="text-danger">Masih Kosong</span>
                                         </p>
-                                    </div> --}}
+                                    </div>
+
+                                </div>
+                                <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Tanggal Masuk</h6>
@@ -156,20 +203,18 @@
                                             @endif
                                         </p>
                                     </div>
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    {{-- <div class="list-group-item flex-column align-items-start">
+                                    <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Sasaran Pasar</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @if (is_null($data->sasaran_pasar))
+                                            @if (is_null($sasaran_pasar))
                                                 -
                                             @else
-                                                {{ $data->sasaran_pasar }}
+                                                {{ $sasaran_pasar }}
                                             @endif
                                         </p>
-                                    </div> --}}
+                                    </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Bulan</h6>
@@ -193,19 +238,19 @@
                                                 {{ $pic }}
                                             @endif
                                         </p>
-                                    </div>{{--
+                                    </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Contoh Cover</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            {{-- @if (is_null($data->des_front_cover))
+                                            @if (is_null($data->url_file))
                                                 -
                                             @else
-                                                {{ $data->des_front_cover }}
+                                                <a href="{{ $data->url_file }}" target="blank">{{ $data->url_file }}</a>
                                             @endif
                                         </p>
-                                    </div> --}}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -238,6 +283,126 @@
 @endsection
 
 @section('jsNeeded')
+    <script>
+        (function() {
+    const form = document.querySelector('#fadd_Pilihan_Terbit');
+    const checkboxes = form.querySelectorAll('input[type=checkbox]');
+    const checkboxLength = checkboxes.length;
+    const firstCheckbox = checkboxLength > 0 ? checkboxes[0] : null;
+
+    function init() {
+        if (firstCheckbox) {
+            for (let i = 0; i < checkboxLength; i++) {
+                checkboxes[i].addEventListener('change', checkValidity);
+            }
+
+            checkValidity();
+        }
+    }
+
+    function isChecked() {
+        for (let i = 0; i < checkboxLength; i++) {
+            if (checkboxes[i].checked) return true;
+        }
+
+        return false;
+    }
+
+    function checkValidity() {
+        const errorMessage = !isChecked() ? 'At least one checkbox must be selected.' : '';
+        firstCheckbox.setCustomValidity(errorMessage);
+    }
+
+    init();
+})();
+
+        $('#fadd_Pilihan_Terbit').on('submit', function(e) {
+            e.preventDefault();
+            if ($(this).valid()) {
+                swal({
+                    text: 'Tambah data Pilihan Terbit?',
+                    icon: 'info',
+                    buttons: true,
+                    dangerMode: true,
+                }).then((confirm_) => {
+                    if (confirm_) {
+                        ajaxAddPilihanTerbit($(this))
+                    }
+                });
+            } else {
+                notifToast("error", "Periksa kembali form Anda!");
+            }
+        })
+        function resetForm(form) {
+            form.trigger("reset");
+            $('[name^="add_pilihan_terbit"]').val("").trigger("change");
+            $('[name^="add_platform_ebook"]').val("").trigger("change");
+        }
+        function ajaxAddPilihanTerbit(data) {
+            let el = data.get(0);
+            // console.log(el);
+            $.ajax({
+                type: "POST",
+                url: window.location.origin + "/penerbitan/deskripsi/turun-cetak/detail?id=" +
+                    "{{ $data->id }}" + "&type=" + "{{ $data->tipe_order }}",
+                data: new FormData(el),
+                processData: false,
+                contentType: false,
+                beforeSend: function() {
+                    $('button[type="submit"]').prop('disabled', true).
+                    addClass('btn-progress')
+                },
+                success: function(result) {
+                    // console.log(result)
+                    if (result.status == 'error') {
+                        resetForm(data);
+                        notifToast(result.status, result.message);
+                    } else {
+                        notifToast(result.status, result.message);
+                        location.href = result.route;
+                    }
+                },
+                error: function(err) {
+                    // console.log(err.responseJSON)
+                    rs = err.responseJSON.errors;
+                    if (rs != undefined) {
+                        err = {};
+                        Object.entries(rs).forEach(entry => {
+                            let [key, value] = entry;
+                            err[key] = value
+                        })
+                        // addNaskah.showErrors(err);
+                    }
+                    notifToast('error', 'Data pilihan terbit gagal disimpan!');
+                },
+                complete: function() {
+                    $('button[type="submit"]').prop('disabled', false).
+                    removeClass('btn-progress')
+                }
+            })
+        }
+
+        $(document).ready(function() {
+            $('#eBook').change(function() {
+                if (this.checked){
+                    // showDetail(this.value);
+                    $('#eB').show('slow');
+                }
+                else {
+                    // just_hide(this.value);
+                    $('#eB').hide('slow')
+                }
+            });
+        });
+
+        // function showDetail(ele) {
+        //     $('#' + ele).show('slow');
+        // }
+
+        // function just_hide(ele) {
+        //     $('#' + ele).hide('slow');
+        // }
+    </script>
 @endsection
 
 @yield('jsNeededForm')

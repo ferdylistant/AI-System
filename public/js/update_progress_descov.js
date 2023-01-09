@@ -31,7 +31,7 @@ $(function () {
                 if (response.length == 0) {
                     notifToast("error", "Tidak ada data lagi");
                 }
-                $("#dataHistoryDescov").append(response);
+                $("#dataHistoryDesturcet").append(response);
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
                 //     // appending posts after last post with class="post"

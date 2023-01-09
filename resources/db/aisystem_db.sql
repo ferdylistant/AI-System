@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 06, 2023 at 11:13 AM
+-- Generation Time: Jan 09, 2023 at 10:31 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -477,9 +477,11 @@ CREATE TABLE `deskripsi_turun_cetak` (
   `id` char(36) NOT NULL,
   `pracetak_cover_id` char(36) DEFAULT NULL,
   `pracetak_setter_id` char(36) DEFAULT NULL,
+  `tipe_order` set('1','2') DEFAULT NULL COMMENT '1= Umum,\r\n2= Rohani',
   `bulan` date DEFAULT NULL,
   `tgl_masuk` datetime DEFAULT NULL,
-  `tgl_selesai` datetime DEFAULT NULL,
+  `tgl_status_selesai` datetime DEFAULT NULL,
+  `tgl_pil_terbit_selesai` datetime DEFAULT NULL,
   `status` enum('Pending','Proses','Selesai','Antrian') DEFAULT 'Antrian'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -487,8 +489,69 @@ CREATE TABLE `deskripsi_turun_cetak` (
 -- Dumping data for table `deskripsi_turun_cetak`
 --
 
-INSERT INTO `deskripsi_turun_cetak` (`id`, `pracetak_cover_id`, `pracetak_setter_id`, `bulan`, `tgl_masuk`, `tgl_selesai`, `status`) VALUES
-('ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', 'f850c6dc-f70e-4994-990d-e3e75c598002', 'b7c5387e-d145-402a-8116-47c5ab8c414b', NULL, '2023-01-06 13:41:03', NULL, 'Antrian');
+INSERT INTO `deskripsi_turun_cetak` (`id`, `pracetak_cover_id`, `pracetak_setter_id`, `tipe_order`, `bulan`, `tgl_masuk`, `tgl_status_selesai`, `tgl_pil_terbit_selesai`, `status`) VALUES
+('ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', 'f850c6dc-f70e-4994-990d-e3e75c598002', 'b7c5387e-d145-402a-8116-47c5ab8c414b', '1', '2023-01-01', '2023-01-06 13:41:03', '2023-01-09 14:37:51', '2023-01-09 16:29:52', 'Selesai');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `deskripsi_turun_cetak_history`
+--
+
+CREATE TABLE `deskripsi_turun_cetak_history` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `deskripsi_turun_cetak_id` char(36) DEFAULT NULL,
+  `type_history` enum('Status','Update','Pilihan Terbit') DEFAULT NULL,
+  `edisi_cetak_his` varchar(100) DEFAULT NULL,
+  `edisi_cetak_new` varchar(100) DEFAULT NULL,
+  `format_buku_his` varchar(15) DEFAULT NULL,
+  `format_buku_new` varchar(15) DEFAULT NULL,
+  `tipe_order_his` set('1','2') DEFAULT NULL,
+  `tipe_order_new` set('1','2') DEFAULT NULL,
+  `bulan_his` date DEFAULT NULL,
+  `bulan_new` date DEFAULT NULL,
+  `status_his` varchar(8) DEFAULT NULL,
+  `status_new` varchar(8) DEFAULT NULL,
+  `tgl_pil_terbit_selesai` datetime DEFAULT NULL,
+  `author_id` varchar(36) DEFAULT NULL,
+  `modified_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `deskripsi_turun_cetak_history`
+--
+
+INSERT INTO `deskripsi_turun_cetak_history` (`id`, `deskripsi_turun_cetak_id`, `type_history`, `edisi_cetak_his`, `edisi_cetak_new`, `format_buku_his`, `format_buku_new`, `tipe_order_his`, `tipe_order_new`, `bulan_his`, `bulan_new`, `status_his`, `status_new`, `tgl_pil_terbit_selesai`, `author_id`, `modified_at`) VALUES
+(1, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', '1 Edit', '1 Edit aJa', '15 x 15', '20 x 28', NULL, NULL, '2023-01-01', '2023-02-01', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:35:46'),
+(2, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', '1 Edit aJa', '2 Edit', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:36:41'),
+(3, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', NULL, NULL, '20 x 28', '20 x 20', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:36:59'),
+(4, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, '2023-02-01', '2023-01-01', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 15:37:07'),
+(5, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', '2 Edit', '2 Series', '20 x 20', '18 x 18', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-03 16:09:11'),
+(6, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', '2 Series', '2 Series Penerbit', '18 x 18', '20 x 28', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-04 14:21:41'),
+(7, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Pending', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-04 15:16:04'),
+(8, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Antrian', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-04 15:20:20'),
+(9, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Selesai', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-04 15:20:29'),
+(10, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Selesai', 'Pending', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-04 15:22:15'),
+(11, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Proses', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-04 15:22:46'),
+(12, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Antrian', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-04 15:26:13'),
+(13, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Selesai', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-04 15:26:57'),
+(14, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', '2 Series Penerbit', 'XXI/2 Series Penerbit', '20 x 28', '25 x 17,6', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-04 15:41:10'),
+(15, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-05 09:07:56'),
+(16, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Update', 'XXI/2 Series Penerbit', 'XXI / Penerbit', '25 x 17,6', '10 x 15', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-05 09:17:40'),
+(17, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Selesai', 'Antrian', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-05 09:38:47'),
+(18, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Pending', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-05 09:39:08'),
+(19, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Proses', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-06 08:20:48'),
+(20, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-06 08:48:16'),
+(21, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Selesai', 'Pending', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-06 13:39:26'),
+(22, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Proses', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-06 13:43:18'),
+(23, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-06 13:44:01'),
+(24, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Selesai', 'Proses', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-06 16:13:36'),
+(25, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-06 16:14:54'),
+(26, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Selesai', 'Proses', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-09 09:44:37'),
+(27, '2c05015a-d003-42d9-8a90-3bb62fc1103a', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-09 09:47:20'),
+(28, 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-09 13:31:57'),
+(29, 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', 'Update', NULL, NULL, NULL, NULL, NULL, '1', NULL, '2023-01-01', NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-09 13:41:11'),
+(30, 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-09 14:37:51');
 
 -- --------------------------------------------------------
 
@@ -1334,32 +1397,18 @@ INSERT INTO `notif_detail` (`notif_id`, `user_id`, `seen`, `raw_data`, `created_
 --
 
 CREATE TABLE `order_cetak` (
-  `id` varchar(36) NOT NULL,
+  `id` char(36) NOT NULL,
+  `deskripsi_turun_cetak_id` char(36) DEFAULT NULL,
   `kode_order` varchar(8) NOT NULL,
   `tipe_order` enum('1','2') NOT NULL COMMENT '1:Umum | 2:Rohani',
   `jenis_mesin` enum('1','2') DEFAULT NULL COMMENT '1= POD, 2= Mesin Besar',
   `status_cetak` enum('1','2','3') NOT NULL COMMENT '1:Buku Baru | 2:Cetak Ulang Revisi | 3:Cetak Ulang',
   `pilihan_terbit` enum('1','2') DEFAULT NULL COMMENT '1 = Cetak Fisik,\r\n2 = Cetak Fisik & E-Book',
   `urgent` enum('0','1') NOT NULL DEFAULT '0' COMMENT '0:Tidak | 1:Ya',
-  `judul_buku` varchar(255) DEFAULT NULL,
-  `sub_judul` varchar(255) DEFAULT NULL,
-  `penulis` varchar(255) DEFAULT NULL,
-  `isbn` varchar(255) DEFAULT NULL,
-  `eisbn` varchar(255) DEFAULT NULL,
   `penerbit` varchar(255) DEFAULT NULL,
-  `imprint` varchar(255) DEFAULT NULL,
   `platform_digital` text DEFAULT NULL COMMENT 'array',
-  `status_buku` enum('1','2') DEFAULT NULL COMMENT '1= Reguler,\r\n2= MOU',
-  `kelompok_buku` varchar(255) DEFAULT NULL,
-  `edisi_cetakan` varchar(255) DEFAULT NULL,
   `posisi_layout` enum('1','2') DEFAULT NULL COMMENT '1= Potrait (Tegak),\r\n2= Landscape (Tidur)',
   `dami` varchar(2) DEFAULT NULL COMMENT 'Isian tergantung pada posisi_layout',
-  `format_buku` varchar(255) DEFAULT NULL COMMENT 'Isian tergantung pada data dami',
-  `jumlah_halaman` varchar(255) DEFAULT NULL,
-  `kertas_isi` varchar(255) DEFAULT NULL,
-  `warna_isi` varchar(255) DEFAULT NULL,
-  `kertas_cover` varchar(255) DEFAULT NULL,
-  `warna_cover` varchar(255) DEFAULT NULL,
   `efek_cover` varchar(255) DEFAULT NULL,
   `jenis_cover` varchar(255) DEFAULT NULL,
   `jilid` enum('1','2','3','4') DEFAULT NULL COMMENT '1= Bending ,\r\n2= Jahit Kawat ,\r\n3= Jahit Benang,\r\n4= Hardcover',
@@ -1373,13 +1422,34 @@ CREATE TABLE `order_cetak` (
   `perlengkapan` text DEFAULT NULL,
   `tgl_permintaan_jadi` date DEFAULT NULL,
   `status_penyetujuan` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1 = Pending ~~\r\n2 = Disetujui ~~\r\n3 = Ditolak ~~',
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `created_by` varchar(36) DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
-  `updated_by` varchar(36) DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  `deleted_by` varchar(36) DEFAULT NULL
+  `status` enum('Antrian','Pending','Proses','Selesai') DEFAULT 'Antrian',
+  `tgl_masuk` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `order_cetak`
+--
+
+INSERT INTO `order_cetak` (`id`, `deskripsi_turun_cetak_id`, `kode_order`, `tipe_order`, `jenis_mesin`, `status_cetak`, `pilihan_terbit`, `urgent`, `penerbit`, `platform_digital`, `posisi_layout`, `dami`, `efek_cover`, `jenis_cover`, `jilid`, `ukuran_jilid_bending`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status_penyetujuan`, `status`, `tgl_masuk`) VALUES
+('6b1cdfd7-287a-4f0e-a98c-32a434f94f1b', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', '23-1000', '1', NULL, '1', NULL, '0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1', 'Antrian', '2023-01-09 16:29:52');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_cetak_history`
+--
+
+CREATE TABLE `order_cetak_history` (
+  `id` bigint(20) NOT NULL,
+  `order_cetak_id` char(36) DEFAULT NULL,
+  `type_history` enum('Update','Approval','Revisi','Status') DEFAULT NULL,
+  `status_his` varchar(8) DEFAULT NULL,
+  `status_new` varchar(8) DEFAULT NULL,
+  `alasan_revisi` text DEFAULT NULL,
+  `deadline_revisi` datetime DEFAULT NULL,
+  `author_id` varchar(36) DEFAULT NULL,
+  `modified_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1401,14 +1471,76 @@ CREATE TABLE `order_cetak_penyetujuan` (
   `d_keuangan_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
   `d_utama_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= Belum, 2= Pending, 3= Setuju',
   `tgl_permintaan_jadi_history` date DEFAULT NULL,
-  `jumlah_cetak_history` int(10) DEFAULT NULL,
-  `diubah_oleh` varchar(36) DEFAULT NULL,
   `ket_pending` text DEFAULT NULL,
   `pending_sampai` date DEFAULT NULL,
   `status_general` enum('Proses','Pending','Selesai') NOT NULL DEFAULT 'Proses',
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `tgl_action` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_ebook`
+--
+
+CREATE TABLE `order_ebook` (
+  `id` char(36) NOT NULL,
+  `deskripsi_turun_cetak_id` char(36) DEFAULT NULL,
+  `kode_order` varchar(9) NOT NULL,
+  `tipe_order` enum('1','2') DEFAULT NULL COMMENT '1= Umum, 2= Rohani',
+  `judul_buku` varchar(50) DEFAULT NULL,
+  `sub_judul` varchar(100) DEFAULT NULL,
+  `platform_digital` text DEFAULT NULL COMMENT 'array',
+  `penulis` varchar(70) DEFAULT NULL,
+  `eisbn` varchar(100) DEFAULT NULL,
+  `penerbit` varchar(100) DEFAULT NULL,
+  `imprint` varchar(100) DEFAULT NULL,
+  `edisi_cetakan` varchar(20) DEFAULT NULL,
+  `jumlah_halaman` varchar(100) DEFAULT NULL,
+  `kelompok_buku` varchar(100) DEFAULT NULL,
+  `tahun_terbit` year(4) DEFAULT NULL,
+  `status_buku` enum('1','2') DEFAULT NULL COMMENT '1= Reguler, 2= MOU',
+  `spp` varchar(25) DEFAULT NULL,
+  `perlengkapan` text DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
+  `tgl_upload` datetime DEFAULT NULL,
+  `status` enum('Antrian','Pending','Proses','Selesai') DEFAULT 'Antrian',
+  `tgl_masuk` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_ebook_penyetujuan`
+--
+
+CREATE TABLE `order_ebook_penyetujuan` (
+  `id` char(36) NOT NULL,
+  `order_ebook_id` char(36) NOT NULL,
+  `m_penerbitan` varchar(36) DEFAULT NULL,
+  `d_operasional` varchar(36) DEFAULT NULL,
+  `d_keuangan` varchar(36) DEFAULT NULL,
+  `d_utama` varchar(36) DEFAULT NULL,
+  `m_penerbitan_act` enum('1','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 3= Setuju',
+  `d_operasional_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
+  `d_keuangan_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
+  `d_utama_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
+  `tgl_upload_history` datetime DEFAULT NULL,
+  `ket_pending` text DEFAULT NULL,
+  `pending_sampai` date DEFAULT NULL,
+  `status_general` enum('Proses','Pending','Selesai') DEFAULT 'Proses',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `order_ebook_penyetujuan`
+--
+
+INSERT INTO `order_ebook_penyetujuan` (`id`, `order_ebook_id`, `m_penerbitan`, `d_operasional`, `d_keuangan`, `d_utama`, `m_penerbitan_act`, `d_operasional_act`, `d_keuangan_act`, `d_utama_act`, `tgl_upload_history`, `ket_pending`, `pending_sampai`, `status_general`, `created_at`, `updated_at`) VALUES
+('370ec5ac-8280-4bc9-9969-03191d57db92', '62b39571-5192-496b-97df-d7663f2681dd', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '1', '1', NULL, NULL, NULL, 'Proses', '2022-09-06 06:49:49', '2022-09-06 06:49:52'),
+('7c559112-bce4-489f-9972-427cdf81639c', '329fb5c2-531c-4f61-a6cd-4aaf812f76a9', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '1', '1', NULL, NULL, NULL, 'Proses', '2022-09-06 06:24:12', '2022-09-06 06:25:21'),
+('d1bbaf8f-ad71-4b01-8fef-11c9b7308d59', 'd9079338-1709-4ac5-b845-15314c079e9d', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '1', '1', NULL, NULL, NULL, 'Proses', '2022-09-06 04:58:55', '2022-09-06 04:59:08');
 
 -- --------------------------------------------------------
 
@@ -2205,6 +2337,7 @@ INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALU
 ('683c46bd6f8d48e286f0da3767098c2e', 'be061671a86c4437803f7c225e117799', '', 'Create', 'otorisasi-kabag-prades-reguler', 'Otorisasi Kabag Reguler'),
 ('6903e82e7e94478f87df3cf80de6b587', '30d0f70435904ad5b4e7cbfeb98fc021', 'penerbitan/naskah', 'Read', NULL, 'Lihat Data Naskah'),
 ('6b4e3b36783d4a488101da7639c40de0', '71d6b5671ebb4e128215fccc458fbf09', '', 'Read', 'lihat-deskripsi-cover', 'Lihat Deskripsi Cover'),
+('6effe04d-8fd9-11ed-a315-4cedfb61fb39', '6b6e6377467d4b67911ef1b915244ed2', '', 'Approval', 'pilih-penerbitan-turcet', 'Pilih Penerbitan Cetak/Ebook'),
 ('7527e84e47f94304b39525fa770dd904', 'bd09e803c41245a49ef23987c27b20ac', '', 'Create', 'ubah-atau-buat-des-produk', 'Buat/Ubah Deskripsi Produk'),
 ('78712deb909d4d88af7f098c0fcf6857', 'bfb8b970f85c4a42bac1dc56181dc96b', '', 'Decline', 'persetujuan-pending', 'Persetujuan Pending'),
 ('7d574866-6c74-11ed-9e64-4cedfb61fb39', '365190039fb44c8ab629806a5490addf', '', 'Create', 'otorisasi-korektor-praset-smk', 'Otorisasi Korektor Setting SMK'),
@@ -2254,6 +2387,26 @@ INSERT INTO `permissions` (`id`, `access_id`, `url`, `type`, `raw`, `name`) VALU
 ('f76c69fb-16f4-11ed-ae5c-1078d2a38ee5', 'bc5eb3aa02394dcca7692764e1328cee', '', 'Read', 'lihat-imprint', 'Lihat Data Imprint'),
 ('faa7c4808c714ca49762f6aaade7da3b', '3dbad039493241aa8ed0c698d07ee94d', '', 'Read', 'lihat-format-buku', 'Lihat Format Buku'),
 ('fd061c3363db4b298eea0bb0b4cbcbf0', '3dbad039493241aa8ed0c698d07ee94d', '', 'Create', 'buat-format-buku', 'Buat Format Buku');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pilihan_penerbitan`
+--
+
+CREATE TABLE `pilihan_penerbitan` (
+  `id` char(36) NOT NULL,
+  `deskripsi_turun_cetak_id` char(36) DEFAULT NULL,
+  `pilihan_terbit` varchar(25) DEFAULT NULL,
+  `platform_digital_ebook_id` longtext DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `pilihan_penerbitan`
+--
+
+INSERT INTO `pilihan_penerbitan` (`id`, `deskripsi_turun_cetak_id`, `pilihan_terbit`, `platform_digital_ebook_id`) VALUES
+('c81fd987-2526-492d-9c92-f6cc699ff077', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', '[\"cetak\"]', NULL);
 
 -- --------------------------------------------------------
 
@@ -2778,81 +2931,6 @@ INSERT INTO `pracetak_setter_selesai` (`id`, `type`, `section`, `tahap`, `pracet
 -- --------------------------------------------------------
 
 --
--- Table structure for table `produksi_order_ebook`
---
-
-CREATE TABLE `produksi_order_ebook` (
-  `id` char(36) NOT NULL,
-  `kode_order` varchar(9) NOT NULL,
-  `tipe_order` enum('1','2') DEFAULT NULL COMMENT '1= Umum, 2= Rohani',
-  `judul_buku` varchar(50) DEFAULT NULL,
-  `sub_judul` varchar(100) DEFAULT NULL,
-  `platform_digital` text DEFAULT NULL COMMENT 'array',
-  `penulis` varchar(70) DEFAULT NULL,
-  `eisbn` varchar(100) DEFAULT NULL,
-  `penerbit` varchar(100) DEFAULT NULL,
-  `imprint` varchar(100) DEFAULT NULL,
-  `edisi_cetakan` varchar(20) DEFAULT NULL,
-  `jumlah_halaman` varchar(100) DEFAULT NULL,
-  `kelompok_buku` varchar(100) DEFAULT NULL,
-  `tahun_terbit` year(4) DEFAULT NULL,
-  `status_buku` enum('1','2') DEFAULT NULL COMMENT '1= Reguler, 2= MOU',
-  `spp` varchar(25) DEFAULT NULL,
-  `perlengkapan` text DEFAULT NULL,
-  `keterangan` text DEFAULT NULL,
-  `tgl_upload` datetime DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `created_by` varchar(36) DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
-  `updated_by` varchar(36) DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  `deleted_by` varchar(36) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `produksi_order_ebook`
---
-
-INSERT INTO `produksi_order_ebook` (`id`, `kode_order`, `tipe_order`, `judul_buku`, `sub_judul`, `platform_digital`, `penulis`, `eisbn`, `penerbit`, `imprint`, `edisi_cetakan`, `jumlah_halaman`, `kelompok_buku`, `tahun_terbit`, `status_buku`, `spp`, `perlengkapan`, `keterangan`, `tgl_upload`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
-('62b39571-5192-496b-97df-d7663f2681dd', 'E22-1000', '1', 'Di Balik Mata Kaca', 'Sebuah Pengalaman', '[\"Moco\",\"Indopustaka\",\"Bahanaflix\",\"Esentral\",\"Google Book\"]', 'Yohanes Hendra', '2453442341234', 'Andi', 'PBMR Andi', 'vii/1', 'viii + 325', 'ArchitectPhotop', 2022, '2', NULL, NULL, NULL, '2022-09-14 13:49:49', '2022-09-06 06:49:49', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `produksi_penyetujuan_order_ebook`
---
-
-CREATE TABLE `produksi_penyetujuan_order_ebook` (
-  `id` char(36) NOT NULL,
-  `produksi_order_ebook_id` char(36) NOT NULL,
-  `m_penerbitan` varchar(36) DEFAULT NULL,
-  `d_operasional` varchar(36) DEFAULT NULL,
-  `d_keuangan` varchar(36) DEFAULT NULL,
-  `d_utama` varchar(36) DEFAULT NULL,
-  `m_penerbitan_act` enum('1','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 3= Setuju',
-  `d_operasional_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
-  `d_keuangan_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
-  `d_utama_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
-  `tgl_upload_history` datetime DEFAULT NULL,
-  `ket_pending` text DEFAULT NULL,
-  `pending_sampai` date DEFAULT NULL,
-  `status_general` enum('Proses','Pending','Selesai') DEFAULT 'Proses',
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `produksi_penyetujuan_order_ebook`
---
-
-INSERT INTO `produksi_penyetujuan_order_ebook` (`id`, `produksi_order_ebook_id`, `m_penerbitan`, `d_operasional`, `d_keuangan`, `d_utama`, `m_penerbitan_act`, `d_operasional_act`, `d_keuangan_act`, `d_utama_act`, `tgl_upload_history`, `ket_pending`, `pending_sampai`, `status_general`, `created_at`, `updated_at`) VALUES
-('370ec5ac-8280-4bc9-9969-03191d57db92', '62b39571-5192-496b-97df-d7663f2681dd', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '1', '1', NULL, NULL, NULL, 'Proses', '2022-09-06 06:49:49', '2022-09-06 06:49:52'),
-('7c559112-bce4-489f-9972-427cdf81639c', '329fb5c2-531c-4f61-a6cd-4aaf812f76a9', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '1', '1', NULL, NULL, NULL, 'Proses', '2022-09-06 06:24:12', '2022-09-06 06:25:21'),
-('d1bbaf8f-ad71-4b01-8fef-11c9b7308d59', 'd9079338-1709-4ac5-b845-15314c079e9d', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '1', '1', NULL, NULL, NULL, 'Proses', '2022-09-06 04:58:55', '2022-09-06 04:59:08');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `proses_ebook_multimedia`
 --
 
@@ -3140,7 +3218,8 @@ INSERT INTO `user_log` (`id`, `users_id`, `ip_address`, `last_login`, `user_agen
 (78, '3d43ab399ec24c30b39c9b052686416d', '127.0.0.1', '2023-01-06 13:21:50', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
 (79, '0007828bc2a5496bbdd8fbaefe2e1565', '127.0.0.1', '2023-01-06 13:26:55', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
 (80, '3d43ab399ec24c30b39c9b052686416d', '127.0.0.1', '2023-01-06 13:28:39', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
-(81, '0007828bc2a5496bbdd8fbaefe2e1565', '127.0.0.1', '2023-01-06 13:36:52', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0');
+(81, '0007828bc2a5496bbdd8fbaefe2e1565', '127.0.0.1', '2023-01-06 13:36:52', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(82, 'be8d42fa88a14406ac201974963d9c1b', '127.0.0.1', '2023-01-09 11:53:22', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0');
 
 -- --------------------------------------------------------
 
@@ -3501,6 +3580,16 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('12c8a8639d814102b01c7ffc0cd52e71', '7d574866-6c74-11ed-9e64-4cedfb61fb39'),
 ('12c8a8639d814102b01c7ffc0cd52e71', '0ce44192fb05400fb51f33c3c7a3d601'),
 ('12c8a8639d814102b01c7ffc0cd52e71', '276682372c5c45eca2139b32e4e5cc7a'),
+('3d43ab399ec24c30b39c9b052686416d', '0ce44192fb05400fb51f33c3c7a3d601'),
+('3d43ab399ec24c30b39c9b052686416d', 'e0923722a9fc44abaa84e59d545afe69'),
+('3d43ab399ec24c30b39c9b052686416d', 'ef9cb16ff775416f931a6a08f51070c3'),
+('0007828bc2a5496bbdd8fbaefe2e1565', '63759b4b-663c-11ed-94ad-4cedfb61fb39'),
+('0007828bc2a5496bbdd8fbaefe2e1565', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
+('0007828bc2a5496bbdd8fbaefe2e1565', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
+('0007828bc2a5496bbdd8fbaefe2e1565', '0ce44192fb05400fb51f33c3c7a3d601'),
+('0007828bc2a5496bbdd8fbaefe2e1565', '276682372c5c45eca2139b32e4e5cc7a'),
+('0007828bc2a5496bbdd8fbaefe2e1565', '4b3413e795944f48af97085069fb6855'),
+('0007828bc2a5496bbdd8fbaefe2e1565', 'caa36115b94a4507823ba27f93d07304'),
 ('be8d42fa88a14406ac201974963d9c1b', '068adb0171304c628b267874004d7e8c'),
 ('be8d42fa88a14406ac201974963d9c1b', '2b6032ef8a73463ba2c761c86be5ed5d'),
 ('be8d42fa88a14406ac201974963d9c1b', 'bc6b9c821e3f42ccb57532930c8d92be'),
@@ -3543,6 +3632,7 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', '8b3d0b17c9a045fbb76600e5044b0121'),
 ('be8d42fa88a14406ac201974963d9c1b', 'ac61ff38a6854298919a06a5b4f34242'),
 ('be8d42fa88a14406ac201974963d9c1b', '405c0fcdbef14d49abd9ffcc53984c6e'),
+('be8d42fa88a14406ac201974963d9c1b', '6effe04d-8fd9-11ed-a315-4cedfb61fb39'),
 ('be8d42fa88a14406ac201974963d9c1b', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
 ('be8d42fa88a14406ac201974963d9c1b', '88f281e83aff47d08f555a2961420bf5'),
 ('be8d42fa88a14406ac201974963d9c1b', 'a9354dd060524bce8278e2cd75ce349a'),
@@ -3574,17 +3664,7 @@ INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 ('be8d42fa88a14406ac201974963d9c1b', 'eecbccb6-1e08-11ed-87ce-1078d2a38ee5'),
 ('be8d42fa88a14406ac201974963d9c1b', '4bb845580b464d7db3d7c3b3e4fd213b'),
 ('be8d42fa88a14406ac201974963d9c1b', '1c1940da68fa4f8ba2325e83c303c47c'),
-('be8d42fa88a14406ac201974963d9c1b', '38645f82ae7c468abad1ab191e7a8ad9'),
-('3d43ab399ec24c30b39c9b052686416d', '0ce44192fb05400fb51f33c3c7a3d601'),
-('3d43ab399ec24c30b39c9b052686416d', 'e0923722a9fc44abaa84e59d545afe69'),
-('3d43ab399ec24c30b39c9b052686416d', 'ef9cb16ff775416f931a6a08f51070c3'),
-('0007828bc2a5496bbdd8fbaefe2e1565', '63759b4b-663c-11ed-94ad-4cedfb61fb39'),
-('0007828bc2a5496bbdd8fbaefe2e1565', '808ab7987c9b4f0ab025b1b9e3ed1d43'),
-('0007828bc2a5496bbdd8fbaefe2e1565', '2ea1d4e7a4ae4677a0fc85b859cc5738'),
-('0007828bc2a5496bbdd8fbaefe2e1565', '0ce44192fb05400fb51f33c3c7a3d601'),
-('0007828bc2a5496bbdd8fbaefe2e1565', '276682372c5c45eca2139b32e4e5cc7a'),
-('0007828bc2a5496bbdd8fbaefe2e1565', '4b3413e795944f48af97085069fb6855'),
-('0007828bc2a5496bbdd8fbaefe2e1565', 'caa36115b94a4507823ba27f93d07304');
+('be8d42fa88a14406ac201974963d9c1b', '38645f82ae7c468abad1ab191e7a8ad9');
 
 --
 -- Indexes for dumped tables
@@ -3650,6 +3730,12 @@ ALTER TABLE `deskripsi_produk_history`
 -- Indexes for table `deskripsi_turun_cetak`
 --
 ALTER TABLE `deskripsi_turun_cetak`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `deskripsi_turun_cetak_history`
+--
+ALTER TABLE `deskripsi_turun_cetak_history`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -3736,9 +3822,28 @@ ALTER TABLE `order_cetak`
   ADD UNIQUE KEY `kode_order` (`kode_order`);
 
 --
+-- Indexes for table `order_cetak_history`
+--
+ALTER TABLE `order_cetak_history`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `order_cetak_penyetujuan`
 --
 ALTER TABLE `order_cetak_penyetujuan`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `order_ebook`
+--
+ALTER TABLE `order_ebook`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `kode_order` (`kode_order`);
+
+--
+-- Indexes for table `order_ebook_penyetujuan`
+--
+ALTER TABLE `order_ebook_penyetujuan`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -3837,6 +3942,12 @@ ALTER TABLE `permissions`
   ADD UNIQUE KEY `raw` (`raw`);
 
 --
+-- Indexes for table `pilihan_penerbitan`
+--
+ALTER TABLE `pilihan_penerbitan`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `platform_digital_ebook`
 --
 ALTER TABLE `platform_digital_ebook`
@@ -3897,19 +4008,6 @@ ALTER TABLE `pracetak_setter_selesai`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `produksi_order_ebook`
---
-ALTER TABLE `produksi_order_ebook`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `kode_order` (`kode_order`);
-
---
--- Indexes for table `produksi_penyetujuan_order_ebook`
---
-ALTER TABLE `produksi_penyetujuan_order_ebook`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `proses_ebook_multimedia`
 --
 ALTER TABLE `proses_ebook_multimedia`
@@ -3966,6 +4064,12 @@ ALTER TABLE `deskripsi_final_history`
 --
 ALTER TABLE `deskripsi_produk_history`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+
+--
+-- AUTO_INCREMENT for table `deskripsi_turun_cetak_history`
+--
+ALTER TABLE `deskripsi_turun_cetak_history`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `editing_proses_history`
@@ -4055,7 +4159,7 @@ ALTER TABLE `pracetak_setter_selesai`
 -- AUTO_INCREMENT for table `user_log`
 --
 ALTER TABLE `user_log`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

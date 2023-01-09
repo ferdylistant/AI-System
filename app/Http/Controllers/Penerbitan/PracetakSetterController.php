@@ -312,8 +312,8 @@ class PracetakSetterController extends Controller
         $data = DB::table('pracetak_setter as ps')
             ->join('deskripsi_final as df', 'ps.deskripsi_final_id', '=', 'df.id')
             ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
-            ->join('deskripsi_cover as dc', 'dp.id','=','dc.deskripsi_produk_id')
-            ->join('pracetak_cover as pc','dc.id','=','pc.deskripsi_cover_id')
+            ->join('deskripsi_cover as dc', 'dp.id', '=', 'dc.deskripsi_produk_id')
+            ->join('pracetak_cover as pc', 'dc.id', '=', 'pc.deskripsi_cover_id')
             ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
             ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
                 $q->on('pn.kelompok_buku_id', '=', 'kb.id')
@@ -1001,7 +1001,7 @@ class PracetakSetterController extends Controller
                 }
                 event(new PracetakSetterEvent($update));
                 event(new PracetakSetterEvent($insert));
-                DB::table('pracetak_setter')->where('id',$data->id)->update([
+                DB::table('pracetak_setter')->where('id', $data->id)->update([
                     'proses_saat_ini' => 'Turun Cetak'
                 ]);
                 $msg = 'Pracetak Setter selesai, silahkan lanjut ke proses deskripsi turun cetak..';
