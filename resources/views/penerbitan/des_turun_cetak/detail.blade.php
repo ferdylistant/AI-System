@@ -35,6 +35,44 @@
                             @endif
                         </div>
                         <div class="card-body">
+
+                            @if ($data->status == 'Selesai' &&
+                                Gate::allows('do_approval', 'approval-deskripsi-produk') &&
+                                $pilihan_terbit == null)
+                                <form id="fadd_Pilihan_Terbit">
+                                    <h6>Pilihan Terbit :</h6>
+                                    <div class="form-group">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="add_pilihan_terbit[]"
+                                                id="Cetak" value="cetak">
+                                            <label class="form-check-label" for="Cetak">Cetak</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="add_pilihan_terbit[]"
+                                                id="eBook" value="ebook">
+                                            <label class="form-check-label" for="eBook">E-book</label>
+                                        </div>
+                                        <div id="err_pilihan_terbit"></div>
+                                    </div>
+                                    <div class="form-group" style="display:none" id="ebook">
+                                        <h6>Platform Ebook :</h6>
+                                        @foreach ($platform_ebook as $ebook)
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="checkbox" name="add_platform_ebook[]"
+                                                    id="{{ $ebook->nama }}" value="{{ $ebook->nama }}">
+                                                <label class="form-check-label"
+                                                    for="{{ $ebook->nama }}">{{ $ebook->nama }}</label>
+                                            </div>
+                                        @endforeach
+                                        <div id="err_pilihan_terbit"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary btn-sm mt-2">Order</button>
+                                    </div>
+
+                                </form>
+                            @endif
+
                             <div class="row mb-4">
                                 <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
@@ -198,7 +236,7 @@
                                             @if (is_null($data->url_file))
                                                 -
                                             @else
-                                                <a href="{{ $data->url_file }}">{{ $data->url_file }}</a>
+                                                <a href="{{ $data->url_file }}" target="blank">{{ $data->url_file }}</a>
                                             @endif
                                         </p>
                                     </div>
@@ -234,6 +272,82 @@
 @endsection
 
 @section('jsNeeded')
+    <script>
+        $('#fadd_Pilihan_Terbit').on('submit', function(e) {
+            e.preventDefault();
+            if ($(this).valid()) {
+                swal({
+                    text: 'Tambah data Pilihan Terbit ?',
+                    icon: 'info',
+                    buttons: true,
+                    dangerMode: true,
+                }).then((confirm_) => {
+                    if (confirm_) {
+                        ajaxAddPilihanTerbit($(this))
+                    }
+                });
+            } else {
+                notifToast("error", "Periksa kembali form Anda!");
+            }
+        })
+
+        function ajaxAddPilihanTerbit(data) {
+            let el = data.get(0);
+            console.log(el);
+            $.ajax({
+                type: "POST",
+                url: window.location.origin + "/penerbitan/deskripsi/turun-cetak/detail?id=" +
+                    '{{ $data->id }}',
+                data: new FormData(el),
+                processData: false,
+                contentType: false,
+                beforeSend: function() {
+                    $('button[type="submit"]').prop('disabled', true).
+                    addClass('btn-progress')
+                },
+                success: function(result) {
+                    // console.log(result)
+                    // resetForm(data);
+                    notifToast('success', 'Data pilihan terbit berhasil disimpan!');
+                    location.href = result.route;
+                },
+                error: function(err) {
+                    console.log(err.responseJSON)
+                    rs = err.responseJSON.errors;
+                    if (rs != undefined) {
+                        err = {};
+                        Object.entries(rs).forEach(entry => {
+                            let [key, value] = entry;
+                            err[key] = value
+                        })
+                        addNaskah.showErrors(err);
+                    }
+                    notifToast('error', 'Data pilihan terbit gagal disimpan!');
+                },
+                complete: function() {
+                    $('button[type="submit"]').prop('disabled', false).
+                    removeClass('btn-progress')
+                }
+            })
+        }
+
+        $(document).ready(function() {
+            $('#eBook').change(function() {
+                if (this.checked)
+                    showDetail(this.value);
+                else
+                    just_hide(this.value);
+            });
+        });
+
+        function showDetail(ele) {
+            $('#' + ele).show('slow');
+        }
+
+        function just_hide(ele) {
+            $('#' + ele).hide('slow');
+        }
+    </script>
 @endsection
 
 @yield('jsNeededForm')

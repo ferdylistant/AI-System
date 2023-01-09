@@ -291,16 +291,6 @@
                                                             @endif
                                                         </td>
                                                     </tr>
-                                                    <tr>
-                                                        <th class="table-secondary" style="width: 25%">Contoh Cover: </th>
-                                                        <td class="table-active text-left">
-                                                            @if (!is_null($data->contoh_cover))
-                                                                {{ $data->contoh_cover }}
-                                                            @else
-                                                                <span class="text-danger text-small">Belum diinput</span>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>

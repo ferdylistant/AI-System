@@ -176,6 +176,32 @@ class DeskripsiTurunCetakController extends Controller
     }
     public function detailDeskripsiTurunCetak(Request $request)
     {
+        if ($request->ajax()) {
+            if ($request->isMethod('POST')) {
+                try {
+                    $insert = [
+                        'params' => 'Insert Pilihan Terbit Desturcet',
+                        'id' => Uuid::uuid4()->toString(),
+                        'deskripsi_turun_cetak_id' => $request->id,
+                        'pilihan_terbit' => json_encode($request->add_pilihan_terbit),
+                        'platform_ebook' => json_encode($request->add_platform_ebook)
+                    ];
+                    event(new DesturcetEvent($insert));
+
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data pilihan terbit berhasil ditambahkan',
+                        'route' => route('desturcet.detail')
+                    ]);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
         $id = $request->get('desc');
         $kode = $request->get('kode');
         $data = DB::table('deskripsi_turun_cetak as dtc')
@@ -209,6 +235,10 @@ class DeskripsiTurunCetakController extends Controller
         if (is_null($data)) {
             return redirect()->route('desturcet.view');
         }
+        $pilihan_terbit = DB::table('pilihan_penerbitan as pp')
+            ->where('pp.deskripsi_turun_cetak_id', $data->id)
+            ->first();
+        // dd($pilihan_terbit);
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', function ($q) {
                 $q->on('pnp.penulis_id', '=', 'pp.id')
@@ -224,12 +254,16 @@ class DeskripsiTurunCetakController extends Controller
             ->first();
         $sasaran_pasar = is_null($sasaranPasar) ? null : $sasaranPasar->sasaran_pasar;
         $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first()->nama;
+        $platform_ebook = DB::table('platform_digital_ebook')->get();
+        // dd($platform_ebook);
         return view('penerbitan.des_turun_cetak.detail', [
             'title' => 'Detail Deskripsi Turun Cetak',
             'data' => $data,
             'penulis' => $penulis,
             'sasaran_pasar' => $sasaran_pasar,
             'pic' => $pic,
+            'platform_ebook' => $platform_ebook,
+            'pilihan_terbit' => $pilihan_terbit
         ]);
     }
     public function editDeskripsiTurunCetak(Request $request)
@@ -415,7 +449,7 @@ class DeskripsiTurunCetakController extends Controller
                     case 'Status':
                         $html .= '<span class="ticket-item" id="newAppend">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Status deskripsi cover <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
+                            <span><span class="bullet"></span> Status deskripsi turun cetak <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>

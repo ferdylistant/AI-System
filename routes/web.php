@@ -130,7 +130,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/deskripsi/cover/lihat-history', [DeskripsiCoverController::class, 'lihatHistoryDescov'])->name('descov.history');
         //Deskripsi Turun Cetak
         Route::get('/deskripsi/turun-cetak', [DeskripsiTurunCetakController::class, 'index'])->name('desturcet.view');
-        Route::get('/deskripsi/turun-cetak/detail', [DeskripsiTurunCetakController::class, 'detailDeskripsiTurunCetak'])->name('desturcet.detail');
+        Route::match(['get', 'post'], '/deskripsi/turun-cetak/detail', [DeskripsiTurunCetakController::class, 'detailDeskripsiTurunCetak'])->name('desturcet.detail');
         Route::match(['get', 'post'], '/deskripsi/turun-cetak/edit', [DeskripsiTurunCetakController::class, 'editDeskripsiTurunCetak'])->name('desturcet.edit');
         Route::post('/deskripsi/turun-cetak/update-status-progress', [DeskripsiTurunCetakController::class, 'updateStatusProgress']);
         Route::post('/deskripsi/turun-cetak/lihat-history', [DeskripsiTurunCetakController::class, 'lihatHistoryDesTurunCetak'])->name('desturcet.history');

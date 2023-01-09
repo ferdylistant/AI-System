@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\DesturcetEvent;
 use Illuminate\Support\Facades\DB;
+use Ramsey\Uuid\Uuid;
 
 class DesturcetListener
 {
@@ -66,6 +67,14 @@ class DesturcetListener
                     'bulan_new' => $data['bulan_new'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Insert Pilihan Terbit Desturcet':
+                $res = DB::table('pilihan_penerbitan')->insert([
+                    'id' => $data['id'],
+                    'deskripsi_turun_cetak_id' => $data['deskripsi_turun_cetak_id'],
+                    'pilihan_terbit' => $data['pilihan_terbit'],
+                    'platform_digital_ebook_id' => $data['platform_ebook'],
                 ]);
                 break;
             case 'Insert History Status Desturcet':
