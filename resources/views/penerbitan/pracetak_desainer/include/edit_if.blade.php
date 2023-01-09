@@ -192,7 +192,7 @@
                                 @if (is_null($data->korektor) || $data->korektor == '[]')
                                 <td class="table-active text-left">
                                     {{ $dis = '' }}
-                                    @if (is_null($data->selesai_proof))
+                                    @if (is_null($data->selesai_cover))
                                     <span class="text-danger"><i class="fas fa-exclamation-circle"></i>
                                         Belum bisa melanjutkan proses koreksi,
                                         proses cover belum selesai.</span>
@@ -321,6 +321,10 @@
             @elseif (is_null($data->selesai_pengajuan_cover) && is_null($data->mulai_proof))
                 <?php
                 $lbl = $label.' proses pengajuan cover';
+                ?>
+            @elseif (!is_null($data->selesai_pengajuan_cover) && is_null($data->selesai_proof))
+                <?php
+                $lbl = $label.' proses approval prodev';
                 ?>
             @elseif (is_null($data->selesai_cover) && is_null($data->selesai_koreksi))
                 <?php

@@ -372,6 +372,30 @@ class DeskripsiTurunCetakController extends Controller
             'sasaran_pasar' => $sasaran_pasar
         ]);
     }
+    public function actionAjax(Request $request)
+    {
+        try {
+            switch ($request->act) {
+                case 'lihat-history':
+                    return $this->lihatHistoryDesTurunCetak($request);
+                    break;
+                case 'update-status-progress':
+                    return $this->updateStatusProgress($request);
+                    break;
+                default:
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Terjadi kesalahan!'
+                    ]);
+                    break;
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
     public function updateStatusProgress(Request $request)
     {
         try {

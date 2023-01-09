@@ -1,14 +1,22 @@
-$('#tb_DesTurCet').on('click', '.btn-history', function(e) {
-    var id = $(this).data('id');
-    var judul = $(this).data('judulfinal');
+$("#tb_DesTurCet").on("click", ".btn-history", function (e) {
+    var id = $(this).data("id");
+    var judul = $(this).data("judulfinal");
     console.log(judul);
-    $.post(window.location.origin + "/penerbitan/deskripsi/turun-cetak/lihat-history", { id: id }, function (data) {
-        $('#titleModalDesturcet').html(
-            '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
-        $('#load_more').data('id', id);
-        $('#dataHistoryDesturcet').html(data);
-        $('#md_DesturcetHistory').modal('show');
-    });
+    $.post(
+        window.location.origin +
+            "/penerbitan/deskripsi/turun-cetak/lihat-history",
+        { id: id },
+        function (data) {
+            $("#titleModalDesturcet").html(
+                '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
+                    judul +
+                    '"'
+            );
+            $("#load_more").data("id", id);
+            $("#dataHistoryDesturcet").html(data);
+            $("#md_DesturcetHistory").modal("show");
+        }
+    );
 });
 $(function () {
     $(".load-more").click(function (e) {

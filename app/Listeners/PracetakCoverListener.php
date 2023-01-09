@@ -122,6 +122,64 @@ class PracetakCoverListener
                 ]);
                 DB::commit();
                 break;
+            case 'Proses Desain-Koreksi Selesai':
+                DB::beginTransaction();
+                $res = DB::table('pracetak_cover_selesai')->insert([
+                    'type' => $data['type'],
+                    'section' => $data['section'],
+                    'tahap' => $data['tahap'],
+                    'pracetak_cover_id' => $data['pracetak_cover_id'],
+                    'users_id' => $data['users_id'],
+                    'tgl_proses_selesai' => $data['tgl_proses_selesai']
+                ]);
+                DB::commit();
+                break;
+            case 'Desain-Koreksi Selesai':
+                DB::beginTransaction();
+                $label = 'selesai_' . $data['label'];
+                $res = DB::table('pracetak_cover')->where('id', $data['id'])->update([
+                    $label => $data[$label],
+                    'proses' => $data['proses'],
+                    'proses_saat_ini' => $data['proses_saat_ini']
+                ]);
+                DB::table('pracetak_cover_history')->insert([
+                    'type_history' => $data['type_history'],
+                    'pracetak_cover_id' => $data['id'],
+                    $label => $data[$label],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data[$label]
+                ]);
+                DB::commit();
+                break;
+            case 'Act Prodev':
+                DB::beginTransaction();
+                $res = DB::table('pracetak_cover')->where('id', $data['pracetak_cover_id'])->update([
+                    'selesai_proof' => $data['selesai_proof'],
+                    'proses_saat_ini' => $data['proses_saat_ini'],
+                    'proses' => $data['proses'],
+                    'status' => $data['status']
+                ]);
+                DB::table('pracetak_cover_proof')->insert([
+                    'type_user' => $data['type_user'],
+                    'type_action' => $data['type_action'],
+                    'pracetak_cover_id' => $data['pracetak_cover_id'],
+                    'users_id' => $data['users_id'],
+                    'ket_revisi' => $data['ket_revisi'],
+                    'tgl_action' => $data['tgl_action'],
+                ]);
+                DB::table('pracetak_cover_history')
+                    ->insert([
+                        'type_history' => $data['type_history'],
+                        'pracetak_cover_id' => $data['pracetak_cover_id'],
+                        'ket_revisi' => $data['ket_revisi'],
+                        'selesai_proof' => $data['selesai_proof'],
+                        'status_his' => $data['status_his'],
+                        'status_new' => $data['status'],
+                        'author_id' => $data['users_id'],
+                        'modified_at' => $data['tgl_action']
+                    ]);
+                DB::commit();
+                break;
             default:
                 abort(500);
                 break;
