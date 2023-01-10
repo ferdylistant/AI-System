@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 09, 2023 at 05:14 PM
--- Server version: 10.4.24-MariaDB
--- PHP Version: 7.4.29
+-- Generation Time: Jan 10, 2023 at 03:31 AM
+-- Server version: 10.4.25-MariaDB
+-- PHP Version: 7.4.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `ags_ai`
+-- Database: `andipubl_ais`
 --
 
 -- --------------------------------------------------------
@@ -1514,6 +1514,22 @@ CREATE TABLE `order_ebook` (
 
 INSERT INTO `order_ebook` (`id`, `deskripsi_turun_cetak_id`, `kode_order`, `tipe_order`, `judul_buku`, `sub_judul`, `platform_digital`, `penulis`, `eisbn`, `penerbit`, `imprint`, `edisi_cetakan`, `jumlah_halaman`, `kelompok_buku`, `tahun_terbit`, `status_buku`, `spp`, `perlengkapan`, `keterangan`, `tgl_upload`, `status`, `tgl_masuk`) VALUES
 ('7916a422-105b-4996-ad12-8410720eda28', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', 'E23-1000', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', '2023-01-09 19:56:54');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_ebook_action`
+--
+
+CREATE TABLE `order_ebook_action` (
+  `id` bigint(20) NOT NULL,
+  `order_ebook_id` char(36) DEFAULT NULL,
+  `type_jabatan` enum('GM Penerbitan','Dir. Operasional','Dir. Keuangan','Dir. Utama') DEFAULT NULL,
+  `type_action` enum('Approval','Decline') DEFAULT NULL,
+  `users_id` varchar(36) DEFAULT NULL,
+  `catatan_action` text DEFAULT NULL,
+  `tgl_action` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -3849,6 +3865,12 @@ ALTER TABLE `order_ebook`
   ADD UNIQUE KEY `kode_order` (`kode_order`);
 
 --
+-- Indexes for table `order_ebook_action`
+--
+ALTER TABLE `order_ebook_action`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `order_ebook_penyetujuan`
 --
 ALTER TABLE `order_ebook_penyetujuan`
@@ -4108,6 +4130,12 @@ ALTER TABLE `format_buku_history`
 --
 ALTER TABLE `imprint_history`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `order_ebook_action`
+--
+ALTER TABLE `order_ebook_action`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `penerbitan_m_kelompok_buku_history`

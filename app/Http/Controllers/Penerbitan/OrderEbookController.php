@@ -80,71 +80,45 @@ class OrderEbookController extends Controller
                     return $result;
                     //  $res;
                 })
-                ->addColumn('tahun_terbit', function ($data) {
-                    if (!is_null($data->tahun_terbit)) {
-                        $res = $data->tahun_terbit;
-                    } else {
-                        $res = '-';
+                ->addColumn('status_penyetujuan', function ($data) {
+                    $res = DB::table('order_ebook_action')->where('order_ebook_id',$data->id)->get();
+                    if (!$res->isEmpty()){
+                        foreach ($res as $r){
+                            $collect[] = $r->type_jabatan;
+                        }
                     }
-                    return $res;
-                })
-                ->addColumn('tgl_upload', function ($data) {
-                    $res = is_null($data->tgl_upload) ? '-' : Carbon::parse($data->tgl_upload)->translatedFormat('d F Y');
-                    return $res;
-                })
-                ->addColumn('eisbn', function ($data) {
-                    if (is_null($data->eisbn)) {
-                        $res = '-';
-                    } else {
-                        $res = $data->eisbn;
+                    $badge = '';
+                    $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook_action WHERE Field = 'type_jabatan'"))[0]->Type;
+                    preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+                    $jabatan = explode("','", $matches[1]);
+                    foreach ($jabatan as $j) {
+                        if (!$res->isEmpty()) {
+                            if (in_array($j,$collect)){
+                                foreach ($res as $action) {
+                                    switch ($action->type_action) {
+                                        case 'Approval':
+                                            $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> '.$j.'</div>';
+                                            break;
+                                        case 'Decline':
+                                            $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> '.$j.'</div>';
+                                            break;
+                                    }
+                                }
+                            } else {
+                                $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> '.$j.'</div>';
+                            }
+                        } else {
+                            $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> '.$j.'</div>';
+                        }
+
                     }
-                    return $res;
+                    return $badge;
                 })
-                // ->addColumn('status_penyetujuan', function ($data) {
-                //     $badge = '';
-                //     if ($data->status_general == 'Selesai') {
-                //         $badge .= '<span class="badge badge-primary">Selesai</span>';
-                //     } elseif ($data->status_general == 'Pending') {
-                //         $badge .= '<span class="badge badge-warning">Pending sampai ' . Carbon::parse($data->pending_sampai)->translatedFormat('d M Y') . '</span>';
-                //     } else {
-                //         //Manajer Penerbitan
-                //         if ($data->m_penerbitan_act == '1') {
-                //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
-                //         } elseif ($data->m_penerbitan_act == '3') {
-                //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
-                //         }
-                //         //Direksi Operasional
-                //         if ($data->d_operasional_act == '1') {
-                //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                //         } elseif ($data->d_operasional_act == '2') {
-                //             $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                //         } elseif ($data->d_operasional_act == '3') {
-                //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                //         }
-                //         //Direksi Keuangan
-                //         if ($data->d_keuangan_act == '1') {
-                //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                //         } elseif ($data->d_keuangan_act == '2') {
-                //             $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                //         } elseif ($data->d_keuangan_act == '3') {
-                //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                //         }
-                //         //Direksi Utama
-                //         if ($data->d_utama_act == '1') {
-                //             $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
-                //         } elseif ($data->d_utama_act == '2') {
-                //             $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
-                //         } elseif ($data->d_utama_act == '3') {
-                //             $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
-                //         }
-                //     }
-                //     return $badge;
-                // })
                 ->addColumn('action', function ($data) use ($update) {
                     $btn = '<a href="' . url('penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode) . '"
                                             class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                             <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                    $btn = $this->logicPermissionAction($update,$data->status, $data->id, $data->kode, $data->judul_final, $btn);
+                    $btn = $this->logicPermissionAction($update, $data->status, $data->id, $data->kode, $data->judul_final, $btn);
                     return $btn;
                 })
                 ->rawColumns([
@@ -154,10 +128,7 @@ class OrderEbookController extends Controller
                     'judul_final',
                     'jalur_buku',
                     'penulis',
-                    'tahun_terbit',
-                    'tgl_upload',
-                    'eisbn',
-                    // 'status_penyetujuan',
+                    'status_penyetujuan',
                     'action'
                 ])
                 ->make(true);
@@ -561,7 +532,7 @@ class OrderEbookController extends Controller
             'p_dirut' => $p_dirut,
         ]);
     }
-    protected function logicPermissionAction($update,$status = null, $id, $kode, $judul_final, $btn)
+    protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)
     {
         if ($update) {
             $btn = $this->buttonEdit($id, $kode, $btn);

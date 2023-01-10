@@ -18,10 +18,7 @@ $(function() {
            { data: 'judul_final', name: 'judul_final', title: 'Judul Buku'},
            { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku'},
            { data: 'penulis', name: 'penulis', title: 'Penulis'},
-           { data: 'eisbn', name: 'eisbn', title: 'E-ISBN'},
-           { data: 'tahun_terbit', name: 'tahun_terbit', title: 'Tahun Terbit'},
-           { data: 'tgl_upload', name: 'tgl_upload', title: 'Tanggal Upload'},
-        //    { data: 'status_penyetujuan', name: 'status_penyetujuan', title: 'Penyetujuan' },
+           { data: 'status_penyetujuan', name: 'status_penyetujuan', title: 'Penyetujuan' },
            { data: 'action', name: 'action', title: 'Action', orderable: false},
        ]
    });

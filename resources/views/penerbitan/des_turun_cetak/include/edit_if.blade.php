@@ -28,6 +28,55 @@
                                 </td>
                             </tr>
                             <tr>
+                                <th class="table-secondary" style="width: 25%">Tipe Order:
+                                    <span class="text-danger">*</span>
+                                </th>
+                                @if (!is_null($data->tipe_order))
+                                    <td class="table-active text-right" id="tipeOrderCol">
+                                        {{ $data->tipe_order == '1'? 'Umum':'Rohani' }}
+                                        <p class="text-small">
+                                            <a href="javascript:void(0)"
+                                                id="tipeOrderButton"><i
+                                                    class="fa fa-pen"></i>&nbsp;Edit</a>
+                                        </p>
+                                    </td>
+                                    <td class="table-active text-left"
+                                        id="tipeOrderColInput" hidden>
+                                        <div class="input-group">
+                                            <select name="tipe_order"
+                                                class="form-control select-tipe-order"
+                                                required>
+                                                <option label="Pilih tipe order"></option>
+                                                @foreach ($tipe_order as $to)
+                                                    <option value="{{ $to }}"
+                                                        {{ $data->tipe_order == $to ? 'Selected' : '' }}>
+                                                        {{ $to == '1'? 'Umum':'Rohani' }}&nbsp;&nbsp;
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <div class="input-group-append">
+                                                <button type="button"
+                                                    class="btn btn-outline-danger batal_edit_tipe_order text-danger"
+                                                    data-toggle="tooltip" title="Batal Edit"><i
+                                                        class="fas fa-times"></i></button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                @else
+                                    <td class="table-active text-left">
+                                        <select name="tipe_order"
+                                            class="form-control select-tipe-order" required>
+                                            <option label="Pilih tipe order"></option>
+                                            @foreach ($tipe_order as $to)
+                                                <option value="{{ $to }}">
+                                                    {{ $to == '1'?'Umum':'Rohani' }}&nbsp;&nbsp;
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                @endif
+                            </tr>
+                            <tr>
                                 <th class="table-secondary" style="width: 25%">Edisi Cetak
                                     Tahun:
                                     <span class="text-danger">*</span>
@@ -146,26 +195,37 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th class="table-secondary" style="width: 25%">Bulan: <span class="text-danger">*</span></th>
+                                <th class="table-secondary" style="width: 25%">Bulan: <span
+                                        class="text-danger">*</span></th>
                                 @if (!is_null($data->bulan))
-                                <td class="table-active text-right" id="bulanCol">
-                                    {{ Carbon\Carbon::parse($data->bulan)->translatedFormat('F Y') }}
-                                    <p class="text-small">
-                                        <a href="javascript:void(0)" id="bulanButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
-                                    </p>
-                                </td>
-                                <td class="table-active text-left" id="bulanColInput" hidden>
-                                    <div class="input-group">
-                                        <input name="bulan" class="form-control datepicker" value="{{Carbon\Carbon::createFromFormat('Y-m-d',$data->bulan,'Asia/Jakarta')->format('F Y')}}" placeholder="Bulan proses" readonly required>
-                                        <div class="input-group-append">
-                                            <button type="button" class="btn btn-outline-danger batal_edit_bulan text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                    <td class="table-active text-right" id="bulanCol">
+                                        {{ Carbon\Carbon::parse($data->bulan)->translatedFormat('F Y') }}
+                                        <p class="text-small">
+                                            <a href="javascript:void(0)" id="bulanButton"><i
+                                                    class="fa fa-pen"></i>&nbsp;Edit</a>
+                                        </p>
+                                    </td>
+                                    <td class="table-active text-left" id="bulanColInput"
+                                        hidden>
+                                        <div class="input-group">
+                                            <input name="bulan"
+                                                class="form-control datepicker"
+                                                value="{{ Carbon\Carbon::createFromFormat('Y-m-d', $data->bulan)->format('F Y') }}"
+                                                placeholder="Bulan proses" readonly required>
+                                            <div class="input-group-append">
+                                                <button type="button"
+                                                    class="btn btn-outline-danger batal_edit_bulan text-danger align-self-center"
+                                                    data-toggle="tooltip"
+                                                    title="Batal Edit"><i
+                                                        class="fas fa-times"></i></button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
+                                    </td>
                                 @else
-                                <td class="table-active text-left">
-                                    <input name="bulan" class="form-control datepicker" placeholder="Bulan proses" readonly required>
-                                </td>
+                                    <td class="table-active text-left">
+                                        <input name="bulan" class="form-control datepicker"
+                                            placeholder="Bulan proses" readonly required>
+                                    </td>
                                 @endif
                             </tr>
                         </tbody>
@@ -173,6 +233,7 @@
                 </div>
             </div>
         </div>
+
     </div>
     <div class="card-footer text-right">
         <button type="submit" class="btn btn-success">Update</button>
