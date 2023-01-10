@@ -1,20 +1,4 @@
-$(document).ready(function () {
-    var id = $("#idEbook").val();
-    $.ajax({
-        type: "GET",
-        url: window.location.origin + "/list-status-buku-ebook",
-        data: "id=" + id,
-        success: function (hasil) {
-            $("#statusBukuEbook").html(hasil);
-            // console.log(hasil);
-        },
-        error: function (xhr, status, error) {
-            console.log(xhr);
-            console.log(status);
-            console.log(error);
-        },
-    });
-});
+
 $(function () {
     $(".select2")
         .select2({
@@ -25,7 +9,17 @@ $(function () {
                 $(this).valid();
             }
         });
-
+        $(".select-penulis")
+        .select2({
+            placeholder: "Pilih penulis",
+            multiple: true,
+            disabled: true
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(this).valid();
+            }
+        });
     $(".datepicker-year").datepicker({
         format: "yyyy",
         viewMode: "years",
@@ -33,9 +27,8 @@ $(function () {
         autoclose: true,
         clearBtn: true,
     });
-    $(".datepicker").datepicker({
+    $(".datepicker-upload").datepicker({
         format: "dd MM yyyy",
-        startDate: "-0d",
         autoclose: true,
         clearBtn: true,
         todayHighlight: true,
@@ -43,21 +36,18 @@ $(function () {
     function resetFrom(form) {
         form.trigger("reset");
         $('[name="up_tipe_order"]').val("").trigger("change");
-        $('[name="up_judul_buku"]').val("").trigger("change");
-        $('[name="up_platform_digital[]"]').val("").trigger("change");
-        $('[name="up_urgent"]').val("").trigger("change");
         $('[name="up_eisbn"]').val("").trigger("change");
-        $('[name="up_edisi]"]').val("").trigger("change");
-        $('[name="up_cetakan"]').val("").trigger("change");
+        $('[name="up_edisi_cetak]"]').val("").trigger("change");
         $('[name="up_tahun_terbit"]').val("").trigger("change");
         $('[name="up_tgl_upload"]').val("").trigger("change");
     }
 
-    function ajaxUpProduksiEbook(data) {
+    function ajaxUpOrderEbook(data) {
         let el = data.get(0);
+        let id = data.data('id');
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/order-ebook/edit",
+            url: window.location.origin + "/penerbitan/order-ebook/edit?id="+id,
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -91,7 +81,7 @@ $(function () {
         });
     }
 
-    $("#fup_Ebook").on("submit", function (e) {
+    $("#fup_OrderEbook").on("submit", function (e) {
         e.preventDefault();
         if ($(this).valid()) {
             let nama = $(this).find('[name="up_judul_buku"]').val();
@@ -102,7 +92,7 @@ $(function () {
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxUpProduksiEbook($(this));
+                    ajaxUpOrderEbook($(this));
                 }
             });
         } else {

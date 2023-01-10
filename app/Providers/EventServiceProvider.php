@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use App\Events\{NotifikasiPenyetujuan,DescovEvent,DesfinEvent,DesproEvent,DesturcetEvent,NaskahEvent,EditingEvent,MasterDataEvent,PracetakCoverEvent,PracetakSetterEvent, UserLogEvent,SettingEvent};
-use App\Listeners\{NotifikasiPenyetujuanListener,DescovListener,DesfinListener,DesproListener,DesturcetListener,NaskahListener,EditingListener,MasterDataListener,PracetakCoverListener,PracetakSetterListener, UserLogListener, SettingListener};
+use App\Events\{NotifikasiPenyetujuan,DescovEvent,DesfinEvent,DesproEvent,DesturcetEvent,NaskahEvent,EditingEvent,MasterDataEvent,PracetakCoverEvent,PracetakSetterEvent,OrderCetakEvent, OrderEbookEvent,UserLogEvent,SettingEvent};
+use App\Listeners\{NotifikasiPenyetujuanListener,DescovListener,DesfinListener,DesproListener,DesturcetListener,NaskahListener,EditingListener,MasterDataListener,PracetakCoverListener,PracetakSetterListener,OrderCetakListener,OrderEbookListener, UserLogListener, SettingListener};
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -64,6 +64,14 @@ class EventServiceProvider extends ServiceProvider
         Event::listen(
             PracetakSetterEvent::class,
             [PracetakSetterListener::class, 'handle']
+        );
+        Event::listen(
+            OrderEbookEvent::class,
+            [OrderEbookListener::class, 'handle']
+        );
+        Event::listen(
+            OrderCetakEvent::class,
+            [OrderCetakListener::class, 'handle']
         );
         Event::listen(
             MasterDataEvent::class,

@@ -167,9 +167,7 @@ Route::middleware(['auth'])->group(function () {
         //Order Ebook
         Route::get('/order-ebook', [OrderEbookController::class, 'index'])->name('ebook.view');
         Route::get('/order-ebook/detail', [OrderEbookController::class, 'detailProduksi'])->name('ebook.detail');
-        Route::match(['get', 'post'], '/order-ebook/create', [OrderEbookController::class, 'createProduksi'])->name('ebook.create');
-        Route::match(['get', 'post'], '/order-ebook/edit', [OrderEbookController::class, 'updateProduksi'])->name('ebook.update');
-        Route::post('/hapus-order-ebook-buku', [OrderEbookController::class, 'deleteProduksi'])->name('ebook.delete');
+        Route::match(['get', 'post'], '/order-ebook/edit', [OrderEbookController::class, 'updateOrderEbook'])->name('ebook.update');
         Route::post('/order-ebook/ajax/{cat}', [OrderEbookController::class, 'ajaxRequest']);
     });
     //Produksi
