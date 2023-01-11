@@ -133,34 +133,40 @@ class OrderEbookController extends Controller
             if ($request->isMethod('POST')) {
                 try {
                     $history = DB::table('order_ebook as oe')
-                    ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oe.deskripsi_turun_cetak_id')
-                    ->join('pilihan_penerbitan as pp', 'pp.deskripsi_turun_cetak_id', '=', 'dtc.id')
-                    ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
-                    ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
-                    ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                    ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
-                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                    ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                        $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                            ->whereNull('kb.deleted_at');
-                    })
-                    ->where('oe.id', $request->id)
-                    ->select(
-                        'oe.*',
-                        'dtc.tipe_order',
-                        'pp.platform_digital_ebook_id',
-                        'df.sub_judul_final',
-                        'dp.judul_final',
-                        'dp.format_buku',
-                        'dp.imprint',
-                        'dp.jml_hal_perkiraan',
-                        'kb.id as kelompok_buku_id',
-                        'pn.id as naskah_id',
-                        'pn.jalur_buku',
-                        'ps.edisi_cetak'
-                    )
-                    ->first();
+                        ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oe.deskripsi_turun_cetak_id')
+                        ->join('pilihan_penerbitan as pp', 'pp.deskripsi_turun_cetak_id', '=', 'dtc.id')
+                        ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                        ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                        ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                        ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                        ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                        ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                            $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                                ->whereNull('kb.deleted_at');
+                        })
+                        ->where('oe.id', $request->id)
+                        ->select(
+                            'oe.*',
+                            'dtc.tipe_order',
+                            'pp.platform_digital_ebook_id',
+                            'df.sub_judul_final',
+                            'dp.judul_final',
+                            'dp.format_buku',
+                            'dp.imprint',
+                            'dp.jml_hal_perkiraan',
+                            'kb.id as kelompok_buku_id',
+                            'pn.id as naskah_id',
+                            'pn.jalur_buku',
+                            'ps.edisi_cetak'
+                        )
+                        ->first();
+                    if (is_null($history)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Terjadi kesalahan!'
+                        ]);
+                    }
+
                     $update = [
                         'params' => 'Update Order E-book',
                         'id' => $request->id,
@@ -200,6 +206,8 @@ class OrderEbookController extends Controller
                         'perlengkapan_new' => $request->up_perlengkapan == $history->perlengkapan ? NULL : $request->perlengkapan,
                         'eisbn_his' => $request->up_eisbn == $history->eisbn ? NULL : $history->eisbn,
                         'eisbn_new' => $request->up_eisbn == $history->eisbn ? NULL : $request->eisbn,
+                        'author_id' => auth()->id(),
+                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ];
                     event(new OrderEbookEvent($insert));
                     return response()->json([
@@ -236,6 +244,7 @@ class OrderEbookController extends Controller
                 'oe.*',
                 'dtc.tipe_order',
                 'pp.platform_digital_ebook_id',
+                'pp.pilihan_terbit',
                 'df.sub_judul_final',
                 'dp.judul_final',
                 'dp.format_buku',

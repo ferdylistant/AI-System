@@ -97,6 +97,8 @@ class OrderEbookListener
                     'perlengkapan_new' => $data['perlengkapan_new'],
                     'eisbn_his' => $data['eisbn_his'],
                     'eisbn_new' => $data['eisbn_new'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
                 ]);
                 DB::commit();
                 break;

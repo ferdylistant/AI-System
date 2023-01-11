@@ -290,7 +290,7 @@ class OrderCetakController extends Controller
                     'type' => 'create-notif',
                     'form_id' => $idO,
                 ];
-                event(new NotifikasiPenyetujuan($dataEvent));
+                // event(new NotifikasiPenyetujuan($dataEvent));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data berhasil ditambahkan',

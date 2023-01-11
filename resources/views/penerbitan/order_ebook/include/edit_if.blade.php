@@ -1,4 +1,4 @@
-<form id="fup_OrderEbook">
+<form id="fup_OrderEbook" data-id="{{ $data->id }}">
     <div class="card-body">
         <div class="row">
             <div class="form-group col-12 col-md-6 mb-4">
@@ -31,7 +31,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-book"></i></div>
                     </div>
-                    <input type="text" class="form-control" value="{{ $data->judul_final }}"
+                    <input type="text" class="form-control" name="up_judul_final" value="{{ $data->judul_final }}"
                         placeholder="Judul buku" disabled readonly>
                 </div>
             </div>
@@ -138,7 +138,7 @@
                         <div class="input-group-text"><i class="fas fa-fingerprint"></i></div>
                     </div>
                     <input type="text" class="form-control" name="up_eisbn"
-                        value="{{ $data->eisbn }}" placeholder="Kode E-ISBN" required>
+                        value="{{ $data->eisbn }}" id="EISBN" placeholder="Kode E-ISBN" required>
                     <div id="err_up_eisbn"></div>
                 </div>
             </div>
@@ -192,6 +192,6 @@
         </div>
     </div>
     <div class="card-footer text-right">
-        <button type="submit" class="btn btn-success" data-id="{{ $data->id }}">Update</button>
+        <button type="submit" class="btn btn-success">Update</button>
     </div>
 </form>

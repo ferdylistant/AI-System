@@ -25,26 +25,41 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card card-success">
+                        <div class="card-header justify-content-between">
+                            <div class="col-auto d-flex">
+                                <h4>Form Penerbitan Order E-book</h4>
+                                @switch($data->status)
+                                    @case('Antrian')
+                                        <span class="badge" style="background:#34395E;color:white">Antrian</span>
+                                    @break
 
-                        <div class="card-header">
-                            <h4>Form Penerbitan Order E-book</h4>
-                            @switch($data->status)
-                                @case('Antrian')
-                                    <span class="badge" style="background:#34395E;color:white">Antrian</span>
-                                @break
+                                    @case('Pending')
+                                        <span class="badge badge-danger">Pending</span>
+                                    @break
 
-                                @case('Pending')
-                                    <span class="badge badge-danger">Pending</span>
-                                @break
+                                    @case('Proses')
+                                        <span class="badge badge-success">Proses</span>
+                                    @break
 
-                                @case('Proses')
-                                    <span class="badge badge-success">Proses</span>
-                                @break
+                                    @case('Selesai')
+                                        <span class="badge badge-light">Selesai</span>
+                                    @break
+                                @endswitch
+                            </div>
+                            <div class="col-auto">
+                                <span class="bullet text-danger"></span> Kode order: <b>{{$data->kode_order}}</b> (@foreach (json_decode($data->pilihan_terbit) as $i => $pt)
+                                    @if (count(json_decode($data->pilihan_terbit)) == 2)
+                                        @if ($i == 0)
+                                        {{$pt}} &
+                                        @else
+                                        {{$pt}}
+                                        @endif
+                                    @else
+                                    {{$pt}}
+                                    @endif
 
-                                @case('Selesai')
-                                    <span class="badge badge-light">Selesai</span>
-                                @break
-                            @endswitch
+                                @endforeach)
+                            </div>
                         </div>
                         @if ($data->status == 'Proses' ||  ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
                             @include('penerbitan.order_ebook.include.edit_if')
@@ -61,6 +76,9 @@
 @section('jsRequired')
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
+    @if ($data->status == 'Proses' ||  ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
+    <script src="https://unpkg.com/imask"></script>
+    @endif
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
     <script src="{{ url('vendors/sweetalert/dist/sweetalert.min.js') }}"></script>

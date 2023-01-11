@@ -1,5 +1,5 @@
 
-$(function () {
+$(document).ready(function(){
     $(".select2")
         .select2({
             placeholder: "Pilih",
@@ -9,7 +9,7 @@ $(function () {
                 $(this).valid();
             }
         });
-        $(".select-penulis")
+    $(".select-penulis")
         .select2({
             placeholder: "Pilih penulis",
             multiple: true,
@@ -33,6 +33,8 @@ $(function () {
         clearBtn: true,
         todayHighlight: true,
     });
+});
+$(function () {
     function resetFrom(form) {
         form.trigger("reset");
         $('[name="up_tipe_order"]').val("").trigger("change");
@@ -47,7 +49,7 @@ $(function () {
         let id = data.data('id');
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/order-ebook/edit?id="+id,
+            url: window.location.origin + "/penerbitan/order-ebook/edit?id=" + id,
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -57,9 +59,14 @@ $(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                resetFrom(data);
-                notifToast(result.status, result.message);
-                location.href = result.route;
+                console.log(result);
+                if (result.status == 'error') {
+                    resetFrom(data);
+                    notifToast(result.status, result.message);
+                } else {
+                    notifToast(result.status, result.message);
+                    window.location.reload();
+                }
             },
             error: function (err) {
                 console.log(err.responseJSON);
@@ -84,7 +91,7 @@ $(function () {
     $("#fup_OrderEbook").on("submit", function (e) {
         e.preventDefault();
         if ($(this).valid()) {
-            let nama = $(this).find('[name="up_judul_buku"]').val();
+            let nama = $(this).find('[name="up_judul_final"]').val();
             swal({
                 text: "Ubah data order e-book (" + nama + ")?",
                 icon: "warning",
@@ -99,4 +106,12 @@ $(function () {
             notifToast("error", "Periksa kembali form Anda!");
         }
     });
+});
+$(document).ready(function(){
+    //!Format Penulisan ISBN dan HARGA
+    var ISBN = document.getElementById('EISBN');
+    var maskISBN = {
+        mask: '0000000000000'
+    };
+    var mask = IMask(ISBN, maskISBN, reverse = true);
 });
