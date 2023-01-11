@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
+use App\Events\NotifikasiPenyetujuan;
 use Carbon\Carbon;
 // use App\Models\User;
 use Ramsey\Uuid\Uuid;
@@ -18,308 +19,116 @@ class OrderCetakController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            switch ($request->input('request_')) {
-                case 'table-orcet':
-                    $data = DB::table('order_cetak as poc')
-                        ->join('order_cetak_penyetujuan as pyoc', 'pyoc.order_cetak_id', '=', 'poc.id')
-                        ->whereNull('poc.deleted_at')
-                        ->select(
-                            'poc.*',
-                            'pyoc.m_penerbitan',
-                            'pyoc.m_stok',
-                            'pyoc.d_operasional',
-                            'pyoc.d_keuangan',
-                            'pyoc.d_utama',
-                            'pyoc.m_penerbitan_act',
-                            'pyoc.m_stok_act',
-                            'pyoc.d_operasional_act',
-                            'pyoc.d_keuangan_act',
-                            'pyoc.d_utama_act',
-                            'pyoc.pending_sampai',
-                            'pyoc.status_general'
-                        )
-                        ->get();
-                    $update = Gate::allows('do_update', 'update-produksi');
-
-                    return DataTables::of($data)
-                        ->addColumn('no_order', function ($data) {
-                            return $data->kode_order;
-                        })
-                        ->addColumn('pilihan_terbit', function ($data) {
-                            if ($data->pilihan_terbit == '1') {
-                                $res = 'Cetak Fisik';
-                            } else {
-                                $res = 'Cetak Fisik + E-Book';
-                            }
-                            return $res;
-                        })
-                        ->addColumn('tipe_order', function ($data) {
-                            if ($data->tipe_order == 1) {
-                                $res = 'Umum';
-                            } elseif ($data->tipe_order == 2) {
-                                $res = 'Rohani';
-                            }
-                            return $res;
-                        })
-                        ->addColumn('status_cetak', function ($data) {
-                            if ($data->status_cetak == 1) {
-                                $res = 'Buku Baru';
-                            } elseif ($data->status_cetak == 2) {
-                                $res = 'Cetak Ulang Revisi';
-                            } elseif ($data->status_cetak == 3) {
-                                $res = 'Cetak Ulang';
-                            }
-                            return $res;
-                        })
-                        ->addColumn('judul_buku', function ($data) {
-                            return $data->judul_buku;
-                        })
-                        ->addColumn('urgent', function ($data) {
-                            if ($data->urgent == 1) {
-                                $res = '<span class="badge badge-danger">Urgent</span>';
-                            } else {
-                                $res = '<span class="badge badge-success">Tidak Urgent</span>';
-                            }
-                            return $res;
-                        })
-                        ->addColumn('isbn', function ($data) {
-                            return $data->isbn;
-                        })
-                        ->addColumn('status_penyetujuan', function ($data) {
-                            $badge = '';
-                            if (in_array($data->status_cetak, ['1', '2'])) {
-                                if ($data->status_general == 'Selesai') {
-                                    $badge .= '<span class="badge badge-primary">Selesai</span>';
-                                } elseif ($data->status_general == 'Pending') {
-                                    $badge .= '<span class="badge badge-warning">Pending sampai ' . Carbon::parse($data->pending_sampai)->translatedFormat('d M Y') . '</span>';
-                                } else {
-                                    //Manajer Penerbitan
-                                    if ($data->m_penerbitan_act == '1') {
-                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
-                                    } elseif ($data->m_penerbitan_act == '3') {
-                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> M.Penerbitan</div>';
-                                    }
-                                    //Direksi Operasional
-                                    if ($data->d_operasional_act == '1') {
-                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                                    } elseif ($data->d_operasional_act == '2') {
-                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                                    } elseif ($data->d_operasional_act == '3') {
-                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                                    }
-                                    //Direksi Keuangan
-                                    if ($data->d_keuangan_act == '1') {
-                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                                    } elseif ($data->d_keuangan_act == '2') {
-                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                                    } elseif ($data->d_keuangan_act == '3') {
-                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                                    }
-                                    //Direksi Utama
-                                    if ($data->d_utama_act == '1') {
-                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
-                                    } elseif ($data->d_utama_act == '2') {
-                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
-                                    } elseif ($data->d_utama_act == '3') {
-                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
+            $data = DB::table('order_cetak as oc')
+                ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
+                ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->select(
+                    'oc.*',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.id as naskah_id',
+                    'dtc.tipe_order',
+                    'dp.judul_final'
+                    // 'pyoc.m_penerbitan',
+                    // 'pyoc.m_stok',
+                    // 'pyoc.d_operasional',
+                    // 'pyoc.d_keuangan',
+                    // 'pyoc.d_utama',
+                    // 'pyoc.m_penerbitan_act',
+                    // 'pyoc.m_stok_act',
+                    // 'pyoc.d_operasional_act',
+                    // 'pyoc.d_keuangan_act',
+                    // 'pyoc.d_utama_act',
+                    // 'pyoc.pending_sampai',
+                )
+                ->get();
+            $update = Gate::allows('do_update', 'update-produksi');
+            return DataTables::of($data)
+                ->addColumn('no_order', function ($data) {
+                    return $data->kode_order;
+                })
+                ->addColumn('kode', function ($data) {
+                    return $data->kode;
+                })
+                ->addColumn('tipe_order', function ($data) {
+                    $res = $data->tipe_order == 1 ? 'Umum' : 'Rohani';
+                    return $res;
+                })
+                ->addColumn('judul_final', function ($data) {
+                    return $data->judul_final;
+                })
+                ->addColumn('jalur_buku', function ($data) {
+                    return $data->jalur_buku;
+                })
+                ->addColumn('status_penyetujuan', function ($data) {
+                    $res = DB::table('order_cetak_action')->where('order_cetak_id', $data->id)->get();
+                    if (!$res->isEmpty()) {
+                        foreach ($res as $r) {
+                            $collect[] = $r->type_jabatan;
+                        }
+                    }
+                    $badge = '';
+                    $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_jabatan'"))[0]->Type;
+                    preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+                    $jabatan = explode("','", $matches[1]);
+                    foreach ($jabatan as $j) {
+                        if (!$res->isEmpty()) {
+                            if (in_array($j, $collect)) {
+                                foreach ($res as $action) {
+                                    switch ($action->type_action) {
+                                        case 'Approval':
+                                            $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> ' . $j . '</div>';
+                                            break;
+                                        case 'Decline':
+                                            $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> ' . $j . '</div>';
+                                            break;
                                     }
                                 }
-                            } elseif ($data->status_cetak == '3') {
-                                if ($data->status_general == 'Selesai') {
-                                    $badge .= '<span class="badge badge-primary">Selesai</span>';
-                                } elseif ($data->status_general == 'Pending') {
-                                    $badge .= '<span class="badge badge-warning">Pending sampai ' . Carbon::parse($data->pending_sampai)->translatedFormat('d M Y') . '</span>';
-                                } else {
-                                    //Manajer Stok
-                                    if ($data->m_stok_act == '1') {
-                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> M.Stok</div>';
-                                    } elseif ($data->m_stok_act == '2') {
-                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> M.Stok</div>';
-                                    } elseif ($data->m_stok_act == '3') {
-                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> M.Stok</div>';
-                                    }
-                                    //Direksi Operasional
-                                    if ($data->d_operasional_act == '1') {
-                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                                    } elseif ($data->d_operasional_act == '2') {
-                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                                    } elseif ($data->d_operasional_act == '3') {
-                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Operasional</div>';
-                                    }
-                                    //Direksi Keuangan
-                                    if ($data->d_keuangan_act == '1') {
-                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                                    } elseif ($data->d_keuangan_act == '2') {
-                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                                    } elseif ($data->d_keuangan_act == '3') {
-                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Keuangan</div>';
-                                    }
-                                    //Direksi Utama
-                                    if ($data->d_utama_act == '1') {
-                                        $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
-                                    } elseif ($data->d_utama_act == '2') {
-                                        $badge .= '<div class="text-danger text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
-                                    } elseif ($data->d_utama_act == '3') {
-                                        $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> D.Utama</div>';
-                                    }
-                                }
+                            } else {
+                                $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> ' . $j . '</div>';
                             }
-
-                            return $badge;
-                        })
-                        ->addColumn('action', function ($data) use ($update) {
-                            $btn = '<a href="' . url('penerbitan/order-cetak/detail?kode=' . $data->id . '&author=' . $data->created_by) . '"
-                                    class="d-flex btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
-                                    <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                            if ($update) {
-                                $btn .= '<a href="' . url('penerbitan/order-cetak/edit?kode=' . $data->id . '&author=' . $data->created_by) . '"
-                                    class="d-flex btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                    <div><i class="fas fa-edit"></i></div></a>';
-                            }
-                            return $btn;
-                        })
-                        ->rawColumns([
-                            'no_order',
-                            'pilihan_terbit',
-                            'tipe_order',
-                            'status_cetak',
-                            'judul_buku',
-                            'urgent',
-                            'isbn',
-                            'status_penyetujuan',
-                            'action'
-                        ])
-                        ->make(true);
-                    break;
-                default:
-                    abort(500);
-                    break;
-            }
+                        } else {
+                            $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> ' . $j . '</div>';
+                        }
+                    }
+                    return $badge;
+                })
+                ->addColumn('action', function ($data) use ($update) {
+                    $btn = '<a href="' . url('penerbitan/order-cetak/detail?order=' . $data->id . '&naskah=' . $data->kode) . '"
+                                            class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
+                                            <div><i class="fas fa-envelope-open-text"></i></div></a>';
+                    $btn = $this->logicPermissionAction($update, $data->status, $data->id, $data->kode, $data->judul_final, $btn);
+                    return $btn;
+                })
+                ->addColumn('history', function ($data) {
+                    $historyData = DB::table('order_cetak_history')->where('order_cetak_id', $data->id)->get();
+                    if ($historyData->isEmpty()) {
+                        return '-';
+                    } else {
+                        $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                        return $date;
+                    }
+                })
+                ->rawColumns([
+                    'no_order',
+                    'kode',
+                    'tipe_order',
+                    'judul_final',
+                    'jalur_buku',
+                    'status_penyetujuan',
+                    'history',
+                    'action'
+                ])
+                ->make(true);
         }
 
         return view('penerbitan.order_cetak.index', [
             'title' => 'Order Cetak Naskah'
-        ]);
-    }
-
-    public function createProduksi(Request $request)
-    {
-        if ($request->ajax()) {
-            if ($request->isMethod('POST')) {
-                $request->validate([
-                    'add_tipe_order' => 'required',
-                    'add_status_cetak' => 'required',
-                    'add_judul_buku' => 'required',
-                    'add_sub_judul_buku' => 'required',
-                    'add_platform_digital.*' => 'required',
-                    'add_urgent' => 'required',
-                    'add_isbn' => 'required',
-                    'add_edisi' => 'required|regex:/^[a-zA-Z]+$/u',
-                    'add_cetakan' => 'required|numeric',
-                    'add_tgl_permintaan_jadi' => 'required|date',
-                    'add_pilihan_terbit' => 'required',
-                ], [
-                    'required' => 'This field is requried'
-                ]);
-                $jenisMesin = $request->add_jenis_mesin;
-                $tipeOrder = $request->add_tipe_order;
-                if ($request->add_pilihan_terbit == '2') {
-                    foreach ($request->add_platform_digital as $key => $value) {
-                        $platformDigital[$key] = $value;
-                    }
-                } else {
-                    $platformDigital = [];
-                }
-                $imprintName = DB::table('imprint')
-                    ->where('id', $request->add_imprint)
-                    ->whereNull('deleted_at')
-                    ->first();
-                $penulisName = DB::table('penerbitan_penulis')
-                    ->where('id', $request->add_penulis)
-                    ->whereNull('deleted_at')
-                    ->first();
-                $idO = Str::uuid()->getHex();
-                $getId = $this->getOrderId($tipeOrder);
-                DB::table('order_cetak')->insert([
-                    'id' => $idO,
-                    'kode_order' => $getId,
-                    'tipe_order' => $tipeOrder,
-                    'jenis_mesin' => $jenisMesin,
-                    'status_cetak' => $request->add_status_cetak,
-                    'judul_buku' => $request->add_judul_buku,
-                    'sub_judul' => $request->add_sub_judul_buku,
-                    'platform_digital' => json_encode($platformDigital),
-                    'pilihan_terbit' => $request->add_pilihan_terbit,
-                    'urgent' => $request->add_urgent,
-                    'penulis' => $penulisName->nama,
-                    'penerbit' => $request->add_penerbit,
-                    'imprint' => $imprintName->nama,
-                    'isbn' => $request->add_isbn,
-                    'eisbn' => $request->add_eisbn,
-                    'edisi_cetakan' => $request->add_edisi . '/' . $request->add_cetakan,
-                    'posisi_layout' => $request->add_posisi_layout,
-                    'dami' => $request->add_dami,
-                    'format_buku' => $request->add_format_buku . ' cm',
-                    'jumlah_halaman' => $request->add_jumlah_halaman_1 . ' + ' . $request->add_jumlah_halaman_2,
-                    'kelompok_buku' => $request->add_kelompok_buku,
-                    'kertas_isi' => $request->add_kertas_isi,
-                    'warna_isi' => $request->add_warna_isi,
-                    'kertas_cover' => $request->add_kertas_cover,
-                    'warna_cover' => $request->add_warna_cover,
-                    'efek_cover' => $request->add_efek_cover,
-                    'jenis_cover' => $request->add_jenis_cover,
-                    'tahun_terbit' => Carbon::createFromFormat('Y', $request->add_tahun_terbit)->format('Y'),
-                    'tgl_permintaan_jadi' => Carbon::createFromFormat('d F Y', $request->add_tgl_permintaan_jadi)->format('Y-m-d'),
-                    'buku_jadi' => $request->add_buku_jadi,
-                    'status_buku' => $request->add_status_buku,
-                    'jumlah_cetak' => $request->add_jumlah_cetak,
-                    'buku_contoh' => $request->add_buku_contoh,
-                    'jilid' => $request->add_jilid,
-                    'ukuran_jilid_bending' => $request->add_ukuran_bending . ' cm',
-                    'spp' => $request->add_spp,
-                    'keterangan' => $request->add_keterangan,
-                    'perlengkapan' => $request->add_perlengkapan,
-                    'created_by' => auth()->id()
-                ]);
-                DB::table('order_cetak_penyetujuan')->insert([
-                    'id' => Uuid::uuid4()->toString(),
-                    'order_cetak_id' => $idO,
-                ]);
-                $dataEvent = [
-                    'status_cetak' => $request->add_status_cetak,
-                    'type' => 'create-notif',
-                    'form_id' => $idO,
-                ];
-                event(new NotifikasiPenyetujuan($dataEvent));
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Data berhasil ditambahkan',
-                    'redirect' => route('cetak.view')
-                ]);
-            }
-        }
-        $tipeOrd = array(['id' => 1, 'name' => 'Umum'], ['id' => 2, 'name' => 'Rohani']);
-        $urgent = array(['id' => 1, 'name' => 'Ya'], ['id' => 0, 'name' => 'Tidak']);
-        $buku_jadi = array(['value' => 'Wrapping', 'label' => 'Wrapping'], ['value' => 'Tidak Wrapping', 'label' => 'Tidak Wrapping']);
-        $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
-        $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
-        $platformDigital = array(
-            ['name' => 'Moco'], ['name' => 'Google Book'], ['name' => 'Gramedia'], ['name' => 'Esentral'],
-            ['name' => 'Bahanaflik'], ['name' => 'Indopustaka']
-        );
-        $kbuku = DB::table('penerbitan_m_kelompok_buku')
-            ->get();
-        $jilid = array(['id' => '1', 'name' => 'Bending'], ['id' => '2', 'name' => 'Jahit Benang'], ['id' => '3', 'name' => 'Jahit Kawat'], ['id' => '4', 'name' => 'Hardcover']);
-        return view('produksi.create_produksi', [
-            'title' => 'Order Cetak Buku',
-            'tipeOrd' => $tipeOrd,
-            'platformDigital' => $platformDigital,
-            'urgent' => $urgent,
-            'buku_jadi' => $buku_jadi,
-            'kbuku' => $kbuku,
-            'imprint' => $imprint,
-            'penulis' => $penulis,
-            'jilid' => $jilid,
         ]);
     }
     public function updateProduksi(Request $request)
@@ -460,236 +269,318 @@ class OrderCetakController extends Controller
     }
     public function detailProduksi(Request $request)
     {
-        $kode = $request->get('kode');
-        $author = $request->get('author');
-        $prod = DB::table('order_cetak')
-            ->where('id', $kode)
-            ->where('created_by', $author)
+        $order = $request->get('order');
+        $naskah = $request->get('naskah');
+        $data = DB::table('order_cetak as oc')
+            ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
+            ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+            ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+            ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+            ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
+            })
+            ->where('oc.id', $order)
+            ->where('pn.kode', $naskah)
             ->first();
-        if (is_null($prod)) {
+        if (is_null($data)) {
             return redirect()->route('cetak.view');
         }
-        $dataPenolakan = DB::table('order_cetak_penyetujuan as pny')
-            ->where('pny.order_cetak_id', $kode)
-            ->where(function ($query) {
-                $query->where('pny.d_operasional_act', '=', '2')
-                    ->orWhere('pny.d_keuangan_act', '=', '2')
-                    ->orWhere('pny.d_utama_act', '=', '2');
+        // dd($data);
+        $penulis = DB::table('penerbitan_naskah_penulis as pnp')
+            ->join('penerbitan_penulis as pp', function ($q) {
+                $q->on('pnp.penulis_id', '=', 'pp.id')
+                    ->whereNull('pp.deleted_at');
             })
-            ->whereNotNull('pny.pending_sampai')
-            ->first();
+            ->where('pnp.naskah_id', '=', $data->naskah_id)
+            ->select('pp.nama')
+            ->get();
 
-        if (!is_null($dataPenolakan)) {
-            $bool = $dataPenolakan->pending_sampai <= Carbon::now('Asia/Jakarta')->format('Y-m-d') ? true : false;
-            $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
-                ->where('form_id', $kode)->first();
-            if ($bool == true) {
-                if ($dataPenolakan->d_operasional_act == '2') {
-                    DB::table('order_cetak_penyetujuan')
-                        ->where('order_cetak_id', $kode)
-                        ->where('d_operasional_act', '2')
-                        ->update([
-                            'd_operasional_act' => '1',
-                            'status_general' => 'Proses',
-                            'ket_pending' => NULL,
-                            'pending_sampai' => NULL,
-                        ]);
-                    if (is_null($dataPenolakan->m_stok)) {
-                        DB::table('notif_detail')->where('notif_id', $notif->id)
-                            ->where('user_id', '=', $dataPenolakan->m_penerbitan)
-                            ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
-                    } else {
-                        DB::table('notif_detail')->where('notif_id', $notif->id)
-                            ->where('user_id', '=', $dataPenolakan->m_stok)
-                            ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
-                    }
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_operasional)
-                        ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
-                        ->delete();
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_utama)
-                        ->delete();
-                } elseif ($dataPenolakan->d_keuangan_act == '2') {
-                    DB::table('order_cetak_penyetujuan')
-                        ->where('order_cetak_id', $kode)
-                        ->where('d_keuangan_act', '2')
-                        ->update([
-                            'd_keuangan_act' => '1',
-                            'status_general' => 'Proses',
-                            'ket_pending' => NULL,
-                            'pending_sampai' => NULL,
-                        ]);
-                    if (is_null($dataPenolakan->m_stok)) {
-                        DB::table('notif_detail')->where('notif_id', $notif->id)
-                            ->where('user_id', '=', $dataPenolakan->m_penerbitan)
-                            ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
-                    } else {
-                        DB::table('notif_detail')->where('notif_id', $notif->id)
-                            ->where('user_id', '=', $dataPenolakan->m_stok)
-                            ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
-                    }
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_operasional)
-                        ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
-                        ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_utama)
-                        ->delete();
-                } elseif ($dataPenolakan->d_utama_act == '2') {
-                    DB::table('order_cetak_penyetujuan')
-                        ->where('order_cetak_id', $kode)
-                        ->where('d_operasional_act', '2')
-                        ->update([
-                            'd_keuangan_act' => '1',
-                            'status_general' => 'Proses',
-                            'ket_pending' => NULL,
-                            'pending_sampai' => NULL,
-                        ]);
-                    if (is_null($dataPenolakan->m_stok)) {
-                        DB::table('notif_detail')->where('notif_id', $notif->id)
-                            ->where('user_id', '=', $dataPenolakan->m_penerbitan)
-                            ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
-                    } else {
-                        DB::table('notif_detail')->where('notif_id', $notif->id)
-                            ->where('user_id', '=', $dataPenolakan->m_stok)
-                            ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
-                    }
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_operasional)
-                        ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
-                        ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_utama)
-                        ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        is_null($data) ? abort(404) :
+            $sasaranPasar = DB::table('penerbitan_pn_prodev')
+            ->where('naskah_id', $data->naskah_id)
+            ->first();
+        $sasaran_pasar = is_null($sasaranPasar) ? null : $sasaranPasar->sasaran_pasar;
+        $pilihan_terbit = DB::table('pilihan_penerbitan')
+            ->where('deskripsi_turun_cetak_id', $data->deskripsi_turun_cetak_id)
+            ->first();
+        // $dataPenolakan = DB::table('order_cetak_penyetujuan as pny')
+        //     ->where('pny.order_cetak_id', $kode)
+        //     ->where(function ($query) {
+        //         $query->where('pny.d_operasional_act', '=', '2')
+        //             ->orWhere('pny.d_keuangan_act', '=', '2')
+        //             ->orWhere('pny.d_utama_act', '=', '2');
+        //     })
+        //     ->whereNotNull('pny.pending_sampai')
+        //     ->first();
+
+        // if (!is_null($dataPenolakan)) {
+        //     $bool = $dataPenolakan->pending_sampai <= Carbon::now('Asia/Jakarta')->format('Y-m-d') ? true : false;
+        //     $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '09179170e6e643eca66b282e2ffae1f8')
+        //         ->where('form_id', $kode)->first();
+        //     if ($bool == true) {
+        //         if ($dataPenolakan->d_operasional_act == '2') {
+        //             DB::table('order_cetak_penyetujuan')
+        //                 ->where('order_cetak_id', $kode)
+        //                 ->where('d_operasional_act', '2')
+        //                 ->update([
+        //                     'd_operasional_act' => '1',
+        //                     'status_general' => 'Proses',
+        //                     'ket_pending' => NULL,
+        //                     'pending_sampai' => NULL,
+        //                 ]);
+        //             if (is_null($dataPenolakan->m_stok)) {
+        //                 DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                     ->where('user_id', '=', $dataPenolakan->m_penerbitan)
+        //                     ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //             } else {
+        //                 DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                     ->where('user_id', '=', $dataPenolakan->m_stok)
+        //                     ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //             }
+        //             DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                 ->where('user_id', '=', $dataPenolakan->d_operasional)
+        //                 ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //             DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                 ->where('user_id', '=', $dataPenolakan->d_keuangan)
+        //                 ->delete();
+        //             DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                 ->where('user_id', '=', $dataPenolakan->d_utama)
+        //                 ->delete();
+        //         } elseif ($dataPenolakan->d_keuangan_act == '2') {
+        //             DB::table('order_cetak_penyetujuan')
+        //                 ->where('order_cetak_id', $kode)
+        //                 ->where('d_keuangan_act', '2')
+        //                 ->update([
+        //                     'd_keuangan_act' => '1',
+        //                     'status_general' => 'Proses',
+        //                     'ket_pending' => NULL,
+        //                     'pending_sampai' => NULL,
+        //                 ]);
+        //             if (is_null($dataPenolakan->m_stok)) {
+        //                 DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                     ->where('user_id', '=', $dataPenolakan->m_penerbitan)
+        //                     ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //             } else {
+        //                 DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                     ->where('user_id', '=', $dataPenolakan->m_stok)
+        //                     ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //             }
+        //             DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                 ->where('user_id', '=', $dataPenolakan->d_operasional)
+        //                 ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //             DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                 ->where('user_id', '=', $dataPenolakan->d_keuangan)
+        //                 ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //             DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                 ->where('user_id', '=', $dataPenolakan->d_utama)
+        //                 ->delete();
+        //         } elseif ($dataPenolakan->d_utama_act == '2') {
+        //             DB::table('order_cetak_penyetujuan')
+        //                 ->where('order_cetak_id', $kode)
+        //                 ->where('d_operasional_act', '2')
+        //                 ->update([
+        //                     'd_keuangan_act' => '1',
+        //                     'status_general' => 'Proses',
+        //                     'ket_pending' => NULL,
+        //                     'pending_sampai' => NULL,
+        //                 ]);
+        //             if (is_null($dataPenolakan->m_stok)) {
+        //                 DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                     ->where('user_id', '=', $dataPenolakan->m_penerbitan)
+        //                     ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //             } else {
+        //                 DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                     ->where('user_id', '=', $dataPenolakan->m_stok)
+        //                     ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //             }
+        //             DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                 ->where('user_id', '=', $dataPenolakan->d_operasional)
+        //                 ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //             DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                 ->where('user_id', '=', $dataPenolakan->d_keuangan)
+        //                 ->update(['seen' => '1', 'raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //             DB::table('notif_detail')->where('notif_id', $notif->id)
+        //                 ->where('user_id', '=', $dataPenolakan->d_utama)
+        //                 ->update(['raw_data' => 'Disetujui Cetak', 'updated_at' => date('Y-m-d H:i:s')]);
+        //         }
+        //     }
+        // }
+        // $prodPenyetujuan = DB::table('order_cetak_penyetujuan')
+        //     ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
+        //     ->select('order_cetak_penyetujuan.*')
+        //     ->first();
+        // $author = DB::table('users')
+        //     ->where('id', $author)
+        //     ->first();
+        // $m_stok = DB::table('users as u')
+        //     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+        //     ->where('j.nama', 'LIKE', '%Manajer Stok%')
+        //     ->select('u.nama', 'u.id as id')
+        //     ->first();
+        // if (is_null($m_stok)) {
+        //     $m_stok = '';
+        // }
+        // $m_penerbitan = DB::table('users as u')
+        //     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+        //     ->where('j.nama', 'LIKE', '%Manajer Penerbitan%')
+        //     ->select('u.nama', 'u.id as id')
+        //     ->first();
+        // if (is_null($m_penerbitan)) {
+        //     $m_penerbitan = '';
+        // }
+        // $dirop = DB::table('users as u')
+        //     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+        //     ->where('j.nama', 'LIKE', '%Direktur Operasional%')
+        //     ->select('u.nama', 'u.id as id')
+        //     ->first();
+        // if (is_null($dirop)) {
+        //     $dirop = '';
+        // }
+        // $dirke = DB::table('users as u')
+        //     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+        //     ->where('j.nama', 'LIKE', '%Direktur Keuangan%')
+        //     ->select('u.nama', 'u.id as id')
+        //     ->first();
+        // if (is_null($dirke)) {
+        //     $dirke = '';
+        // }
+        // $dirut = DB::table('users as u')
+        //     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+        //     ->where('j.nama', 'LIKE', '%Direktur Utama%')
+        //     ->select('u.nama', 'u.id as id')
+        //     ->first();
+        // if (is_null($dirut)) {
+        //     $dirut = '';
+        // }
+        // if ($prod->status_cetak == '3') {
+        //     DB::table('order_cetak_penyetujuan')
+        //         ->where('order_cetak_penyetujuan.order_cetak_id', $prod->id)
+        //         ->update([
+        //             'm_stok' => $m_stok->id,
+        //             'd_operasional' => $dirop->id,
+        //             'd_keuangan' => $dirke->id,
+        //             'd_utama' => $dirut->id
+        //         ]);
+        // } else {
+        //     DB::table('order_cetak_penyetujuan')
+        //         ->where('order_cetak_penyetujuan.order_cetak_id', $prod->id)
+        //         ->update([
+        //             'm_penerbitan' => $m_penerbitan->id,
+        //             'd_operasional' => $dirop->id,
+        //             'd_keuangan' => $dirke->id,
+        //             'd_utama' => $dirut->id
+        //         ]);
+        // }
+
+        // $p_mstok = DB::table('order_cetak_penyetujuan')
+        //     ->join('users', 'order_cetak_penyetujuan.m_stok', '=', 'users.id')
+        //     ->where('order_cetak_penyetujuan.m_stok', '=', $m_stok->id)
+        //     ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
+        //     ->select('order_cetak_penyetujuan.*', 'users.nama')
+        //     ->first();
+
+        // $p_mp = DB::table('order_cetak_penyetujuan')
+        //     ->join('users', 'order_cetak_penyetujuan.m_penerbitan', '=', 'users.id')
+        //     ->where('order_cetak_penyetujuan.m_penerbitan', '=', $m_penerbitan->id)
+        //     ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
+        //     ->select('order_cetak_penyetujuan.*', 'users.nama')
+        //     ->first();
+
+        // $p_dirop = DB::table('order_cetak_penyetujuan')
+        //     ->join('users', 'order_cetak_penyetujuan.d_operasional', '=', 'users.id')
+        //     ->where('order_cetak_penyetujuan.d_operasional', '=', $dirop->id)
+        //     ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
+        //     ->select('order_cetak_penyetujuan.*', 'users.nama')
+        //     ->first();
+
+        // $p_dirke = DB::table('order_cetak_penyetujuan')
+        //     ->join('users', 'order_cetak_penyetujuan.d_keuangan', '=', 'users.id')
+        //     ->where('order_cetak_penyetujuan.d_keuangan', '=', $dirke->id)
+        //     ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
+        //     ->select('order_cetak_penyetujuan.*', 'users.nama')
+        //     ->first();
+
+        // $p_dirut = DB::table('order_cetak_penyetujuan')
+        //     ->join('users', 'order_cetak_penyetujuan.d_utama', '=', 'users.id')
+        //     ->where('order_cetak_penyetujuan.d_utama', '=', $dirut->id)
+        //     ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
+        //     ->select('order_cetak_penyetujuan.*', 'users.nama')
+        //     ->first();
+        return view('penerbitan.order_cetak.detail', [
+            'title' => 'Detail Order Cetak Buku',
+            'data' => $data,
+            'sasaran_pasar' => $sasaran_pasar,
+            'penulis' => $penulis,
+            'pilihan_terbit' => $pilihan_terbit,
+            // 'id' => $kode,
+            // 'prod_penyetujuan' => $prodPenyetujuan,
+            // 'data_penolakan' => $dataPenolakan,
+            // 'author' => $author,
+            // 'm_stok' => $m_stok,
+            // 'm_penerbitan' => $m_penerbitan,
+            // 'dirop' => $dirop,
+            // 'dirke' => $dirke,
+            // 'dirut' => $dirut,
+            // 'p_mstok' => $p_mstok,
+            // 'p_mp' => $p_mp,
+            // 'p_dirop' => $p_dirop,
+            // 'p_dirke' => $p_dirke,
+            // 'p_dirut' => $p_dirut,
+        ]);
+    }
+    protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)
+    {
+        if ($update) {
+            $btn = $this->buttonEdit($id, $kode, $btn);
+        } else {
+            if ($status == 'Selesai') {
+                if (Gate::allows('do_approval', 'approval-deskripsi-produk') || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
+                    $btn = $this->buttonEdit($id, $kode, $btn);
                 }
             }
         }
-        $prodPenyetujuan = DB::table('order_cetak_penyetujuan')
-            ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
-            ->select('order_cetak_penyetujuan.*')
-            ->first();
-        $author = DB::table('users')
-            ->where('id', $author)
-            ->first();
-        $m_stok = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->where('j.nama', 'LIKE', '%Manajer Stok%')
-            ->select('u.nama', 'u.id as id')
-            ->first();
-        if (is_null($m_stok)) {
-            $m_stok = '';
-        }
-        $m_penerbitan = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->where('j.nama', 'LIKE', '%Manajer Penerbitan%')
-            ->select('u.nama', 'u.id as id')
-            ->first();
-        if (is_null($m_penerbitan)) {
-            $m_penerbitan = '';
-        }
-        $dirop = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->where('j.nama', 'LIKE', '%Direktur Operasional%')
-            ->select('u.nama', 'u.id as id')
-            ->first();
-        if (is_null($dirop)) {
-            $dirop = '';
-        }
-        $dirke = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->where('j.nama', 'LIKE', '%Direktur Keuangan%')
-            ->select('u.nama', 'u.id as id')
-            ->first();
-        if (is_null($dirke)) {
-            $dirke = '';
-        }
-        $dirut = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->where('j.nama', 'LIKE', '%Direktur Utama%')
-            ->select('u.nama', 'u.id as id')
-            ->first();
-        if (is_null($dirut)) {
-            $dirut = '';
-        }
-        if ($prod->status_cetak == '3') {
-            DB::table('order_cetak_penyetujuan')
-                ->where('order_cetak_penyetujuan.order_cetak_id', $prod->id)
-                ->update([
-                    'm_stok' => $m_stok->id,
-                    'd_operasional' => $dirop->id,
-                    'd_keuangan' => $dirke->id,
-                    'd_utama' => $dirut->id
-                ]);
+
+        if ($update) {
+            $btn = $this->panelStatusAdmin($status, $id, $kode, $judul_final, $btn);
         } else {
-            DB::table('order_cetak_penyetujuan')
-                ->where('order_cetak_penyetujuan.order_cetak_id', $prod->id)
-                ->update([
-                    'm_penerbitan' => $m_penerbitan->id,
-                    'd_operasional' => $dirop->id,
-                    'd_keuangan' => $dirke->id,
-                    'd_utama' => $dirut->id
-                ]);
+            $btn = $this->panelStatusGuest($status, $btn);
         }
-
-        $p_mstok = DB::table('order_cetak_penyetujuan')
-            ->join('users', 'order_cetak_penyetujuan.m_stok', '=', 'users.id')
-            ->where('order_cetak_penyetujuan.m_stok', '=', $m_stok->id)
-            ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
-            ->select('order_cetak_penyetujuan.*', 'users.nama')
-            ->first();
-
-        $p_mp = DB::table('order_cetak_penyetujuan')
-            ->join('users', 'order_cetak_penyetujuan.m_penerbitan', '=', 'users.id')
-            ->where('order_cetak_penyetujuan.m_penerbitan', '=', $m_penerbitan->id)
-            ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
-            ->select('order_cetak_penyetujuan.*', 'users.nama')
-            ->first();
-
-        $p_dirop = DB::table('order_cetak_penyetujuan')
-            ->join('users', 'order_cetak_penyetujuan.d_operasional', '=', 'users.id')
-            ->where('order_cetak_penyetujuan.d_operasional', '=', $dirop->id)
-            ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
-            ->select('order_cetak_penyetujuan.*', 'users.nama')
-            ->first();
-
-        $p_dirke = DB::table('order_cetak_penyetujuan')
-            ->join('users', 'order_cetak_penyetujuan.d_keuangan', '=', 'users.id')
-            ->where('order_cetak_penyetujuan.d_keuangan', '=', $dirke->id)
-            ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
-            ->select('order_cetak_penyetujuan.*', 'users.nama')
-            ->first();
-
-        $p_dirut = DB::table('order_cetak_penyetujuan')
-            ->join('users', 'order_cetak_penyetujuan.d_utama', '=', 'users.id')
-            ->where('order_cetak_penyetujuan.d_utama', '=', $dirut->id)
-            ->where('order_cetak_penyetujuan.order_cetak_id', '=', $prod->id)
-            ->select('order_cetak_penyetujuan.*', 'users.nama')
-            ->first();
-        return view('produksi.detail_produksi', [
-            'title' => 'Detail Order Cetak Buku',
-            'data' => $prod,
-            'id' => $kode,
-            'prod_penyetujuan' => $prodPenyetujuan,
-            'data_penolakan' => $dataPenolakan,
-            'author' => $author,
-            'm_stok' => $m_stok,
-            'm_penerbitan' => $m_penerbitan,
-            'dirop' => $dirop,
-            'dirke' => $dirke,
-            'dirut' => $dirut,
-            'p_mstok' => $p_mstok,
-            'p_mp' => $p_mp,
-            'p_dirop' => $p_dirop,
-            'p_dirke' => $p_dirke,
-            'p_dirut' => $p_dirut,
-        ]);
+        return $btn;
+    }
+    protected function panelStatusAdmin($status = null, $id, $kode, $judul_final, $btn)
+    {
+        switch ($status) {
+            case 'Antrian':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-orebook" style="background:#34395E;color:white" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusSetter" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Pending':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-orebook" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusSetter" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Proses':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-orebook" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusSetter" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Selesai':
+                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
+                break;
+            default:
+                return abort(410);
+                break;
+        }
+        return $btn;
+    }
+    protected function buttonEdit($id, $kode, $btn)
+    {
+        $btn .= '<a href="' . url('penerbitan/order-ebook/edit?order=' . $id . '&naskah=' . $kode) . '"
+        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+        <div><i class="fas fa-edit"></i></div></a>';
+        return $btn;
     }
     public function ajaxRequest(Request $request, $cat)
     {

@@ -186,7 +186,7 @@ class DeskripsiTurunCetakController extends Controller
                         'pilihan_terbit' => json_encode($request->add_pilihan_terbit),
                         'platform_ebook' => $request->add_platform_ebook == null ? NULL : json_encode(array_filter($request->add_platform_ebook)),
                     ];
-                    DB::table('deskripsi_turun_cetak')->where('id',$request->id)->update([
+                    DB::table('deskripsi_turun_cetak')->where('id', $request->id)->update([
                         'tgl_pil_terbit_selesai' => $tgl
                     ]);
                     foreach ($request->add_pilihan_terbit as $pt) {
@@ -463,7 +463,7 @@ class DeskripsiTurunCetakController extends Controller
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
             if ($request->status == 'Selesai') {
-                $data = DB::table('deskripsi_turun_Cetak')->where('id',$data->id)->whereNotNull('tipe_order')->first();
+                $data = DB::table('deskripsi_turun_Cetak')->where('id', $data->id)->whereNotNull('tipe_order')->first();
                 if (is_null($data)) {
                     return response()->json([
                         'status' => 'error',
