@@ -34,7 +34,7 @@ class OrderEbookController extends Controller
                     'dp.judul_final'
                 )
                 ->get();
-            $update = Gate::allows('do_update', 'update-produksi-ebook');
+            $update = Gate::allows('do_update', 'update-order-ebook');
 
             return DataTables::of($data)
                 ->addColumn('no_order', function ($data) {
@@ -284,191 +284,71 @@ class OrderEbookController extends Controller
             'data' => $data,
         ]);
     }
-    public function detailProduksi(Request $request)
+    public function detailOrderEbook(Request $request)
     {
-        $kode = $request->get('kode');
-        $author = $request->get('author');
-        $prod = DB::table('produksi_order_ebook')
-            ->where('id', $kode)
-            ->where('created_by', $author)
-            ->first();
-        if (is_null($prod)) {
-            return redirect()->route('ebook.view');
-        }
-        $dataPenolakan = DB::table('produksi_penyetujuan_order_ebook as pny')
-            ->where('pny.produksi_order_ebook_id', $kode)
-            ->where(function ($query) {
-                $query->where('pny.d_operasional_act', '=', '2')
-                    ->orWhere('pny.d_keuangan_act', '=', '2')
-                    ->orWhere('pny.d_utama_act', '=', '2');
+        $id = $request->get('order');
+        $naskah = $request->get('naskah');
+        $data = DB::table('order_ebook as oe')
+            ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oe.deskripsi_turun_cetak_id')
+            ->join('pilihan_penerbitan as pp', 'pp.deskripsi_turun_cetak_id', '=', 'dtc.id')
+            ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+            ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+            ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+            ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
             })
-            ->whereNotNull('pny.pending_sampai')
+            ->where('oe.id', $id)
+            ->where('pn.kode', $naskah)
+            ->select(
+                'oe.*',
+                'dtc.tipe_order',
+                'pp.platform_digital_ebook_id',
+                'pp.pilihan_terbit',
+                'df.sub_judul_final',
+                'dp.judul_final',
+                'dp.format_buku',
+                'dp.imprint',
+                'dp.jml_hal_perkiraan',
+                'kb.nama',
+                'pn.id as naskah_id',
+                'pn.jalur_buku',
+                'ps.edisi_cetak'
+            )
             ->first();
-
-        if (!is_null($dataPenolakan)) {
-            $bool = $dataPenolakan->pending_sampai <= Carbon::now('Asia/Jakarta')->format('Y-m-d') ? true : false;
-            $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
-                ->where('form_id', $kode)->first();
-            if ($bool == true) {
-                if ($dataPenolakan->d_operasional_act == '2') {
-                    DB::table('produksi_penyetujuan_order_ebook')
-                        ->where('produksi_order_ebook_id', $kode)
-                        ->where('d_operasional_act', '2')
-                        ->update([
-                            'd_operasional_act' => '1',
-                            'status_general' => 'Proses',
-                            'ket_pending' => NULL,
-                            'pending_sampai' => NULL,
-                        ]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->m_penerbitan)
-                        ->update(['seen' => '1', 'raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_operasional)
-                        ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
-                        ->delete();
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_utama)
-                        ->delete();
-                } elseif ($dataPenolakan->d_keuangan_act == '2') {
-                    DB::table('produksi_penyetujuan_order_ebook')
-                        ->where('produksi_order_ebook_id', $kode)
-                        ->where('d_keuangan_act', '2')
-                        ->update([
-                            'd_keuangan_act' => '1',
-                            'status_general' => 'Proses',
-                            'ket_pending' => NULL,
-                            'pending_sampai' => NULL,
-                        ]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->m_penerbitan)
-                        ->update(['seen' => '1', 'raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_operasional)
-                        ->update(['seen' => '1', 'raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
-                        ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_utama)
-                        ->delete();
-                } elseif ($dataPenolakan->d_utama_act == '2') {
-                    DB::table('produksi_penyetujuan_order_ebook')
-                        ->where('produksi_order_ebook_id', $kode)
-                        ->where('d_operasional_act', '2')
-                        ->update([
-                            'd_keuangan_act' => '1',
-                            'status_general' => 'Proses',
-                            'ket_pending' => NULL,
-                            'pending_sampai' => NULL,
-                        ]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->m_penerbitan)
-                        ->update(['seen' => '1', 'raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_operasional)
-                        ->update(['seen' => '1', 'raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_keuangan)
-                        ->update(['seen' => '1', 'raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)
-                        ->where('user_id', '=', $dataPenolakan->d_utama)
-                        ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
-                }
+        if (is_null($data)) {
+            return abort(404);
+        }
+        //Penulis
+        $penulis = DB::table('penerbitan_naskah_penulis as pnp')
+            ->join('penerbitan_penulis as pp', function ($q) {
+                $q->on('pnp.penulis_id', '=', 'pp.id')
+                    ->whereNull('pp.deleted_at');
+            })
+            ->where('pnp.naskah_id', '=', $data->naskah_id)
+            ->select('pp.id', 'pp.nama')
+            ->get();
+        //Data Action
+        $act = DB::table('order_ebook_action')->where('order_ebook_id',$data->id)->get();
+        if (!$act->isEmpty()) {
+            foreach ($act as $a) {
+                $act_j[] = $a->type_jabatan;
             }
         }
-        $prodPenyetujuan = DB::table('produksi_penyetujuan_order_ebook')
-            ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id', '=', $prod->id)
-            ->select('produksi_penyetujuan_order_ebook.*')
-            ->first();
-        $author = DB::table('users')
-            ->where('id', $author)
-            ->first();
-        $m_penerbitan = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->where('j.nama', 'LIKE', '%Manajer Penerbitan%')
-            ->select('u.nama', 'u.id as id')
-            ->first();
-        if (is_null($m_penerbitan)) {
-            $m_penerbitan = '';
-        }
-        $dirop = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->where('j.nama', 'LIKE', '%Direktur Operasional%')
-            ->select('u.nama', 'u.id as id')
-            ->first();
-        if (is_null($dirop)) {
-            $dirop = '';
-        }
-        $dirke = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->where('j.nama', 'LIKE', '%Direktur Keuangan%')
-            ->select('u.nama', 'u.id as id')
-            ->first();
-        if (is_null($dirke)) {
-            $dirke = '';
-        }
-        $dirut = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->where('j.nama', 'LIKE', '%Direktur Utama%')
-            ->select('u.nama', 'u.id as id')
-            ->first();
-        if (is_null($dirut)) {
-            $dirut = '';
-        }
-        DB::table('produksi_penyetujuan_order_ebook')
-            ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id', $prod->id)
-            ->update([
-                'm_penerbitan' => $m_penerbitan->id,
-                'd_operasional' => $dirop->id,
-                'd_keuangan' => $dirke->id,
-                'd_utama' => $dirut->id
-            ]);
-
-        $p_mp = DB::table('produksi_penyetujuan_order_ebook')
-            ->join('users', 'produksi_penyetujuan_order_ebook.m_penerbitan', '=', 'users.id')
-            ->where('produksi_penyetujuan_order_ebook.m_penerbitan', '=', $m_penerbitan->id)
-            ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id', '=', $prod->id)
-            ->select('produksi_penyetujuan_order_ebook.*', 'users.nama')
-            ->first();
-
-        $p_dirop = DB::table('produksi_penyetujuan_order_ebook')
-            ->join('users', 'produksi_penyetujuan_order_ebook.d_operasional', '=', 'users.id')
-            ->where('produksi_penyetujuan_order_ebook.d_operasional', '=', $dirop->id)
-            ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id', '=', $prod->id)
-            ->select('produksi_penyetujuan_order_ebook.*', 'users.nama')
-            ->first();
-
-        $p_dirke = DB::table('produksi_penyetujuan_order_ebook')
-            ->join('users', 'produksi_penyetujuan_order_ebook.d_keuangan', '=', 'users.id')
-            ->where('produksi_penyetujuan_order_ebook.d_keuangan', '=', $dirke->id)
-            ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id', '=', $prod->id)
-            ->select('produksi_penyetujuan_order_ebook.*', 'users.nama')
-            ->first();
-
-        $p_dirut = DB::table('produksi_penyetujuan_order_ebook')
-            ->join('users', 'produksi_penyetujuan_order_ebook.d_utama', '=', 'users.id')
-            ->where('produksi_penyetujuan_order_ebook.d_utama', '=', $dirut->id)
-            ->where('produksi_penyetujuan_order_ebook.produksi_order_ebook_id', '=', $prod->id)
-            ->select('produksi_penyetujuan_order_ebook.*', 'users.nama')
-            ->first();
-        return view('produksi.ebook.detail_ebook', [
+        //List Jabatan Approval
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook_action WHERE Field = 'type_jabatan'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $jabatan = explode("','", $matches[1]);
+        return view('penerbitan.order_ebook.detail', [
             'title' => 'Detail Order E-Book',
-            'data' => $prod,
-            'id' => $kode,
-            'prod_penyetujuan' => $prodPenyetujuan,
-            'data_penolakan' => $dataPenolakan,
-            'author' => $author,
-            'm_penerbitan' => $m_penerbitan,
-            'dirop' => $dirop,
-            'dirke' => $dirke,
-            'dirut' => $dirut,
-            'p_mp' => $p_mp,
-            'p_dirop' => $p_dirop,
-            'p_dirke' => $p_dirke,
-            'p_dirut' => $p_dirut,
+            'data' => $data,
+            'act'=> $act,
+            'act_j'=> $act_j,
+            'jabatan' => $jabatan,
+            'penulis' => $penulis
         ]);
     }
     protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)
@@ -548,7 +428,7 @@ class OrderEbookController extends Controller
             case 'approve':
                 return $this->approvalOrder($request);
                 break;
-            case 'pending':
+            case 'decline':
                 return $this->pendingOrder($request);
                 break;
             case 'update-status-progress':

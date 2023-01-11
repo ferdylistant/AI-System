@@ -132,7 +132,7 @@
                 </div>
             </div>
         @endif
-        @if (Gate::allows('do_read_raw','lihat-order-cetak'))
+        {{-- @if (Gate::allows('do_read_raw','lihat-order-cetak'))
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">
                     <div class="card-icon bg-info">
@@ -148,7 +148,7 @@
                     </div>
                 </div>
             </div>
-        @endif
+        @endif --}}
         @if (Gate::allows('do_read_raw','lihat-order-ebook'))
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">
