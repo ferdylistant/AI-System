@@ -57,7 +57,6 @@ $(function () {
                     notifToast(result.status, result.message);
                     location.reload();
                 } else {
-                    $("#modalPending").modal("hide");
                     notifToast(result.status, result.message);
                 }
                 // $('#modalDecline').modal('hide');

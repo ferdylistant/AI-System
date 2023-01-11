@@ -8,31 +8,32 @@
                             @if (!in_array($j, $act_j))
                                 {{-- APPROVE --}}
                                 <button type="submit" class="btn btn-success" id="btn-approve"
-                                    data-judul="{{ $data->judul_final }}"
-                                    data-id="{{ $data->id }}" data-jabatan="{{ $j }}">
+                                    data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                    data-jabatan="{{ $j }}">
                                     <i class="fas fa-check" data-toggle="modal"
                                         data-target="#modalPersetujuan"></i>&nbsp;Setujui</button>
                                 {{-- DECLINE --}}
                                 <button type="button" class="btn btn-danger" id="btn-decline"
-                                    data-judul="{{ $data->judul_final }}"
-                                    data-id="{{ $data->id }}" data-jabatan="{{ $j }}"
-                                    data-act="Decline"><i class="fas fa-times" data-toggle="modal"
-                                        data-target="#modalDecline"></i>&nbsp;Pending</button>
+                                    data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                    data-jabatan="{{ $j }}" data-act="Decline"><i class="fas fa-times"
+                                        data-toggle="modal" data-target="#modalDecline"></i>&nbsp;Pending</button>
                             @endif
                         @endforeach
                     @else
-                        {{-- APPROVE --}}
-                        <button type="submit" class="btn btn-success" id="btn-approve"
-                            data-judul="{{ $data->judul_final }}"
-                            data-id="{{ $data->id }}" data-jabatan="{{ $j }}">
-                            <i class="fas fa-check" data-toggle="modal"
-                                data-target="#modalPersetujuan"></i>&nbsp;Setujui</button>
-                        {{-- DECLINE --}}
-                        <button type="button" class="btn btn-danger" id="btn-decline"
-                            data-judul="{{ $data->judul_final }}"
-                            data-id="{{ $data->id }}" data-jabatan="{{ $j }}" data-act="Decline">
-                            <i class="fas fa-times" data-toggle="modal"
-                                data-target="#modalDecline"></i>&nbsp;Pending</button>
+                        @if ($j == 'GM Penerbitan')
+                            {{-- APPROVE --}}
+                            <button type="submit" class="btn btn-success" id="btn-approve"
+                                data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                data-jabatan="{{ $j }}">
+                                <i class="fas fa-check" data-toggle="modal"
+                                    data-target="#modalPersetujuan"></i>&nbsp;Setujui</button>
+                            {{-- DECLINE --}}
+                            <button type="button" class="btn btn-danger" id="btn-decline"
+                                data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                data-jabatan="{{ $j }}" data-act="Decline">
+                                <i class="fas fa-times" data-toggle="modal"
+                                    data-target="#modalDecline"></i>&nbsp;Pending</button>
+                        @endif
                     @endif
                 @endif
             @endforeach
@@ -58,9 +59,11 @@
                                     @else
                                         <div class="text-job text-danger">
                                             <a href="javascript:void(0)" id="btn-decline-detail" class="text-danger"
-                                                data-judul="{{ $data->judul_final }}"
-                                                data-id="{{ $data->id }}" data-jabatan="{{ $j }}" data-tgl="{{Carbon\Carbon::parse($a->tgl_action)->translatedFormat('l d F Y, H:i')}}"
-                                                data-catatan="{{$a->catatan_action}}" data-toggle="modal" data-target="#modalDeclineDetail">
+                                                data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                                data-jabatan="{{ $j }}"
+                                                data-tgl="{{ Carbon\Carbon::parse($a->tgl_action)->translatedFormat('l d F Y, H:i') }}"
+                                                data-catatan="{{ $a->catatan_action }}" data-toggle="modal"
+                                                data-target="#modalDeclineDetail">
                                                 <i class="fas fa-times"></i>&nbsp;Telah Ditolak
                                             </a>
                                         </div>

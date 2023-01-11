@@ -429,7 +429,7 @@ class OrderEbookController extends Controller
                 return $this->approvalOrder($request);
                 break;
             case 'decline':
-                return $this->pendingOrder($request);
+                return $this->declineOrderEbook($request);
                 break;
             case 'update-status-progress':
                 return $this->updateStatusProgress($request);
@@ -718,198 +718,227 @@ class OrderEbookController extends Controller
     //         ]);
     //     }
     // }
-    // protected function pendingOrder($request)
-    // {
-    //     try {
-    //         $dataUser = DB::table('users')
-    //                     ->where('id', auth()->id())
-    //                     ->first();
-    //         $dataPenyetujuan = DB::table('produksi_penyetujuan_order_ebook')
-    //             ->where('produksi_order_ebook_id', $request->id)
-    //             ->select('produksi_penyetujuan_order_ebook.*')
-    //             ->first();
-    //         if ($dataPenyetujuan->status_general == 'Selesai') {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'Data sudah selesai di Approve'
-    //             ]);
-    //         } elseif ($dataPenyetujuan->status_general == 'Pending') {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'Data di Pending sampai '.Carbon::parse($dataPenyetujuan->pending_sampai)->translatedFormat('d F Y')
-    //             ]);
-    //         }
-    //         if ($dataUser->id == $dataPenyetujuan->d_operasional) {
-    //             if ($dataPenyetujuan->d_operasional_act == '2') {
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Data sudah Anda Pending'
-    //                 ]);
-    //             } elseif ($dataPenyetujuan->d_operasional_act == '3') {
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Data sudah di Approve'
-    //                 ]);
-    //             }
-    //             DB::table('produksi_penyetujuan_order_ebook')
-    //                 ->where('produksi_order_ebook_id', $request->id)
-    //                 ->update([
-    //                     'd_operasional_act' => '2',
-    //                     'ket_pending' => $request->keterangan,
-    //                     'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
-    //                     'status_general' => 'Pending',
-    //                 ]);
-    //                 $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
-    //                 ->where('form_id', $request->id)->first();
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                 ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
-    //                 ->update([
-    //                     'seen' => '0',
-    //                     'raw_data' => 'Pending',
-    //                     'updated_at' => date('Y-m-d H:i:s')]);
+    protected function declineOrderEbook($request)
+    {
+        try {
+            $dataAction = DB::table('order_ebook_action')
+            ->where('order_ebook_id',$request->id)->get();
+            if(!$dataAction->isEmpty()) {
+                foreach ($dataAction as $v) {
+                    if (auth()->id() == $v->users_id) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Anda sudah melewati proses pengambilan keputusan!'
+                        ]);
+                    }
+                    if ($request->type_jabatan == $v->type_jabatan) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Jabatan anda sudah melewati proses pengambilan keputusan!'
+                        ]);
+                    }
+                }
+                $dataLast = DB::table('order_ebook_action')
+                ->where('order_ebook_id',$request->id)
+                ->orderBy('id','desc')
+                ->first();
+                // switch($request->type_jabatan) {
+                //     case 'Dir. Utama':
+                //         if ($dataLast->type_jabatan = ) {
 
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                 ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-    //                 ->update([
-    //                     'seen' => '0',
-    //                     'raw_data' => 'Pending',
-    //                     'updated_at' => date('Y-m-d H:i:s')]);
-    //             DB::table('notif_detail')
-    //                 ->insert([
-    //                     'notif_id' => $notif->id,
-    //                     'user_id' => $dataPenyetujuan->d_keuangan,
-    //                     'raw_data' => 'Pending',
-    //                     'updated_at' => date('Y-m-d H:i:s')]);
-    //             DB::table('notif_detail')
-    //                 ->insert([
-    //                     'notif_id' => $notif->id,
-    //                     'user_id' => $dataPenyetujuan->d_utama,
-    //                     'raw_data' => 'Pending',
-    //                     'updated_at' => date('Y-m-d H:i:s')]);
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'message' => 'Data berhasil dipending'
-    //             ]);
-    //         } elseif ($dataUser->id == $dataPenyetujuan->d_keuangan) {
-    //             if ($dataPenyetujuan->d_operasional_act == '1') {
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Data belum di Approve oleh Direktur Operasional'
-    //                 ]);
-    //             } elseif ($dataPenyetujuan->d_keuangan_act == '2') {
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Data sudah Anda Pending'
-    //                 ]);
-    //             } elseif ($dataPenyetujuan->d_keuangan_act == '3') {
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Data sudah di Approve'
-    //                 ]);
-    //             }
-    //             DB::table('produksi_penyetujuan_order_ebook')
-    //                 ->where('produksi_order_ebook_id', $request->id)
-    //                 ->update([
-    //                     'd_keuangan_act' => '2',
-    //                     'ket_pending' => $request->keterangan,
-    //                     'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
-    //                     'status_general' => 'Pending',
-    //                 ]);
-    //             $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
-    //                 ->where('form_id', $request->id)->first();
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                 ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
-    //                 ->update([
-    //                     'seen' => '0',
-    //                     'raw_data' => 'Pending',
-    //                     'updated_at' => date('Y-m-d H:i:s')]);
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                 ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-    //                 ->update([
-    //                     'seen' => '0',
-    //                     'raw_data' => 'Pending',
-    //                     'updated_at' => date('Y-m-d H:i:s')]);
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                     ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
-    //                     ->update([
-    //                         'seen' => '0',
-    //                         'raw_data' => 'Pending',
-    //                         'updated_at' => date('Y-m-d H:i:s')]);
-    //             DB::table('notif_detail')
-    //                 ->insert([
-    //                     'notif_id' => $notif->id,
-    //                     'user_id' => $dataPenyetujuan->d_utama,
-    //                     'raw_data' => 'Pending',
-    //                     'updated_at' => date('Y-m-d H:i:s')]);
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'message' => 'Data berhasil dipending'
-    //             ]);
-    //         } elseif ($dataUser->id == $dataPenyetujuan->d_utama) {
-    //             if ($dataPenyetujuan->d_operasional_act == '1') {
-    //                 if ($dataPenyetujuan->d_keuangan_act == '1') {
-    //                     return response()->json([
-    //                         'status' => 'error',
-    //                         'message' => 'Data belum di Approve oleh Direktur Operasional dan Direktur Keuangan'
-    //                     ]);
-    //                 }
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Data belum di Approve oleh Direktur Operasional'
-    //                 ]);
-    //             }
-    //             DB::table('produksi_penyetujuan_order_ebook')
-    //                 ->where('produksi_order_ebook_id', $request->id)
-    //                 ->update([
-    //                     'd_utama_act' => '2',
-    //                     'ket_pending' => $request->keterangan,
-    //                     'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
-    //                     'status_general' => 'Pending',
-    //                 ]);
-    //             $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
-    //                 ->where('form_id', $request->id)->first();
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                 ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
-    //                 ->update([
-    //                     'seen' => '0',
-    //                     'raw_data' => 'Pending',
-    //                     'updated_at' => date('Y-m-d H:i:s')]);
+                //         }
+                //         break;
+                // }
+            }
+            $dataUser = DB::table('users')
+                        ->where('id', auth()->id())
+                        ->first();
+            $dataPenyetujuan = DB::table('produksi_penyetujuan_order_ebook')
+                ->where('produksi_order_ebook_id', $request->id)
+                ->select('produksi_penyetujuan_order_ebook.*')
+                ->first();
+            if ($dataPenyetujuan->status_general == 'Selesai') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data sudah selesai di Approve'
+                ]);
+            } elseif ($dataPenyetujuan->status_general == 'Pending') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data di Pending sampai '.Carbon::parse($dataPenyetujuan->pending_sampai)->translatedFormat('d F Y')
+                ]);
+            }
+            if ($dataUser->id == $dataPenyetujuan->d_operasional) {
+                if ($dataPenyetujuan->d_operasional_act == '2') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah Anda Pending'
+                    ]);
+                } elseif ($dataPenyetujuan->d_operasional_act == '3') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah di Approve'
+                    ]);
+                }
+                DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_order_ebook_id', $request->id)
+                    ->update([
+                        'd_operasional_act' => '2',
+                        'ket_pending' => $request->keterangan,
+                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
+                        'status_general' => 'Pending',
+                    ]);
+                    $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                    ->where('form_id', $request->id)->first();
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
 
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                 ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-    //                 ->update([
-    //                     'seen' => '0',
-    //                     'raw_data' => 'Pending',
-    //                     'updated_at' => date('Y-m-d H:i:s')]);
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                 ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
-    //                 ->update([
-    //                     'seen' => '0',
-    //                     'raw_data' => 'Pending',
-    //                     'updated_at' => date('Y-m-d H:i:s')]);
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                 ->where('user_id', '=', $dataPenyetujuan->d_utama)
-    //                 ->update([
-    //                     'seen' => '0',
-    //                     'raw_data' => 'Pending',
-    //                     'updated_at' => date('Y-m-d H:i:s')]);
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'message' => 'Data berhasil dipending'
-    //             ]);
-    //         } else {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'Anda tidak memiliki akses'
-    //             ]);
-    //         }
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $e->getMessage()
-    //         ]);
-    //     }
-    // }
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')
+                    ->insert([
+                        'notif_id' => $notif->id,
+                        'user_id' => $dataPenyetujuan->d_keuangan,
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')
+                    ->insert([
+                        'notif_id' => $notif->id,
+                        'user_id' => $dataPenyetujuan->d_utama,
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data berhasil dipending'
+                ]);
+            } elseif ($dataUser->id == $dataPenyetujuan->d_keuangan) {
+                if ($dataPenyetujuan->d_operasional_act == '1') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data belum di Approve oleh Direktur Operasional'
+                    ]);
+                } elseif ($dataPenyetujuan->d_keuangan_act == '2') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah Anda Pending'
+                    ]);
+                } elseif ($dataPenyetujuan->d_keuangan_act == '3') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data sudah di Approve'
+                    ]);
+                }
+                DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_order_ebook_id', $request->id)
+                    ->update([
+                        'd_keuangan_act' => '2',
+                        'ket_pending' => $request->keterangan,
+                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
+                        'status_general' => 'Pending',
+                    ]);
+                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                    ->where('form_id', $request->id)->first();
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                        ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                        ->update([
+                            'seen' => '0',
+                            'raw_data' => 'Pending',
+                            'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')
+                    ->insert([
+                        'notif_id' => $notif->id,
+                        'user_id' => $dataPenyetujuan->d_utama,
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data berhasil dipending'
+                ]);
+            } elseif ($dataUser->id == $dataPenyetujuan->d_utama) {
+                if ($dataPenyetujuan->d_operasional_act == '1') {
+                    if ($dataPenyetujuan->d_keuangan_act == '1') {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Data belum di Approve oleh Direktur Operasional dan Direktur Keuangan'
+                        ]);
+                    }
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data belum di Approve oleh Direktur Operasional'
+                    ]);
+                }
+                DB::table('produksi_penyetujuan_order_ebook')
+                    ->where('produksi_order_ebook_id', $request->id)
+                    ->update([
+                        'd_utama_act' => '2',
+                        'ket_pending' => $request->keterangan,
+                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
+                        'status_general' => 'Pending',
+                    ]);
+                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
+                    ->where('form_id', $request->id)->first();
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                DB::table('notif_detail')->where('notif_id', $notif->id)
+                    ->where('user_id', '=', $dataPenyetujuan->d_utama)
+                    ->update([
+                        'seen' => '0',
+                        'raw_data' => 'Pending',
+                        'updated_at' => date('Y-m-d H:i:s')]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data berhasil dipending'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda tidak memiliki akses'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
     protected function getOrderId($tipeOrder)
     {
         $year = date('y');
