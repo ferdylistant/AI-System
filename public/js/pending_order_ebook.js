@@ -1,6 +1,5 @@
-$(document).ready(function () {
-    $("#btn-decline").on("click", function (e) {
-        e.preventDefault();
+$(function () {
+    $("#btn-decline").on("click", function () {
         let id = $(this).data('id');
         let jabatan = $(this).data('jabatan');
         let jb = $(this).data('judul');
@@ -12,9 +11,8 @@ $(document).ready(function () {
         $("#modalDecline").modal("show");
     });
 });
-$(document).ready(function () {
-    $("#btn-decline-detail").on("click", function (e) {
-        e.preventDefault();
+$(function () {
+    $("#btn-decline-detail").on("click", function () {
         let tgl = $(this).data('tgl');
         let catatan = $(this).data('catatan');
         $("#tglAction").text(tgl);
@@ -52,6 +50,7 @@ $(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
+                // console.log(result);
                 resetFrom(data);
                 if (result.status == "success") {
                     notifToast(result.status, result.message);

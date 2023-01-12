@@ -189,30 +189,29 @@ class NotificationController extends Controller {
                 }
             }
         }
-        if(Gate::allows('do_approval', 'persetujuan-manpen')) {
+        if(Gate::allows('do_approval', 'Dir. Operasional')) {
             $notif = DB::table('notif as n')
-                        ->join('produksi_order_cetak as po', function($j) {
-                            $j->on('n.form_id', '=', 'po.id')
-                                ->whereNull('deleted_at');
+                        ->join('order_ebook as oe', function($j) {
+                            $j->on('n.form_id', '=', 'oe.id');
                         })
                         ->where(function($q) {
-                            $q->where('n.type', 'Persetujuan Order Buku Baru')
-                                ->orWhere('n.type', 'Persetujuan Order Cetak Ulang Revisi');
+                            $q->where('n.type', 'Tolak Order E-Book')
+                                ->orWhere('n.type', 'Terima Order E-Book');
                         })
-                        ->where('n.permission_id', '1b842575174242cf83f949f262900570')
+                        ->where('n.permission_id', '4cea10b3a4434bc3b342407a78a9ab2a')
                         ->whereNull('n.expired')
-                        ->select(DB::raw('n.created_at as tgl_notif, po.id, po.created_by, po.kode_order, po.judul_buku'))
+                        ->select(DB::raw('n.created_at as tgl_notif, oe.id, oe.kode_order'))
                         ->get();
             // dd($notif);
             if(!$notif->isEmpty()) {
                 foreach($notif as $n) {
                     $craetedAt = Carbon::createFromFormat('Y-m-d H:i:s', $n->tgl_notif, 'Asia/Jakarta')->diffForHumans();
-                    $html .=    '<a href="'.url('produksi/order-cetak/detail?kode='.$n->id.'&author='.$n->created_by).'" class="dropdown-item dropdown-item-unread">
+                    $html .=    '<a href="'.url('produksi/order-cetak/detail?order='.$n->id.'&naskah=').'" class="dropdown-item dropdown-item-unread">
                                     <div class="dropdown-item-icon bg-primary text-white">
                                         <i class="fas fa-file-alt"></i>
                                     </div>
                                     <div class="dropdown-item-desc">
-                                        Kode produksi <strong><i>'.$n->kode_order.'</i></strong> dengan judul buku "<strong>'.$n->judul_buku.'</strong>" perlu Anda tanggapi (<strong>Manajer Penerbitan</strong>).
+                                        Kode produksi <strong><i>'.$n->kode_order.'</i></strong> perlu Anda tanggapi (<strong>Manajer Penerbitan</strong>).
                                         <div class="time text-primary">'.$craetedAt.'</div>
                                     </div>
                                 </a>';
