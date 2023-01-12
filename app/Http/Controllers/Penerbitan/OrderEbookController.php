@@ -336,7 +336,16 @@ class OrderEbookController extends Controller
         if (!$act->isEmpty()) {
             foreach ($act as $a) {
                 $act_j[] = $a->type_jabatan;
+                //Dirop dan Dirke sudah
+                if ($a->type_jabatan == 'Dir. Operasional' || $a->type_jabatan == 'Dir. Keuangan') {
+                    $diropDirke = TRUE;
+                } else {
+                    $diropDirke = FALSE;
+                }
             }
+        } else {
+            $act_j = NULL;
+            $diropDirke = NULL;
         }
         //List Jabatan Approval
         $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook_action WHERE Field = 'type_jabatan'"))[0]->Type;
@@ -348,7 +357,8 @@ class OrderEbookController extends Controller
             'act'=> $act,
             'act_j'=> $act_j,
             'jabatan' => $jabatan,
-            'penulis' => $penulis
+            'penulis' => $penulis,
+            'dirop_dirke' => $diropDirke
         ]);
     }
     protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)

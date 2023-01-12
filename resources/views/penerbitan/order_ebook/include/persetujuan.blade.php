@@ -6,17 +6,36 @@
                     @if (!$act->isEmpty())
                         @foreach ($act as $a)
                             @if (!in_array($j, $act_j))
-                                {{-- APPROVE --}}
-                                <button type="submit" class="btn btn-success" id="btn-approve"
-                                    data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                    data-jabatan="{{ $j }}">
-                                    <i class="fas fa-check" data-toggle="modal"
-                                        data-target="#modalPersetujuan"></i>&nbsp;Setujui</button>
-                                {{-- DECLINE --}}
-                                <button type="button" class="btn btn-danger" id="btn-decline"
-                                    data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                    data-jabatan="{{ $j }}" data-act="Decline"><i class="fas fa-times"
-                                        data-toggle="modal" data-target="#modalDecline"></i>&nbsp;Pending</button>
+                                @if ($j == 'Dir. Utama')
+                                    @if ($dirop_dirke == true)
+                                        {
+                                        {{-- APPROVE --}}
+                                        <button type="submit" class="btn btn-success" id="btn-approve"
+                                            data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                            data-jabatan="{{ $j }}">
+                                            <i class="fas fa-check" data-toggle="modal"
+                                                data-target="#modalPersetujuan"></i>&nbsp;Setujui</button>
+                                        {{-- DECLINE --}}
+                                        <button type="button" class="btn btn-danger" id="btn-decline"
+                                            data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                            data-jabatan="{{ $j }}" data-act="Decline"><i
+                                                class="fas fa-times" data-toggle="modal"
+                                                data-target="#modalDecline"></i>&nbsp;Pending</button>
+                                        }
+                                    @endif
+                                @else
+                                    {{-- APPROVE --}}
+                                    <button type="submit" class="btn btn-success" id="btn-approve"
+                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                        data-jabatan="{{ $j }}">
+                                        <i class="fas fa-check" data-toggle="modal"
+                                            data-target="#modalPersetujuan"></i>&nbsp;Setujui</button>
+                                    {{-- DECLINE --}}
+                                    <button type="button" class="btn btn-danger" id="btn-decline"
+                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                        data-jabatan="{{ $j }}" data-act="Decline"><i class="fas fa-times"
+                                            data-toggle="modal" data-target="#modalDecline"></i>&nbsp;Pending</button>
+                                @endif
                             @endif
                         @endforeach
                     @else
