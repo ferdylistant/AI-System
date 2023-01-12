@@ -5,6 +5,8 @@ namespace App\Listeners;
 use App\Events\OrderCetakEvent;
 use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 
 class OrderCetakListener
 {

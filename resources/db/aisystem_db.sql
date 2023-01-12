@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 10, 2023 at 03:31 AM
+-- Generation Time: Jan 11, 2023 at 03:43 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -1487,33 +1487,23 @@ CREATE TABLE `order_ebook` (
   `id` char(36) NOT NULL,
   `deskripsi_turun_cetak_id` char(36) DEFAULT NULL,
   `kode_order` varchar(9) NOT NULL,
-  `tipe_order` enum('1','2') DEFAULT NULL COMMENT '1= Umum, 2= Rohani',
-  `judul_buku` varchar(50) DEFAULT NULL,
-  `sub_judul` varchar(100) DEFAULT NULL,
-  `platform_digital` text DEFAULT NULL COMMENT 'array',
-  `penulis` varchar(70) DEFAULT NULL,
-  `eisbn` varchar(100) DEFAULT NULL,
-  `penerbit` varchar(100) DEFAULT NULL,
-  `imprint` varchar(100) DEFAULT NULL,
-  `edisi_cetakan` varchar(20) DEFAULT NULL,
-  `jumlah_halaman` varchar(100) DEFAULT NULL,
-  `kelompok_buku` varchar(100) DEFAULT NULL,
   `tahun_terbit` year(4) DEFAULT NULL,
-  `status_buku` enum('1','2') DEFAULT NULL COMMENT '1= Reguler, 2= MOU',
   `spp` varchar(25) DEFAULT NULL,
+  `eisbn` char(13) DEFAULT NULL,
   `perlengkapan` text DEFAULT NULL,
   `keterangan` text DEFAULT NULL,
   `tgl_upload` datetime DEFAULT NULL,
   `status` enum('Antrian','Pending','Proses','Selesai') DEFAULT 'Antrian',
-  `tgl_masuk` datetime DEFAULT NULL
+  `tgl_masuk` datetime DEFAULT NULL,
+  `tgl_selesai_order` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `order_ebook`
 --
 
-INSERT INTO `order_ebook` (`id`, `deskripsi_turun_cetak_id`, `kode_order`, `tipe_order`, `judul_buku`, `sub_judul`, `platform_digital`, `penulis`, `eisbn`, `penerbit`, `imprint`, `edisi_cetakan`, `jumlah_halaman`, `kelompok_buku`, `tahun_terbit`, `status_buku`, `spp`, `perlengkapan`, `keterangan`, `tgl_upload`, `status`, `tgl_masuk`) VALUES
-('7916a422-105b-4996-ad12-8410720eda28', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', 'E23-1000', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', '2023-01-09 19:56:54');
+INSERT INTO `order_ebook` (`id`, `deskripsi_turun_cetak_id`, `kode_order`, `tahun_terbit`, `spp`, `eisbn`, `perlengkapan`, `keterangan`, `tgl_upload`, `status`, `tgl_masuk`, `tgl_selesai_order`) VALUES
+('7916a422-105b-4996-ad12-8410720eda28', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', 'E23-1000', 2023, NULL, '2343423423423', NULL, NULL, '2023-01-14 08:56:08', 'Proses', '2023-01-09 19:56:54', NULL);
 
 -- --------------------------------------------------------
 
@@ -1534,36 +1524,47 @@ CREATE TABLE `order_ebook_action` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `order_ebook_penyetujuan`
+-- Table structure for table `order_ebook_history`
 --
 
-CREATE TABLE `order_ebook_penyetujuan` (
-  `id` char(36) NOT NULL,
-  `order_ebook_id` char(36) NOT NULL,
-  `m_penerbitan` varchar(36) DEFAULT NULL,
-  `d_operasional` varchar(36) DEFAULT NULL,
-  `d_keuangan` varchar(36) DEFAULT NULL,
-  `d_utama` varchar(36) DEFAULT NULL,
-  `m_penerbitan_act` enum('1','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 3= Setuju',
-  `d_operasional_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
-  `d_keuangan_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
-  `d_utama_act` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1= belum, 2= pending, 3= setuju',
-  `tgl_upload_history` datetime DEFAULT NULL,
-  `ket_pending` text DEFAULT NULL,
-  `pending_sampai` date DEFAULT NULL,
-  `status_general` enum('Proses','Pending','Selesai') DEFAULT 'Proses',
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `order_ebook_history` (
+  `id` bigint(20) NOT NULL,
+  `type_history` enum('Status','Update','Approval') DEFAULT NULL,
+  `order_ebook_id` char(36) DEFAULT NULL,
+  `tipe_order_his` tinyint(4) DEFAULT NULL,
+  `tipe_order_new` tinyint(4) DEFAULT NULL,
+  `edisi_cetak_his` varchar(100) DEFAULT NULL,
+  `edisi_cetak_new` varchar(100) DEFAULT NULL,
+  `jml_hal_perkiraan_his` int(11) DEFAULT NULL,
+  `jml_hal_perkiraan_new` int(11) DEFAULT NULL,
+  `kelompok_buku_id_his` varchar(36) DEFAULT NULL,
+  `kelompok_buku_id_new` varchar(36) DEFAULT NULL,
+  `tahun_terbit_his` year(4) DEFAULT NULL,
+  `tahun_terbit_new` year(4) DEFAULT NULL,
+  `tgl_upload_his` datetime DEFAULT NULL,
+  `tgl_upload_new` datetime DEFAULT NULL,
+  `spp_his` varchar(25) DEFAULT NULL,
+  `spp_new` varchar(25) DEFAULT NULL,
+  `keterangan_his` text DEFAULT NULL,
+  `keterangan_new` text DEFAULT NULL,
+  `perlengkapan_his` text DEFAULT NULL,
+  `perlengkapan_new` text DEFAULT NULL,
+  `eisbn_his` char(13) DEFAULT NULL,
+  `eisbn_new` char(13) DEFAULT NULL,
+  `status_his` varchar(8) DEFAULT NULL,
+  `status_new` varchar(8) DEFAULT NULL,
+  `author_id` varchar(36) DEFAULT NULL,
+  `modified_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Dumping data for table `order_ebook_penyetujuan`
+-- Dumping data for table `order_ebook_history`
 --
 
-INSERT INTO `order_ebook_penyetujuan` (`id`, `order_ebook_id`, `m_penerbitan`, `d_operasional`, `d_keuangan`, `d_utama`, `m_penerbitan_act`, `d_operasional_act`, `d_keuangan_act`, `d_utama_act`, `tgl_upload_history`, `ket_pending`, `pending_sampai`, `status_general`, `created_at`, `updated_at`) VALUES
-('370ec5ac-8280-4bc9-9969-03191d57db92', '62b39571-5192-496b-97df-d7663f2681dd', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '1', '1', NULL, NULL, NULL, 'Proses', '2022-09-06 06:49:49', '2022-09-06 06:49:52'),
-('7c559112-bce4-489f-9972-427cdf81639c', '329fb5c2-531c-4f61-a6cd-4aaf812f76a9', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '1', '1', NULL, NULL, NULL, 'Proses', '2022-09-06 06:24:12', '2022-09-06 06:25:21'),
-('d1bbaf8f-ad71-4b01-8fef-11c9b7308d59', 'd9079338-1709-4ac5-b845-15314c079e9d', '4fc80f443bfb4969b9a0272d9be08ef2', 'fd035809e2c045098770a7e9dfccddf9', 'c62658af71bf4c5692b041c9384d068b', '37aee684a9e447a6bef36cbf08222d5d', '1', '1', '1', '1', NULL, NULL, NULL, 'Proses', '2022-09-06 04:58:55', '2022-09-06 04:59:08');
+INSERT INTO `order_ebook_history` (`id`, `type_history`, `order_ebook_id`, `tipe_order_his`, `tipe_order_new`, `edisi_cetak_his`, `edisi_cetak_new`, `jml_hal_perkiraan_his`, `jml_hal_perkiraan_new`, `kelompok_buku_id_his`, `kelompok_buku_id_new`, `tahun_terbit_his`, `tahun_terbit_new`, `tgl_upload_his`, `tgl_upload_new`, `spp_his`, `spp_new`, `keterangan_his`, `keterangan_new`, `perlengkapan_his`, `perlengkapan_new`, `eisbn_his`, `eisbn_new`, `status_his`, `status_new`, `author_id`, `modified_at`) VALUES
+(1, 'Status', '7916a422-105b-4996-ad12-8410720eda28', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Pending', 'be8d42fa88a14406ac201974963d9c1b', '2023-01-10 15:17:46'),
+(2, 'Status', '7916a422-105b-4996-ad12-8410720eda28', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Proses', 'be8d42fa88a14406ac201974963d9c1b', '2023-01-10 15:38:04'),
+(5, 'Update', '7916a422-105b-4996-ad12-8410720eda28', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-01-12 08:53:32', '2023-01-14 08:56:08', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-11 08:56:08');
 
 -- --------------------------------------------------------
 
@@ -3871,9 +3872,9 @@ ALTER TABLE `order_ebook_action`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `order_ebook_penyetujuan`
+-- Indexes for table `order_ebook_history`
 --
-ALTER TABLE `order_ebook_penyetujuan`
+ALTER TABLE `order_ebook_history`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -4136,6 +4137,12 @@ ALTER TABLE `imprint_history`
 --
 ALTER TABLE `order_ebook_action`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `order_ebook_history`
+--
+ALTER TABLE `order_ebook_history`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `penerbitan_m_kelompok_buku_history`

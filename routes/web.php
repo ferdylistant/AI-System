@@ -5,7 +5,7 @@ use App\Http\Controllers\ManWeb\{StrukturAoController, UsersController, SettingC
 use App\Http\Controllers\{AuthController, ApiController, HomeController, NotificationController};
 use App\Http\Controllers\Produksi\{EbookController, ProsesProduksiController, ProsesEbookController};
 use App\Http\Controllers\MasterData\{ImprintController, KelompokBukuController, FormatBukuController};
-use App\Http\Controllers\Penerbitan\{OrderCetakController,OrderEbookController,PenulisController, NaskahController, PenilaianNaskahController, DeskripsiCoverController, DeskripsiFinalController, DeskripsiProdukController,DeskripsiTurunCetakController, EditingController, PracetakSetterController, PracetakDesainerController};
+use App\Http\Controllers\Penerbitan\{OrderCetakController, OrderEbookController, PenulisController, NaskahController, PenilaianNaskahController, DeskripsiCoverController, DeskripsiFinalController, DeskripsiProdukController, DeskripsiTurunCetakController, EditingController, PracetakSetterController, PracetakDesainerController};
 
 /*
 |--------------------------------------------------------------------------
@@ -160,16 +160,12 @@ Route::middleware(['auth'])->group(function () {
         //Order Cetak
         Route::get('/order-cetak', [OrderCetakController::class, 'index'])->name('cetak.view');
         Route::get('/order-cetak/detail', [OrderCetakController::class, 'detailProduksi'])->name('cetak.detail');
-        Route::match(['get', 'post'], '/order-cetak/create', [OrderCetakController::class, 'createProduksi'])->name('cetak.create');
-        Route::match(['get', 'post'], '/order-cetak/edit', [OrderCetakController::class, 'updateProduksi'])->name('cetak.update');
-        Route::post('/hapus-order-cetak-buku', [OrderCetakController::class, 'deleteProduksi'])->name('cetak.delete');
+        Route::match(['get', 'post'], '/order-cetak/edit', [OrderCetakController::class, 'updateOrderCetak'])->name('cetak.update');
         Route::post('/order-cetak/ajax/{cat}', [OrderCetakController::class, 'ajaxRequest']);
         //Order Ebook
         Route::get('/order-ebook', [OrderEbookController::class, 'index'])->name('ebook.view');
         Route::get('/order-ebook/detail', [OrderEbookController::class, 'detailProduksi'])->name('ebook.detail');
-        Route::match(['get', 'post'], '/order-ebook/create', [OrderEbookController::class, 'createProduksi'])->name('ebook.create');
-        Route::match(['get', 'post'], '/order-ebook/edit', [OrderEbookController::class, 'updateProduksi'])->name('ebook.update');
-        Route::post('/hapus-order-ebook-buku', [OrderEbookController::class, 'deleteProduksi'])->name('ebook.delete');
+        Route::match(['get', 'post'], '/order-ebook/edit', [OrderEbookController::class, 'updateOrderEbook'])->name('ebook.update');
         Route::post('/order-ebook/ajax/{cat}', [OrderEbookController::class, 'ajaxRequest']);
     });
     //Produksi

@@ -11,7 +11,7 @@
     <section class="section">
         <div class="section-header">
             <div class="section-header-back">
-                <a href="{{ route('desturcet.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+                <a href="{{ route('cetak.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
             </div>
             <h1>Detail Order Cetak Buku</h1>
         </div>
@@ -73,12 +73,21 @@
                                         </div>
                                         <ul class="list-unstyled list-inline">
                                             <li class="list-inline-item">
-                                                @foreach ($pilihan_terbit as $pt)
-                                                    <p class="mb-1 text-monospace">
-                                                        <span class="bullet"></span>
-                                                        <span>{{ $pt }}</span>
-                                                    </p>
-                                                @endforeach
+                                                <p class="mb-1 text-monospace">
+                                                    <span class="bullet"></span>
+                                                    <span>{{ $pilihan_terbit->pilihan_terbit }}</span>
+                                                </p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Platform Ebook</h6>
+                                        </div>
+                                        <ul class="list-unstyled list-inline">
+                                            <li class="mb-1 text-monospace list-inline-item">
+                                                <span class="bullet"></span>
+                                                <span>{{ $pilihan_terbit->platform_digital_ebook_id }}</span>
                                             </li>
                                         </ul>
                                     </div>
@@ -113,32 +122,6 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    {{-- <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Tipe Order</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace">
-                                            @if (is_null($data->tipe_order))
-                                                -
-                                            @else
-                                                {{ $data->tipe_order == '1' ? 'Umum' : 'Rohani' }}
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Edisi Cetak Tahun</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace">
-                                            @if (is_null($data->edisi_cetak))
-                                                -
-                                            @else
-                                                {{ $data->edisi_cetak }}
-                                            @endif
-                                        </p>
-                                    </div> --}}
-                                </div>
-                                <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">ISBN</h6>
@@ -151,8 +134,8 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">E-ISBN</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->isbn) ? '-' : $data->isbn }}
+                                        <p class="mb-1 text-monospace text-danger">
+                                            Masih Kosong
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
@@ -163,6 +146,8 @@
                                             Andi Offset - {{ is_null($data->imprint) ? '-' : $data->imprint }}
                                         </p>
                                     </div>
+                                </div>
+                                <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Kelompok Buku</h6>
@@ -200,12 +185,9 @@
                                             <h6 class="mb-1">Bending</h6>
                                         </div>
                                         <p class="mb-1 text-monospace text-danger">
-                                            {{ is_null($data->ukuran_jilid_bending) ? '-' : $data->ukuran_jilid_bending . ' cm' }}
+                                            Masih Kosong
                                         </p>
                                     </div>
-
-                                </div>
-                                <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Kertas Isi</h6>
@@ -218,8 +200,8 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Kertas Cover</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->kertas_isi) ? '-' : $data->kertas_isi }}
+                                        <p class="mb-1 text-monospace text-danger">
+                                            Masih Kosong
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
@@ -232,50 +214,116 @@
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Tanggal Masuk</h6>
+                                            <h6 class="mb-1">Jenis Cover</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @if (is_null($data->tgl_masuk))
-                                                -
-                                            @else
-                                                {{ Carbon\Carbon::parse($data->tgl_masuk)->translatedFormat('l d F Y, H:i') }}
-                                            @endif
+                                            {{ is_null($data->jenis_cover) ? '-' : $data->jenis_cover }}
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Sasaran Pasar</h6>
+                                            <h6 class="mb-1">Tanggal Terbit</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @if (is_null($sasaran_pasar))
-                                                -
-                                            @else
-                                                {{ $sasaran_pasar }}
-                                            @endif
+                                            {{ is_null($data->tahun_terbit) ? '-' : $data->tahun_terbit }}
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Bulan</h6>
+                                            <h6 class="mb-1">Buku Jadi</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @if (is_null($data->bulan))
-                                                -
-                                            @else
-                                                {{ $data->bulan }}
-                                            @endif
+                                            {{ is_null($data->buku_jadi) ? '-' : $data->buku_jadi }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Status Buku</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            Masih Kosong
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Contoh Cover</h6>
+                                            <h6 class="mb-1">Jumlah Cetak</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @if (is_null($data->url_file))
-                                                -
-                                            @else
-                                                <a href="{{ $data->url_file }}" target="blank">{{ $data->url_file }}</a>
-                                            @endif
+                                            {{ is_null($data->jumlah_cetak) ? '-' : $data->jumlah_cetak }}
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Buku Contoh</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            {{ is_null($data->buku_contoh) ? '-' : $data->buku_contoh }}
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Keterangan</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            {{ is_null($data->keterangan) ? '-' : $data->keterangan }}
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Perlengkapan</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            {{ is_null($data->perlengkapan) ? '-' : $data->perlengkapan }}
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Jahit Kawat</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace text-danger">
+                                            Masih Kosong
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Jahit Benang</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace text-danger">
+                                            Masih Kosong
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Warna Isi</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            {{ is_null($data->isi_warna) ? '-' : $data->isi_warna }}
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Warna Cover</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            {{ is_null($data->warna) ? '-' : $data->warna }}
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Tahun Terbit</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            {{ is_null($data->tahun_terbit) ? '-' : $data->tahun_terbit }}
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">SPP</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            {{ is_null($data->spp) ? '-' : $data->spp }}
                                         </p>
                                     </div>
                                 </div>

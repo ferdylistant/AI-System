@@ -1,5 +1,4 @@
-
-$(document).ready(function(){
+$(document).ready(function () {
     $(".select2")
         .select2({
             placeholder: "Pilih",
@@ -13,7 +12,7 @@ $(document).ready(function(){
         .select2({
             placeholder: "Pilih penulis",
             multiple: true,
-            disabled: true
+            disabled: true,
         })
         .on("change", function (e) {
             if (this.value) {
@@ -38,18 +37,20 @@ $(function () {
     function resetFrom(form) {
         form.trigger("reset");
         $('[name="up_tipe_order"]').val("").trigger("change");
-        $('[name="up_eisbn"]').val("").trigger("change");
         $('[name="up_edisi_cetak]"]').val("").trigger("change");
         $('[name="up_tahun_terbit"]').val("").trigger("change");
         $('[name="up_tgl_upload"]').val("").trigger("change");
     }
 
-    function ajaxUpOrderEbook(data) {
+    function ajaxUpOrderCetak(data) {
         let el = data.get(0);
-        let id = data.data('id');
+        let id = data.data("id");
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/order-ebook/edit?id=" + id,
+            url:
+                window.location.origin +
+                "/penerbitan/order-cetak/edit?id=" +
+                id,
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -60,7 +61,7 @@ $(function () {
             },
             success: function (result) {
                 console.log(result);
-                if (result.status == 'error') {
+                if (result.status == "error") {
                     resetFrom(data);
                     notifToast(result.status, result.message);
                 } else {
@@ -88,7 +89,7 @@ $(function () {
         });
     }
 
-    $("#fup_OrderEbook").on("submit", function (e) {
+    $("#fup_OrderCetak").on("submit", function (e) {
         e.preventDefault();
         if ($(this).valid()) {
             let nama = $(this).find('[name="up_judul_final"]').val();
@@ -99,19 +100,11 @@ $(function () {
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxUpOrderEbook($(this));
+                    ajaxUpOrderCetak($(this));
                 }
             });
         } else {
             notifToast("error", "Periksa kembali form Anda!");
         }
     });
-});
-$(document).ready(function(){
-    //!Format Penulisan ISBN dan HARGA
-    var ISBN = document.getElementById('EISBN');
-    var maskISBN = {
-        mask: '0000000000000'
-    };
-    var mask = IMask(ISBN, maskISBN, reverse = true);
 });
