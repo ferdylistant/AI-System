@@ -12,17 +12,27 @@ $(function () {
     });
 });
 $(function () {
-    $("#btn-decline-detail").on("click", function () {
-        let tgl = $(this).data('tgl');
-        let catatan = $(this).data('catatan');
-        $("#tglAction").text(tgl);
-        if (catatan == '') {
-             catatan = 'Tidak ada catatan';
-        } else {
-             catatan = catatan;
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
-        $("#catatan").text(catatan);
-        $("#modalDeclineDetail").modal("show");
+    });
+    $("body").on("click","#btn-decline-detail", function (e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        $.post(window.location.origin + "/penerbitan/order-ebook/ajax/decline-detail?id=" + id, function (data) {
+
+            $("#namaUser").text(data.users);
+            $("#tglAction").text(data.tgl);
+            if (data.catatan == null) {
+                catatan = 'Tidak ada catatan';
+            } else {
+                catatan = data.catatan;
+            }
+            $("#catatan").text(catatan);
+            $("#modalDeclineDetail").modal("show");
+        })
+
     });
 });
 
@@ -73,7 +83,7 @@ $(function () {
                     });
                     addForm.showErrors(err);
                 }
-                notifToast("error", "Gagal melakukan pending!");
+                notifToast("error", "Gagal melakukan penolakan!");
             },
             complete: function () {
                 $('button[type="submit"]')

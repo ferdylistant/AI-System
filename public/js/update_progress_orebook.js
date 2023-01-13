@@ -1,7 +1,7 @@
 $('#tb_OrderEbook').on('click', '.btn-history', function(e) {
     var id = $(this).data('id');
     var judul = $(this).data('judulfinal');
-    $.post(window.location.origin + "/penerbitan/order-ebook/ajax/lihat-history", {
+    $.post(window.location.origin + "/penerbitan/order-ebook/ajax/lihat-history-order-ebook", {
         id: id
     }, function(data) {
         $('#titleModalOrderEbook').html(
@@ -121,7 +121,7 @@ $(function () {
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/penerbitan/order-ebook/ajax/lihat-history",
+            url: window.location.origin + "/penerbitan/order-ebook/ajax/lihat-history-order-ebook",
             data: {
                 id: id,
                 page: page,

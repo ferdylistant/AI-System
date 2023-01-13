@@ -112,6 +112,15 @@ class OrderEbookListener
                     'catatan_action' => $data['catatan_action'],
                     'tgl_action' => $data['tgl_action']
                 ]);
+                //?HISTORY
+                DB::table('order_ebook_history')->insert([
+                    'order_ebook_id' => $data['order_ebook_id'],
+                    'type_history' => $data['type_action'],
+                    'type_jabatan' => $data['type_jabatan'],
+                    'catatan_action' => $data['catatan_action'],
+                    'author_id' => $data['users_id'],
+                    'modified_at' => $data['tgl_action']
+                ]);
                 DB::commit();
                 break;
                 default:

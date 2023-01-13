@@ -1,51 +1,54 @@
 $(function () {
-    $(".datepicker").datepicker({
-        format: "dd MM yyyy",
-        startDate: "-10d",
-        autoclose: true,
-        clearBtn: true,
-        todayHighlight: true,
+    $("#btn-approve").on("click", function () {
+        let id = $(this).data('id');
+        let jabatan = $(this).data('jabatan');
+        let jb = $(this).data('judul');
+        // $("#titleModal").html("Konfirmasi Persetujuan Pending");
+        $("#_id").val(id);
+        // $("#kode_Order").val(ko);
+        $("#judul_BukuApproval").val(jb);
+        $("#type_JabatanApproval").val(jabatan);
+        $("#modalApproval").modal("show");
+        // console.log(jabatan);
     });
-    $("#btn-edit-tgl-upload").on("click", function () {
-        $("#edit-tgl-upload").removeAttr("style");
-        $("#btn-edit-tgl-upload").hide();
+});
+$(function () {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
     });
-    $(".close").on("click", function () {
-        $("#edit-tgl-upload").attr("style", "display:none");
-        $("#btn-edit-tgl-upload").show();
-    });
-    $("#upTglUpload").change(function (e) {
+    $("body").on("click","#btn-approve-detail", function (e) {
         e.preventDefault();
+        var id = $(this).data('id');
+        $.post(window.location.origin + "/penerbitan/order-ebook/ajax/approve-detail?id=" + id, function (data) {
 
-        // get the value of the dropdown
-        var id = $("#id").val();
-        var hisTglUpload = $("#historyTgl").val();
-        var selectedValue = $(this).val();
-        console.log(hisTglUpload);
-        // make the ajax call (needs to be POST since you're sending data)
-        $.ajax({
-            url: window.location.origin + "/update-tanggal-upload-ebook",
-            type: "POST", // change your route to use POST too
-            datatype: "JSON",
-            context: this,
-            data: {
-                history: hisTglUpload,
-                value: selectedValue,
-                id: id,
-            },
-            success: function (res) {
-                //var html = res;// no need to waste a variable, just use it directly
-                notifToast(res.status, res.message);
-                location.reload();
-            },
-            error: function () {
-                notifToast("error", "Terjadi kesalahan");
-            },
-        });
+            // console.log(data);
+            $("#namaUserApprove").text(data.users);
+            $("#tglActionApprove").text(data.tgl);
+            if (data.catatan == null) {
+                catatan = 'Tidak ada catatan';
+            } else {
+                catatan = data.catatan;
+            }
+            $("#catatanApprove").text(catatan);
+            $("#modalApprovalDetail").modal("show");
+        })
+
     });
-    function ajaxApproveProduksiEbook(data) {
+});
+
+$(function () {
+    function resetFrom(form) {
+        form.trigger("reset");
+        $('[name="catatan_action"]').val("").trigger("change");
+    }
+    // let addForm = jqueryValidation_("#fadd_Catatan", {
+    //     catatan_action: { required: true },
+    // });
+
+    function ajaxApproveOrderEbook(data) {
         let el = data.get(0);
-        // console.log(el);
         $.ajax({
             type: "POST",
             url:
@@ -59,9 +62,14 @@ $(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                // resetFrom(data);
-                notifToast(result.status, result.message);
-                location.reload();
+                console.log(result);
+                resetFrom(data);
+                if (result.status == "success") {
+                    notifToast(result.status, result.message);
+                    location.reload();
+                } else {
+                    notifToast(result.status, result.message);
+                }
                 // $('#modalDecline').modal('hide');
                 // ajax.reload();
                 // location.href = result.redirect;
@@ -75,9 +83,9 @@ $(function () {
                         let [key, value] = entry;
                         err[key] = value;
                     });
-                    addForm.showErrors(err);
+                    // addForm.showErrors(err);
                 }
-                notifToast("error", "Gagal melakukan penyetujuan!");
+                notifToast("error", "Gagal melakukan approval!");
             },
             complete: function () {
                 $('button[type="submit"]')
@@ -87,25 +95,21 @@ $(function () {
         });
     }
 
-    $("#fadd_Approval").on("submit", function (e) {
+    $("#fadd_CatatanApproval").on("submit", function (e) {
         e.preventDefault();
         if ($(this).valid()) {
-            let kode = $(this).find('[name="kode_order"]').val();
-            let judul = $(this).find('[name="judul_buku"]').val();
+            let judul = $(this).find('[name="judul_final"]').val();
+            // console.log(judul);
             swal({
                 title:
-                    "Yakin menyetujui order e-book #" +
-                    kode +
-                    "-" +
-                    judul +
-                    "?",
-                text: "Setelah menyetujui, Anda tidak dapat mengubah kembali data yang sudah Anda setujui!",
+                    "Yakin order e-book '" + judul + "' diterima dengan catatan atau tidak dengan catatan?",
+                text: "Setelah diterima, keputusan tidak bisa diubah kembali..",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxApproveProduksiEbook($(this));
+                    ajaxApproveOrderEbook($(this));
                 }
             });
         }

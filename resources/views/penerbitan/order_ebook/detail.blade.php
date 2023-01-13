@@ -329,6 +329,8 @@
 
 
     @include('penerbitan.order_ebook.include.modal_decline')
+    @include('penerbitan.order_ebook.include.modal_approve')
+    @include('penerbitan.order_ebook.include.modal_approve_detail')
     @include('penerbitan.order_ebook.include.modal_decline_detail')
 @endsection
 @section('jsRequired')
@@ -343,8 +345,8 @@
 @endsection
 
 @section('jsNeeded')
-    {{-- <script src="{{ url('js/approval_order_ebook.js') }}"></script> --}}
-    <script src="{{ url('js/pending_order_ebook.js') }}"></script>
+    <script src="{{ url('js/approval_order_ebook.js') }}"></script>
+    <script src="{{ url('js/decline_order_ebook.js') }}"></script>
 @endsection
 
 @yield('jsNeededForm')
