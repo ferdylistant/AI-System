@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Events\OrderEbookEvent;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
+use App\Events\NotifikasiPenyetujuan;
 use Illuminate\Support\Facades\{DB, Storage, Gate};
 
 class OrderEbookController extends Controller
@@ -38,7 +39,43 @@ class OrderEbookController extends Controller
 
             return DataTables::of($data)
                 ->addColumn('no_order', function ($data) {
-                    return $data->kode_order;
+                    $act = DB::table('order_ebook_action')
+                        ->where('order_ebook_id', $data->id)
+                        ->orderBy('id', 'desc')
+                        ->get();
+                    if ($act->isEmpty()) {
+                        if ((Gate::allows('do_approval', 'GM Penerbitan')) && ($data->status == 'Proses')) {
+                            $tandaProses = '<span class="beep-danger"></span>';
+                            $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                        }
+                    } else {
+                        foreach ($act as $a) {
+                            if ((Gate::allows('do_approval', 'Dir. Operasional')) && ($data->status == 'Proses')) {
+                                if ($a->type_jabatan == 'GM Penerbitan') {
+                                    $tandaProses = '<span class="beep-danger"></span>';
+                                    $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                                }
+                            } elseif ((Gate::allows('do_approval', 'Dir. Keuangan')) && ($data->status == 'Proses')) {
+                                if ($a->type_jabatan == 'GM Penerbitan') {
+                                    $tandaProses = '<span class="beep-danger"></span>';
+                                    $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                                }
+                            } elseif ((Gate::allows('do_approval', 'Dir. Utama')) && ($data->status == 'Proses')) {
+                                if (($a->type_jabatan == 'Dir. Operasional') || ($a->type_jabatan == 'Dir. Keuangan')) {
+                                    $tandaProses = '<span class="beep-danger"></span>';
+                                    $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                                } else {
+                                    $tandaProses = '';
+                                    $dataKode = $data->kode_order;
+                                }
+                            } else {
+                                $tandaProses = '';
+                                $dataKode = $data->kode_order;
+                            }
+                        }
+                    }
+
+                    return $tandaProses . $dataKode;
                 })
                 ->addColumn('kode', function ($data) {
                     return $data->kode;
@@ -54,7 +91,9 @@ class OrderEbookController extends Controller
                     return $data->jalur_buku;
                 })
                 ->addColumn('status_penyetujuan', function ($data) {
-                    $res = DB::table('order_ebook_action')->where('order_ebook_id', $data->id)->get();
+                    $res = DB::table('order_ebook_action')
+                        ->where('order_ebook_id', $data->id)
+                        ->get();
                     if (!$res->isEmpty()) {
                         foreach ($res as $r) {
                             $collect[] = $r->type_jabatan;
@@ -64,17 +103,20 @@ class OrderEbookController extends Controller
                     $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook_action WHERE Field = 'type_jabatan'"))[0]->Type;
                     preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
                     $jabatan = explode("','", $matches[1]);
-                    foreach ($jabatan as $j) {
+                    foreach ($jabatan as $jb => $j) {
                         if (!$res->isEmpty()) {
                             if (in_array($j, $collect)) {
-                                foreach ($res as $action) {
-                                    switch ($action->type_action) {
-                                        case 'Approval':
-                                            $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> ' . $j . '</div>';
-                                            break;
-                                        case 'Decline':
-                                            $badge .= '<div class="text-danger text-small font-600-bold"><span class="bullet"></span> ' . $j . '</div>';
-                                            break;
+                                foreach ($res as $i => $action) {
+                                    if ($i == $jb) {
+                                        switch ($action->type_action) {
+                                            case 'Approval':
+                                                $lbl = 'success';
+                                                break;
+                                            case 'Decline':
+                                                $lbl = 'danger';
+                                                break;
+                                        }
+                                        $badge .= '<div class="text-' . $lbl . ' text-small font-600-bold"><span class="bullet"></span> ' . $j . '</div>';
                                     }
                                 }
                             } else {
@@ -731,230 +773,56 @@ class OrderEbookController extends Controller
     protected function declineOrderEbook($request)
     {
         try {
-            $dataAction = DB::table('order_ebook_action')
-                ->where('order_ebook_id', $request->id)->get();
-            if (!$dataAction->isEmpty()) {
-                foreach ($dataAction as $v) {
-                    if (auth()->id() == $v->users_id) {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Anda sudah melewati proses pengambilan keputusan!'
-                        ]);
-                    }
-                    if ($request->type_jabatan == $v->type_jabatan) {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Jabatan anda sudah melewati proses pengambilan keputusan!'
-                        ]);
-                    }
-                }
-                $dataLast = DB::table('order_ebook_action')
-                    ->where('order_ebook_id', $request->id)
-                    ->orderBy('id', 'desc')
-                    ->first();
-                // switch($request->type_jabatan) {
-                //     case 'Dir. Utama':
-                //         if ($dataLast->type_jabatan = ) {
-
-                //         }
-                //         break;
-                // }
-            }
-            $dataUser = DB::table('users')
-                ->where('id', auth()->id())
+            $permission = DB::table('permissions')
+                ->where('raw', $request->type_jabatan)
                 ->first();
-            $dataPenyetujuan = DB::table('produksi_penyetujuan_order_ebook')
-                ->where('produksi_order_ebook_id', $request->id)
-                ->select('produksi_penyetujuan_order_ebook.*')
-                ->first();
-            if ($dataPenyetujuan->status_general == 'Selesai') {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data sudah selesai di Approve'
-                ]);
-            } elseif ($dataPenyetujuan->status_general == 'Pending') {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data di Pending sampai ' . Carbon::parse($dataPenyetujuan->pending_sampai)->translatedFormat('d F Y')
-                ]);
+            $insert = [
+                'params' => 'Insert Action',
+                'order_ebook_id' => $request->id,
+                'type_jabatan' => $request->type_jabatan,
+                'type_action' => 'Decline',
+                'users_id' => auth()->id(),
+                'catatan_action' => $request->catatan_action,
+                'tgl_action' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            switch ($request->type_jabatan) {
+                case 'GM Penerbitan':
+                    $id_notif = Str::uuid()->getHex();
+                    $raw = ['Dir. Operasional', 'Dir. Keuangan'];
+                    break;
+                case 'Dir. Utama':
+                    $id_notif = Str::uuid()->getHex();
+                    $raw = ['GM Penerbitan', 'Dir. Operasional', 'Dir. Keuangan'];
+                    break;
+                default:
+                    $id_notif = Str::uuid()->getHex();
+                    $raw = ['Dir. Utama'];
+                    break;
             }
-            if ($dataUser->id == $dataPenyetujuan->d_operasional) {
-                if ($dataPenyetujuan->d_operasional_act == '2') {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Data sudah Anda Pending'
-                    ]);
-                } elseif ($dataPenyetujuan->d_operasional_act == '3') {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Data sudah di Approve'
-                    ]);
-                }
-                DB::table('produksi_penyetujuan_order_ebook')
-                    ->where('produksi_order_ebook_id', $request->id)
-                    ->update([
-                        'd_operasional_act' => '2',
-                        'ket_pending' => $request->keterangan,
-                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
-                        'status_general' => 'Pending',
-                    ]);
-                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
-                    ->where('form_id', $request->id)->first();
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
-                    ->update([
-                        'seen' => '0',
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-                    ->update([
-                        'seen' => '0',
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-                DB::table('notif_detail')
-                    ->insert([
-                        'notif_id' => $notif->id,
-                        'user_id' => $dataPenyetujuan->d_keuangan,
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-                DB::table('notif_detail')
-                    ->insert([
-                        'notif_id' => $notif->id,
-                        'user_id' => $dataPenyetujuan->d_utama,
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Data berhasil dipending'
-                ]);
-            } elseif ($dataUser->id == $dataPenyetujuan->d_keuangan) {
-                if ($dataPenyetujuan->d_operasional_act == '1') {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Data belum di Approve oleh Direktur Operasional'
-                    ]);
-                } elseif ($dataPenyetujuan->d_keuangan_act == '2') {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Data sudah Anda Pending'
-                    ]);
-                } elseif ($dataPenyetujuan->d_keuangan_act == '3') {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Data sudah di Approve'
-                    ]);
-                }
-                DB::table('produksi_penyetujuan_order_ebook')
-                    ->where('produksi_order_ebook_id', $request->id)
-                    ->update([
-                        'd_keuangan_act' => '2',
-                        'ket_pending' => $request->keterangan,
-                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
-                        'status_general' => 'Pending',
-                    ]);
-                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
-                    ->where('form_id', $request->id)->first();
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
-                    ->update([
-                        'seen' => '0',
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-                    ->update([
-                        'seen' => '0',
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                    ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
-                    ->update([
-                        'seen' => '0',
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-                DB::table('notif_detail')
-                    ->insert([
-                        'notif_id' => $notif->id,
-                        'user_id' => $dataPenyetujuan->d_utama,
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Data berhasil dipending'
-                ]);
-            } elseif ($dataUser->id == $dataPenyetujuan->d_utama) {
-                if ($dataPenyetujuan->d_operasional_act == '1') {
-                    if ($dataPenyetujuan->d_keuangan_act == '1') {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Data belum di Approve oleh Direktur Operasional dan Direktur Keuangan'
-                        ]);
-                    }
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Data belum di Approve oleh Direktur Operasional'
-                    ]);
-                }
-                DB::table('produksi_penyetujuan_order_ebook')
-                    ->where('produksi_order_ebook_id', $request->id)
-                    ->update([
-                        'd_utama_act' => '2',
-                        'ket_pending' => $request->keterangan,
-                        'pending_sampai' => date('Y-m-d', strtotime($request->pending_sampai)),
-                        'status_general' => 'Pending',
-                    ]);
-                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
-                    ->where('form_id', $request->id)->first();
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                    ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
-                    ->update([
-                        'seen' => '0',
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                    ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-                    ->update([
-                        'seen' => '0',
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                    ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
-                    ->update([
-                        'seen' => '0',
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-                DB::table('notif_detail')->where('notif_id', $notif->id)
-                    ->where('user_id', '=', $dataPenyetujuan->d_utama)
-                    ->update([
-                        'seen' => '0',
-                        'raw_data' => 'Pending',
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Data berhasil dipending'
-                ]);
-            } else {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Anda tidak memiliki akses'
-                ]);
+            $userPermission = DB::table('permissions as p', 'p.id', '=', 'up.permission_id')
+                ->where('p.access_id', $permission->access_id)
+                ->whereIn('p.raw', $raw)
+                ->get();
+            foreach ($userPermission as $up) {
+                $userPermissions[] = DB::table('user_permission')->where('permission_id', $up->id)->first();
             }
+            $notif = [
+                'params' => 'Insert Notif',
+                'id' => $id_notif,
+                'section' => 'Penerbitan',
+                'type' => 'Tolak Order E-Book',
+                'permission_id' => is_null($permission->id) ? NULL : $permission->id,
+                'form_id' => $request->id,
+                'users_id' =>  $userPermissions
+            ];
+            event(new OrderEbookEvent($insert));
+            event(new NotifikasiPenyetujuan($notif));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Penolakan berhasil dilakukan'
+            ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

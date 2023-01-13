@@ -145,8 +145,8 @@ class OrderCetakController extends Controller
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 try {
-                    $history = DB::table('order_ebook as oe')
-                        ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oe.deskripsi_turun_cetak_id')
+                    $history = DB::table('order_cetak as oc')
+                        ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
                         ->join('pilihan_penerbitan as pp', 'pp.deskripsi_turun_cetak_id', '=', 'dtc.id')
                         ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
                         ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
@@ -157,9 +157,9 @@ class OrderCetakController extends Controller
                             $q->on('pn.kelompok_buku_id', '=', 'kb.id')
                                 ->whereNull('kb.deleted_at');
                         })
-                        ->where('oe.id', $request->id)
+                        ->where('oc.id', $request->id)
                         ->select(
-                            'oe.*',
+                            'oc.*',
                             'dtc.tipe_order',
                             'pp.platform_digital_ebook_id',
                             'df.sub_judul_final',
@@ -192,7 +192,6 @@ class OrderCetakController extends Controller
                         'spp' => $request->up_spp,
                         'keterangan' => $request->up_keterangan,
                         'perlengkapan' => $request->up_perlengkapan,
-                        'eisbn' => $request->up_eisbn,
                     ];
                     event(new OrderCetakEvent($update));
                     $insert = [
@@ -284,12 +283,16 @@ class OrderCetakController extends Controller
         foreach ($penulisList as $pl) {
             $collectPenulis[] = $pl->id;
         }
+        $listPilTerbit = ['cetak', 'ebook'];
+        $pilihanTerbit = DB::table('pilihan_penerbitan')->get();
         $platformDigital = DB::table('platform_digital_ebook')->whereNull('deleted_at')->get();
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
             ->get();
         return view('penerbitan.order_cetak.edit', [
             'title' => 'Update Order Cetak',
             'tipeOrd' => $tipeOrd,
+            'pilihanTerbit' => $pilihanTerbit,
+            'list_pilihanterbit' => $listPilTerbit,
             'platformDigital' => $platformDigital,
             'kbuku' => $kbuku,
             'penulis' => $penulis,
@@ -473,6 +476,9 @@ class OrderCetakController extends Controller
     public function ajaxRequest(Request $request, $cat)
     {
         switch ($cat) {
+            case 'lihat-history':
+                return $this->lihatHistoryOrderCetak($request);
+                break;
             case 'approve':
                 return $this->approvalOrder($request);
                 break;
@@ -519,8 +525,8 @@ class OrderCetakController extends Controller
             ];
             $insert = [
                 'params' => 'Insert History Status Order Cetak',
-                'order_cetak_id' => $data->id,
                 'type_history' => 'Status',
+                'order_cetak_id' => $data->id,
                 'status_his' => $data->status,
                 'status_new'  => $request->status,
                 'author_id' => auth()->user()->id,
@@ -552,11 +558,11 @@ class OrderCetakController extends Controller
                     ]);
                 }
                 event(new OrderCetakEvent($update));
-                // event(new OrderCetakEvent($insert));
+                event(new OrderCetakEvent($insert));
                 $msg = 'Order Cetak selesai, silahkan lanjut ke proses produksi upload ke platform..';
             } else {
                 event(new OrderCetakEvent($update));
-                // event(new OrderCetakEvent($insert));
+                event(new OrderCetakEvent($insert));
                 $msg = 'Status progress order cetak berhasil diupdate';
             }
             return response()->json([
@@ -569,6 +575,64 @@ class OrderCetakController extends Controller
                 'status' => 'error',
                 'message' => $e->getMessage()
             ]);
+        }
+    }
+    protected function lihatHistoryOrderCetak(Request $request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('order_cetak_history as och')
+                ->join('order_cetak as dtc', 'dtc.id', '=', 'och.order_cetak_id')
+                ->join('users as u', 'u.id', '=', 'och.author_id')
+                ->where('och.order_cetak_id', $id)
+                ->select('och.*', 'u.nama')
+                ->orderBy('och.id', 'desc')
+                ->paginate(2);
+
+            foreach ($data as $d) {
+                switch ($d->type_history) {
+                    case 'Status':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Status order cetak <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                    case 'Update':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                    <div class="ticket-title"><span><span class="bullet"></span>';
+
+                        if (!is_null($d->edisi_cetak_his)) {
+                            $html .= ' Edisi cetak tahun <b class="text-dark">' . $d->edisi_cetak_his . ' </b> diubah menjadi <b class="text-dark">' . $d->edisi_cetak_new . ' </b>.<br>';
+                        } elseif (!is_null($d->edisi_cetak_new)) {
+                            $html .= ' Edisi cetak tahun <b class="text-dark">' . $d->edisi_cetak_new . ' </b> ditambahkan.<br>';
+                        }
+                        if (!is_null($d->format_buku_his)) {
+                            $html .= ' Format buku <b class="text-dark">' . $d->format_buku_his . ' cm</b> diubah menjadi <b class="text-dark">' . $d->format_buku_new . ' cm</b>.<br>';
+                        } elseif (!is_null($d->format_buku_new)) {
+                            $html .= ' Format buku <b class="text-dark">' . $d->format_buku_new . ' cm</b> ditambahkan.<br>';
+                        }
+                        if (!is_null($d->bulan_his)) {
+                            $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->bulan_new)->translatedFormat('F Y') . '</b>.';
+                        }
+                        $html .= '</span></div>
+                    <div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                    </div>
+                    </span>';
+                        break;
+                }
+            }
+            return $html;
         }
     }
     protected function notifPersetujuan($dataEvent)

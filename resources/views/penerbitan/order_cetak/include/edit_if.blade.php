@@ -2,6 +2,18 @@
     <div class="card-body">
         <div class="row">
             <div class="form-group col-12 col-md-6 mb-4">
+                <label class="d-block">Pilihan Terbit:</label>
+                @foreach ($list_pilihanterbit as $pt)
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="{{ $pt }}"
+                            value="{{ $pt }}"
+                            {{ (is_null($data->pilihan_terbit) ? null : in_array($pt, json_decode($data->pilihan_terbit, true))) ? 'checked' : '' }}
+                            disabled>
+                        <label class="form-check-label" for="{{ $pt }}">{{ $pt }}</label>
+                    </div>
+                @endforeach
+            </div>
+            <div class="form-group col-12 col-md-6 mb-4">
                 <label class="d-block">Platform E-book:</label>
                 @foreach ($platformDigital as $pD)
                     <div class="form-check form-check-inline">

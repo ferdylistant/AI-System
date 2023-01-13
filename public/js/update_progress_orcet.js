@@ -8,7 +8,7 @@ $("#tb_Orcet").on("click", ".btn-history", function (e) {
         },
         function (data) {
             $("#titleModalOrderCetak").html(
-                '<i class="fas fa-history"></i>&nbsp;History Progress Order E-book "' +
+                '<i class="fas fa-history"></i>&nbsp;History Progress Order Cetak "' +
                     judul +
                     '"'
             );

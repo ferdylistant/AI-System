@@ -439,6 +439,9 @@
             text-align: center;
         }
     </style>
+
+    @include('penerbitan.order_cetak.include.modal_decline')
+    @include('penerbitan.order_cetak.include.modal_decline_detail')
 @endsection
 @section('jsRequired')
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>

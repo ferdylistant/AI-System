@@ -64,7 +64,6 @@ class OrderCetakListener
                         'oc.spp' => $data['spp'],
                         'oc.keterangan' => $data['keterangan'],
                         'oc.perlengkapan' => $data['perlengkapan'],
-                        'oc.eisbn' => $data['eisbn'],
                         'dtc.tipe_order' => $data['tipe_order'],
                         'ps.edisi_cetak' => $data['edisi_cetak'],
                         'dp.jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
@@ -72,7 +71,7 @@ class OrderCetakListener
                     ]);
                 DB::commit();
                 break;
-            case 'Insert History Update Order E-book':
+            case 'Insert History Update Order Cetak':
                 DB::beginTransaction();
                 $res = DB::table('order_cetak_history')->insert([
                     'type_history' => $data['type_history'],

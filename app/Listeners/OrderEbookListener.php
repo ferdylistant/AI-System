@@ -102,7 +102,19 @@ class OrderEbookListener
                 ]);
                 DB::commit();
                 break;
-            default:
+            case 'Insert Action':
+                DB::beginTransaction();
+                $res = DB::table('order_ebook_action')->insert([
+                    'order_ebook_id' => $data['order_ebook_id'],
+                    'type_jabatan' => $data['type_jabatan'],
+                    'type_action' => $data['type_action'],
+                    'users_id' => $data['users_id'],
+                    'catatan_action' => $data['catatan_action'],
+                    'tgl_action' => $data['tgl_action']
+                ]);
+                DB::commit();
+                break;
+                default:
                 abort(500);
                 break;
         }
