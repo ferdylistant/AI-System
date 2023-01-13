@@ -87,7 +87,8 @@
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
                     <input type="text" class="form-control" name="up_jml_hal_perkiraan" placeholder="Format Romawi"
-                        value="{{ is_null($data->jml_hal_perkiraan) ? '-' : $data->jml_hal_perkiraan }}" disabled readonly>
+                        value="{{ is_null($data->jml_hal_perkiraan) ? '-' : $data->jml_hal_perkiraan }}" disabled
+                        readonly>
                 </div>
             </div>
         </div>
@@ -123,16 +124,6 @@
                 <div id="err_up_tipe_order"></div>
             </div>
         </div>
-        <div class="form-group col-12 col-md-6 mb-4" id="eISBN">
-            <label>E-ISBN: <span class="text-danger">*</span></label>
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <div class="input-group-text"><i class="fas fa-fingerprint"></i></div>
-                </div>
-                <input type="text" class="form-control" name="up_eisbn"
-                    value="{{ is_null($data->eisbn) ? '-' : $data->eisbn }}" placeholder="Kode E-ISBN" disabled readonly>
-            </div>
-        </div>
         <div class="form-group col-12 col-md-6 mb-4">
             <label>SPP: </label>
             <div class="input-group">
@@ -140,8 +131,8 @@
                     <div class="input-group-text"><i class="fa fa-pen-square"></i></div>
                 </div>
                 <input type="text" class="form-control" name="up_spp"
-                    value="{{ is_null($data->spp) ? '-' : $data->spp }}" placeholder="Surat Perjanjian Penulis" disabled
-                    readonly>
+                    value="{{ is_null($data->spp) ? '-' : $data->spp }}" placeholder="Surat Perjanjian Penulis"
+                    disabled readonly>
             </div>
         </div>
         <div class="form-group col-12 col-md-3 mb-4">
@@ -154,18 +145,6 @@
                     value="{{ is_null($data->tahun_terbit) ? '-' : $data->tahun_terbit }}" name="up_tahun_terbit"
                     placeholder="Tahun" readonly disabled>
                 <div id="err_up_tahun_terbit"></div>
-            </div>
-        </div>
-        <div class="form-group col-12 col-md-3 mb-4">
-            <label>Tanggal Upload: <span class="text-danger">*</span></label>
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
-                </div>
-                <input type="text" class="form-control datepicker-upload" name="up_tgl_upload"
-                    value="{{ Carbon\Carbon::parse($data->tgl_upload)->format('d F Y') }}"
-                    placeholder="Tanggal Upload" readonly disabled>
-                <div id="err_up_tgl_upload"></div>
             </div>
         </div>
         <div class="form-group col-12 col-md-12 mb-4">

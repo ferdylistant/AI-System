@@ -2,6 +2,18 @@
     <div class="card-body">
         <div class="row">
             <div class="form-group col-12 col-md-6 mb-4">
+                <label class="d-block">Pilihan Terbit:</label>
+                @foreach ($list_pilihanterbit as $pt)
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="{{ $pt }}"
+                            value="{{ $pt }}"
+                            {{ (is_null($data->pilihan_terbit) ? null : in_array($pt, json_decode($data->pilihan_terbit, true))) ? 'checked' : '' }}
+                            disabled>
+                        <label class="form-check-label" for="{{ $pt }}">{{ $pt }}</label>
+                    </div>
+                @endforeach
+            </div>
+            <div class="form-group col-12 col-md-6 mb-4">
                 <label class="d-block">Platform E-book:</label>
                 @foreach ($platformDigital as $pD)
                     <div class="form-check form-check-inline">
@@ -127,17 +139,6 @@
                     <div id="err_up_tipe_order"></div>
                 </div>
             </div>
-            <div class="form-group col-12 col-md-6 mb-4" id="eISBN">
-                <label>E-ISBN: <span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text"><i class="fas fa-fingerprint"></i></div>
-                    </div>
-                    <input type="text" class="form-control" name="up_eisbn" value="{{ $data->eisbn }}"
-                        id="EISBN" placeholder="Kode E-ISBN" required>
-                    <div id="err_up_eisbn"></div>
-                </div>
-            </div>
             <div class="form-group col-12 col-md-6 mb-4">
                 <label>SPP: </label>
                 <div class="input-group">
@@ -158,18 +159,6 @@
                     <input type="text" class="form-control datepicker-year" value="{{ $data->tahun_terbit }}"
                         name="up_tahun_terbit" placeholder="Tahun" readonly required>
                     <div id="err_up_tahun_terbit"></div>
-                </div>
-            </div>
-            <div class="form-group col-12 col-md-3 mb-4">
-                <label>Tanggal Upload: <span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
-                    </div>
-                    <input type="text" class="form-control datepicker-upload" name="up_tgl_upload"
-                        value="{{ Carbon\Carbon::parse($data->tgl_upload)->format('d F Y') }}"
-                        placeholder="Tanggal Upload" readonly required>
-                    <div id="err_up_tgl_upload"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-12 mb-4">

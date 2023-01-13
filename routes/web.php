@@ -5,7 +5,7 @@ use App\Http\Controllers\ManWeb\{StrukturAoController, UsersController, SettingC
 use App\Http\Controllers\{AuthController, ApiController, HomeController, NotificationController};
 use App\Http\Controllers\Produksi\{EbookController, ProsesProduksiController, ProsesEbookController};
 use App\Http\Controllers\MasterData\{ImprintController, KelompokBukuController, FormatBukuController};
-use App\Http\Controllers\Penerbitan\{OrderCetakController,OrderEbookController,PenulisController, NaskahController, PenilaianNaskahController, DeskripsiCoverController, DeskripsiFinalController, DeskripsiProdukController,DeskripsiTurunCetakController, EditingController, PracetakSetterController, PracetakDesainerController};
+use App\Http\Controllers\Penerbitan\{OrderCetakController, OrderEbookController, PenulisController, NaskahController, PenilaianNaskahController, DeskripsiCoverController, DeskripsiFinalController, DeskripsiProdukController, DeskripsiTurunCetakController, EditingController, PracetakSetterController, PracetakDesainerController};
 
 /*
 |--------------------------------------------------------------------------
@@ -159,10 +159,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/pracetak/designer/{act}', [PracetakDesainerController::class, 'actionAjax'])->middleware('throttle:5,1');
         //Order Cetak
         Route::get('/order-cetak', [OrderCetakController::class, 'index'])->name('cetak.view');
-        Route::get('/order-cetak/detail', [OrderCetakController::class, 'detailProduksi'])->name('cetak.detail');
-        Route::match(['get', 'post'], '/order-cetak/create', [OrderCetakController::class, 'createProduksi'])->name('cetak.create');
-        Route::match(['get', 'post'], '/order-cetak/edit', [OrderCetakController::class, 'updateProduksi'])->name('cetak.update');
-        Route::post('/hapus-order-cetak-buku', [OrderCetakController::class, 'deleteProduksi'])->name('cetak.delete');
+        Route::get('/order-cetak/detail', [OrderCetakController::class, 'detailOrderCetak'])->name('cetak.detail');
+        Route::match(['get', 'post'], '/order-cetak/edit', [OrderCetakController::class, 'updateOrderCetak'])->name('cetak.update');
         Route::post('/order-cetak/ajax/{cat}', [OrderCetakController::class, 'ajaxRequest']);
         //Order Ebook
         Route::get('/order-ebook', [OrderEbookController::class, 'index'])->name('ebook.view');

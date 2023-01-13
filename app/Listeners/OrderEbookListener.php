@@ -52,24 +52,24 @@ class OrderEbookListener
             case 'Update Order E-book':
                 DB::beginTransaction();
                 $res = DB::table('order_ebook as oe')
-                ->join('deskripsi_turun_cetak as dtc','dtc.id','=','oe.deskripsi_turun_cetak_id')
-                ->join('pracetak_setter as ps','ps.id','=','dtc.pracetak_setter_id')
-                ->join('deskripsi_final as df','df.id','=','ps.deskripsi_final_id')
-                ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn','pn.id','=','dp.naskah_id')
-                ->where('oe.id',$data['id'])
-                ->update([
-                    'oe.tahun_terbit' => $data['tahun_terbit'],
-                    'oe.tgl_upload' => $data['tgl_upload'],
-                    'oe.spp' => $data['spp'],
-                    'oe.keterangan' => $data['keterangan'],
-                    'oe.perlengkapan' => $data['perlengkapan'],
-                    'oe.eisbn' => $data['eisbn'],
-                    'dtc.tipe_order' => $data['tipe_order'],
-                    'ps.edisi_cetak' => $data['edisi_cetak'],
-                    'dp.jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
-                    'pn.kelompok_buku_id' => $data['kelompok_buku_id'],
-                ]);
+                    ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oe.deskripsi_turun_cetak_id')
+                    ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->where('oe.id', $data['id'])
+                    ->update([
+                        'oe.tahun_terbit' => $data['tahun_terbit'],
+                        'oe.tgl_upload' => $data['tgl_upload'],
+                        'oe.spp' => $data['spp'],
+                        'oe.keterangan' => $data['keterangan'],
+                        'oe.perlengkapan' => $data['perlengkapan'],
+                        'oe.eisbn' => $data['eisbn'],
+                        'dtc.tipe_order' => $data['tipe_order'],
+                        'ps.edisi_cetak' => $data['edisi_cetak'],
+                        'dp.jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
+                        'pn.kelompok_buku_id' => $data['kelompok_buku_id'],
+                    ]);
                 DB::commit();
                 break;
             case 'Insert History Update Order E-book':
