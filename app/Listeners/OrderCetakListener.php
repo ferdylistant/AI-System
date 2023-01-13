@@ -4,9 +4,8 @@ namespace App\Listeners;
 
 use App\Events\OrderCetakEvent;
 use Illuminate\Support\Facades\DB;
-use Ramsey\Uuid\Uuid;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class OrderCetakListener
 {
@@ -30,87 +29,76 @@ class OrderCetakListener
     {
         $data = $event->data;
         switch ($data['params']) {
-            case 'Input Deskripsi':
-                $res = DB::table('deskripsi_turun_cetak')->insert([
-                    'id' => $data['id'],
-                    'deskripsi_produk_id' => $data['deskripsi_produk_id'],
-                    'tgl_deskripsi' => $data['tgl_deskripsi']
-                ]);
-                break;
-            case 'Update Status Desturcet':
-                $res = DB::table('deskripsi_turun_cetak')->where('id', $data['id'])->update([
-                    'status' => $data['status'],
-                    'tgl_status_selesai' => $data['tgl_status_selesai']
-                ]);
-                break;
-            case 'Edit Desturcet':
+            case 'Update Status Order Cetak':
                 DB::beginTransaction();
-                $res = DB::table('deskripsi_turun_cetak as dtc')
-                    ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
-                    ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
-                    ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
-                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                    ->where('dtc.id', $data['id'])
-                    ->update([
-                        'dtc.bulan' => $data['bulan'],
-                        'dtc.tipe_order' => $data['tipe_order'],
-                        'ps.edisi_cetak' => $data['edisi_cetak'],
-                        'dp.format_buku' => $data['format_buku'],
-                    ]);
+                $res = DB::table('order_cetak')->where('id', $data['id'])->update([
+                    'tgl_selesai_order' => $data['tgl_selesai_order'],
+                    'status' => $data['status']
+                ]);
                 DB::commit();
                 break;
-            case 'Insert History Edit Desturcet':
-                $res = DB::table('deskripsi_turun_cetak_history')->insert([
-                    'deskripsi_turun_cetak_id' => $data['deskripsi_turun_cetak_id'],
-                    'type_history' => $data['type_history'],
-                    'edisi_cetak_his' => $data['edisi_cetak_his'],
-                    'edisi_cetak_new' => $data['edisi_cetak_new'],
-                    'format_buku_his' => $data['format_buku_his'],
-                    'format_buku_new' => $data['format_buku_new'],
-                    'tipe_order_his' => $data['tipe_order_his'],
-                    'tipe_order_new' => $data['tipe_order_new'],
-                    'bulan_his' => $data['bulan_his'],
-                    'bulan_new' => $data['bulan_new'],
-                    'author_id' => $data['author_id'],
-                    'modified_at' => $data['modified_at']
-                ]);
-                break;
-            case 'Insert Pilihan Terbit Desturcet':
-                $res = DB::table('pilihan_penerbitan')->insert([
-                    'id' => $data['id'],
-                    'deskripsi_turun_cetak_id' => $data['deskripsi_turun_cetak_id'],
-                    'pilihan_terbit' => $data['pilihan_terbit'],
-                    'platform_digital_ebook_id' => $data['platform_ebook']
-                ]);
-                break;
-            case 'Insert History Status Desturcet':
-                $res = DB::table('deskripsi_turun_cetak_history')->insert([
-                    'deskripsi_turun_cetak_id' => $data['deskripsi_turun_cetak_id'],
+            case 'Insert History Status Order Cetak':
+                DB::beginTransaction();
+                $res = DB::table('order_cetak_history')->insert([
+                    'order_cetak_id' => $data['order_cetak_id'],
                     'type_history' => $data['type_history'],
                     'status_his' => $data['status_his'],
                     'status_new' => $data['status_new'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
-                break;
-            case 'Insert Turun Cetak':
-                DB::beginTransaction();
-                $res = DB::table('deskripsi_turun_cetak')->insert([
-                    'id' => $data['id'],
-                    'pracetak_cover_id' => $data['pracetak_cover_id'],
-                    'pracetak_setter_id' => $data['pracetak_setter_id'],
-                    'tgl_masuk' => $data['tgl_masuk']
-                ]);
                 DB::commit();
                 break;
-            case 'Insert Order':
+            case 'Update Order Cetak':
                 DB::beginTransaction();
-                $table = 'order_' . $data['type'];
-                $res = DB::table($table)->insert([
-                    'id' => $data['id'],
-                    'deskripsi_turun_cetak_id' => $data['deskripsi_turun_cetak_id'],
-                    'kode_order' => $data['kode_order'],
-                    'tgl_masuk' => $data['tgl_masuk']
+                $res = DB::table('order_cetak as oc')
+                    ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
+                    ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->where('oc.id', $data['id'])
+                    ->update([
+                        'oc.tahun_terbit' => $data['tahun_terbit'],
+                        'oc.tgl_upload' => $data['tgl_upload'],
+                        'oc.spp' => $data['spp'],
+                        'oc.keterangan' => $data['keterangan'],
+                        'oc.perlengkapan' => $data['perlengkapan'],
+                        'oc.eisbn' => $data['eisbn'],
+                        'dtc.tipe_order' => $data['tipe_order'],
+                        'ps.edisi_cetak' => $data['edisi_cetak'],
+                        'dp.jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
+                        'pn.kelompok_buku_id' => $data['kelompok_buku_id'],
+                    ]);
+                DB::commit();
+                break;
+            case 'Insert History Update Order E-book':
+                DB::beginTransaction();
+                $res = DB::table('order_cetak_history')->insert([
+                    'type_history' => $data['type_history'],
+                    'order_cetak_id' => $data['order_cetak_id'],
+                    'tipe_order_his' => $data['tipe_order_his'],
+                    'tipe_order_new' => $data['tipe_order_new'],
+                    'edisi_cetak_his' => $data['edisi_cetak_his'],
+                    'edisi_cetak_new' => $data['edisi_cetak_new'],
+                    'jml_hal_perkiraan_his' => $data['jml_hal_perkiraan_his'],
+                    'jml_hal_perkiraan_new' => $data['jml_hal_perkiraan_new'],
+                    'kelompok_buku_id_his' => $data['kelompok_buku_id_his'],
+                    'kelompok_buku_id_new' => $data['kelompok_buku_id_new'],
+                    'tahun_terbit_his' => $data['tahun_terbit_his'],
+                    'tahun_terbit_new' => $data['tahun_terbit_new'],
+                    'tgl_upload_his' => $data['tgl_upload_his'],
+                    'tgl_upload_new' => $data['tgl_upload_new'],
+                    'spp_his' => $data['spp_his'],
+                    'spp_new' => $data['spp_new'],
+                    'keterangan_his' => $data['keterangan_his'],
+                    'keterangan_new' => $data['keterangan_new'],
+                    'perlengkapan_his' => $data['perlengkapan_his'],
+                    'perlengkapan_new' => $data['perlengkapan_new'],
+                    'eisbn_his' => $data['eisbn_his'],
+                    'eisbn_new' => $data['eisbn_new'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
                 ]);
                 DB::commit();
                 break;

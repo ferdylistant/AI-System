@@ -164,9 +164,6 @@ $(function () {
         },
         ajax: {
             url: window.location.origin + "/penerbitan/order-cetak",
-            data: {
-                request_: "table-orcet",
-            },
         },
         columns: [
             {

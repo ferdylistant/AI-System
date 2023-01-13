@@ -7,35 +7,131 @@
     <link rel="stylesheet" href="{{ url('vendors/flipbook/min_version/ipages.min.css') }}">
 @endsection
 
+@section('cssNeeded')
+    <style>
+        .tb-naskah {
+            font-size: 12px;
+            border: 1px solid #ced4da;
+        }
+
+        .tb-naskah,
+        .tb-naskah th,
+        .tb-naskah td {
+            height: auto !important;
+            padding: 10px 15px 10px 15px !important;
+        }
+
+        .tb-naskah th {
+            width: 35%;
+            color: #868ba1;
+            background-color: #E9ECEF;
+        }
+
+        .accordion-body {
+            overflow: auto;
+            max-height: 500px;
+        }
+
+        .stamp {
+            /* transform: rotate(12deg); */
+            color: #555;
+            font-size: 1rem;
+            font-weight: 700;
+            border: 0.25rem solid #555;
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            text-transform: uppercase;
+            border-radius: 1rem;
+            font-family: 'Courier';
+            -webkit-mask-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/8399/grunge.png');
+            -webkit-mask-size: 944px 604px;
+            mix-blend-mode: multiply;
+        }
+
+        .is-nope {
+            color: #D23;
+            border: 0.5rem double #D23;
+            transform: rotate(3deg);
+            -webkit-mask-position: 2rem 3rem;
+            font-size: 2rem;
+        }
+
+        .is-approved {
+            color: #0A9928;
+            border: 0.5rem double #0A9928;
+            -webkit-mask-position: 13rem 6rem;
+            transform: rotate(-14deg);
+            -webkit-mask-position: 2rem 3rem;
+            border-radius: 0;
+        }
+
+        .is-draft {
+            color: #C4C4C4;
+            border: 1rem double #C4C4C4;
+            transform: rotate(-5deg);
+            font-size: 6rem;
+            font-family: "Open sans", Helvetica, Arial, sans-serif;
+            border-radius: 0;
+            padding: 0.5rem;
+        }
+    </style>
+@endsection
+
 @section('content')
     <section class="section">
         <div class="section-header">
             <div class="section-header-back">
                 <a href="{{ route('cetak.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
             </div>
-            <h1>Detail Order Cetak Buku</h1>
+            <h1>Detail Penerbitan Order Cetak Buku</h1>
         </div>
 
         <div class="section-body">
             <div class="row">
                 <div class="col-12 col-md-12">
                     <div class="card card-primary">
-                        <div class="card-header">
-                            <h4>Data Deskripsi Turun Cetak&nbsp;
-                                -
-                            </h4>
-                            @if ($data->status == 'Antrian')
-                                <span class="badge" style="background:#34395E;color:white">{{ $data->status }}</span>
-                            @elseif ($data->status == 'Pending')
-                                <span class="badge badge-danger">{{ $data->status }}</span>
-                            @elseif ($data->status == 'Proses')
-                                <span class="badge badge-success">{{ $data->status }}</span>
-                            @elseif ($data->status == 'Selesai')
-                                <span class="badge badge-light">{{ $data->status }}</span>
-                            @endif
+                        <div class="card-header justify-content-between">
+                            <div class="col-auto d-flex">
+                                <h4>Form Penerbitan Order Cetak</h4>
+                                @switch($data->status)
+                                    @case('Antrian')
+                                        <span class="badge" style="background:#34395E;color:white">Antrian</span>
+                                    @break
+
+                                    @case('Pending')
+                                        <span class="badge badge-danger">Pending</span>
+                                    @break
+
+                                    @case('Proses')
+                                        <span class="badge badge-success">Proses</span>
+                                    @break
+
+                                    @case('Selesai')
+                                        <span class="badge badge-light">Selesai</span>
+                                    @break
+                                @endswitch
+                            </div>
+                            <div class="col-auto">
+                                <span class="bullet text-danger"></span> Kode order: <b>{{ $data->kode_order }}</b>
+                                (@foreach (json_decode($data->pilihan_terbit) as $i => $pt)
+                                    @if (count(json_decode($data->pilihan_terbit)) == 2)
+                                        @if ($i == 0)
+                                            {{ $pt }} &
+                                        @else
+                                            {{ $pt }}
+                                        @endif
+                                    @else
+                                        {{ $pt }}
+                                    @endif
+                                @endforeach)
+                            </div>
                         </div>
                         <div class="card-body">
-
+                            <form method="POST" id="fadd_Approval">
+                                {{-- ! PERSETUJUAN --}}
+                                @include('penerbitan.order_cetak.include.persetujuan')
+                                {{-- ! PERSETUJUAN BATAS --}}
+                            </form>
                             <div class="row mb-4">
                                 <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
@@ -71,25 +167,23 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Pilihan Terbit</h6>
                                         </div>
-                                        <ul class="list-unstyled list-inline">
-                                            <li class="list-inline-item">
-                                                <p class="mb-1 text-monospace">
-                                                    <span class="bullet"></span>
-                                                    <span>{{ $pilihan_terbit->pilihan_terbit }}</span>
-                                                </p>
-                                            </li>
-                                        </ul>
+                                        @foreach (json_decode($data->pilihan_terbit) as $pt)
+                                            <p class="mb-1 text-monospace">
+                                                <span class="bullet"></span>
+                                                <span>{{ $pt }}</span>
+                                            </p>
+                                        @endforeach
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Platform Ebook</h6>
                                         </div>
-                                        <ul class="list-unstyled list-inline">
-                                            <li class="mb-1 text-monospace list-inline-item">
+                                        @foreach (json_decode($data->platform_digital_ebook_id) as $pDigital)
+                                            <p class="mb-1 text-monospace">
                                                 <span class="bullet"></span>
-                                                <span>{{ $pilihan_terbit->platform_digital_ebook_id }}</span>
-                                            </li>
-                                        </ul>
+                                                <span>{{ $pDigital }}</span>
+                                            </p>
+                                        @endforeach
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
@@ -307,7 +401,7 @@
                                             <h6 class="mb-1">Warna Cover</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            {{ is_null($data->warna) ? '-' : $data->warna }}
+                                            {{ is_null($data->isi_warna) ? '-' : $data->isi_warna }}
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
@@ -358,6 +452,7 @@
 @endsection
 
 @section('jsNeeded')
+    <script src="{{ url('js/pending_order_cetak.js') }}"></script>
     <script>
         (function() {
             const form = document.querySelector('#fadd_Pilihan_Terbit');

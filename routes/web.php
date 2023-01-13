@@ -159,12 +159,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/pracetak/designer/{act}', [PracetakDesainerController::class, 'actionAjax'])->middleware('throttle:5,1');
         //Order Cetak
         Route::get('/order-cetak', [OrderCetakController::class, 'index'])->name('cetak.view');
-        Route::get('/order-cetak/detail', [OrderCetakController::class, 'detailProduksi'])->name('cetak.detail');
+        Route::get('/order-cetak/detail', [OrderCetakController::class, 'detailOrderCetak'])->name('cetak.detail');
         Route::match(['get', 'post'], '/order-cetak/edit', [OrderCetakController::class, 'updateOrderCetak'])->name('cetak.update');
         Route::post('/order-cetak/ajax/{cat}', [OrderCetakController::class, 'ajaxRequest']);
         //Order Ebook
         Route::get('/order-ebook', [OrderEbookController::class, 'index'])->name('ebook.view');
-        Route::get('/order-ebook/detail', [OrderEbookController::class, 'detailProduksi'])->name('ebook.detail');
+        Route::get('/order-ebook/detail', [OrderEbookController::class, 'detailOrderEbook'])->name('ebook.detail');
         Route::match(['get', 'post'], '/order-ebook/edit', [OrderEbookController::class, 'updateOrderEbook'])->name('ebook.update');
         Route::post('/order-ebook/ajax/{cat}', [OrderEbookController::class, 'ajaxRequest']);
     });
