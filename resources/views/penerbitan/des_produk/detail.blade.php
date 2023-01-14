@@ -262,7 +262,7 @@
                                         <h6 class="mb-1">Alternatif Judul</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
-                                    @if (is_null($data->alt_judul))
+                                    @if ((is_null($data->alt_judul)) || ((json_decode($data->alt_judul) == NULL)))
                                         -
                                     @else
                                         @foreach (json_decode($data->alt_judul) as $key => $alt)

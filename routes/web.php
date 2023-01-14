@@ -111,11 +111,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/deskripsi/produk', [DeskripsiProdukController::class, 'index'])->name('despro.view');
         Route::get('/deskripsi/produk/detail', [DeskripsiProdukController::class, 'detailDeskripsiProduk'])->name('despro.detail');
         Route::match(['get', 'post'], '/deskripsi/produk/edit', [DeskripsiProdukController::class, 'editDeskripsiProduk'])->name('despro.edit');
-        Route::post('/deskripsi/produk/update-status-progress', [DeskripsiProdukController::class, 'updateStatusProgress']);
-        Route::post('/deskripsi/produk/lihat-history', [DeskripsiProdukController::class, 'lihatHistoryDespro'])->name('despro.history');
-        Route::post('/deskripsi/produk/revisi', [DeskripsiProdukController::class, 'revisiDespro']);
         Route::post('/deskripsi/produk/pilih-judul', [DeskripsiProdukController::class, 'pilihJudul'])->name('despro.pilihjudul');
-        Route::post('/deskripsi/produk/approve', [DeskripsiProdukController::class, 'approveDespro'])->name('despro.approve');
+        Route::post('/deskripsi/produk/ajax/{cat}', [DeskripsiProdukController::class, 'requestAjax']);
         //Deskripsi Final
         Route::get('/deskripsi/final', [DeskripsiFinalController::class, 'index'])->name('desfin.view');
         Route::get('/deskripsi/final/detail', [DeskripsiFinalController::class, 'detailDeskripsiFinal'])->name('desfin.detail');

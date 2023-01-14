@@ -4,7 +4,7 @@ $(function () {
             type: "POST",
             url:
                 window.location.origin +
-                "/penerbitan/deskripsi/produk/approve?id=" +
+                "/penerbitan/deskripsi/produk/ajax/approve?id=" +
                 id,
             processData: false,
             contentType: false,
