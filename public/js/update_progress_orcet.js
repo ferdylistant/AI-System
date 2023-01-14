@@ -2,7 +2,7 @@ $("#tb_Orcet").on("click", ".btn-history", function (e) {
     var id = $(this).data("id");
     var judul = $(this).data("judulfinal");
     $.post(
-        window.location.origin + "/penerbitan/order-cetak/ajax/lihat-history",
+        window.location.origin + "/penerbitan/order-cetak/ajax/lihat-history-order-cetak",
         {
             id: id,
         },
@@ -133,7 +133,7 @@ $(function () {
         $.ajax({
             url:
                 window.location.origin +
-                "/penerbitan/order-cetak/ajax/lihat-history",
+                "/penerbitan/order-cetak/ajax/lihat-history-order-cetak",
             data: {
                 id: id,
                 page: page,

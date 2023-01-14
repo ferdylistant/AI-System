@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
-use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Events\OrderEbookEvent;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
 use App\Events\NotifikasiPenyetujuan;
-use Illuminate\Support\Facades\{DB, Storage, Gate};
+use Illuminate\Support\Facades\{DB, Gate};
 
 class OrderEbookController extends Controller
 {
@@ -712,37 +711,6 @@ class OrderEbookController extends Controller
                 'message' => $e->getMessage()
             ]);
         }
-    }
-    protected function getOrderId($tipeOrder)
-    {
-        $year = date('y');
-        switch ($tipeOrder) {
-            case 1:
-                $lastId = DB::table('produksi_order_ebook')
-                    ->where('kode_order', 'like', 'E' . $year . '-%')
-                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 1000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 2999")
-                    ->orderBy('kode_order', 'desc')->first();
-
-                $firstId = '1000';
-                break;
-            case 2:
-                $lastId = DB::table('produksi_order_ebook')
-                    ->where('kode_order', 'like', 'E' . $year . '-%')
-                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 3000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 3999")
-                    ->orderBy('kode_order', 'desc')->first();
-                $firstId = '3000';
-                break;
-            case 3:
-                $lastId = DB::table('produksi_order_ebook')
-                    ->where('kode_order', 'like', 'E' . $year . '-%')
-                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 4000")
-                    ->orderBy('kode_order', 'desc')->first();
-                $firstId = '4000';
-                break;
-            default:
-                abort(500);
-        }
-        //  return $lastId.'1234';
     }
     protected function approvalDetailOrderEbook($request)
     {

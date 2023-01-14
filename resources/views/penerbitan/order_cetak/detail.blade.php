@@ -165,23 +165,20 @@
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Tipe Order</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            {{ $data->tipe_order == 1 ? 'Buku Umum' : 'Buku Rohani' }}
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Pilihan Terbit</h6>
                                         </div>
                                         @foreach (json_decode($data->pilihan_terbit) as $pt)
                                             <p class="mb-1 text-monospace">
                                                 <span class="bullet"></span>
                                                 <span>{{ $pt }}</span>
-                                            </p>
-                                        @endforeach
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Platform Ebook</h6>
-                                        </div>
-                                        @foreach (json_decode($data->platform_digital_ebook_id) as $pDigital)
-                                            <p class="mb-1 text-monospace">
-                                                <span class="bullet"></span>
-                                                <span>{{ $pDigital }}</span>
                                             </p>
                                         @endforeach
                                     </div>
@@ -226,22 +223,12 @@
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">E-ISBN</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace text-danger">
-                                            Masih Kosong
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Penerbit - Imprint</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
                                             Andi Offset - {{ is_null($data->imprint) ? '-' : $data->imprint }}
                                         </p>
                                     </div>
-                                </div>
-                                <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Kelompok Buku</h6>
@@ -250,9 +237,11 @@
                                             {{ is_null($data->nama) ? '-' : $data->nama }}
                                         </p>
                                     </div>
+                                </div>
+                                <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Edisi / Cetakan</h6>
+                                            <h6 class="mb-1">Edisi Cetak</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
                                             {{ is_null($data->edisi_cetak) ? '-' : $data->edisi_cetak }}
@@ -276,12 +265,24 @@
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Bending</h6>
+                                            <h6 class="mb-1">Jilid</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace text-danger">
-                                            Masih Kosong
+                                        <p class="mb-1 text-monospace">
+                                            {{is_null($data->jilid)?'-':$data->jilid}}
                                         </p>
                                     </div>
+                                    @if(!is_null($data->jilid))
+                                        @if ($data->jilid == 'Binding')
+                                        <div class="list-group-item flex-column align-items-start">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Ukuran Binding</h6>
+                                            </div>
+                                            <p class="mb-1 text-monospace text-danger">
+                                                {{is_null($data->ukuran_jilid_binding)?'-':$data->ukuran_jilid_binding . ' cm'}}
+                                            </p>
+                                        </div>
+                                        @endif
+                                    @endif
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Kertas Isi</h6>
@@ -292,18 +293,16 @@
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Kertas Cover</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace text-danger">
-                                            Masih Kosong
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Efek Cover</h6>
+                                            <h6 class="mb-1">Finishing Cover</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            {{ is_null($data->efek_cover) ? '-' : $data->efek_cover }}
+                                        @if ((is_null($data->finishing_cover)) || ($data->finishing_cover == []))
+                                            -
+                                        @else
+                                            @foreach (json_decode($data->finishing_cover,true) as $fc)
+                                                <span class="bullet"></span>{{ $fc }}<br>
+                                            @endforeach
+                                        @endif
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
@@ -334,10 +333,10 @@
                                 <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Status Buku</h6>
+                                            <h6 class="mb-1">Jalur Buku</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            Masih Kosong
+                                            {{$data->jalur_buku}}
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
@@ -374,22 +373,6 @@
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Jahit Kawat</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace text-danger">
-                                            Masih Kosong
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Jahit Benang</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace text-danger">
-                                            Masih Kosong
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Warna Isi</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
@@ -401,7 +384,7 @@
                                             <h6 class="mb-1">Warna Cover</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            {{ is_null($data->isi_warna) ? '-' : $data->isi_warna }}
+                                            {{ is_null($data->warna) ? '-' : $data->warna }}
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
@@ -440,8 +423,10 @@
         }
     </style>
 
-    @include('penerbitan.order_cetak.include.modal_decline')
-    @include('penerbitan.order_cetak.include.modal_decline_detail')
+@include('penerbitan.order_cetak.include.modal_decline')
+@include('penerbitan.order_cetak.include.modal_approve')
+@include('penerbitan.order_cetak.include.modal_approve_detail')
+@include('penerbitan.order_cetak.include.modal_decline_detail')
 @endsection
 @section('jsRequired')
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
@@ -455,128 +440,8 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/pending_order_cetak.js') }}"></script>
-    <script>
-        (function() {
-            const form = document.querySelector('#fadd_Pilihan_Terbit');
-            const checkboxes = form.querySelectorAll('input[type=checkbox]');
-            const checkboxLength = checkboxes.length;
-            const firstCheckbox = checkboxLength > 0 ? checkboxes[0] : null;
-
-            function init() {
-                if (firstCheckbox) {
-                    for (let i = 0; i < checkboxLength; i++) {
-                        checkboxes[i].addEventListener('change', checkValidity);
-                    }
-
-                    checkValidity();
-                }
-            }
-
-            function isChecked() {
-                for (let i = 0; i < checkboxLength; i++) {
-                    if (checkboxes[i].checked) return true;
-                }
-
-                return false;
-            }
-
-            function checkValidity() {
-                const errorMessage = !isChecked() ? 'At least one checkbox must be selected.' : '';
-                firstCheckbox.setCustomValidity(errorMessage);
-            }
-
-            init();
-        })();
-
-        $('#fadd_Pilihan_Terbit').on('submit', function(e) {
-            e.preventDefault();
-            if ($(this).valid()) {
-                swal({
-                    text: 'Tambah data Pilihan Terbit?',
-                    icon: 'info',
-                    buttons: true,
-                    dangerMode: true,
-                }).then((confirm_) => {
-                    if (confirm_) {
-                        ajaxAddPilihanTerbit($(this))
-                    }
-                });
-            } else {
-                notifToast("error", "Periksa kembali form Anda!");
-            }
-        })
-
-        function resetForm(form) {
-            form.trigger("reset");
-            $('[name^="add_pilihan_terbit"]').val("").trigger("change");
-            $('[name^="add_platform_ebook"]').val("").trigger("change");
-        }
-
-        function ajaxAddPilihanTerbit(data) {
-            let el = data.get(0);
-            // console.log(el);
-            $.ajax({
-                type: "POST",
-                url: window.location.origin + "/penerbitan/deskripsi/turun-cetak/detail?id=" +
-                    "{{ $data->id }}" + "&type=" + "{{ $data->tipe_order }}",
-                data: new FormData(el),
-                processData: false,
-                contentType: false,
-                beforeSend: function() {
-                    $('button[type="submit"]').prop('disabled', true).
-                    addClass('btn-progress')
-                },
-                success: function(result) {
-                    // console.log(result)
-                    if (result.status == 'error') {
-                        resetForm(data);
-                        notifToast(result.status, result.message);
-                    } else {
-                        notifToast(result.status, result.message);
-                        location.href = result.route;
-                    }
-                },
-                error: function(err) {
-                    // console.log(err.responseJSON)
-                    rs = err.responseJSON.errors;
-                    if (rs != undefined) {
-                        err = {};
-                        Object.entries(rs).forEach(entry => {
-                            let [key, value] = entry;
-                            err[key] = value
-                        })
-                        // addNaskah.showErrors(err);
-                    }
-                    notifToast('error', 'Data pilihan terbit gagal disimpan!');
-                },
-                complete: function() {
-                    $('button[type="submit"]').prop('disabled', false).
-                    removeClass('btn-progress')
-                }
-            })
-        }
-
-        $(document).ready(function() {
-            $('#eBook').change(function() {
-                if (this.checked) {
-                    // showDetail(this.value);
-                    $('#eB').show('slow');
-                } else {
-                    // just_hide(this.value);
-                    $('#eB').hide('slow')
-                }
-            });
-        });
-
-        // function showDetail(ele) {
-        //     $('#' + ele).show('slow');
-        // }
-
-        // function just_hide(ele) {
-        //     $('#' + ele).hide('slow');
-        // }
-    </script>
+    <script src="{{ url('js/approval_order_cetak.js') }}"></script>
+    <script src="{{ url('js/decline_order_cetak.js') }}"></script>
 @endsection
 
 @yield('jsNeededForm')
