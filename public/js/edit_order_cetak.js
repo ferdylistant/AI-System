@@ -1,4 +1,82 @@
-$(document).ready(function () {
+function loadDataValue() {
+    let id = window.location.search.split('?').pop(),
+        cardWrap = $('.section-body').find('.card');
+    $.ajax({
+        url: window.location.origin + "/penerbitan/order-cetak/edit?" + id,
+        beforeSend: function () {
+            cardWrap.addClass('card-progress');
+        },
+        success: function (result) {
+            let {
+                data,
+                penulis
+            } = result;
+            for (let p of penulis) {
+                $(".select-penulis").select2("trigger", "select", {
+                    data: {
+                        id: p.id,
+                        text: p.nama
+                    }
+                });
+            }
+            for (let n in data) {
+                // console.log(data[n]);
+                if (n == 'id') {
+                    $('[name="up_id"]').attr("data-id", data[n]).change();
+                } else if (n == 'kelompok_buku_id') {
+                    $('[name="up_kelompok_buku"]').val([data[n]]).change();
+                } else if (n == 'jilid') {
+                    if (data[n] == 'Binding') {
+                        $('#ukuranBinding').show('slow');
+                        $('#ukuranBinding').html(`<div class="form-group" style="display:none" id="divBinding"><label>Ukuran Binding: <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"><i class="fa fa-ruler"></i></div>
+                                </div>
+                                <input type="text" class="form-control" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
+                                <div id="err_up_ukuran_jilid_binding"></div>
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><strong>cm</strong></span>
+                                </div>
+                            </div></div>`);
+                        $('[name="up_jilid"]').val([data[n]]).change()
+                        $('#formJilid').attr("class", "form-group col-12 col-md-3 mb-4");
+                        $('#divBinding').show('slow');
+                    } else {
+                        $('#ukuranBinding').hide('slow');
+                        $('#ukuranBinding').html(`<div class="form-group" style="display:none" id="divBinding"><label>Ukuran Binding: <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"><i class="fa fa-ruler"></i></div>
+                                </div>
+                                <input type="text" class="form-control" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
+                                <div id="err_up_ukuran_jilid_binding"></div>
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><strong>cm</strong></span>
+                                </div>
+                            </div></div>`);
+                        $('[name="up_jilid"]').val([data[n]]).change()
+                    }
+                } else {
+                    if (data[n]) {
+                        $('[name="up_' + n + '"]').val(data[n]).change();
+                    } else {
+                        $('[name="up_' + n + '"]').val('-').change();
+                    }
+                }
+            }
+        },
+        error: function (err) {
+            // console.log(err)
+        },
+        complete: function () {
+            cardWrap.removeClass('card-progress');
+        }
+
+    })
+}
+$(function () {
+    loadDataValue();
     $(".select2")
         .select2({
             placeholder: "Pilih",
@@ -10,13 +88,29 @@ $(document).ready(function () {
         });
     $(".select-penulis")
         .select2({
-            placeholder: "Pilih penulis",
             multiple: true,
             disabled: true,
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(this).valid();
+            ajax: {
+                url: window.location.origin + "/penerbitan/naskah",
+                type: "GET",
+                delay: 650,
+                data: function (params) {
+                    var queryParameters = {
+                        request_: 'selectPenulis',
+                        term: params.term
+                    }
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.nama,
+                                id: item.id
+                            }
+                        })
+                    };
+                }
             }
         });
     $(".datepicker-year").datepicker({
@@ -26,14 +120,12 @@ $(document).ready(function () {
         autoclose: true,
         clearBtn: true,
     });
-    $(".datepicker-upload").datepicker({
+    $(".datepicker").datepicker({
         format: "dd MM yyyy",
         autoclose: true,
         clearBtn: true,
         todayHighlight: true,
     });
-});
-$(function () {
     function resetFrom(form) {
         form.trigger("reset");
         $('[name="up_tipe_order"]').val("").trigger("change");
@@ -107,4 +199,131 @@ $(function () {
             notifToast("error", "Periksa kembali form Anda!");
         }
     });
+    $(document).ready(function () {
+        $('#jilidChange').change(function () {
+            if (this.value == 'Binding')
+                showDetail(this.value);
+            else
+                just_hide(this.value);
+        });
+    });
+
+    function showDetail(ele) {
+        $('#div' + ele).show('slow');
+        $('#ukuranBinding').show('slow');
+        $('#formJilid').attr("class", "form-group col-12 col-md-3 mb-4");
+    }
+
+    function just_hide(ele) {
+        $('#divBinding').hide('slow');
+        $('#ukuranBinding').hide('slow');
+        $('#formJilid').attr("class", "form-group col-12 col-md-6 mb-4");
+    }
 });
+$(document).ready(function () {
+    $.ajax({
+        type: "GET",
+        url: window.location.origin + "/list/get-layout",
+        success: function (hasil) {
+            var list = hasil.data;
+            if (typeof hasil.data == "string") {
+                list = JSON.parse(hasil.data);
+            }
+            $.each(hasil.data, function (index, data) {
+                $("#posisiLayout").append(
+                    $("<option></option>")
+                        .attr("value", data.value)
+                        .text(data.label)
+                );
+            });
+        },
+        error: function (xhr, status, error) {
+            console.log(xhr);
+            console.log(status);
+            console.log(error);
+        },
+    });
+    $("#posisiLayout").on("change", function () {
+        var val = $(this).val();
+        $.ajax({
+            url: window.location.origin + "/list/list-dami",
+            type: "GET",
+            data: "value=" + val,
+            success: function (hasil) {
+                $("#dami").empty();
+                $("#dami").html(hasil);
+            },
+            error: function (hasil) {
+                $("#dami").empty();
+                $("#dami").html(hasil);
+            },
+        });
+    });
+});
+// $(document).ready(function () {
+//     let id = $('#fup_OrderCetak').data('id'),
+//         cardWrap = $('.section-body').find('.card');
+//     $.ajax({
+//         type: "GET",
+//         url: window.location.origin + "/list/jenis-mesin",
+//         data: "id=" + id,
+//         beforeSend: function() {
+//             cardWrap.addClass('card-progress');
+//         },
+//         success: function (hasil) {
+//             if (hasil.params === 1) {
+//                 $("#jenisMesin").html(hasil.data);
+//             } else {
+//                 var list = hasil.data;
+//                 if (typeof hasil.data == "string") {
+//                     list = JSON.parse(hasil.data);
+//                 }
+//                 $.each(hasil.data, function (index, data) {
+//                     $("#jenisMesin").append(
+//                         $("<option></option>")
+//                             .attr("value", data.value)
+//                             .text(data.label)
+//                     );
+//                 });
+//             }
+//         },
+//         error: function (xhr, status, error) {
+//             console.log(xhr);
+//             console.log(status);
+//             console.log(error);
+//         },
+//     });
+//     $.ajax({
+//         type: "GET",
+//         url: window.location.origin + "/list/status-cetak",
+//         data: "id=" + id,
+//         beforeSend: function() {
+//             cardWrap.addClass('card-progress');
+//         },
+//         success: function (hasil) {
+//             if (hasil.params === 1) {
+//                 $("#statusCetak").html(hasil.data);
+//             } else {
+//                 var list = hasil.data;
+//                 if (typeof hasil.data == "string") {
+//                     list = JSON.parse(hasil.data);
+//                 }
+//                 $.each(hasil.data, function (index, data) {
+//                     $("#statusCetak").append(
+//                         $("<option></option>")
+//                             .attr("value", data.value)
+//                             .text(data.label)
+//                     );
+//                 });
+//             }
+//         },
+//         error: function (xhr, status, error) {
+//             console.log(xhr);
+//             console.log(status);
+//             console.log(error);
+//         },
+//         complete: function() {
+//             cardWrap.removeClass('card-progress');
+//         }
+//     });
+// });

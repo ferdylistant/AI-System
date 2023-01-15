@@ -138,16 +138,75 @@ class OrderCetakController extends Controller
     }
     public function updateOrderCetak(Request $request)
     {
+        $id = $request->get('order');
+        $naskah = $request->get('naskah');
+        $data = DB::table('order_cetak as oc')
+            ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
+            ->join('pilihan_penerbitan as pp', 'pp.deskripsi_turun_cetak_id', '=', 'dtc.id')
+            ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+            ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+            ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+            ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
+            })
+            ->where('oc.id', $id)
+            ->where('pn.kode', $naskah)
+            ->select(
+                'oc.*',
+                'dtc.tipe_order',
+                'pp.platform_digital_ebook_id',
+                'pp.pilihan_terbit',
+                'dc.jilid',
+                'dc.warna',
+                'dc.finishing_cover',
+                'df.sub_judul_final',
+                'df.isi_warna',
+                'df.kertas_isi',
+                'dp.judul_final',
+                'dp.format_buku',
+                'dp.imprint',
+                'dp.jml_hal_perkiraan',
+                'kb.nama',
+                'pn.id as naskah_id',
+                'pn.kelompok_buku_id',
+                'pn.jalur_buku',
+                'ps.isbn',
+                'ps.jml_hal_final',
+                'ps.edisi_cetak'
+            )
+            ->first();
         if ($request->ajax()) {
+            if ($request->isMethod('GET')) {
+                $penulis = DB::table('penerbitan_naskah_penulis as pnp')
+                    ->join('penerbitan_penulis as pp', function ($q) {
+                        $q->on('pnp.penulis_id', '=', 'pp.id')
+                            ->whereNull('pp.deleted_at');
+                    })
+                    ->where('pnp.naskah_id', '=', $data->naskah_id)
+                    ->select('pp.id', 'pp.nama')
+                    ->get();
+                $data = (object)collect($data)->map(function ($item, $key) {
+                    if ($key == 'tgl_permintaan_jadi' and $item != '') {
+                        return Carbon::createFromFormat('Y-m-d', $item)->format('d F Y');
+                    }
+                    return $item;
+                })->all();
+                return ['data' => $data,'penulis' => $penulis];
+            }
             if ($request->isMethod('POST')) {
                 try {
                     $history = DB::table('order_cetak as oc')
                         ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
                         ->join('pilihan_penerbitan as pp', 'pp.deskripsi_turun_cetak_id', '=', 'dtc.id')
                         ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
-                        ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
                         ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                        ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                        ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                        ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                        ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                         ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                         ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
                             $q->on('pn.kelompok_buku_id', '=', 'kb.id')
@@ -158,14 +217,22 @@ class OrderCetakController extends Controller
                             'oc.*',
                             'dtc.tipe_order',
                             'pp.platform_digital_ebook_id',
+                            'pp.pilihan_terbit',
+                            'dc.jilid',
+                            'dc.warna',
+                            'dc.finishing_cover',
                             'df.sub_judul_final',
+                            'df.isi_warna',
+                            'df.kertas_isi',
                             'dp.judul_final',
                             'dp.format_buku',
                             'dp.imprint',
                             'dp.jml_hal_perkiraan',
-                            'kb.id as kelompok_buku_id',
+                            'kb.nama',
                             'pn.id as naskah_id',
                             'pn.jalur_buku',
+                            'ps.isbn',
+                            'ps.jml_hal_final',
                             'ps.edisi_cetak'
                         )
                         ->first();
@@ -231,69 +298,30 @@ class OrderCetakController extends Controller
                 }
             }
         }
-        $id = $request->get('order');
-        $naskah = $request->get('naskah');
-        $data = DB::table('order_cetak as oc')
-            ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
-            ->join('pilihan_penerbitan as pp', 'pp.deskripsi_turun_cetak_id', '=', 'dtc.id')
-            ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
-            ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
-            ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-            ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
-            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                    ->whereNull('kb.deleted_at');
-            })
-            ->where('oc.id', $id)
-            ->where('pn.kode', $naskah)
-            ->select(
-                'oc.*',
-                'dtc.tipe_order',
-                'pp.platform_digital_ebook_id',
-                'pp.pilihan_terbit',
-                'df.sub_judul_final',
-                'dp.judul_final',
-                'dp.format_buku',
-                'dp.imprint',
-                'dp.jml_hal_perkiraan',
-                'kb.nama',
-                'pn.id as naskah_id',
-                'pn.jalur_buku',
-                'ps.edisi_cetak'
-            )
-            ->first();
         $tipeOrd = array(['id' => 1, 'name' => 'Umum'], ['id' => 2, 'name' => 'Rohani']);
-        $penulis = DB::table('penerbitan_naskah_penulis as pnp')
-            ->join('penerbitan_penulis as pp', function ($q) {
-                $q->on('pnp.penulis_id', '=', 'pp.id')
-                    ->whereNull('pp.deleted_at');
-            })
-            ->where('pnp.naskah_id', '=', $data->naskah_id)
-            ->select('pp.id', 'pp.nama')
-            ->get();
-        $penulisList = DB::table('penerbitan_penulis')
-            ->whereNull('deleted_at')
-            ->get();
-        foreach ($penulisList as $pl) {
-            $collectPenulis[] = $pl->id;
-        }
-        $listPilTerbit = ['cetak', 'ebook'];
         $pilihanTerbit = DB::table('pilihan_penerbitan')->get();
         $platformDigital = DB::table('platform_digital_ebook')->whereNull('deleted_at')->get();
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
             ->get();
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_cover WHERE Field = 'jilid'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $jilid = explode("','", $matches[1]);
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak WHERE Field = 'jenis_mesin'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $jenis_mesin = explode("','", $matches[1]);
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak WHERE Field = 'status_cetak'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $status_cetak = explode("','", $matches[1]);
         return view('penerbitan.order_cetak.edit', [
             'title' => 'Update Order Cetak',
             'tipeOrd' => $tipeOrd,
             'pilihanTerbit' => $pilihanTerbit,
-            'list_pilihanterbit' => $listPilTerbit,
             'platformDigital' => $platformDigital,
             'kbuku' => $kbuku,
-            'penulis' => $penulis,
-            'collect_penulis' => $collectPenulis,
             'data' => $data,
+            'jilid' => $jilid,
+            'jenis_mesin' => $jenis_mesin,
+            'status_cetak' => $status_cetak
         ]);
     }
     public function detailOrderCetak(Request $request)
@@ -339,7 +367,7 @@ class OrderCetakController extends Controller
             )
             ->first();
         if (is_null($data)) {
-            return redirect()->route('cetak.view');
+            return abort(404);
         }
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', function ($q) {
@@ -347,7 +375,6 @@ class OrderCetakController extends Controller
                     ->whereNull('pp.deleted_at');
             })
             ->where('pnp.naskah_id', '=', $data->naskah_id)
-            ->select('pp.nama')
             ->get();
 
         //Data Action
@@ -355,32 +382,18 @@ class OrderCetakController extends Controller
         if (!$act->isEmpty()) {
             foreach ($act as $a) {
                 $act_j[] = $a->type_jabatan;
-                //Dirop dan Dirke sudah
-                if ($a->type_jabatan == 'Dir. Operasional' || $a->type_jabatan == 'Dir. Keuangan') {
-                    $diropDirke = TRUE;
-                } else {
-                    $diropDirke = FALSE;
-                }
             }
         } else {
             $act_j = NULL;
-            $diropDirke = NULL;
         }
         //List Jabatan Approval
         $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_jabatan'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $jabatan = explode("','", $matches[1]);
 
-        is_null($data) ? abort(404) :
-            $sasaranPasar = DB::table('penerbitan_pn_prodev')
-            ->where('naskah_id', $data->naskah_id)
-            ->first();
-        $sasaran_pasar = is_null($sasaranPasar) ? null : $sasaranPasar->sasaran_pasar;
-
         return view('penerbitan.order_cetak.detail', [
             'title' => 'Detail Order Cetak Buku',
             'data' => $data,
-            'sasaran_pasar' => $sasaran_pasar,
             'penulis' => $penulis,
             'act' => $act,
             'act_j' => $act_j,
@@ -652,7 +665,7 @@ class OrderCetakController extends Controller
             $permission = DB::table('permissions')
                 ->where('raw', $request->type_jabatan)
                 ->first();
-                // return response()->json($request->type_jabatan);
+            // return response()->json($request->type_jabatan);
             $insert = [
                 'params' => 'Insert Action',
                 'order_cetak_id' => $request->id,
@@ -714,11 +727,11 @@ class OrderCetakController extends Controller
     {
         $id = $request->id;
         $data = DB::table('order_cetak_action')
-        ->where('id',$id)
-        ->first();
+            ->where('id', $id)
+            ->first();
         $fetch = [
             'jabatan' => $data->type_jabatan,
-            'users' => DB::table('users')->where('id',$data->users_id)->first()->nama,
+            'users' => DB::table('users')->where('id', $data->users_id)->first()->nama,
             'catatan' => $data->catatan_action,
             'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')
         ];
@@ -728,11 +741,11 @@ class OrderCetakController extends Controller
     {
         $id = $request->id;
         $data = DB::table('order_cetak_action')
-        ->where('id',$id)
-        ->first();
+            ->where('id', $id)
+            ->first();
         $fetch = [
             'jabatan' => $data->type_jabatan,
-            'users' => DB::table('users')->where('id',$data->users_id)->first()->nama,
+            'users' => DB::table('users')->where('id', $data->users_id)->first()->nama,
             'catatan' => $data->catatan_action,
             'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')
         ];

@@ -9,10 +9,35 @@ use Illuminate\Support\Facades\{Auth, DB};
 
 class ApiController extends Controller
 {
-    public function listDami(Request $request)
+    public function requestAjax(Request $request)
+    {
+        if ($request->ajax()) {
+            try {
+                switch ($request->list) {
+                    case 'jenis-mesin':
+                        return $this->listJenisMesin($request);
+                        break;
+                    case 'status-cetak':
+                        return $this->listStatusCetak($request);
+                        break;
+                    case 'get-layout':
+                        return $this->getPosisiLayout($request);
+                        break;
+                    case 'list-dami':
+                        return $this->listDami($request);
+                        break;
+                }
+            } catch (\Exception $e) {
+                return abort(500);
+            }
+        } else {
+            return abort(405);
+        }
+    }
+    protected function listDami($request)
     {
         $valueLayout = $request->input('value');
-        if ($valueLayout == '1'){
+        if ($valueLayout == '1') {
             $data = (object)[
                 [
                     'value' => '16',
@@ -27,8 +52,7 @@ class ApiController extends Controller
                     'label' => '32',
                 ],
             ];
-        }
-        elseif ($valueLayout == '2') {
+        } elseif ($valueLayout == '2') {
             $data = (object)[
                 [
                     'value' => '12',
@@ -46,10 +70,10 @@ class ApiController extends Controller
         }
         echo '<option label="Pilih"></option>';
         foreach ($data as $key => $value) {
-            echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+            echo '<option value="' . $value['value'] . '">' . $value['label'] . '</option>';
         }
     }
-    public function getPosisiLayout(Request $request)
+    protected function getPosisiLayout($request)
     {
         $posisiLayout = (object)[
             [
@@ -61,22 +85,7 @@ class ApiController extends Controller
                 'label' => 'Landscape',
             ]
         ];
-        if ($request->has('id')) {
-            $id = $request->get('id');
-            $data = DB::table('produksi_order_cetak')->where('id', $id)->first();
-            echo '<option label="Pilih"></option>';
-            foreach ($posisiLayout as $key => $value) {
-                if ($data->posisi_layout == $value['value']) {
-                    echo '<option value="'.$value['value'].'" selected>'.$value['label'].'</option>';
-                }
-                else {
-                    echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
-                }
-            }
-        }
-        else {
-            return response()->json($posisiLayout);
-        }
+        return response()->json($posisiLayout);
     }
     public function listFormatBuku(Request $request)
     {
@@ -224,100 +233,113 @@ class ApiController extends Controller
 
         echo '<option label="Pilih"></option>';
         foreach ($data as $key => $value) {
-            echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+            echo '<option value="' . $value['value'] . '">' . $value['label'] . '</option>';
         }
     }
     public function listStatusBuku(Request $request)
     {
-        $statusBuku = (object)[['value' => '1','label' => 'Reguler'],['value' => '2','label' => 'MOU']];
-        if ($request->has('id'))
-        {
+        $statusBuku = (object)[['value' => '1', 'label' => 'Reguler'], ['value' => '2', 'label' => 'MOU']];
+        if ($request->has('id')) {
             $id = $request->get('id');
             $data = DB::table('produksi_order_cetak')->where('id', $id)->first();
             echo '<option label="Pilih"></option>';
             foreach ($statusBuku as $key => $value) {
                 if ($data->status_buku == $value['value']) {
-                    echo '<option value="'.$value['value'].'" selected>'.$value['label'].'</option>';
-                }
-                else {
-                    echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+                    echo '<option value="' . $value['value'] . '" selected>' . $value['label'] . '</option>';
+                } else {
+                    echo '<option value="' . $value['value'] . '">' . $value['label'] . '</option>';
                 }
             }
-        }
-        else {
+        } else {
             return response()->json($statusBuku);
         }
     }
     public function listStatusBukuEbook(Request $request)
     {
-        $statusBuku = (object)[['value' => '1','label' => 'Reguler'],['value' => '2','label' => 'MOU']];
-        if ($request->has('id'))
-        {
+        $statusBuku = (object)[['value' => '1', 'label' => 'Reguler'], ['value' => '2', 'label' => 'MOU']];
+        if ($request->has('id')) {
             $id = $request->get('id');
             $data = DB::table('produksi_order_ebook')->where('id', $id)->first();
             echo '<option label="Pilih"></option>';
             foreach ($statusBuku as $key => $value) {
                 if ($data->status_buku == $value['value']) {
-                    echo '<option value="'.$value['value'].'" selected>'.$value['label'].'</option>';
-                }
-                else {
-                    echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+                    echo '<option value="' . $value['value'] . '" selected>' . $value['label'] . '</option>';
+                } else {
+                    echo '<option value="' . $value['value'] . '">' . $value['label'] . '</option>';
                 }
             }
-        }
-        else {
+        } else {
             return response()->json($statusBuku);
         }
     }
     public function listPilihanTerbit(Request $request)
     {
-        $pilihanTerbit = (object)[['value' => '1','label' => 'Cetak Fisik'],['value' => '2','label' =>  'Cetak Fisik + E-Book']];
+        $pilihanTerbit = (object)[['value' => '1', 'label' => 'Cetak Fisik'], ['value' => '2', 'label' =>  'Cetak Fisik + E-Book']];
         if ($request->has('id')) {
             $id = $request->get('id');
             $data = DB::table('produksi_order_cetak')->where('id', $id)->first();
             echo '<option label="Pilih"></option>';
             foreach ($pilihanTerbit as $key => $value) {
                 if ($data->pilihan_terbit == $value['value']) {
-                    echo '<option value="'.$value['value'].'" selected>'.$value['label'].'</option>';
+                    echo '<option value="' . $value['value'] . '" selected>' . $value['label'] . '</option>';
                 } else {
-                    echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+                    echo '<option value="' . $value['value'] . '">' . $value['label'] . '</option>';
                 }
             }
         } else {
             return response()->json($pilihanTerbit);
         }
-
-
     }
-    public function listStatusCetak(Request $request)
+    protected function listStatusCetak($request)
     {
-        $val = $request->input('value');
-        if ($val == '2') {
-            $data = (object)[['value' => 1,'label' => 'Buku Baru'], ['value' => 2,'label' => 'Cetak Ulang Revisi']];
-        } elseif ($val == '1') {
-            $data = (object)[['value' => 1,'label' => 'Buku Baru'],['value' => 3,'label' => 'Cetak Ulang']];
-        }
-        echo '<option label="Pilih"></option>';
-        foreach ($data as $value) {
-            echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
-        }
-    }
-    public function listJenisMesin(Request $request)
-    {
-        $jenisMesin = (object)[['value' => '1','label' => 'POD'],['value' => '2','label' => 'Mesin Besar']];
-        if ($request->has('id')) {
-            $id = $request->get('id');
-            $data = DB::table('produksi_order_cetak')->where('id', $id)->first();
-            echo '<option label="Pilih"></option>';
-            foreach ($jenisMesin as $key => $value) {
-                if ($data->jenis_mesin == $value['value']) {
-                    echo '<option value="'.$value['value'].'" selected>'.$value['label'].'</option>';
+        $statusCetak = array(['value' => 1,'label' => 'Buku Baru'], ['value' => 2,'label' => 'Cetak Ulang Revisi'],['value' => 3,'label' => 'Cetak Ulang']);
+        $id = $request->get('id');
+        $data = DB::table('order_cetak')->where('id', $id)->first();
+        if (!is_null($data)) {
+            $html = '';
+            $html .= '<option label="Pilih"></option>';
+            foreach ($statusCetak as $key => $value) {
+                if ($data->status_cetak == $value['value']) {
+                    $html .= '<option value="' . $value['value'] . '" selected>' . $value['label'] . '</option>';
                 } else {
-                    echo '<option value="'.$value['value'].'">'.$value['label'].'</option>';
+                    $html .= '<option value="' . $value['value'] . '">' . $value['label'] . '</option>';
                 }
             }
+            return response()->json([
+                'params' => 1,
+                'data' => $html
+            ]);
         } else {
-            return response()->json($jenisMesin);
+            return response()->json([
+                'params' => 0,
+                'data' => $statusCetak
+            ]);
+        }
+    }
+    protected function listJenisMesin($request)
+    {
+        $jenisMesin = (object)[['value' => '1', 'label' => 'POD'], ['value' => '2', 'label' => 'Mesin Besar']];
+        $id = $request->get('id');
+        $data = DB::table('order_cetak')->where('id', $id)->first();
+        if (!is_null($data)) {
+            $html = '';
+            $html .= '<option label="Pilih"></option>';
+            foreach ($jenisMesin as $key => $value) {
+                if ($data->jenis_mesin == $value['value']) {
+                    $html .= '<option value="' . $value['value'] . '" selected>' . $value['label'] . '</option>';
+                } else {
+                    $html .= '<option value="' . $value['value'] . '">' . $value['label'] . '</option>';
+                }
+            }
+            return response()->json([
+                'params' => 1,
+                'data' => $html
+            ]);
+        } else {
+            return response()->json([
+                'params' => 0,
+                'data' => $jenisMesin
+            ]);
         }
     }
     public function updateTanggalUploadEbook(Request $request)
@@ -331,8 +353,8 @@ class ApiController extends Controller
                 'updated_by' => Auth::user()->id,
             ]);
         $penyetujuan = DB::table('produksi_penyetujuan_order_ebook')->where('produksi_order_ebook_id', $id)->update([
-                'tgl_upload_history' => $history_tanggal,
-            ]);
+            'tgl_upload_history' => $history_tanggal,
+        ]);
         $data = [
             'status' => 'success',
             'message' => 'Berhasil mengubah tanggal upload ebook',
@@ -350,8 +372,8 @@ class ApiController extends Controller
                 'updated_by' => Auth::user()->id,
             ]);
         $penyetujuan = DB::table('produksi_penyetujuan_order_cetak')->where('produksi_order_cetak_id', $id)->update([
-                'tgl_permintaan_jadi_history' => $history_tanggal,
-            ]);
+            'tgl_permintaan_jadi_history' => $history_tanggal,
+        ]);
         $data = [
             'status' => 'success',
             'message' => 'Berhasil mengubah tanggal permintaan jadi cetak',
@@ -369,8 +391,8 @@ class ApiController extends Controller
                 'updated_by' => Auth::user()->id,
             ]);
         $penyetujuan = DB::table('produksi_penyetujuan_order_cetak')->where('produksi_order_cetak_id', $id)->update([
-                'jumlah_cetak_history' => $history_jumlah,
-            ]);
+            'jumlah_cetak_history' => $history_jumlah,
+        ]);
         $data = [
             'status' => 'success',
             'message' => 'Berhasil mengubah jumlah cetak',

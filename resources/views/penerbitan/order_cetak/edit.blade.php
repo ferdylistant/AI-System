@@ -16,7 +16,7 @@
     <section class="section">
         <div class="section-header">
             <div class="section-header-back">
-                <a href="{{ route('cetak.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+                <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
             <h1>Edit Order Cetak</h1>
         </div>
@@ -77,10 +77,6 @@
 @section('jsRequired')
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
-    @if ($data->status == 'Proses' ||
-        ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
-        <script src="https://unpkg.com/imask"></script>
-    @endif
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
     <script src="{{ url('vendors/sweetalert/dist/sweetalert.min.js') }}"></script>

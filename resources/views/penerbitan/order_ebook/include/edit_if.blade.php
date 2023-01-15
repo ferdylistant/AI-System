@@ -14,7 +14,7 @@
                 @endforeach
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
-                <label>Jalur Buku: <span class="text-danger">*</span></label>
+                <label>Jalur Buku:</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-check-circle"></i></div>
@@ -49,8 +49,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-pen"></i></div>
                     </div>
-                    <select class="form-control select-penulis" multiple="multiple" disabbled>
-                        <option label="Pilih penulis"></option>
+                    <select class="form-control select-penulis" multiple="multiple">
                         @foreach ($penulis as $p)
                             {{ $sl = '' }}
                             @if (in_array($p->id, $collect_penulis))
@@ -60,7 +59,6 @@
                                 {{ $p->nama }}&nbsp;&nbsp;</option>
                         @endforeach
                     </select>
-                    <div id="err_up_penulis"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
@@ -81,16 +79,18 @@
                     </div>
                     <input type="text" class="form-control" name="up_edisi_cetak" placeholder="Edisi Cetak"
                         value="{{ $data->edisi_cetak }}" required>
-                    <div id="err_up_edisi"></div>
+                    <div id="err_up_edisi_cetak"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-3 mb-4">
                 <label>Jumlah Halaman: <span class="text-danger">*</span></label>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
-                        <input type="text" class="form-control" name="up_jml_hal_perkiraan"
-                            placeholder="Format Romawi" value="{{ $data->jml_hal_perkiraan }}" required>
+                        <div class="input-group-text"><i class="fas fa-copy"></i></div>
                     </div>
+                    <input type="text" class="form-control" name="up_jml_hal_perkiraan"
+                        placeholder="Format Romawi" value="{{ $data->jml_hal_perkiraan }}" required>
+                    <div id="err_up_jml_hal_perkiraan"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">

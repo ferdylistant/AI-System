@@ -1,38 +1,13 @@
-<form id="fup_OrderEbook" data-id="{{ $data->id }}">
+<form id="fup_OrderCetak" name="up_id">
     <div class="card-body">
         <div class="row">
             <div class="form-group col-12 col-md-6 mb-4">
-                <label class="d-block">Pilihan Terbit:</label>
-                @foreach ($list_pilihanterbit as $pt)
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="{{ $pt }}"
-                            value="{{ $pt }}"
-                            {{ (is_null($data->pilihan_terbit) ? null : in_array($pt, json_decode($data->pilihan_terbit, true))) ? 'checked' : '' }}
-                            disabled>
-                        <label class="form-check-label" for="{{ $pt }}">{{ $pt }}</label>
-                    </div>
-                @endforeach
-            </div>
-            <div class="form-group col-12 col-md-6 mb-4">
-                <label class="d-block">Platform E-book:</label>
-                @foreach ($platformDigital as $pD)
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="{{ $pD->nama }}"
-                            value="{{ $pD->nama }}"
-                            {{ ($data->platform_digital_ebook_id == [] ? '' : in_array($pD->nama, json_decode($data->platform_digital_ebook_id, true))) ? 'checked' : '' }}
-                            disabled>
-                        <label class="form-check-label" for="{{ $pD->nama }}">{{ $pD->nama }}</label>
-                    </div>
-                @endforeach
-            </div>
-            <div class="form-group col-12 col-md-6 mb-4">
-                <label>Jalur Buku: <span class="text-danger">*</span></label>
+                <label>Jalur Buku:</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-check-circle"></i></div>
                     </div>
-                    <input type="text" class="form-control"
-                        value="{{ is_null($data->jalur_buku) ? '-' : $data->jalur_buku }}" disabled readonly>
+                    <input type="text" class="form-control" name="up_jalur_buku" disabled readonly>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
@@ -41,8 +16,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-book"></i></div>
                     </div>
-                    <input type="text" class="form-control" name="up_judul_final" value="{{ $data->judul_final }}"
-                        placeholder="Judul buku" disabled readonly>
+                    <input type="text" class="form-control" name="up_judul_final" disabled readonly>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
@@ -51,8 +25,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-book-open"></i></div>
                     </div>
-                    <input type="text" class="form-control"
-                        value="{{ is_null($data->sub_judul_final) ? '-' : $data->sub_judul_final }}" disabled readonly>
+                    <input type="text" class="form-control" name="up_sub_judul_final" disabled readonly>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
@@ -61,18 +34,8 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-pen"></i></div>
                     </div>
-                    <select class="form-control select-penulis" multiple="multiple" disabbled>
-                        <option label="Pilih penulis"></option>
-                        @foreach ($penulis as $p)
-                            {{ $sl = '' }}
-                            @if (in_array($p->id, $collect_penulis))
-                                {{ $sl = ' selected="selected" ' }}
-                            @endif
-                            <option value="{{ $p->id }}" {{ $sl }}>
-                                {{ $p->nama }}&nbsp;&nbsp;</option>
-                        @endforeach
+                    <select id="up_penulis" class="form-control select-penulis" multiple="">
                     </select>
-                    <div id="err_up_penulis"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
@@ -81,8 +44,55 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-building"></i></div>
                     </div>
-                    <input type="text" class="form-control"
-                        value="{{ is_null($data->imprint) ? '-' : $data->imprint }}" disabled readonly>
+                    <input type="text" class="form-control" name="up_imprint" disabled readonly>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-6 mb-4" id="eISBN">
+                <label>ISBN: </label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fas fa-fingerprint"></i></div>
+                    </div>
+                    <input type="text" class="form-control" name="up_imprint" disabled readonly>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-6 mb-4">
+                <label>Status Cetak: <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fas fa-file"></i></div>
+                    </div>
+                    <select class="form-control select2" name="up_status_cetak" required>
+                        @foreach ($status_cetak as $st)
+                            @switch($st)
+                                @case(1)
+                                    {{$res = 'Buku Baru'}}
+                                    @break
+                                @case(2)
+                                    {{$res = 'Cetak Ulang Revisi'}}
+                                    @break
+                                @case(3)
+                                    {{$res = 'Cetak Ulang'}}
+                                    @break
+                            @endswitch
+                            <option value="{{$st}}">{{$res}}</option>
+                        @endforeach
+                    </select>
+                    <div id="err_up_status_cetak"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-6 mb-4">
+                <label>Jenis Mesin: <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fas fa-hdd"></i></div>
+                    </div>
+                    <select class="form-control select2" name="up_jenis_mesin" required>
+                        @foreach ($jenis_mesin as $jm)
+                            <option value="{{$jm}}">{{$jm==1?'POD':'Mesin Besar'}}</option>
+                        @endforeach
+                    </select>
+                    <div id="err_up_jenis_mesin"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-3 mb-4">
@@ -91,18 +101,19 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-bookmark"></i></div>
                     </div>
-                    <input type="text" class="form-control" name="up_edisi_cetak" placeholder="Edisi Cetak"
-                        value="{{ $data->edisi_cetak }}" required>
-                    <div id="err_up_edisi"></div>
+                    <input type="text" class="form-control" name="up_edisi_cetak" placeholder="Edisi Cetak" required>
+                    <div id="err_up_edisi_cetak"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-3 mb-4">
                 <label>Jumlah Halaman: <span class="text-danger">*</span></label>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
-                        <input type="text" class="form-control" name="up_jml_hal_perkiraan"
-                            placeholder="Format Romawi" value="{{ $data->jml_hal_perkiraan }}" required>
+                        <div class="input-group-text"><i class="fas fa-copy"></i></div>
                     </div>
+                    <input type="text" class="form-control" name="up_jml_hal_perkiraan"
+                        placeholder="Jumlah halaman" required>
+                    <div id="err_up_jml_hal_perkiraan"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
@@ -112,9 +123,8 @@
                         <div class="input-group-text"><i class="fas fa-table"></i></div>
                     </div>
                     <select class="form-control select2" name="up_kelompok_buku" required>
-                        <option label="Pilih"></option>
                         @foreach ($kbuku as $kb)
-                            <option value="{{ $kb->id }}" {{ $data->nama == $kb->nama ? 'Selected' : '' }}>
+                            <option value="{{ $kb->id }}">
                                 {{ $kb->nama }}
                             </option>
                         @endforeach
@@ -131,22 +141,71 @@
                     <select class="form-control select2" name="up_tipe_order">
                         <option label="Pilih"></option>
                         @foreach ($tipeOrd as $value)
-                            <option value="{{ $value['id'] }}"
-                                {{ $data->tipe_order == $value['id'] ? 'Selected' : '' }}>
+                            <option value="{{ $value['id'] }}">
                                 {{ $value['name'] }}</option>
                         @endforeach
                     </select>
                     <div id="err_up_tipe_order"></div>
                 </div>
             </div>
+            <div class="form-group col-12 col-md-3 mb-4">
+                <label>Posisi Layout <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-arrows-alt"></i></div>
+                    </div>
+                    <select class="form-control select2" name="up_posisi_layout" id="posisiLayout" required>
+                    </select>
+                    <div id="err_up_posisi_layout"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-3 mb-4">
+                <label>Dami <span class="text-danger">* Data dari posisi layout </span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-quote-left"></i></div>
+                    </div>
+                    <select class="form-control select2" name="up_dami" id="dami" required>
+                    </select>
+                    <div id="err_up_dami"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-6 mb-4" id="formJilid">
+                <label>Jilid: <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-hand-spock"></i></div>
+                    </div>
+                    <select class="form-control select2" name="up_jilid" id="jilidChange" required>
+                        <option label="Pilih"></option>
+                        @foreach($jilid as $j)
+                            <option value="{{ $j }}">{{ $j}}</option>
+                        @endforeach
+                    </select>
+                    <div id="err_up_jilid"></div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3" id="ukuranBinding" style="display:none"></div>
+            {{-- <div class="form-group col-12 col-md-3 mb-4" id="ukuranBending">
+                <label>Ukuran Bending: <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-ruler"></i></div>
+                    </div>
+                    <input type="text" class="form-control" name="up_ukuran_bending" placeholder="Ukuran Bending" required>
+                    <div id="err_up_ukuran_bending"></div>
+                    <div class="input-group-append">
+                        <span class="input-group-text"><strong>cm</strong></span>
+                    </div>
+                </div>
+            </div> --}}
             <div class="form-group col-12 col-md-6 mb-4">
                 <label>SPP: </label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-pen-square"></i></div>
                     </div>
-                    <input type="text" class="form-control" name="up_spp" value="{{ $data->spp }}"
-                        placeholder="Surat Perjanjian Penulis">
+                    <input type="text" class="form-control" name="up_spp"  placeholder="Surat Perjanjian Penulis">
                     <div id="err_up_spp"></div>
                 </div>
             </div>
@@ -156,20 +215,29 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                     </div>
-                    <input type="text" class="form-control datepicker-year" value="{{ $data->tahun_terbit }}"
-                        name="up_tahun_terbit" placeholder="Tahun" readonly required>
+                    <input type="text" class="form-control datepicker-year" name="up_tahun_terbit" placeholder="Tahun" readonly required>
                     <div id="err_up_tahun_terbit"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-3 mb-4">
+                <label>Tanggal Permintaan Jadi: <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
+                    </div>
+                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" readonly required>
+                    <div id="err_up_tgl_permintaan_jadi"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-12 mb-4">
                 <label>Perlengkapan: </label>
-                <textarea class="form-control" name="up_perlengkapan" value="{{ $data->perlengkapan }}" placeholder="Perlengkapan"></textarea>
+                <textarea class="form-control" name="up_perlengkapan" placeholder="Perlengkapan"></textarea>
                 <div id="err_up_perlengkapan"></div>
 
             </div>
             <div class="form-group col-12 col-md-12 mb-4">
                 <label>Keterangan: </label>
-                <textarea class="form-control" name="up_keterangan" value="{{ $data->keterangan }}" placeholder="Keterangan"></textarea>
+                <textarea class="form-control" name="up_keterangan" placeholder="Keterangan"></textarea>
                 <div id="err_up_keterangan"></div>
 
             </div>

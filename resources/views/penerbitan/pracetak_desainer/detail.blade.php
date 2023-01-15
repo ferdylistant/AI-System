@@ -61,7 +61,7 @@
     <section class="section">
         <div class="section-header">
             <div class="section-header-back">
-                <a href="{{ route('setter.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+                <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
             <h1>Detail Pracetak Cover</h1>
         </div>

@@ -23,13 +23,7 @@ Route::post('do-login', [AuthController::class, 'doLogin']);
 Route::middleware(['auth'])->group(function () {
     //API
     Route::get('/get-layout', [ApiController::class, 'getPosisiLayout']);
-    Route::get('/list-dami', [ApiController::class, 'listDami']);
-    Route::get('/list-format-buku', [ApiController::class, 'listFormatBuku']);
-    Route::get('/list-status-buku', [ApiController::class, 'listStatusBuku']);
-    Route::get('/list-status-buku-ebook', [ApiController::class, 'listStatusBukuEbook']);
-    Route::get('/list-pilihan-terbit', [ApiController::class, 'listPilihanTerbit']);
-    Route::get('/list-status-cetak', [ApiController::class, 'listStatusCetak']);
-    Route::get('/list-jenis-mesin', [ApiController::class, 'listJenisMesin']);
+    Route::get('/list/{list}', [ApiController::class, 'requestAjax']);
     Route::post('/update-tanggal-upload-ebook', [ApiController::class, 'updateTanggalUploadEbook']);
     Route::post('/update-tanggal-jadi-cetak', [ApiController::class, 'updateTanggalJadiCetak']);
     Route::post('/update-jumlah-cetak', [ApiController::class, 'updateJumlahCetak']);

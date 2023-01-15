@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.7
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Jan 14, 2023 at 12:12 PM
--- Server version: 5.7.40
--- PHP Version: 7.4.33
+-- Host: 127.0.0.1
+-- Generation Time: Jan 15, 2023 at 02:00 PM
+-- Server version: 10.4.24-MariaDB
+-- PHP Version: 7.4.29
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -19,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `aisystem_db`
+-- Database: `ags_ai`
 --
 
 -- --------------------------------------------------------
@@ -76,7 +75,7 @@ INSERT INTO `access` (`id`, `parent_id`, `bagian_id`, `level`, `order_menu`, `ur
 CREATE TABLE `access_bagian` (
   `id` varchar(36) NOT NULL,
   `name` varchar(150) NOT NULL,
-  `order_ab` tinyint(4) UNSIGNED NOT NULL DEFAULT '0'
+  `order_ab` tinyint(4) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -101,11 +100,11 @@ CREATE TABLE `cabang` (
   `kode` varchar(5) NOT NULL,
   `nama` varchar(100) NOT NULL,
   `telp` varchar(20) DEFAULT NULL,
-  `alamat` text,
+  `alamat` text DEFAULT NULL,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -128,18 +127,18 @@ CREATE TABLE `deskripsi_cover` (
   `deskripsi_produk_id` char(36) DEFAULT NULL,
   `des_front_cover` varchar(255) DEFAULT NULL,
   `des_back_cover` varchar(255) DEFAULT NULL,
-  `finishing_cover` text COMMENT 'Array',
+  `finishing_cover` text DEFAULT NULL COMMENT 'Array',
   `jilid` enum('Binding','Jahit Kawat','Jahit Benang') DEFAULT NULL,
   `tipografi` varchar(255) DEFAULT NULL,
   `warna` varchar(255) DEFAULT NULL,
   `desainer` varchar(36) DEFAULT NULL,
   `bulan` date DEFAULT NULL,
   `tgl_deskripsi` datetime DEFAULT NULL,
-  `contoh_cover` longtext COMMENT 'Url link',
+  `contoh_cover` longtext DEFAULT NULL COMMENT 'Url link',
   `kelengkapan` varchar(9) DEFAULT NULL,
-  `catatan` text,
+  `catatan` text DEFAULT NULL,
   `status` enum('Pending','Proses','Selesai','Antrian','Terkunci') NOT NULL DEFAULT 'Terkunci',
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL
@@ -150,7 +149,7 @@ CREATE TABLE `deskripsi_cover` (
 --
 
 INSERT INTO `deskripsi_cover` (`id`, `deskripsi_produk_id`, `des_front_cover`, `des_back_cover`, `finishing_cover`, `jilid`, `tipografi`, `warna`, `desainer`, `bulan`, `tgl_deskripsi`, `contoh_cover`, `kelengkapan`, `catatan`, `status`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
-('2c05015a-d003-42d9-8a90-3bb62fc1103a', '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Warna kuning..', 'Warna biru..', '[\"Glossy\",\"Laminasi Dof\",\"UV Spot\"]', 'Binding', NULL, NULL, '3d43ab399ec24c30b39c9b052686416d', '2022-10-22', '2022-10-04 16:34:45', 'https://www.google.com', NULL, NULL, 'Selesai', '2022-11-02 07:42:25', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL);
+('2c05015a-d003-42d9-8a90-3bb62fc1103a', '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Warna kuning..', 'Warna biru..', '[\"Glossy\",\"Laminasi Dof\",\"UV Spot\"]', 'Binding', NULL, NULL, '3d43ab399ec24c30b39c9b052686416d', '2022-10-22', '2022-10-04 16:34:45', 'https://www.google.com', NULL, NULL, 'Selesai', '2023-01-15 12:13:28', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -164,14 +163,14 @@ CREATE TABLE `deskripsi_cover_history` (
   `type_history` enum('Status','Update') DEFAULT NULL,
   `sub_judul_final_his` varchar(255) DEFAULT NULL,
   `sub_judul_final_new` varchar(255) DEFAULT NULL,
-  `bullet_his` text,
-  `bullet_new` text,
+  `bullet_his` text DEFAULT NULL,
+  `bullet_new` text DEFAULT NULL,
   `des_front_cover_his` varchar(255) DEFAULT NULL,
   `des_front_cover_new` varchar(255) DEFAULT NULL,
   `des_back_cover_his` varchar(255) DEFAULT NULL,
   `des_back_cover_new` varchar(255) DEFAULT NULL,
-  `finishing_cover_his` text,
-  `finishing_cover_new` text,
+  `finishing_cover_his` text DEFAULT NULL,
+  `finishing_cover_new` text DEFAULT NULL,
   `format_buku_his` varchar(15) DEFAULT NULL,
   `format_buku_new` varchar(15) DEFAULT NULL,
   `jilid_his` varchar(15) DEFAULT NULL,
@@ -184,12 +183,12 @@ CREATE TABLE `deskripsi_cover_history` (
   `warna_new` varchar(255) DEFAULT NULL,
   `desainer_his` varchar(36) DEFAULT NULL,
   `desainer_new` varchar(36) DEFAULT NULL,
-  `catatan_his` text,
-  `catatan_new` text,
+  `catatan_his` text DEFAULT NULL,
+  `catatan_new` text DEFAULT NULL,
   `bulan_his` date DEFAULT NULL,
   `bulan_new` date DEFAULT NULL,
-  `contoh_cover_his` longtext COMMENT 'Url link',
-  `contoh_cover_new` longtext COMMENT 'Url link',
+  `contoh_cover_his` longtext DEFAULT NULL COMMENT 'Url link',
+  `contoh_cover_new` longtext DEFAULT NULL COMMENT 'Url link',
   `status_his` varchar(8) DEFAULT NULL,
   `status_new` varchar(8) DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL,
@@ -225,16 +224,16 @@ CREATE TABLE `deskripsi_final` (
   `ukuran_asli` varchar(10) DEFAULT NULL,
   `isi_warna` enum('Black & White','Dua Warna','Full Color','Sisipan Warna') DEFAULT NULL,
   `isi_huruf` varchar(50) DEFAULT NULL,
-  `bullet` text COMMENT 'array',
-  `sinopsis` longtext,
+  `bullet` text DEFAULT NULL COMMENT 'array',
+  `sinopsis` longtext DEFAULT NULL,
   `setter` varchar(36) DEFAULT NULL,
   `korektor` varchar(36) DEFAULT NULL,
   `bulan` date DEFAULT NULL,
   `tgl_deskripsi` datetime DEFAULT NULL,
   `kelengkapan` enum('Barcode','CD','Download') DEFAULT NULL,
-  `catatan` text,
+  `catatan` text DEFAULT NULL,
   `status` enum('Pending','Proses','Selesai','Antrian') NOT NULL DEFAULT 'Antrian',
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL
@@ -275,20 +274,20 @@ CREATE TABLE `deskripsi_final_history` (
   `isi_warna_new` varchar(15) DEFAULT NULL,
   `isi_huruf_his` varchar(50) DEFAULT NULL,
   `isi_huruf_new` varchar(50) DEFAULT NULL,
-  `bullet_his` text,
-  `bullet_new` text,
+  `bullet_his` text DEFAULT NULL,
+  `bullet_new` text DEFAULT NULL,
   `setter_his` varchar(36) DEFAULT NULL,
   `setter_new` varchar(36) DEFAULT NULL,
   `korektor_his` varchar(36) DEFAULT NULL,
   `korektor_new` varchar(36) DEFAULT NULL,
-  `sinopsis_his` longtext,
-  `sinopsis_new` longtext,
+  `sinopsis_his` longtext DEFAULT NULL,
+  `sinopsis_new` longtext DEFAULT NULL,
   `bulan_his` date DEFAULT NULL,
   `bulan_new` date DEFAULT NULL,
   `kelengkapan_his` varchar(10) DEFAULT NULL,
   `kelengkapan_new` varchar(10) DEFAULT NULL,
-  `catatan_his` text,
-  `catatan_new` text,
+  `catatan_his` text DEFAULT NULL,
+  `catatan_new` text DEFAULT NULL,
   `status_his` varchar(8) DEFAULT NULL,
   `status_new` varchar(8) DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL,
@@ -347,20 +346,20 @@ CREATE TABLE `deskripsi_produk` (
   `id` char(36) NOT NULL,
   `naskah_id` varchar(36) DEFAULT NULL,
   `judul_final` varchar(255) DEFAULT NULL,
-  `alt_judul` longtext COMMENT 'array',
+  `alt_judul` longtext DEFAULT NULL COMMENT 'array',
   `format_buku` varchar(15) DEFAULT NULL,
   `jml_hal_perkiraan` int(11) DEFAULT NULL,
   `imprint` varchar(50) DEFAULT NULL,
   `editor` varchar(36) DEFAULT NULL,
   `kelengkapan` enum('CD','Disket','DVD') DEFAULT NULL,
-  `catatan` text,
+  `catatan` text DEFAULT NULL,
   `bulan` date DEFAULT NULL,
-  `tgl_deskripsi` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `tgl_deskripsi` timestamp NULL DEFAULT current_timestamp(),
   `status` enum('Pending','Proses','Selesai','Antrian','Revisi','Acc') DEFAULT NULL,
   `action_gm` datetime DEFAULT NULL,
-  `alasan_revisi` tinytext,
+  `alasan_revisi` tinytext DEFAULT NULL,
   `deadline_revisi` datetime DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL
@@ -372,7 +371,7 @@ CREATE TABLE `deskripsi_produk` (
 
 INSERT INTO `deskripsi_produk` (`id`, `naskah_id`, `judul_final`, `alt_judul`, `format_buku`, `jml_hal_perkiraan`, `imprint`, `editor`, `kelengkapan`, `catatan`, `bulan`, `tgl_deskripsi`, `status`, `action_gm`, `alasan_revisi`, `deadline_revisi`, `updated_at`, `updated_by`, `deleted_at`, `deleted_by`) VALUES
 ('2f7bf184-23cf-42d7-9efc-19e47aaa3f14', '16fdb6f329c544c6824cf85ec38501b7', 'Aku & Di Balik Mata Kaca', '[\"Aku & Di Balik Mata Kaca\",\"Di Balik Mata Kaca Terabaikan\",\"Ada Di Balik Mata Kaca\"]', '25 x 17,6', 1000, 'G-Media', 'fab4f858e0314d1dbf6b5b834007313e', 'DVD', NULL, '2022-10-21', '2022-09-14 05:00:42', 'Acc', '2022-10-04 16:34:44', NULL, NULL, '2022-10-21 08:09:50', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL),
-('9dd93fdc-e481-4d31-89f1-21a2617f16de', '334ddadb6c144d3cac9449be04dc3887', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-01-13 09:27:06', 'Revisi', '2023-01-13 16:46:50', 'g menarik', '2023-01-17 16:46:50', '2023-01-13 09:46:50', 'dc306f83529445139c16dd55b4f0e6f3', NULL, NULL);
+('9dd93fdc-e481-4d31-89f1-21a2617f16de', '334ddadb6c144d3cac9449be04dc3887', NULL, '[null]', '25 x 20', 200, 'Rainbow', NULL, 'CD', NULL, '2023-01-01', '2023-01-13 09:27:06', 'Revisi', '2023-01-14 14:07:27', 'Jelek', '2023-01-18 14:07:27', '2023-01-14 07:07:27', 'dc306f83529445139c16dd55b4f0e6f3', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -386,8 +385,8 @@ CREATE TABLE `deskripsi_produk_history` (
   `type_history` enum('Update','Approval','Revisi','Status') DEFAULT NULL,
   `judul_final_his` varchar(255) DEFAULT NULL,
   `judul_final_new` varchar(255) DEFAULT NULL,
-  `alt_judul_his` longtext,
-  `alt_judul_new` longtext,
+  `alt_judul_his` longtext DEFAULT NULL,
+  `alt_judul_new` longtext DEFAULT NULL,
   `format_buku_his` varchar(10) DEFAULT NULL,
   `format_buku_new` varchar(10) DEFAULT NULL,
   `jml_hal_his` int(11) DEFAULT NULL,
@@ -398,13 +397,13 @@ CREATE TABLE `deskripsi_produk_history` (
   `editor_new` varchar(36) DEFAULT NULL,
   `kelengkapan_his` varchar(6) DEFAULT NULL,
   `kelengkapan_new` varchar(6) DEFAULT NULL,
-  `catatan_his` text,
-  `catatan_new` text,
+  `catatan_his` text DEFAULT NULL,
+  `catatan_new` text DEFAULT NULL,
   `bulan_his` date DEFAULT NULL,
   `bulan_new` date DEFAULT NULL,
   `status_his` varchar(8) DEFAULT NULL,
   `status_new` varchar(8) DEFAULT NULL,
-  `alasan_revisi_his` tinytext,
+  `alasan_revisi_his` tinytext DEFAULT NULL,
   `deadline_revisi_his` datetime DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL
@@ -470,7 +469,12 @@ INSERT INTO `deskripsi_produk_history` (`id`, `deskripsi_produk_id`, `type_histo
 (57, '2f7bf184-23cf-42d7-9efc-19e47aaa3f14', 'Update', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'fab4f858e0314d1dbf6b5b834007313e', NULL, NULL, NULL, NULL, '2022-10-21', '2022-10-21', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2022-10-21 15:09:50'),
 (58, '9dd93fdc-e481-4d31-89f1-21a2617f16de', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Antrian', 'Proses', NULL, NULL, 'ceadd9fb648445eab1e350357e51d1ce', '2023-01-13 16:39:33'),
 (59, '9dd93fdc-e481-4d31-89f1-21a2617f16de', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, NULL, 'ceadd9fb648445eab1e350357e51d1ce', '2023-01-13 16:45:56'),
-(60, '9dd93fdc-e481-4d31-89f1-21a2617f16de', 'Revisi', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Selesai', 'Revisi', 'g menarik', '2023-01-17 16:46:50', 'dc306f83529445139c16dd55b4f0e6f3', '2023-01-13 16:46:50');
+(60, '9dd93fdc-e481-4d31-89f1-21a2617f16de', 'Revisi', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Selesai', 'Revisi', 'g menarik', '2023-01-17 16:46:50', 'dc306f83529445139c16dd55b4f0e6f3', '2023-01-13 16:46:50'),
+(61, '9dd93fdc-e481-4d31-89f1-21a2617f16de', 'Update', NULL, NULL, NULL, '[null]', NULL, '25 x 20', NULL, 200, NULL, 'Rainbow', NULL, NULL, NULL, 'CD', NULL, NULL, NULL, '2023-01-01', NULL, NULL, NULL, NULL, 'ceadd9fb648445eab1e350357e51d1ce', '2023-01-14 12:24:23'),
+(62, '9dd93fdc-e481-4d31-89f1-21a2617f16de', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Revisi', 'Pending', NULL, NULL, 'ceadd9fb648445eab1e350357e51d1ce', '2023-01-14 13:17:24'),
+(63, '9dd93fdc-e481-4d31-89f1-21a2617f16de', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pending', 'Proses', NULL, NULL, 'ceadd9fb648445eab1e350357e51d1ce', '2023-01-14 14:05:25'),
+(64, '9dd93fdc-e481-4d31-89f1-21a2617f16de', 'Status', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Proses', 'Selesai', NULL, NULL, 'ceadd9fb648445eab1e350357e51d1ce', '2023-01-14 14:06:39'),
+(65, '9dd93fdc-e481-4d31-89f1-21a2617f16de', 'Revisi', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Selesai', 'Revisi', 'Jelek', '2023-01-18 14:07:27', 'dc306f83529445139c16dd55b4f0e6f3', '2023-01-14 14:07:27');
 
 -- --------------------------------------------------------
 
@@ -570,7 +574,7 @@ CREATE TABLE `divisi` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -605,20 +609,20 @@ INSERT INTO `divisi` (`id`, `nama`, `created_by`, `updated_by`, `deleted_by`, `c
 CREATE TABLE `editing_proses` (
   `id` char(36) NOT NULL,
   `deskripsi_final_id` char(36) DEFAULT NULL,
-  `editor` longtext COMMENT 'Array',
+  `editor` longtext DEFAULT NULL COMMENT 'Array',
   `tgl_masuk_editing` datetime DEFAULT NULL,
   `tgl_selesai_proses` datetime DEFAULT NULL,
   `bulan` date DEFAULT NULL,
   `tgl_mulai_edit` datetime DEFAULT NULL,
   `tgl_selesai_edit` datetime DEFAULT NULL,
-  `copy_editor` longtext COMMENT 'Array',
+  `copy_editor` longtext DEFAULT NULL COMMENT 'Array',
   `tgl_mulai_copyeditor` datetime DEFAULT NULL,
   `tgl_selesai_copyeditor` datetime DEFAULT NULL,
   `turun_pracetak` datetime DEFAULT NULL,
-  `catatan` text,
+  `catatan` text DEFAULT NULL,
   `proses` set('0','1') DEFAULT '0',
   `status` enum('Antrian','Pending','Proses','Selesai') DEFAULT 'Antrian',
-  `ket_pending` text
+  `ket_pending` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -638,20 +642,20 @@ CREATE TABLE `editing_proses_history` (
   `id` bigint(20) NOT NULL,
   `editing_proses_id` char(36) DEFAULT NULL,
   `type_history` enum('Status','Update','Progress') DEFAULT NULL,
-  `editor_his` longtext,
-  `editor_new` longtext,
-  `copy_editor_his` longtext,
-  `copy_editor_new` longtext,
-  `bullet_his` text,
-  `bullet_new` text,
+  `editor_his` longtext DEFAULT NULL,
+  `editor_new` longtext DEFAULT NULL,
+  `copy_editor_his` longtext DEFAULT NULL,
+  `copy_editor_new` longtext DEFAULT NULL,
+  `bullet_his` text DEFAULT NULL,
+  `bullet_new` text DEFAULT NULL,
   `jml_hal_perkiraan_his` int(11) DEFAULT NULL,
   `jml_hal_perkiraan_new` int(11) DEFAULT NULL,
   `bulan_his` date DEFAULT NULL,
   `bulan_new` date DEFAULT NULL,
   `status_his` varchar(8) DEFAULT NULL,
   `status_new` varchar(8) DEFAULT NULL,
-  `catatan_his` text,
-  `catatan_new` text,
+  `catatan_his` text DEFAULT NULL,
+  `catatan_new` text DEFAULT NULL,
   `progress` tinyint(4) DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL
@@ -725,7 +729,7 @@ CREATE TABLE `failed_jobs` (
   `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `failed_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -737,9 +741,9 @@ CREATE TABLE `failed_jobs` (
 CREATE TABLE `format_buku` (
   `id` char(36) NOT NULL,
   `jenis_format` varchar(10) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `created_by` varchar(36) DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL
@@ -853,9 +857,9 @@ INSERT INTO `format_buku_history` (`id`, `format_buku_id`, `jenis_format_history
 CREATE TABLE `imprint` (
   `id` char(36) NOT NULL,
   `nama` varchar(100) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `created_by` varchar(36) DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL
@@ -923,7 +927,7 @@ CREATE TABLE `jabatan` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1247,10 +1251,10 @@ CREATE TABLE `notif` (
   `section` enum('Penerbitan') NOT NULL,
   `type` enum('Penilaian Naskah','Timeline Naskah','Tolak Order E-Book','Terima Order E-Book') NOT NULL,
   `url` varchar(255) DEFAULT NULL,
-  `raw_data` text,
+  `raw_data` text DEFAULT NULL,
   `permission_id` varchar(36) NOT NULL,
   `form_id` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `expired` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -1261,6 +1265,7 @@ CREATE TABLE `notif` (
 INSERT INTO `notif` (`id`, `section`, `type`, `url`, `raw_data`, `permission_id`, `form_id`, `created_at`, `expired`) VALUES
 ('313e10568c8842eb955c4d25565474df', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'ebca07da8aad42c4aee304e3a6b81001', '334ddadb6c144d3cac9449be04dc3887', '2023-01-13 09:02:55', '2023-01-13 09:05:22'),
 ('4d2597b705ab4f6bba7b1447516b3b03', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, 'a213b689b8274f4dbe19b3fb24d66840', '334ddadb6c144d3cac9449be04dc3887', '2023-01-13 09:02:55', '2023-01-13 09:09:17'),
+('5a88ea7c0c30413eb4432b6be716ed37', 'Penerbitan', 'Tolak Order E-Book', NULL, NULL, '171e6210418440a8bf4d689841d0f32c', 'dd190773-e637-4459-9d52-d9aa9a5d09fa', '2023-01-14 10:16:36', NULL),
 ('6268cb20a5cd47e4880f24b770e156cc', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, '9beba245308543ce821efe8a3ba965e3', '334ddadb6c144d3cac9449be04dc3887', '2023-01-13 09:02:55', NULL),
 ('7b129cadc6584b5c8e4c37cd241d1119', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, '12b852d92d284ab5a654c26e8856fffd', '334ddadb6c144d3cac9449be04dc3887', '2023-01-13 09:02:55', '2023-01-13 09:06:40'),
 ('a34e74c45d924e6d90b9f4ac5e21b587', 'Penerbitan', 'Penilaian Naskah', NULL, NULL, '8791f143a90e42e2a4d1d0d6b1254bad', '334ddadb6c144d3cac9449be04dc3887', '2023-01-13 09:12:40', '2023-01-13 09:17:34');
@@ -1275,8 +1280,8 @@ CREATE TABLE `notif_detail` (
   `notif_id` varchar(36) NOT NULL,
   `user_id` varchar(36) NOT NULL,
   `seen` enum('1','0') NOT NULL DEFAULT '0' COMMENT 'if seen(1) update(null)::: updated by naskah',
-  `raw_data` text,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `raw_data` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -1285,7 +1290,8 @@ CREATE TABLE `notif_detail` (
 --
 
 INSERT INTO `notif_detail` (`notif_id`, `user_id`, `seen`, `raw_data`, `created_at`, `updated_at`) VALUES
-('313e10568c8842eb955c4d25565474df', 'ceadd9fb648445eab1e350357e51d1ce', '1', NULL, '2023-01-13 09:02:55', '2023-01-13 09:05:22');
+('313e10568c8842eb955c4d25565474df', 'ceadd9fb648445eab1e350357e51d1ce', '1', NULL, '2023-01-13 09:02:55', '2023-01-13 09:05:22'),
+('5a88ea7c0c30413eb4432b6be716ed37', '7c4f86aba34f430884fb87fee84bc870', '0', NULL, '2023-01-14 10:16:36', NULL);
 
 -- --------------------------------------------------------
 
@@ -1297,28 +1303,20 @@ CREATE TABLE `order_cetak` (
   `id` char(36) NOT NULL,
   `deskripsi_turun_cetak_id` char(36) DEFAULT NULL,
   `kode_order` varchar(8) NOT NULL,
-  `tipe_order` enum('1','2') NOT NULL COMMENT '1:Umum | 2:Rohani',
   `jenis_mesin` enum('1','2') DEFAULT NULL COMMENT '1= POD, 2= Mesin Besar',
-  `status_cetak` enum('1','2','3') NOT NULL COMMENT '1:Buku Baru | 2:Cetak Ulang Revisi | 3:Cetak Ulang',
-  `pilihan_terbit` enum('1','2') DEFAULT NULL COMMENT '1 = Cetak Fisik,\r\n2 = Cetak Fisik & E-Book',
-  `urgent` enum('0','1') NOT NULL DEFAULT '0' COMMENT '0:Tidak | 1:Ya',
-  `penerbit` varchar(255) DEFAULT NULL,
-  `platform_digital` text COMMENT 'array',
+  `status_cetak` enum('1','2','3') DEFAULT NULL COMMENT '1:Buku Baru | 2:Cetak Ulang Revisi | 3:Cetak Ulang ',
   `posisi_layout` enum('1','2') DEFAULT NULL COMMENT '1= Potrait (Tegak),\r\n2= Landscape (Tidur)',
   `dami` varchar(2) DEFAULT NULL COMMENT 'Isian tergantung pada posisi_layout',
-  `efek_cover` varchar(255) DEFAULT NULL,
   `jenis_cover` varchar(255) DEFAULT NULL,
-  `jilid` enum('1','2','3','4') DEFAULT NULL COMMENT '1= Bending ,\r\n2= Jahit Kawat ,\r\n3= Jahit Benang,\r\n4= Hardcover',
-  `ukuran_jilid_bending` varchar(10) DEFAULT NULL COMMENT 'Terisi jika jilid nya adalah ''Bending'' (lihat kolom jilid)',
+  `ukuran_jilid_binding` varchar(10) DEFAULT NULL COMMENT 'Terisi jika jilid nya adalah ''Bending'' (lihat kolom jilid)',
   `tahun_terbit` year(4) DEFAULT NULL,
   `buku_jadi` enum('Wrapping','Tidak Wrapping') DEFAULT NULL,
   `jumlah_cetak` int(10) DEFAULT NULL,
-  `buku_contoh` text,
+  `buku_contoh` text DEFAULT NULL,
   `spp` varchar(30) DEFAULT NULL,
-  `keterangan` text,
-  `perlengkapan` text,
+  `keterangan` text DEFAULT NULL,
+  `perlengkapan` text DEFAULT NULL,
   `tgl_permintaan_jadi` date DEFAULT NULL,
-  `status_penyetujuan` enum('1','2','3') NOT NULL DEFAULT '1' COMMENT '1 = Pending ~~\r\n2 = Disetujui ~~\r\n3 = Ditolak ~~',
   `status` enum('Antrian','Pending','Proses','Selesai') DEFAULT 'Antrian',
   `tgl_masuk` datetime DEFAULT NULL,
   `tgl_selesai_order` datetime DEFAULT NULL
@@ -1328,8 +1326,8 @@ CREATE TABLE `order_cetak` (
 -- Dumping data for table `order_cetak`
 --
 
-INSERT INTO `order_cetak` (`id`, `deskripsi_turun_cetak_id`, `kode_order`, `tipe_order`, `jenis_mesin`, `status_cetak`, `pilihan_terbit`, `urgent`, `penerbit`, `platform_digital`, `posisi_layout`, `dami`, `efek_cover`, `jenis_cover`, `jilid`, `ukuran_jilid_bending`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status_penyetujuan`, `status`, `tgl_masuk`, `tgl_selesai_order`) VALUES
-('dd190773-e637-4459-9d52-d9aa9a5d09fa', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', '23-1000', '1', NULL, '1', NULL, '0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1', 'Antrian', '2023-01-09 19:56:54', NULL);
+INSERT INTO `order_cetak` (`id`, `deskripsi_turun_cetak_id`, `kode_order`, `jenis_mesin`, `status_cetak`, `posisi_layout`, `dami`, `jenis_cover`, `ukuran_jilid_binding`, `tahun_terbit`, `buku_jadi`, `jumlah_cetak`, `buku_contoh`, `spp`, `keterangan`, `perlengkapan`, `tgl_permintaan_jadi`, `status`, `tgl_masuk`, `tgl_selesai_order`) VALUES
+('dd190773-e637-4459-9d52-d9aa9a5d09fa', 'ee5fcc10-4bb2-4f06-b9e1-c23fd377af33', '23-1000', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-01-25', 'Proses', '2023-01-09 19:56:54', NULL);
 
 -- --------------------------------------------------------
 
@@ -1343,9 +1341,16 @@ CREATE TABLE `order_cetak_action` (
   `type_jabatan` enum('GM Penerbitan','Dir. Operasional','Dir. Keuangan','Dir. Utama') DEFAULT NULL,
   `type_action` enum('Approval','Decline') DEFAULT NULL,
   `users_id` varchar(36) DEFAULT NULL,
-  `catatan_action` text,
+  `catatan_action` text DEFAULT NULL,
   `tgl_action` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `order_cetak_action`
+--
+
+INSERT INTO `order_cetak_action` (`id`, `order_cetak_id`, `type_jabatan`, `type_action`, `users_id`, `catatan_action`, `tgl_action`) VALUES
+(3, 'dd190773-e637-4459-9d52-d9aa9a5d09fa', 'GM Penerbitan', 'Decline', 'dc306f83529445139c16dd55b4f0e6f3', 'Tidak mantap', '2023-01-14 17:16:36');
 
 -- --------------------------------------------------------
 
@@ -1356,11 +1361,11 @@ CREATE TABLE `order_cetak_action` (
 CREATE TABLE `order_cetak_history` (
   `id` bigint(20) NOT NULL,
   `order_cetak_id` char(36) DEFAULT NULL,
-  `type_history` enum('Update','Approval','Revisi','Status') DEFAULT NULL,
+  `type_history` enum('Update','Approval','Decline','Status') DEFAULT NULL,
   `status_his` varchar(8) DEFAULT NULL,
   `status_new` varchar(8) DEFAULT NULL,
-  `alasan_revisi` text,
-  `deadline_revisi` datetime DEFAULT NULL,
+  `type_jabatan` varchar(20) DEFAULT NULL,
+  `catatan_action` text DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -1369,11 +1374,13 @@ CREATE TABLE `order_cetak_history` (
 -- Dumping data for table `order_cetak_history`
 --
 
-INSERT INTO `order_cetak_history` (`id`, `order_cetak_id`, `type_history`, `status_his`, `status_new`, `alasan_revisi`, `deadline_revisi`, `author_id`, `modified_at`) VALUES
+INSERT INTO `order_cetak_history` (`id`, `order_cetak_id`, `type_history`, `status_his`, `status_new`, `type_jabatan`, `catatan_action`, `author_id`, `modified_at`) VALUES
 (1, 'dd190773-e637-4459-9d52-d9aa9a5d09fa', 'Status', 'Pending', 'Antrian', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-13 14:35:51'),
 (2, 'dd190773-e637-4459-9d52-d9aa9a5d09fa', 'Status', 'Antrian', 'Proses', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-13 14:37:24'),
 (3, 'dd190773-e637-4459-9d52-d9aa9a5d09fa', 'Status', 'Proses', 'Pending', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-13 14:55:38'),
-(4, 'dd190773-e637-4459-9d52-d9aa9a5d09fa', 'Status', 'Pending', 'Antrian', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-13 14:56:22');
+(4, 'dd190773-e637-4459-9d52-d9aa9a5d09fa', 'Status', 'Pending', 'Antrian', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-13 14:56:22'),
+(5, 'dd190773-e637-4459-9d52-d9aa9a5d09fa', 'Status', 'Antrian', 'Proses', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-14 15:18:28'),
+(6, 'dd190773-e637-4459-9d52-d9aa9a5d09fa', 'Decline', NULL, NULL, 'GM Penerbitan', 'Tidak mantap', 'dc306f83529445139c16dd55b4f0e6f3', '2023-01-14 17:16:36');
 
 -- --------------------------------------------------------
 
@@ -1388,8 +1395,8 @@ CREATE TABLE `order_ebook` (
   `tahun_terbit` year(4) DEFAULT NULL,
   `spp` varchar(25) DEFAULT NULL,
   `eisbn` char(13) DEFAULT NULL,
-  `perlengkapan` text,
-  `keterangan` text,
+  `perlengkapan` text DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
   `tgl_upload` datetime DEFAULT NULL,
   `status` enum('Antrian','Pending','Proses','Selesai') DEFAULT 'Antrian',
   `tgl_masuk` datetime DEFAULT NULL,
@@ -1415,7 +1422,7 @@ CREATE TABLE `order_ebook_action` (
   `type_jabatan` enum('GM Penerbitan','Dir. Operasional','Dir. Keuangan','Dir. Utama') DEFAULT NULL,
   `type_action` enum('Approval','Decline') DEFAULT NULL,
   `users_id` varchar(36) DEFAULT NULL,
-  `catatan_action` text,
+  `catatan_action` text DEFAULT NULL,
   `tgl_action` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -1453,16 +1460,16 @@ CREATE TABLE `order_ebook_history` (
   `tgl_upload_new` datetime DEFAULT NULL,
   `spp_his` varchar(25) DEFAULT NULL,
   `spp_new` varchar(25) DEFAULT NULL,
-  `keterangan_his` text,
-  `keterangan_new` text,
-  `perlengkapan_his` text,
-  `perlengkapan_new` text,
+  `keterangan_his` text DEFAULT NULL,
+  `keterangan_new` text DEFAULT NULL,
+  `perlengkapan_his` text DEFAULT NULL,
+  `perlengkapan_new` text DEFAULT NULL,
   `eisbn_his` char(13) DEFAULT NULL,
   `eisbn_new` char(13) DEFAULT NULL,
   `status_his` varchar(8) DEFAULT NULL,
   `status_new` varchar(8) DEFAULT NULL,
   `type_jabatan` varchar(20) DEFAULT NULL,
-  `catatan_action` text,
+  `catatan_action` text DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -1505,7 +1512,7 @@ CREATE TABLE `penerbitan_m_kelompok_buku` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1666,14 +1673,14 @@ INSERT INTO `penerbitan_m_kelompok_buku_history` (`id`, `kelompok_buku_id`, `kel
 CREATE TABLE `penerbitan_naskah` (
   `id` varchar(36) NOT NULL,
   `kode` varchar(13) NOT NULL,
-  `judul_asli` text,
+  `judul_asli` text DEFAULT NULL,
   `tanggal_masuk_naskah` date DEFAULT NULL,
   `kelompok_buku_id` varchar(36) DEFAULT NULL,
   `jalur_buku` enum('Reguler','MoU','MoU-Reguler','SMK/NonSMK','Pro Literasi') DEFAULT NULL,
-  `sumber_naskah` text COMMENT 'Array',
-  `url_file` text,
+  `sumber_naskah` text DEFAULT NULL COMMENT 'Array',
+  `url_file` text DEFAULT NULL,
   `cdqr_code` enum('1','0') NOT NULL DEFAULT '0' COMMENT '1:Ya|0:Tidak',
-  `keterangan` text,
+  `keterangan` text DEFAULT NULL,
   `pic_prodev` varchar(36) DEFAULT NULL,
   `penilaian_naskah` enum('1','0') NOT NULL,
   `date_pic_prodev` timestamp NULL DEFAULT NULL,
@@ -1688,7 +1695,7 @@ CREATE TABLE `penerbitan_naskah` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1741,7 +1748,7 @@ CREATE TABLE `penerbitan_naskah_files` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1790,14 +1797,14 @@ CREATE TABLE `penerbitan_naskah_history` (
   `kelompok_buku_new` varchar(36) DEFAULT NULL,
   `tgl_masuk_nas_his` date DEFAULT NULL,
   `tgl_masuk_nas_new` date DEFAULT NULL,
-  `sumber_naskah_his` text,
-  `sumber_naskah_new` text,
+  `sumber_naskah_his` text DEFAULT NULL,
+  `sumber_naskah_new` text DEFAULT NULL,
   `cdqr_code_his` tinyint(4) DEFAULT NULL COMMENT '0/1',
   `cdqr_code_new` tinyint(4) DEFAULT NULL COMMENT '0/1',
   `pic_prodev_his` varchar(36) DEFAULT NULL,
   `pic_prodev_new` varchar(36) DEFAULT NULL,
-  `penulis_his` longtext,
-  `penulis_new` longtext,
+  `penulis_his` longtext DEFAULT NULL,
+  `penulis_new` longtext DEFAULT NULL,
   `bukti_email_penulis` datetime DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL
@@ -1882,20 +1889,20 @@ CREATE TABLE `penerbitan_penulis` (
   `tanggal_lahir` date NOT NULL,
   `tempat_lahir` varchar(255) DEFAULT NULL,
   `kewarganegaraan` enum('WNI','WNA') DEFAULT NULL,
-  `alamat_domisili` text,
+  `alamat_domisili` text DEFAULT NULL,
   `ponsel_domisili` varchar(20) DEFAULT NULL,
   `telepon_domisili` varchar(20) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `nama_kantor` varchar(150) DEFAULT NULL,
   `jabatan_dikantor` varchar(150) DEFAULT NULL,
-  `alamat_kantor` text,
+  `alamat_kantor` text DEFAULT NULL,
   `telepon_kantor` varchar(20) DEFAULT NULL,
   `sosmed_fb` varchar(150) DEFAULT NULL COMMENT 'facebook',
   `sosmed_ig` varchar(150) DEFAULT NULL COMMENT 'instagram',
   `sosmed_tw` varchar(150) DEFAULT NULL COMMENT 'twitter',
   `file_hibah_royalti` varchar(255) DEFAULT NULL,
   `foto_penulis` varchar(255) DEFAULT NULL,
-  `url_tentang_penulis` text,
+  `url_tentang_penulis` text DEFAULT NULL,
   `bank` varchar(100) DEFAULT NULL,
   `bank_atasnama` varchar(150) DEFAULT NULL,
   `no_rekening` varchar(30) DEFAULT NULL,
@@ -1906,7 +1913,7 @@ CREATE TABLE `penerbitan_penulis` (
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1942,10 +1949,10 @@ CREATE TABLE `penerbitan_pn_direksi` (
   `judul_final` varchar(255) NOT NULL,
   `sub_judul_final` varchar(255) NOT NULL,
   `keputusan_final` enum('Reguler','eBook','Reguler-eBook','Revisi Minor','Revisi Mayor','Ditolak') DEFAULT NULL,
-  `catatan` text,
+  `catatan` text DEFAULT NULL,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -1968,13 +1975,13 @@ INSERT INTO `penerbitan_pn_direksi` (`id`, `naskah_id`, `judul_final`, `sub_judu
 CREATE TABLE `penerbitan_pn_editor_setter` (
   `id` varchar(36) NOT NULL,
   `naskah_id` varchar(36) NOT NULL,
-  `penilaian_editor_umum` text,
+  `penilaian_editor_umum` text DEFAULT NULL,
   `penilaian_bahasa` enum('Baik','Cukup','Kurang') DEFAULT NULL,
-  `catatan_bahasa` text,
+  `catatan_bahasa` text DEFAULT NULL,
   `penilaian_sistematika` enum('Baik','Cukup','Kurang') DEFAULT NULL,
-  `catatan_sistematika` text,
+  `catatan_sistematika` text DEFAULT NULL,
   `penilaian_konsistensi` enum('Baik','Cukup','Kurang') DEFAULT NULL,
-  `catatan_konsistensi` text,
+  `catatan_konsistensi` text DEFAULT NULL,
   `perlu_proses_edit` enum('Perlu','Tidak') DEFAULT NULL,
   `proses_editor` enum('Ringan','Sedang','Berat') DEFAULT NULL,
   `penilai_editing` varchar(36) DEFAULT NULL COMMENT 'Users_id',
@@ -2051,14 +2058,14 @@ CREATE TABLE `penerbitan_pn_pemasaran` (
   `id` varchar(36) NOT NULL,
   `naskah_id` varchar(36) NOT NULL,
   `pic` enum('M','D') NOT NULL,
-  `prospek_pasar` text,
-  `potensi_dana` text,
-  `ds_tb` text,
-  `pilar` text,
-  `potensi` text,
+  `prospek_pasar` text DEFAULT NULL,
+  `potensi_dana` text DEFAULT NULL,
+  `ds_tb` text DEFAULT NULL,
+  `pilar` text DEFAULT NULL,
+  `potensi` text DEFAULT NULL,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2096,14 +2103,14 @@ INSERT INTO `penerbitan_pn_pemasaran` (`id`, `naskah_id`, `pic`, `prospek_pasar`
 CREATE TABLE `penerbitan_pn_penerbitan` (
   `id` varchar(36) NOT NULL,
   `naskah_id` varchar(36) NOT NULL,
-  `penilaian_umum` text,
+  `penilaian_umum` text DEFAULT NULL,
   `saran` enum('Diterima','Ditolak','Revisi','eBook') DEFAULT NULL,
-  `catatan` text,
-  `potensi` text,
-  `tanggapan_usulan_judul` text,
+  `catatan` text DEFAULT NULL,
+  `potensi` text DEFAULT NULL,
+  `tanggapan_usulan_judul` text DEFAULT NULL,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2133,17 +2140,17 @@ CREATE TABLE `penerbitan_pn_prodev` (
   `sistematika` enum('Baik','Cukup','Kurang') NOT NULL,
   `nilai_keilmuan` enum('Baik','Cukup','Kurang') NOT NULL,
   `kelompok_buku_id` varchar(36) DEFAULT NULL,
-  `isi_materi` text,
-  `sasaran_keilmuan` text,
-  `sasaran_pasar` text,
-  `sumber_dana_pasar` text,
+  `isi_materi` text DEFAULT NULL,
+  `sasaran_keilmuan` text DEFAULT NULL,
+  `sasaran_pasar` text DEFAULT NULL,
+  `sumber_dana_pasar` text DEFAULT NULL,
   `skala_penilaian` enum('Baik','Cukup','Kurang') NOT NULL,
   `saran` enum('Diterima','Ditolak','Revisi','eBook') NOT NULL,
-  `potensi` text,
-  `usulan_judul` text,
+  `potensi` text DEFAULT NULL,
+  `usulan_judul` text DEFAULT NULL,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2346,7 +2353,7 @@ CREATE TABLE `pilihan_penerbitan` (
   `id` char(36) NOT NULL,
   `deskripsi_turun_cetak_id` char(36) DEFAULT NULL,
   `pilihan_terbit` varchar(25) DEFAULT NULL,
-  `platform_digital_ebook_id` longtext
+  `platform_digital_ebook_id` longtext DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -2365,9 +2372,9 @@ INSERT INTO `pilihan_penerbitan` (`id`, `deskripsi_turun_cetak_id`, `pilihan_ter
 CREATE TABLE `platform_digital_ebook` (
   `id` char(36) NOT NULL,
   `nama` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `created_by` varchar(36) DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `updated_by` varchar(36) DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
   `deleted_by` varchar(36) DEFAULT NULL
@@ -2417,7 +2424,7 @@ INSERT INTO `platform_digital_ebook_history` (`id`, `platform_id`, `platform_his
 CREATE TABLE `pracetak_cover` (
   `id` char(36) NOT NULL,
   `deskripsi_cover_id` char(36) DEFAULT NULL,
-  `desainer` longtext COMMENT 'Array',
+  `desainer` longtext DEFAULT NULL COMMENT 'Array',
   `tgl_masuk_cover` datetime DEFAULT NULL,
   `mulai_pengajuan_cover` datetime DEFAULT NULL,
   `selesai_pengajuan_cover` datetime DEFAULT NULL,
@@ -2429,7 +2436,7 @@ CREATE TABLE `pracetak_cover` (
   `mulai_koreksi` datetime DEFAULT NULL,
   `selesai_koreksi` datetime DEFAULT NULL,
   `turun_cetak` datetime DEFAULT NULL,
-  `catatan` text,
+  `catatan` text DEFAULT NULL,
   `proses` set('0','1') DEFAULT '0',
   `proses_saat_ini` enum('Antrian Pengajuan Desain','Pengajuan Desain','Approval Prodev','Antrian Desain Back Cover','Desain Back Cover','Antrian Koreksi','Koreksi','Siap Turcet','Turun Cetak','Desain Revisi') DEFAULT NULL,
   `bulan` date DEFAULT NULL,
@@ -2453,24 +2460,24 @@ CREATE TABLE `pracetak_cover_history` (
   `id` bigint(20) NOT NULL,
   `pracetak_cover_id` char(36) DEFAULT NULL,
   `type_history` enum('Update','Progress','Status') DEFAULT NULL,
-  `desainer_his` longtext,
-  `desainer_new` longtext,
-  `korektor_his` longtext,
-  `korektor_new` longtext,
+  `desainer_his` longtext DEFAULT NULL,
+  `desainer_new` longtext DEFAULT NULL,
+  `korektor_his` longtext DEFAULT NULL,
+  `korektor_new` longtext DEFAULT NULL,
   `bulan_his` date DEFAULT NULL,
   `bulan_new` date DEFAULT NULL,
   `status_his` varchar(8) DEFAULT NULL,
   `status_new` varchar(8) DEFAULT NULL,
   `progress` tinyint(4) DEFAULT NULL,
-  `catatan_his` text,
-  `catatan_new` text,
+  `catatan_his` text DEFAULT NULL,
+  `catatan_new` text DEFAULT NULL,
   `proses_ini_his` varchar(40) DEFAULT NULL,
   `proses_ini_new` varchar(40) DEFAULT NULL,
   `mulai_pengajuan_cover` datetime DEFAULT NULL,
   `selesai_pengajuan_cover` datetime DEFAULT NULL,
   `mulai_proof` datetime DEFAULT NULL,
   `selesai_proof` datetime DEFAULT NULL,
-  `ket_revisi` text,
+  `ket_revisi` text DEFAULT NULL,
   `mulai_cover` datetime DEFAULT NULL,
   `selesai_cover` datetime DEFAULT NULL,
   `mulai_koreksi` datetime DEFAULT NULL,
@@ -2578,7 +2585,7 @@ CREATE TABLE `pracetak_cover_proof` (
   `type_action` enum('Proof','Revisi','Selesai Revisi') DEFAULT NULL,
   `pracetak_cover_id` char(36) DEFAULT NULL,
   `users_id` varchar(36) DEFAULT NULL,
-  `ket_revisi` text,
+  `ket_revisi` text DEFAULT NULL,
   `tgl_action` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -2635,12 +2642,12 @@ CREATE TABLE `pracetak_setter` (
   `tgl_masuk_pracetak` datetime DEFAULT NULL,
   `mulai_setting` datetime DEFAULT NULL,
   `selesai_setting` datetime DEFAULT NULL,
-  `setter` longtext COMMENT 'Array',
+  `setter` longtext DEFAULT NULL COMMENT 'Array',
   `mulai_proof` datetime DEFAULT NULL,
   `selesai_proof` datetime DEFAULT NULL,
   `mulai_koreksi` datetime DEFAULT NULL,
   `selesai_koreksi` datetime DEFAULT NULL,
-  `korektor` longtext COMMENT 'Array',
+  `korektor` longtext DEFAULT NULL COMMENT 'Array',
   `turun_cetak` datetime DEFAULT NULL,
   `edisi_cetak` varchar(100) DEFAULT NULL,
   `mulai_p_copyright` datetime DEFAULT NULL,
@@ -2650,7 +2657,7 @@ CREATE TABLE `pracetak_setter` (
   `proses_saat_ini` enum('Antrian Setting','Setting','Proof Prodev','Antrian Koreksi','Koreksi','Siap Turcet','Turun Cetak','Setting Revisi') DEFAULT NULL,
   `proses` set('0','1') DEFAULT '0',
   `bulan` date DEFAULT NULL,
-  `catatan` text,
+  `catatan` text DEFAULT NULL,
   `status` enum('Antrian','Pending','Proses','Selesai','Revisi') DEFAULT 'Antrian'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -2673,24 +2680,24 @@ CREATE TABLE `pracetak_setter_history` (
   `type_history` enum('Status','Update','Progress') DEFAULT NULL,
   `jml_hal_final_his` int(11) DEFAULT NULL,
   `jml_hal_final_new` int(11) DEFAULT NULL,
-  `setter_his` longtext,
-  `setter_new` longtext,
-  `korektor_his` longtext,
-  `korektor_new` longtext,
+  `setter_his` longtext DEFAULT NULL,
+  `setter_new` longtext DEFAULT NULL,
+  `korektor_his` longtext DEFAULT NULL,
+  `korektor_new` longtext DEFAULT NULL,
   `bulan_his` date DEFAULT NULL,
   `bulan_new` date DEFAULT NULL,
   `status_his` varchar(8) DEFAULT NULL,
   `status_new` varchar(8) DEFAULT NULL,
   `progress` tinyint(4) DEFAULT NULL,
-  `catatan_his` text,
-  `catatan_new` text,
+  `catatan_his` text DEFAULT NULL,
+  `catatan_new` text DEFAULT NULL,
   `edisi_cetak_his` varchar(100) DEFAULT NULL,
   `edisi_cetak_new` varchar(100) DEFAULT NULL,
   `mulai_setting` datetime DEFAULT NULL,
   `selesai_setting` datetime DEFAULT NULL,
   `mulai_proof` datetime DEFAULT NULL,
   `selesai_proof` datetime DEFAULT NULL,
-  `ket_revisi` text,
+  `ket_revisi` text DEFAULT NULL,
   `mulai_koreksi` datetime DEFAULT NULL,
   `selesai_koreksi` datetime DEFAULT NULL,
   `mulai_p_copyright` datetime DEFAULT NULL,
@@ -2826,7 +2833,7 @@ CREATE TABLE `pracetak_setter_proof` (
   `type_action` enum('Proof','Revisi','Selesai Revisi') DEFAULT NULL,
   `pracetak_setter_id` char(36) DEFAULT NULL,
   `users_id` varchar(36) DEFAULT NULL,
-  `ket_revisi` text,
+  `ket_revisi` text DEFAULT NULL,
   `tgl_action` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -2885,10 +2892,10 @@ INSERT INTO `pracetak_setter_selesai` (`id`, `type`, `section`, `tahap`, `pracet
 CREATE TABLE `proses_ebook_multimedia` (
   `id` char(36) NOT NULL,
   `order_ebook_id` char(36) NOT NULL,
-  `bukti_upload` longtext COMMENT 'Link Bukti Upload',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `bukti_upload` longtext DEFAULT NULL COMMENT 'Link Bukti Upload',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `created_by` varchar(36) DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `updated_by` varchar(36) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2912,9 +2919,9 @@ CREATE TABLE `proses_produksi_cetak` (
   `wrapping` date DEFAULT NULL,
   `kirim_gudang` date DEFAULT NULL,
   `harga` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `created_by` varchar(36) DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `updated_by` varchar(36) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2933,7 +2940,7 @@ CREATE TABLE `timeline` (
   `tgl_mulai_produksi` datetime NOT NULL,
   `ttl_hari_produksi` int(10) UNSIGNED NOT NULL,
   `tgl_buku_jadi` datetime NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `created_by` varchar(36) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -2951,7 +2958,7 @@ CREATE TABLE `timeline_sub` (
   `target` int(10) UNSIGNED NOT NULL COMMENT 'Total Hari',
   `tgl_mulai` datetime DEFAULT NULL COMMENT 'Input PIC',
   `tg_selesai` datetime DEFAULT NULL COMMENT 'Input PIC',
-  `catatan` text COMMENT 'Input PIC'
+  `catatan` text DEFAULT NULL COMMENT 'Input PIC'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -2969,7 +2976,7 @@ CREATE TABLE `users` (
   `tanggal_lahir` date DEFAULT NULL,
   `tempat_lahir` varchar(255) DEFAULT NULL,
   `telepon` varchar(20) DEFAULT NULL,
-  `alamat` text,
+  `alamat` text DEFAULT NULL,
   `cabang_id` varchar(36) DEFAULT NULL,
   `divisi_id` varchar(36) DEFAULT NULL,
   `jabatan_id` varchar(36) DEFAULT NULL,
@@ -3225,7 +3232,15 @@ INSERT INTO `user_log` (`id`, `users_id`, `ip_address`, `last_login`, `user_agen
 (135, 'dc4547d5a820478188ae9c1a1ae876a6', '103.137.254.46', '2023-01-13 16:22:48', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'),
 (136, 'be8d42fa88a14406ac201974963d9c1b', '103.137.254.46', '2023-01-13 16:33:37', 'Mozilla/5.0 (Linux; Android 5.1.1; SM-T285) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.74 Safari/537.36'),
 (137, 'ceadd9fb648445eab1e350357e51d1ce', '103.137.254.46', '2023-01-13 16:38:53', 'Mozilla/5.0 (Linux; Android 5.1.1; SM-T285) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.74 Safari/537.36'),
-(138, 'be8d42fa88a14406ac201974963d9c1b', '139.0.38.243', '2023-01-14 02:01:26', 'Mozilla/5.0 (Linux; Android 11; vivo 1904) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36');
+(138, 'be8d42fa88a14406ac201974963d9c1b', '139.0.38.243', '2023-01-14 02:01:26', 'Mozilla/5.0 (Linux; Android 11; vivo 1904) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36'),
+(139, 'dc4547d5a820478188ae9c1a1ae876a6', '127.0.0.1', '2023-01-14 12:15:47', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(140, 'ceadd9fb648445eab1e350357e51d1ce', '127.0.0.1', '2023-01-14 12:16:37', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(141, 'be8d42fa88a14406ac201974963d9c1b', '127.0.0.1', '2023-01-14 13:19:00', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(142, 'dc306f83529445139c16dd55b4f0e6f3', '127.0.0.1', '2023-01-14 13:19:39', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(143, 'ceadd9fb648445eab1e350357e51d1ce', '127.0.0.1', '2023-01-14 14:05:05', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(144, 'be8d42fa88a14406ac201974963d9c1b', '127.0.0.1', '2023-01-14 15:14:34', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(145, 'dc306f83529445139c16dd55b4f0e6f3', '127.0.0.1', '2023-01-14 15:19:00', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0'),
+(146, 'be8d42fa88a14406ac201974963d9c1b', '127.0.0.1', '2023-01-15 13:46:04', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0');
 
 -- --------------------------------------------------------
 
@@ -4103,7 +4118,7 @@ ALTER TABLE `deskripsi_final_history`
 -- AUTO_INCREMENT for table `deskripsi_produk_history`
 --
 ALTER TABLE `deskripsi_produk_history`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
 -- AUTO_INCREMENT for table `deskripsi_turun_cetak_history`
@@ -4145,13 +4160,13 @@ ALTER TABLE `imprint_history`
 -- AUTO_INCREMENT for table `order_cetak_action`
 --
 ALTER TABLE `order_cetak_action`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `order_cetak_history`
 --
 ALTER TABLE `order_cetak_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `order_ebook_action`
@@ -4223,7 +4238,7 @@ ALTER TABLE `pracetak_setter_selesai`
 -- AUTO_INCREMENT for table `user_log`
 --
 ALTER TABLE `user_log`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=139;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=147;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

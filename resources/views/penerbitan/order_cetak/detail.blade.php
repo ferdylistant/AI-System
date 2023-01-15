@@ -81,7 +81,7 @@
     <section class="section">
         <div class="section-header">
             <div class="section-header-back">
-                <a href="{{ route('cetak.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+                <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
             <h1>Detail Penerbitan Order Cetak Buku</h1>
         </div>
@@ -145,22 +145,27 @@
                                             <h6 class="mb-1">Status Cetak</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            @switch($data->status_cetak)
-                                                @case(1)
-                                                    Buku Baru
-                                                @break
+                                            @if (!is_null($data->status_cetak))
+                                                @switch($data->status_cetak)
+                                                    @case(1)
+                                                        Buku Baru
+                                                    @break
 
-                                                @case(2)
-                                                    Cetak Ulang Revisi
-                                                @break
+                                                    @case(2)
+                                                        Cetak Ulang Revisi
+                                                    @break
 
-                                                @case(3)
-                                                    Cetak Ulang
-                                                @break
+                                                    @case(3)
+                                                        Cetak Ulang
+                                                    @break
 
-                                                @default
-                                                    Data Error
-                                            @endswitch
+                                                    @default
+                                                        <span class="text-danger">Data Error</span>
+                                                @endswitch
+
+                                            @else
+                                            -
+                                            @endif
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
@@ -207,7 +212,7 @@
                                                 @foreach ($penulis as $pen)
                                                     <p class="mb-1 text-monospace">
                                                         <span class="bullet"></span>
-                                                        <span>{{ $pen->nama }}</span>
+                                                        <a href="{{ url('/penerbitan/penulis/detail-penulis/' . $pen->id) }}">{{ $pen->nama }}</a>
                                                     </p>
                                                 @endforeach
                                             </li>
@@ -277,7 +282,7 @@
                                             <div class="d-flex w-100 justify-content-between">
                                                 <h6 class="mb-1">Ukuran Binding</h6>
                                             </div>
-                                            <p class="mb-1 text-monospace text-danger">
+                                            <p class="mb-1 text-monospace">
                                                 {{is_null($data->ukuran_jilid_binding)?'-':$data->ukuran_jilid_binding . ' cm'}}
                                             </p>
                                         </div>
