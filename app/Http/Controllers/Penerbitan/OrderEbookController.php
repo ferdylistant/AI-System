@@ -47,6 +47,9 @@ class OrderEbookController extends Controller
                         if ((Gate::allows('do_approval', 'GM Penerbitan')) && ($data->status == 'Proses')) {
                             $tandaProses = '<span class="beep-danger"></span>';
                             $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                        } else {
+                            $tandaProses = '';
+                            $dataKode = $data->kode_order;
                         }
                     } else {
                         foreach ($act as $a) {
@@ -54,14 +57,20 @@ class OrderEbookController extends Controller
                                 if ($a->type_jabatan == 'GM Penerbitan') {
                                     $tandaProses = '<span class="beep-danger"></span>';
                                     $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                                } else {
+                                    $tandaProses = '';
+                                    $dataKode = $data->kode_order;
                                 }
                             } elseif ((Gate::allows('do_approval', 'Dir. Keuangan')) && ($data->status == 'Proses')) {
-                                if ($a->type_jabatan == 'GM Penerbitan') {
+                                if ($a->type_jabatan == 'Dir. Operasional') {
                                     $tandaProses = '<span class="beep-danger"></span>';
                                     $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                                } else {
+                                    $tandaProses = '';
+                                    $dataKode = $data->kode_order;
                                 }
                             } elseif ((Gate::allows('do_approval', 'Dir. Utama')) && ($data->status == 'Proses')) {
-                                if (($a->type_jabatan == 'Dir. Operasional') || ($a->type_jabatan == 'Dir. Keuangan')) {
+                                if ($a->type_jabatan == 'Dir. Keuangan') {
                                     $tandaProses = '<span class="beep-danger"></span>';
                                     $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
                                 } else {
@@ -378,16 +387,9 @@ class OrderEbookController extends Controller
         if (!$act->isEmpty()) {
             foreach ($act as $a) {
                 $act_j[] = $a->type_jabatan;
-                //Dirop dan Dirke sudah
-                if ($a->type_jabatan == 'Dir. Operasional' || $a->type_jabatan == 'Dir. Keuangan') {
-                    $diropDirke = TRUE;
-                } else {
-                    $diropDirke = FALSE;
-                }
             }
         } else {
             $act_j = NULL;
-            $diropDirke = NULL;
         }
         //List Jabatan Approval
         $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook_action WHERE Field = 'type_jabatan'"))[0]->Type;
@@ -400,7 +402,6 @@ class OrderEbookController extends Controller
             'act_j' => $act_j,
             'jabatan' => $jabatan,
             'penulis' => $penulis,
-            'dirop_dirke' => $diropDirke
         ]);
     }
     protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)
@@ -478,13 +479,22 @@ class OrderEbookController extends Controller
     {
         switch ($cat) {
             case 'approve':
-                return $this->approvalOrder($request);
+                return $this->approvalOrderEbook($request);
                 break;
             case 'decline':
                 return $this->declineOrderEbook($request);
                 break;
+            case 'approve-detail':
+                return $this->approvalDetailOrderEbook($request);
+                break;
+            case 'decline-detail':
+                return $this->declineDetailOrderEbook($request);
+                break;
             case 'update-status-progress':
                 return $this->updateStatusProgress($request);
+                break;
+            case 'lihat-history-order-ebook':
+                return $this->lihatHistoryOrderEbook($request);
                 break;
             default:
                 abort(500);
@@ -575,207 +585,77 @@ class OrderEbookController extends Controller
             ]);
         }
     }
-    // protected function approvalOrder($request)
-    // {
-    //     try{
-    //         $dataUser = DB::table('users')
-    //                     ->where('id', auth()->id())
-    //                     ->first();
-    //         $dataPenyetujuan = DB::table('produksi_penyetujuan_order_ebook')
-    //             ->where('produksi_order_ebook_id', $request->id)
-    //             ->select('produksi_penyetujuan_order_ebook.*')
-    //             ->first();
-    //         if($dataPenyetujuan->status_general == 'Selesai'){
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'Data sudah selesai di Approve'
-    //             ]);
-    //         } elseif($dataPenyetujuan->status_general == 'Pending'){
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'Data di Pending sampai '.date('d F Y',strtotime($dataPenyetujuan->pending_sampai))
-    //             ]);
-    //         }
-    //         if($dataUser->id == $dataPenyetujuan->m_penerbitan) {
-    //             if($dataPenyetujuan->m_penerbitan_act == '3'){
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Data sudah Anda Approve'
-    //                 ]);
-    //             } elseif($dataPenyetujuan->m_penerbitan_act == '2'){
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Data sudah dipending sampai '.date('d F Y',strtotime($dataPenyetujuan->pending_sampai))
-    //                 ]);
-    //             }
-    //             DB::table('produksi_penyetujuan_order_ebook')
-    //                 ->where('produksi_order_ebook_id', $request->id)
-    //                 ->update([
-    //                     'm_penerbitan_act' => '3',
-    //                 ]);
-    //             $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
-    //                 ->where('form_id', $request->id)->first();
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                 ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
-    //                 ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                 ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-    //                 ->update(['raw_data' => 'Disetujui', 'updated_at' => date('Y-m-d H:i:s')]);
-    //                 return response()->json([
-    //                     'status' => 'success',
-    //                     'message' => 'Data berhasil diupdate'
-    //                 ]);
-    //         } elseif($dataUser->id == $dataPenyetujuan->d_operasional) {
-    //             DB::table('produksi_penyetujuan_order_ebook')
-    //                 ->where('produksi_order_ebook_id', $request->id)
-    //                 ->update([
-    //                     'd_operasional_act' => '3',
-    //                 ]);
-    //             $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
-    //                 ->where('form_id', $request->id)->first();
-    //             DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                 ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-    //                 ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
-    //             DB::table('notif_detail')
-    //                 ->insert([
-    //                     'notif_id' => $notif->id,
-    //                     'user_id' => $dataPenyetujuan->d_keuangan,
-    //                     'raw_data' => 'Disetujui',
-    //                 ]);
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'message' => 'Data berhasil diupdate'
-    //             ]);
-    //         } elseif($dataUser->id == $dataPenyetujuan->d_keuangan) {
-    //             if($dataPenyetujuan->d_operasional_act == '3'){
-    //                 DB::table('produksi_penyetujuan_order_ebook')
-    //                     ->where('produksi_order_ebook_id', $request->id)
-    //                     ->update([
-    //                         'd_keuangan_act' => '3',
-    //                     ]);
-    //                 $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
-    //                     ->where('form_id', $request->id)->first();
-    //                 DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                     ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
-    //                     ->update(['seen' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
-    //                 DB::table('notif_detail')
-    //                     ->insert([
-    //                         'notif_id' => $notif->id,
-    //                         'user_id' => $dataPenyetujuan->d_utama,
-    //                         'raw_data' => 'Disetujui',
-    //                     ]);
-    //                 return response()->json([
-    //                     'status' => 'success',
-    //                     'message' => 'Data berhasil diupdate'
-    //                 ]);
-    //             } else {
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Data belum di Approve oleh Direktur Operasional'
-    //                 ]);
-    //             }
-    //         } elseif($dataUser->id == $dataPenyetujuan->d_utama) {
-    //             if($dataPenyetujuan->d_operasional_act == '1') {
-    //                 if($dataPenyetujuan->d_keuangan_act == '1') {
-    //                     return response()->json([
-    //                         'status' => 'error',
-    //                         'message' => 'Data belum di Approve oleh Direktur Operasional dan Direktur Keuangan'
-    //                     ]);
-    //                 }
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Data belum di Approve oleh Direktur Operasional'
-    //                 ]);
-    //             } elseif($dataPenyetujuan->d_keuangan_act == '1'){
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Data belum di Approve oleh Direktur Keuangan'
-    //                 ]);
-    //             } else {
-    //                 DB::table('produksi_penyetujuan_order_ebook')
-    //                     ->where('produksi_order_ebook_id', $request->id)
-    //                     ->update([
-    //                         'd_utama_act' => '3',
-    //                         'status_general' => 'Selesai',
-    //                     ]);
-
-    //                 $notif = DB::table('notif')->whereNull('expired')->where('permission_id', '171e6210418440a8bf4d689841d0f32c')
-    //                     ->where('form_id', $request->id)->first();
-    //                 DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                     ->where('user_id', '=', $dataPenyetujuan->m_penerbitan)
-    //                     ->update([
-    //                         'seen' => '0',
-    //                         'raw_data' => 'Selesai',
-    //                         'updated_at' => date('Y-m-d H:i:s')]);
-    //                 DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                     ->where('user_id', '=', $dataPenyetujuan->d_operasional)
-    //                     ->update([
-    //                         'seen' => '0',
-    //                         'raw_data' => 'Selesai',
-    //                         'updated_at' => date('Y-m-d H:i:s')]);
-    //                 DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                         ->where('user_id', '=', $dataPenyetujuan->d_keuangan)
-    //                         ->update([
-    //                             'seen' => '0',
-    //                             'raw_data' => 'Selesai',
-    //                             'updated_at' => date('Y-m-d H:i:s')]);
-    //                 DB::table('notif_detail')->where('notif_id', $notif->id)
-    //                             ->where('user_id', '=', $dataPenyetujuan->d_utama)
-    //                             ->update([
-    //                                 'seen' => '0',
-    //                                 'raw_data' => 'Selesai',
-    //                                 'updated_at' => date('Y-m-d H:i:s')]);
-
-    //                 $idProsesEbook = Uuid::uuid4()->toString();
-    //                 DB::table('proses_ebook_multimedia')->insert([
-    //                     'id' => $idProsesEbook,
-    //                     'order_ebook_id' => $request->id,
-    //                 ]);
-    //                 $dataLoop = DB::table('user_permission')
-    //                 ->where('permission_id', 'd821a505-1e08-11ed-87ce-1078d2a38ee5')
-    //                 ->get();
-    //                 $id_notif = Str::uuid()->getHex();
-    //                 $sC = 'Proses Produksi Order E-Book';
-    //                 DB::table('notif')->insert([
-    //                     [   'id' => $id_notif,
-    //                         'section' => 'Produksi',
-    //                         'type' => $sC,
-    //                         'permission_id' => 'd821a505-1e08-11ed-87ce-1078d2a38ee5',
-    //                         'form_id' => $idProsesEbook,
-    //                     ],
-    //                 ]);
-    //                 foreach($dataLoop as $d) {
-    //                     DB::table('notif_detail')->insert([
-    //                         [   'notif_id' => $id_notif,
-    //                             'user_id' => $d->user_id,
-    //                             // 'raw_data' => 'Produksi Baru',
-    //                         ],
-    //                     ]);
-    //                 }
-    //                 return response()->json([
-    //                     'status' => 'success',
-    //                     'message' => 'Data berhasil diupdate'
-    //                 ]);
-    //             }
-    //         } else {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'Anda tidak memiliki akses'
-    //             ]);
-    //         }
-    //     } catch(\Exception $e){
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $e->getMessage()
-    //         ]);
-    //     }
-    // }
+    protected function approvalOrderEbook($request)
+    {
+        try {
+            $permission = DB::table('permissions')
+                ->where('raw', $request->type_jabatan)
+                ->first();
+            // return response()->json($request->type_jabatan);
+            $insert = [
+                'params' => 'Insert Action',
+                'order_ebook_id' => $request->id,
+                'type_jabatan' => $request->type_jabatan,
+                'type_action' => 'Approval',
+                'users_id' => auth()->id(),
+                'catatan_action' => $request->catatan_action,
+                'tgl_action' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+            ];
+            switch ($request->type_jabatan) {
+                case 'GM Penerbitan':
+                    $id_notif = Str::uuid()->getHex();
+                    $raw = ['Dir. Operasional'];
+                    break;
+                case 'Dir. Operasional':
+                    $id_notif = Str::uuid()->getHex();
+                    $raw = ['Dir. Keuangan'];
+                    break;
+                case 'Dir. Keuangan':
+                    $id_notif = Str::uuid()->getHex();
+                    $raw = ['Dir. Utama'];
+                    break;
+                case 'Dir. Utama':
+                    $id_notif = Str::uuid()->getHex();
+                    $raw = ['GM Penerbitan', 'Dir. Operasional', 'Dir. Keuangan'];
+                    break;
+            }
+            $userPermission = DB::table('permissions as p', 'p.id', '=', 'up.permission_id')
+                ->where('p.access_id', $permission->access_id)
+                ->whereIn('p.raw', $raw)
+                ->get();
+            foreach ($userPermission as $up) {
+                $userPermissions[] = DB::table('user_permission')->where('permission_id', $up->id)->first();
+            }
+            $notif = [
+                'params' => 'Insert Notif',
+                'id' => $id_notif,
+                'section' => 'Penerbitan',
+                'type' => 'Terima Order E-Book',
+                'permission_id' => is_null($permission->id) ? NULL : $permission->id,
+                'form_id' => $request->id,
+                'users_id' =>  $userPermissions
+            ];
+            event(new OrderEbookEvent($insert));
+            event(new NotifikasiPenyetujuan($notif));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Approval berhasil dilakukan'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
     protected function declineOrderEbook($request)
     {
         try {
             $permission = DB::table('permissions')
                 ->where('raw', $request->type_jabatan)
                 ->first();
+                // return response()->json($request->type_jabatan);
             $insert = [
                 'params' => 'Insert Action',
                 'order_ebook_id' => $request->id,
@@ -783,20 +663,24 @@ class OrderEbookController extends Controller
                 'type_action' => 'Decline',
                 'users_id' => auth()->id(),
                 'catatan_action' => $request->catatan_action,
-                'tgl_action' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'tgl_action' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
             ];
             switch ($request->type_jabatan) {
                 case 'GM Penerbitan':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Operasional', 'Dir. Keuangan'];
+                    $raw = ['Dir. Operasional'];
+                    break;
+                case 'Dir. Operasional':
+                    $id_notif = Str::uuid()->getHex();
+                    $raw = ['Dir. Keuangan'];
+                    break;
+                case 'Dir. Keuangan':
+                    $id_notif = Str::uuid()->getHex();
+                    $raw = ['Dir. Utama'];
                     break;
                 case 'Dir. Utama':
                     $id_notif = Str::uuid()->getHex();
                     $raw = ['GM Penerbitan', 'Dir. Operasional', 'Dir. Keuangan'];
-                    break;
-                default:
-                    $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Utama'];
                     break;
             }
             $userPermission = DB::table('permissions as p', 'p.id', '=', 'up.permission_id')
@@ -859,5 +743,345 @@ class OrderEbookController extends Controller
                 abort(500);
         }
         //  return $lastId.'1234';
+    }
+    protected function approvalDetailOrderEbook($request)
+    {
+        $id = $request->id;
+        $data = DB::table('order_ebook_action')
+        ->where('id',$id)
+        ->first();
+        $fetch = [
+            'jabatan' => $data->type_jabatan,
+            'users' => DB::table('users')->where('id',$data->users_id)->first()->nama,
+            'catatan' => $data->catatan_action,
+            'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')
+        ];
+        return response()->json($fetch);
+    }
+    protected function declineDetailOrderEbook($request)
+    {
+        $id = $request->id;
+        $data = DB::table('order_ebook_action')
+        ->where('id',$id)
+        ->first();
+        $fetch = [
+            'jabatan' => $data->type_jabatan,
+            'users' => DB::table('users')->where('id',$data->users_id)->first()->nama,
+            'catatan' => $data->catatan_action,
+            'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')
+        ];
+        return response()->json($fetch);
+    }
+    protected function lihatHistoryOrderEbook($request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('order_ebook_history as oeh')
+                ->join('order_ebook as oe', 'oe.id', '=', 'oeh.order_ebook_id')
+                ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oe.deskripsi_turun_cetak_id')
+                ->join('pilihan_penerbitan as pp', 'pp.deskripsi_turun_cetak_id', '=', 'dtc.id')
+                ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                        ->whereNull('kb.deleted_at');
+                })
+                ->join('users as u', 'oeh.author_id', '=', 'u.id')
+                ->where('oeh.order_ebook_id', $id)
+                ->select('oeh.*', 'dp.judul_final', 'u.nama')
+                ->orderBy('oeh.id', 'desc')
+                ->paginate(2);
+            foreach ($data as $d) {
+                switch ($d->type_history) {
+                    case 'Status':
+                        $html .= '<span class="ticket-item">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Status order e-book <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                    case 'Approval':
+                        $lbl = is_null($d->catatan_action) ? '':'dengan catatan: ';
+                        $catatan = is_null($d->catatan_action) ? 'tanpa catatan':$d->catatan_action;
+                        $html .= '<span class="ticket-item">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Order cetak telah disetujui '.$lbl.'<b class="text-dark">' . $catatan . '</b>.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                    case 'Decline':
+                        $lbl = is_null($d->catatan_action) ? '':'dengan catatan: ';
+                        $catatan = is_null($d->catatan_action) ? 'tanpa catatan':$d->catatan_action;
+                        $html .= '<span class="ticket-item">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Order cetak telah ditolak '.$lbl.'<b class="text-dark">' . $catatan . '</b>.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                    case 'Update':
+
+                        if (!is_null($d->tipe_order_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Tipe order <b class="text-dark">' . $d->tipe_order_his . '</b> diubah menjadi <b class="text-dark">' . $d->tipe_order_new . '</b>.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        } elseif (!is_null($d->tipe_order_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Tipe order <b class="text-dark">' . $d->tipe_order_new . '</b> ditambahkan.';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        }
+                        if (!is_null($d->tgl_upload_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Tanggal upload <b class="text-dark">' . Carbon::parse($d->tgl_upload_his)->translatedFormat('d F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->tgl_upload_new)->translatedFormat('d F Y') . '</b>.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        } elseif (!is_null($d->tgl_upload_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Tanggal upload <b class="text-dark">' . Carbon::parse($d->tgl_upload_new)->translatedFormat('d F Y') . '</b> ditambahkan.';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        }
+                        if (!is_null($d->jml_hal_perkiraan_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Jumlah halaman final <b class="text-dark">' . $d->jml_hal_perkiraan_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b>.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        } elseif (!is_null($d->jml_hal_perkiraan_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Jumlah halaman final <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b> ditambahkan.';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        }
+                        if (!is_null($d->tahun_terbit_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Tahun terbit <b class="text-dark">' . $d->tahun_terbit_his . '</b> diubah menjadi <b class="text-dark">' . $d->tahun_terbit_new . '</b>.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        } elseif (!is_null($d->tahun_terbit_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Tahun terbit <b class="text-dark">' . $d->tahun_terbit_new . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        }
+                        if (!is_null($d->edisi_cetak_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Edisi cetak <b class="text-dark">' . $d->edisi_cetak_his . '</b> diubah menjadi <b class="text-dark">' . $d->edisi_cetak_new . '</b>.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        } elseif (!is_null($d->edisi_cetak_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Edisi cetak <b class="text-dark">' . $d->edisi_cetak_new . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        }
+                        if (!is_null($d->spp_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' SPP <b class="text-dark">' . $d->spp_his . '</b> diubah menjadi <b class="text-dark">' . $d->spp_new . '</b>.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        } elseif (!is_null($d->spp_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' SPP <b class="text-dark">' . $d->spp_new . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        }
+                        if (!is_null($d->keterangan_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Keterangan <b class="text-dark">' . $d->keterangan_his . '</b> diubah menjadi <b class="text-dark">' . $d->keterangan_new . '</b>.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        } elseif (!is_null($d->keterangan_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Keterangan <b class="text-dark">' . $d->keterangan_new . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        }
+                        if (!is_null($d->perlengkapan_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Perlengkapan <b class="text-dark">' . $d->perlengkapan_his . '</b> diubah menjadi <b class="text-dark">' . $d->perlengkapan_new . '</b>.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        } elseif (!is_null($d->perlengkapan_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Perlengkapan <b class="text-dark">' . $d->perlengkapan_new . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        }
+                        if (!is_null($d->eisbn_his)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' EISBN <b class="text-dark">' . $d->eisbn_his . '</b> diubah menjadi <b class="text-dark">' . $d->eisbn_new . '</b>.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        } elseif (!is_null($d->eisbn_new)) {
+                            $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' EISBN <b class="text-dark">' . $d->eisbn_new . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                            </div>
+                            </span>';
+                        }
+                        break;
+                    case 'Progress':
+                        $ket = $d->progress == 1 ? 'Dimulai' : 'Dihentikan';
+                        $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Progress pracetak  setter <b class="text-dark">' . $ket . '</b>.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                }
+            }
+            return $html;
+        }
     }
 }

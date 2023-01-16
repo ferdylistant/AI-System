@@ -7,51 +7,78 @@
                         @if (!$act->isEmpty())
                             @foreach ($act as $a)
                                 @if (!in_array($j, $act_j))
-                                    @if ($j == 'Dir. Utama')
-                                        @if ($dirop_dirke == true)
-                                            {{-- APPROVE --}}
-                                            <button type="submit" class="btn btn-success" id="btn-approve"
-                                                data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                                data-jabatan="{{ $j }}" data-toggle="modal"
-                                                data-target="#modalPersetujuan">
-                                                <i class="fas fa-check"></i>&nbsp;Setujui</button>
-                                            {{-- DECLINE --}}
-                                            <button type="button" class="btn btn-danger" id="btn-decline"
-                                                data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                                data-jabatan="{{ $j }}" data-act="Decline"
-                                                data-toggle="modal" data-target="#modalDecline">
-                                                <i class="fas fa-times"></i>&nbsp;Pending</button>
-                                        @endif
-                                    @else
-                                        @if ($loop->first)
-                                        {{-- APPROVE --}}
-                                        <button type="submit" class="btn btn-success" id="btn-approve"
-                                            data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                            data-jabatan="{{ $j }}" data-toggle="modal"
-                                            data-target="#modalPersetujuan">
-                                            <i class="fas fa-check"></i>&nbsp;Setujui</button>
-                                        {{-- DECLINE --}}
-                                        <button type="button" class="btn btn-danger" id="btn-decline"
-                                            data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                            data-jabatan="{{ $j }}" data-act="Decline" data-toggle="modal"
-                                            data-target="#modalDecline">
-                                            <i class="fas fa-times"></i>&nbsp;Pending</button>
-                                        @endif
-                                    @endif
+                                    @switch($j)
+                                        @case('Dir. Operasional')
+                                            @if (in_array('GM Penerbitan', $act_j))
+                                                @if ($loop->first)
+                                                    {{-- APPROVE --}}
+                                                    <button type="button" class="btn btn-success" id="btn-approve"
+                                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-target="#modalApproval">
+                                                        <i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                                    {{-- DECLINE --}}
+                                                    <button type="button" class="btn btn-danger" id="btn-decline"
+                                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-target="#modalDecline">
+                                                        <i class="fas fa-times"></i>&nbsp;Pending</button>
+                                                @endif
+                                            @endif
+                                        @break
+
+                                        @case('Dir. Keuangan')
+                                            @if (in_array('Dir. Operasional', $act_j))
+                                                @if ($loop->first)
+                                                    {{-- APPROVE --}}
+                                                    <button type="button" class="btn btn-success" id="btn-approve"
+                                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-target="#modalApproval">
+                                                        <i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                                    {{-- DECLINE --}}
+                                                    <button type="button" class="btn btn-danger" id="btn-decline"
+                                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-target="#modalDecline">
+                                                        <i class="fas fa-times"></i>&nbsp;Pending</button>
+                                                @endif
+                                            @endif
+                                        @break
+
+                                        @case('Dir. Utama')
+                                            @if (in_array('Dir. Keuangan', $act_j))
+                                                @if ($loop->first)
+                                                    {{-- APPROVE --}}
+                                                    <button type="button" class="btn btn-success" id="btn-approve"
+                                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-target="#modalApproval">
+                                                        <i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                                    {{-- DECLINE --}}
+                                                    <button type="button" class="btn btn-danger" id="btn-decline"
+                                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-target="#modalDecline">
+                                                        <i class="fas fa-times"></i>&nbsp;Pending</button>
+                                                @endif
+                                            @endif
+                                        @break
+                                    @endswitch
                                 @endif
                             @endforeach
                         @else
                             @if ($j == 'GM Penerbitan')
                                 {{-- APPROVE --}}
-                                <button type="submit" class="btn btn-success" id="btn-approve"
+                                <button type="button" class="btn btn-success" id="btn-approve"
                                     data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                    data-jabatan="{{ $j }}">
-                                    <i class="fas fa-check" data-toggle="modal"
-                                        data-target="#modalPersetujuan"></i>&nbsp;Setujui</button>
+                                    data-jabatan="{{ $j }}" data-toggle="modal"
+                                    data-target="#modalApproval">
+                                    <i class="fas fa-check"></i>&nbsp;Setujui</button>
                                 {{-- DECLINE --}}
                                 <button type="button" class="btn btn-danger" id="btn-decline"
                                     data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                    data-jabatan="{{ $j }}" data-act="Decline">
+                                    data-jabatan="{{ $j }}">
                                     <i class="fas fa-times" data-toggle="modal"
                                         data-target="#modalDecline"></i>&nbsp;Pending</button>
                             @endif
@@ -69,42 +96,36 @@
                         <div class="user-name">{{ $j }}:</div>
                         @if (!$act->isEmpty())
                             @foreach ($act as $i => $a)
-                            @if ($i == $jb)
-                                @if (in_array($j, $act_j))
-                                    @if ($a->type_action == 'Approval')
-                                        <div class="text-job text-success">
-                                            <a href="javascript:void(0)" id="btn-detail" class="text-success"
-                                                data-toggle="modal" data-target="#modalPersetujuan"><i
-                                                    class="fas fa-check-circle"></i>&nbsp;Telah
-                                                Disetujui
-                                            </a>
-                                        </div>
+                                @if ($i == $jb)
+                                    @if (in_array($j, $act_j))
+                                        @if ($a->type_action == 'Approval')
+                                            <div class="text-job text-success">
+                                                <a href="javascript:void(0)" id="btn-approve-detail" class="text-success"
+                                                data-id="{{ $a->id }}">
+                                                    <i class="fas fa-check-circle"></i>&nbsp;Telah
+                                                    Disetujui
+                                                </a>
+                                            </div>
+                                        @else
+                                            <div class="text-job text-danger">
+                                                <a href="javascript:void(0)" id="btn-decline-detail" class="text-danger"
+                                                    data-id="{{ $a->id }}">
+                                                    <i class="fas fa-times"></i>&nbsp;Telah Ditolak
+                                                </a>
+                                            </div>
+                                        @endif
                                     @else
-                                        <div class="text-job text-danger">
-                                            <a href="javascript:void(0)" id="btn-decline-detail" class="text-danger"
-                                                data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                                data-jabatan="{{ $j }}"
-                                                data-tgl="{{ Carbon\Carbon::parse($a->tgl_action)->translatedFormat('l d F Y, H:i') }}"
-                                                data-catatan="{{ $a->catatan_action }}" data-toggle="modal"
-                                                data-target="#modalDeclineDetail">
-                                                <i class="fas fa-times"></i>&nbsp;Telah Ditolak
-                                            </a>
+                                        <div class="text-job text-muted">
+                                            &nbsp;Belum diproses
                                         </div>
                                     @endif
-                                @else
-                                    <div class="text-job text-muted">
-                                        &nbsp;Belum diproses
-                                    </div>
+                                @elseif ($loop->first)
+                                    @if (!in_array($j, $act_j))
+                                        <div class="text-job text-muted">
+                                            &nbsp;Belum diproses
+                                        </div>
+                                    @endif
                                 @endif
-                            @elseif ($loop->first)
-                            @if (!in_array($j, $act_j))
-                                
-                            <div class="text-job text-muted">
-                                &nbsp;Belum diproses
-                            </div>
-                            @endif
-                            @endif
-                            
                             @endforeach
                         @else
                             <div class="text-job text-muted">
@@ -124,7 +145,7 @@
                                                 @endif
                                             @elseif ($loop->first)
                                                 @if (!in_array($j, $act_j))
-                                                (nama {{ $j }})
+                                                    (nama {{ $j }})
                                                 @endif
                                             @endif
                                         @endforeach
