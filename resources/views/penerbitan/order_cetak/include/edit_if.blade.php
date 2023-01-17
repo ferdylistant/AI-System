@@ -166,7 +166,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-quote-left"></i></div>
                     </div>
-                    <select class="form-control select2 dami" name="up_dami" id="dami" required>
+                    <select class="form-control select2" name="up_dami" id="dami" required>
                     </select>
                     <div id="err_up_dami"></div>
                 </div>

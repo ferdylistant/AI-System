@@ -1,5 +1,4 @@
 $(document).ready(function () {
-    let cardWrap = $('.section-body').find('.card');
     $.ajax({
         type: "GET",
         url: window.location.origin + "/list/get-layout",
@@ -22,134 +21,30 @@ $(document).ready(function () {
             console.log(error);
         },
     });
-    $(document).ready(function () {
-        $("#posisiLayout").on("change", function () {
-            var val = $(this).val();
-            $.ajax({
-                url: window.location.origin + "/list/list-dami",
-                type: "GET",
-                data: "value=" + val,
-                beforeSend: function () {
-                    cardWrap.addClass('card-progress');
-                },
-                success: function (hasil) {
-                    $("#dami").empty();
-                    $("#dami").html(hasil);
-                },
-                error: function (hasil) {
-                    $("#dami").empty();
-                    $("#dami").html(hasil);
-                },
-                complete: function () {
-                    cardWrap.removeClass('card-progress');
-                }
-            });
-        });
-    });
 });
-function loadDataValue() {
-    let id = window.location.search.split('?').pop(),
-        cardWrap = $('.section-body').find('.card');
+$("#posisiLayout").on("change", function () {
+    let cardWrap = $('.section-body').find('.card');
+    var val = $(this).val();
     $.ajax({
-        url: window.location.origin + "/penerbitan/order-cetak/edit?" + id,
+        url: window.location.origin + "/list/list-dami",
+        type: "GET",
+        data: "value=" + val,
         beforeSend: function () {
             cardWrap.addClass('card-progress');
         },
-        success: function (result) {
-            let {
-                data,
-                penulis
-            } = result;
-            for (let p of penulis) {
-                $(".select-penulis").select2("trigger", "select", {
-                    data: {
-                        id: p.id,
-                        text: p.nama
-                    }
-                });
-            }
-            for (let n in data) {
-                // console.log(data[n]);
-                switch (n) {
-                    case 'id':
-                        $('[name="up_id"]').attr("data-id", data[n]).change();
-                        break;
-                    case 'kelompok_buku_id':
-                        $('[name="up_kelompok_buku"]').val([data[n]]).change();
-                        break;
-                    case 'sub_judul_final':
-                        if (data[n]) {
-                            $('[name="up_' + n + '"]').val(data[n]).change();
-                        } else {
-                            $('[name="up_' + n + '"]').val('-').change();
-                        }
-                        break;
-                    case 'buku_jadi':
-                        $('[name="up_buku_jadi"]').val([data[n]]);
-                        break;
-                    case 'finishing_cover':
-                        $.map(JSON.parse(data[n]), function (item) {
-                            $(".select-finishing-cover").select2("trigger", "select", {
-                                data: {
-                                    id: item,
-                                    text: item
-                                }
-                            });
-                        });
-                        break;
-                    case 'ukuran_jilid_binding':
-                        if (data[n]) {
-                            $('#ukuranBinding').show('slow');
-                            $('#ukuranBinding').html(`<div class="form-group" style="display:none" id="divBinding"><label>Ukuran Binding: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class="fa fa-ruler"></i></div>
-                                </div>
-                                <input type="number" class="form-control" min="1" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
-                                <div id="err_up_ukuran_jilid_binding"></div>
-                                <div class="input-group-append">
-                                    <span class="input-group-text"><strong>cm</strong></span>
-                                </div>
-                                </div></div>`);
-                            $('[name="up_' + n + '"]').val([data[n]]).change()
-                            $('#divBinding').show('slow');
-                        } else {
-                            $('#ukuranBinding').html(`<div class="form-group" style="display:none" id="divBinding"><label>Ukuran Binding: <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class="fa fa-ruler"></i></div>
-                                </div>
-                                <input type="number" class="form-control" min="1" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
-                                <div id="err_up_ukuran_jilid_binding"></div>
-                                <div class="input-group-append">
-                                    <span class="input-group-text"><strong>cm</strong></span>
-                                </div>
-                                </div></div>`);
-                        }
-                        break;
-                    case 'dami':
-                        $('[name="up_' + n + '"]').select2("trigger", "select", {
-                            data: {
-                                id: data[n],
-                                text: data[n]
-                            }
-                        });
-                        break;
-                    default:
-                        $('[name="up_' + n + '"]').val(data[n]).change();
-                        break;
-                }
-            }
+        success: function (hasil) {
+            $("#dami").empty();
+            $("#dami").html(hasil);
         },
-        error: function (err) {
-            // console.log(err)
+        error: function (hasil) {
+            $("#dami").empty();
+            $("#dami").html(hasil);
         },
         complete: function () {
             cardWrap.removeClass('card-progress');
         }
-
-    })
-}
+    });
+});
 $(function () {
     loadDataValue();
     $(".select2")
@@ -298,3 +193,123 @@ $(function () {
         $('#formJilid').attr("class", "form-group col-12 col-md-6 mb-4");
     }
 });
+function loadDataValue() {
+    let id = window.location.search.split('?').pop(),
+        cardWrap = $('.section-body').find('.card');
+    $.ajax({
+        url: window.location.origin + "/penerbitan/order-cetak/edit?" + id,
+        beforeSend: function () {
+            cardWrap.addClass('card-progress');
+        },
+        success: function (result) {
+            let {
+                data,
+                penulis
+            } = result;
+            for (let p of penulis) {
+                $(".select-penulis").select2("trigger", "select", {
+                    data: {
+                        id: p.id,
+                        text: p.nama
+                    }
+                });
+            }
+            for (let n in data) {
+                // console.log(data[n]);
+                switch (n) {
+                    case 'id':
+                        $('[name="up_id"]').attr("data-id", data[n]).change();
+                        var id = data[n];
+                        break;
+                    case 'kelompok_buku_id':
+                        $('[name="up_kelompok_buku"]').val([data[n]]).change();
+                        break;
+                    case 'sub_judul_final':
+                        if (data[n]) {
+                            $('[name="up_' + n + '"]').val(data[n]).change();
+                        } else {
+                            $('[name="up_' + n + '"]').val('-').change();
+                        }
+                        break;
+                    case 'buku_jadi':
+                        $('[name="up_buku_jadi"]').val([data[n]]);
+                        break;
+                    case 'finishing_cover':
+                        $.map(JSON.parse(data[n]), function (item) {
+                            $(".select-finishing-cover").select2("trigger", "select", {
+                                data: {
+                                    id: item,
+                                    text: item
+                                }
+                            });
+                        });
+                        break;
+                    case 'ukuran_jilid_binding':
+                        if (data[n]) {
+                            $('#ukuranBinding').show('slow');
+                            $('#ukuranBinding').html(`<div class="form-group" style="display:none" id="divBinding"><label>Ukuran Binding: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"><i class="fa fa-ruler"></i></div>
+                                </div>
+                                <input type="number" class="form-control" min="1" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
+                                <div id="err_up_ukuran_jilid_binding"></div>
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><strong>cm</strong></span>
+                                </div>
+                                </div></div>`);
+                            $('[name="up_' + n + '"]').val([data[n]]).change()
+                            $('#divBinding').show('slow');
+                        } else {
+                            $('#ukuranBinding').html(`<div class="form-group" style="display:none" id="divBinding"><label>Ukuran Binding: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"><i class="fa fa-ruler"></i></div>
+                                </div>
+                                <input type="number" class="form-control" min="1" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
+                                <div id="err_up_ukuran_jilid_binding"></div>
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><strong>cm</strong></span>
+                                </div>
+                                </div></div>`);
+                        }
+                        break;
+                    case 'posisi_layout':
+                        if (data[n]) {
+                            $('[name="up_' + n + '"]').val(data[n]).change();
+                            $.ajax({
+                                url: window.location.origin + "/list/list-dami-data",
+                                type: "GET",
+                                data: "value=" + data[n] + "&id=" + id,
+                                beforeSend: function () {
+                                    cardWrap.addClass('card-progress');
+                                },
+                                success: function (hasil) {
+                                    $("#dami").empty();
+                                    $("#dami").html(hasil);
+                                },
+                                error: function (hasil) {
+                                    $("#dami").empty();
+                                    $("#dami").html(hasil);
+                                },
+                                complete: function () {
+                                    cardWrap.removeClass('card-progress');
+                                }
+                            });
+                        }
+                        break;
+                    default:
+                        $('[name="up_' + n + '"]').val(data[n]).change();
+                        break;
+                }
+            }
+        },
+        error: function (err) {
+            notifToast("error", "Terjadi kesalahan!");
+        },
+        complete: function () {
+            cardWrap.removeClass('card-progress');
+        }
+
+    })
+}
