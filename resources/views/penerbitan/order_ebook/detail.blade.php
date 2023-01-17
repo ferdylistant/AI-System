@@ -81,7 +81,7 @@
     <section class="section">
         <div class="section-header">
             <div class="section-header-back">
-                <a href="{{ route('ebook.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+                <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
             <h1>Detail Penerbitan Order E-Book</h1>
         </div>

@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
-use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Events\OrderEbookEvent;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
 use App\Events\NotifikasiPenyetujuan;
-use Illuminate\Support\Facades\{DB, Storage, Gate};
+use Illuminate\Support\Facades\{DB, Gate};
 
 class OrderEbookController extends Controller
 {
@@ -319,9 +318,14 @@ class OrderEbookController extends Controller
         $penulisList = DB::table('penerbitan_penulis')
             ->whereNull('deleted_at')
             ->get();
-        foreach ($penulisList as $pl) {
-            $collectPenulis[] = $pl->id;
+        if (!$penulisList->isEmpty()) {
+            foreach ($penulisList as $pl) {
+                $collectPenulis[] = $pl->id;
+            }
+        } else {
+            $collectPenulis = [];
         }
+
         $platformDigital = DB::table('platform_digital_ebook')->whereNull('deleted_at')->get();
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
             ->get();
@@ -655,7 +659,7 @@ class OrderEbookController extends Controller
             $permission = DB::table('permissions')
                 ->where('raw', $request->type_jabatan)
                 ->first();
-                // return response()->json($request->type_jabatan);
+            // return response()->json($request->type_jabatan);
             $insert = [
                 'params' => 'Insert Action',
                 'order_ebook_id' => $request->id,
@@ -713,46 +717,15 @@ class OrderEbookController extends Controller
             ]);
         }
     }
-    protected function getOrderId($tipeOrder)
-    {
-        $year = date('y');
-        switch ($tipeOrder) {
-            case 1:
-                $lastId = DB::table('produksi_order_ebook')
-                    ->where('kode_order', 'like', 'E' . $year . '-%')
-                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 1000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 2999")
-                    ->orderBy('kode_order', 'desc')->first();
-
-                $firstId = '1000';
-                break;
-            case 2:
-                $lastId = DB::table('produksi_order_ebook')
-                    ->where('kode_order', 'like', 'E' . $year . '-%')
-                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 3000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 3999")
-                    ->orderBy('kode_order', 'desc')->first();
-                $firstId = '3000';
-                break;
-            case 3:
-                $lastId = DB::table('produksi_order_ebook')
-                    ->where('kode_order', 'like', 'E' . $year . '-%')
-                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 4000")
-                    ->orderBy('kode_order', 'desc')->first();
-                $firstId = '4000';
-                break;
-            default:
-                abort(500);
-        }
-        //  return $lastId.'1234';
-    }
     protected function approvalDetailOrderEbook($request)
     {
         $id = $request->id;
         $data = DB::table('order_ebook_action')
-        ->where('id',$id)
-        ->first();
+            ->where('id', $id)
+            ->first();
         $fetch = [
             'jabatan' => $data->type_jabatan,
-            'users' => DB::table('users')->where('id',$data->users_id)->first()->nama,
+            'users' => DB::table('users')->where('id', $data->users_id)->first()->nama,
             'catatan' => $data->catatan_action,
             'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')
         ];
@@ -762,11 +735,11 @@ class OrderEbookController extends Controller
     {
         $id = $request->id;
         $data = DB::table('order_ebook_action')
-        ->where('id',$id)
-        ->first();
+            ->where('id', $id)
+            ->first();
         $fetch = [
             'jabatan' => $data->type_jabatan,
-            'users' => DB::table('users')->where('id',$data->users_id)->first()->nama,
+            'users' => DB::table('users')->where('id', $data->users_id)->first()->nama,
             'catatan' => $data->catatan_action,
             'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')
         ];
@@ -811,11 +784,11 @@ class OrderEbookController extends Controller
                         </span>';
                         break;
                     case 'Approval':
-                        $lbl = is_null($d->catatan_action) ? '':'dengan catatan: ';
-                        $catatan = is_null($d->catatan_action) ? 'tanpa catatan':$d->catatan_action;
+                        $lbl = is_null($d->catatan_action) ? '' : 'dengan catatan: ';
+                        $catatan = is_null($d->catatan_action) ? 'tanpa catatan' : $d->catatan_action;
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Order cetak telah disetujui '.$lbl.'<b class="text-dark">' . $catatan . '</b>.</span>
+                            <span><span class="bullet"></span> Order cetak telah disetujui ' . $lbl . '<b class="text-dark">' . $catatan . '</b>.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -825,11 +798,11 @@ class OrderEbookController extends Controller
                         </span>';
                         break;
                     case 'Decline':
-                        $lbl = is_null($d->catatan_action) ? '':'dengan catatan: ';
-                        $catatan = is_null($d->catatan_action) ? 'tanpa catatan':$d->catatan_action;
+                        $lbl = is_null($d->catatan_action) ? '' : 'dengan catatan: ';
+                        $catatan = is_null($d->catatan_action) ? 'tanpa catatan' : $d->catatan_action;
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Order cetak telah ditolak '.$lbl.'<b class="text-dark">' . $catatan . '</b>.</span>
+                            <span><span class="bullet"></span> Order cetak telah ditolak ' . $lbl . '<b class="text-dark">' . $catatan . '</b>.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>

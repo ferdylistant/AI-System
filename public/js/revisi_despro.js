@@ -89,7 +89,7 @@ $(function () {
         let el = data.get(0);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/deskripsi/produk/revisi",
+            url: window.location.origin + "/penerbitan/deskripsi/produk/ajax/revisi",
             data: new FormData(el),
             processData: false,
             contentType: false,

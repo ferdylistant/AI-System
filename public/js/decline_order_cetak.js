@@ -1,9 +1,8 @@
-$(document).ready(function () {
-    $("#btn-decline").on("click", function (e) {
-        e.preventDefault();
-        let id = $(this).data("id");
-        let jabatan = $(this).data("jabatan");
-        let jb = $(this).data("judul");
+$(function () {
+    $("#btn-decline").on("click", function () {
+        let id = $(this).data('id');
+        let jabatan = $(this).data('jabatan');
+        let jb = $(this).data('judul');
         // $("#titleModal").html("Konfirmasi Persetujuan Pending");
         $("#id_").val(id);
         // $("#kode_Order").val(ko);
@@ -12,19 +11,28 @@ $(document).ready(function () {
         $("#modalDecline").modal("show");
     });
 });
-$(document).ready(function () {
-    $("#btn-decline-detail").on("click", function (e) {
-        e.preventDefault();
-        let tgl = $(this).data("tgl");
-        let catatan = $(this).data("catatan");
-        $("#tglAction").text(tgl);
-        if (catatan == "") {
-            catatan = "Tidak ada catatan";
-        } else {
-            catatan = catatan;
+$(function () {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
-        $("#catatan").text(catatan);
-        $("#modalDeclineDetail").modal("show");
+    });
+    $("body").on("click","#btn-decline-detail", function (e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        $.post(window.location.origin + "/penerbitan/order-cetak/ajax/decline-detail?id=" + id, function (data) {
+
+            $("#namaUser").text(data.users);
+            $("#tglAction").text(data.tgl);
+            if (data.catatan == null) {
+                catatan = 'Tidak ada catatan';
+            } else {
+                catatan = data.catatan;
+            }
+            $("#catatan").text(catatan);
+            $("#modalDeclineDetail").modal("show");
+        })
+
     });
 });
 
@@ -52,6 +60,7 @@ $(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
+                // console.log(result);
                 resetFrom(data);
                 if (result.status == "success") {
                     notifToast(result.status, result.message);
@@ -74,7 +83,7 @@ $(function () {
                     });
                     addForm.showErrors(err);
                 }
-                notifToast("error", "Gagal melakukan pending!");
+                notifToast("error", "Gagal melakukan penolakan!");
             },
             complete: function () {
                 $('button[type="submit"]')
@@ -90,9 +99,7 @@ $(function () {
             let judul = $(this).find('[name="judul_final"]').val();
             swal({
                 title:
-                    "Yakin order e-book '" +
-                    judul +
-                    "' ditolak dengan catatan?",
+                    "Yakin order cetak '" + judul + "' ditolak dengan catatan?",
                 text: "Setelah ditolak, keputusan tidak bisa diubah kembali..",
                 icon: "warning",
                 buttons: true,

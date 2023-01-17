@@ -12,7 +12,7 @@
     <div class="section-header">
         @if($btnPrev)
         <div class="section-header-back">
-            <a href="{{ url('manajemen-web/users') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
         </div>
         @endif
         <h1>Detail User</h1>
@@ -26,7 +26,7 @@
                     @include('manweb.users.fedit-data-user')
                 @else
                 <div class="profile-widget-header">
-                    <img alt="image" src="{{url('storage/users/'.$user->id.'/'.$user->avatar)}}" class="rounded-circle profile-widget-picture"> 
+                    <img alt="image" src="{{url('storage/users/'.$user->id.'/'.$user->avatar)}}" class="rounded-circle profile-widget-picture">
                 </div>
                 <div class="profile-widget-description">
                     <div class="row">
@@ -74,19 +74,19 @@
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         @can('do_update', 'ubah-data-user')
                         <li class="nav-item">
-                            <a class="nav-link active" id="access-tab" data-toggle="tab" href="#access" role="tab" 
+                            <a class="nav-link active" id="access-tab" data-toggle="tab" href="#access" role="tab"
                                 aria-controls="access" aria-selected="true">Access Menu</a>
                         </li>
                         @endcan
 
                         @if(auth()->id() == $user->id)
                         <li class="nav-item">
-                            <a class="nav-link {{Auth::user()->cannot('do_update', 'ubah-data-user')?'active':''}}" 
+                            <a class="nav-link {{Auth::user()->cannot('do_update', 'ubah-data-user')?'active':''}}"
                                 id="password-tab" data-toggle="tab" href="#password" role="tab" aria-controls="password" aria-selected="false">Password</a>
                         </li>
                         @endif
                         <li class="nav-item">
-                            <a class="nav-link" 
+                            <a class="nav-link"
                                 id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Profile</a>
                         </li>
                         <li class="nav-item">
@@ -195,7 +195,7 @@ $(document).ready(function() {
                         let [key, value] = entry;
                         err[key] = value
                     })
-                    editUser.showErrors(err);    
+                    editUser.showErrors(err);
                 }
                 notifToast('error', 'Data user gagal diubah!');
             },
@@ -203,7 +203,7 @@ $(document).ready(function() {
                 data.closest('.card').removeClass('card-progress');
             }
         })
-        
+
     }
 
     $('.profile-widget').on('change', '[name="uedit_pp"]', function(e) {
@@ -251,7 +251,7 @@ $(document).ready(function() {
                         console.log(err)
                         notifToast('success', 'Akses gagal diperbarui.');
                     }
-                }); 
+                });
             }
         });
     })
@@ -284,7 +284,7 @@ $(document).ready(function() {
                         let [key, value] = entry;
                         err[key] = value
                     })
-                    editPassword.showErrors(err);    
+                    editPassword.showErrors(err);
                 }
                 notifToast('error', 'Password gagal diubah!');
             },

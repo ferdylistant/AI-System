@@ -33,9 +33,9 @@ class MasterDataListener
                 $res = DB::table('format_buku')
                     ->where('id', $data['id'])
                     ->update([
-                    'jenis_format' => $data['jenis_format'],
-                    'updated_by' => $data['updated_by']
-                ]);
+                        'jenis_format' => $data['jenis_format'],
+                        'updated_by' => $data['updated_by']
+                    ]);
                 break;
             case 'Insert History Format Buku':
                 $res = DB::table('format_buku_history')->insert([
@@ -50,9 +50,9 @@ class MasterDataListener
                 $res = DB::table('penerbitan_m_kelompok_buku')
                     ->where('id', $data['id'])
                     ->update([
-                    'nama' => $data['nama'],
-                    'updated_by' => $data['updated_by']
-                ]);
+                        'nama' => $data['nama'],
+                        'updated_by' => $data['updated_by']
+                    ]);
                 break;
             case 'Insert History Kelompok Buku':
                 $res = DB::table('penerbitan_m_kelompok_buku_history')->insert([
@@ -67,9 +67,9 @@ class MasterDataListener
                 $res = DB::table('imprint')
                     ->where('id', $data['id'])
                     ->update([
-                    'nama' => $data['nama'],
-                    'updated_by' => $data['updated_by']
-                ]);
+                        'nama' => $data['nama'],
+                        'updated_by' => $data['updated_by']
+                    ]);
                 break;
             case 'Insert History Imprint':
                 $res = DB::table('imprint_history')->insert([
@@ -84,15 +84,43 @@ class MasterDataListener
                 $res = DB::table('platform_digital_ebook')
                     ->where('id', $data['id'])
                     ->update([
-                    'nama' => $data['nama'],
-                    'updated_by' => $data['updated_by']
-                ]);
+                        'nama' => $data['nama'],
+                        'updated_by' => $data['updated_by']
+                    ]);
                 break;
-            case 'Insert History Platform':
+            case 'Insert History Create Platform':
                 $res = DB::table('platform_digital_ebook_history')->insert([
                     'platform_id' => $data['platform_id'],
+                    'type_history' => $data['type_history'],
+                    'platform_name' => $data['platform_name'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Insert History Update Platform':
+                $res = DB::table('platform_digital_ebook_history')->insert([
+                    'platform_id' => $data['platform_id'],
+                    'type_history' => $data['type_history'],
                     'platform_history' => $data['platform_history'],
                     'platform_new' => $data['platform_new'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Insert History Delete Platform':
+                $res = DB::table('platform_digital_ebook_history')->insert([
+                    'platform_id' => $data['platform_id'],
+                    'type_history' => $data['type_history'],
+                    'deleted_at' => $data['deleted_at'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Insert History Restored Platform':
+                $res = DB::table('platform_digital_ebook_history')->insert([
+                    'platform_id' => $data['platform_id'],
+                    'type_history' => $data['type_history'],
+                    'restored_at' => $data['restored_at'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);

@@ -11,7 +11,6 @@ $(document).ready(function(){
         });
     $(".select-penulis")
         .select2({
-            placeholder: "Pilih penulis",
             multiple: true,
             disabled: true
         })

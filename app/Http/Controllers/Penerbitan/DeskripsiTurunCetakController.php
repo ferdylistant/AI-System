@@ -636,7 +636,6 @@ class DeskripsiTurunCetakController extends Controller
             return $html;
         }
     }
-
     protected function panelStatusProdev($status = null, $id, $kode, $judul_final, $btn)
     {
         switch ($status) {

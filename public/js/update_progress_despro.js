@@ -1,4 +1,56 @@
+$(function() {
+    $.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+    });
+    let tableDesProduk = $('#tb_DesProduk').DataTable({
+        "bSort": false,
+        'responsive': true,
+        'autoWidth': true,
+        processing: true,
+        serverSide: true,
+        language: {
+            searchPlaceholder: 'Search...',
+            sSearch: '',
+            lengthMenu: '_MENU_ items/page',
+        },
+        ajax: window.location.origin + "/penerbitan/deskripsi/produk"
+        ,
+        columns: [
+            // { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+            { data: 'kode', name: 'kode', title: 'Kode' },
+            { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
+            { data: 'penulis', name: 'penulis', title: 'Penulis',"width":"15%" },
+            { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku'},
+            { data: 'imprint', name: 'imprint', title: 'Imprint'},
+            { data: 'judul_final', name: 'judul_final', title: 'Judul Final'},
+            { data: 'tgl_deskripsi', name: 'tgl_deskripsi', title: 'Tgl Deskripsi'},
+            { data: 'pic_prodev', name: 'pic_prodev', title: 'PIC Prodev'},
+            { data: 'history', name: 'history', title: 'History Progress'},
+            { data: 'action', name: 'action', title: 'Action', orderable: false},
+        ],
+
+    });
+    $('[name="status_filter"]').on('change', function(){
+        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+        tableDesProduk.column( $(this).data('column') )
+        .search( val ? val : '', true, false )
+        .draw();
+    });
 $(function () {
+    $('#tb_DesProduk').on('click','.btn-history',function(e){
+        e.preventDefault();
+        var id = $(this).data('id');
+        var judul = $(this).data('judulasli');
+        $.post(window.location.origin + "/penerbitan/deskripsi/produk/ajax/lihat-history", {id: id}, function(data){
+            $('#titleModalDespro').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "'+judul+'"');
+            $('#load_more').data('id',id);
+            $('#dataHistory').html(data);
+            $('#md_DesproHistory').modal('show');
+        });
+    });
+});
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
@@ -8,12 +60,13 @@ $(function () {
         $.ajax({
             url:
                 window.location.origin +
-                "/penerbitan/deskripsi/produk/lihat-history",
+                "/penerbitan/deskripsi/produk/ajax/lihat-history",
             data: {
                 id: id,
                 page: page,
             },
             type: "post",
+            cache: false,
             beforeSend: function () {
                 $(".load-more").text("Loading...");
             },
@@ -82,7 +135,7 @@ $(document).ready(function () {
             type: "POST",
             url:
                 window.location.origin +
-                "/penerbitan/deskripsi/produk/update-status-progress",
+                "/penerbitan/deskripsi/produk/ajax/update-status-progress",
             data: new FormData(el),
             processData: false,
             contentType: false,

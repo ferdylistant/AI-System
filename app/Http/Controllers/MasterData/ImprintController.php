@@ -244,7 +244,7 @@ class ImprintController extends Controller
                         if ($historyData->isEmpty()) {
                             return '-';
                         } else {
-                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-toggle="modal" data-target="#md_PlatformHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
+                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-nama="' . $data->nama . '"><i class="fas fa-history"></i>&nbsp;History</button>';
                             return $date;
                         }
                     })
@@ -288,6 +288,76 @@ class ImprintController extends Controller
         ]);
     }
 
+    public function platformTelahDihapus(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->input('request_') === 'table-platform') {
+                $data = DB::table('platform_digital_ebook')
+                    ->whereNotNull('deleted_at')
+                    ->orderBy('nama', 'asc')
+                    ->get();
+                $update = Gate::allows('do_update', 'ubah-platform-digital');
+                // foreach ($data as $key => $value) {
+                //     $no = $key + 1;
+                // }
+                $start = 1;
+                return DataTables::of($data)
+                    ->addColumn('no', function ($no) use (&$start) {
+                        return $start++;
+                    })
+                    ->addColumn('nama_platform', function ($data) {
+                        return $data->nama;
+                    })
+                    ->addColumn('tgl_dibuat', function ($data) {
+                        $date = date('d M Y, H:i', strtotime($data->created_at));
+                        return $date;
+                    })
+                    ->addColumn('dibuat_oleh', function ($data) {
+                        $dataUser = User::where('id', $data->created_by)->first();
+                        return $dataUser->nama;
+                    })
+                    ->addColumn('dihapus_pada', function ($data) {
+                        if ($data->deleted_at == null) {
+                            return '-';
+                        } else {
+                            $date = date('d M Y, H:i', strtotime($data->deleted_at));
+                            return $date;
+                        }
+                    })
+                    ->addColumn('dihapus_oleh', function ($data) {
+                        if ($data->deleted_by == null) {
+                            return '-';
+                        } else {
+                            $dataUser = User::where('id', $data->deleted_by)->first();
+                            return $dataUser->nama;
+                        }
+                    })
+                    ->addColumn('action', function ($data) use ($update) {
+                        if ($update) {
+                            $btn = '<a href="' . url('master/platform-digital/restore?p=' . $data->id) . '"
+                                    class="d-block btn btn-sm btn-dark btn-icon" id="restore-platform" data-toggle="tooltip" title="Restore Data">
+                                    <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                        }
+                        return $btn;
+                    })
+                    ->rawColumns([
+                        'no',
+                        'nama_platform',
+                        'tgl_dibuat',
+                        'dibuat_oleh',
+                        'dihapus_pada',
+                        'dihapus_oleh',
+                        'action'
+                    ])
+                    ->make(true);
+            }
+        }
+
+        return view('master_data.platform_digital.telah_dihapus', [
+            'title' => 'Platform Digital Telah Dihapus',
+        ]);
+    }
+
     public function createPlatform(Request $request)
     {
         if ($request->ajax()) {
@@ -297,11 +367,21 @@ class ImprintController extends Controller
                 ], [
                     'required' => 'This field is requried'
                 ]);
+                $id = Uuid::uuid4()->toString();
                 DB::table('platform_digital_ebook')->insert([
-                    'id' => Uuid::uuid4()->toString(),
+                    'id' => $id,
                     'nama' => $request->add_nama,
                     'created_by' => auth()->user()->id
                 ]);
+                $insert = [
+                    'params' => 'Insert History Create Platform',
+                    'type_history' => 'Create',
+                    'platform_id' => $id,
+                    'platform_name' => $request->add_nama,
+                    'author_id' => auth()->user()->id,
+                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                event(new MasterDataEvent($insert));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data platform berhasil ditambahkan!',
@@ -332,7 +412,8 @@ class ImprintController extends Controller
                 ];
                 event(new MasterDataEvent($update));
                 $insert = [
-                    'params' => 'Insert History Platform',
+                    'params' => 'Insert History Update Platform',
+                    'type_history' => 'Update',
                     'platform_id' => $request->id,
                     'platform_history' => $history->nama,
                     'platform_new' => $request->up_nama,
@@ -364,7 +445,39 @@ class ImprintController extends Controller
             'deleted_by' => auth()->id(),
             'deleted_at' => date('Y-m-d H:i:s')
         ]);
+        $insert = [
+            'params' => 'Insert History Delete Platform',
+            'platform_id' => $id,
+            'type_history' => 'Delete',
+            'deleted_at' => date('Y-m-d H:i:s'),
+            'author_id' => auth()->user()->id,
+            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+        ];
+        event(new MasterDataEvent($insert));
         if ($deleted) {
+            echo '<script>
+
+            window.location = "' . route('platform.view') . '";
+            </script>';
+        }
+    }
+
+    public function restorePlatform(Request $request)
+    {
+        $id = $request->get('p');
+        $restored = DB::table('platform_digital_ebook')
+            ->where('id', $id)
+            ->update(['deleted_at' => null, 'deleted_by' => null]);
+        $insert = [
+            'params' => 'Insert History Restored Platform',
+            'platform_id' => $id,
+            'type_history' => 'Restore',
+            'restored_at' => now(),
+            'author_id' => auth()->user()->id,
+            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+        ];
+        event(new MasterDataEvent($insert));
+        if ($restored) {
             echo '<script>
 
             window.location = "' . route('platform.view') . '";
@@ -374,21 +487,70 @@ class ImprintController extends Controller
 
     public function lihatHistoryPlatform(Request $request)
     {
-        $id = $request->input('id');
-        $data = DB::table('platform_digital_ebook_history as pl')->join('users as u', 'pl.author_id', '=', 'u.id')
-            ->where('pl.platform_id', $id)
-            ->select('pl.*', 'u.nama')
-            ->get();
-        foreach ($data as $d) {
-            $result[] = [
-                'platform_history' => $d->platform_history,
-                'platform_new' => $d->platform_new,
-                'author_id' => $d->author_id,
-                'nama' => $d->nama,
-                'modified_at' => Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans(),
-                'format_tanggal' => Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i')
-            ];
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('platform_digital_ebook_history as pdeh')
+                ->join('platform_digital_ebook as pde', 'pde.id', '=', 'pdeh.platform_id')
+                ->join('users as u', 'u.id', '=', 'pdeh.author_id')
+                ->where('pdeh.platform_id', $id)
+                ->select('pdeh.*', 'u.nama')
+                ->orderBy('pdeh.id', 'desc')
+                ->paginate(2);
+
+            foreach ($data as $d) {
+                switch ($d->type_history) {
+                    case 'Create':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Platform e-book <b class="text-dark">' . $d->platform_name  . '</b> ditambahkan.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                    case 'Update':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                            <div class="ticket-title">
+                                <span><span class="bullet"></span> Platform e-book <b class="text-dark">' . $d->platform_history . '</b> diubah menjadi <b class="text-dark">' . $d->platform_new . '</b>.</span>
+                            </div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                            </div>
+                            </span>';
+                        break;
+                    case 'Delete':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                            <div class="ticket-title">
+                                <span><span class="bullet"></span> Data platform e-book dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                            </div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . ')</div>
+                            </div>
+                            </span>';
+                        break;
+                    case 'Restore':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                                <div class="ticket-title">
+                                    <span><span class="bullet"></span> Data platform e-book direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                </div>
+                                <div class="ticket-info">
+                                    <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                    <div class="bullet pt-2"></div>
+                                    <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                                </div>
+                                </span>';
+                        break;
+                }
+            }
+            return $html;
         }
-        return response()->json($result);
     }
 }

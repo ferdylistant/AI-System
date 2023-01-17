@@ -23,13 +23,7 @@ Route::post('do-login', [AuthController::class, 'doLogin']);
 Route::middleware(['auth'])->group(function () {
     //API
     Route::get('/get-layout', [ApiController::class, 'getPosisiLayout']);
-    Route::get('/list-dami', [ApiController::class, 'listDami']);
-    Route::get('/list-format-buku', [ApiController::class, 'listFormatBuku']);
-    Route::get('/list-status-buku', [ApiController::class, 'listStatusBuku']);
-    Route::get('/list-status-buku-ebook', [ApiController::class, 'listStatusBukuEbook']);
-    Route::get('/list-pilihan-terbit', [ApiController::class, 'listPilihanTerbit']);
-    Route::get('/list-status-cetak', [ApiController::class, 'listStatusCetak']);
-    Route::get('/list-jenis-mesin', [ApiController::class, 'listJenisMesin']);
+    Route::get('/list/{list}', [ApiController::class, 'requestAjax']);
     Route::post('/update-tanggal-upload-ebook', [ApiController::class, 'updateTanggalUploadEbook']);
     Route::post('/update-tanggal-jadi-cetak', [ApiController::class, 'updateTanggalJadiCetak']);
     Route::post('/update-jumlah-cetak', [ApiController::class, 'updateJumlahCetak']);
@@ -64,18 +58,20 @@ Route::middleware(['auth'])->group(function () {
     });
     //Master Data
     Route::prefix('master')->group(function () {
+        //Platform Digital
+        Route::get('/platform-digital', [ImprintController::class, 'indexPlatform'])->name('platform.view');
+        Route::get('/platform-digital/platform-telah-dihapus', [ImprintController::class, 'platformTelahDihapus'])->name('platform.telah_dihapus');
+        Route::match(['get', 'post'], '/platform-digital/tambah', [ImprintController::class, 'createPlatform'])->name('platform.create');
+        Route::match(['get', 'post'], '/platform-digital/ubah', [ImprintController::class, 'updatePlatform'])->name('platform.update');
+        Route::get('/platform-digital/hapus', [ImprintController::class, 'deletePlatform'])->name('platform.delete');
+        Route::get('/platform-digital/restore', [ImprintController::class, 'restorePlatform'])->name('platform.restore');
+        Route::post('/platform-digital/lihat-history', [ImprintController::class, 'lihatHistoryPlatform'])->name('platform.history');
         //Imprint
         Route::get('/imprint', [ImprintController::class, 'index'])->name('imprint.view');
         Route::match(['get', 'post'], '/imprint/tambah-imprint', [ImprintController::class, 'createImprint'])->name('imprint.create');
         Route::match(['get', 'post'], '/imprint/ubah-imprint', [ImprintController::class, 'updateImprint'])->name('imprint.update');
         Route::get('/imprint/hapus', [ImprintController::class, 'deleteImprint'])->name('imprint.delete');
         Route::post('/imprint/lihat-history', [ImprintController::class, 'lihatHistory'])->name('imprint.history');
-        //Platform Digital
-        Route::get('/platform-digital', [ImprintController::class, 'indexPlatform'])->name('platform.view');
-        Route::match(['get', 'post'], '/platform-digital/tambah', [ImprintController::class, 'createPlatform'])->name('platform.create');
-        Route::match(['get', 'post'], '/platform-digital/ubah', [ImprintController::class, 'updatePlatform'])->name('platform.update');
-        Route::post('/platform-digital/hapus', [ImprintController::class, 'deletePlatform'])->name('platform.delete');
-        Route::post('/platform-digital/lihat-history', [ImprintController::class, 'lihatHistoryPlatform'])->name('platform.history');
         //Kelompok Buku
         Route::get('/kelompok-buku', [KelompokBukuController::class, 'index'])->name('kb.view');
         Route::match(['get', 'post'], '/kelompok-buku/tambah', [KelompokBukuController::class, 'createKbuku'])->name('kb.create');
@@ -111,11 +107,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/deskripsi/produk', [DeskripsiProdukController::class, 'index'])->name('despro.view');
         Route::get('/deskripsi/produk/detail', [DeskripsiProdukController::class, 'detailDeskripsiProduk'])->name('despro.detail');
         Route::match(['get', 'post'], '/deskripsi/produk/edit', [DeskripsiProdukController::class, 'editDeskripsiProduk'])->name('despro.edit');
-        Route::post('/deskripsi/produk/update-status-progress', [DeskripsiProdukController::class, 'updateStatusProgress']);
-        Route::post('/deskripsi/produk/lihat-history', [DeskripsiProdukController::class, 'lihatHistoryDespro'])->name('despro.history');
-        Route::post('/deskripsi/produk/revisi', [DeskripsiProdukController::class, 'revisiDespro']);
         Route::post('/deskripsi/produk/pilih-judul', [DeskripsiProdukController::class, 'pilihJudul'])->name('despro.pilihjudul');
-        Route::post('/deskripsi/produk/approve', [DeskripsiProdukController::class, 'approveDespro'])->name('despro.approve');
+        Route::post('/deskripsi/produk/ajax/{cat}', [DeskripsiProdukController::class, 'requestAjax']);
         //Deskripsi Final
         Route::get('/deskripsi/final', [DeskripsiFinalController::class, 'index'])->name('desfin.view');
         Route::get('/deskripsi/final/detail', [DeskripsiFinalController::class, 'detailDeskripsiFinal'])->name('desfin.detail');

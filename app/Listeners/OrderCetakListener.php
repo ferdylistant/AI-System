@@ -101,6 +101,27 @@ class OrderCetakListener
                 ]);
                 DB::commit();
                 break;
+            case 'Insert Action':
+                DB::beginTransaction();
+                $res = DB::table('order_cetak_action')->insert([
+                    'order_cetak_id' => $data['order_cetak_id'],
+                    'type_jabatan' => $data['type_jabatan'],
+                    'type_action' => $data['type_action'],
+                    'users_id' => $data['users_id'],
+                    'catatan_action' => $data['catatan_action'],
+                    'tgl_action' => $data['tgl_action']
+                ]);
+                //?HISTORY
+                DB::table('order_cetak_history')->insert([
+                    'order_cetak_id' => $data['order_cetak_id'],
+                    'type_history' => $data['type_action'],
+                    'type_jabatan' => $data['type_jabatan'],
+                    'catatan_action' => $data['catatan_action'],
+                    'author_id' => $data['users_id'],
+                    'modified_at' => $data['tgl_action']
+                ]);
+                DB::commit();
+                break;
             default:
                 abort(500);
                 break;

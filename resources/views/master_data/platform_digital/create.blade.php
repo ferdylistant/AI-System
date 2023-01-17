@@ -16,7 +16,7 @@
 <section class="section">
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('platform.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
         </div>
         <h1>Buat Platform Digital</h1>
     </div>

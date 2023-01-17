@@ -104,10 +104,13 @@ $(function () {
 
     function ajaxUpDeskripsiTurunCetak(data) {
         let el = data.get(0);
-        let id = data.data('id');
+        let id = data.data("id");
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/deskripsi/turun-cetak/edit?id="+id,
+            url:
+                window.location.origin +
+                "/penerbitan/deskripsi/turun-cetak/edit?id=" +
+                id,
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -134,7 +137,10 @@ $(function () {
                     });
                     // upNaskah.showErrors(err);
                 }
-                notifToast("error", "Data deskripsi turun cetak gagal disimpan!");
+                notifToast(
+                    "error",
+                    "Data deskripsi turun cetak gagal disimpan!"
+                );
             },
             complete: function () {
                 $('button[type="submit"]')

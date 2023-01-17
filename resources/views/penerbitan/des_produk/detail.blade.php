@@ -12,7 +12,7 @@
 <section class="section">
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('despro.view') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
         </div>
         <h1>Detail Deskripsi Produk</h1>
     </div>
@@ -262,7 +262,7 @@
                                         <h6 class="mb-1">Alternatif Judul</h6>
                                     </div>
                                     <p class="mb-1 text-monospace">
-                                    @if (is_null($data->alt_judul))
+                                    @if ((is_null($data->alt_judul)) || (json_decode($data->alt_judul) == [null]))
                                         -
                                     @else
                                         @foreach (json_decode($data->alt_judul) as $key => $alt)
