@@ -237,25 +237,25 @@ class OrderEbookController extends Controller
                         'type_history' => 'Update',
                         'order_ebook_id' => $request->id,
                         'tipe_order_his' => $request->up_tipe_order == $history->tipe_order ? NULL : $history->tipe_order,
-                        'tipe_order_new' => $request->up_tipe_order == $history->tipe_order ? NULL : $request->tipe_order,
+                        'tipe_order_new' => $request->up_tipe_order == $history->tipe_order ? NULL : $request->up_tipe_order,
                         'edisi_cetak_his' => $request->up_edisi_cetak == $history->edisi_cetak ? NULL : $history->edisi_cetak,
-                        'edisi_cetak_new' => $request->up_edisi_cetak == $history->edisi_cetak ? NULL : $request->edisi_cetak,
+                        'edisi_cetak_new' => $request->up_edisi_cetak == $history->edisi_cetak ? NULL : $request->up_edisi_cetak,
                         'jml_hal_perkiraan_his' => $request->up_jml_hal_perkiraan == $history->jml_hal_perkiraan ? NULL : $history->jml_hal_perkiraan,
-                        'jml_hal_perkiraan_new' => $request->up_jml_hal_perkiraan == $history->jml_hal_perkiraan ? NULL : $request->jml_hal_perkiraan,
+                        'jml_hal_perkiraan_new' => $request->up_jml_hal_perkiraan == $history->jml_hal_perkiraan ? NULL : $request->up_jml_hal_perkiraan,
                         'kelompok_buku_id_his' => $request->up_kelompok_buku == $history->kelompok_buku_id ? NULL : $history->kelompok_buku_id,
-                        'kelompok_buku_id_new' => $request->up_kelompok_buku == $history->kelompok_buku_id ? NULL : $request->kelompok_buku,
+                        'kelompok_buku_id_new' => $request->up_kelompok_buku == $history->kelompok_buku_id ? NULL : $request->up_kelompok_buku,
                         'tahun_terbit_his' => date('Y-m', strtotime($request->up_tahun_terbit)) == date('Y-m', strtotime($history->tahun_terbit)) ? NULL : $history->tahun_terbit,
                         'tahun_terbit_new' => date('Y-m', strtotime($request->up_tahun_terbit)) == date('Y-m', strtotime($history->tahun_terbit)) ? NULL : Carbon::createFromFormat('Y', $request->up_tahun_terbit)->format('Y'),
                         'tgl_upload_his' => date('Y-m-d H:i:s', strtotime($request->up_tgl_upload)) == date('Y-m-d H:i:s', strtotime($history->tgl_upload)) ? NULL : date('Y-m-d H:i:s', strtotime($history->tgl_upload)),
                         'tgl_upload_new' => date('Y-m-d H:i:s', strtotime($request->up_tgl_upload)) == date('Y-m-d H:i:s', strtotime($history->tgl_upload)) ? NULL : Carbon::createFromFormat('d F Y', $request->up_tgl_upload)->format('Y-m-d H:i:s'),
                         'spp_his' => $request->up_spp == $history->spp ? NULL : $history->spp,
-                        'spp_new' => $request->up_spp == $history->spp ? NULL : $request->spp,
+                        'spp_new' => $request->up_spp == $history->spp ? NULL : $request->up_spp,
                         'keterangan_his' => $request->up_keterangan == $history->keterangan ? NULL : $history->keterangan,
-                        'keterangan_new' => $request->up_keterangan == $history->keterangan ? NULL : $request->keterangan,
+                        'keterangan_new' => $request->up_keterangan == $history->keterangan ? NULL : $request->up_keterangan,
                         'perlengkapan_his' => $request->up_perlengkapan == $history->perlengkapan ? NULL : $history->perlengkapan,
-                        'perlengkapan_new' => $request->up_perlengkapan == $history->perlengkapan ? NULL : $request->perlengkapan,
+                        'perlengkapan_new' => $request->up_perlengkapan == $history->perlengkapan ? NULL : $request->up_perlengkapan,
                         'eisbn_his' => $request->up_eisbn == $history->eisbn ? NULL : $history->eisbn,
-                        'eisbn_new' => $request->up_eisbn == $history->eisbn ? NULL : $request->eisbn,
+                        'eisbn_new' => $request->up_eisbn == $history->eisbn ? NULL : $request->up_eisbn,
                         'author_id' => auth()->id(),
                         'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ];
@@ -752,21 +752,9 @@ class OrderEbookController extends Controller
             $id = $request->id;
             $data = DB::table('order_ebook_history as oeh')
                 ->join('order_ebook as oe', 'oe.id', '=', 'oeh.order_ebook_id')
-                ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oe.deskripsi_turun_cetak_id')
-                ->join('pilihan_penerbitan as pp', 'pp.deskripsi_turun_cetak_id', '=', 'dtc.id')
-                ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
-                ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                        ->whereNull('kb.deleted_at');
-                })
                 ->join('users as u', 'oeh.author_id', '=', 'u.id')
                 ->where('oeh.order_ebook_id', $id)
-                ->select('oeh.*', 'dp.judul_final', 'u.nama')
+                ->select('oeh.*', 'u.nama')
                 ->orderBy('oeh.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
@@ -788,7 +776,7 @@ class OrderEbookController extends Controller
                         $catatan = is_null($d->catatan_action) ? 'tanpa catatan' : $d->catatan_action;
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Order cetak telah disetujui ' . $lbl . '<b class="text-dark">' . $catatan . '</b>.</span>
+                            <span><span class="bullet"></span> Order e-book telah disetujui ' . $lbl . '<b class="text-dark">' . $catatan . '</b>.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -802,7 +790,7 @@ class OrderEbookController extends Controller
                         $catatan = is_null($d->catatan_action) ? 'tanpa catatan' : $d->catatan_action;
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Order cetak telah ditolak ' . $lbl . '<b class="text-dark">' . $catatan . '</b>.</span>
+                            <span><span class="bullet"></span> Order e-book telah ditolak ' . $lbl . '<b class="text-dark">' . $catatan . '</b>.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>

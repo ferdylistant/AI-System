@@ -1,16 +1,29 @@
 $('#tb_OrderEbook').on('click', '.btn-history', function(e) {
     var id = $(this).data('id');
     var judul = $(this).data('judulfinal');
-    $.post(window.location.origin + "/penerbitan/order-ebook/ajax/lihat-history-order-ebook", {
-        id: id
-    }, function(data) {
-        $('#titleModalOrderEbook').html(
-            '<i class="fas fa-history"></i>&nbsp;History Progress Order E-book "' + judul +
-            '"');
-        $('#load_more').data('id', id);
-        $('#dataHistoryOrderEbook').html(data);
-        $('#md_OrderEbookHistory').modal('show');
-    });
+    let cardWrap = $('.section-body').find('.card');
+    $.ajax({
+        url: window.location.origin + "/penerbitan/order-ebook/ajax/lihat-history-order-ebook",
+        type: "POST",
+        data: {
+            id: id
+        },
+        cache: false,
+        beforeSend: function () {
+            cardWrap.addClass('card-progress');
+        },
+        success: function (data) {
+            $('#titleModalOrderEbook').html(
+                '<i class="fas fa-history"></i>&nbsp;History Progress Order E-book "' + judul +
+                '"');
+            $('#load_more').data('id', id);
+            $('#dataHistoryOrderEbook').html(data);
+            $('#md_OrderEbookHistory').modal('show');
+        },
+        complete: function () {
+            cardWrap.removeClass('card-progress');
+        }
+    })
 });
 $(document).ready(function () {
     $("#tb_OrderEbook").on("click", ".btn-status-orebook", function (e) {
@@ -58,6 +71,7 @@ $(function () {
             data: new FormData(el),
             processData: false,
             contentType: false,
+            cache: false,
             beforeSend: function () {
                 $('button[type="submit"]')
                     .prop("disabled", true)
@@ -126,7 +140,7 @@ $(function () {
                 id: id,
                 page: page,
             },
-            type: "post",
+            type: "POST",
             beforeSend: function () {
                 $(".load-more").text("Loading...");
             },

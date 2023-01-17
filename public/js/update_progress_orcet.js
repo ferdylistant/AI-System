@@ -1,22 +1,29 @@
-$("#tb_Orcet").on("click", ".btn-history", function (e) {
-    var id = $(this).data("id");
-    var judul = $(this).data("judulfinal");
-    $.post(
-        window.location.origin + "/penerbitan/order-cetak/ajax/lihat-history-order-cetak",
-        {
-            id: id,
+$('#tb_Orcet').on('click', '.btn-history', function(e) {
+    var id = $(this).data('id');
+    var judul = $(this).data('judulfinal');
+    let cardWrap = $('.section-body').find('.card');
+    $.ajax({
+        url: window.location.origin + "/penerbitan/order-cetak/ajax/lihat-history-order-cetak",
+        type: "POST",
+        data: {
+            id: id
         },
-        function (data) {
-            $("#titleModalOrderCetak").html(
-                '<i class="fas fa-history"></i>&nbsp;History Progress Order Cetak "' +
-                    judul +
-                    '"'
-            );
-            $("#load_more").data("id", id);
-            $("#dataHistoryOrderCetak").html(data);
-            $("#md_OrderCetakHistory").modal("show");
+        cache:false,
+        beforeSend: function () {
+            cardWrap.addClass('card-progress');
+        },
+        success: function (data) {
+            $('#titleModalOrderCetak').html(
+                '<i class="fas fa-history"></i>&nbsp;History Progress Order Cetak "' + judul +
+                '"');
+            $('#load_more').data('id', id);
+            $('#dataHistoryOrderCetak').html(data);
+            $('#md_OrderCetakHistory').modal('show');
+        },
+        complete: function () {
+            cardWrap.removeClass('card-progress');
         }
-    );
+    })
 });
 $(document).ready(function () {
     $("#tb_Orcet").on("click", ".btn-status-orcetak", function (e) {

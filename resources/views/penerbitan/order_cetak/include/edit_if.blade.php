@@ -138,7 +138,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-boxes"></i></div>
                     </div>
-                    <select class="form-control select2" name="up_tipe_order">
+                    <select class="form-control select2" name="up_tipe_order" required>
                         <option label="Pilih"></option>
                         @foreach ($tipeOrd as $value)
                             <option value="{{ $value['id'] }}">
@@ -155,6 +155,7 @@
                         <div class="input-group-text"><i class="fa fa-arrows-alt"></i></div>
                     </div>
                     <select class="form-control select2" name="up_posisi_layout" id="posisiLayout" required>
+                        <option label="Pilih"></option>
                     </select>
                     <div id="err_up_posisi_layout"></div>
                 </div>
@@ -165,9 +166,27 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-quote-left"></i></div>
                     </div>
-                    <select class="form-control select2" name="up_dami" id="dami" required>
+                    <select class="form-control select2 dami" name="up_dami" id="dami" required>
                     </select>
                     <div id="err_up_dami"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-6 mb-4">
+                <label>Format Buku <span class="text-danger">*</span></label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-ruler-combined"></i></div>
+                    </div>
+                    <select class="form-control select2" name="up_format_buku" id="formatBuku" required>
+                        <option label="Pilih"></option>
+                    @foreach ($format_buku as $fb)
+                        <option value="{{$fb->jenis_format}}">{{$fb->jenis_format}}</option>
+                    @endforeach
+                    </select>
+                    <div id="err_up_format_buku"></div>
+                    <div class="input-group-append">
+                        <span class="input-group-text"><strong>cm</strong></span>
+                    </div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4" id="formJilid">
@@ -186,27 +205,98 @@
                 </div>
             </div>
             <div class="col-12 col-md-3" id="ukuranBinding" style="display:none"></div>
-            {{-- <div class="form-group col-12 col-md-3 mb-4" id="ukuranBending">
-                <label>Ukuran Bending: <span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text"><i class="fa fa-ruler"></i></div>
-                    </div>
-                    <input type="text" class="form-control" name="up_ukuran_bending" placeholder="Ukuran Bending" required>
-                    <div id="err_up_ukuran_bending"></div>
-                    <div class="input-group-append">
-                        <span class="input-group-text"><strong>cm</strong></span>
-                    </div>
-                </div>
-            </div> --}}
             <div class="form-group col-12 col-md-6 mb-4">
-                <label>SPP: </label>
+                <label>Kertas Isi <span class="text-danger">*</span></label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-scroll"></i></div>
+                    </div>
+                    <select class="form-control select2" name="up_kertas_isi" required>
+                        <option label="Pilih"></option>
+                    @foreach ($kertas_isi as $ki)
+                        <option value="{{$ki}}">{{$ki}}</option>
+                    @endforeach
+                    </select>
+                    <div id="err_up_kertas_isi"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-3 mb-4">
+                <label>Warna Isi: <span class="text-danger">*</span></label>
                 <div class="input-group">
                     <div class="input-group-prepend">
-                        <div class="input-group-text"><i class="fa fa-pen-square"></i></div>
+                        <div class="input-group-text"><i class="fa fa-palette"></i></div>
                     </div>
-                    <input type="text" class="form-control" name="up_spp"  placeholder="Surat Perjanjian Penulis">
-                    <div id="err_up_spp"></div>
+                    <select class="form-control select2" name="up_isi_warna" required>
+                        <option label="Pilih"></option>
+                    @foreach ($isi_warna as $ki)
+                        <option value="{{$ki}}">{{$ki}}</option>
+                    @endforeach
+                    </select>
+                    <div id="err_up_isi_warna"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-3 mb-4">
+                <label>Jenis Cover: <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-map"></i></div>
+                    </div>
+                    <input type="text" class="form-control" name="up_jenis_cover" placeholder="Jenis cover" required>
+                    <div id="err_up_jenis_cover"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-3 mb-4">
+                <label>Kertas Cover: <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-sticky-note"></i></div>
+                    </div>
+                    <input type="text" class="form-control" name="up_kertas_cover" placeholder="Kertas cover" required>
+                    <div id="err_up_kertas_cover"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-3 mb-4">
+                <label>Warna Cover: <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-palette"></i></div>
+                    </div>
+                    <input type="text" class="form-control" name="up_warna_cover" placeholder="Warna cover" required>
+                    <div id="err_up_warna_cover"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-6 mb-4">
+                <label>Efek Cover <span class="text-danger">*</span></label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-swatchbook"></i></div>
+                    </div>
+                    <select name="up_finishing_cover[]" class="form-control select-finishing-cover" multiple="multiple" required>
+                        @foreach ($finishing_cover as $f)
+                            <option value="{{$f}}">{{$f}}&nbsp;&nbsp;</option>
+                        @endforeach
+                    </select>
+                    <div id="err_up_finishing_cover"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-3 mb-4">
+                <label>Buku Jadi: <span class="text-danger">*</span></label>
+                <div class="form-check">
+                    @foreach ($buku_jadi as $bj)
+                        <input class="form-check-input" type="radio" name="up_buku_jadi" value="{{ $bj }}" required>
+                        <label class="form-check-label mr-4" for="up_buku_jadi">{{ $bj }}</label><br>
+                    @endforeach
+                </div>
+                <div id="err_up_buku_jadi" style="display: block;"></div>
+            </div>
+            <div class="form-group col-12 col-md-3 mb-4">
+                <label>Jumlah Cetak: <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-copy"></i></div>
+                    </div>
+                    <input type="number" class="form-control" name="up_jumlah_cetak" min="1" placeholder="Jumlah cetak" required>
+                    <div id="err_up_jumlah_cetak"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-3 mb-4">
@@ -228,6 +318,21 @@
                     <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" readonly required>
                     <div id="err_up_tgl_permintaan_jadi"></div>
                 </div>
+            </div>
+            <div class="form-group col-12 col-md-12 mb-4">
+                <label>SPP: </label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-pen-square"></i></div>
+                    </div>
+                    <input type="text" class="form-control" name="up_spp"  placeholder="Surat Perjanjian Penulis">
+                    <div id="err_up_spp"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-12 mb-4">
+                <label>Buku Contoh: </label>
+                <textarea class="form-control" name="up_buku_contoh" placeholder="Buku contoh"></textarea>
+                <div id="err_up_buku_contoh"></div>
             </div>
             <div class="form-group col-12 col-md-12 mb-4">
                 <label>Perlengkapan: </label>

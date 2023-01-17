@@ -428,7 +428,7 @@
                                                 <th class="table-secondary" style="width: 25%">Usulan Editor:</th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->editor))
-                                                        {{nama_editor}}
+                                                        {{$nama_editor}}
                                                     @else
                                                         <span class="text-danger text-small">Belum diinput</span>
                                                     @endif

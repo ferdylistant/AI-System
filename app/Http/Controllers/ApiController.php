@@ -34,9 +34,14 @@ class ApiController extends Controller
             return abort(405);
         }
     }
+    protected function getPosisiLayout($request)
+    {
+        $posisiLayout = (object)[['value' => '1','label' => 'Potrait'],['value' => '2','label' => 'Landscape']];
+        return response()->json($posisiLayout);
+    }
     protected function listDami($request)
     {
-        $valueLayout = $request->input('value');
+        $valueLayout = $request->get('value');
         if ($valueLayout == '1') {
             $data = (object)[
                 [
@@ -72,20 +77,6 @@ class ApiController extends Controller
         foreach ($data as $key => $value) {
             echo '<option value="' . $value['value'] . '">' . $value['label'] . '</option>';
         }
-    }
-    protected function getPosisiLayout($request)
-    {
-        $posisiLayout = (object)[
-            [
-                'value' => '1',
-                'label' => 'Potrait',
-            ],
-            [
-                'value' => '2',
-                'label' => 'Landscape',
-            ]
-        ];
-        return response()->json($posisiLayout);
     }
     public function listFormatBuku(Request $request)
     {

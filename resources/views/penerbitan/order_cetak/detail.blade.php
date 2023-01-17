@@ -298,6 +298,14 @@
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Kertas Cover</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            {{ is_null($data->kertas_cover) ? '-' : $data->kertas_cover }}
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Finishing Cover</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
@@ -326,14 +334,6 @@
                                             {{ is_null($data->tahun_terbit) ? '-' : $data->tahun_terbit }}
                                         </p>
                                     </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Buku Jadi</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->buku_jadi) ? '-' : $data->buku_jadi }}
-                                        </p>
-                                    </div>
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
@@ -350,6 +350,14 @@
                                         </div>
                                         <p class="mb-1 text-monospace">
                                             {{ is_null($data->jumlah_cetak) ? '-' : $data->jumlah_cetak }}
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Buku Jadi</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace">
+                                            {{ is_null($data->buku_jadi) ? '-' : $data->buku_jadi }}
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
