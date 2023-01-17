@@ -670,7 +670,7 @@ class EditingController extends Controller
                     $btn = $this->buttonEdit($id, $kode, $btn);
                 }
             } else {
-                if ((auth()->id() == $pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                if ((auth()->id() == $pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk')) || ($gate)) {
                     $btn = $this->buttonEdit($id, $kode, $btn);
                 }
             }

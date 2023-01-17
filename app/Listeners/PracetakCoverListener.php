@@ -34,7 +34,6 @@ class PracetakCoverListener
                     'id' => $data['id'],
                     'deskripsi_cover_id' => $data['deskripsi_cover_id'],
                     'desainer' => $data['desainer'],
-                    'editor' => $data['editor'],
                     'tgl_masuk_cover' => $data['tgl_masuk_cover']
                 ]);
                 break;

@@ -319,6 +319,7 @@ $(function () {
             },
             success: function (result) {
                 // resetFrom(data);
+                console.log(result);
                 notifToast(result.status, result.message);
                 location.href = result.route;
             },

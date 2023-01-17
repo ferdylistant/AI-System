@@ -292,7 +292,7 @@ class DeskripsiFinalController extends Controller
                     'format_buku' => $request->format_buku,
                     'sub_judul_final' => $request->sub_judul_final,
                     'kertas_isi' => $request->kertas_isi,
-                    'jml_hal_perkiraan' => $request->jml_hal_perkiraan, //Di Deskripsi Produk
+                    // 'jml_hal_perkiraan' => $request->jml_hal_perkiraan, //Di Deskripsi Produk
                     'jml_hal_asli' => $request->jml_hal_asli,
                     'ukuran_asli' => $request->ukuran_asli,
                     'isi_warna' => $request->isi_warna,
@@ -320,8 +320,8 @@ class DeskripsiFinalController extends Controller
                     'sub_judul_final_new' => $history->sub_judul_final == $request->sub_judul_final ? null : $request->sub_judul_final,
                     'kertas_isi_his' => $history->kertas_isi == $request->kertas_isi ? null : $history->kertas_isi,
                     'kertas_isi_new' => $history->kertas_isi == $request->kertas_isi ? null : $request->kertas_isi,
-                    'jml_hal_perkiraan_his' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $history->jml_hal_perkiraan,
-                    'jml_hal_perkiraan_new' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $request->jml_hal_perkiraan,
+                    // 'jml_hal_perkiraan_his' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $history->jml_hal_perkiraan,
+                    // 'jml_hal_perkiraan_new' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $request->jml_hal_perkiraan,
                     'jml_hal_asli_his' => $history->jml_hal_asli == $request->jml_hal_asli ? null : $history->jml_hal_asli,
                     'jml_hal_asli_new' => $history->jml_hal_asli == $request->jml_hal_asli ? null : $request->jml_hal_asli,
                     'ukuran_asli_his' => $history->ukuran_asli == $request->ukuran_asli ? null : $history->ukuran_asli,

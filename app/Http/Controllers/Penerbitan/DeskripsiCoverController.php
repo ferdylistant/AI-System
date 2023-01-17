@@ -222,7 +222,12 @@ class DeskripsiCoverController extends Controller
             ->select('pp.nama')
             ->get();
         $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first()->nama;
-        $desainer = DB::table('users')->where('id', $data->desainer)->whereNull('deleted_at')->first()->nama;
+        if (!is_null($data->desainer)) {
+            $desainer = DB::table('users')->where('id', $data->desainer)->whereNull('deleted_at')->first()->nama;
+        } else {
+            $desainer = NULL;
+        }
+        // $desainer = DB::table('users')->where('id', $data->desainer)->whereNull('deleted_at')->first()->nama;
         return view('penerbitan.des_cover.detail', [
             'title' => 'Detail Deskripsi Cover',
             'data' => $data,
@@ -389,6 +394,7 @@ class DeskripsiCoverController extends Controller
     public function updateStatusProgress(Request $request)
     {
         try {
+            DB::beginTransaction();
             $id = $request->id;
             $data = DB::table('deskripsi_cover as dc')
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
@@ -474,7 +480,6 @@ class DeskripsiCoverController extends Controller
                     'id' => Uuid::uuid4()->toString(),
                     'deskripsi_cover_id' => $data->id,
                     'desainer' => json_encode([$data->desainer]),
-                    'editor' => json_encode([$data->editor]),
                     'tgl_masuk_cover' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                 ];
                 event(new PracetakCoverEvent($insertPracetakCover));
@@ -484,11 +489,13 @@ class DeskripsiCoverController extends Controller
                 event(new DescovEvent($insert));
                 $msg = 'Status progress deskripsi cover berhasil diupdate';
             }
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => $msg
             ], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

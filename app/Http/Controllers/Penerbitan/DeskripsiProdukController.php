@@ -752,6 +752,7 @@ class DeskripsiProdukController extends Controller
     protected function approveDespro($request)
     {
         try {
+            DB::beginTransaction();
             $id = $request->id;
             $data = DB::table('deskripsi_produk')->where('id', $id)->whereNotNull('judul_final')->first();
             if (is_null($data)) {
@@ -762,11 +763,16 @@ class DeskripsiProdukController extends Controller
             }
             $despro = [
                 'params' => 'Approval Despro',
-                'id' => $id,
+                'id' => $data->id,
                 'status' => 'Acc',
                 'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
             ];
-            event(new DesproEvent($despro));
+            // event(new DesproEvent($despro));
+            // return response()->json($despro);
+            DB::table('deskripsi_produk')->where('id',$despro['id'])->update([
+                'status' => $despro['status'],
+                'action_gm' => $despro['action_gm']
+            ]);
             $history = [
                 'params' => 'Insert History Status Despro',
                 'deskripsi_produk_id' => $id,
@@ -776,26 +782,30 @@ class DeskripsiProdukController extends Controller
                 'author_id' => auth()->id(),
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
-            event(new DesproEvent($history));
+
             $desFin = [
                 'params' => 'Input Deskripsi',
                 'id' => Uuid::uuid4()->toString(),
                 'deskripsi_produk_id' => $id,
                 'tgl_deskripsi' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
+
             $desCov = [
                 'params' => 'Input Deskripsi',
                 'id' => Uuid::uuid4()->toString(),
                 'deskripsi_produk_id' => $id,
                 'tgl_deskripsi' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
+            event(new DesproEvent($history));
             event(new DesfinEvent($desFin));
             event(new DescovEvent($desCov));
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Deskripsi produk telah disetujui, silahkan cek Deskripsi Final dan Deskripsi Cover untuk tracking lanjutan'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

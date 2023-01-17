@@ -136,8 +136,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pracetak/setter', [PracetakSetterController::class, 'index'])->name('setter.view');
         Route::get('/pracetak/setter/detail', [PracetakSetterController::class, 'detailSetter'])->name('setter.detail');
         Route::match(['get', 'post'], '/pracetak/setter/edit', [PracetakSetterController::class, 'editSetter'])->name('setter.edit');
-        Route::post('/pracetak/setter/update-status-progress', [PracetakSetterController::class, 'updateStatusProgress']);
-        Route::post('/pracetak/setter/proses-kerja', [PracetakSetterController::class, 'prosesKerjaSetter'])->name('setter.proses');
         Route::post('/pracetak/setter/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('setter.selesai');
         Route::post('/pracetak/setter/{act}', [PracetakSetterController::class, 'actionAjax']);
         //Pracetak Desainer
