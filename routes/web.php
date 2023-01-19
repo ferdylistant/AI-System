@@ -20,6 +20,9 @@ use App\Http\Controllers\Penerbitan\{OrderCetakController, OrderEbookController,
 
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('do-login', [AuthController::class, 'doLogin']);
+Route::get('tes-socket', function () {
+    broadcast(new \App\Events\TesWebsocketEvent());
+});
 Route::middleware(['auth'])->group(function () {
     //API
     Route::get('/get-layout', [ApiController::class, 'getPosisiLayout']);
@@ -142,9 +145,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pracetak/designer', [PracetakDesainerController::class, 'index'])->name('prades.view');
         Route::get('/pracetak/designer/detail', [PracetakDesainerController::class, 'detailPracetakDesainer'])->name('prades.detail');
         Route::match(['get', 'post'], '/pracetak/designer/edit', [PracetakDesainerController::class, 'editDesigner'])->name('prades.edit');
-        Route::post('/pracetak/designer/update-status-progress', [PracetakDesainerController::class, 'updateStatusProgress']);
-        Route::post('/pracetak/designer/proses-kerja', [PracetakSetterController::class, 'prosesKerjaSetter'])->name('prades.proses')->middleware('throttle:5,1');
-        Route::post('/pracetak/designer/selesai/{cat}/{id}', [PracetakSetterController::class, 'prosesSelesaiSetter'])->name('prades.selesai')->middleware('throttle:5,1');
+        Route::post('/pracetak/designer/selesai/{cat}/{id}', [PracetakDesainerController::class, 'prosesSelesaiDesigner'])->name('prades.selesai')->middleware('throttle:5,1');
         Route::post('/pracetak/designer/{act}', [PracetakDesainerController::class, 'actionAjax'])->middleware('throttle:5,1');
         //Order Cetak
         Route::get('/order-cetak', [OrderCetakController::class, 'index'])->name('cetak.view');

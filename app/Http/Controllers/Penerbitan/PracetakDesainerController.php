@@ -1057,7 +1057,7 @@ class PracetakDesainerController extends Controller
                     'dp.naskah_id',
                     'dp.format_buku',
                     'dp.judul_final',
-                    'dp.editor',
+                    // 'dp.editor',
                     'dp.imprint',
                     'dp.kelengkapan',
                     'dp.catatan',

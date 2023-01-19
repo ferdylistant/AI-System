@@ -1,13 +1,13 @@
 $(function () {
     $("#btn-approve").on("click", function () {
         let id = $(this).data('id');
-        let jabatan = $(this).data('jabatan');
+        let departemen = $(this).data('departemen');
         let jb = $(this).data('judul');
         // $("#titleModal").html("Konfirmasi Persetujuan Pending");
         $("#_id").val(id);
         // $("#kode_Order").val(ko);
         $("#judul_BukuApproval").val(jb);
-        $("#type_JabatanApproval").val(jabatan);
+        $("#type_DepartemenApproval").val(departemen);
         $("#modalApproval").modal("show");
         // console.log(jabatan);
     });

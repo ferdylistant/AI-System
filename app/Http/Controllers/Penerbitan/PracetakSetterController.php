@@ -477,7 +477,7 @@ class PracetakSetterController extends Controller
                     if (!is_null($data->selesai_koreksi) && is_null($data->selesai_setting)) {
                         switch ($doneProses->section) {
                             case 'Proof Setting':
-                                $result = $data->proses_saat_ini == 'Setting Revisi' ? TRUE : FALSE;
+                                $result = $data->proses_saat_ini == 'Setting Revisi' ? FALSE : TRUE;
                                 break;
                             case 'Setting Revision':
                                 $lastKoreksi = DB::table('pracetak_setter_selesai')
@@ -495,7 +495,6 @@ class PracetakSetterController extends Controller
                                         ->where('pracetak_setter_id', $data->id)
                                         ->get();
                                     if (!$doneSelf->isEmpty()) {
-
                                         foreach ($doneSelf as $d) {
                                             $userId[] = $d->users_id;
                                         }
@@ -527,12 +526,10 @@ class PracetakSetterController extends Controller
                                         ->where('pracetak_setter_id', $data->id)
                                         ->get();
                                     if (!$doneSelf->isEmpty()) {
-
                                         foreach ($doneSelf as $d) {
                                             $userId[] = $d->users_id;
                                         }
                                         if (in_array(auth()->user()->id, $userId)) {
-
                                             $result = TRUE;
                                         } else {
                                             $tahap = $doneProses->tahap + 1;
@@ -553,7 +550,6 @@ class PracetakSetterController extends Controller
                                         $result = FALSE;
                                     }
                                 }
-
                                 break;
                             default:
                                 $result = FALSE;
@@ -617,7 +613,7 @@ class PracetakSetterController extends Controller
                                     $userId[] = $d->users_id;
                                 }
                                 if (in_array(auth()->user()->id, $userId)) {
-                                    $result = TRUE;
+                                    $result = FALSE;
                                 } else {
                                     $tahap = $doneProses->tahap + 1;
                                     $doneNext = DB::table('pracetak_setter_selesai')

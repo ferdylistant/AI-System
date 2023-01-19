@@ -31,23 +31,60 @@ class OrderCetakController extends Controller
                     'pn.id as naskah_id',
                     'dtc.tipe_order',
                     'dp.judul_final'
-                    // 'pyoc.m_penerbitan',
-                    // 'pyoc.m_stok',
-                    // 'pyoc.d_operasional',
-                    // 'pyoc.d_keuangan',
-                    // 'pyoc.d_utama',
-                    // 'pyoc.m_penerbitan_act',
-                    // 'pyoc.m_stok_act',
-                    // 'pyoc.d_operasional_act',
-                    // 'pyoc.d_keuangan_act',
-                    // 'pyoc.d_utama_act',
-                    // 'pyoc.pending_sampai',
                 )
                 ->get();
-            $update = Gate::allows('do_update', 'update-produksi');
+            $update = Gate::allows('do_update', 'update-order-cetak');
             return DataTables::of($data)
                 ->addColumn('no_order', function ($data) {
-                    return $data->kode_order;
+                    $act = DB::table('order_cetak_action')
+                        ->where('order_cetak_id', $data->id)
+                        ->orderBy('id', 'desc')
+                        ->first();
+                    if (is_null($act)) {
+                        if ((Gate::allows('do_approval', 'Persetujuan Penerbitan')) && ($data->status == 'Proses')) {
+                            $tandaProses = '<span class="beep-danger"></span>';
+                            $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                        } else {
+                            $tandaProses = '';
+                            $dataKode = $data->kode_order;
+                        }
+                    } else {
+                        switch ($act->type_departemen) {
+                            case 'Penerbitan':
+                                if ((Gate::allows('do_approval', 'Persetujuan Marketing & Ops')) && ($data->status == 'Proses')) {
+                                    $tandaProses = '<span class="beep-danger"></span>';
+                                    $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                                } else {
+                                    $tandaProses = '';
+                                    $dataKode = $data->kode_order;
+                                }
+                                break;
+                            case 'Marketing & Ops':
+                                if ((Gate::allows('do_approval', 'Persetujuan Keuangan')) && ($data->status == 'Proses')) {
+                                    $tandaProses = '<span class="beep-danger"></span>';
+                                    $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                                } else {
+                                    $tandaProses = '';
+                                    $dataKode = $data->kode_order;
+                                }
+                                break;
+                            case 'Keuangan':
+                                if ((Gate::allows('do_approval', 'Persetujuan Direktur Utama')) && ($data->status == 'Proses')) {
+                                    $tandaProses = '<span class="beep-danger"></span>';
+                                    $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                                } else {
+                                    $tandaProses = '';
+                                    $dataKode = $data->kode_order;
+                                }
+                                break;
+                            default:
+                            $tandaProses = '';
+                            $dataKode = $data->kode_order;
+                                break;
+                        }
+                    }
+
+                    return $tandaProses . $dataKode;
                 })
                 ->addColumn('kode', function ($data) {
                     return $data->kode;
@@ -63,34 +100,39 @@ class OrderCetakController extends Controller
                     return $data->jalur_buku;
                 })
                 ->addColumn('status_penyetujuan', function ($data) {
-                    $res = DB::table('order_cetak_action')->where('order_cetak_id', $data->id)->get();
+                    $res = DB::table('order_cetak_action')
+                        ->where('order_cetak_id', $data->id)
+                        ->get();
                     if (!$res->isEmpty()) {
                         foreach ($res as $r) {
-                            $collect[] = $r->type_jabatan;
+                            $collect[] = $r->type_departemen;
                         }
                     }
                     $badge = '';
-                    $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_jabatan'"))[0]->Type;
+                    $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_departemen'"))[0]->Type;
                     preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
                     $jabatan = explode("','", $matches[1]);
-                    foreach ($jabatan as $j) {
+                    foreach ($jabatan as $jb => $j) {
                         if (!$res->isEmpty()) {
                             if (in_array($j, $collect)) {
-                                foreach ($res as $action) {
-                                    switch ($action->type_action) {
-                                        case 'Approval':
-                                            $badge .= '<div class="text-success text-small font-600-bold"><i class="bullet"></i> ' . $j . '</div>';
-                                            break;
-                                        case 'Decline':
-                                            $badge .= '<div class="text-danger text-small font-600-bold"><i class="bullet"></i> ' . $j . '</div>';
-                                            break;
+                                foreach ($res as $i => $action) {
+                                    if ($i == $jb) {
+                                        switch ($action->type_action) {
+                                            case 'Approval':
+                                                $lbl = 'success';
+                                                break;
+                                            case 'Decline':
+                                                $lbl = 'danger';
+                                                break;
+                                        }
+                                        $badge .= '<div class="text-' . $lbl . ' text-small font-600-bold"><span class="bullet"></span> ' . $j . '</div>';
                                     }
                                 }
                             } else {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><i class="bullet"></i> ' . $j . '</div>';
+                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> ' . $j . '</div>';
                             }
                         } else {
-                            $badge .= '<div class="text-muted text-small font-600-bold"><i class="bullet"></i> ' . $j . '</div>';
+                            $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> ' . $j . '</div>';
                         }
                     }
                     return $badge;
@@ -253,7 +295,6 @@ class OrderCetakController extends Controller
                         'params' => 'Update Order Cetak',
                         'id' => $request->id,
                         'status_cetak' => $request->up_status_cetak,
-                        'jenis_mesin' => $request->up_jenis_mesin,
                         'edisi_cetak' => $request->up_edisi_cetak, //Pracetak Setter
                         'jml_hal_perkiraan' => $request->up_jml_hal_perkiraan, //Deskripsi Produk
                         'kelompok_buku_id' => $request->up_kelompok_buku, //Penerbitan Naskah
@@ -285,8 +326,6 @@ class OrderCetakController extends Controller
                         'order_cetak_id' => $request->id,
                         'status_cetak_his' => $request->up_status_cetak == $history->status_cetak ? NULL : $history->status_cetak,
                         'status_cetak_new' => $request->up_status_cetak == $history->status_cetak ? NULL : $request->up_status_cetak,
-                        'jenis_mesin_his' => $request->up_jenis_mesin == $history->jenis_mesin ? NULL : $history->jenis_mesin,
-                        'jenis_mesin_new' => $request->up_jenis_mesin == $history->jenis_mesin ? NULL : $request->up_jenis_mesin,
                         'edisi_cetak_his' => $request->up_edisi_cetak == $history->edisi_cetak ? NULL : $history->edisi_cetak,
                         'edisi_cetak_new' => $request->up_edisi_cetak == $history->edisi_cetak ? NULL : $request->up_edisi_cetak,
                         'jml_hal_perkiraan_his' => $request->up_jml_hal_perkiraan == $history->jml_hal_perkiraan ? NULL : $history->jml_hal_perkiraan,
@@ -360,9 +399,6 @@ class OrderCetakController extends Controller
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_cover WHERE Field = 'jilid'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $jilid = explode("','", $matches[1]);
-        $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak WHERE Field = 'jenis_mesin'"))[0]->Type;
-        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-        $jenis_mesin = explode("','", $matches[1]);
         $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak WHERE Field = 'status_cetak'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $status_cetak = explode("','", $matches[1]);
@@ -381,7 +417,6 @@ class OrderCetakController extends Controller
             'kbuku' => $kbuku,
             'data' => $data,
             'jilid' => $jilid,
-            'jenis_mesin' => $jenis_mesin,
             'status_cetak' => $status_cetak,
             'format_buku' => $format_buku,
             'kertas_isi' => $kertas_isi,
@@ -447,15 +482,15 @@ class OrderCetakController extends Controller
         $act = DB::table('order_cetak_action')->where('order_cetak_id', $data->id)->get();
         if (!$act->isEmpty()) {
             foreach ($act as $a) {
-                $act_j[] = $a->type_jabatan;
+                $act_j[] = $a->type_departemen;
             }
         } else {
             $act_j = NULL;
         }
         //List Jabatan Approval
-        $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_jabatan'"))[0]->Type;
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_departemen'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-        $jabatan = explode("','", $matches[1]);
+        $departemen = explode("','", $matches[1]);
 
         return view('penerbitan.order_cetak.detail', [
             'title' => 'Detail Order Cetak Buku',
@@ -463,21 +498,7 @@ class OrderCetakController extends Controller
             'penulis' => $penulis,
             'act' => $act,
             'act_j' => $act_j,
-            'jabatan' => $jabatan
-            // 'id' => $kode,
-            // 'prod_penyetujuan' => $prodPenyetujuan,
-            // 'data_penolakan' => $dataPenolakan,
-            // 'author' => $author,
-            // 'm_stok' => $m_stok,
-            // 'm_penerbitan' => $m_penerbitan,
-            // 'dirop' => $dirop,
-            // 'dirke' => $dirke,
-            // 'dirut' => $dirut,
-            // 'p_mstok' => $p_mstok,
-            // 'p_mp' => $p_mp,
-            // 'p_dirop' => $p_dirop,
-            // 'p_dirke' => $p_dirke,
-            // 'p_dirut' => $p_dirut,
+            'departemen' => $departemen
         ]);
     }
     protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)
@@ -591,7 +612,7 @@ class OrderCetakController extends Controller
                 ], 404);
             }
             $penilaian = DB::table('order_cetak_action as oca')
-                ->where('order_cetak_id', $data->id)->where('type_jabatan', 'Dir. Utama')
+                ->where('order_cetak_id', $data->id)->where('type_departemen', 'Direktur Utama')
                 ->orderBy('id', 'desc')
                 ->first();
             if ($data->status == $request->status) {
@@ -665,34 +686,34 @@ class OrderCetakController extends Controller
     {
         try {
             $permission = DB::table('permissions')
-                ->where('raw', $request->type_jabatan)
+                ->where('raw', $request->type_departemen)
                 ->first();
-            // return response()->json($request->type_jabatan);
+            // return response()->json($request->type_departemen);
             $insert = [
                 'params' => 'Insert Action',
                 'order_cetak_id' => $request->id,
-                'type_jabatan' => $request->type_jabatan,
+                'type_departemen' => $request->type_departemen,
                 'type_action' => 'Approval',
                 'users_id' => auth()->id(),
                 'catatan_action' => $request->catatan_action,
                 'tgl_action' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
             ];
-            switch ($request->type_jabatan) {
-                case 'GM Penerbitan':
+            switch ($request->type_departemen) {
+                case 'Penerbitan':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Operasional'];
+                    $raw = ['Marketing & Ops'];
                     break;
-                case 'Dir. Operasional':
+                case 'Marketing & Ops':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Keuangan'];
+                    $raw = ['Keuangan'];
                     break;
-                case 'Dir. Keuangan':
+                case 'Keuangan':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Utama'];
+                    $raw = ['Direktur Utama'];
                     break;
-                case 'Dir. Utama':
+                case 'Direktur Utama':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['GM Penerbitan', 'Dir. Operasional', 'Dir. Keuangan'];
+                    $raw = ['Penerbitan', 'Marketing & Ops', 'Direktur Keuangan'];
                     break;
             }
             $userPermission = DB::table('permissions as p', 'p.id', '=', 'up.permission_id')
@@ -729,34 +750,34 @@ class OrderCetakController extends Controller
     {
         try {
             $permission = DB::table('permissions')
-                ->where('raw', $request->type_jabatan)
+                ->where('raw', $request->type_departemen)
                 ->first();
-            // return response()->json($request->type_jabatan);
+            // return response()->json($request->type_departemen);
             $insert = [
                 'params' => 'Insert Action',
                 'order_cetak_id' => $request->id,
-                'type_jabatan' => $request->type_jabatan,
+                'type_departemen' => $request->type_departemen,
                 'type_action' => 'Decline',
                 'users_id' => auth()->id(),
                 'catatan_action' => $request->catatan_action,
                 'tgl_action' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
             ];
-            switch ($request->type_jabatan) {
-                case 'GM Penerbitan':
+            switch ($request->type_departemen) {
+                case 'Penerbitan':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Operasional'];
+                    $raw = ['Marketing & Ops'];
                     break;
-                case 'Dir. Operasional':
+                case 'Marketing & Ops':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Keuangan'];
+                    $raw = ['Keuangan'];
                     break;
-                case 'Dir. Keuangan':
+                case 'Keuangan':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Utama'];
+                    $raw = ['Direktur Utama'];
                     break;
-                case 'Dir. Utama':
+                case 'Direktur Utama':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['GM Penerbitan', 'Dir. Operasional', 'Dir. Keuangan'];
+                    $raw = ['Penerbitan', 'Marketing & Ops', 'Keuangan'];
                     break;
             }
             $userPermission = DB::table('permissions as p', 'p.id', '=', 'up.permission_id')
@@ -796,7 +817,7 @@ class OrderCetakController extends Controller
             ->where('id', $id)
             ->first();
         $fetch = [
-            'jabatan' => $data->type_jabatan,
+            // 'jabatan' => $data->type_departemen,
             'users' => DB::table('users')->where('id', $data->users_id)->first()->nama,
             'catatan' => $data->catatan_action,
             'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')
@@ -810,7 +831,7 @@ class OrderCetakController extends Controller
             ->where('id', $id)
             ->first();
         $fetch = [
-            'jabatan' => $data->type_jabatan,
+            'jabatan' => $data->type_departemen,
             'users' => DB::table('users')->where('id', $data->users_id)->first()->nama,
             'catatan' => $data->catatan_action,
             'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')
@@ -922,34 +943,6 @@ class OrderCetakController extends Controller
                             $html .= '<span class="ticket-item">
                         <div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Status cetak <b class="text-dark">' . $scNew . '</b> ditambahkan.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
-                        }
-                        if (!is_null($d->jenis_mesin_his)) {
-                            $his = $d->jenis_mesin_his == 1 ? 'POD':'Mesin Besar';
-                            $new = $d->jenis_mesin_new == 1 ? 'POD':'Mesin Besar';
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
-                            $html .= ' Jenis mesin <b class="text-dark">' . $his . '</b> diubah menjadi <b class="text-dark">' . $new . '</b>.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
-                        } elseif (!is_null($d->jenis_mesin_new)) {
-                            $new = $d->jenis_mesin_new == 1 ? 'POD':'Mesin Besar';
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
-                            $html .= ' Jenis mesin <b class="text-dark">' . $new . '</b> ditambahkan.<br>';
                             $html .= '</span></div>
                             <div class="ticket-info">
                                 <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>

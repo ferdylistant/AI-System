@@ -41,9 +41,9 @@ class OrderEbookController extends Controller
                     $act = DB::table('order_ebook_action')
                         ->where('order_ebook_id', $data->id)
                         ->orderBy('id', 'desc')
-                        ->get();
-                    if ($act->isEmpty()) {
-                        if ((Gate::allows('do_approval', 'GM Penerbitan')) && ($data->status == 'Proses')) {
+                        ->first();
+                    if (is_null($act)) {
+                        if ((Gate::allows('do_approval', 'Penerbitan')) && ($data->status == 'Proses')) {
                             $tandaProses = '<span class="beep-danger"></span>';
                             $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
                         } else {
@@ -51,35 +51,38 @@ class OrderEbookController extends Controller
                             $dataKode = $data->kode_order;
                         }
                     } else {
-                        foreach ($act as $a) {
-                            if ((Gate::allows('do_approval', 'Dir. Operasional')) && ($data->status == 'Proses')) {
-                                if ($a->type_jabatan == 'GM Penerbitan') {
+                        switch ($act->type_departemen) {
+                            case 'Penerbitan':
+                                if ((Gate::allows('do_approval', 'Persetujuan Marketing & Ops')) && ($data->status == 'Proses')) {
                                     $tandaProses = '<span class="beep-danger"></span>';
                                     $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
                                 } else {
                                     $tandaProses = '';
                                     $dataKode = $data->kode_order;
                                 }
-                            } elseif ((Gate::allows('do_approval', 'Dir. Keuangan')) && ($data->status == 'Proses')) {
-                                if ($a->type_jabatan == 'Dir. Operasional') {
+                                break;
+                            case 'Marketing & Ops':
+                                if ((Gate::allows('do_approval', 'Persetujuan Keuangan')) && ($data->status == 'Proses')) {
                                     $tandaProses = '<span class="beep-danger"></span>';
                                     $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
                                 } else {
                                     $tandaProses = '';
                                     $dataKode = $data->kode_order;
                                 }
-                            } elseif ((Gate::allows('do_approval', 'Dir. Utama')) && ($data->status == 'Proses')) {
-                                if ($a->type_jabatan == 'Dir. Keuangan') {
+                                break;
+                            case 'Keuangan':
+                                if ((Gate::allows('do_approval', 'Persetujuan Direktur Utama')) && ($data->status == 'Proses')) {
                                     $tandaProses = '<span class="beep-danger"></span>';
                                     $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
                                 } else {
                                     $tandaProses = '';
                                     $dataKode = $data->kode_order;
                                 }
-                            } else {
-                                $tandaProses = '';
-                                $dataKode = $data->kode_order;
-                            }
+                                break;
+                            default:
+                            $tandaProses = '';
+                            $dataKode = $data->kode_order;
+                                break;
                         }
                     }
 
@@ -104,14 +107,14 @@ class OrderEbookController extends Controller
                         ->get();
                     if (!$res->isEmpty()) {
                         foreach ($res as $r) {
-                            $collect[] = $r->type_jabatan;
+                            $collect[] = $r->type_departemen;
                         }
                     }
                     $badge = '';
-                    $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook_action WHERE Field = 'type_jabatan'"))[0]->Type;
+                    $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook_action WHERE Field = 'type_departemen'"))[0]->Type;
                     preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-                    $jabatan = explode("','", $matches[1]);
-                    foreach ($jabatan as $jb => $j) {
+                    $departemen = explode("','", $matches[1]);
+                    foreach ($departemen as $jb => $j) {
                         if (!$res->isEmpty()) {
                             if (in_array($j, $collect)) {
                                 foreach ($res as $i => $action) {
@@ -390,21 +393,21 @@ class OrderEbookController extends Controller
         $act = DB::table('order_ebook_action')->where('order_ebook_id', $data->id)->get();
         if (!$act->isEmpty()) {
             foreach ($act as $a) {
-                $act_j[] = $a->type_jabatan;
+                $act_j[] = $a->type_departemen;
             }
         } else {
             $act_j = NULL;
         }
-        //List Jabatan Approval
-        $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook_action WHERE Field = 'type_jabatan'"))[0]->Type;
+        //List departemen Approval
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook_action WHERE Field = 'type_departemen'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-        $jabatan = explode("','", $matches[1]);
+        $departemen = explode("','", $matches[1]);
         return view('penerbitan.order_ebook.detail', [
             'title' => 'Detail Order E-Book',
             'data' => $data,
             'act' => $act,
             'act_j' => $act_j,
-            'jabatan' => $jabatan,
+            'departemen' => $departemen,
             'penulis' => $penulis,
         ]);
     }
@@ -519,7 +522,7 @@ class OrderEbookController extends Controller
                 ], 404);
             }
             $penilaian = DB::table('order_ebook_action as oea')
-                ->where('order_ebook_id', $data->id)->where('type_jabatan', 'Dir. Utama')
+                ->where('order_ebook_id', $data->id)->where('type_departemen', 'Direktur Utama')
                 ->orderBy('id', 'desc')
                 ->first();
             if ($data->status == $request->status) {
@@ -593,34 +596,34 @@ class OrderEbookController extends Controller
     {
         try {
             $permission = DB::table('permissions')
-                ->where('raw', $request->type_jabatan)
+                ->where('raw', $request->type_departemen)
                 ->first();
-            // return response()->json($request->type_jabatan);
+            // return response()->json($request->type_departemen);
             $insert = [
                 'params' => 'Insert Action',
                 'order_ebook_id' => $request->id,
-                'type_jabatan' => $request->type_jabatan,
+                'type_departemen' => $request->type_departemen,
                 'type_action' => 'Approval',
                 'users_id' => auth()->id(),
                 'catatan_action' => $request->catatan_action,
                 'tgl_action' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
             ];
-            switch ($request->type_jabatan) {
-                case 'GM Penerbitan':
+            switch ($request->type_departemen) {
+                case 'Penerbitan':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Operasional'];
+                    $raw = ['Marketing & Ops'];
                     break;
-                case 'Dir. Operasional':
+                case 'Marketing & Ops':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Keuangan'];
+                    $raw = ['Keuangan'];
                     break;
-                case 'Dir. Keuangan':
+                case 'Keuangan':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Utama'];
+                    $raw = ['Direktur Utama'];
                     break;
-                case 'Dir. Utama':
+                case 'Direktur Utama':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['GM Penerbitan', 'Dir. Operasional', 'Dir. Keuangan'];
+                    $raw = ['Penerbitan', 'Marketing & Ops', 'Keuangan'];
                     break;
             }
             $userPermission = DB::table('permissions as p', 'p.id', '=', 'up.permission_id')
@@ -657,34 +660,34 @@ class OrderEbookController extends Controller
     {
         try {
             $permission = DB::table('permissions')
-                ->where('raw', $request->type_jabatan)
+                ->where('raw', $request->type_departemen)
                 ->first();
-            // return response()->json($request->type_jabatan);
+            // return response()->json($request->type_departemen);
             $insert = [
                 'params' => 'Insert Action',
                 'order_ebook_id' => $request->id,
-                'type_jabatan' => $request->type_jabatan,
+                'type_departemen' => $request->type_departemen,
                 'type_action' => 'Decline',
                 'users_id' => auth()->id(),
                 'catatan_action' => $request->catatan_action,
                 'tgl_action' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
             ];
-            switch ($request->type_jabatan) {
-                case 'GM Penerbitan':
+            switch ($request->type_departemen) {
+                case 'Penerbitan':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Operasional'];
+                    $raw = ['Marketing & Ops'];
                     break;
-                case 'Dir. Operasional':
+                case 'Marketing & Ops':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Keuangan'];
+                    $raw = ['Keuangan'];
                     break;
-                case 'Dir. Keuangan':
+                case 'Keuangan':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Dir. Utama'];
+                    $raw = ['Direktur Utama'];
                     break;
-                case 'Dir. Utama':
+                case 'Direktur Utama':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['GM Penerbitan', 'Dir. Operasional', 'Dir. Keuangan'];
+                    $raw = ['Penerbitan', 'Marketing & Ops', 'Keuangan'];
                     break;
             }
             $userPermission = DB::table('permissions as p', 'p.id', '=', 'up.permission_id')
@@ -724,7 +727,7 @@ class OrderEbookController extends Controller
             ->where('id', $id)
             ->first();
         $fetch = [
-            'jabatan' => $data->type_jabatan,
+            // 'jabatan' => $data->type_departemen,
             'users' => DB::table('users')->where('id', $data->users_id)->first()->nama,
             'catatan' => $data->catatan_action,
             'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')
@@ -738,7 +741,7 @@ class OrderEbookController extends Controller
             ->where('id', $id)
             ->first();
         $fetch = [
-            'jabatan' => $data->type_jabatan,
+            'departemen' => $data->type_departemen,
             'users' => DB::table('users')->where('id', $data->users_id)->first()->nama,
             'catatan' => $data->catatan_action,
             'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')

@@ -63,7 +63,6 @@ class OrderCetakListener
                     ->where('oc.id', $data['id'])
                     ->update([
                         'oc.status_cetak' => $data['status_cetak'],
-                        'oc.jenis_mesin' => $data['jenis_mesin'],
                         'oc.posisi_layout' => $data['posisi_layout'],
                         'oc.dami' => $data['dami'],
                         'oc.ukuran_jilid_binding' => $data['ukuran_jilid_binding'],
@@ -97,8 +96,6 @@ class OrderCetakListener
                     'order_cetak_id' => $data['order_cetak_id'],
                     'status_cetak_his' => $data['status_cetak_his'],
                     'status_cetak_new' => $data['status_cetak_new'],
-                    'jenis_mesin_his' => $data['jenis_mesin_his'],
-                    'jenis_mesin_new' => $data['jenis_mesin_new'],
                     'edisi_cetak_his' => $data['edisi_cetak_his'],
                     'edisi_cetak_new' => $data['edisi_cetak_new'],
                     'jml_hal_perkiraan_his' => $data['jml_hal_perkiraan_his'],
@@ -154,7 +151,7 @@ class OrderCetakListener
                 DB::beginTransaction();
                 $res = DB::table('order_cetak_action')->insert([
                     'order_cetak_id' => $data['order_cetak_id'],
-                    'type_jabatan' => $data['type_jabatan'],
+                    'type_departemen' => $data['type_departemen'],
                     'type_action' => $data['type_action'],
                     'users_id' => $data['users_id'],
                     'catatan_action' => $data['catatan_action'],
@@ -164,7 +161,7 @@ class OrderCetakListener
                 DB::table('order_cetak_history')->insert([
                     'order_cetak_id' => $data['order_cetak_id'],
                     'type_history' => $data['type_action'],
-                    'type_jabatan' => $data['type_jabatan'],
+                    'type_departemen' => $data['type_departemen'],
                     'catatan_action' => $data['catatan_action'],
                     'author_id' => $data['users_id'],
                     'modified_at' => $data['tgl_action']

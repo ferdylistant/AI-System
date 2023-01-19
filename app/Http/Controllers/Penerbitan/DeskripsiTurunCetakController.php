@@ -463,7 +463,7 @@ class DeskripsiTurunCetakController extends Controller
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
             if ($request->status == 'Selesai') {
-                $data = DB::table('deskripsi_turun_Cetak')->where('id', $data->id)->whereNotNull('tipe_order')->first();
+                $data = DB::table('deskripsi_turun_cetak')->where('id', $data->id)->whereNotNull('tipe_order')->first();
                 if (is_null($data)) {
                     return response()->json([
                         'status' => 'error',

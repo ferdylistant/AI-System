@@ -106,7 +106,7 @@ class OrderEbookListener
                 DB::beginTransaction();
                 $res = DB::table('order_ebook_action')->insert([
                     'order_ebook_id' => $data['order_ebook_id'],
-                    'type_jabatan' => $data['type_jabatan'],
+                    'type_departemen' => $data['type_departemen'],
                     'type_action' => $data['type_action'],
                     'users_id' => $data['users_id'],
                     'catatan_action' => $data['catatan_action'],
@@ -116,7 +116,7 @@ class OrderEbookListener
                 DB::table('order_ebook_history')->insert([
                     'order_ebook_id' => $data['order_ebook_id'],
                     'type_history' => $data['type_action'],
-                    'type_jabatan' => $data['type_jabatan'],
+                    'type_departemen' => $data['type_departemen'],
                     'catatan_action' => $data['catatan_action'],
                     'author_id' => $data['users_id'],
                     'modified_at' => $data['tgl_action']

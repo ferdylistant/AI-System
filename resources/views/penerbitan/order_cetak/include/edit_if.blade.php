@@ -53,7 +53,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-fingerprint"></i></div>
                     </div>
-                    <input type="text" class="form-control" name="up_imprint" disabled readonly>
+                    <input type="text" class="form-control" name="up_isbn" disabled readonly>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
@@ -79,20 +79,6 @@
                         @endforeach
                     </select>
                     <div id="err_up_status_cetak"></div>
-                </div>
-            </div>
-            <div class="form-group col-12 col-md-6 mb-4">
-                <label>Jenis Mesin: <span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text"><i class="fas fa-hdd"></i></div>
-                    </div>
-                    <select class="form-control select2" name="up_jenis_mesin" required>
-                        @foreach ($jenis_mesin as $jm)
-                            <option value="{{$jm}}">{{$jm==1?'POD':'Mesin Besar'}}</option>
-                        @endforeach
-                    </select>
-                    <div id="err_up_jenis_mesin"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-3 mb-4">
@@ -299,7 +285,7 @@
                     <div id="err_up_jumlah_cetak"></div>
                 </div>
             </div>
-            <div class="form-group col-12 col-md-3 mb-4">
+            <div class="form-group col-12 col-md-6 mb-4">
                 <label>Tahun Terbit: <span class="text-danger">*</span></label>
                 <div class="input-group">
                     <div class="input-group-prepend">
@@ -309,7 +295,7 @@
                     <div id="err_up_tahun_terbit"></div>
                 </div>
             </div>
-            <div class="form-group col-12 col-md-3 mb-4">
+            <div class="form-group col-12 col-md-6 mb-4">
                 <label>Tanggal Permintaan Jadi: <span class="text-danger">*</span></label>
                 <div class="input-group">
                     <div class="input-group-prepend">

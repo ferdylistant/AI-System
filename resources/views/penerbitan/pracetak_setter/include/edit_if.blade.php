@@ -441,6 +441,10 @@
                 <?php
                 $lbl = $label.' proses setting';
                 ?>
+            @elseif (!is_null($data->selesai_setting) && is_null($data->mulai_proof))
+                <?php
+                $lbl = $label.' proses proof prodev';
+                ?>
             @elseif (is_null($data->selesai_koreksi) && !is_null($data->selesai_setting))
                 <?php
                 $lbl = $label.' proses koreksi';
