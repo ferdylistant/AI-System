@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Events\TesWebsocketEvent;
 use App\Http\Controllers\ManWeb\{StrukturAoController, UsersController, SettingController};
 use App\Http\Controllers\{AuthController, ApiController, HomeController, NotificationController};
 use App\Http\Controllers\Produksi\{EbookController, ProsesProduksiController, ProsesEbookController};
@@ -21,7 +22,8 @@ use App\Http\Controllers\Penerbitan\{OrderCetakController, OrderEbookController,
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('do-login', [AuthController::class, 'doLogin']);
 Route::get('tes-socket', function () {
-    broadcast(new \App\Events\TesWebsocketEvent());
+    $data = 'Data coba-coba';
+    event(new TesWebsocketEvent($data));
 });
 Route::middleware(['auth'])->group(function () {
     //API

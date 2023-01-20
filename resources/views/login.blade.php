@@ -102,24 +102,7 @@
     <!-- JS Libraies -->
 
     <!-- Template JS File -->
-    <script type="module">
-        // import Echo from 'laravel-echo';
 
-// window.Pusher = require('pusher-js');
-
-window.Echo = new Echo({
-    broadcaster: 'pusher',
-    key: process.env.MIX_PUSHER_APP_KEY,
-    cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-    forceTLS: true
-});
-        document.addEventListener("DOMContentLoaded", function(event) {
-            Echo.channel('channel-tes' )
-                .listen('TestWebsocketEvent', (e) => {
-                    console.log(e);
-                });
-        });
-    </script>
     <script src="{{ url('vendors/stisla/js/scripts.js') }}"></script>
     <script src="{{ url('vendors/stisla/js/custom.js') }}"></script>
     <script>
