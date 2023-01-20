@@ -68,13 +68,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/platform-digital/platform-telah-dihapus', [ImprintController::class, 'platformTelahDihapus'])->name('platform.telah_dihapus');
         Route::match(['get', 'post'], '/platform-digital/tambah', [ImprintController::class, 'createPlatform'])->name('platform.create');
         Route::match(['get', 'post'], '/platform-digital/ubah', [ImprintController::class, 'updatePlatform'])->name('platform.update');
-        Route::get('/platform-digital/hapus', [ImprintController::class, 'deletePlatform'])->name('platform.delete');
+        Route::post('/platform-digital/hapus', [ImprintController::class, 'deletePlatform'])->name('platform.delete');
         Route::get('/platform-digital/restore', [ImprintController::class, 'restorePlatform'])->name('platform.restore');
         Route::post('/platform-digital/lihat-history', [ImprintController::class, 'lihatHistoryPlatform'])->name('platform.history');
         //Imprint
         Route::get('/imprint', [ImprintController::class, 'index'])->name('imprint.view');
-        Route::match(['get', 'post'], '/imprint/tambah-imprint', [ImprintController::class, 'createImprint'])->name('imprint.create');
-        Route::match(['get', 'post'], '/imprint/ubah-imprint', [ImprintController::class, 'updateImprint'])->name('imprint.update');
+        Route::match(['get', 'post'], '/imprint/tambah', [ImprintController::class, 'createImprint'])->name('imprint.create');
+        Route::match(['get', 'post'], '/imprint/ubah', [ImprintController::class, 'updateImprint'])->name('imprint.update');
         Route::get('/imprint/hapus', [ImprintController::class, 'deleteImprint'])->name('imprint.delete');
         Route::post('/imprint/lihat-history', [ImprintController::class, 'lihatHistory'])->name('imprint.history');
         //Kelompok Buku

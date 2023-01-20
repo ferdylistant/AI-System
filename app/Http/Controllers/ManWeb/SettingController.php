@@ -153,17 +153,17 @@ class SettingController extends Controller
                     break;
                 case 'selectParent':
                     $res = DB::table('access')
-                    ->where('bagian_id',$request->input('id'))
-                    ->where('url','#')
-                    ->whereNull('parent_id')
-                    ->get();
+                        ->where('bagian_id', $request->input('id'))
+                        ->where('url', '#')
+                        ->whereNull('parent_id')
+                        ->get();
                     return $res;
                     break;
                 case 'data-menu':
-                    $result = DB::table('access as a')->join('access_bagian as ab','a.bagian_id','=','ab.id')
-                    ->where('a.id',$request->input('id'))
-                    ->select('a.*','ab.name as name_ab')
-                    ->first();
+                    $result = DB::table('access as a')->join('access_bagian as ab', 'a.bagian_id', '=', 'ab.id')
+                        ->where('a.id', $request->input('id'))
+                        ->select('a.*', 'ab.name as name_ab')
+                        ->first();
                     return $result;
                     break;
                 case 'data-section-menu':
@@ -277,21 +277,21 @@ class SettingController extends Controller
     {
         try {
             $access = DB::table('access')
-                    ->where('id', $request->id)
-                    ->first();
-                if (!is_null($access)) {
-                    DB::table('access')->where('id', $request->id)
-                        ->delete();
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => 'Berhasil hapus data!'
-                    ]);
-                } else {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Terjadi kesalahan!'
-                    ]);
-                }
+                ->where('id', $request->id)
+                ->first();
+            if (!is_null($access)) {
+                DB::table('access')->where('id', $request->id)
+                    ->delete();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Berhasil hapus data!'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terjadi kesalahan!'
+                ]);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -351,5 +351,4 @@ class SettingController extends Controller
             ]);
         }
     }
-
 }
