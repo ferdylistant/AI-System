@@ -33,7 +33,7 @@ class TesWebsocketEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('hello-channel-'.Str::slug($this->data,'-'));
+        return new Channel('hello-channel');
     }
     public function broadcastWith()
     {

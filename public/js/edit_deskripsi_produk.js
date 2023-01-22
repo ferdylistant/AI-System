@@ -24,6 +24,19 @@ $(document).ready(function () {
     });
 });
 $(document).ready(function () {
+    $("#namaPenaButton").click(function (e) {
+        e.preventDefault();
+        $("#namaPenaCol").attr("hidden", "hidden");
+        $("#namaPenaColInput").removeAttr("hidden");
+    });
+    $(".batal_edit_nama_pena").click(function (e) {
+        //user click on remove text
+        e.preventDefault();
+        $("#namaPenaColInput").attr("hidden", "hidden");
+        $("#namaPenaCol").removeAttr("hidden");
+    });
+});
+$(document).ready(function () {
     $("#formatBukuButton").click(function (e) {
         e.preventDefault();
         $("#formatBukuCol").attr("hidden", "hidden");
@@ -101,18 +114,6 @@ $(document).ready(function () {
         $("#imprintCol").removeAttr("hidden");
     });
 });
-// $(document).ready(function() {
-//     $('#judulFinalButton').click(function(e) {
-//         e.preventDefault();
-//         $('#judulFinalCol').attr('hidden','hidden');
-//         $('#judulFinalColInput').removeAttr('hidden');
-//     });
-//     $('.batal_edit_judul_final').click(function(e){ //user click on remove text
-// 		e.preventDefault();
-//         $('#judulFinalColInput').attr('hidden','hidden');
-//         $('#judulFinalCol').removeAttr('hidden');
-// 	})
-// });
 $(document).ready(function () {
     $("#bulanButton").click(function (e) {
         e.preventDefault();
@@ -200,8 +201,11 @@ $(function () {
             },
             success: function (result) {
                 // resetFrom(data);
+                // console.log(result);
                 notifToast(result.status, result.message);
-                location.href = result.route;
+                if (result.status == 'success') {
+                    location.href = result.route;
+                }
             },
             error: function (err) {
                 // console.log(err.responseJSON);

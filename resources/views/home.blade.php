@@ -295,7 +295,7 @@
 @section('jsNeeded')
 <script>
     document.addEventListener("DOMContentLoaded", function(event) {
-        Echo.channel(`hello-channel-${this.data}`).listen('.TesWebsocketEvent', (e) => {
+        Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (e) => {
             console.log(e);
             });
     });

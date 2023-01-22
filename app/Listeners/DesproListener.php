@@ -41,7 +41,7 @@ class DesproListener
                 $res = DB::table('deskripsi_produk')
                     ->where('id', $data['id'])
                     ->update([
-                    // 'judul_final' => $data['judul_final'],
+                    'nama_pena' => $data['nama_pena'],
                     'alt_judul' => $data['alt_judul'],
                     'format_buku' => $data['format_buku'],
                     'jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
@@ -57,8 +57,8 @@ class DesproListener
                 $res = DB::table('deskripsi_produk_history')->insert([
                     'deskripsi_produk_id' => $data['deskripsi_produk_id'],
                     'type_history' => $data['type_history'],
-                    // 'judul_final_his' => $data['judul_final_his'],
-                    // 'judul_final_new' => $data['judul_final_new'],
+                    'nama_pena_his' => $data['nama_pena_his'],
+                    'nama_pena_new' => $data['nama_pena_new'],
                     'alt_judul_his' => $data['alt_judul_his'],
                     'alt_judul_new' => $data['alt_judul_new'],
                     'format_buku_his' => $data['format_buku_his'],

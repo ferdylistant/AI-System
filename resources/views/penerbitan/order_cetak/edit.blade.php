@@ -85,5 +85,5 @@
 
 
 @section('jsNeeded')
-    <script src="{{ url('js/edit_order_cetak.js') }}"></script>
+    <script src="{{ url('js/edit_order_cetak.js') }}" defer></script>
 @endsection

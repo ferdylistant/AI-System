@@ -260,6 +260,8 @@ class DeskripsiProdukController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
+                // return response()->json($es);
+                $np = explode(",",$request->nama_pena);
                 foreach ($request->alt_judul as $value) {
                     $altJudul[] = $value;
                 }
@@ -270,6 +272,7 @@ class DeskripsiProdukController extends Controller
                 $update = [
                     'params' => 'Edit Despro',
                     'id' => $request->id,
+                    'nama_pena' => is_null($request->nama_pena)?NULL:json_encode($np),
                     'alt_judul' => json_encode($altJudul),
                     'format_buku' => $request->format_buku,
                     'jml_hal_perkiraan' => $request->jml_hal_perkiraan,
@@ -287,6 +290,8 @@ class DeskripsiProdukController extends Controller
                     'params' => 'Insert History Despro',
                     'deskripsi_produk_id' => $request->id,
                     'type_history' => 'Update',
+                    'nama_pena_his' => $history->nama_pena == json_encode($np) ? NULL : $history->nama_pena,
+                    'nama_pena_new' => $history->nama_pena == json_encode($np) ? NULL : json_encode($np),
                     'alt_judul_his' => $history->alt_judul == json_encode($altJudul) ? NULL : $history->alt_judul,
                     'alt_judul_new' => $history->alt_judul == json_encode($altJudul) ? NULL : json_encode($altJudul),
                     'format_buku_his' => $history->format_buku == $request->format_buku ? NULL : $history->format_buku,
@@ -346,7 +351,7 @@ class DeskripsiProdukController extends Controller
         } else {
             $namaeditor = NULL;
         }
-
+        $nama_pena = json_decode($data->nama_pena);
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', function ($q) {
                 $q->on('pnp.penulis_id', '=', 'pp.id')
@@ -369,7 +374,8 @@ class DeskripsiProdukController extends Controller
             'penulis' => $penulis,
             'format_buku' => $format_buku,
             'kelengkapan' => $kelengkapan,
-            'imprint' => $imprint
+            'imprint' => $imprint,
+            'nama_pena' => implode(",",$nama_pena)
         ]);
     }
     public function requestAjax(Request $request)
