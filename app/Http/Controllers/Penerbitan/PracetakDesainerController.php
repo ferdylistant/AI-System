@@ -30,7 +30,8 @@ class PracetakDesainerController extends Controller
                     'pn.jalur_buku',
                     'dp.naskah_id',
                     'dp.imprint',
-                    'dp.judul_final'
+                    'dp.judul_final',
+                    'dp.nama_pena',
                 )
                 ->orderBy('pc.tgl_masuk_cover', 'ASC')
                 ->get();
@@ -75,6 +76,17 @@ class PracetakDesainerController extends Controller
                     }
                     return $result;
                     //  $res;
+                })
+                ->addColumn('nama_pena', function ($data) {
+                    $result = '';
+                    if (is_null($data->nama_pena)) {
+                        $result .= "-";
+                    } else {
+                        foreach (json_decode($data->nama_pena) as $q) {
+                            $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
+                        }
+                    }
+                    return $result;
                 })
                 ->addColumn('jalur_buku', function ($data) {
                     if (!is_null($data->jalur_buku)) {
@@ -143,6 +155,7 @@ class PracetakDesainerController extends Controller
                     'kode',
                     'judul_final',
                     'penulis',
+                    'nama_pena',
                     'jalur_buku',
                     'tgl_masuk_cover',
                     'pic_prodev',
@@ -393,6 +406,7 @@ class PracetakDesainerController extends Controller
                 'dc.contoh_cover',
                 'dp.naskah_id',
                 'dp.judul_final',
+                'dp.nama_pena',
                 'dp.imprint',
                 'dp.format_buku',
                 'pn.kode',
@@ -450,6 +464,10 @@ class PracetakDesainerController extends Controller
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $prosesSaatIni = explode("','", $matches[1]);
         $prosesFilter = Arr::except($prosesSaatIni, ['1', '4', '6', '9']);
+        $nama_imprint = '-';
+        if (!is_null($data->imprint)) {
+            $nama_imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+        }
         return view('penerbitan.pracetak_desainer.edit', [
             'title' => 'Pracetak Setter Proses',
             'data' => $data,
@@ -459,6 +477,7 @@ class PracetakDesainerController extends Controller
             'nama_korektor' => $namakorektor,
             'proses_saat_ini' => $prosesFilter,
             'penulis' => $penulis,
+            'nama_imprint' => $nama_imprint,
         ]);
     }
     public function detailPracetakDesainer(Request $request)
@@ -491,6 +510,7 @@ class PracetakDesainerController extends Controller
                 'dc.contoh_cover',
                 'dp.naskah_id',
                 'dp.judul_final',
+                'dp.nama_pena',
                 'dp.imprint',
                 'dp.format_buku',
                 'pn.kode',
@@ -717,7 +737,10 @@ class PracetakDesainerController extends Controller
                 }
                 break;
         }
-
+        $imprint = NULL;
+        if (!is_null($data->imprint)) {
+            $imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+        }
         return view('penerbitan.pracetak_desainer.detail', [
             'title' => 'Detail Pracetak Cover',
             'data' => $data,
@@ -729,6 +752,7 @@ class PracetakDesainerController extends Controller
             'dataRole' => $dataRole,
             'done_proses' => $result,
             'proof_revisi' => $proofRevisi,
+            'imprint' => $imprint
         ]);
     }
     public function actionAjax(Request $request)

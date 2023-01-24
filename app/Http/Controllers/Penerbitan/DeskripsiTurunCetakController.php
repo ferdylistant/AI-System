@@ -30,6 +30,7 @@ class DeskripsiTurunCetakController extends Controller
                     'pn.jalur_buku',
                     'dp.naskah_id',
                     'dp.judul_final',
+                    'dp.nama_pena',
                     'dp.format_buku',
                 )
                 ->orderBy('dtc.tgl_masuk', 'ASC')
@@ -66,6 +67,17 @@ class DeskripsiTurunCetakController extends Controller
                     }
                     return $result;
                     //  $res;
+                })
+                ->addColumn('nama_pena', function ($data) {
+                    $result = '';
+                    if (is_null($data->nama_pena)) {
+                        $result .= "-";
+                    } else {
+                        foreach (json_decode($data->nama_pena) as $q) {
+                            $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
+                        }
+                    }
+                    return $result;
                 })
                 ->addColumn('format_buku', function ($data) {
                     if (!is_null($data->format_buku)) {
@@ -137,6 +149,7 @@ class DeskripsiTurunCetakController extends Controller
                     'kode',
                     'judul_final',
                     'penulis',
+                    'nama_pena',
                     'format_buku',
                     'pic_prodev',
                     'tgl_masuk',
@@ -247,6 +260,7 @@ class DeskripsiTurunCetakController extends Controller
                 'dp.naskah_id',
                 'dp.format_buku',
                 'dp.judul_final',
+                'dp.nama_pena',
                 'pn.kode',
                 'pn.url_file',
                 'pn.pic_prodev',
@@ -366,6 +380,7 @@ class DeskripsiTurunCetakController extends Controller
                 'ps.jml_hal_final',
                 'dp.naskah_id',
                 'dp.judul_final',
+                'dp.nama_pena',
                 'dp.format_buku',
                 'pn.kode',
                 'pn.jalur_buku',

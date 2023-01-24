@@ -65,11 +65,33 @@
                                             @foreach ($penulis as $pen)
                                                 <p class="mb-1 text-monospace">
                                                     <span class="bullet"></span>
-                                                    <span>{{ $pen->nama }}</span>
+                                                    <a href="{{ url('/penerbitan/penulis/detail-penulis/' . $pen->id) }}">{{ $pen->nama }}</a>
                                                 </p>
                                             @endforeach
                                         </li>
                                     </ul>
+                                </div>
+                                <div class="list-group-item flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Nama Pena</h6>
+                                    </div>
+                                    @if ((is_null($data->nama_pena)))
+                                    <p class="mb-1 text-monospace">
+                                            -
+                                    </p>
+                                    @else
+                                    <ul class="list-unstyled list-inline">
+                                        @foreach (json_decode($data->nama_pena) as $pen)
+                                            <li class="list-inline-item">
+                                            <p class="mb-1 text-monospace">
+                                                <span class="bullet"></span>
+                                                <span>{{ $pen }}</span>
+                                            </p>
+                                            </li>
+                                        @endforeach
+
+                                    </ul>
+                                    @endif
                                 </div>
                                 <div class="list-group-item flex-column align-items-start">
                                     <div class="d-flex w-100 justify-content-between">
@@ -198,7 +220,7 @@
                                     @if (is_null($data->imprint))
                                         -
                                     @else
-                                        {{ $data->imprint }}
+                                        {{ $imprint }}
                                     @endif
                                     </p>
                                 </div>
@@ -236,7 +258,7 @@
                                     @if (is_null($setter))
                                         -
                                     @else
-                                        {{ $setter->nama }}
+                                    <a href="{{ url('/manajemen-web/user/' . $setter->id) }}">{{ $setter->nama }}</a>
                                     @endif
                                     </p>
                                 </div>
@@ -248,7 +270,7 @@
                                     @if (is_null($korektor))
                                         -
                                     @else
-                                        {{ $korektor->nama }}
+                                    <a href="{{ url('/manajemen-web/user/' . $korektor->id) }}">{{ $korektor->nama }}</a>
                                     @endif
                                     </p>
                                 </div>
@@ -308,7 +330,7 @@
                                         @if (is_null($pic))
                                             -
                                         @else
-                                            {{ $pic->nama }}
+                                        <a href="{{ url('/manajemen-web/user/' . $pic->id) }}">{{ $pic->nama }}</a>
                                         @endif
                                     </p>
                                 </div>

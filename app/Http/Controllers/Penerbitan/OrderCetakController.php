@@ -210,6 +210,7 @@ class OrderCetakController extends Controller
                 'df.kertas_isi',
                 'dp.judul_final',
                 'dp.format_buku',
+                'dp.nama_pena',
                 'dp.imprint',
                 'dp.jml_hal_perkiraan',
                 'kb.nama',
@@ -233,8 +234,14 @@ class OrderCetakController extends Controller
                     ->get();
                 $data = (object)collect($data)->map(function ($item, $key) {
                     switch ($key) {
+                        case 'imprint':
+                            return !is_null($item) ? DB::table('imprint')->where('id',$item)->whereNull('deleted_at')->first()->nama : '-';
+                            break;
                         case 'tgl_permintaan_jadi':
-                            return $item != '' ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                            return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                            break;
+                        case 'nama_pena':
+                            return !is_null($item) ? implode(",",json_decode($item)) : '-';
                             break;
                         default:
                             $item;
@@ -456,6 +463,7 @@ class OrderCetakController extends Controller
                 'df.isi_warna',
                 'df.kertas_isi',
                 'dp.judul_final',
+                'dp.nama_pena',
                 'dp.format_buku',
                 'dp.imprint',
                 'dp.jml_hal_perkiraan',
@@ -491,14 +499,18 @@ class OrderCetakController extends Controller
         $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_departemen'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $departemen = explode("','", $matches[1]);
-
+        $imprint = NULL;
+        if (!is_null($data->imprint)) {
+            $imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+        }
         return view('penerbitan.order_cetak.detail', [
             'title' => 'Detail Order Cetak Buku',
             'data' => $data,
             'penulis' => $penulis,
             'act' => $act,
             'act_j' => $act_j,
-            'departemen' => $departemen
+            'departemen' => $departemen,
+            'imprint' => $imprint
         ]);
     }
     protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)

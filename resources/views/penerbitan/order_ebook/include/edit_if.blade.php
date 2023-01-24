@@ -5,11 +5,11 @@
                 <label class="d-block">Platform E-book:</label>
                 @foreach ($platformDigital as $pD)
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="{{ $pD->nama }}"
-                            value="{{ $pD->nama }}"
-                            {{ ($data->platform_digital_ebook_id == [] ? '' : in_array($pD->nama, json_decode($data->platform_digital_ebook_id, true))) ? 'checked' : '' }}
+                        <input class="form-check-input" type="checkbox" id="{{ $pD->id }}"
+                            value="{{ $pD->id }}"
+                            {{ ($data->platform_digital_ebook_id == [] ? '' : in_array($pD->id, json_decode($data->platform_digital_ebook_id, true))) ? 'checked' : '' }}
                             disabled>
-                        <label class="form-check-label" for="{{ $pD->nama }}">{{ $pD->nama }}</label>
+                        <label class="form-check-label" for="{{ $pD->id }}">{{ $pD->nama }}</label>
                     </div>
                 @endforeach
             </div>
@@ -62,13 +62,17 @@
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
+                <label>Nama Pena:</label>
+                    <input type="text" class="form-control" value="{{ $nama_pena }}" data-role="tagsinput" disabled readonly>
+            </div>
+            <div class="form-group col-12 col-md-6 mb-4">
                 <label>Imprint:</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-building"></i></div>
                     </div>
                     <input type="text" class="form-control"
-                        value="{{ is_null($data->imprint) ? '-' : $data->imprint }}" disabled readonly>
+                        value="{{ $imprint }}" disabled readonly>
                 </div>
             </div>
             <div class="form-group col-12 col-md-3 mb-4">
@@ -138,17 +142,6 @@
                     <div id="err_up_eisbn"></div>
                 </div>
             </div>
-            <div class="form-group col-12 col-md-6 mb-4">
-                <label>SPP: </label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text"><i class="fa fa-pen-square"></i></div>
-                    </div>
-                    <input type="text" class="form-control" name="up_spp" value="{{ $data->spp }}"
-                        placeholder="Surat Perjanjian Penulis">
-                    <div id="err_up_spp"></div>
-                </div>
-            </div>
             <div class="form-group col-12 col-md-3 mb-4">
                 <label>Tahun Terbit: <span class="text-danger">*</span></label>
                 <div class="input-group">
@@ -156,7 +149,7 @@
                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                     </div>
                     <input type="text" class="form-control datepicker-year" value="{{ $data->tahun_terbit }}"
-                        name="up_tahun_terbit" placeholder="Tahun" readonly required>
+                    name="up_tahun_terbit" placeholder="Tahun" readonly required>
                     <div id="err_up_tahun_terbit"></div>
                 </div>
             </div>
@@ -167,9 +160,20 @@
                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                     </div>
                     <input type="text" class="form-control datepicker-upload" name="up_tgl_upload"
-                        value="{{ Carbon\Carbon::parse($data->tgl_upload)->format('d F Y') }}"
-                        placeholder="Tanggal Upload" readonly required>
+                    value="{{ Carbon\Carbon::parse($data->tgl_upload)->format('d F Y') }}"
+                    placeholder="Tanggal Upload" readonly required>
                     <div id="err_up_tgl_upload"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-12 mb-4">
+                <label>SPP: </label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fa fa-pen-square"></i></div>
+                    </div>
+                    <input type="text" class="form-control" name="up_spp" value="{{ $data->spp }}"
+                        placeholder="Surat Perjanjian Penulis">
+                    <div id="err_up_spp"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-12 mb-4">

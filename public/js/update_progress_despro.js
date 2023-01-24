@@ -26,6 +26,7 @@ $(function () {
                 title: "Penulis",
                 width: "15%",
             },
+            { data: "nama_pena", name: "nama_pena", title: "Nama Pena" },
             { data: "jalur_buku", name: "jalur_buku", title: "Jalur Buku" },
             { data: "imprint", name: "imprint", title: "Imprint" },
             { data: "judul_final", name: "judul_final", title: "Judul Final" },

@@ -28,6 +28,18 @@
                                 </td>
                             </tr>
                             <tr>
+                                <th class="table-secondary" style="width: 25%">Nama Pena:</th>
+                                <td class="table-active text-right">
+                                    @if (is_null($data->nama_pena))
+                                    -
+                                    @else
+                                        @foreach (json_decode($data->nama_pena) as $p)
+                                        {{ $p }}-<br>
+                                        @endforeach
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
                                 <th class="table-secondary" style="width: 25%">Tipe Order:
                                     <span class="text-danger">*</span>
                                 </th>

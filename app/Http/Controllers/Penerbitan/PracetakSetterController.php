@@ -30,6 +30,7 @@ class PracetakSetterController extends Controller
                     'pn.kelompok_buku_id',
                     'dp.naskah_id',
                     'dp.judul_final',
+                    'dp.nama_pena',
                     'df.bullet'
                 )
                 ->orderBy('ps.tgl_masuk_pracetak', 'ASC')
@@ -42,14 +43,14 @@ class PracetakSetterController extends Controller
                     $dataKode = $data->kode;
                     if ($data->status == 'Proses') {
                         if ($data->proses_saat_ini == 'Siap Turcet') {
-                            $tandaProses = '<span class="beep-primary"></span>';
                             $dataKode = '<span class="text-primary">' . $data->kode . '</span>';
+                            $tandaProses = '<span class="beep-primary d-table"></span>';
                         } else {
-                            $tandaProses = $data->proses == '1' ? '<span class="beep-success"></span>' : '<span class="beep-danger"></span>';
                             $dataKode = $data->proses == '1'  ? '<span class="text-success">' . $data->kode . '</span>' : '<span class="text-danger">' . $data->kode . '</span>';
+                            $tandaProses = $data->proses == '1' ? '<span class="beep-success d-table"></span>' : '<span class="beep-danger d-table"></span>';
                         }
                     }
-                    return $tandaProses . $dataKode;
+                    return $dataKode.$tandaProses;
                 })
                 ->addColumn('judul_final', function ($data) {
                     if (is_null($data->judul_final)) {
@@ -76,6 +77,17 @@ class PracetakSetterController extends Controller
                     }
                     return $result;
                     //  $res;
+                })
+                ->addColumn('nama_pena', function ($data) {
+                    $result = '';
+                    if (is_null($data->nama_pena)) {
+                        $result .= "-";
+                    } else {
+                        foreach (json_decode($data->nama_pena) as $q) {
+                            $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
+                        }
+                    }
+                    return $result;
                 })
                 ->addColumn('jalur_buku', function ($data) {
                     if (!is_null($data->jalur_buku)) {
@@ -143,6 +155,7 @@ class PracetakSetterController extends Controller
                     'kode',
                     'judul_final',
                     'penulis',
+                    'nama_pena',
                     'jalur_buku',
                     'tgl_masuk_pracetak',
                     'pic_prodev',
@@ -332,6 +345,7 @@ class PracetakSetterController extends Controller
                 'df.ukuran_asli',
                 'dp.naskah_id',
                 'dp.judul_final',
+                'dp.nama_pena',
                 'dp.imprint',
                 'dp.format_buku',
                 'dp.jml_hal_perkiraan',
@@ -384,6 +398,10 @@ class PracetakSetterController extends Controller
             ->where('pnp.naskah_id', '=', $data->naskah_id)
             ->select('pp.nama')
             ->get();
+        $nama_imprint = '-';
+        if (!is_null($data->imprint)) {
+            $nama_imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+        }
         //Status
         $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_setter WHERE Field = 'proses_saat_ini'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
@@ -398,6 +416,7 @@ class PracetakSetterController extends Controller
             'nama_korektor' => $namakorektor,
             'proses_saat_ini' => $prosesFilter,
             'penulis' => $penulis,
+            'nama_imprint' => $nama_imprint,
         ]);
     }
     public function detailSetter(Request $request)
@@ -427,6 +446,7 @@ class PracetakSetterController extends Controller
                 'dp.judul_final',
                 'dp.imprint',
                 'dp.format_buku',
+                'dp.nama_pena',
                 'dp.jml_hal_perkiraan',
                 'pn.kode',
                 'pn.jalur_buku',
@@ -639,7 +659,10 @@ class PracetakSetterController extends Controller
                 }
                 break;
         }
-
+        $imprint = NULL;
+        if (!is_null($data->imprint)) {
+            $imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+        }
         return view('penerbitan.pracetak_setter.detail', [
             'title' => 'Detail Pracetak Setter',
             'data' => $data,
@@ -651,6 +674,7 @@ class PracetakSetterController extends Controller
             'dataRole' => $dataRole,
             'done_proses' => $result,
             'proof_revisi' => $proofRevisi,
+            'imprint' => $imprint
         ]);
     }
     public function actionAjax(Request $request)

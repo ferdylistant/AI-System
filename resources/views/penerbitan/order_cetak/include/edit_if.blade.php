@@ -19,7 +19,7 @@
                     <input type="text" class="form-control" name="up_judul_final" disabled readonly>
                 </div>
             </div>
-            <div class="form-group col-12 col-md-6 mb-4">
+            <div class="form-group col-12 col-md-12 mb-4">
                 <label>Sub Judul Buku:</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
@@ -37,6 +37,10 @@
                     <select id="up_penulis" class="form-control select-penulis" multiple="">
                     </select>
                 </div>
+            </div>
+            <div class="form-group col-12 col-md-6 mb-4">
+                <label>Nama Pena:</label>
+                    <input type="text" class="form-control" name="up_nama_pena" data-role="tagsinput" disabled readonly>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
                 <label>Imprint:</label>

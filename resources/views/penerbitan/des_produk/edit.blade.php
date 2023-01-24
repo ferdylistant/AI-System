@@ -344,7 +344,7 @@
                                                                     class="text-danger">*</span></th>
                                                             @if (!is_null($data->imprint))
                                                                 <td class="table-active text-right" id="imprintCol">
-                                                                    {{ $data->imprint }}
+                                                                    {{ $nama_imprint }}
                                                                     <p class="text-small">
                                                                         <a href="javascript:void(0)" id="imprintButton"><i
                                                                                 class="fa fa-pen"></i>&nbsp;Edit</a>
@@ -357,8 +357,8 @@
                                                                             class="form-control select-imprint" required>
                                                                             <option label="Pilih imprint"></option>
                                                                             @foreach ($imprint as $i)
-                                                                                <option value="{{ $i->nama }}"
-                                                                                    {{ $data->imprint == $i->nama ? 'Selected' : '' }}>
+                                                                                <option value="{{ $i->id }}"
+                                                                                    {{ $data->imprint == $i->id ? 'Selected' : '' }}>
                                                                                     {{ $i->nama }}&nbsp;&nbsp;
                                                                                 </option>
                                                                             @endforeach
@@ -378,7 +378,7 @@
                                                                         class="form-control select-imprint" required>
                                                                         <option label="Pilih imprint"></option>
                                                                         @foreach ($imprint as $i)
-                                                                            <option value="{{ $i->nama }}">
+                                                                            <option value="{{ $i->id }}">
                                                                                 {{ $i->nama }}&nbsp;&nbsp;</option>
                                                                         @endforeach
                                                                     </select>
@@ -599,7 +599,7 @@
                                                                 class="text-danger">*</span></th>
                                                         <td class="table-active text-right">
                                                             @if (!is_null($data->imprint))
-                                                                {{ $data->imprint }}
+                                                                {{ $nama_imprint }}
                                                             @else
                                                                 <span class="text-danger text-small">Belum diinput</span>
                                                             @endif
@@ -660,14 +660,5 @@
 
 
 @section('jsNeeded')
-    <script>
-        $(document).ready(function() {
-            $('.input-tag').tagsinput({
-                tagClass: function(item) {
-                    return (item.length > 10 ? 'big' : 'small');
-                }
-            });
-        });
-    </script>
     <script src="{{ url('js/edit_deskripsi_produk.js') }}" defer></script>
 @endsection

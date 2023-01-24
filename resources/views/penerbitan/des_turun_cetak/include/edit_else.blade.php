@@ -23,6 +23,16 @@
                             </td>
                         </tr>
                         <tr>
+                            <th class="table-secondary" style="width: 25%">Nama Pena:</th>
+                            <td class="table-active text-right">
+                                @if (!is_null($data->nama_penulis))
+                                    {{ $data->nama_penulis }}
+                                @else
+                                    <span class="text-danger text-small">Belum diinput</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
                             <th class="table-secondary" style="width: 25%">Tipe Order:<span class="text-danger">*</span></th>
                             <td class="table-active text-right">
                                 @if (!is_null($data->tipe_order))

@@ -43,6 +43,7 @@ class DesfinListener
                     ->update([
                         'dp.format_buku' => $data['format_buku'],
                         'dp.judul_final' => $data['judul_final'],
+                        'dp.nama_pena' => $data['nama_pena'],
                         // 'dp.jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
                         'df.sub_judul_final' => $data['sub_judul_final'],
                         'df.kertas_isi' => $data['kertas_isi'],
@@ -64,6 +65,8 @@ class DesfinListener
                 $res = DB::table('deskripsi_final_history')->insert([
                     'deskripsi_final_id' => $data['deskripsi_final_id'],
                     'type_history' => $data['type_history'],
+                    'nama_pena_his' => $data['nama_pena_his'],
+                    'nama_pena_new' => $data['nama_pena_new'],
                     'format_buku_his' => $data['format_buku_his'],
                     'format_buku_new' => $data['format_buku_new'],
                     'judul_final_his' => $data['judul_final_his'],

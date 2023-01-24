@@ -30,7 +30,7 @@
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Imprint:
                                 </th>
-                                <td class="table-active text-right">{{ $data->imprint }}</td>
+                                <td class="table-active text-right">{{ $nama_imprint }}</td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Penulis:</th>
@@ -38,6 +38,18 @@
                                     @foreach ($penulis as $p)
                                     {{ $p->nama }}-<br>
                                     @endforeach
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="table-secondary" style="width: 25%">Nama Pena:</th>
+                                <td class="table-active text-right">
+                                    @if (is_null($data->nama_pena))
+                                    -
+                                    @else
+                                        @foreach (json_decode($data->nama_pena) as $p)
+                                        {{ $p }}-<br>
+                                        @endforeach
+                                    @endif
                                 </td>
                             </tr>
                             <tr>
@@ -79,9 +91,13 @@
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Bullet:</th>
                                 <td class="table-active text-right">
+                                    @if (is_null($data->bullet))
+                                        -
+                                    @else
                                     @foreach (json_decode($data->bullet, true) as $key => $aj)
                                     <span class="bullet"></span>{{ $aj }}<br>
                                     @endforeach
+                                    @endif
                                 </td>
                             </tr>
                             <tr>

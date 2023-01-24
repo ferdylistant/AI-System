@@ -41,7 +41,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "a123123123b@",
+  key: "RmJhek_UNGNPg_VGI4AbFmsmk2APZk-C71LM3UkCLss",
   cluster: "mt1",
   wsHost: window.location.hostname,
   wsPort: 6001,
@@ -21027,7 +21027,7 @@ __webpack_require__.r(__webpack_exports__);
 /***/ ((module) => {
 
 /*!
- * Pusher JavaScript Library v8.0.1
+ * Pusher JavaScript Library v8.0.0
  * https://pusher.com/
  *
  * Copyright 2020, Pusher
@@ -21616,7 +21616,7 @@ var ScriptReceivers = new ScriptReceiverFactory('_pusher_script_', 'Pusher.Scrip
 
 // CONCATENATED MODULE: ./src/core/defaults.ts
 var Defaults = {
-    VERSION: "8.0.1",
+    VERSION: "8.0.0",
     PROTOCOL: 7,
     wsPort: 80,
     wssPort: 443,

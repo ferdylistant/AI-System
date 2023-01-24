@@ -63,12 +63,6 @@
 <section class="section">
     <div class="section-header">
         <h1>Data Penerbitan Deskripsi Final</h1>
-
-        {{-- @if(Gate::allows('do_create', 'tambah-produksi-cetak'))
-        <div class="section-header-button">
-            <a href="{{ route('cetak.create')}}" class="btn btn-success">Tambah</a>
-        </div>
-        @endif --}}
     </div>
     <div class="section-body">
         <div class="row">
@@ -195,7 +189,8 @@
                 // { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "5%" },
                 { data: 'kode', name: 'kode', title: 'Kode' },
                 { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
-                { data: 'penulis', name: 'penulis', title: 'Penulis',"width":"15%" },
+                { data: 'penulis', name: 'penulis', title: 'Penulis'},
+                { data: 'nama_pena', name: 'nama_pena', title: 'Nama Pena'},
                 { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku'},
                 { data: 'imprint', name: 'imprint', title: 'Imprint'},
                 { data: 'judul_final', name: 'judul_final', title: 'Judul Final'},

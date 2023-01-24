@@ -300,6 +300,7 @@ class OrderEbookController extends Controller
                 'pp.pilihan_terbit',
                 'df.sub_judul_final',
                 'dp.judul_final',
+                'dp.nama_pena',
                 'dp.format_buku',
                 'dp.imprint',
                 'dp.jml_hal_perkiraan',
@@ -332,6 +333,11 @@ class OrderEbookController extends Controller
         $platformDigital = DB::table('platform_digital_ebook')->whereNull('deleted_at')->get();
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
             ->get();
+        $nama_pena = json_decode($data->nama_pena);
+        $imprint = "-";
+        if (!is_null($data->imprint)) {
+            $imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+        }
         return view('penerbitan.order_ebook.edit', [
             'title' => 'Update E-book',
             'tipeOrd' => $tipeOrd,
@@ -340,6 +346,8 @@ class OrderEbookController extends Controller
             'penulis' => $penulis,
             'collect_penulis' => $collectPenulis,
             'data' => $data,
+            'imprint' => $imprint,
+            'nama_pena' => is_null($data->nama_pena)?"-":implode(",",$nama_pena)
         ]);
     }
     public function detailOrderEbook(Request $request)
@@ -369,6 +377,7 @@ class OrderEbookController extends Controller
                 'df.sub_judul_final',
                 'dp.judul_final',
                 'dp.format_buku',
+                'dp.nama_pena',
                 'dp.imprint',
                 'dp.jml_hal_perkiraan',
                 'kb.nama',
@@ -402,6 +411,14 @@ class OrderEbookController extends Controller
         $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook_action WHERE Field = 'type_departemen'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $departemen = explode("','", $matches[1]);
+        $imprint = NULL;
+        if (!is_null($data->imprint)) {
+            $imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+        }
+        foreach(array_filter(json_decode($data->platform_digital_ebook_id)) as $pd) {
+            $platformD[] = DB::table('platform_digital_ebook')->where('id',$pd)->whereNull('deleted_at')->first()->nama;
+        }
+        // return response()->json($platformD);
         return view('penerbitan.order_ebook.detail', [
             'title' => 'Detail Order E-Book',
             'data' => $data,
@@ -409,6 +426,8 @@ class OrderEbookController extends Controller
             'act_j' => $act_j,
             'departemen' => $departemen,
             'penulis' => $penulis,
+            'imprint' => $imprint,
+            'platform_digital' => $platformD
         ]);
     }
     protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)

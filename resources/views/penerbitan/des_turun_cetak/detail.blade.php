@@ -108,6 +108,28 @@
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Nama Pena</h6>
+                                        </div>
+                                        @if ((is_null($data->nama_pena)))
+                                        <p class="mb-1 text-monospace">
+                                                -
+                                        </p>
+                                        @else
+                                        <ul class="list-unstyled list-inline">
+                                            @foreach (json_decode($data->nama_pena) as $pen)
+                                                <li class="list-inline-item">
+                                                <p class="mb-1 text-monospace">
+                                                    <span class="bullet"></span>
+                                                    <span>{{ $pen }}</span>
+                                                </p>
+                                                </li>
+                                            @endforeach
+    
+                                        </ul>
+                                        @endif
+                                    </div>
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Tipe Order</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
@@ -118,6 +140,8 @@
                                             @endif
                                         </p>
                                     </div>
+                                </div>
+                                <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Edisi Cetak Tahun</h6>
@@ -130,8 +154,6 @@
                                             @endif
                                         </p>
                                     </div>
-                                </div>
-                                <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">ISBN</h6>
@@ -178,14 +200,6 @@
                                             @else
                                                 {{ $data->jml_hal_final }} Halaman
                                             @endif
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Deskripsi Produk</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace">
-                                            <span class="text-danger">Masih Kosong</span>
                                         </p>
                                     </div>
 
