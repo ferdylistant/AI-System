@@ -68,22 +68,28 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/platform-digital/lihat-history', [ImprintController::class, 'lihatHistoryPlatform'])->name('platform.history');
         //Imprint
         Route::get('/imprint', [ImprintController::class, 'index'])->name('imprint.view');
+        Route::get('/imprint/imprint-telah-dihapus', [ImprintController::class, 'imprintTelahDihapus'])->name('imprint.telah_dihapus');
         Route::match(['get', 'post'], '/imprint/tambah', [ImprintController::class, 'createImprint'])->name('imprint.create');
         Route::match(['get', 'post'], '/imprint/ubah', [ImprintController::class, 'updateImprint'])->name('imprint.update');
-        Route::get('/imprint/hapus', [ImprintController::class, 'deleteImprint'])->name('imprint.delete');
-        Route::post('/imprint/lihat-history', [ImprintController::class, 'lihatHistory'])->name('imprint.history');
+        Route::post('/imprint/hapus', [ImprintController::class, 'deleteImprint'])->name('imprint.delete');
+        Route::get('/imprint/restore', [ImprintController::class, 'restoreImprint'])->name('imprint.restore');
+        Route::post('/imprint/lihat-history', [ImprintController::class, 'lihatHistoryImprint'])->name('imprint.history');
         //Kelompok Buku
         Route::get('/kelompok-buku', [KelompokBukuController::class, 'index'])->name('kb.view');
+        Route::get('/kelompok-buku/kelompok-buku-telah-dihapus', [KelompokBukuController::class, 'kBukuTelahDihapus'])->name('kb.telah_dihapus');
         Route::match(['get', 'post'], '/kelompok-buku/tambah', [KelompokBukuController::class, 'createKbuku'])->name('kb.create');
         Route::match(['get', 'post'], '/kelompok-buku/ubah', [KelompokBukuController::class, 'updateKbuku'])->name('kb.update');
-        Route::get('/kelompok-buku/hapus', [KelompokBukuController::class, 'deleteKbuku'])->name('kb.delete');
-        Route::post('/kelompok-buku/lihat-history', [KelompokBukuController::class, 'lihatHistory'])->name('kb.history');
+        Route::post('/kelompok-buku/hapus', [KelompokBukuController::class, 'deleteKbuku'])->name('kb.delete');
+        Route::get('/kelompok-buku/restore', [KelompokBukuController::class, 'restoreKBuku'])->name('kb.restore');
+        Route::post('/kelompok-buku/lihat-history', [KelompokBukuController::class, 'lihatHistoryKBuku'])->name('kb.history');
         //Format Buku
         Route::get('/format-buku', [FormatBukuController::class, 'index'])->name('fb.view');
+        Route::get('/format-buku/format-buku-telah-dihapus', [FormatBukuController::class, 'fBukuTelahDihapus'])->name('fb.telah_dihapus');
         Route::match(['get', 'post'], '/format-buku/tambah', [FormatBukuController::class, 'createFbuku'])->name('fb.create');
         Route::match(['get', 'post'], '/format-buku/ubah', [FormatBukuController::class, 'updateFbuku'])->name('fb.update');
-        Route::get('/format-buku/hapus', [FormatBukuController::class, 'deleteFbuku'])->name('fb.delete');
-        Route::post('/format-buku/lihat-history', [FormatBukuController::class, 'lihatHistory'])->name('fb.history');
+        Route::post('/format-buku/hapus', [FormatBukuController::class, 'deleteFbuku'])->name('fb.delete');
+        Route::get('/format-buku/restore', [FormatBukuController::class, 'restoreFBuku'])->name('fb.restore');
+        Route::post('/format-buku/lihat-history', [FormatBukuController::class, 'lihatHistoryFBuku'])->name('fb.history');
     });
     //Penerbitan
     Route::prefix('penerbitan')->group(function () {

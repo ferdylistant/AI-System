@@ -134,7 +134,7 @@ $(function () {
                 success: function (result) {
                     if (result.status == "success") {
                         notifToast(result.status, result.message);
-                        location.reload();
+                        tablePlatform.ajax.reload();
                         data.trigger("reset");
                         $("#md_AddPlatformEbook").modal("hide");
                     } else {
@@ -226,7 +226,7 @@ $(function () {
                     if (result.status == "success") {
                         notifToast(result.status, result.message);
                         $("#md_EditPlatformEbook").modal("hide");
-                        location.reload();
+                        tablePlatform.ajax.reload();
                     } else {
                         notifToast(result.status, result.message);
                     }

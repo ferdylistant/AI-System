@@ -3,8 +3,10 @@
 @section('cssRequired')
     <link rel="stylesheet" href="{{ url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
-    {{-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.2.3/css/rowReorder.dataTables.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.0/css/responsive.dataTables.min.css"> --}}
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/rowreorder/1.2.3/css/rowReorder.dataTables.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/responsive/2.2.0/css/responsive.dataTables.min.css">
     <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/SpinKit/spinkit.css') }}">
 @endsection
@@ -15,7 +17,7 @@
             <div class="section-header-back">
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
-            <h1>Data Platform Digital Yang Telah Dihapus</h1>
+            <h1>Data Kelompok Buku Yang Telah Dihapus</h1>
         </div>
 
         <div class="section-body">
@@ -24,7 +26,7 @@
                     <div class="card card-danger">
                         <div class="card-body">
                             <div class="col-12 table-responsive">
-                                <table class="table table-striped" id="tb_Platform" style="width:100%">
+                                <table class="table table-striped" id="tb_KelompokBuku" style="width:100%">
                                 </table>
                             </div>
                         </div>
@@ -33,27 +35,6 @@
             </div>
         </div>
     </section>
-    <div id="md_PlatformHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal"
-        aria-hidden="true">
-        <div class="modal-dialog  modal-dialog-centered" role="document">
-            <div class="modal-content ">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title" id="titleModal"><i class="fas fa-history"></i>&nbsp;History Data Perubahan</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body ">
-                    <div class="tickets-list" id="dataHistory">
-
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @section('jsRequired')
@@ -63,14 +44,16 @@
     <script src="{{ url('vendors/sweetalert/dist/sweetalert.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
-    {{-- <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script> --}}
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
 @endsection
 
 @section('jsNeeded')
     <script>
         $(function() {
-            $('#tb_Platform').DataTable({
+            $('#tb_KelompokBuku').DataTable({
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -80,10 +63,7 @@
                     lengthMenu: '_MENU_ items/page',
                 },
                 ajax: {
-                    url: "{{ url('master/platform-digital/platform-telah-dihapus') }}",
-                    data: {
-                        "request_": "table-platform"
-                    }
+                    url: "{{ url('master/kelompok-buku/kelompok-buku-telah-dihapus') }}",
                 },
                 columns: [{
                         data: 'no',
@@ -91,9 +71,9 @@
                         title: 'No'
                     },
                     {
-                        data: 'nama_platform',
-                        name: 'nama_platform',
-                        title: 'Nama Platform'
+                        data: 'kelompok_buku',
+                        name: 'kelompok_buku',
+                        title: 'Nama Kelompok Buku'
                     },
                     {
                         data: 'tgl_dibuat',

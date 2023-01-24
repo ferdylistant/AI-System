@@ -1,5 +1,5 @@
 $(function () {
-    let tableImprint = $("#tb_Imprint").DataTable({
+    let tableKelompokBuku = $("#tb_KelompokBuku").DataTable({
         responsive: true,
         processing: true,
         serverSide: true,
@@ -9,7 +9,7 @@ $(function () {
             lengthMenu: "_MENU_ items/page",
         },
         ajax: {
-            url: window.location.origin + "/master/imprint",
+            url: window.location.origin + "/master/kelompok-buku",
         },
         columns: [
             {
@@ -18,9 +18,9 @@ $(function () {
                 title: "No",
             },
             {
-                data: "nama_imprint",
-                name: "nama_imprint",
-                title: "Nama Imprint",
+                data: "nama_kelompok_buku",
+                name: "nama_kelompok_buku",
+                title: "Nama Kelompok Buku",
             },
             {
                 data: "tgl_dibuat",
@@ -57,25 +57,25 @@ $(function () {
         ],
     });
 
-    // History Imprint Start
-    $("#tb_Imprint").on("click", ".btn-history", function (e) {
+    // History KelompokBuku Start
+    $("#tb_KelompokBuku").on("click", ".btn-history", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
         var judul = $(this).data("nama");
         $.post(
-            window.location.origin + "/master/imprint/lihat-history",
+            window.location.origin + "/master/kelompok-buku/lihat-history",
             {
                 id: id,
             },
             function (data) {
-                $("#titleModalImprint").html(
-                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Imprint Ebook "' +
+                $("#titleModalKelompokBuku").html(
+                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Kelompok Buku "' +
                         judul +
                         '"'
                 );
                 $("#load_more").data("id", id);
                 $("#dataHistory").html(data);
-                $("#md_ImprintHistory").modal("show");
+                $("#md_KelompokBukuHistory").modal("show");
             }
         );
     });
@@ -86,7 +86,7 @@ $(function () {
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/master/imprint/lihat-history",
+            url: window.location.origin + "/master/kelompok-buku/lihat-history",
             data: {
                 id: id,
                 page: page,
@@ -112,15 +112,15 @@ $(function () {
             },
         });
     });
-    // History Imprint End
+    // History Kelompok Buku End
 
-    // Add Imprint Start
+    // Add Kelompok Buku Start
     $(document).ready(function () {
-        function ajaxAddImprint(data) {
+        function ajaxAddKelompokBuku(data) {
             let el = data.get(0);
             $.ajax({
                 type: "POST",
-                url: window.location.origin + "/master/imprint/tambah",
+                url: window.location.origin + "/master/kelompok-buku/tambah",
                 data: new FormData(el),
                 processData: false,
                 contentType: false,
@@ -132,9 +132,9 @@ $(function () {
                 success: function (result) {
                     if (result.status == "success") {
                         notifToast(result.status, result.message);
-                        tableImprint.ajax.reload();
+                        tableKelompokBuku.ajax.reload();
                         data.trigger("reset");
-                        $("#md_AddImprint").modal("hide");
+                        $("#md_AddKelompokBuku").modal("hide");
                     } else {
                         notifToast(result.status, result.message);
                     }
@@ -148,7 +148,10 @@ $(function () {
                             err[key] = value;
                         });
                     }
-                    notifToast("error", "Data imprint gagal disimpan!");
+                    notifToast(
+                        "error",
+                        "Data kelompok-buku digital gagal disimpan!"
+                    );
                 },
                 complete: function () {
                     $('button[type="submit"]')
@@ -158,36 +161,35 @@ $(function () {
             });
         }
 
-        $("#fm_addImprint").on("submit", function (e) {
+        $("#fm_addKBuku").on("submit", function (e) {
             e.preventDefault();
             if ($(this).valid()) {
-                let nama = $(this).find('[name="nama_imprint"]').val();
+                let nama = $(this).find('[name="nama_kelompok_buku"]').val();
                 swal({
-                    text: "Tambah data imprint (" + nama + ")?",
+                    text: "Tambah data kelompok-buku (" + nama + ")?",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
                 }).then((confirm_) => {
                     if (confirm_) {
-                        ajaxAddImprint($(this));
+                        ajaxAddKelompokBuku($(this));
                     }
                 });
             }
         });
     });
-    // Add Imprint End
+    // Add KelompokBuku End
 
-    // Edit Imprint Start
-    $("#md_EditImprint").on("shown.bs.modal", function (e) {
+    // Edit KelompokBuku Start
+    $("#md_EditKelompokBuku").on("shown.bs.modal", function (e) {
         let id = $(e.relatedTarget).data("id"),
             form_ = $(this);
         $.ajax({
-            url: window.location.origin + "/master/imprint/ubah",
+            url: window.location.origin + "/master/kelompok-buku/ubah",
             data: {
                 id: id,
             },
             success: function (result) {
-                console.log(result);
                 Object.entries(result).forEach((entry) => {
                     let [key, value] = entry;
                     form_.find('[name="edit_' + key + '"]').val(value);
@@ -197,18 +199,18 @@ $(function () {
         });
     });
 
-    $("#md_EditImprint").on("hidden.bs.modal", function () {
+    $("#md_EditKelompokBuku").on("hidden.bs.modal", function () {
         $(this).find("form").trigger("reset");
         $(this).addClass("modal-progress");
     });
 
     $(document).ready(function () {
-        function ajaxEditImprint(data) {
+        function ajaxEditKelompokBuku(data) {
             let el = data.get(0);
 
             $.ajax({
                 type: "POST",
-                url: window.location.origin + "/master/imprint/ubah",
+                url: window.location.origin + "/master/kelompok-buku/ubah",
                 data: new FormData(el),
                 processData: false,
                 contentType: false,
@@ -218,11 +220,10 @@ $(function () {
                         .addClass("btn-progress");
                 },
                 success: function (result) {
-                    // console.log(result);
                     if (result.status == "success") {
                         notifToast(result.status, result.message);
-                        $("#md_EditImprint").modal("hide");
-                        tableImprint.ajax.reload();
+                        $("#md_EditKelompokBuku").modal("hide");
+                        tableKelompokBuku.ajax.reload();
                     } else {
                         notifToast(result.status, result.message);
                     }
@@ -235,9 +236,9 @@ $(function () {
                             let [key, value] = entry;
                             err[key] = value;
                         });
-                        // edittableImprint.showErrors(err);
+                        // edittableKelompokBuku.showErrors(err);
                     }
-                    notifToast("error", "Data imprint gagal disimpan!");
+                    notifToast("error", "Data kelompok-buku gagal disimpan!");
                 },
                 complete: function () {
                     $('button[type="submit"]')
@@ -247,76 +248,77 @@ $(function () {
             });
         }
 
-        $("#fm_EditImprint").on("submit", function (e) {
+        $("#fm_EditKelompokBuku").on("submit", function (e) {
             e.preventDefault();
             if ($(this).valid()) {
                 let nama = $(this).find('[name="edit_nama"]').val();
                 swal({
-                    text: "Ubah data Imprint (" + nama + ")?",
+                    text: "Ubah data Kelompok Buku (" + nama + ")?",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
                 }).then((confirm_) => {
                     if (confirm_) {
-                        ajaxEditImprint($(this));
+                        ajaxEditKelompokBuku($(this));
                     }
                 });
             }
         });
     });
-    // Edit Imprint End
+    // Edit KelompokBuku End
 
-    // Delete Imprint Start
+    // Delete KelompokBuku Start
     $(document).ready(function () {
-        function ajaxDeleteImprint(data) {
+        function ajaxDeleteKelompokBuku(data) {
             $.ajax({
                 type: "POST",
-                url: window.location.origin + "/master/imprint/hapus",
+                url: window.location.origin + "/master/kelompok-buku/hapus",
                 data: data,
                 beforeSend: function () {
-                    $(".btn_DelImprint")
+                    $(".btn_DelKelompokBuku")
                         .prop("disabled", true)
                         .addClass("btn-progress");
                 },
                 success: function (result) {
-                    notifToast(result.status, result.message);
                     if (result.status == "success") {
-                        tableImprint.ajax.reload();
+                        tableKelompokBuku.ajax.reload();
+                        notifToast(result.status, result.message);
                     }
                 },
                 error: function (err) {},
                 complete: function () {
-                    $(".btn_DelImprint")
+                    $(".btn_DelKelompokBuku")
                         .prop("disabled", true)
                         .removeClass("btn-progress");
                 },
             });
         }
-        $(document).on("click", ".btn_DelImprint", function (e) {
+        $(document).on("click", ".btn_DelKelompokBuku", function (e) {
             let nama = $(this).data("nama"),
                 id = $(this).data("id");
             swal({
-                text: "Hapus data imprint (" + nama + ")?",
+                text: "Hapus data kelompok buku (" + nama + ")?",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxDeleteImprint({
+                    ajaxDeleteKelompokBuku({
                         id: id,
                     });
                 }
             });
         });
     });
-    // Delete Imprint End
+    // Delete KelompokBuku End
 
-    // Restore Imprint Start
-    $(document).on("click", ".btn_ResImprint", function (e) {
-        let nama = $(this).data("nama");
+    // Restore KelompokBuku Start
+    $(document).on("click", "#restore-kelompok-buku", function (e) {
+        e.preventDefault();
         var getLink = $(this).attr("href");
         swal({
-            text: "Kembalikan data imprint (" + nama + ")?",
+            title: "Apakah anda yakin?",
+            text: "Data akan dikembalikan",
             icon: "warning",
             buttons: true,
             dangerMode: true,
@@ -326,5 +328,5 @@ $(function () {
             }
         });
     });
-    // Restore Imprint End
+    // Restore KelompokBuku End
 });

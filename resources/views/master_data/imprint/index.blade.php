@@ -9,6 +9,7 @@
         href="https://cdn.datatables.net/responsive/2.2.0/css/responsive.dataTables.min.css">
     <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/SpinKit/spinkit.css') }}">
+    <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
 @endsection
 
 @section('content')
@@ -21,6 +22,9 @@
                         <button id="btn_AddImprint" class="btn btn-success" data-toggle="modal" data-target="#md_AddImprint"
                             data-backdrop="static">Tambah</button>
                     </div>
+                </div>
+                <div class="section-header-button">
+                    <a href="{{ route('imprint.telah_dihapus') }}" class="btn btn-danger">Imprint Telah Dihapus</a>
                 </div>
             @endif
         </div>
