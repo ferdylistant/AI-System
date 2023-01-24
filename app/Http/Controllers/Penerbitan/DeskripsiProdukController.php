@@ -805,7 +805,7 @@ class DeskripsiProdukController extends Controller
             event(new DesproEvent($insert));
             return response()->json([
                 'status' => 'success',
-                'message' => 'Naskah "' . $kode . '" telah disetujui!'
+                'message' => 'Naskah "' . $kode . '" direvisi!'
             ]);
         } catch (\Exception $e) {
             return response()->json([

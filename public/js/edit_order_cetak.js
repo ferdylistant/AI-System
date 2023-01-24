@@ -224,6 +224,9 @@ function loadDataValue() {
                     case 'kelompok_buku_id':
                         $('[name="up_kelompok_buku"]').val([data[n]]).change();
                         break;
+                    case 'nama_pena':
+                        $('[name="up_nama_pena"]').val([data[n]]);
+                        break;
                     case 'sub_judul_final':
                         if (data[n]) {
                             $('[name="up_' + n + '"]').val(data[n]).change();

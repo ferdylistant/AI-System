@@ -40,7 +40,7 @@
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
                 <label>Nama Pena:</label>
-                    <input type="text" class="form-control" name="up_nama_pena" data-role="tagsinput" disabled readonly>
+                    <input type="text" class="form-control" name="up_nama_pena" value="" data-role="tagsinput" disabled readonly>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
                 <label>Imprint:</label>
