@@ -52,12 +52,12 @@
                                         </div>
                                         <div id="err_pilihan_terbit"></div>
                                     </div>
-                                    <div class="form-group" style="display:none" id="eB">
+                                    <div class="form-group" style="display:none" id="eB"> 
                                         <h6>Platform Ebook :</h6>
                                         @foreach ($platform_ebook as $ebook)
                                             <div class="form-check form-check-inline">
                                                 <input class="form-check-input" type="checkbox" name="add_platform_ebook[]"
-                                                    id="{{ $ebook->nama }}" value="{{ $ebook->nama }}">
+                                                    id="{{ $ebook->nama }}" value="{{ $ebook->id }}">
                                                 <label class="form-check-label"
                                                     for="{{ $ebook->nama }}">{{ $ebook->nama }}</label>
                                             </div>

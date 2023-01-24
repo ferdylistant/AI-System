@@ -290,7 +290,7 @@ class DeskripsiTurunCetakController extends Controller
             ->first();
         $sasaran_pasar = is_null($sasaranPasar) ? null : $sasaranPasar->sasaran_pasar;
         $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first()->nama;
-        $platform_ebook = DB::table('platform_digital_ebook')->get();
+        $platform_ebook = DB::table('platform_digital_ebook')->whereNull('deleted_at')->get();
         // dd($platform_ebook);
         return view('penerbitan.des_turun_cetak.detail', [
             'title' => 'Detail Deskripsi Turun Cetak',
