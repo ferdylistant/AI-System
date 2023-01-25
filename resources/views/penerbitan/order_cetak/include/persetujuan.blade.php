@@ -1,66 +1,66 @@
 <div class="row justify-content-between">
     <div class="col-auto mr-auto">
         <div class="mb-4">
-            @foreach ($jabatan as $j)
+            @foreach ($departemen as $j)
                 @if ($data->status == 'Proses')
-                    @if (Gate::allows('do_approval', $j))
+                    @if (Gate::allows('do_approval', 'Persetujuan '.$j))
                         @if (!$act->isEmpty())
                             @foreach ($act as $a)
                                 @if (!in_array($j, $act_j))
                                     @switch($j)
-                                        @case('Dir. Operasional')
-                                            @if (in_array('GM Penerbitan', $act_j))
+                                        @case('Marketing & Ops')
+                                            @if (in_array('Penerbitan', $act_j))
                                                 @if ($loop->first)
                                                     {{-- APPROVE --}}
                                                     <button type="button" class="btn btn-success" id="btn-approve"
                                                         data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-departemen="{{ $j }}" data-toggle="modal"
                                                         data-target="#modalApproval">
                                                         <i class="fas fa-check"></i>&nbsp;Setujui</button>
                                                     {{-- DECLINE --}}
                                                     <button type="button" class="btn btn-danger" id="btn-decline"
                                                         data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-departemen="{{ $j }}" data-toggle="modal"
                                                         data-target="#modalDecline">
-                                                        <i class="fas fa-times"></i>&nbsp;Pending</button>
+                                                        <i class="fas fa-times"></i>&nbsp;Tolak</button>
                                                 @endif
                                             @endif
                                         @break
 
-                                        @case('Dir. Keuangan')
-                                            @if (in_array('Dir. Operasional', $act_j))
+                                        @case('Keuangan')
+                                            @if (in_array('Marketing & Ops', $act_j))
                                                 @if ($loop->first)
                                                     {{-- APPROVE --}}
                                                     <button type="button" class="btn btn-success" id="btn-approve"
                                                         data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-departemen="{{ $j }}" data-toggle="modal"
                                                         data-target="#modalApproval">
                                                         <i class="fas fa-check"></i>&nbsp;Setujui</button>
                                                     {{-- DECLINE --}}
                                                     <button type="button" class="btn btn-danger" id="btn-decline"
                                                         data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-departemen="{{ $j }}" data-toggle="modal"
                                                         data-target="#modalDecline">
-                                                        <i class="fas fa-times"></i>&nbsp;Pending</button>
+                                                        <i class="fas fa-times"></i>&nbsp;Tolak</button>
                                                 @endif
                                             @endif
                                         @break
 
-                                        @case('Dir. Utama')
-                                            @if (in_array('Dir. Keuangan', $act_j))
+                                        @case('Direktur Utama')
+                                            @if (in_array('Keuangan', $act_j))
                                                 @if ($loop->first)
                                                     {{-- APPROVE --}}
                                                     <button type="button" class="btn btn-success" id="btn-approve"
                                                         data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-departemen="{{ $j }}" data-toggle="modal"
                                                         data-target="#modalApproval">
                                                         <i class="fas fa-check"></i>&nbsp;Setujui</button>
                                                     {{-- DECLINE --}}
                                                     <button type="button" class="btn btn-danger" id="btn-decline"
                                                         data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                                        data-jabatan="{{ $j }}" data-toggle="modal"
+                                                        data-departemen="{{ $j }}" data-toggle="modal"
                                                         data-target="#modalDecline">
-                                                        <i class="fas fa-times"></i>&nbsp;Pending</button>
+                                                        <i class="fas fa-times"></i>&nbsp;Tolak</button>
                                                 @endif
                                             @endif
                                         @break
@@ -68,19 +68,19 @@
                                 @endif
                             @endforeach
                         @else
-                            @if ($j == 'GM Penerbitan')
+                            @if ($j == 'Penerbitan')
                                 {{-- APPROVE --}}
                                 <button type="button" class="btn btn-success" id="btn-approve"
                                     data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                    data-jabatan="{{ $j }}" data-toggle="modal"
+                                    data-departemen="{{ $j }}" data-toggle="modal"
                                     data-target="#modalApproval">
                                     <i class="fas fa-check"></i>&nbsp;Setujui</button>
                                 {{-- DECLINE --}}
                                 <button type="button" class="btn btn-danger" id="btn-decline"
                                     data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                    data-jabatan="{{ $j }}">
+                                    data-departemen="{{ $j }}">
                                     <i class="fas fa-times" data-toggle="modal"
-                                        data-target="#modalDecline"></i>&nbsp;Pending</button>
+                                        data-target="#modalDecline"></i>&nbsp;Tolak</button>
                             @endif
                         @endif
                     @endif
@@ -88,7 +88,7 @@
             @endforeach
         </div>
     </div>
-    @foreach ($jabatan as $jb => $j)
+    @foreach ($departemen as $jb => $j)
         <div class="col-auto mr-auto">
             <div class="mb-4">
                 <div class="user-item">

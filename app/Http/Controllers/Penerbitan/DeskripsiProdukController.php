@@ -58,6 +58,17 @@ class DeskripsiProdukController extends Controller
                     return $result;
                     //  $res;
                 })
+                ->addColumn('nama_pena', function ($data) {
+                    $result = '';
+                    if (is_null($data->nama_pena)) {
+                        $result .= "-";
+                    } else {
+                        foreach (json_decode($data->nama_pena) as $q) {
+                            $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
+                        }
+                    }
+                    return $result;
+                })
                 ->addColumn('jalur_buku', function ($data) {
                     if (!is_null($data->jalur_buku)) {
                         $res = $data->jalur_buku;
@@ -68,7 +79,7 @@ class DeskripsiProdukController extends Controller
                 })
                 ->addColumn('imprint', function ($data) {
                     if (!is_null($data->imprint)) {
-                        $res = $data->imprint;
+                        $res = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
                     } else {
                         $res = '-';
                     }
@@ -180,6 +191,7 @@ class DeskripsiProdukController extends Controller
                     'kode',
                     'judul_asli',
                     'penulis',
+                    'nama_pena',
                     'jalur_buku',
                     'imprint',
                     'judul_final',
@@ -236,7 +248,7 @@ class DeskripsiProdukController extends Controller
             )
             ->first();
         if (is_null($data)) {
-            return redirect()->route('despro.view');
+            return abort(404);
         }
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', function ($q) {
@@ -244,22 +256,29 @@ class DeskripsiProdukController extends Controller
                     ->whereNull('pp.deleted_at');
             })
             ->where('pnp.naskah_id', '=', $data->naskah_id)
-            ->select('pp.nama')
+            ->select('pp.id','pp.nama')
             ->get();
-        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->select('nama')->first();
-        $editor = DB::table('users')->where('id', $data->editor)->whereNull('deleted_at')->select('nama')->first();
+        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->select('id','nama')->first();
+        $editor = DB::table('users')->where('id', $data->editor)->whereNull('deleted_at')->select('id','nama')->first();
+        $imprint = NULL;
+        if (!is_null($data->imprint)) {
+            $imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+        }
         return view('penerbitan.des_produk.detail', [
             'title' => 'Detail Deskripsi Produk',
             'data' => $data,
             'penulis' => $penulis,
             'pic' => $pic,
-            'editor' => $editor
+            'editor' => $editor,
+            'imprint' => $imprint
         ]);
     }
     public function editDeskripsiProduk(Request $request)
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
+                // return response()->json($es);
+                $np = explode(",",$request->nama_pena);
                 foreach ($request->alt_judul as $value) {
                     $altJudul[] = $value;
                 }
@@ -270,6 +289,7 @@ class DeskripsiProdukController extends Controller
                 $update = [
                     'params' => 'Edit Despro',
                     'id' => $request->id,
+                    'nama_pena' => is_null($request->nama_pena)?NULL:json_encode($np),
                     'alt_judul' => json_encode($altJudul),
                     'format_buku' => $request->format_buku,
                     'jml_hal_perkiraan' => $request->jml_hal_perkiraan,
@@ -287,6 +307,8 @@ class DeskripsiProdukController extends Controller
                     'params' => 'Insert History Despro',
                     'deskripsi_produk_id' => $request->id,
                     'type_history' => 'Update',
+                    'nama_pena_his' => $history->nama_pena == json_encode($np) ? NULL : $history->nama_pena,
+                    'nama_pena_new' => $history->nama_pena == json_encode($np) ? NULL : json_encode($np),
                     'alt_judul_his' => $history->alt_judul == json_encode($altJudul) ? NULL : $history->alt_judul,
                     'alt_judul_new' => $history->alt_judul == json_encode($altJudul) ? NULL : json_encode($altJudul),
                     'format_buku_his' => $history->format_buku == $request->format_buku ? NULL : $history->format_buku,
@@ -346,7 +368,7 @@ class DeskripsiProdukController extends Controller
         } else {
             $namaeditor = NULL;
         }
-
+        $nama_pena = json_decode($data->nama_pena);
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', function ($q) {
                 $q->on('pnp.penulis_id', '=', 'pp.id')
@@ -361,6 +383,10 @@ class DeskripsiProdukController extends Controller
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $kelengkapan = explode("','", $matches[1]);
         $imprint = DB::table('imprint')->whereNull('deleted_at')->get();
+        $nama_imprint = NULL;
+        if (!is_null($data->imprint)) {
+            $nama_imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+        }
         return view('penerbitan.des_produk.edit', [
             'title' => 'Edit Deskripsi Produk',
             'data' => $data,
@@ -369,7 +395,9 @@ class DeskripsiProdukController extends Controller
             'penulis' => $penulis,
             'format_buku' => $format_buku,
             'kelengkapan' => $kelengkapan,
-            'imprint' => $imprint
+            'imprint' => $imprint,
+            'nama_imprint' => $nama_imprint,
+            'nama_pena' => is_null($data->nama_pena)?NULL:implode(",",$nama_pena)
         ]);
     }
     public function requestAjax(Request $request)
@@ -496,6 +524,43 @@ class DeskripsiProdukController extends Controller
 
                     </div>
                     </span>';
+                    }
+                    if (!is_null($d->nama_pena_his)) {
+                        $html .= '<span class="ticket-item">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                        $loopNamaPenaHIS = '';
+                        $loopNamaPenaNEW = '';
+                        foreach (json_decode($d->nama_pena_his, true) as $namaPenahis) {
+                            $loopNamaPenaHIS .= '<b class="text-dark">' . $namaPenahis . '</b>, ';
+                        }
+                        foreach (json_decode($d->nama_pena_new, true) as $namaPenanew) {
+                            $loopNamaPenaNEW .= '<span class="bullet"></span>' . $namaPenanew;
+                        }
+                        $html .= ' Nama pena <b class="text-dark">' . $loopNamaPenaHIS . '</b> diubah menjadi <b class="text-dark">' . $loopNamaPenaNEW . '</b>.<br>';
+                        $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                    } elseif (!is_null($d->nama_pena_new)) {
+                        $html .= '<span class="ticket-item">
+                    <div class="ticket-title"><span><span class="bullet"></span>';
+                        $loopNamaPenaNEW = '';
+                        foreach (json_decode($d->nama_pena_new, true) as $namaPenanew) {
+                            $loopNamaPenaNEW .= '<b class="text-dark">' . $namaPenanew . '</b>, ';
+                        }
+                        $html .= ' Nama pena <b class="text-dark">' . $loopNamaPenaNEW . '</b> ditambahkan.<br>';
+                        $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
                     }
                     if (!is_null($d->format_buku_his)) {
                         $html .= '<span class="ticket-item" id="newAppend">
@@ -740,7 +805,7 @@ class DeskripsiProdukController extends Controller
             event(new DesproEvent($insert));
             return response()->json([
                 'status' => 'success',
-                'message' => 'Naskah "' . $kode . '" telah disetujui!'
+                'message' => 'Naskah "' . $kode . '" direvisi!'
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -752,6 +817,7 @@ class DeskripsiProdukController extends Controller
     protected function approveDespro($request)
     {
         try {
+            DB::beginTransaction();
             $id = $request->id;
             $data = DB::table('deskripsi_produk')->where('id', $id)->whereNotNull('judul_final')->first();
             if (is_null($data)) {
@@ -762,11 +828,16 @@ class DeskripsiProdukController extends Controller
             }
             $despro = [
                 'params' => 'Approval Despro',
-                'id' => $id,
+                'id' => $data->id,
                 'status' => 'Acc',
                 'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
             ];
-            event(new DesproEvent($despro));
+            // event(new DesproEvent($despro));
+            // return response()->json($despro);
+            DB::table('deskripsi_produk')->where('id',$despro['id'])->update([
+                'status' => $despro['status'],
+                'action_gm' => $despro['action_gm']
+            ]);
             $history = [
                 'params' => 'Insert History Status Despro',
                 'deskripsi_produk_id' => $id,
@@ -776,26 +847,30 @@ class DeskripsiProdukController extends Controller
                 'author_id' => auth()->id(),
                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
-            event(new DesproEvent($history));
+
             $desFin = [
                 'params' => 'Input Deskripsi',
                 'id' => Uuid::uuid4()->toString(),
                 'deskripsi_produk_id' => $id,
                 'tgl_deskripsi' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
+
             $desCov = [
                 'params' => 'Input Deskripsi',
                 'id' => Uuid::uuid4()->toString(),
                 'deskripsi_produk_id' => $id,
                 'tgl_deskripsi' => Carbon::now('Asia/Jakarta')->toDateTimeString()
             ];
+            event(new DesproEvent($history));
             event(new DesfinEvent($desFin));
             event(new DescovEvent($desCov));
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Deskripsi produk telah disetujui, silahkan cek Deskripsi Final dan Deskripsi Cover untuk tracking lanjutan'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

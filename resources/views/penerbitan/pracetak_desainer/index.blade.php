@@ -206,7 +206,11 @@
                         data: 'penulis',
                         name: 'penulis',
                         title: 'Penulis',
-                        "width": "15%"
+                    },
+                    {
+                        data: 'nama_pena',
+                        name: 'nama_pena',
+                        title: 'Nama Pena',
                     },
                     {
                         data: 'jalur_buku',

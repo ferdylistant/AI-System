@@ -13,7 +13,7 @@
                     @csrf
                     <input type="hidden" name="id" id="id_" value="">
                     <input type="hidden" name="judul_final" id="judul_Buku" value="">
-                    <input type="hidden" name="type_jabatan" id="type_Jabatan" value="">
+                    <input type="hidden" name="type_departemen" id="type_Departemen" value="">
                     <div class='form-group'><label for='catatan_action' class='col-form-label'>Catatan</label>
                         <textarea class='form-control' name='catatan_action' id='catatan_action' rows='4'></textarea>
                     </div>

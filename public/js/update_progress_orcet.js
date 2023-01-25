@@ -1,22 +1,96 @@
-$("#tb_Orcet").on("click", ".btn-history", function (e) {
-    var id = $(this).data("id");
-    var judul = $(this).data("judulfinal");
-    $.post(
-        window.location.origin + "/penerbitan/order-cetak/ajax/lihat-history-order-cetak",
-        {
-            id: id,
+$(function(){
+    let tableOrderCetak = $("#tb_Orcet").DataTable({
+        responsive: true,
+        processing: true,
+        serverSide: true,
+        language: {
+            searchPlaceholder: "Search...",
+            sSearch: "",
+            lengthMenu: "_MENU_ items/page",
         },
-        function (data) {
-            $("#titleModalOrderCetak").html(
-                '<i class="fas fa-history"></i>&nbsp;History Progress Order Cetak "' +
-                    judul +
-                    '"'
-            );
-            $("#load_more").data("id", id);
-            $("#dataHistoryOrderCetak").html(data);
-            $("#md_OrderCetakHistory").modal("show");
+        ajax: {
+            url: window.location.origin + "/penerbitan/order-cetak",
+        },
+        columns: [
+            {
+                data: "no_order",
+                name: "no_order",
+                title: "Kode Order",
+            },
+            {
+                data: "kode",
+                name: "kode",
+                title: "Kode Naskah",
+            },
+            {
+                data: "tipe_order",
+                name: "tipe_order",
+                title: "Tipe Order",
+            },
+            {
+                data: "judul_final",
+                name: "judul_final",
+                title: "Judul Buku",
+            },
+            {
+                data: "jalur_buku",
+                name: "jalur_buku",
+                title: "Jalur Buku",
+            },
+            {
+                data: "status_penyetujuan",
+                name: "status_penyetujuan",
+                title: "Penyetujuan",
+                "width":"15%"
+            },
+            {
+                data: "history",
+                name: "history",
+                title: "History",
+            },
+            {
+                data: "action",
+                name: "action",
+                title: "Action",
+                searchable: false,
+                orderable: false,
+            },
+        ],
+    });
+    $('[name="status_filter"]').on("change", function () {
+        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+        tableOrderCetak
+            .column($(this).data("column"))
+            .search(val ? val : "", true, false)
+            .draw();
+    });
+});
+$('#tb_Orcet').on('click', '.btn-history', function(e) {
+    var id = $(this).data('id');
+    var judul = $(this).data('judulfinal');
+    let cardWrap = $('.section-body').find('.card');
+    $.ajax({
+        url: window.location.origin + "/penerbitan/order-cetak/ajax/lihat-history-order-cetak",
+        type: "POST",
+        data: {
+            id: id
+        },
+        cache:false,
+        beforeSend: function () {
+            cardWrap.addClass('card-progress');
+        },
+        success: function (data) {
+            $('#titleModalOrderCetak').html(
+                '<i class="fas fa-history"></i>&nbsp;History Progress Order Cetak "' + judul +
+                '"');
+            $('#load_more').data('id', id);
+            $('#dataHistoryOrderCetak').html(data);
+            $('#md_OrderCetakHistory').modal('show');
+        },
+        complete: function () {
+            cardWrap.removeClass('card-progress');
         }
-    );
+    })
 });
 $(document).ready(function () {
     $("#tb_Orcet").on("click", ".btn-status-orcetak", function (e) {
@@ -152,69 +226,5 @@ $(function () {
                 $(".load-more").text("Load more").fadeIn("slow");
             },
         });
-    });
-    let tableOrderCetak = $("#tb_Orcet").DataTable({
-        responsive: true,
-        processing: true,
-        serverSide: true,
-        language: {
-            searchPlaceholder: "Search...",
-            sSearch: "",
-            lengthMenu: "_MENU_ items/page",
-        },
-        ajax: {
-            url: window.location.origin + "/penerbitan/order-cetak",
-        },
-        columns: [
-            {
-                data: "no_order",
-                name: "no_order",
-                title: "Kode Order",
-            },
-            {
-                data: "kode",
-                name: "kode",
-                title: "Kode Naskah",
-            },
-            {
-                data: "tipe_order",
-                name: "tipe_order",
-                title: "Tipe Order",
-            },
-            {
-                data: "judul_final",
-                name: "judul_final",
-                title: "Judul Buku",
-            },
-            {
-                data: "jalur_buku",
-                name: "jalur_buku",
-                title: "Jalur Buku",
-            },
-            {
-                data: "status_penyetujuan",
-                name: "status_penyetujuan",
-                title: "Penyetujuan",
-            },
-            {
-                data: "history",
-                name: "history",
-                title: "History",
-            },
-            {
-                data: "action",
-                name: "action",
-                title: "Action",
-                searchable: false,
-                orderable: false,
-            },
-        ],
-    });
-    $('[name="status_filter"]').on("change", function () {
-        var val = $.fn.dataTable.util.escapeRegex($(this).val());
-        tableOrderCetak
-            .column($(this).data("column"))
-            .search(val ? val : "", true, false)
-            .draw();
     });
 });

@@ -1,16 +1,60 @@
+$(function() {
+    let tableOrderEbook = $('#tb_OrderEbook').DataTable({
+        responsive: true,
+        processing: true,
+        serverSide: true,
+        language: {
+            searchPlaceholder: 'Search...',
+            sSearch: '',
+            lengthMenu: '_MENU_ items/page',
+        },
+        ajax: {
+            url: window.location.origin + "/penerbitan/order-ebook",
+        },
+        columns: [
+            { data: 'no_order', name: 'no_order', title: 'Kode Order' },
+            { data: 'kode', name: 'kode', title: 'Kode Naskah' },
+            { data: 'tipe_order', name: 'tipe_order', title: 'Tipe Order' },
+            { data: 'judul_final', name: 'judul_final', title: 'Judul Buku' },
+            { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku' },
+            { data: 'status_penyetujuan', name: 'status_penyetujuan', title: 'Penyetujuan',"width":"15%" },
+            { data: 'history', name: 'history', title: 'History' },
+            { data: 'action', name: 'action', title: 'Action', orderable: false },
+        ]
+    });
+    $('[name="status_filter"]').on('change', function () {
+        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+        tableOrderEbook.column($(this).data('column'))
+            .search(val ? val : '', true, false)
+            .draw();
+    });
+});
 $('#tb_OrderEbook').on('click', '.btn-history', function(e) {
     var id = $(this).data('id');
     var judul = $(this).data('judulfinal');
-    $.post(window.location.origin + "/penerbitan/order-ebook/ajax/lihat-history-order-ebook", {
-        id: id
-    }, function(data) {
-        $('#titleModalOrderEbook').html(
-            '<i class="fas fa-history"></i>&nbsp;History Progress Order E-book "' + judul +
-            '"');
-        $('#load_more').data('id', id);
-        $('#dataHistoryOrderEbook').html(data);
-        $('#md_OrderEbookHistory').modal('show');
-    });
+    let cardWrap = $('.section-body').find('.card');
+    $.ajax({
+        url: window.location.origin + "/penerbitan/order-ebook/ajax/lihat-history-order-ebook",
+        type: "POST",
+        data: {
+            id: id
+        },
+        cache: false,
+        beforeSend: function () {
+            cardWrap.addClass('card-progress');
+        },
+        success: function (data) {
+            $('#titleModalOrderEbook').html(
+                '<i class="fas fa-history"></i>&nbsp;History Progress Order E-book "' + judul +
+                '"');
+            $('#load_more').data('id', id);
+            $('#dataHistoryOrderEbook').html(data);
+            $('#md_OrderEbookHistory').modal('show');
+        },
+        complete: function () {
+            cardWrap.removeClass('card-progress');
+        }
+    })
 });
 $(document).ready(function () {
     $("#tb_OrderEbook").on("click", ".btn-status-orebook", function (e) {
@@ -58,6 +102,7 @@ $(function () {
             data: new FormData(el),
             processData: false,
             contentType: false,
+            cache: false,
             beforeSend: function () {
                 $('button[type="submit"]')
                     .prop("disabled", true)
@@ -126,7 +171,7 @@ $(function () {
                 id: id,
                 page: page,
             },
-            type: "post",
+            type: "POST",
             beforeSend: function () {
                 $(".load-more").text("Loading...");
             },
@@ -140,34 +185,5 @@ $(function () {
                 $(".load-more").text("Load more").fadeIn("slow");
             },
         });
-    });
-    let tableOrderEbook = $('#tb_OrderEbook').DataTable({
-        responsive: true,
-        processing: true,
-        serverSide: true,
-        language: {
-            searchPlaceholder: 'Search...',
-            sSearch: '',
-            lengthMenu: '_MENU_ items/page',
-        },
-        ajax: {
-            url: window.location.origin + "/penerbitan/order-ebook",
-        },
-        columns: [
-            { data: 'no_order', name: 'no_order', title: 'Kode Order' },
-            { data: 'kode', name: 'kode', title: 'Kode Naskah' },
-            { data: 'tipe_order', name: 'tipe_order', title: 'Tipe Order' },
-            { data: 'judul_final', name: 'judul_final', title: 'Judul Buku' },
-            { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku' },
-            { data: 'status_penyetujuan', name: 'status_penyetujuan', title: 'Penyetujuan' },
-            { data: 'history', name: 'history', title: 'History' },
-            { data: 'action', name: 'action', title: 'Action', orderable: false },
-        ]
-    });
-    $('[name="status_filter"]').on('change', function () {
-        var val = $.fn.dataTable.util.escapeRegex($(this).val());
-        tableOrderEbook.column($(this).data('column'))
-            .search(val ? val : '', true, false)
-            .draw();
     });
 });

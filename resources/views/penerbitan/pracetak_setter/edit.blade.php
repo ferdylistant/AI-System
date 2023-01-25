@@ -113,59 +113,12 @@
                             </div>
 
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-exclamation-circle"></i>&nbsp;Proses Saat Ini:
-                            @switch($data->proses_saat_ini)
-                                @case('Antrian Koreksi')
-                                    <span class="text-dark"> Antri Koreksi</span>
-                                @break
-
-                                @case('Antrian Setting')
-                                    <span class="text-dark"> Antrian Setting</span>
-                                @break
-
-                                @case('Setting')
-                                    <span class="text-dark" class="text-dark"> Setting</span>
-                                @break
-
-                                @case('Proof Prodev')
-                                    <span class="text-dark"> Proof Prodev</span>
-                                @break
-
-                                @case('Antrian Koreksi')
-                                    <span class="text-dark"> Antrian Koreksi</span>
-                                @break
-
-                                @case('Koreksi')
-                                    <span class="text-dark"> Koreksi</span>
-                                @break
-
-                                @case('Siap Turcet')
-                                    <span class="text-dark"> Siap Turcet</span>
-                                @break
-
-                                @case('Turun Cetak')
-                                    <span class="text-dark"> Turun Cetak</span>
-                                @break
-
-                                @case('Setting Revisi')
-                                    <span class="text-dark"> Setting Revisi</span>
-                                @break
-
-                                @default
-                                    <span class="text-danger"> Belum ada proses</span>
-                                @break
-                            @endswitch
-                            @if ($data->status == 'Revisi')
-                                <br>
-                                <button type="button" class="btn btn-warning" id="done-revision"
-                                    data-id="{{ $data->id }}" data-judul="{{ $data->judul_final }}"
-                                    data-kode="{{ $data->kode }}">
-                                    <i class="fas fa-check"></i>&nbsp;Selesai Revisi
-                                </button>
-                            @endif
-                        </div>
-
+                        @if ($data->status == 'Proses' || $data->status == 'Revisi' ||
+                    ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
+                        @include('penerbitan.pracetak_setter.include.edit_if')
+                    @else
+                        @include('penerbitan.pracetak_setter.include.edit_else')
+                    @endif
                     </div>
                 </div>
             </div>

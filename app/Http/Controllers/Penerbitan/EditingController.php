@@ -27,6 +27,7 @@ class EditingController extends Controller
                     'pn.kelompok_buku_id',
                     'dp.naskah_id',
                     'dp.judul_final',
+                    'dp.nama_pena',
                     'df.bullet'
                 )
                 ->orderBy('ep.tgl_mulai_edit', 'ASC')
@@ -68,6 +69,17 @@ class EditingController extends Controller
                     }
                     return $result;
                     //  $res;
+                })
+                ->addColumn('nama_pena', function ($data) {
+                    $result = '';
+                    if (is_null($data->nama_pena)) {
+                        $result .= "-";
+                    } else {
+                        foreach (json_decode($data->nama_pena) as $q) {
+                            $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
+                        }
+                    }
+                    return $result;
                 })
                 ->addColumn('jalur_buku', function ($data) {
                     if (!is_null($data->jalur_buku)) {
@@ -173,6 +185,7 @@ class EditingController extends Controller
                     'kode',
                     'judul_final',
                     'penulis',
+                    'nama_pena',
                     'jalur_buku',
                     'tgl_masuk_editing',
                     'pic_prodev',
@@ -305,6 +318,7 @@ class EditingController extends Controller
                 'df.isi_huruf',
                 'dp.naskah_id',
                 'dp.judul_final',
+                'dp.nama_pena',
                 'dp.format_buku',
                 'dp.jml_hal_perkiraan',
                 'pn.kode',
@@ -388,6 +402,7 @@ class EditingController extends Controller
                 'df.isi_huruf',
                 'dp.naskah_id',
                 'dp.judul_final',
+                'dp.nama_pena',
                 'dp.jml_hal_perkiraan',
                 'pn.kode',
                 'pn.jalur_buku',
@@ -404,9 +419,9 @@ class EditingController extends Controller
                     ->whereNull('pp.deleted_at');
             })
             ->where('pnp.naskah_id', '=', $data->naskah_id)
-            ->select('pp.nama')
+            ->select('pp.id','pp.nama')
             ->get();
-        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->select('nama')->first();
+        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->select('id','nama')->first();
         if (!is_null($data->editor)) {
             foreach (json_decode($data->editor, true) as $ed) {
                 $namaEditor[] = DB::table('users')->where('id', $ed)->first();
@@ -670,7 +685,7 @@ class EditingController extends Controller
                     $btn = $this->buttonEdit($id, $kode, $btn);
                 }
             } else {
-                if ((auth()->id() == $pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                if ((auth()->id() == $pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk')) || ($gate)) {
                     $btn = $this->buttonEdit($id, $kode, $btn);
                 }
             }

@@ -24,6 +24,19 @@ $(document).ready(function () {
     });
 });
 $(document).ready(function () {
+    $("#namaPenaButton").click(function (e) {
+        e.preventDefault();
+        $("#namaPenaCol").attr("hidden", "hidden");
+        $("#namaPenaColInput").removeAttr("hidden");
+    });
+    $(".batal_edit_nama_pena").click(function (e) {
+        //user click on remove text
+        e.preventDefault();
+        $("#namaPenaColInput").attr("hidden", "hidden");
+        $("#namaPenaCol").removeAttr("hidden");
+    });
+});
+$(document).ready(function () {
     $("#formatBukuButton").click(function (e) {
         e.preventDefault();
         $("#formatBukuCol").attr("hidden", "hidden");

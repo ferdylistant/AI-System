@@ -26,6 +26,9 @@ class ApiController extends Controller
                     case 'list-dami':
                         return $this->listDami($request);
                         break;
+                    case 'list-dami-data':
+                        return $this->listDamiData($request);
+                        break;
                 }
             } catch (\Exception $e) {
                 return abort(500);
@@ -34,9 +37,14 @@ class ApiController extends Controller
             return abort(405);
         }
     }
+    protected function getPosisiLayout($request)
+    {
+        $posisiLayout = (object)[['value' => '1', 'label' => 'Potrait'], ['value' => '2', 'label' => 'Landscape']];
+        return response()->json($posisiLayout);
+    }
     protected function listDami($request)
     {
-        $valueLayout = $request->input('value');
+        $valueLayout = $request->get('value');
         if ($valueLayout == '1') {
             $data = (object)[
                 [
@@ -72,20 +80,6 @@ class ApiController extends Controller
         foreach ($data as $key => $value) {
             echo '<option value="' . $value['value'] . '">' . $value['label'] . '</option>';
         }
-    }
-    protected function getPosisiLayout($request)
-    {
-        $posisiLayout = (object)[
-            [
-                'value' => '1',
-                'label' => 'Potrait',
-            ],
-            [
-                'value' => '2',
-                'label' => 'Landscape',
-            ]
-        ];
-        return response()->json($posisiLayout);
     }
     public function listFormatBuku(Request $request)
     {
@@ -290,9 +284,54 @@ class ApiController extends Controller
             return response()->json($pilihanTerbit);
         }
     }
+    protected function listDamiData($request)
+    {
+        $valueLayout = $request->get('value');
+        if ($valueLayout == '1') {
+            $dami = (object)[
+                [
+                    'value' => '16',
+                    'label' => '16',
+                ],
+                [
+                    'value' => '24',
+                    'label' => '24',
+                ],
+                [
+                    'value' => '32',
+                    'label' => '32',
+                ],
+            ];
+        } elseif ($valueLayout == '2') {
+            $dami = (object)[
+                [
+                    'value' => '12',
+                    'label' => '12',
+                ],
+                [
+                    'value' => '16',
+                    'label' => '16',
+                ],
+                [
+                    'value' => '32',
+                    'label' => '32',
+                ],
+            ];
+        }
+        $id = $request->get('id');
+        $data = DB::table('order_cetak')->where('id', $id)->first();
+        echo '<option label="Pilih"></option>';
+        foreach ($dami as $key => $value) {
+            if ($data->dami == $value['value']) {
+                echo '<option value="' . $value['value'] . '" selected>' . $value['label'] . '</option>';
+            } else {
+                echo '<option value="' . $value['value'] . '">' . $value['label'] . '</option>';
+            }
+        }
+    }
     protected function listStatusCetak($request)
     {
-        $statusCetak = array(['value' => 1,'label' => 'Buku Baru'], ['value' => 2,'label' => 'Cetak Ulang Revisi'],['value' => 3,'label' => 'Cetak Ulang']);
+        $statusCetak = array(['value' => 1, 'label' => 'Buku Baru'], ['value' => 2, 'label' => 'Cetak Ulang Revisi'], ['value' => 3, 'label' => 'Cetak Ulang']);
         $id = $request->get('id');
         $data = DB::table('order_cetak')->where('id', $id)->first();
         if (!is_null($data)) {

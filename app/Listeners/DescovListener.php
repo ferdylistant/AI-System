@@ -50,6 +50,7 @@ class DescovListener
                 ->update([
                     'df.sub_judul_final' => $data['sub_judul_final'],
                     'df.bullet' => $data['bullet'],
+                    'dp.nama_pena' => $data['nama_pena'],
                     'dp.format_buku' => $data['format_buku'],
                     'dc.des_front_cover' => $data['des_front_cover'],
                     'dc.des_back_cover' => $data['des_back_cover'],
@@ -69,6 +70,8 @@ class DescovListener
                 $res = DB::table('deskripsi_cover_history')->insert([
                     'deskripsi_cover_id' => $data['deskripsi_cover_id'],
                     'type_history' => $data['type_history'],
+                    'nama_pena_his' => $data['nama_pena_his'],
+                    'nama_pena_new' => $data['nama_pena_new'],
                     'format_buku_his' => $data['format_buku_his'],
                     'format_buku_new' => $data['format_buku_new'],
                     'sub_judul_final_his' => $data['sub_judul_final_his'],

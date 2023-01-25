@@ -218,6 +218,11 @@
                         title: 'Penulis',
                     },
                     {
+                        data: 'nama_pena',
+                        name: 'nama_pena',
+                        title: 'Nama Pena',
+                    },
+                    {
                         data: 'format_buku',
                         name: 'format_buku',
                         title: 'Format Buku',

@@ -14,6 +14,7 @@ $(function () {
                 $("#overlay").fadeIn(300);
             },
             success: function (result) {
+                console.log(result);
                 if (result.status == "error") {
                     notifToast(result.status, result.message);
                 } else {

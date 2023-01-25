@@ -109,7 +109,7 @@ $(document).ready(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                // console.log(result);
+                console.log(result);
                 if (result.status == "error") {
                     notifToast(result.status, result.message);
                     $("#fm_UpdateStatusSetter").trigger("reset");

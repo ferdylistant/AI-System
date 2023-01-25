@@ -153,7 +153,7 @@
                                             <div class="d-flex w-100 justify-content-between">
                                                 <h6 class="mb-1">Platform Digital</h6>
                                             </div>
-                                            @foreach (json_decode($data->platform_digital_ebook_id) as $pDigital)
+                                            @foreach ($platform_digital as $pDigital)
                                             <p class="mb-1 text-monospace">
                                                 <span class="bullet"></span>
                                                 <span>{{ $pDigital }}</span>
@@ -212,13 +212,35 @@
                                         </div>
                                         <div class="list-group-item flex-column align-items-start">
                                             <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Nama Pena</h6>
+                                            </div>
+                                            @if ((is_null($data->nama_pena)))
+                                            <p class="mb-1 text-monospace">
+                                                    -
+                                            </p>
+                                            @else
+                                            <ul class="list-unstyled list-inline">
+                                                @foreach (json_decode($data->nama_pena) as $pen)
+                                                    <li class="list-inline-item">
+                                                    <p class="mb-1 text-monospace">
+                                                        <span class="bullet"></span>
+                                                        <span>{{ $pen }}</span>
+                                                    </p>
+                                                    </li>
+                                                @endforeach
+
+                                            </ul>
+                                            @endif
+                                        </div>
+                                        <div class="list-group-item flex-column align-items-start">
+                                            <div class="d-flex w-100 justify-content-between">
                                                 <h6 class="mb-1">Imprint</h6>
                                             </div>
                                             <p class="mb-1 text-monospace">
                                                 @if (is_null($data->imprint))
                                                     -
                                                 @else
-                                                    {{ $data->imprint }}
+                                                    {{ $imprint }}
                                                 @endif
                                             </p>
                                         </div>

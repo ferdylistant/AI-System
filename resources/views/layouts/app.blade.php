@@ -6,7 +6,6 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>{{ $title }} &mdash; Andi Intelligent System</title>
-
     <!-- General CSS Files -->
     <link rel="stylesheet" href="{{ url('vendors/bootstrap/dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/font-awesome/css/all.min.css') }}">
@@ -209,6 +208,7 @@
 
     <!-- Specific JS File -->
     <script src="{{ url('js/main.js') }}"></script>
+    <script src="js/app.js"></script>
     {{-- <script>
         // Reload the page when the user's internet connection is restored
         setInterval(function() {

@@ -4,11 +4,18 @@
 <link rel="stylesheet" href="{{url('vendors/izitoast/dist/css/iziToast.min.css')}}">
 <link rel="stylesheet" href="{{url('vendors/select2/dist/css/select2.min.css')}}">
 <link rel="stylesheet" href="{{url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css')}}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css"
+        integrity="sha512-xmGTNt20S0t62wHLmQec2DauG9T+owP9e6VU8GigI0anN7OXLip9i7IwEhelasml2osdxX71XcYm6BQunTQeQg=="
+        crossorigin="anonymous" />
 @endsection
 
 @section('cssNeeded')
 <style>
+.bootstrap-tagsinput{
 
+width: 100%;
+
+}
 </style>
 @endsection
 
@@ -115,8 +122,47 @@
                                                     </td>
                                                 </tr>
                                                 <tr>
+                                                    <th class="table-secondary" style="width: 25%">Nama Pena: <span
+                                                            class="text-danger">*Kosongkan jika sama dengan nama
+                                                            asli penulis</span></th>
+                                                    @if (!is_null($data->nama_pena))
+                                                        <td class="table-active text-right" id="namaPenaCol">
+                                                            @foreach (json_decode($data->nama_pena) as $np)
+                                                            {{ $np }}-<br>
+                                                            @endforeach
+                                                            <p class="text-small">
+                                                                <a href="javascript:void(0)" id="namaPenaButton"><i
+                                                                        class="fa fa-pen"></i>&nbsp;Edit</a>
+                                                            </p>
+                                                        </td>
+                                                        <td class="table-active text-left" id="namaPenaColInput"
+                                                            hidden>
+                                                            <div class="input-group">
+                                                                <input type="text" name="nama_pena"
+                                                                    class="form-control input-tag"
+                                                                    placeholder="Nama pena / Alias"
+                                                                    data-role="tagsinput"
+                                                                    value="{{ $nama_pena }}">
+                                                                <div class="input-group-append">
+                                                                    <button type="button"
+                                                                        class="btn btn-outline-danger batal_edit_nama_pena text-danger align-self-center"
+                                                                        data-toggle="tooltip" title="Batal Edit"><i
+                                                                            class="fas fa-times"></i></button>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    @else
+                                                        <td class="table-active text-left">
+                                                            <input type="text" name="nama_pena"
+                                                                class="form-control input-tag"
+                                                                placeholder="Nama pena / Alias"
+                                                                data-role="tagsinput">
+                                                        </td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
                                                     <th class="table-secondary" style="width: 25%">Imprint:</th>
-                                                    <td class="table-active text-right">{{$data->imprint}}</td>
+                                                    <td class="table-active text-right">{{$nama_imprint}}</td>
                                                 </tr>
                                                 <tr>
                                                     <th class="table-secondary" style="width: 25%">Des Front Cover: <span class="text-danger">*</span></th>
@@ -588,10 +634,22 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <th class="table-secondary" style="width: 25%">Nama Pena: <span
+                                                        class="text-danger">*Kosongkan jika sama dengan nama asli
+                                                        penulis</span></th>
+                                                <td class="table-active text-right">
+                                                    @if (!is_null($data->nama_penulis))
+                                                        {{ $data->nama_penulis }}
+                                                    @else
+                                                        <span class="text-danger text-small">Belum diinput</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <th class="table-secondary" style="width: 25%">Imprint:</th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->imprint))
-                                                        {{$data->imprint}}
+                                                        {{$nama_imprint}}
                                                     @else
                                                     <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
@@ -762,6 +820,9 @@
 <script src="{{url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js')}}"></script>
 <script src="{{url('vendors/sweetalert/dist/sweetalert.min.js')}}"></script>
 <script src="{{url('vendors/izitoast/dist/js/iziToast.min.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.js"
+        integrity="sha512-VvWznBcyBJK71YKEKDMpZ0pCVxjNuKwApp4zLF3ul+CiflQi6aIJR+aZCP/qWsoFBA28avL5T5HA+RE+zrGQYg=="
+        crossorigin="anonymous"></script>
 @endsection
 
 

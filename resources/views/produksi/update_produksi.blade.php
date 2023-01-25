@@ -295,6 +295,16 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-3 mb-4">
+                                <label>Jenis Cover: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-map"></i></div>
+                                    </div>
+                                    <input type="text" class="form-control" name="up_jenis_cover" value="{{$data->jenis_cover}}" placeholder="Jenis cover" required>
+                                    <div id="err_up_jenis_cover"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 col-md-3 mb-4">
                                 <label>Kertas Cover: <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
