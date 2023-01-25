@@ -16,109 +16,201 @@ class KelompokBukuController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            if ($request->input('request_') === 'table-kbuku') {
-                $data = DB::table('penerbitan_m_kelompok_buku')
-                    ->whereNull('deleted_at')
-                    ->orderBy('kode', 'asc')
-                    ->get();
-                $update = Gate::allows('do_update', 'ubah-kelompok-buku');
-                // foreach ($data as $key => $value) {
-                //     $no = $key + 1;
-                // }
-                // $start=1;
-                return DataTables::of($data)
-                    ->addColumn('kode', function ($data) {
-                        return $data->kode;
-                    })
-                    ->addColumn('nama', function ($data) {
-                        return $data->nama;
-                    })
-                    ->addColumn('tgl_dibuat', function ($data) {
-                        $date = Carbon::parse($data->created_at)->translatedFormat('d M Y, H:i');
-                        // $date = date('d F Y, H:i', strtotime($data->created_at));
+            $data = DB::table('penerbitan_m_kelompok_buku')
+                ->whereNull('deleted_at')
+                ->orderBy('kode', 'asc')
+                ->get();
+            $update = Gate::allows('do_update', 'ubah-kelompok-buku');
+            // foreach ($data as $key => $value) {
+            //     $no = $key + 1;
+            // }
+            $start = 1;
+            return DataTables::of($data)
+                ->addColumn('no', function ($no) use (&$start) {
+                    return $start++;
+                })
+                ->addColumn('kode', function ($data) {
+                    return $data->kode;
+                })
+                ->addColumn('nama_kelompok_buku', function ($data) {
+                    return $data->nama;
+                })
+                ->addColumn('tgl_dibuat', function ($data) {
+                    $date = Carbon::parse($data->created_at)->translatedFormat('d M Y, H:i');
+                    // $date = date('d F Y, H:i', strtotime($data->created_at));
+                    return $date;
+                })
+                ->addColumn('dibuat_oleh', function ($data) {
+                    $dataUser = User::where('id', $data->created_by)->first();
+                    return $dataUser->nama;
+                })
+                ->addColumn('diubah_terakhir', function ($data) {
+                    if ($data->updated_at == null) {
+                        return '-';
+                    } else {
+                        $date = Carbon::parse($data->updated_at)->translatedFormat('d M Y, H:i');
                         return $date;
-                    })
-                    ->addColumn('dibuat_oleh', function ($data) {
-                        $dataUser = User::where('id', $data->created_by)->first();
+                    }
+                })
+                ->addColumn('diubah_oleh', function ($data) {
+                    if ($data->updated_by == null) {
+                        return '-';
+                    } else {
+                        $dataUser = User::where('id', $data->updated_by)->first();
                         return $dataUser->nama;
-                    })
-                    ->addColumn('diubah_terakhir', function ($data) {
-                        if ($data->updated_at == null) {
-                            return '-';
-                        } else {
-                            $date = Carbon::parse($data->updated_at)->translatedFormat('d M Y, H:i');
-                            return $date;
-                        }
-                    })
-                    ->addColumn('diubah_oleh', function ($data) {
-                        if ($data->updated_by == null) {
-                            return '-';
-                        } else {
-                            $dataUser = User::where('id', $data->updated_by)->first();
-                            return $dataUser->nama;
-                        }
-                    })
-                    ->addColumn('history', function ($data) {
-                        $historyData = DB::table('penerbitan_m_kelompok_buku_history')->where('kelompok_buku_id', $data->id)->get();
-                        if ($historyData->isEmpty()) {
-                            return '-';
-                        } else {
-                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-toggle="modal" data-target="#md_KelompokBukuHistory"><i class="fas fa-history"></i>&nbsp;History</button>';
-                            return $date;
-                        }
-                    })
-                    ->addColumn('action', function ($data) use ($update) {
-                        if (Gate::allows('do_delete', 'hapus-kelompok-buku')) {
-                            $btn = '<a href="' . url('master/kelompok-buku/hapus?kb=' . $data->id) . '"
-                                    class="d-block btn btn-sm btn-danger btn-icon mr-1" id="hapus-kbuku" data-toggle="tooltip" title="Hapus Data">
-                                    <div><i class="fas fa-trash"></i></div></a>';
-                        }
-                        if ($update) {
-                            $btn .= '<a href="' . url('master/kelompok-buku/ubah?kb=' . $data->id) . '"
-                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                    }
+                })
+                ->addColumn('history', function ($data) {
+                    $historyData = DB::table('penerbitan_m_kelompok_buku_history')->where('kelompok_buku_id', $data->id)->get();
+                    if ($historyData->isEmpty()) {
+                        return '-';
+                    } else {
+                        $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-nama="' . $data->nama . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                        return $date;
+                    }
+                })
+                ->addColumn('action', function ($data) use ($update) {
+                    if ($update) {
+                        $btn = '<a href="#" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1"
+                                    data-toggle="modal" data-target="#md_EditKelompokBuku" data-backdrop="static"
+                                    data-id="' . $data->id . '" data-nama="' . $data->nama . '"
+                                    data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
-                        }
-                        return $btn;
-                    })
-                    ->rawColumns([
-                        'kode',
-                        'nama',
-                        'tgl_dibuat',
-                        'dibuat_oleh',
-                        'diubah_terakhir',
-                        'diubah_oleh',
-                        'history',
-                        'action'
-                    ])
-                    ->make(true);
-            }
+                    }
+                    if (Gate::allows('do_delete', 'hapus-kelompok-buku')) {
+                        $btn .= '<a href="#" class="d-block btn btn-sm btn_DelKelompokBuku btn-danger btn-icon mr-1 mt-1"
+                        data-toggle="tooltip" title="Hapus Data"
+                        data-id="' . $data->id . '" data-nama="' . $data->nama . '">
+                        <div><i class="fas fa-trash-alt"></i></div></a>';
+                    }
+                    return $btn;
+                })
+                ->rawColumns([
+                    'kode',
+                    'nama',
+                    'tgl_dibuat',
+                    'dibuat_oleh',
+                    'diubah_terakhir',
+                    'diubah_oleh',
+                    'history',
+                    'action'
+                ])
+                ->make(true);
         }
 
         return view('master_data.kelompok_buku.index', [
             'title' => 'Kelompok Buku Penerbitan',
         ]);
     }
+
+    public function kBukuTelahDihapus(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = DB::table('penerbitan_m_kelompok_buku')
+                ->whereNotNull('deleted_at')
+                ->orderBy('nama', 'asc')
+                ->get();
+            $update = Gate::allows('do_update', 'ubah-data-imprint');
+            // foreach ($data as $key => $value) {
+            //     $no = $key + 1;
+            // }
+            $start = 1;
+            return DataTables::of($data)
+                ->addColumn('no', function ($no) use (&$start) {
+                    return $start++;
+                })
+                ->addColumn('kelompok_buku', function ($data) {
+                    return $data->nama;
+                })
+                ->addColumn('tgl_dibuat', function ($data) {
+                    $date = date('d M Y, H:i', strtotime($data->created_at));
+                    return $date;
+                })
+                ->addColumn('dibuat_oleh', function ($data) {
+                    $dataUser = User::where('id', $data->created_by)->first();
+                    return $dataUser->nama;
+                })
+                ->addColumn('dihapus_pada', function ($data) {
+                    if ($data->deleted_at == null) {
+                        return '-';
+                    } else {
+                        $date = date('d M Y, H:i', strtotime($data->deleted_at));
+                        return $date;
+                    }
+                })
+                ->addColumn('dihapus_oleh', function ($data) {
+                    if ($data->deleted_by == null) {
+                        return '-';
+                    } else {
+                        $dataUser = User::where('id', $data->deleted_by)->first();
+                        return $dataUser->nama;
+                    }
+                })
+                ->addColumn('action', function ($data) use ($update) {
+                    if ($update) {
+                        $btn = '<a href="' . url('master/kelompok-buku/restore?p=' . $data->id) . '"
+                                    class="d-block btn btn-sm btn-dark btn-icon" id="restore-kelompok-buku" data-toggle="tooltip" title="Restore Data">
+                                    <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                    }
+                    return $btn;
+                })
+                ->rawColumns([
+                    'no',
+                    'kelompok_buku',
+                    'tgl_dibuat',
+                    'dibuat_oleh',
+                    'dihapus_pada',
+                    'dihapus_oleh',
+                    'action'
+                ])
+                ->make(true);
+        }
+
+        return view('master_data.kelompok_buku.telah_dihapus', [
+            'title' => 'Kelompok Buku Telah Dihapus',
+        ]);
+    }
+
     public function createKbuku(Request $request)
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $request->validate([
-                    'add_nama' => 'required|unique:penerbitan_m_kelompok_buku,nama',
+                    'nama_kelompok_buku' => 'required|unique:penerbitan_m_kelompok_buku,nama',
                 ], [
                     'required' => 'This field is requried'
                 ]);
-                $last = DB::table('penerbitan_m_kelompok_buku')->whereNull('deleted_at')->get('kode')->max();
-                $lastId_ = (int)substr($last->kode, 2);
-                DB::table('penerbitan_m_kelompok_buku')->insert([
-                    'id' => Uuid::uuid4()->toString(),
-                    'kode' => 'KB' . $lastId_ += 1,
-                    'nama' => $request->add_nama,
+                $last = DB::table('penerbitan_m_kelompok_buku')->whereNull('deleted_at')->orderBy('created_at', 'desc')->first();
+                if (is_null($last)) {
+                    $kode = 'KB1';
+                } else {
+                    // $last = DB::table('penerbitan_m_kelompok_buku')->whereNull('deleted_at')->max('kode')->first();
+                    $lastId_ = (int)substr($last->kode, 2);
+                    // return $lastId_;
+                    $kode = 'KB' . $lastId_ += 1;
+                }
+                $id = Uuid::uuid4()->toString();
+                $input = [
+                    'params' => 'Create Kelompok Buku',
+                    'id' => $id,
+                    'kode' => $kode,
+                    'nama_kelompok_buku' => $request->nama_kelompok_buku,
                     'created_by' => auth()->user()->id
-                ]);
+                ];
+                event(new MasterDataEvent($input));
+                $insert = [
+                    'params' => 'Insert History Create Kelompok Buku',
+                    'kelompok_buku_id' => $id,
+                    'type_history' => 'Create',
+                    'kode' => $kode,
+                    'nama_kelompok_buku' => $request->nama_kelompok_buku,
+                    'author_id' => auth()->user()->id,
+                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                event(new MasterDataEvent($insert));
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data kelompok buku berhasil ditambahkan!',
-                    // 'redirect' => route('produksi.view')
                 ]);
             }
         }
@@ -131,23 +223,24 @@ class KelompokBukuController extends Controller
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $request->validate([
-                    'up_nama' => 'required',
+                    'edit_nama' => 'required',
                 ], [
                     'required' => 'This field is requried'
                 ]);
-                $history = DB::table('penerbitan_m_kelompok_buku')->where('id', $request->id)->first();
+                $history = DB::table('penerbitan_m_kelompok_buku')->where('id', $request->edit_id)->first();
                 $update = [
                     'params' => 'Update Kelompok Buku',
-                    'id' => $request->id,
-                    'nama' => $request->up_nama,
+                    'id' => $request->edit_id,
+                    'nama' => $request->edit_nama,
                     'updated_by' => auth()->user()->id
                 ];
                 event(new MasterDataEvent($update));
                 $insert = [
-                    'params' => 'Insert History Kelompok Buku',
-                    'kelompok_buku_id' => $request->id,
+                    'params' => 'Insert History Update Kelompok Buku',
+                    'type_history' => 'Update',
+                    'kelompok_buku_id' => $request->edit_id,
                     'kelompok_buku_history' => $history->nama,
-                    'kelompok_buku_new' => $request->up_nama,
+                    'kelompok_buku_new' => $request->edit_nama,
                     'author_id' => auth()->user()->id,
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];
@@ -159,21 +252,31 @@ class KelompokBukuController extends Controller
                 ]);
             }
         }
-        $id = $request->get('kb');
+        $id = $request->id;
         $data = DB::table('penerbitan_m_kelompok_buku')
             ->where('id', $id)
             ->first();
-        return view('master_data.kelompok_buku.update', [
-            'title' => 'Update Kelompok Buku',
-            'data' => $data
-        ]);
+        return response()->json($data);
     }
     public function deleteKbuku(Request $request)
     {
-        $id = $request->get('kb');
+        $id = $request->id;
         $deleted = DB::table('penerbitan_m_kelompok_buku')->where('id', $id)->update([
             'deleted_by' => auth()->id(),
             'deleted_at' => date('Y-m-d H:i:s')
+        ]);
+        $insert = [
+            'params' => 'Insert History Delete Kelompok Buku',
+            'kelompok_buku_id' => $id,
+            'type_history' => 'Delete',
+            'deleted_at' => date('Y-m-d H:i:s'),
+            'author_id' => auth()->user()->id,
+            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+        ];
+        event(new MasterDataEvent($insert));
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Berhasil hapus data kelompok buku!'
         ]);
         if ($deleted) {
             echo '<script>
@@ -182,23 +285,94 @@ class KelompokBukuController extends Controller
             </script>';
         }
     }
-    public function lihatHistory(Request $request)
+    public function restoreKBuku(Request $request)
     {
-        $id = $request->input('id');
-        $data = DB::table('penerbitan_m_kelompok_buku_history as kb')->join('users as u', 'kb.author_id', '=', 'u.id')
-            ->where('kb.kelompok_buku_id', $id)
-            ->select('kb.*', 'u.nama')
-            ->get();
-        foreach ($data as $d) {
-            $result[] = [
-                'kelompok_buku_history' => $d->kelompok_buku_history,
-                'kelompok_buku_new' => $d->kelompok_buku_new,
-                'author_id' => $d->author_id,
-                'nama' => $d->nama,
-                'modified_at' => Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans(),
-                'format_tanggal' => Carbon::parse($d->modified_at)->translatedFormat('d M Y, H:i')
-            ];
+        $id = $request->get('p');
+        $restored = DB::table('penerbitan_m_kelompok_buku')
+            ->where('id', $id)
+            ->update(['deleted_at' => null, 'deleted_by' => null]);
+        $insert = [
+            'params' => 'Insert History Restored Kelompok Buku',
+            'kelompok_buku_id' => $id,
+            'type_history' => 'Restore',
+            'restored_at' => now(),
+            'author_id' => auth()->user()->id,
+            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+        ];
+        event(new MasterDataEvent($insert));
+        if ($restored) {
+            echo '<script>
+
+            window.location = "' . route('kb.view') . '";
+            </script>';
         }
-        return response()->json($result);
+    }
+    public function lihatHistoryKBuku(Request $request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('penerbitan_m_kelompok_buku_history as kbh')
+                ->join('penerbitan_m_kelompok_buku as kb', 'kb.id', '=', 'kbh.kelompok_buku_id')
+                ->join('users as u', 'u.id', '=', 'kbh.author_id')
+                ->where('kbh.kelompok_buku_id', $id)
+                ->select('kbh.*', 'u.nama')
+                ->orderBy('kbh.id', 'desc')
+                ->paginate(2);
+
+            foreach ($data as $d) {
+                switch ($d->type_history) {
+                    case 'Create':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Kelompok Buku <b class="text-dark">' . $d->kelompok_buku_name  . '</b> dengan kode <b class="text-dark">' . $d->kode . '</b> ditambahkan .</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                    case 'Update':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                            <div class="ticket-title">
+                                <span><span class="bullet"></span> Kelompok Buku <b class="text-dark">' . $d->kelompok_buku_history . '</b> diubah menjadi <b class="text-dark">' . $d->kelompok_buku_new . '</b>.</span>
+                            </div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                            </div>
+                            </span>';
+                        break;
+                    case 'Delete':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                            <div class="ticket-title">
+                                <span><span class="bullet"></span> Data Kelompok Buku dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                            </div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . ')</div>
+                            </div>
+                            </span>';
+                        break;
+                    case 'Restore':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                                <div class="ticket-title">
+                                    <span><span class="bullet"></span> Data Kelompok Buku direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                </div>
+                                <div class="ticket-info">
+                                    <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                    <div class="bullet pt-2"></div>
+                                    <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                                </div>
+                                </span>';
+                        break;
+                }
+            }
+            return $html;
+        }
     }
 }
