@@ -26,7 +26,7 @@
                     <div class="card card-danger">
                         <div class="card-body">
                             <div class="col-12 table-responsive">
-                                <table class="table table-striped" id="tb_KelompokBuku" style="width:100%">
+                                <table class="table table-striped" id="tb_FBuku" style="width:100%">
                                 </table>
                             </div>
                         </div>
@@ -53,7 +53,7 @@
 @section('jsNeeded')
     <script>
         $(function() {
-            $('#tb_KelompokBuku').DataTable({
+            $('#tb_FBuku').DataTable({
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -63,7 +63,7 @@
                     lengthMenu: '_MENU_ items/page',
                 },
                 ajax: {
-                    url: "{{ url('master/kelompok-buku/kelompok-buku-telah-dihapus') }}",
+                    url: "{{ url('master/format-buku/format-buku-telah-dihapus') }}",
                 },
                 columns: [{
                         data: 'no',
@@ -71,9 +71,9 @@
                         title: 'No'
                     },
                     {
-                        data: 'kelompok_buku',
-                        name: 'kelompok_buku',
-                        title: 'Nama Kelompok Buku'
+                        data: 'format_buku',
+                        name: 'format_buku',
+                        title: 'Jenis Format'
                     },
                     {
                         data: 'tgl_dibuat',

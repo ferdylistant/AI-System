@@ -24,7 +24,7 @@
                     </div>
                 </div>
                 <div class="section-header-button">
-                    <a href="{{ route('kb.telah_dihapus') }}" class="btn btn-danger">Format Buku Telah Dihapus</a>
+                    <a href="{{ route('fb.telah_dihapus') }}" class="btn btn-danger">Format Buku Telah Dihapus</a>
                 </div>
             @endif
         </div>
