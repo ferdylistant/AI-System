@@ -1,6 +1,7 @@
 $(function(){
     let tableOrderCetak = $("#tb_Orcet").DataTable({
-        responsive: true,
+        "responsive": true,
+        "autoWidth": true,
         processing: true,
         serverSide: true,
         language: {
