@@ -73,9 +73,9 @@ class UsersController extends Controller
         $urlPrev = url()->previous();
         $urlPrev = explode('/', $urlPrev);
         $btnPrev = end($urlPrev) == 'users' ? true : false;
-        // if($id == 'be8d42fa88a14406ac201974963d9c1b' AND auth()->id() != 'be8d42fa88a14406ac201974963d9c1b') {
-        //     abort(404);
-        // }
+        if($id == 'be8d42fa88a14406ac201974963d9c1b' AND auth()->id() != 'be8d42fa88a14406ac201974963d9c1b') {
+            abort(404);
+        }
 
         if (Gate::allows('do_update', 'ubah-data-user')) {
             $user = DB::table('users')->whereNull('deleted_at')
