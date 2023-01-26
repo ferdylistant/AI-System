@@ -604,20 +604,13 @@ class ImprintController extends Controller
         try {
             $id = $request->id;
             $pil_terbit = DB::table('pilihan_penerbitan')->get();
-            $params = FALSE;
-            $msg = '';
             foreach ($pil_terbit as $pt) {
-                if (in_array($id,$pt->platform_digital_ebook_id)) {
-                    $params = TRUE;
-                    $msg .= 'Platform digital tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!';
-                    break;
+                if (in_array($id,json_decode($pt->platform_digital_ebook_id))) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Platform digital tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!'
+                    ]);
                 }
-            }
-            if ($params == TRUE) {
-                return response()->json([
-                'status' => 'error',
-                'message' => $msg
-            ]);
             }
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             $insert = [
