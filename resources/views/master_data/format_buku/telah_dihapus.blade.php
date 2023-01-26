@@ -9,6 +9,7 @@
         href="https://cdn.datatables.net/responsive/2.2.0/css/responsive.dataTables.min.css">
     <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/SpinKit/spinkit.css') }}">
+    <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
 @endsection
 
 @section('content')
@@ -17,7 +18,7 @@
             <div class="section-header-back">
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
-            <h1>Data Kelompok Buku Yang Telah Dihapus</h1>
+            <h1>Data Format Buku Yang Telah Dihapus</h1>
         </div>
 
         <div class="section-body">
@@ -53,7 +54,7 @@
 @section('jsNeeded')
     <script>
         $(function() {
-            $('#tb_FBuku').DataTable({
+            let tableDelFBuku = $('#tb_FBuku').DataTable({
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -104,6 +105,52 @@
                     },
                 ]
             });
+
+            // Restore FBuku Start
+            $(document).ready(function() {
+                function ajaxRestoreFBuku(data) {
+                    $.ajax({
+                        type: "POST",
+                        url: window.location.origin +
+                            "/master/format-buku/restore",
+                        data: data,
+                        beforeSend: function() {
+                            $(".btn_ResFBuku")
+                                .prop("disabled", true)
+                                .addClass("btn-progress");
+                        },
+                        success: function(result) {
+                            if (result.status == "success") {
+                                tableDelFBuku.ajax.reload();
+                                notifToast(result.status, result.message);
+                            }
+                        },
+                        error: function(err) {},
+                        complete: function() {
+                            $(".btn_ResFBuku")
+                                .prop("disabled", true)
+                                .removeClass("btn-progress");
+                        },
+                    });
+                }
+                $(document).on("click", ".btn_ResFBuku", function(e) {
+                    let nama = $(this).data("nama"),
+                        id = $(this).data("id");
+                    swal({
+                        text: "Kembalikan data format buku (" + nama + ")?",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                    }).then((confirm_) => {
+                        if (confirm_) {
+                            ajaxRestoreFBuku({
+                                id: id
+                            })
+                        }
+                    });
+                });
+            });
+            // Restore FBuku End
         })
     </script>
 @endsection

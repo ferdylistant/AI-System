@@ -145,9 +145,11 @@ class FormatBukuController extends Controller
                 })
                 ->addColumn('action', function ($data) use ($update) {
                     if ($update) {
-                        $btn = '<a href="' . url('master/format-buku/restore?p=' . $data->id) . '"
-                                    class="d-block btn btn-sm btn-dark btn-icon" id="restore-format-buku" data-toggle="tooltip" title="Restore Data">
-                                    <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                        $btn = '<a href="#"
+                        class="d-block btn btn-sm btn_ResFBuku btn-dark btn-icon""
+                        data-toggle="tooltip" title="Restore Data"
+                        data-id="' . $data->id . '" data-nama="' . $data->jenis_format . '">
+                        <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
                     }
                     return $btn;
                 })
@@ -340,7 +342,7 @@ class FormatBukuController extends Controller
     }
     public function restoreFBuku(Request $request)
     {
-        $id = $request->get('p');
+        $id = $request->id;
         $restored = DB::table('format_buku')
             ->where('id', $id)
             ->update(['deleted_at' => null, 'deleted_by' => null]);
@@ -353,11 +355,9 @@ class FormatBukuController extends Controller
             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
         ];
         event(new MasterDataEvent($insert));
-        if ($restored) {
-            echo '<script>
-
-            window.location = "' . route('fb.view') . '";
-            </script>';
-        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Berhasil mengembalikan format buku!'
+        ]);
     }
 }

@@ -147,9 +147,11 @@ class ImprintController extends Controller
                 })
                 ->addColumn('action', function ($data) use ($update) {
                     if ($update) {
-                        $btn = '<a href="' . url('master/imprint/restore?p=' . $data->id) . '"
-                                    class="d-block btn btn-sm btn-dark btn-icon" id="restore-imprint" data-toggle="tooltip" title="Restore Data">
-                                    <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                        $btn = '<a href="#"
+                        class="d-block btn btn-sm btn_ResImprint btn-dark btn-icon""
+                        data-toggle="tooltip" title="Restore Data"
+                        data-id="' . $data->id . '" data-nama="' . $data->nama . '">
+                        <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
                     }
                     return $btn;
                 })
@@ -275,16 +277,10 @@ class ImprintController extends Controller
             'status' => 'success',
             'message' => 'Berhasil hapus data imprint!'
         ]);
-        if ($deleted) {
-            echo '<script>
-
-            window.location = "' . route('imprint.view') . '";
-            </script>';
-        }
     }
     public function restoreImprint(Request $request)
     {
-        $id = $request->get('p');
+        $id = $request->id;
         $restored = DB::table('imprint')
             ->where('id', $id)
             ->update(['deleted_at' => null, 'deleted_by' => null]);
@@ -297,12 +293,10 @@ class ImprintController extends Controller
             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
         ];
         event(new MasterDataEvent($insert));
-        if ($restored) {
-            echo '<script>
-
-            window.location = "' . route('imprint.view') . '";
-            </script>';
-        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Berhasil mengembalikan data imprint!'
+        ]);
     }
 
     public function lihatHistoryImprint(Request $request)
@@ -505,9 +499,11 @@ class ImprintController extends Controller
                 })
                 ->addColumn('action', function ($data) use ($update) {
                     if ($update) {
-                        $btn = '<a href="' . url('master/platform-digital/restore?p=' . $data->id) . '"
-                                    class="d-block btn btn-sm btn-dark btn-icon" id="restore-platform" data-toggle="tooltip" title="Restore Data">
-                                    <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                        $btn = '<a href="#"
+                        class="d-block btn btn-sm btn_ResPlatform btn-dark btn-icon""
+                        data-toggle="tooltip" title="Restore Data"
+                        data-id="' . $data->id . '" data-nama="' . $data->nama . '">
+                        <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
                     }
                     return $btn;
                 })
@@ -634,7 +630,7 @@ class ImprintController extends Controller
 
     public function restorePlatform(Request $request)
     {
-        $id = $request->get('p');
+        $id = $request->id;
         $restored = DB::table('platform_digital_ebook')
             ->where('id', $id)
             ->update(['deleted_at' => null, 'deleted_by' => null]);
@@ -647,12 +643,10 @@ class ImprintController extends Controller
             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
         ];
         event(new MasterDataEvent($insert));
-        if ($restored) {
-            echo '<script>
-
-            window.location = "' . route('platform.view') . '";
-            </script>';
-        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Berhasil mengembalikan data platform!'
+        ]);
     }
 
     public function lihatHistoryPlatform(Request $request)
