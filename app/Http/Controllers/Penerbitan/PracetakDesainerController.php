@@ -468,6 +468,10 @@ class PracetakDesainerController extends Controller
         if (!is_null($data->imprint)) {
             $nama_imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
         }
+        $format_buku = NULL;
+        if (!is_null($data->format_buku)) {
+            $format_buku = DB::table('format_buku')->where('id',$data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
+        }
         return view('penerbitan.pracetak_desainer.edit', [
             'title' => 'Pracetak Setter Proses',
             'data' => $data,
@@ -478,6 +482,7 @@ class PracetakDesainerController extends Controller
             'proses_saat_ini' => $prosesFilter,
             'penulis' => $penulis,
             'nama_imprint' => $nama_imprint,
+            'format_buku' => $format_buku,
         ]);
     }
     public function detailPracetakDesainer(Request $request)
@@ -741,6 +746,10 @@ class PracetakDesainerController extends Controller
         if (!is_null($data->imprint)) {
             $imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
         }
+        $format_buku = NULL;
+        if (!is_null($data->format_buku)) {
+            $format_buku = DB::table('format_buku')->where('id',$data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
+        }
         return view('penerbitan.pracetak_desainer.detail', [
             'title' => 'Detail Pracetak Cover',
             'data' => $data,
@@ -752,7 +761,8 @@ class PracetakDesainerController extends Controller
             'dataRole' => $dataRole,
             'done_proses' => $result,
             'proof_revisi' => $proofRevisi,
-            'imprint' => $imprint
+            'imprint' => $imprint,
+            'format_buku' => $format_buku,
         ]);
     }
     public function actionAjax(Request $request)

@@ -265,7 +265,7 @@ class ImprintController extends Controller
                 'type_history' => 'Delete',
                 'deleted_at' =>$tgl,
                 'author_id' => auth()->user()->id,
-                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'modified_at' => $tgl
             ];
             event(new MasterDataEvent($insert));
             return response()->json([
@@ -605,9 +605,9 @@ class ImprintController extends Controller
             $params = FALSE;
             $msg = '';
             foreach ($pil_terbit as $pt) {
-                if (in_array($id,json_decode($pt->platform_digital_ebook_id))) {
+                if (in_array($id,$pt->platform_digital_ebook_id)) {
                     $params = TRUE;
-                    $msg = 'Platform digital tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!';
+                    $msg .= 'Platform digital tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!';
                     break;
                 }
             }
@@ -617,14 +617,14 @@ class ImprintController extends Controller
                 'message' => $msg
             ]);
             }
-
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             $insert = [
                 'params' => 'Insert History Delete Platform',
                 'platform_id' => $id,
                 'type_history' => 'Delete',
-                'deleted_at' => date('Y-m-d H:i:s'),
+                'deleted_at' => $tgl,
                 'author_id' => auth()->user()->id,
-                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'modified_at' => $tgl
             ];
             event(new MasterDataEvent($insert));
             return response()->json([

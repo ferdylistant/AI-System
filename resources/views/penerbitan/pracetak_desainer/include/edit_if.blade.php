@@ -55,7 +55,7 @@
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Format Buku:</th>
                                 <td class="table-active text-right">
-                                    {{ is_null($data->format_buku) ? '-' : $data->format_buku.' cm' }}
+                                    {{ is_null($data->format_buku) ? '-' : $format_buku.' cm' }}
                                 </td>
                             </tr>
                             <tr>

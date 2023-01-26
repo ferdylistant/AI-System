@@ -123,7 +123,7 @@ class MasterDataListener
                 break;
             case 'Insert History Delete Imprint':
                 DB::beginTransaction();
-                $res =  DB::table('imprint')->where('id', $data['imprint_id'])->update([
+                $res = DB::table('imprint')->where('id', $data['imprint_id'])->update([
                     'deleted_at' => $data['deleted_at'],
                     'deleted_by' => $data['author_id']
                 ]);
@@ -240,13 +240,19 @@ class MasterDataListener
                 ]);
                 break;
             case 'Insert History Delete Format Buku':
-                $res = DB::table('format_buku_history')->insert([
+                DB::beginTransaction();
+                $res = DB::table('format_buku')->where('id', $data['format_buku_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                DB::table('format_buku_history')->insert([
                     'format_buku_id' => $data['format_buku_id'],
                     'type_history' => $data['type_history'],
                     'deleted_at' => $data['deleted_at'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
+                DB::commit();
                 break;
             case 'Insert History Restored Format Buku':
                 $res = DB::table('format_buku_history')->insert([

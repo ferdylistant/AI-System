@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 25, 2023 at 03:28 PM
+-- Generation Time: Jan 26, 2023 at 09:11 AM
 -- Server version: 5.7.41
 -- PHP Version: 7.4.33
 
@@ -931,18 +931,15 @@ INSERT INTO `format_buku` (`id`, `jenis_format`, `created_at`, `created_by`, `up
 CREATE TABLE `format_buku_history` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `format_buku_id` char(36) DEFAULT NULL,
+  `type_history` enum('Create','Update','Delete','Restore') DEFAULT NULL,
+  `jenis_format_name` varchar(10) DEFAULT NULL,
   `jenis_format_history` varchar(10) DEFAULT NULL,
   `jenis_format_new` varchar(10) DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  `restored_at` datetime DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `format_buku_history`
---
-
-INSERT INTO `format_buku_history` (`id`, `format_buku_id`, `jenis_format_history`, `jenis_format_new`, `author_id`, `modified_at`) VALUES
-(1, 'd5a2701a-f5d4-41f8-bacf-b40e778d5936', '10 x 152', '10 x 15', 'be8d42fa88a14406ac201974963d9c1b', '2022-09-23 11:21:27');
 
 -- --------------------------------------------------------
 
@@ -984,7 +981,7 @@ INSERT INTO `imprint` (`id`, `nama`, `created_at`, `created_by`, `updated_at`, `
 ('d78bebcd-5570-4dcf-9bd7-e9c99c72e072', 'MOU Pro Literasi', '2022-08-08 10:29:12', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
 ('e0d379e7-2a95-4de8-8050-1e0e5bf728bd', 'G-Media', '2022-08-08 10:27:49', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
 ('e82f2e7a-4492-4cc9-b6c9-b34ee1ce88ca', 'Lautan Pustaka', '2022-08-08 10:28:56', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL),
-('eb784613-9a0c-4fc3-b739-0abc12346917', 'Garam Media', '2022-08-08 10:29:54', 'be8d42fa88a14406ac201974963d9c1b', NULL, NULL, NULL, NULL);
+('eb784613-9a0c-4fc3-b739-0abc12346917', 'Garam Media', '2022-08-08 10:29:54', 'be8d42fa88a14406ac201974963d9c1b', '2023-01-25 09:35:45', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -995,8 +992,12 @@ INSERT INTO `imprint` (`id`, `nama`, `created_at`, `created_by`, `updated_at`, `
 CREATE TABLE `imprint_history` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `imprint_id` char(36) DEFAULT NULL,
+  `type_history` enum('Create','Update','Delete','Restore') DEFAULT NULL,
+  `imprint_name` varchar(100) DEFAULT NULL,
   `imprint_history` varchar(100) DEFAULT NULL,
   `imprint_new` varchar(100) DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  `restored_at` datetime DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -1005,11 +1006,9 @@ CREATE TABLE `imprint_history` (
 -- Dumping data for table `imprint_history`
 --
 
-INSERT INTO `imprint_history` (`id`, `imprint_id`, `imprint_history`, `imprint_new`, `author_id`, `modified_at`) VALUES
-(1, '8b102fb5-20d1-4a5c-89db-3a39dd01fd58', 'Andi', 'Andiiiiiiiiiiiiiiiiii', 'be8d42fa88a14406ac201974963d9c1b', '2022-09-22 20:44:43'),
-(2, '8b102fb5-20d1-4a5c-89db-3a39dd01fd58', 'Andiiiiiiiiiiiiiiiiii', 'Andi', 'be8d42fa88a14406ac201974963d9c1b', '2022-09-22 22:01:01'),
-(3, '8b102fb5-20d1-4a5c-89db-3a39dd01fd58', 'Andi', 'Andi Offset', 'be8d42fa88a14406ac201974963d9c1b', '2022-09-22 22:50:56'),
-(4, '8b102fb5-20d1-4a5c-89db-3a39dd01fd58', 'Andi Offset', 'Andi', 'be8d42fa88a14406ac201974963d9c1b', '2022-09-22 22:51:29');
+INSERT INTO `imprint_history` (`id`, `imprint_id`, `type_history`, `imprint_name`, `imprint_history`, `imprint_new`, `deleted_at`, `restored_at`, `author_id`, `modified_at`) VALUES
+(1, 'eb784613-9a0c-4fc3-b739-0abc12346917', 'Delete', NULL, NULL, NULL, '2023-01-25 16:35:18', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-25 16:35:18'),
+(2, 'eb784613-9a0c-4fc3-b739-0abc12346917', 'Restore', NULL, NULL, NULL, NULL, '2023-01-25 16:35:45', 'be8d42fa88a14406ac201974963d9c1b', '2023-01-25 16:35:45');
 
 -- --------------------------------------------------------
 
@@ -1856,19 +1855,16 @@ INSERT INTO `penerbitan_m_kelompok_buku` (`id`, `kode`, `nama`, `created_by`, `u
 CREATE TABLE `penerbitan_m_kelompok_buku_history` (
   `id` bigint(20) NOT NULL,
   `kelompok_buku_id` varchar(36) DEFAULT NULL,
+  `type_history` enum('Create','Update','Delete','Restore') DEFAULT NULL,
+  `kode` varchar(6) DEFAULT NULL,
+  `kelompok_buku_name` varchar(100) DEFAULT NULL,
   `kelompok_buku_history` varchar(100) DEFAULT NULL,
   `kelompok_buku_new` varchar(100) DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  `restored_at` datetime DEFAULT NULL,
   `author_id` varchar(36) DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `penerbitan_m_kelompok_buku_history`
---
-
-INSERT INTO `penerbitan_m_kelompok_buku_history` (`id`, `kelompok_buku_id`, `kelompok_buku_history`, `kelompok_buku_new`, `author_id`, `modified_at`) VALUES
-(1, '87cf57e453044cb890784aacc59461f6', 'Aplikasi Office Com', 'Aplikasi Office Com', 'be8d42fa88a14406ac201974963d9c1b', '2022-09-23 10:15:17'),
-(2, '87cf57e453044cb890784aacc59461f6', 'Aplikasi Office Com', 'Aplikasi Office', 'be8d42fa88a14406ac201974963d9c1b', '2022-09-23 10:15:44');
 
 -- --------------------------------------------------------
 
@@ -2653,22 +2649,6 @@ CREATE TABLE `platform_digital_ebook_history` (
   `author_id` varchar(36) DEFAULT NULL,
   `modified_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `platform_digital_ebook_history`
---
-
-INSERT INTO `platform_digital_ebook_history` (`id`, `platform_id`, `type_history`, `platform_name`, `platform_history`, `platform_new`, `deleted_at`, `restored_at`, `author_id`, `modified_at`) VALUES
-(1, 'e15a923a-c839-43fb-9e28-14e577ec7527', 'Delete', NULL, NULL, NULL, '2023-01-17 14:13:50', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-17 14:13:50'),
-(2, 'e15a923a-c839-43fb-9e28-14e577ec7527', 'Restore', NULL, NULL, NULL, NULL, '2023-01-17 16:00:03', 'be8d42fa88a14406ac201974963d9c1b', '2023-01-17 16:00:03'),
-(3, 'e15a923a-c839-43fb-9e28-14e577ec7527', 'Delete', NULL, NULL, NULL, '2023-01-17 16:07:25', NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-17 16:07:25'),
-(4, 'e15a923a-c839-43fb-9e28-14e577ec7527', 'Restore', NULL, NULL, NULL, NULL, '2023-01-17 16:07:58', 'be8d42fa88a14406ac201974963d9c1b', '2023-01-17 16:07:58'),
-(5, 'e15a923a-c839-43fb-9e28-14e577ec7527', 'Update', NULL, 'Esentral Okee', 'Esentral Edited', NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-17 16:08:49'),
-(6, '35a05fdc-50cf-4778-ad40-5d1872e830bd', 'Restore', NULL, NULL, NULL, NULL, '2023-01-17 16:10:40', 'be8d42fa88a14406ac201974963d9c1b', '2023-01-17 16:10:40'),
-(7, '1efef563-74b2-4256-b19d-3411a4d5bbe5', 'Restore', NULL, NULL, NULL, NULL, '2023-01-17 16:10:44', 'be8d42fa88a14406ac201974963d9c1b', '2023-01-17 16:10:44'),
-(8, '936d0e51-e1b6-4cfe-a474-b210ff89f6fd', 'Create', 'Zammbas za', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-17 16:35:52'),
-(9, 'c038acc9-dc60-4886-a8ef-fce528c45372', 'Create', 'XXXX', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-17 16:39:42'),
-(10, '8a26b92c-ec5c-4fa0-ba28-46bab67bbc68', 'Create', 'Saaa', NULL, NULL, NULL, NULL, 'be8d42fa88a14406ac201974963d9c1b', '2023-01-17 16:51:45');
 
 -- --------------------------------------------------------
 
@@ -4688,13 +4668,13 @@ ALTER TABLE `editing_proses_selesai`
 -- AUTO_INCREMENT for table `format_buku_history`
 --
 ALTER TABLE `format_buku_history`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `imprint_history`
 --
 ALTER TABLE `imprint_history`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `order_cetak_action`
@@ -4724,7 +4704,7 @@ ALTER TABLE `order_ebook_history`
 -- AUTO_INCREMENT for table `penerbitan_m_kelompok_buku_history`
 --
 ALTER TABLE `penerbitan_m_kelompok_buku_history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `penerbitan_naskah_history`
@@ -4736,7 +4716,7 @@ ALTER TABLE `penerbitan_naskah_history`
 -- AUTO_INCREMENT for table `platform_digital_ebook_history`
 --
 ALTER TABLE `platform_digital_ebook_history`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pracetak_cover_history`

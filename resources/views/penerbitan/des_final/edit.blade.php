@@ -291,7 +291,7 @@ width: 100%;
                                                     <th class="table-secondary" style="width: 25%">Format Buku: <span class="text-danger">*</span></th>
                                                     @if (!is_null($data->format_buku))
                                                     <td class="table-active text-right" id="formatBukuCol">
-                                                        {{$data->format_buku}} cm
+                                                        {{$format_buku}} cm
                                                         <p class="text-small">
                                                             <a href="javascript:void(0)" id="formatBukuButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                                         </p>
@@ -300,8 +300,8 @@ width: 100%;
                                                         <div class="input-group">
                                                             <select name="format_buku" class="form-control select-format-buku" required>
                                                                 <option label="Pilih format buku"></option>
-                                                                @foreach ($format_buku as $fb)
-                                                                    <option value="{{$fb->jenis_format}}" {{$data->format_buku==$fb->jenis_format?'Selected':''}}>{{$fb->jenis_format}}&nbsp;cm&nbsp;&nbsp;</option>
+                                                                @foreach ($format_buku_list as $fb)
+                                                                    <option value="{{$fb->id}}" {{$data->format_buku==$fb->id?'Selected':''}}>{{$fb->jenis_format}}&nbsp;cm&nbsp;&nbsp;</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="input-group-append">
@@ -313,8 +313,8 @@ width: 100%;
                                                     <td class="table-active text-left">
                                                         <select name="format_buku" class="form-control select-format-buku" required>
                                                             <option label="Pilih format buku"></option>
-                                                            @foreach ($format_buku as $fb)
-                                                                <option value="{{$fb->jenis_format}}">{{$fb->jenis_format}}&nbsp;cm&nbsp;&nbsp;</option>
+                                                            @foreach ($format_buku_list as $fb)
+                                                                <option value="{{$fb->id}}">{{$fb->jenis_format}}&nbsp;cm&nbsp;&nbsp;</option>
                                                             @endforeach
                                                         </select>
                                                     </td>
@@ -702,7 +702,7 @@ width: 100%;
                                                 <th class="table-secondary" style="width: 25%">Format Buku: <span class="text-danger">*</span></th>
                                                 <td class="table-active text-right">
                                                     @if (!is_null($data->format_buku))
-                                                        {{$data->format_buku}} cm
+                                                        {{$format_buku}} cm
                                                     @else
                                                     <span class="text-danger text-small">Belum diinput</span>
                                                     @endif

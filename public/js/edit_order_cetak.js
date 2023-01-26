@@ -237,6 +237,9 @@ function loadDataValue() {
                     case 'buku_jadi':
                         $('[name="up_buku_jadi"]').val([data[n]]);
                         break;
+                    // case 'format_buku':
+                    //     $('[name="up_format_buku"]').val([data[n]]);
+                    //     break;
                     case 'finishing_cover':
                         $.map(JSON.parse(data[n]), function (item) {
                             $(".select-finishing-cover").select2("trigger", "select", {

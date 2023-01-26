@@ -279,7 +279,7 @@
                                             <h6 class="mb-1">Format Buku</h6>
                                         </div>
                                         <p class="mb-1 text-monospace">
-                                            {{ is_null($data->format_buku) ? '-' : $data->format_buku . ' cm' }}
+                                            {{ is_null($data->format_buku) ? '-' : $format_buku . ' cm' }}
                                         </p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
