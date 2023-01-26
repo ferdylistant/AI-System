@@ -9,6 +9,7 @@
         href="https://cdn.datatables.net/responsive/2.2.0/css/responsive.dataTables.min.css">
     <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/SpinKit/spinkit.css') }}">
+    <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
 @endsection
 
 @section('content')
@@ -53,7 +54,7 @@
 @section('jsNeeded')
     <script>
         $(function() {
-            $('#tb_KelompokBuku').DataTable({
+            let tableDelKBuku = $('#tb_KelompokBuku').DataTable({
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -104,6 +105,52 @@
                     },
                 ]
             });
+
+            // Restore KBuku Start
+            $(document).ready(function() {
+                function ajaxRestoreKBuku(data) {
+                    $.ajax({
+                        type: "POST",
+                        url: window.location.origin +
+                            "/master/kelompok-buku/restore",
+                        data: data,
+                        beforeSend: function() {
+                            $(".btn_ResKBuku")
+                                .prop("disabled", true)
+                                .addClass("btn-progress");
+                        },
+                        success: function(result) {
+                            if (result.status == "success") {
+                                tableDelKBuku.ajax.reload();
+                                notifToast(result.status, result.message);
+                            }
+                        },
+                        error: function(err) {},
+                        complete: function() {
+                            $(".btn_ResKBuku")
+                                .prop("disabled", true)
+                                .removeClass("btn-progress");
+                        },
+                    });
+                }
+                $(document).on("click", ".btn_ResKBuku", function(e) {
+                    let nama = $(this).data("nama"),
+                        id = $(this).data("id");
+                    swal({
+                        text: "Kembalikan data kelompok buku (" + nama + ")?",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                    }).then((confirm_) => {
+                        if (confirm_) {
+                            ajaxRestoreKBuku({
+                                id: id
+                            })
+                        }
+                    });
+                });
+            });
+            // Restore KBuku End
         })
     </script>
 @endsection
