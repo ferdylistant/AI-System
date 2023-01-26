@@ -438,16 +438,15 @@ class OrderEbookController extends Controller
             }
         } else {
             if ($update) {
-                $role = DB::table('order_ebook_action')->where('order_ebook_id', $id)->orderBy('id','desc')->first();
-                if (!is_null($role)) {
-                    switch($role->type_departemen) {
-                        case 'Penerbitan':
+                $role = DB::table('order_ebook_action')->where('order_ebook_id', $id)->get();
+                if (!$role->isEmpty()) {
+                    foreach ($role as $r) {
+                        if (!Gate::allows('do_approval', $r->type_departemen)) {
+                            $btn = $this->buttonEdit($id, $kode, $btn);
+                            break;
+                        }
                     }
-                    if (!Gate::allows('do_approval', $role->type_departemen)) {
-                        $btn = $this->buttonEdit($id, $kode, $btn);
-                        // break;
-                    }
-                } else {
+                }  else {
                     $btn = $this->buttonEdit($id, $kode, $btn);
                 }
             }
