@@ -265,7 +265,7 @@ class ImprintController extends Controller
                 'params' => 'Insert History Delete Imprint',
                 'imprint_id' => $id,
                 'type_history' => 'Delete',
-                'deleted_at' =>$tgl,
+                'deleted_at' => $tgl,
                 'author_id' => auth()->user()->id,
                 'modified_at' => $tgl
             ];
