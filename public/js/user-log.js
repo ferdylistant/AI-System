@@ -17,11 +17,6 @@ $(function () {
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', searchable: false },
             {
-                data: "no",
-                name: "no",
-                title: "No",
-            },
-            {
                 data: "ip",
                 name: "ip",
                 title: "Ip Address",

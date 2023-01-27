@@ -88,7 +88,6 @@ class UsersController extends Controller
                     return $data->last_login;
                 })
                 ->rawColumns([
-                    'no',
                     'ip',
                     'browser',
                     'terakhir_login'
