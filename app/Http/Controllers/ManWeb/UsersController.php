@@ -25,7 +25,8 @@ class UsersController extends Controller
                 if (auth()->id() != 'be8d42fa88a14406ac201974963d9c1b') { // Only Super Admin
                     $data = $data->where('u.id', '<>', 'be8d42fa88a14406ac201974963d9c1b');
                 }
-                $data = $data->select(DB::raw('
+                $data = $data->orderBy('u.nama','asc')
+                    ->select(DB::raw('
                             u.id, u.nama, u.email, (case when status > 0 then "Aktif" else "Non Aktif" end) as status,
                             c.nama as cabang, d.nama as divisi, j.nama as jabatan
                         '))
@@ -41,9 +42,9 @@ class UsersController extends Controller
                     })
                     ->addColumn('action', function ($data) {
                         $btn = '<a href="' . url('manajemen-web/user/' . $data->id) . '"
-                                    class="btn btn-sm btn-primary mr-2" >
+                                    class="d-block btn btn-sm btn-primary mr-1"  data-toggle="tooltip" title="Lihat Data">
                                     <div><i class="fa fa-folder-open"></i></div></a>';
-                        $btn .= '<a href="#" class="btn_DelUser btn btn-sm btn-danger"
+                        $btn .= '<a href="#" class="btn_DelUser d-block btn btn-sm btn-danger mr-1 mt-1"  data-toggle="tooltip" title="Hapus Data"
                                     data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                                     <div><i class="fa fa-trash"></i></div></a>';
                         return $btn;
@@ -240,6 +241,9 @@ class UsersController extends Controller
 
     protected function updatePassword(Request $request)
     {
+        if (auth()->user()->id != $request->input('uedit_pwd_id')) {
+            return abort(403);
+        }
         $user = DB::table('users')->where('id', $request->input('uedit_pwd_id'))->first();
         if (is_null($user)) {
             return abort(404);

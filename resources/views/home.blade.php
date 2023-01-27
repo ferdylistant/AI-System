@@ -132,7 +132,7 @@
                 </div>
             </div>
         @endif
-        {{-- @if (Gate::allows('do_read_raw','lihat-order-cetak'))
+        @if (Gate::allows('do_read_raw','lihat-order-cetak'))
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">
                     <div class="card-icon bg-info">
@@ -148,7 +148,7 @@
                     </div>
                 </div>
             </div>
-        @endif --}}
+        @endif
         @if (Gate::allows('do_read_raw','lihat-order-ebook'))
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">
@@ -206,7 +206,7 @@
                 <div class="hero text-white hero-bg-image hero-bg-parallax" style="background-image: url('images/background-home.avif');">
                     <div class="hero-inner">
                         <h2>Selamat datang, {{ $userdata->nama}}!</h2>
-                        <p class="lead">You almost arrived, complete the information about your account to complete registration. {{$id}}</p>
+                        <p class="lead">You almost arrived, complete the information about your account to complete registration.</p>
                         <div class="mt-4">
                         <a href="{{url('manajemen-web/user/'.$userdata->id)}}" class="btn btn-outline-white btn-lg btn-icon icon-left"><i class="far fa-user"></i> Setup Account</a>
                         </div>

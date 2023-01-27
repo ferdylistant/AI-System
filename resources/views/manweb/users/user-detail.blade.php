@@ -25,8 +25,16 @@
                 @if(Auth::user()->can('do_update', 'ubah-data-user') OR Auth::id() == $user->id)
                     @include('manweb.users.fedit-data-user')
                 @else
+                @php
+                    $words = explode(" ", $user->nama);
+                    $acronym = "";
+
+                    foreach ($words as $w) {
+                    $acronym .= mb_substr($w, 0, 1);
+                    }
+                @endphp
                 <div class="profile-widget-header">
-                    <img alt="image" src="{{url('storage/users/'.$user->id.'/'.$user->avatar)}}" class="rounded-circle profile-widget-picture">
+                    <img alt="{{ \Str::upper($acronym) }}" src="{{url('storage/users/'.$user->id.'/'.$user->avatar)}}" class="rounded-circle profile-widget-picture">
                 </div>
                 <div class="profile-widget-description">
                     <div class="row">
