@@ -88,7 +88,8 @@ class UsersController extends Controller
                     return $data->user_agent;
                 })
                 ->addColumn('terakhir_login', function ($data) {
-                    return $data->last_login;
+                    $diff = Carbon::createFromFormat('Y-m-d H:i:s', $data->last_login, 'Asia/Jakarta')->diffForHumans();
+                    return $data->last_login.' ('.$diff.')';
                 })
                 ->rawColumns([
                     'no',

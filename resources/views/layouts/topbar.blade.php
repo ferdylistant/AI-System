@@ -34,9 +34,12 @@
                 <a href="{{url('manajemen-web/user/'.auth()->id())}}" class="dropdown-item has-icon">
                     <i class="far fa-user"></i> Profile
                 </a>
+                @if (auth()->id()=='be8d42fa88a14406ac201974963d9c1b')
                 <a href="{{url('setting')}}" class="dropdown-item has-icon">
                     <i class="fas fa-cog"></i> Settings
                 </a>
+
+                @endif
                 <div class="dropdown-divider"></div>
                 <a href="#" class="dropdown-item has-icon text-danger"
                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
