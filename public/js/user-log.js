@@ -15,7 +15,11 @@ $(function () {
             url: window.location.origin + "/manajemen-web/user/" + id,
         },
         columns: [
-            { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', searchable: false },
+            {
+                data: "no",
+                name: "no",
+                title: "No",
+            },
             {
                 data: "ip",
                 name: "ip",

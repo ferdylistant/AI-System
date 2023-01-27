@@ -76,8 +76,11 @@ class UsersController extends Controller
                 ->where('users_id',$id)
                 ->orderBy('last_login','desc')
                 ->get();
+            $start = 1;
             return DataTables::of($data)
-                ->addIndexColumn()
+                ->addColumn('no', function ($no) use (&$start) {
+                    return $start++;
+                })
                 ->addColumn('ip', function ($data) {
                     return $data->ip_address;
                 })
@@ -88,6 +91,7 @@ class UsersController extends Controller
                     return $data->last_login;
                 })
                 ->rawColumns([
+                    'no',
                     'ip',
                     'browser',
                     'terakhir_login'
