@@ -30,7 +30,10 @@
                 <div class="d-sm-none d-lg-inline-block">Hi, {{Auth::user()->nama}}</div>
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-                <div class="dropdown-title">Logged in 5 min ago</div>
+                @php
+                    $log = DB::table('user_log')->where('users_id',auth()->user()->id)->orderBy('last_login','desc')->first();
+                @endphp
+                <div class="dropdown-title">Telah masuk {{Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $log->last_login)->diffForHumans()}}</div>
                 <a href="{{url('manajemen-web/user/'.auth()->id())}}" class="dropdown-item has-icon">
                     <i class="far fa-user"></i> Profile
                 </a>
@@ -41,7 +44,7 @@
 
                 @endif
                 <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item has-icon text-danger"
+                <a href="javascript:void(0)" class="dropdown-item has-icon text-danger"
                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>

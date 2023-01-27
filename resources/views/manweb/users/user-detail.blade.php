@@ -7,10 +7,12 @@
         href="https://cdn.datatables.net/rowreorder/1.2.3/css/rowReorder.dataTables.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/responsive/2.2.0/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/hummingbird-treeview/hummingbird-treeview.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.css" />
 @endsection
 
 @section('content')
@@ -40,9 +42,11 @@
                                 }
                             @endphp
                             <div class="profile-widget-header">
-                                <img alt="{{ Str::upper($acronym) }}"
+                                <a href="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}" data-magnify="gallery">
+                                    <img alt="{{ Str::upper($acronym) }}"
                                     src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
                                     class="rounded-circle profile-widget-picture">
+                                </a>
                             </div>
                             <div class="profile-widget-description">
                                 <div class="row">
@@ -167,6 +171,31 @@
             </div>
         </div>
     </section>
+    <!-- This is the modal -->
+<div class="modal" tabindex="-1" role="dialog" id="uploadimageModal">
+    <div class="modal-dialog" role="document" style="min-width: 700px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <input type="hidden" name="id" id="idInModal" value="">
+                        <div id="image_demo"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary crop_image">Crop and Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 
@@ -177,6 +206,7 @@
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
+    <script src="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
     <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/hummingbird-treeview/hummingbird-treeview.js') }}"></script>
@@ -184,12 +214,14 @@
     <script src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
     <script src="{{ url('vendors/sweetalert/dist/sweetalert.min.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
 @endsection
 
 @section('jsNeeded')
     <script src="{{ url('js/user-log.js') }}" defer></script>
     <script>
         $(document).ready(function() {
+
             // Initial
             $('#treeview').hummingbird();
             $('.datepicker').datepicker({
@@ -203,13 +235,81 @@
                     $(this).valid();
                 }
             });
-
-            let editUser = jqueryValidation_('#fm_EditUser', {
-                uedit_pp: {
-                    extension: "jpg,jpeg,png",
-                    maxsize: 300000,
+            var image_crop = $('#image_demo').croppie({
+                viewport: {
+                    width: 300,
+                    height: 300,
+                    type:'circle'
                 },
+                boundary:{
+                    width: 650,
+                    height: 350
+                }
             });
+            $('#cover_image').on('change', function(){
+                var reader = new FileReader();
+                var id = $(this).data('id');
+                reader.onload = function (event) {
+                    image_crop.croppie('bind', {
+                        url: event.target.result,
+                    });
+                }
+                reader.readAsDataURL(this.files[0]);
+                $('#idInModal').val(id);
+                $('#uploadimageModal').modal('show');
+            });
+            /// Get button click event and get the current crop image
+            $('.crop_image').click(function(event){
+                var formData = new FormData();
+                let id = $('[name=id]').val();
+                image_crop.croppie('result', {type: 'canvas',size: 'viewport', format: 'jpeg'|'png'|'webp',circle:true}).then(function(blob) {
+                    formData.append('cropped_image', blob);
+                    ajaxFormPost(formData, window.location.origin+"/manajemen-web/user/ajax/save-image/"+id); /// Calling my ajax function with my blob data passed to it
+                });
+                $('#uploadimageModal').modal('hide');
+            });/// Ajax Function
+            function ajaxFormPost(formData, actionURL){
+                $.ajax({
+                    url: actionURL,
+                    type: 'POST',
+                    data: formData,
+                    cache: false,
+                    async: true,
+                    processData: false,
+                    contentType: false,
+                    timeout: 5000,
+                    beforeSend: function () {
+                        $("#overlay").fadeIn(300);
+                    },
+                    success: function(response) {
+                        // console.log(formData);
+                        // console.log(response);
+                        notifToast(response.status, response.message);
+                        if (response.status === 'success') {
+                            window.location.reload();
+                        }
+                    },
+                    complete: function(){
+                        setTimeout(function () {
+                            $("#overlay").fadeOut(300);
+                        }, 500);
+                    }
+                });
+            }
+            $('[data-magnify]').magnify({
+                resizable: false,
+                title: false,
+                draggable: false,
+                headerToolbar: [
+                    'close'
+                ],
+            });
+            // let editUser = jqueryValidation_('#fm_EditUser', {
+            //     uedit_pp: {
+            //         extension: "jpg,jpeg,png",
+            //         maxsize: 300000,
+            //     },
+            // });
 
             function ajaxEditUser(data) {
                 let el = data.get(0);
@@ -236,7 +336,7 @@
                                 let [key, value] = entry;
                                 err[key] = value
                             })
-                            editUser.showErrors(err);
+                            // editUser.showErrors(err);
                         }
                         notifToast('error', 'Data user gagal diubah!');
                     },
