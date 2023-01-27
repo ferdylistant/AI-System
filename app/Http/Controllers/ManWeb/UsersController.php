@@ -72,7 +72,8 @@ class UsersController extends Controller
     {
         if ($request->ajax()) {
             $data = DB::table('user_log')
-                // ->orderBy('last_login', 'desc')
+                ->where('users_id', $id)
+                ->orderBy('last_login', 'desc')
                 ->get();
             $update = Gate::allows('do_update', 'data-user-log');
             // foreach ($data as $key => $value) {

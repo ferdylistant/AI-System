@@ -156,8 +156,15 @@
                                         </form>
                                     </div>
                                 @endif
-                                <div class="tab-pane fade" id="user-status" role="tabpanel"
-                                    aria-labelledby="user-status-tab">
+                                <div class="tab-pane fade d-flex justify-content-center mt-5" id="user-status"
+                                    role="tabpanel" aria-labelledby="user-status-tab">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" name="proses" class="custom-control-input"
+                                            id="prosesKerja">
+                                        <label class="custom-control-label mr-3 text-dark" for="prosesKerja">
+                                            Ubah Status
+                                        </label>
+                                    </div>
                                     <span class="badge badge-success">{{ $userStatus }}</span>
                                 </div>
                             </div>
