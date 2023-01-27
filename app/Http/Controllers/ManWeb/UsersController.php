@@ -68,11 +68,43 @@ class UsersController extends Controller
         ]);
     }
 
-    public function selectUser($id)
+    public function selectUser(Request $request, $id)
     {
+        if ($request->ajax()) {
+            $data = DB::table('user_log')
+                // ->orderBy('last_login', 'desc')
+                ->get();
+            $update = Gate::allows('do_update', 'data-user-log');
+            // foreach ($data as $key => $value) {
+            //     $no = $key + 1;
+            // }
+            $start = 1;
+            return DataTables::of($data)
+                ->addColumn('no', function ($no) use (&$start) {
+                    return $start++;
+                })
+                ->addColumn('ip', function ($data) {
+                    return $data->ip_address;
+                })
+                ->addColumn('browser', function ($data) {
+                    return $data->user_agent;
+                })
+                ->addColumn('terakhir_login', function ($data) {
+                    return $data->last_login;
+                })
+                ->rawColumns([
+                    'no',
+                    'ip',
+                    'browser',
+                    'terakhir_login'
+                ])
+                ->make(true);
+        }
         $urlPrev = url()->previous();
         $urlPrev = explode('/', $urlPrev);
         $btnPrev = end($urlPrev) == 'users' ? true : false;
+        $q = DB::table('users')->where('id', $id)->first('status');
+        $userStatus = $q->status == 1 ? 'Aktif' : 'Tidak Aktif';
         // if($id == 'be8d42fa88a14406ac201974963d9c1b' AND auth()->id() != 'be8d42fa88a14406ac201974963d9c1b') {
         //     abort(404);
         // }
@@ -109,6 +141,7 @@ class UsersController extends Controller
             return view('manweb.users.user-detail', [
                 'btnPrev' => $btnPrev,
                 'user' => (object)$user, 'lcab' => $lcab, 'ldiv' => $ldiv, 'ljab' => $ljab,
+                'userStatus' => $userStatus,
                 'accBagian' => collect($userAccess['accbag']),
                 'access' => collect(['ls' => $userAccess['ls'], 'ld' => $userAccess['ld']]),
                 'permissions' => $userAccess['perm'],
@@ -118,6 +151,7 @@ class UsersController extends Controller
             return view('manweb.users.user-detail', [
                 'btnPrev' => $btnPrev,
                 'user' => (object)$user,
+                'userStatus' => $userStatus,
                 'title' => 'Detail User'
             ]);
         }

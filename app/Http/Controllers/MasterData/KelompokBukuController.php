@@ -262,29 +262,35 @@ class KelompokBukuController extends Controller
     }
     public function deleteKbuku(Request $request)
     {
-        $id = $request->id;
-        $deleted = DB::table('penerbitan_m_kelompok_buku')->where('id', $id)->update([
-            'deleted_by' => auth()->id(),
-            'deleted_at' => date('Y-m-d H:i:s')
-        ]);
-        $insert = [
-            'params' => 'Insert History Delete Kelompok Buku',
-            'kelompok_buku_id' => $id,
-            'type_history' => 'Delete',
-            'deleted_at' => date('Y-m-d H:i:s'),
-            'author_id' => auth()->user()->id,
-            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-        ];
-        event(new MasterDataEvent($insert));
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Berhasil hapus data kelompok buku!'
-        ]);
-        if ($deleted) {
-            echo '<script>
-
-            window.location = "' . route('kb.view') . '";
-            </script>';
+        try {
+            $id = $request->id;
+            //Check Relasi
+            $relation = DB::table('penerbitan_naskah')->where('kelompok_buku_id', $id)->first();
+            if (!is_null($relation)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Kelompok buku tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!'
+                ]);
+            }
+            $insert = [
+                'params' => 'Insert History Delete Kelompok Buku',
+                'kelompok_buku_id' => $id,
+                'type_history' => 'Delete',
+                'deleted_at' => date('Y-m-d H:i:s'),
+                'author_id' => auth()->user()->id,
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new MasterDataEvent($insert));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil hapus data kelompok buku!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
         }
     }
     public function restoreKBuku(Request $request)

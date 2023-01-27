@@ -432,18 +432,38 @@ class OrderEbookController extends Controller
     }
     protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)
     {
-        if ($update) {
-            $btn = $this->buttonEdit($id, $kode, $btn);
+        if ($status == 'Selesai') {
+            if (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') {
+                $btn = $this->buttonEdit($id, $kode, $btn);
+            }
         } else {
-            if ($status == 'Selesai') {
-                if (Gate::allows('do_approval', 'approval-deskripsi-produk') || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
+            if ($update) {
+                $role = DB::table('order_ebook_action')->where('order_ebook_id', $id)->get();
+                if (!$role->isEmpty()) {
+                    foreach ($role as $r) {
+                        if (!Gate::allows('do_approval', $r->type_departemen)) {
+                            $btn = $this->buttonEdit($id, $kode, $btn);
+                            break;
+                        }
+                    }
+                }  else {
                     $btn = $this->buttonEdit($id, $kode, $btn);
                 }
             }
         }
 
         if ($update) {
-            $btn = $this->panelStatusAdmin($status, $id, $kode, $judul_final, $btn);
+            if (Gate::allows('do_approval', 'Penerbitan')) {
+                $btn = $this->panelStatusGuest($status, $btn);
+            } elseif (Gate::allows('do_approval', 'Marketing & Ops')) {
+                $btn = $this->panelStatusGuest($status, $btn);
+            } elseif (Gate::allows('do_approval', 'Keuangan')) {
+                $btn = $this->panelStatusGuest($status, $btn);
+            } elseif (Gate::allows('do_approval', 'Direktur Utama')) {
+                $btn = $this->panelStatusGuest($status, $btn);
+            } else {
+                $btn = $this->panelStatusAdmin($status, $id, $kode, $judul_final, $btn);
+            }
         } else {
             $btn = $this->panelStatusGuest($status, $btn);
         }

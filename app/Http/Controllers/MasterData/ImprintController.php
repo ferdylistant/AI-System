@@ -209,7 +209,6 @@ class ImprintController extends Controller
             'title' => 'Tambah Imprint Penerbitan'
         ]);
     }
-
     public function updateImprint(Request $request)
     {
         if ($request->ajax()) {
@@ -251,32 +250,37 @@ class ImprintController extends Controller
     }
     public function deleteImprint(Request $request)
     {
-        $id = $request->id;
-        // CHECK RELASI
-        $relation = DB::table('deskripsi_produk')->where('imprint', $id)->first();
-        if (!is_null($relation)) {
+        try {
+            $id = $request->id;
+            // CHECK RELASI
+            $relation = DB::table('deskripsi_produk')->where('imprint', $id)->first();
+            if (!is_null($relation)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Imprint tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!'
+                ]);
+            }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $insert = [
+                'params' => 'Insert History Delete Imprint',
+                'imprint_id' => $id,
+                'type_history' => 'Delete',
+                'deleted_at' => $tgl,
+                'author_id' => auth()->user()->id,
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new MasterDataEvent($insert));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil hapus data imprint!',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
-                'message' => 'Imprint tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!'
+                'message' => $e->getMessage()
             ]);
         }
-        $deleted = DB::table('imprint')->where('id', $id)->update([
-            'deleted_by' => auth()->id(),
-            'deleted_at' => date('Y-m-d H:i:s')
-        ]);
-        $insert = [
-            'params' => 'Insert History Delete Imprint',
-            'imprint_id' => $id,
-            'type_history' => 'Delete',
-            'deleted_at' => date('Y-m-d H:i:s'),
-            'author_id' => auth()->user()->id,
-            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-        ];
-        event(new MasterDataEvent($insert));
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Berhasil hapus data imprint!'
-        ]);
     }
     public function restoreImprint(Request $request)
     {
@@ -298,7 +302,6 @@ class ImprintController extends Controller
             'message' => 'Berhasil mengembalikan data imprint!'
         ]);
     }
-
     public function lihatHistoryImprint(Request $request)
     {
         if ($request->ajax()) {
@@ -453,7 +456,6 @@ class ImprintController extends Controller
             'title' => 'Platform Digital',
         ]);
     }
-
     public function platformTelahDihapus(Request $request)
     {
         if ($request->ajax()) {
@@ -523,7 +525,6 @@ class ImprintController extends Controller
             'title' => 'Platform Digital Telah Dihapus',
         ]);
     }
-
     public function createPlatform(Request $request)
     {
         if ($request->ajax()) {
@@ -558,7 +559,6 @@ class ImprintController extends Controller
             }
         }
     }
-
     public function updatePlatform(Request $request)
     {
         if ($request->ajax()) {
@@ -599,35 +599,48 @@ class ImprintController extends Controller
             return response()->json($data);
         }
     }
-
     public function deletePlatform(Request $request)
     {
-        $id = $request->id;
-        $deleted = DB::table('platform_digital_ebook')->where('id', $id)->update([
-            'deleted_by' => auth()->id(),
-            'deleted_at' => date('Y-m-d H:i:s')
-        ]);
-        $insert = [
-            'params' => 'Insert History Delete Platform',
-            'platform_id' => $id,
-            'type_history' => 'Delete',
-            'deleted_at' => date('Y-m-d H:i:s'),
-            'author_id' => auth()->user()->id,
-            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-        ];
-        event(new MasterDataEvent($insert));
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Berhasil hapus data platform!'
-        ]);
-        if ($deleted) {
-            echo '<script>
+        try {
+            $id = $request->id;
+            $pil_terbit = DB::table('pilihan_penerbitan')->get();
+            $params = FALSE;
+            $msg = '';
+            foreach ($pil_terbit as $pt) {
+                if (in_array($id, json_decode($pt->platform_digital_ebook_id))) {
+                    $params = TRUE;
+                    $msg = 'Platform digital tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!';
+                    break;
+                }
+            }
+            if ($params == TRUE) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $msg
+                ]);
+            }
 
-            window.location = "' . route('platform.view') . '";
-            </script>';
+            $insert = [
+                'params' => 'Insert History Delete Platform',
+                'platform_id' => $id,
+                'type_history' => 'Delete',
+                'deleted_at' => date('Y-m-d H:i:s'),
+                'author_id' => auth()->user()->id,
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new MasterDataEvent($insert));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil hapus data platform!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
         }
     }
-
     public function restorePlatform(Request $request)
     {
         $id = $request->id;

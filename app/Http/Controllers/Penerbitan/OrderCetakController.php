@@ -24,6 +24,7 @@ class OrderCetakController extends Controller
                 ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                 ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->orderBy('kode_order','asc')
                 ->select(
                     'oc.*',
                     'pn.kode',
@@ -78,8 +79,8 @@ class OrderCetakController extends Controller
                                 }
                                 break;
                             default:
-                            $tandaProses = '';
-                            $dataKode = $data->kode_order;
+                                $tandaProses = '';
+                                $dataKode = $data->kode_order;
                                 break;
                         }
                     }
@@ -235,13 +236,13 @@ class OrderCetakController extends Controller
                 $data = (object)collect($data)->map(function ($item, $key) {
                     switch ($key) {
                         case 'imprint':
-                            return !is_null($item) ? DB::table('imprint')->where('id',$item)->whereNull('deleted_at')->first()->nama : '-';
+                            return !is_null($item) ? DB::table('imprint')->where('id', $item)->whereNull('deleted_at')->first()->nama : '-';
                             break;
                         case 'tgl_permintaan_jadi':
                             return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
                             break;
                         case 'nama_pena':
-                            return !is_null($item) ? implode(",",json_decode($item)) : '-';
+                            return !is_null($item) ? implode(",", json_decode($item)) : '-';
                             break;
                         default:
                             $item;
@@ -501,7 +502,7 @@ class OrderCetakController extends Controller
         $departemen = explode("','", $matches[1]);
         $imprint = NULL;
         if (!is_null($data->imprint)) {
-            $imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+            $imprint = DB::table('imprint')->where('id', $data->imprint)->whereNull('deleted_at')->first()->nama;
         }
         return view('penerbitan.order_cetak.detail', [
             'title' => 'Detail Order Cetak Buku',
@@ -515,18 +516,39 @@ class OrderCetakController extends Controller
     }
     protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)
     {
-        if ($update) {
-            $btn = $this->buttonEdit($id, $kode, $btn);
+        if ($status == 'Selesai') {
+            if (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') {
+                $btn = $this->buttonEdit($id, $kode, $btn);
+            }
         } else {
-            if ($status == 'Selesai') {
-                if (Gate::allows('do_approval', 'approval-deskripsi-produk') || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
+            if ($update) {
+                $role = DB::table('order_cetak_action')->where('order_cetak_id', $id)->groupBy('id')->get();
+                if (!$role->isEmpty()) {
+                    foreach ($role as $r) {
+                        if (!Gate::allows('do_approval', 'Persetujuan ' . $r->type_departemen)) {
+                            $btn = $this->buttonEdit($id, $kode, $btn);
+                            break;
+                        }
+                    }
+                }  else {
                     $btn = $this->buttonEdit($id, $kode, $btn);
                 }
             }
         }
 
+
         if ($update) {
-            $btn = $this->panelStatusAdmin($status, $id, $kode, $judul_final, $btn);
+            if (Gate::allows('do_approval', 'Persetujuan Penerbitan')) {
+                $btn = $this->panelStatusGuest($status, $btn);
+            } elseif (Gate::allows('do_approval', 'Persetujuan Marketing & Ops')) {
+                $btn = $this->panelStatusGuest($status, $btn);
+            } elseif (Gate::allows('do_approval', 'Persetujuan Keuangan')) {
+                $btn = $this->panelStatusGuest($status, $btn);
+            } elseif (Gate::allows('do_approval', 'Persetujuan Direktur Utama')) {
+                $btn = $this->panelStatusGuest($status, $btn);
+            } else {
+                $btn = $this->panelStatusAdmin($status, $id, $kode, $judul_final, $btn);
+            }
         } else {
             $btn = $this->panelStatusGuest($status, $btn);
         }

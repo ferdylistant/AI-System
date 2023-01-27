@@ -64,13 +64,19 @@ class MasterDataListener
                 ]);
                 break;
             case 'Insert History Delete Platform':
-                $res = DB::table('platform_digital_ebook_history')->insert([
+                DB::beginTransaction();
+                $res =  DB::table('platform_digital_ebook')->where('id', $data['platform_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                DB::table('platform_digital_ebook_history')->insert([
                     'platform_id' => $data['platform_id'],
                     'type_history' => $data['type_history'],
                     'deleted_at' => $data['deleted_at'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
+                DB::commit();
                 break;
             case 'Insert History Restored Platform':
                 $res = DB::table('platform_digital_ebook_history')->insert([
@@ -116,13 +122,19 @@ class MasterDataListener
                 ]);
                 break;
             case 'Insert History Delete Imprint':
-                $res = DB::table('imprint_history')->insert([
+                DB::beginTransaction();
+                $res =  DB::table('imprint')->where('id', $data['imprint_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                DB::table('imprint_history')->insert([
                     'imprint_id' => $data['imprint_id'],
                     'type_history' => $data['type_history'],
                     'deleted_at' => $data['deleted_at'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
+                DB::commit();
                 break;
             case 'Insert History Restored Imprint':
                 $res = DB::table('imprint_history')->insert([
@@ -170,13 +182,19 @@ class MasterDataListener
                 ]);
                 break;
             case 'Insert History Delete Kelompok Buku':
-                $res = DB::table('penerbitan_m_kelompok_buku_history')->insert([
+                DB::beginTransaction();
+                $res =DB::table('penerbitan_m_kelompok_buku')->where('id', $data['kelompok_buku_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                DB::table('penerbitan_m_kelompok_buku_history')->insert([
                     'kelompok_buku_id' => $data['kelompok_buku_id'],
                     'type_history' => $data['type_history'],
                     'deleted_at' => $data['deleted_at'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
+                DB::commit();
                 break;
             case 'Insert History Restored Kelompok Buku':
                 $res = DB::table('penerbitan_m_kelompok_buku_history')->insert([
