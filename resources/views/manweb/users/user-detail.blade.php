@@ -187,7 +187,7 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/user-log.js') }}"></script>
+    <script src="{{ url('js/user-log.js') }}" defer></script>
     <script>
         $(document).ready(function() {
             // Initial
