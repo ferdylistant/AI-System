@@ -234,28 +234,36 @@
                     $(this).valid();
                 }
             });
-            var image_crop = $('#image_demo').croppie({
-                viewport: {
-                    width: 300,
-                    height: 300,
-                    type:'circle'
-                },
-                boundary:{
-                    width: 650,
-                    height: 350
-                }
+            $('#uploadimageModal').on('hidden.bs.modal', function () {
+                $('#image_demo').croppie('destroy');
             });
             $('#cover_image').on('change', function(){
-                var reader = new FileReader();
                 var id = $(this).data('id');
+                $('#idInModal').val(id);
+                $('#uploadimageModal').modal('show');
+                var boundaryWidth = $('.modal-body').width();
+                var boundaryHeight = boundaryWidth / 2;
+                var viewportWidth = boundaryWidth - (boundaryWidth/100*50);
+                var viewportHeight = boundaryHeight - (boundaryHeight/100*20);
+                var image_crop = $('#image_demo').croppie({
+                    viewport: {
+                        width: viewportWidth,
+                        height: viewportWidth,
+                        type:'circle'
+                    },
+                    boundary:{
+                        width: boundaryWidth,
+                        height: boundaryHeight
+                    }
+                });
+                var reader = new FileReader();
                 reader.onload = function (event) {
                     image_crop.croppie('bind', {
                         url: event.target.result,
                     });
                 }
                 reader.readAsDataURL(this.files[0]);
-                $('#idInModal').val(id);
-                $('#uploadimageModal').modal('show');
+                // $('#uploadimageModal').modal('show');
             });
             /// Get button click event and get the current crop image
             $('.crop_image').click(function(event){
