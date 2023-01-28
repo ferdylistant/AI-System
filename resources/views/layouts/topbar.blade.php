@@ -25,8 +25,16 @@
         </li>
 
         <li class="dropdown">
+            @php
+                $url = url()->current();
+                $split = Str::afterLast($url, '/');
+                $class = '';
+                if (auth()->user()->id == $split) {
+                    $class = 'image-output';
+                }
+            @endphp
             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-                <img alt="image" src="{{url('storage/users/'.auth()->user()->id.'/'.auth()->user()->avatar)}}" class="rounded-circle mr-1 image-output">
+                <img alt="image" src="{{url('storage/users/'.auth()->user()->id.'/'.auth()->user()->avatar)}}" class="rounded-circle mr-1 {{$class}}">
                 <div class="d-sm-none d-lg-inline-block">Hi, {{Auth::user()->nama}}</div>
             </a>
             <div class="dropdown-menu dropdown-menu-right">
