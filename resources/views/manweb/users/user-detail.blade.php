@@ -245,7 +245,7 @@
                 var boundaryHeight = boundaryWidth / 2;
                 var viewportWidth = boundaryWidth - (boundaryWidth/100*50);
                 var viewportHeight = boundaryHeight - (boundaryHeight/100*20);
-                var image_crop = $('#image_demo').croppie({
+                $('#image_demo').croppie({
                     viewport: {
                         width: viewportWidth,
                         height: viewportWidth,
@@ -258,7 +258,7 @@
                 });
                 var reader = new FileReader();
                 reader.onload = function (event) {
-                    image_crop.croppie('bind', {
+                    $('#image_demo').croppie('bind', {
                         url: event.target.result,
                     });
                 }
@@ -269,7 +269,7 @@
             $('.crop_image').click(function(event){
                 var formData = new FormData();
                 let id = $('[name=id]').val();
-                image_crop.croppie('result', {type: 'canvas',size: 'viewport', format: 'jpeg'|'png'|'webp'}).then(function(blob) {
+                $('#image_demo').croppie('result', {type: 'canvas',size: 'viewport', format: 'jpeg'|'png'|'webp'}).then(function(blob) {
                     formData.append('cropped_image', blob);
                     ajaxFormPost(formData, window.location.origin+"/manajemen-web/user/ajax/save-image/"+id); /// Calling my ajax function with my blob data passed to it
                 });
