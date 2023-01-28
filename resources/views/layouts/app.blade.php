@@ -213,8 +213,6 @@
             swal({
                 title: "Apakah anda yakin ingin keluar?",
                 // text: "Data akan terhapus",
-                type: "danger",
-                html: true,
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
