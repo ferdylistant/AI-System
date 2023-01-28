@@ -293,13 +293,13 @@
 
 
 @section('jsNeeded')
-<script>
+{{-- <script>
     document.addEventListener("DOMContentLoaded", function(event) {
         Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (e) => {
             console.log(e);
             });
     });
-</script>
+</script> --}}
 {{-- <script>
     $(document).ready(function() {
         const url = window.location.href;

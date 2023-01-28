@@ -207,8 +207,26 @@
     <script src="{{ url('vendors/stisla/js/custom.js') }}"></script>
 
     <!-- Specific JS File -->
+    <script>
+        $(document).on('click','#logout',function(e) {
+            e.preventDefault();
+            swal({
+                title: "Apakah anda yakin ingin keluar?",
+                // text: "Data akan terhapus",
+                type: "danger",
+                html: true,
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((result) => {
+                if (result) {
+                    $('#logout-form').submit() // this submits the form
+                }
+            })
+        });
+    </script>
     <script src="{{ url('js/main.js') }}"></script>
-    <script src="js/app.js"></script>
+    {{-- <script src="js/app.js"></script> --}}
     {{-- <script>
         // Reload the page when the user's internet connection is restored
         setInterval(function() {

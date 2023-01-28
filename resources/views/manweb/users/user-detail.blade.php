@@ -45,7 +45,7 @@
                                 <a href="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}" data-magnify="gallery">
                                     <img alt="{{ Str::upper($acronym) }}"
                                     src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
-                                    class="rounded-circle profile-widget-picture">
+                                    class="rounded-circle profile-widget-picture image-output">
                                 </a>
                             </div>
                             <div class="profile-widget-description">
@@ -172,11 +172,11 @@
         </div>
     </section>
     <!-- This is the modal -->
-<div class="modal" tabindex="-1" role="dialog" id="uploadimageModal">
-    <div class="modal-dialog" role="document" style="min-width: 700px">
+<div class="modal" tabindex="-1" role="dialog" aria-labelledby="titleCrop" aria-hidden="true" id="uploadimageModal">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
+                <h5 class="modal-title" id="titleCrop"><span class="fas fa-crop"></span>&nbsp;Crop Photo Profile</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -190,7 +190,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary crop_image">Crop and Save</button>
+                <button type="button" class="btn btn-primary crop_image"><i class="fa fa-crop"></i> Crop and Save</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -261,7 +261,7 @@
             $('.crop_image').click(function(event){
                 var formData = new FormData();
                 let id = $('[name=id]').val();
-                image_crop.croppie('result', {type: 'canvas',size: 'viewport', format: 'jpeg'|'png'|'webp',circle:true}).then(function(blob) {
+                image_crop.croppie('result', {type: 'canvas',size: 'viewport', format: 'jpeg'|'png'|'webp'}).then(function(blob) {
                     formData.append('cropped_image', blob);
                     ajaxFormPost(formData, window.location.origin+"/manajemen-web/user/ajax/save-image/"+id); /// Calling my ajax function with my blob data passed to it
                 });
@@ -283,10 +283,10 @@
                     success: function(response) {
                         // console.log(formData);
                         // console.log(response);
-                        notifToast(response.status, response.message);
                         if (response.status === 'success') {
-                            window.location.reload();
+                            $('.image-output').attr('src',response.path);
                         }
+                        notifToast(response.status, response.message);
                     },
                     complete: function(){
                         setTimeout(function () {
@@ -346,10 +346,10 @@
 
             }
 
-            $('.profile-widget').on('change', '[name="uedit_pp"]', function(e) {
-                let file = e.currentTarget.files[0];
-                $('#container-pp img').attr('src', URL.createObjectURL(file));
-            })
+            // $('.profile-widget').on('change', '[name="uedit_pp"]', function(e) {
+            //     let file = e.currentTarget.files[0];
+            //     $('#container-pp img').attr('src', URL.createObjectURL(file));
+            // })
             $('.profile-widget').on('submit', '#fm_EditUser', function(e) {
                 e.preventDefault();
                 if ($(this).valid()) {

@@ -234,7 +234,8 @@ class UsersController extends Controller
             Storage::delete('users/' . $user->id . '/' . $user->avatar);
             return response()->json([
                 'status' => 'success',
-                'message' => 'Foto profil berhasil diperbarui!'
+                'message' => 'Foto profil berhasil diperbarui!',
+                'path' => url('storage/users/' . $user->id . '/' . $avatar)
             ]);
         } catch (\Exception $e) {
             if ($avatar !== $user->avatar) {
