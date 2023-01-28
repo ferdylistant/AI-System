@@ -347,7 +347,6 @@
 <script src="{{url('vendors/upload-preview/assets/js/jquery.uploadPreview.min.js')}}"></script>
 <script src="{{url('vendors/jquery-magnify/dist/jquery.magnify.min.js')}}"></script>
 <script src="{{url('vendors/summernote/dist/summernote-bs4.js')}}"></script>
-<script src="{{url('vendors/sweetalert/dist/sweetalert.min.js')}}"></script>
 <script src="{{url('vendors/izitoast/dist/js/iziToast.min.js')}}"></script>
 <script src="{{url('vendors/flipbook/min_version/pdf.min.js')}}"></script>
 <script src="{{url('vendors/flipbook/min_version/jquery.ipages.min.js')}}"></script>

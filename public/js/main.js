@@ -145,4 +145,19 @@ $(function () {
             // console.log(err)
         }
     })
+});
+$("#logout").on("click", function () {
+    swal({
+        title: "Apakah anda yakin ingin keluar?",
+        // text: "Data akan terhapus",
+        type: "danger",
+        html: true,
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+    }).then((result) => {
+        if (result) {
+            $('#logout-form').submit() // this submits the form
+        }
+    })
 })

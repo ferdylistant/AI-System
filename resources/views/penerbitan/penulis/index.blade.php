@@ -47,7 +47,6 @@
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
     <script src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}"></script>
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ url('vendors/sweetalert/dist/sweetalert.min.js') }}"></script>
 @endsection
 
 @section('jsNeeded')

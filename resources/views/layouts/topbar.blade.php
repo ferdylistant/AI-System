@@ -44,11 +44,12 @@
 
                 @endif
                 <div class="dropdown-divider"></div>
-                <a href="javascript:void(0)" class="dropdown-item has-icon text-danger"
-                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-                <form id="logout-form" action="{{url('/logout')}}" method="POST" style="display: none;">@csrf</form>
+                <form id="logout-form" action="{{url('/logout')}}" method="POST">
+                    @csrf
+                    <a href="javascript:void(0)" class="dropdown-item has-icon text-danger" id="logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </form>
             </div>
         </li>
     </ul>

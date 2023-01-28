@@ -139,7 +139,6 @@
     <script src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ url('vendors/sweetalert/dist/sweetalert.min.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
 @endsection

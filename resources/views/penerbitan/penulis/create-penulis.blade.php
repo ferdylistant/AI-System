@@ -325,7 +325,6 @@
 <script src="{{url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js')}}"></script>
 <script src="{{url('vendors/upload-preview/assets/js/jquery.uploadPreview.min.js')}}"></script>
 <script src="{{url('vendors/summernote/dist/summernote-bs4.js')}}"></script>
-<script src="{{url('vendors/sweetalert/dist/sweetalert.min.js')}}"></script>
 <script src="{{url('vendors/izitoast/dist/js/iziToast.min.js')}}"></script>
 @endsection
 

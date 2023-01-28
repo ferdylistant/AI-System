@@ -212,7 +212,6 @@
     <script src="{{ url('vendors/hummingbird-treeview/hummingbird-treeview.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
-    <script src="{{ url('vendors/sweetalert/dist/sweetalert.min.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
 @endsection
