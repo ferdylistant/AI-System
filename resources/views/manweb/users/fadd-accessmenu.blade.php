@@ -10,7 +10,7 @@
                 <label>
                     <input id="xnode-{{$ab->id}}" data-id="custom-{{$ab->id}}" type="checkbox" {{$ab->checked?'checked':''}} /> {{$ab->name}}
                 </label>
-                <ul style="display: block;">
+                <ul class="d-block">
                     <!-- Access -->
                     @foreach($access['ls'] as $ls)
                     @if($ab->id === $ls->bagian_id)

@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Events\TesWebsocketEvent;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ManWeb\{StrukturAoController, UsersController, SettingController};
 use App\Http\Controllers\{AuthController, ApiController, HomeController, NotificationController};
 use App\Http\Controllers\Produksi\{EbookController, ProsesProduksiController, ProsesEbookController};
@@ -21,6 +22,11 @@ use App\Http\Controllers\Penerbitan\{OrderCetakController, OrderEbookController,
 
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('do-login', [AuthController::class, 'doLogin']);
+Route::post('/forgot-password', [AuthController::class, 'submitForgetPasswordForm'])->name('password.email');
+Route::get('/reset-password/{token}', function ($token,Request $request) {
+    return view('reset_password', ['token' => $token,'email'=> $request->email,'title' => 'Reset Password']);
+})->name('password.reset');
+Route::post('reset-password', [AuthController::class, 'submitResetPasswordForm'])->name('reset.password.post');
 Route::get('tes-socket', function () {
     $data = 'Data coba-coba';
     event(new TesWebsocketEvent($data));
