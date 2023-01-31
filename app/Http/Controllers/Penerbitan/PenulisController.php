@@ -91,8 +91,8 @@ class PenulisController extends Controller
                     'add_ponsel_domisili' => 'required',
                     'add_ktp' => 'nullable|unique:penerbitan_penulis,ktp',
                     'add_npwp' => 'nullable|unique:penerbitan_penulis,npwp',
-                    'add_scan_ktp' => 'nullable|mimes:jpg,jpeg,png',
-                    'add_scan_npwp' => 'nullable|mimes:jpg,jpeg,png',
+                    'add_scan_ktp' => 'nullable|mimes:pdf',
+                    'add_scan_npwp' => 'nullable|mimes:pdf',
                     'add_file_hibah_royalti' => 'nullable|mimes:pdf',
                     'add_url_tentang_penulis' => 'nullable|url'
                 ], [
@@ -131,8 +131,7 @@ class PenulisController extends Controller
                     'id' => $idPenulis,
                     'nama' => $request->input('add_nama'),
                     'tempat_lahir' => $request->input('add_tempat_lahir'),
-                    'tanggal_lahir' => Carbon::createFromFormat('d F Y', $request->input('add_tanggal_lahir'))
-                        ->format('Y-m-d'),
+                    'tanggal_lahir' => is_null($request->input('add_tanggal_lahir')) ? NULL:Carbon::createFromFormat('d F Y', $request->input('add_tanggal_lahir'))->format('Y-m-d'),
                     'kewarganegaraan' => $request->input('add_kewarganegaraan'),
                     'alamat_domisili' => $request->input('add_alamat_domisili'),
                     'telepon_domisili' => $request->input('add_telepon_domisili'),
@@ -208,8 +207,7 @@ class PenulisController extends Controller
                         ->update([
                             'nama' => $request->input('edit_nama'),
                             'tempat_lahir' => $request->input('edit_tempat_lahir'),
-                            'tanggal_lahir' => Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_lahir'))
-                                ->format('Y-m-d'),
+                            'tanggal_lahir' => is_null($request->input('edit_tanggal_lahir'))?NULL:Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_lahir'))->format('Y-m-d'),
                             'kewarganegaraan' => $request->input('edit_kewarganegaraan'),
                             'alamat_domisili' => $request->input('edit_alamat_domisili'),
                             'telepon_domisili' => $request->input('edit_telepon_domisili'),
@@ -269,7 +267,7 @@ class PenulisController extends Controller
 
         $penulis = (object)collect($penulis)->map(function ($item, $key) {
             if ($key == 'tanggal_lahir') {
-                return Carbon::createFromFormat('Y-m-d', $item)->format('d F Y');
+                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
             }
             return $item;
         })->all();

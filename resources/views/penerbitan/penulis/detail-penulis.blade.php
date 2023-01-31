@@ -213,9 +213,8 @@
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Scan NPWP: </label>
                                 @if(!is_null($penulis->scan_npwp))
-                                <a class="btn btn-sm btn-primary" data-magnify="gallery"
-                                    href="{{ url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_npwp) }}"
-                                >Lihat</a>
+                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_npwp)}}"
+                                    data-book-engine="onepageswipe" style="max-height: 300px;"></div>
                                 @else
                                 <div><small class="text-muted">#Tidak ada file diupload.</small></div>
                                 @endif
@@ -223,9 +222,8 @@
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Scan KTP: </label>
                                 @if(!is_null($penulis->scan_ktp))
-                                <a class="btn btn-sm btn-primary" data-magnify="gallery"
-                                    href="{{ url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_ktp) }}"
-                                >Lihat</a>
+                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_ktp)}}"
+                                    data-book-engine="onepageswipe" style="max-height: 300px;"></div>
                                 @else
                                 <div><small class="text-muted">#Tidak ada file diupload.</small></div>
                                 @endif

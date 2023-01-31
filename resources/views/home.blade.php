@@ -38,6 +38,120 @@
         background-color: #E9ECEF;
         text-align: right;
     }
+    @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
+
+:root {
+  --timeline-colour: #bb1919;
+}
+
+body {
+  font-family: "Open Sans", sans-serif;
+  color: #333;
+}
+
+.timeline {
+  margin: 1rem;
+  padding: 1rem;
+  background-color: #eee;
+
+  &__header {
+    position: relative;
+    padding-bottom: 0.5rem;
+
+    &:before {
+      content: "";
+      width: 0.125rem;
+      height: 100%;
+      position: absolute;
+      top: .25rem;
+      left: calc(0.375rem - 1px);
+      background-color: var(--timeline-colour);
+    }
+  }
+
+  &__live {
+    display: flex;
+    margin-bottom: 0.25rem;
+
+    > span {
+      display: block;
+      margin-left: 0.25rem;
+      font-size: 1.125rem;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+  }
+
+  &__title {
+    margin-left: 1rem;
+  }
+
+  &__list {
+    > li {
+      display: flex;
+      gap: .5rem;
+      position: relative;
+      padding: 0.625rem 0;
+      font-size: 0.75rem;
+
+      &:before {
+        content: "";
+        width: 0.125rem;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: calc(0.375rem - 1px);
+        background-color: var(--timeline-colour);
+      }
+
+      &:last-child:before {
+        height: .875rem;
+      }
+    }
+  }
+
+  &__marker {
+    width: .5rem;
+    min-width: .5rem;
+    height: .5rem;
+    margin-top: .0625rem;
+    margin-left: .125rem;
+    background-color: var(--timeline-colour);
+    border-radius: 50%;
+
+    &--live {
+      width: 0.75rem;
+      height: 0.75rem;
+      margin-left: 0;
+      animation-name: pulse;
+      animation-timing-function: ease-in-out;
+      animation-duration: 1.5s;
+      animation-iteration-count: infinite;
+    }
+  }
+
+  &__timestamp {
+    font-weight: 700;
+  }
+
+  &--alt {
+    --timeline-colour: #2866f6;
+  }
+}
+
+@keyframes pulse {
+  from {
+    transform: scale3d(1, 1, 1);
+  }
+
+  50% {
+    transform: scale3d(.85, .85, .85);
+  }
+
+  to {
+    transform: scale3d(1, 1, 1);
+  }
+}
 </style>
 @endsection
 
@@ -213,38 +327,42 @@
                     </div>
                 </div>
             </div>
-            <!-- <div class="col-12">
+            <div class="col-12">
                 <div id="container_tb_naskah" class="card card-primary">
-                    <div class="card-body">
-                        <div class="col-8 offset-2">
-                            <div class="row">
-                                <div class="col-6">
-                                    <select class="form-control select2" name="tb_naskah_tahapan">
-                                        <option value="all">Semua</option>
-                                        <option value="naskah-masuk">Naskah Masuk</option>
-                                        <option value="penerbitan">Proses Penerbitan</option>
-                                        <option value="produksi">Proses Produksi</option>
-                                        <option value="buku-jadi">Buku Jadi</option>
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <input type="text" class="form-control drp-naskah" name="tb_naskah_tgl" placeholder="Tanggal">
+                    <div class="card-wrap">
+                        <div class="card-header">
+                            <h4>Timeline Progress</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="col-8 offset-2">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <select class="form-control select-timeline" name="tb_naskah_tahapan">
+                                            <option label="Pilih timeline"></option>
+                                            @foreach ($naskah_kode_timeline as $nas_timeline)
+                                            <option value="{{$nas_timeline->kode}}">{{$nas_timeline->kode}} &#9903; {{$nas_timeline->judul_asli}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control drp-naskah" name="tb_naskah_tgl" placeholder="Tanggal">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-12 table-responsive mt-3">
-                            <table class="table table-striped" id="tb_Naskah">
-                            </table>
+                            <div class="col-12 table-responsive mt-3">
+                                <table class="table table-striped" id="tb_Naskah">
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div> --->
+            </div>
         </div>
     </div>
 </section>
 
 
-<div id="md_EventDetail" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+{{-- <div id="md_EventDetail" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary">
@@ -276,7 +394,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
 @endsection
@@ -293,6 +411,19 @@
 
 
 @section('jsNeeded')
+    <script>
+        $(document).ready(function () {
+    $(".select-timeline")
+        .select2({
+            placeholder: "Pilih Timeline",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(this).valid();
+            }
+        });
+});
+    </script>
 {{-- <script>
     document.addEventListener("DOMContentLoaded", function(event) {
         Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (e) => {

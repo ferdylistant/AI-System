@@ -91,7 +91,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group col-12 col-md-3 mb-4">
-                                    <label>Rencana CD/QR Code: <span class="text-danger">*</span></label>
+                                    <label>Rencana CD/QR Code:</label>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="add_cdqr_code" value="1" id="add_cdqr_yes">
                                         <label class="form-check-label mr-4" for="add_cdqr_yes">Ya</label>
@@ -212,7 +212,7 @@
         $('[name="add_pic_prodev"]').val('').trigger('change');
         $('[name="add_penulis[]"]').val('').trigger('change');
         $('#tb_selectedPenulis').find('tbody').empty();
-        $('[name="add_file_naskah"]').next('.custom-file-label').html('Choose file');
+        // $('[name="add_file_naskah"]').next('.custom-file-label').html('Choose file');
         $.ajax({
             type: "GET",
             url: "{{url('penerbitan/naskah')}}",
@@ -299,21 +299,21 @@
             add_soft_copy: {
                 required: true
             },
-            add_cdqr_code: {
+            edit_url_file: {
                 required: true
             },
             add_pic_prodev: {
                 required: true
             },
-            add_file_naskah: {
-                required: true,
-                extension: "pdf",
-                maxsize: 500000,
-            },
-            add_file_tambahan_naskah: {
-                extension: "rar|zip",
-                maxsize: 500000,
-            }
+            // add_file_naskah: {
+            //     required: true,
+            //     extension: "pdf",
+            //     maxsize: 500000,
+            // },
+            // add_file_tambahan_naskah: {
+            //     extension: "rar|zip",
+            //     maxsize: 500000,
+            // }
         });
 
         function ajaxAddNaskah(data) {
