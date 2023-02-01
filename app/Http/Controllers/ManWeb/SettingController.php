@@ -160,10 +160,21 @@ class SettingController extends Controller
                     return $res;
                     break;
                 case 'data-menu':
-                    $result = DB::table('access as a')->join('access_bagian as ab', 'a.bagian_id', '=', 'ab.id')
-                        ->where('a.id', $request->input('id'))
-                        ->select('a.*', 'ab.name as name_ab')
+                    $result = DB::table('access')
+                        ->where('id', $request->input('id'))
                         ->first();
+                    // $res = (object)collect($result)->map(function ($item, $key) {
+                    //     switch ($key) {
+                    //         case 'bagian':
+                    //             return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                    //             break;
+                    //         case 'nama_pena':
+                    //             return !is_null($item) ? implode(",", json_decode($item)) : '-';
+                    //             break;
+                    //         default:
+                    //             $item;
+                    //             break;
+                        // }
                     return $result;
                     break;
                 case 'data-section-menu':

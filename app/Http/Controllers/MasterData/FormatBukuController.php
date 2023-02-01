@@ -10,6 +10,7 @@ use App\Events\MasterDataEvent;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class FormatBukuController extends Controller
@@ -81,6 +82,9 @@ class FormatBukuController extends Controller
                         data-id="' . $data->id . '" data-nama="' . $data->jenis_format . '">
                         <div><i class="fas fa-trash-alt"></i></div></a>';
                     }
+                    if (Auth::user()->cannot('do_update','ubah-format-buku') && Auth::user()->cannot('do_delete','hapus-format-buku')) {
+                        $btn = '<span class="badge badge-dark">No action</span>';
+                    }
                     return $btn;
                 })
                 ->rawColumns([
@@ -107,7 +111,7 @@ class FormatBukuController extends Controller
                 ->whereNotNull('deleted_at')
                 ->orderBy('jenis_format', 'asc')
                 ->get();
-            $update = Gate::allows('do_update', 'ubah-format-buku');
+            $update = Gate::allows('do_delete', 'hapus-format-buku');
             // foreach ($data as $key => $value) {
             //     $no = $key + 1;
             // }
@@ -150,6 +154,8 @@ class FormatBukuController extends Controller
                         data-toggle="tooltip" title="Restore Data"
                         data-id="' . $data->id . '" data-nama="' . $data->jenis_format . '">
                         <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                    } else {
+                        $btn = '<span class="badge badge-dark">No action</span>';
                     }
                     return $btn;
                 })

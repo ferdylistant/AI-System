@@ -44,7 +44,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-user"></i></div>
                                     </div>
-                                    <input type="text" class="form-control" name="add_nama" placeholder="Nama Penulis">
+                                    <input type="text" class="form-control" name="add_nama" placeholder="Nama Penulis" required>
                                     <div id="err_add_nama"></div>
                                 </div>
                             </div>
@@ -78,7 +78,7 @@
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                     </div>
-                                    <input type="text" class="form-control datepicker" name="add_tanggal_lahir" placeholder="Hari Bulan Tahun">
+                                    <input class="form-control datepicker" name="add_tanggal_lahir" placeholder="Hari Bulan Tahun">
                                     <div id="err_add_tanggal_lahir"></div>
                                 </div>
                             </div>
@@ -257,24 +257,34 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Scan NPWP: </label>
-                                <div class="input-group">
+                                <label>Scan NPWP (<span class="text-danger">.pdf</span>) </label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input form-control" name="add_scan_npwp" id="fileNPWP">
+                                    <label class="custom-file-label" for="fileNPWP">Choose file</label>
+                                </div>
+                                <div id="err_add_scan_npwp" style="display: block;"></div>
+                                {{-- <div class="input-group">
                                     <div id="ip_npwp" class="image-preview">
                                         <label for="image-upload" id="il_npwp">Pilih File</label>
                                         <input type="file" name="add_scan_npwp" id="iu_npwp" />
                                     </div>
                                     <div id="err_add_scan_npwp"></div>
-                                </div>
+                                </div> --}}
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Scan KTP: </label>
-                                <div class="input-group">
+                                <label>Scan KTP (<span class="text-danger">.pdf</span>) </label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input form-control" name="add_scan_ktp" id="fileKTP">
+                                    <label class="custom-file-label" for="fileKTP">Choose file</label>
+                                </div>
+                                <div id="err_add_scan_ktp" style="display: block;"></div>
+                                {{-- <div class="input-group">
                                     <div id="ip_ktp" class="image-preview">
                                         <label for="image-upload" id="il_ktp">Pilih File</label>
                                         <input type="file" name="add_scan_ktp" id="iu_ktp" />
                                     </div>
                                     <div id="err_add_scan_ktp" style="display: block;"></div>
-                                </div>
+                                </div> --}}
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Foto Penulis: </label>
@@ -289,7 +299,7 @@
                             <div class="form-group col-12 col-md-12 mb-4">
                                 <label>File Hibah Royalti (<span class="text-danger">.pdf</span>) </label>
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="add_file_hibah_royalti" id="fileHR">
+                                    <input type="file" class="custom-file-input form-control" name="add_file_hibah_royalti" id="fileHR">
                                     <label class="custom-file-label" for="fileHR">Choose file</label>
                                 </div>
                                 <div id="err_add_file_hibah_royalti" style="display: block;"></div>
@@ -325,12 +335,13 @@
 <script src="{{url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js')}}"></script>
 <script src="{{url('vendors/upload-preview/assets/js/jquery.uploadPreview.min.js')}}"></script>
 <script src="{{url('vendors/summernote/dist/summernote-bs4.js')}}"></script>
-<script src="{{url('vendors/sweetalert/dist/sweetalert.min.js')}}"></script>
 <script src="{{url('vendors/izitoast/dist/js/iziToast.min.js')}}"></script>
+<script src="{{url('vendors/Custom-File-Input-Bootstrap-4/dist/bs-custom-file-input.js')}}"></script>
 @endsection
 
 
 @section('jsNeeded')
+<script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
 <script src="https://unpkg.com/imask"></script>
 <script>
     var npwp = document.getElementById('npWP');
@@ -372,6 +383,9 @@ function checkInputKTP() {
 }
 </script>
 <script>
+    $(document).ready(function () {
+  bsCustomFileInput.init()
+})
 $(function() {
     $(".select2").select2({
         placeholder: 'Pilih',
@@ -394,22 +408,71 @@ $(function() {
     //         ['para', ['paragraph']]
     //     ]
     // });
+    // Loaded via <script> tag, create shortcut to access PDF.js exports.
+    // var pdfjsLib = window['pdfjs-dist/build/pdf'];
+    // // The workerSrc property shall be specified.
+    // pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+    // $('[name="add_scan_npwp"').on("change", function(e){
+    //     var file = e.target.files[0]
+    //     if(file.type == "application/pdf"){
+    //         var fileReader = new FileReader();
+    //         fileReader.onload = function() {
+    //             var pdfData = new Uint8Array(this.result);
+    //             // Using DocumentInitParameters object to load binary data.
+    //             var loadingTask = pdfjsLib.getDocument({data: pdfData});
+    //             loadingTask.promise.then(function(pdf) {
+    //             console.log('PDF loaded');
 
-    $.uploadPreview({
-        input_field: "#iu_npwp",
-        preview_box: "#ip_npwp",
-        label_field: "#il_npwp",
-        label_default: "Pilih File",
-        label_selected: "Pilih File"
-    });
+    //             // Fetch the first page
+    //             var pageNumber = 1;
+    //             pdf.getPage(pageNumber).then(function(page) {
+    //                 console.log('Page loaded');
 
-    $.uploadPreview({
-        input_field: "#iu_ktp",
-        preview_box: "#ip_ktp",
-        label_field: "#il_ktp",
-        label_default: "Pilih File",
-        label_selected: "Pilih File"
-    });
+    //                 var scale = 1.5;
+    //                 var viewport = page.getViewport({scale: scale});
+
+    //                 // Prepare canvas using PDF page dimensions
+    //                 var canvas = $("#pdfViewer")[0];
+    //                 var context = canvas.getContext('2d');
+    //                 canvas.height = viewport.height;
+    //                 canvas.width = viewport.width;
+
+    //                 // Render PDF page into canvas context
+    //                 var renderContext = {
+    //                 canvasContext: context,
+    //                 viewport: viewport
+    //                 };
+    //                 var renderTask = page.render(renderContext);
+    //                 renderTask.promise.then(function () {
+    //                 console.log('Page rendered');
+    //                 });
+    //             });
+    //             }, function (reason) {
+    //             // PDF loading error
+    //             console.error(reason);
+    //             });
+    //         };
+    //         fileReader.readAsArrayBuffer(file);
+    //     } else {
+
+    //     }
+    // });
+
+    // $.uploadPreview({
+    //         input_field: "#iu_npwp",
+    //         preview_box: "#ip_npwp",
+    //         label_field: "#il_npwp",
+    //         label_default: "Pilih File",
+    //         label_selected: "Pilih File"
+    //         });
+
+    // $.uploadPreview({
+    //     input_field: "#iu_ktp",
+    //     preview_box: "#ip_ktp",
+    //     label_field: "#il_ktp",
+    //     label_default: "Pilih File",
+    //     label_selected: "Pilih File"
+    // });
 
     $.uploadPreview({
         input_field: "#iu_pp",
@@ -425,16 +488,16 @@ $(function() {
         add_ponsel: {required: true,min:0, maxlength:20,  number: true},
         add_telp_kantor: {min:0, maxlength:20,  number: true},
         add_file_hibah_royalti: { extension: "pdf", maxsize: 2000000, },
-        add_scan_ktp: { extension: "jpg,jpeg,png" },
-        add_scan_npwp: { extension: "jpg,jpeg,png" },
+        add_scan_ktp: { extension: "pdf", maxsize: 2000000, },
+        add_scan_npwp: { extension: "pdf", maxsize: 2000000, },
         add_foto_penulis: { extension: "jpg,jpeg,png" },
     });
 
     async function ajaxAddPenulis(data) {
         let el = new FormData(data.get(0));
         let imgFP = $(data).find('[name="add_foto_penulis"]')[0].files[0];
-        let imgKTP = $(data).find('[name="add_scan_ktp"]')[0].files[0];
-        let imgNPWP = $(data).find('[name="add_scan_npwp"]')[0].files[0];
+        // let imgKTP = $(data).find('[name="add_scan_ktp"]')[0].files[0];
+        // let imgNPWP = $(data).find('[name="add_scan_npwp"]')[0].files[0];
 
         if(imgFP) {
             imgFP = await resizeImage({
@@ -443,20 +506,20 @@ $(function() {
             });
             el.append('add_foto_penulis', imgFP);
         }
-        if(imgKTP) {
-            imgKTP = await resizeImage({
-                file: imgKTP,
-                maxSize: 700
-            });
-            el.append('add_scan_ktp', imgKTP);
-        }
-        if(imgNPWP) {
-            imgNPWP = await resizeImage({
-                file: imgNPWP,
-                maxSize: 700
-            });
-            el.append('add_scan_npwp', imgNPWP);
-        }
+        // if(imgKTP) {
+        //     imgKTP = await resizeImage({
+        //         file: imgKTP,
+        //         maxSize: 700
+        //     });
+        //     el.append('add_scan_ktp', imgKTP);
+        // }
+        // if(imgNPWP) {
+        //     imgNPWP = await resizeImage({
+        //         file: imgNPWP,
+        //         maxSize: 700
+        //     });
+        //     el.append('add_scan_npwp', imgNPWP);
+        // }
 
         $.ajax({
             type: "POST",
@@ -477,6 +540,7 @@ $(function() {
                 notifToast('success', 'Data penulis berhasil disimpan!');
             },
             error: function(err) {
+                console.log(err)
                 rs = err.responseJSON.errors;
                 if(rs != undefined) {
                     err = {};

@@ -83,6 +83,9 @@ class ImprintController extends Controller
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-alt"></i></div></a>';
                     }
+                    if (Auth::user()->cannot('do_update','ubah-data-imprint') && Auth::user()->cannot('do_delete','hapus-data-imprint')) {
+                        $btn = '<span class="badge badge-dark">No action</span>';
+                    }
                     return $btn;
                 })
                 ->rawColumns([
@@ -109,7 +112,7 @@ class ImprintController extends Controller
                 ->whereNotNull('deleted_at')
                 ->orderBy('nama', 'asc')
                 ->get();
-            $update = Gate::allows('do_update', 'ubah-data-imprint');
+            $update = Gate::allows('do_delete', 'hapus-data-imprint');
             // foreach ($data as $key => $value) {
             //     $no = $key + 1;
             // }
@@ -152,6 +155,8 @@ class ImprintController extends Controller
                         data-toggle="tooltip" title="Restore Data"
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                    } else {
+                        $btn = '<span class="badge badge-dark">No action</span>';
                     }
                     return $btn;
                 })
@@ -431,11 +436,14 @@ class ImprintController extends Controller
                                     data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                     }
-                    if (Gate::allows('do_delete', 'hapus-data-imprint')) {
+                    if (Gate::allows('do_delete', 'hapus-platform-digital')) {
                         $btn .= '<a href="#" class="d-block btn btn-sm btn_DelPlatform btn-danger btn-icon mr-1 mt-1"
                         data-toggle="tooltip" title="Hapus Data"
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-alt"></i></div></a>';
+                    }
+                    if (Auth::user()->cannot('do_update','ubah-platform-digital') && Auth::user()->cannot('do_delete','hapus-platform-digital')) {
+                        $btn = '<span class="badge badge-dark">No action</span>';
                     }
                     return $btn;
                 })
@@ -463,7 +471,7 @@ class ImprintController extends Controller
                 ->whereNotNull('deleted_at')
                 ->orderBy('nama', 'asc')
                 ->get();
-            $update = Gate::allows('do_update', 'ubah-data-imprint');
+            $update = Gate::allows('do_delete', 'hapus-platform-digital');
             // foreach ($data as $key => $value) {
             //     $no = $key + 1;
             // }
@@ -506,6 +514,8 @@ class ImprintController extends Controller
                         data-toggle="tooltip" title="Restore Data"
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                    } else {
+                        $btn = '<span class="badge badge-dark">No action</span>';
                     }
                     return $btn;
                 })

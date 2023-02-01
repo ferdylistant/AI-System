@@ -43,10 +43,13 @@
                     $acronym .= mb_substr($w, 0, 1);
                 }
             @endphp
-            <img alt="{{ \Str::upper($acronym) }}" src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
-                class="rounded-circle profile-widget-picture">
+            <a href="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}" data-magnify="gallery">
+                <img alt="{{ Str::upper($acronym) }}"
+                src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
+                class="rounded-circle profile-widget-picture image-output">
+            </a>
             <div id="btn-pp" class="btn btn-sm">
-                <input class="inputfile" type="file" name="uedit_pp" accept="image/*">
+                <input class="inputfile" type="file" name="uedit_pp" data-id="{{$user->id}}" id="cover_image" accept="image/*">
                 <i class="fa fa-camera"></i>
             </div>
             <div id="err_uedit_pp" style="display: block;"></div>

@@ -259,34 +259,28 @@
                                 </div>
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Scan NPWP: </label>
-                                @if(!is_null($penulis->scan_npwp))
-                                <a class="btn btn-sm btn-primary" data-magnify="gallery"
-                                    href="{{ url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_npwp) }}"
-                                >Lihat</a>
-                                @endif
-                                <div class="input-group">
-                                    <div id="ip_npwp" class="image-preview">
-                                        <label for="image-upload" id="il_npwp">Pilih File</label>
-                                        <input type="file" name="edit_scan_npwp" id="iu_npwp" />
-                                    </div>
-                                    <div id="err_edit_scan_npwp" style="display: block;"></div>
+                                <label>Scan NPWP (<span class="text-danger">.pdf</span>) </label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="edit_scan_npwp" id="fileNPWP">
+                                    <label class="custom-file-label" for="fileNPWP">Choose file</label>
                                 </div>
+                                <div id="err_edit_scan_npwp" style="display: block;"></div>
+                                @if(!is_null($penulis->scan_npwp))
+                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_npwp)}}"
+                                    data-book-engine="onepageswipe" style="max-height: 300px;"></div>
+                                @endif
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>Scan KTP: </label>
-                                @if(!is_null($penulis->scan_ktp))
-                                <a class="btn btn-sm btn-primary" data-magnify="gallery"
-                                    href="{{ url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_ktp) }}"
-                                >Lihat</a>
-                                @endif
-                                <div class="input-group">
-                                    <div id="ip_ktp" class="image-preview">
-                                        <label for="image-upload" id="il_ktp">Pilih File</label>
-                                        <input type="file" name="edit_scan_ktp" id="iu_ktp" />
-                                    </div>
-                                    <div id="err_edit_scan_ktp" style="display: block;"></div>
+                                <label>Scan KTP (<span class="text-danger">.pdf</span>) </label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="edit_scan_ktp" id="fileKTP">
+                                    <label class="custom-file-label" for="fileKTP">Choose file</label>
                                 </div>
+                                <div id="err_edit_scan_ktp" style="display: block;"></div>
+                                @if(!is_null($penulis->scan_ktp))
+                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_ktp)}}"
+                                    data-book-engine="onepageswipe" style="max-height: 300px;"></div>
+                                @endif
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Foto Penulis: </label>
@@ -303,13 +297,15 @@
                                     <div id="err_edit_foto_penulis" style="display: block;"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-12 col-md-4 mb-4">
+                            <div class="form-group col-12 col-md-6 mb-4">
                                 <label>File Hibah Royalti (<span class="text-danger">.pdf</span>) </label>
                                 <div class="custom-file">
                                     <input type="file" class="custom-file-input" name="edit_file_hibah_royalti" id="fileHR">
                                     <label class="custom-file-label" for="fileHR">Choose file</label>
                                 </div>
                                 <div id="err_edit_file_hibah_royalti" style="display: block;"></div>
+                            </div>
+                            <div class="form-group col-12 col-md-6 mb-4">
                                 @if(!is_null($penulis->file_hibah_royalti))
                                 <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->file_hibah_royalti)}}"
                                     data-book-engine="onepageswipe" style="max-height: 300px;"></div>
@@ -347,10 +343,10 @@
 <script src="{{url('vendors/upload-preview/assets/js/jquery.uploadPreview.min.js')}}"></script>
 <script src="{{url('vendors/jquery-magnify/dist/jquery.magnify.min.js')}}"></script>
 <script src="{{url('vendors/summernote/dist/summernote-bs4.js')}}"></script>
-<script src="{{url('vendors/sweetalert/dist/sweetalert.min.js')}}"></script>
 <script src="{{url('vendors/izitoast/dist/js/iziToast.min.js')}}"></script>
 <script src="{{url('vendors/flipbook/min_version/pdf.min.js')}}"></script>
 <script src="{{url('vendors/flipbook/min_version/jquery.ipages.min.js')}}"></script>
+<script src="{{url('vendors/Custom-File-Input-Bootstrap-4/dist/bs-custom-file-input.js')}}"></script>
 @endsection
 
 
@@ -396,6 +392,9 @@ function checkInputKTP() {
 }
 </script>
 <script>
+    $(document).ready(function () {
+  bsCustomFileInput.init()
+})
 $(function() {
     $(".select2").select2({
         placeholder: 'Pilih',
@@ -444,21 +443,21 @@ $(function() {
         ],
     });
 
-    $.uploadPreview({
-        input_field: "#iu_npwp",
-        preview_box: "#ip_npwp",
-        label_field: "#il_npwp",
-        label_default: "Pilih File",
-        label_selected: "Pilih File"
-    });
+    // $.uploadPreview({
+    //     input_field: "#iu_npwp",
+    //     preview_box: "#ip_npwp",
+    //     label_field: "#il_npwp",
+    //     label_default: "Pilih File",
+    //     label_selected: "Pilih File"
+    // });
 
-    $.uploadPreview({
-        input_field: "#iu_ktp",
-        preview_box: "#ip_ktp",
-        label_field: "#il_ktp",
-        label_default: "Pilih File",
-        label_selected: "Pilih File"
-    });
+    // $.uploadPreview({
+    //     input_field: "#iu_ktp",
+    //     preview_box: "#ip_ktp",
+    //     label_field: "#il_ktp",
+    //     label_default: "Pilih File",
+    //     label_selected: "Pilih File"
+    // });
     $.uploadPreview({
         input_field: "#iu_pp",
         preview_box: "#ip_pp",
@@ -472,9 +471,9 @@ $(function() {
         edit_telp: {min:0, maxlength:20,  number: true},
         edit_ponsel: {min:0, maxlength:20,  number: true},
         edit_telp_kantor: {min:0, maxlength:20,  number: true},
-        edit_file_hibah_royalti: { extension: "pdf", maxsize: 500000, },
-        edit_scan_ktp: { extension: "jpg,jpeg,png", maxsize: 500000, },
-        edit_scan_npwp: { extension: "jpg,jpeg,png", maxsize: 500000, },
+        edit_file_hibah_royalti: { extension: "pdf", maxsize: 2000000, },
+        edit_scan_ktp: { extension: "pdf", maxsize: 2000000, },
+        edit_scan_npwp: { extension: "pdf", maxsize: 2000000, },
         edit_foto_penulis: { extension: "jpg,jpeg,png", maxsize: 500000, },
     });
 

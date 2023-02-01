@@ -229,12 +229,20 @@ class NaskahController extends Controller
                     'add_jalur_buku' => 'required',
                     'add_tanggal_masuk_naskah' => 'required',
                     'add_sumber_naskah' => 'required',
-                    'add_cdqr_code' => 'required',
                     'add_pic_prodev' => 'required',
                     'add_penulis' => 'required'
                 ], [
                     'required' => 'This field is requried'
                 ]);
+                $kodeNas = $request->input('add_kode');
+                $last = DB::table('penerbitan_naskah')
+                    ->select('kode')
+                    ->where('kode',$kodeNas)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+                if (!is_null($last)) {
+                    $kodeNas = self::generateId();
+                }
                 foreach ($request->input('add_sumber_naskah') as $sn) {
                     if ($sn == 'SC') {
                         $request->validate([
@@ -265,7 +273,7 @@ class NaskahController extends Controller
                     $addNaskah = [
                         'params' => 'Add Naskah',
                         'id' => $idN,
-                        'kode' => $request->input('add_kode'),
+                        'kode' => $kodeNas,
                         'judul_asli' => $request->input('add_judul_asli'),
                         'tanggal_masuk_naskah' => Carbon::createFromFormat('d F Y', $request->input('add_tanggal_masuk_naskah'))
                             ->format('Y-m-d'),
@@ -482,7 +490,7 @@ class NaskahController extends Controller
                 case 'tanggal_masuk_naskah':
                     return $item != '' ? Carbon::parse($item)->translatedFormat('l, d F Y') : '-';
                 case 'cdqr_code':
-                    return $item ? 'Ya' : 'Tidak';
+                    return is_null($item)? 'Tidak diinput' : ($item ? 'Ya' : 'Tidak');
                 default:
                     return $item;
             }

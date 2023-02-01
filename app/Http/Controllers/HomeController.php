@@ -61,7 +61,7 @@ class HomeController extends Controller
         // });
 
         // return Datatables::of($data)->make(true);
-
+        $naskahSelectTimeline = DB::table('penerbitan_naskah')->get();
 
         $userdata = DB::table('users')->where('id', auth()->user()->id)->first();
         $users = DB::table('users')->whereNotIn('id', [auth()->user()->id])->whereNull('deleted_at')->get();
@@ -85,7 +85,8 @@ class HomeController extends Controller
             'or_ce' => $or_ce,
             'or_eb' => $or_eb,
             'proses_cetak' => $proses_cetak,
-            'upload_ebook' => $upload_ebook
+            'upload_ebook' => $upload_ebook,
+            'naskah_kode_timeline'=>$naskahSelectTimeline
         ]);
     }
 

@@ -88,7 +88,8 @@ class UsersController extends Controller
                     return $data->user_agent;
                 })
                 ->addColumn('terakhir_login', function ($data) {
-                    return $data->last_login;
+                    $diff = Carbon::createFromFormat('Y-m-d H:i:s', $data->last_login, 'Asia/Jakarta')->diffForHumans();
+                    return $data->last_login.'<br>('.$diff.')';
                 })
                 ->rawColumns([
                     'no',
@@ -157,22 +158,32 @@ class UsersController extends Controller
 
     public function ajaxUser(Request $request)
     {
-        if ($request->act == 'create') {
-            return $this->createUser($request);
-        } elseif ($request->act == 'update') {
-            return $this->updateUser($request);
-        } elseif ($request->act == 'delete') {
-            return $this->deleteUser($request);
-        } elseif ($request->act == 'update-password') {
-            return $this->updatePassword($request);
-        } elseif ($request->act == 'update-access') {
-            return $this->updateAccess($request);
-        } else {
+        switch ($request->act) {
+            case 'create':
+                return $this->createUser($request);
+                break;
+            case 'update':
+                return $this->updateUser($request);
+                break;
+            case 'delete':
+                return $this->deleteUser($request);
+                break;
+            case 'update-password':
+                return $this->updatePassword($request);
+                break;
+            case 'update-access':
+                return $this->updateAccess($request);
+                break;
+            case 'save-image':
+                return $this->storeImage($request);
+                break;
+            default:
             return abort(404);
+                break;
         }
     }
 
-    protected function createUser(Request $request)
+    protected function createUser($request)
     {
         $request->validate([
             'adduser_nama' => 'required',
@@ -201,21 +212,48 @@ class UsersController extends Controller
 
         return;
     }
+    protected function storeImage($request)
+    {
+        try {
+            $user = DB::table('users')->where('id', $request->id)->first();
 
-    protected function updateUser(Request $request)
+            $image_parts = explode(";base64,", $request->cropped_image);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1]; //png
+            $image_base64 = base64_decode($image_parts[1]);
+            $avatar = uniqid() . '.'.$image_type;
+            $imageFullPath = Storage::path('users/' . $user->id . '/'.$avatar);
+
+            file_put_contents($imageFullPath, $image_base64);
+            DB::table('users')->where('id', $user->id)
+                ->update([
+                    'avatar' => $avatar,
+                    'updated_by' => auth()->id(),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            Storage::delete('users/' . $user->id . '/' . $user->avatar);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Foto profil berhasil diperbarui!',
+                'path' => url('storage/users/' . $user->id . '/' . $avatar)
+            ]);
+        } catch (\Exception $e) {
+            if ($avatar !== $user->avatar) {
+                Storage::delete('users/' . $user->id . '/' . $avatar);
+            }
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function updateUser($request)
     {
         $tgl_lahir = is_null($request->input('uedit_tanggal_lahir')) ? $request->input('uedit_tanggal_lahir')
             : Carbon::createFromFormat('d F Y', $request->input('uedit_tanggal_lahir'))->format('Y-m-d');
 
         try {
             $user = DB::table('users')->where('id', $request->input('uedit_id'))->first();
-
-            $avatar = $user->avatar;
-            if (!is_null($request->file('uedit_pp'))) {
-                $avatar = explode('/', $request->file('uedit_pp')->store('users/' . $user->id . '/'));
-                $avatar = end($avatar);
-            }
-
             if (Gate::allows('do_update', 'ubah-data-user')) {
                 $request->validate([
                     'uedit_nama' => 'required',
@@ -227,7 +265,6 @@ class UsersController extends Controller
 
                 DB::table('users')->where('id', $request->input('uedit_id'))
                     ->update([
-                        'avatar' => $avatar,
                         'nama' => $request->input('uedit_nama'),
                         'tanggal_lahir' => $tgl_lahir,
                         'tempat_lahir' => $request->input('uedit_tempat_lahir'),
@@ -247,7 +284,6 @@ class UsersController extends Controller
 
                 DB::table('users')->where('id', $request->input('uedit_id'))
                     ->update([
-                        'avatar' => $avatar,
                         'nama' => $request->input('uedit_nama'),
                         'tanggal_lahir' => $tgl_lahir,
                         'tempat_lahir' => $request->input('uedit_tempat_lahir'),
@@ -258,19 +294,12 @@ class UsersController extends Controller
                     ]);
             }
         } catch (\Exception $e) {
-            if ($avatar !== $user->avatar) {
-                Storage::delete('users/' . $user->id . '/' . $avatar);
-            }
             return abort(500, $e->getMessage());
-        }
-
-        if (!is_null($request->file('uedit_pp'))) {
-            Storage::delete('users/' . $user->id . '/' . $user->avatar);
         }
         return;
     }
 
-    protected function updatePassword(Request $request)
+    protected function updatePassword($request)
     {
         if (auth()->user()->id != $request->input('uedit_pwd_id')) {
             return abort(403);
@@ -294,7 +323,7 @@ class UsersController extends Controller
         return;
     }
 
-    protected function deleteUser(Request $request)
+    protected function deleteUser($request)
     {
         DB::table('users')->where('id', $request->input('id'))
             ->update([
@@ -304,7 +333,7 @@ class UsersController extends Controller
         return;
     }
 
-    protected function updateAccess(Request $request)
+    protected function updateAccess($request)
     {
         DB::transaction(function () use ($request) {
             try {
