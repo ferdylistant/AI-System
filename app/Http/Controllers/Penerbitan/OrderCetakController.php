@@ -238,6 +238,9 @@ class OrderCetakController extends Controller
                         case 'imprint':
                             return !is_null($item) ? DB::table('imprint')->where('id', $item)->whereNull('deleted_at')->first()->nama : '-';
                             break;
+                        // case 'format_buku':
+                        //     return !is_null($item) ? DB::table('format_buku')->where('id', $item)->whereNull('deleted_at')->first()->jenis_format : '-';
+                        //     break;
                         case 'tgl_permintaan_jadi':
                             return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
                             break;
@@ -402,7 +405,7 @@ class OrderCetakController extends Controller
         $platformDigital = DB::table('platform_digital_ebook')->whereNull('deleted_at')->get();
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
             ->get();
-        $format_buku = DB::table('format_buku')->whereNull('deleted_at')->get();
+        $format_buku_list = DB::table('format_buku')->whereNull('deleted_at')->get();
         $buku_jadi = ['Wrapping', 'Tidak Wrapping'];
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_cover WHERE Field = 'jilid'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
@@ -426,7 +429,7 @@ class OrderCetakController extends Controller
             'data' => $data,
             'jilid' => $jilid,
             'status_cetak' => $status_cetak,
-            'format_buku' => $format_buku,
+            'format_buku_list' => $format_buku_list,
             'kertas_isi' => $kertas_isi,
             'finishing_cover' => $finishing_cover,
             'isi_warna' => $isi_warna,
@@ -504,6 +507,10 @@ class OrderCetakController extends Controller
         if (!is_null($data->imprint)) {
             $imprint = DB::table('imprint')->where('id', $data->imprint)->whereNull('deleted_at')->first()->nama;
         }
+        $format_buku = NULL;
+        if (!is_null($data->format_buku)) {
+            $format_buku = DB::table('format_buku')->where('id',$data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
+        }
         return view('penerbitan.order_cetak.detail', [
             'title' => 'Detail Order Cetak Buku',
             'data' => $data,
@@ -511,7 +518,8 @@ class OrderCetakController extends Controller
             'act' => $act,
             'act_j' => $act_j,
             'departemen' => $departemen,
-            'imprint' => $imprint
+            'imprint' => $imprint,
+            'format_buku' => $format_buku,
         ]);
     }
     protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)
@@ -1374,29 +1382,29 @@ class OrderCetakController extends Controller
                             </span>';
                         }
                         if (!is_null($d->format_buku_his)) {
-                            $html .= '<span class="ticket-item">
+                            $html .= '<span class="ticket-item" id="newAppend">
                         <div class="ticket-title"><span><span class="bullet"></span>';
-                            $html .= ' Format buku <b class="text-dark">' . $d->format_buku_his . ' cm</b> diubah menjadi <b class="text-dark">' . $d->format_buku_new . ' cm</b>.<br>';
+                            $html .= ' Format buku <b class="text-dark">' . DB::table('format_buku')->where('id',$d->format_buku_his)->first()->jenis_format . ' cm</b> diubah menjadi <b class="text-dark">' . DB::table('format_buku')->where('id',$d->format_buku_new)->first()->jenis_format . ' cm</b>.<br>';
                             $html .= '</span></div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
                             <div class="bullet pt-2"></div>
                             <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
+    
                         </div>
                         </span>';
                         } elseif (!is_null($d->format_buku_new)) {
-                            $html .= '<span class="ticket-item">
-                                <div class="ticket-title"><span><span class="bullet"></span>';
-                            $html .= ' Format buku <b class="text-dark">' . $d->format_buku_new . ' cm</b> ditambahkan.<br>';
+                            $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= ' Format buku <b class="text-dark">' . DB::table('format_buku')->where('id',$d->format_buku_new)->first()->jenis_format . ' cm</b> ditambahkan.<br>';
                             $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+    
+                        </div>
+                        </span>';
                         }
                         if (!is_null($d->edisi_cetak_his)) {
                             $html .= '<span class="ticket-item">

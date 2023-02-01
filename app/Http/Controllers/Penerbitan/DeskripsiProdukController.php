@@ -264,13 +264,18 @@ class DeskripsiProdukController extends Controller
         if (!is_null($data->imprint)) {
             $imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
         }
+        $format_buku = NULL;
+        if (!is_null($data->format_buku)) {
+            $format_buku = DB::table('format_buku')->where('id',$data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
+        }
         return view('penerbitan.des_produk.detail', [
             'title' => 'Detail Deskripsi Produk',
             'data' => $data,
             'penulis' => $penulis,
             'pic' => $pic,
             'editor' => $editor,
-            'imprint' => $imprint
+            'imprint' => $imprint,
+            'format_buku' => $format_buku,
         ]);
     }
     public function editDeskripsiProduk(Request $request)
@@ -377,7 +382,7 @@ class DeskripsiProdukController extends Controller
             ->where('pnp.naskah_id', '=', $data->naskah_id)
             ->select('pp.nama')
             ->get();
-        $format_buku = DB::table('format_buku')->whereNull('deleted_at')->get();
+        $format_buku_list = DB::table('format_buku')->whereNull('deleted_at')->get();
         //Kelengkapan Enum
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'kelengkapan'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
@@ -387,12 +392,17 @@ class DeskripsiProdukController extends Controller
         if (!is_null($data->imprint)) {
             $nama_imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
         }
+        $format_buku = NULL;
+        if (!is_null($data->format_buku)) {
+            $format_buku = DB::table('format_buku')->where('id',$data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
+        }
         return view('penerbitan.des_produk.edit', [
             'title' => 'Edit Deskripsi Produk',
             'data' => $data,
             'editor' => $editor,
             'nama_editor' => $namaeditor,
             'penulis' => $penulis,
+            'format_buku_list' => $format_buku_list,
             'format_buku' => $format_buku,
             'kelengkapan' => $kelengkapan,
             'imprint' => $imprint,
@@ -565,7 +575,7 @@ class DeskripsiProdukController extends Controller
                     if (!is_null($d->format_buku_his)) {
                         $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
-                        $html .= ' Format buku <b class="text-dark">' . $d->format_buku_his . ' cm</b> diubah menjadi <b class="text-dark">' . $d->format_buku_new . ' cm</b>.<br>';
+                        $html .= ' Format buku <b class="text-dark">' . DB::table('format_buku')->where('id',$d->format_buku_his)->first()->jenis_format . ' cm</b> diubah menjadi <b class="text-dark">' . DB::table('format_buku')->where('id',$d->format_buku_new)->first()->jenis_format . ' cm</b>.<br>';
                         $html .= '</span></div>
                     <div class="ticket-info">
                         <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -577,7 +587,7 @@ class DeskripsiProdukController extends Controller
                     } elseif (!is_null($d->format_buku_new)) {
                         $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
-                        $html .= ' Format buku <b class="text-dark">' . $d->format_buku_new . ' cm</b> ditambahkan.<br>';
+                        $html .= ' Format buku <b class="text-dark">' . DB::table('format_buku')->where('id',$d->format_buku_new)->first()->jenis_format . ' cm</b> ditambahkan.<br>';
                         $html .= '</span></div>
                     <div class="ticket-info">
                         <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -615,7 +625,7 @@ class DeskripsiProdukController extends Controller
                     if (!is_null($d->imprint_his)) {
                         $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
-                        $html .= ' Imprint <b class="text-dark">' . $d->imprint_his . '</b> diubah menjadi <b class="text-dark">' . $d->imprint_new . '</b>.<br>';
+                        $html .= ' Imprint <b class="text-dark">' . DB::table('imprint')->where('id',$d->imprint_his)->first()->nama . '</b> diubah menjadi <b class="text-dark">' . DB::table('imprint')->where('id',$d->imprint_new)->first()->nama . '</b>.<br>';
                         $html .= '</span></div>
                     <div class="ticket-info">
                         <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -627,7 +637,7 @@ class DeskripsiProdukController extends Controller
                     } elseif (!is_null($d->imprint_new)) {
                         $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title"><span><span class="bullet"></span>';
-                        $html .= ' Imprint <b class="text-dark">' . $d->imprint_new . '</b> ditambahkan.<br>';
+                        $html .= ' Imprint <b class="text-dark">' . DB::table('imprint')->where('id',$d->imprint_new)->first()->nama . '</b> ditambahkan.<br>';
                         $html .= '</span></div>
                     <div class="ticket-info">
                         <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>

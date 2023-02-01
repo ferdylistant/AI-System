@@ -248,29 +248,36 @@ class FormatBukuController extends Controller
     }
     public function deleteFbuku(Request $request)
     {
-        $id = $request->id;
-        $deleted = DB::table('format_buku')->where('id', $id)->update([
-            'deleted_by' => auth()->id(),
-            'deleted_at' => date('Y-m-d H:i:s')
-        ]);
-        $insert = [
-            'params' => 'Insert History Delete Format Buku',
-            'format_buku_id' => $id,
-            'type_history' => 'Delete',
-            'deleted_at' => date('Y-m-d H:i:s'),
-            'author_id' => auth()->user()->id,
-            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-        ];
-        event(new MasterDataEvent($insert));
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Berhasil hapus data format buku!'
-        ]);
-        if ($deleted) {
-            echo '<script>
-
-            window.location = "' . route('fb.view') . '";
-            </script>';
+        try {
+            $id = $request->id;
+            //Check Relasi
+            $relation = DB::table('deskripsi_produk')->where('format_buku',$id)->first();
+            if (!is_null($relation)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Format buku tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!'
+                ]);
+            }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $insert = [
+                'params' => 'Insert History Delete Format Buku',
+                'format_buku_id' => $id,
+                'type_history' => 'Delete',
+                'deleted_at' => $tgl,
+                'author_id' => auth()->user()->id,
+                'modified_at' => $tgl
+            ];
+            event(new MasterDataEvent($insert));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil hapus data format buku!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
         }
     }
     public function lihatHistoryFBuku(Request $request)

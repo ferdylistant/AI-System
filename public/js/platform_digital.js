@@ -223,12 +223,10 @@ $(function () {
                 },
                 success: function (result) {
                     // console.log(result);
+                    notifToast(result.status, result.message);
                     if (result.status == "success") {
-                        notifToast(result.status, result.message);
-                        $("#md_EditPlatformEbook").modal("hide");
+                        // $("#md_EditPlatformEbook").modal("hide");
                         tablePlatform.ajax.reload();
-                    } else {
-                        notifToast(result.status, result.message);
                     }
                 },
                 error: function (err) {
@@ -284,10 +282,8 @@ $(function () {
                         .addClass("btn-progress");
                 },
                 success: function (result) {
-                    if (result.status == "success") {
-                        tablePlatform.ajax.reload();
-                        notifToast(result.status, result.message);
-                    }
+                    notifToast(result.status, result.message);
+                    tablePlatform.ajax.reload();
                 },
                 error: function (err) {},
                 complete: function () {

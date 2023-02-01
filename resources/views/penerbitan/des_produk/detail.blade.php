@@ -161,7 +161,7 @@
                                         @if (is_null($data->format_buku))
                                             -
                                         @else
-                                            {{$data->format_buku}}&nbsp;cm
+                                            {{$format_buku}}&nbsp;cm
                                         @endif
                                     </p>
                                 </div>

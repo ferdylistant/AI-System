@@ -169,8 +169,8 @@
                     </div>
                     <select class="form-control select2" name="up_format_buku" id="formatBuku" required>
                         <option label="Pilih"></option>
-                    @foreach ($format_buku as $fb)
-                        <option value="{{$fb->jenis_format}}">{{$fb->jenis_format}}</option>
+                    @foreach ($format_buku_list as $fb)
+                        <option value="{{$fb->id}}">{{$fb->jenis_format}}</option>
                     @endforeach
                     </select>
                     <div id="err_up_format_buku"></div>

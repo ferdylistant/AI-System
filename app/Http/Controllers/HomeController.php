@@ -69,8 +69,7 @@ class HomeController extends Controller
         $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
         $divisi = DB::table('divisi')->whereNull('deleted_at')->get();
         $naskah = DB::table('penerbitan_naskah')->whereNull('deleted_at')->get();
-        // $or_ce = DB::table('order_cetak as poc')->join('order_cetak_penyetujuan as ppoc','ppoc.order_cetak_id','=','poc.id')
-        // ->whereNotIn('ppoc.status_general',['Selesai'])->get();
+        $or_ce = DB::table('order_cetak as poc')->join('order_cetak_action as ppoc','ppoc.order_cetak_id','=','poc.id')->get();
         $or_eb = DB::table('order_ebook as poe')->join('order_ebook_action as ppoe', 'ppoe.order_ebook_id', '=', 'poe.id')->get();
         $proses_cetak = DB::table('proses_produksi_cetak')->whereNull('kirim_gudang')->get();
         $upload_ebook = DB::table('proses_ebook_multimedia')->get();
@@ -83,7 +82,7 @@ class HomeController extends Controller
             'penulis' => $penulis,
             'divisi' => $divisi,
             'naskah' => $naskah,
-            // 'or_ce' => $or_ce,
+            'or_ce' => $or_ce,
             'or_eb' => $or_eb,
             'proses_cetak' => $proses_cetak,
             'upload_ebook' => $upload_ebook

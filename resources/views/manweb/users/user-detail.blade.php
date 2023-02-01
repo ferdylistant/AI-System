@@ -160,8 +160,8 @@
                                     role="tabpanel" aria-labelledby="user-status-tab">
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" name="proses" class="custom-control-input"
-                                            id="prosesKerja">
-                                        <label class="custom-control-label mr-3 text-dark" for="prosesKerja">
+                                            id="userStatus">
+                                        <label class="custom-control-label mr-3 text-dark" for="userStatus">
                                             Ubah Status
                                         </label>
                                     </div>
@@ -194,7 +194,7 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/user-log.js') }}"></script>
+    <script src="{{ url('js/user-log.js') }}" defer></script>
     <script>
         $(document).ready(function() {
             // Initial

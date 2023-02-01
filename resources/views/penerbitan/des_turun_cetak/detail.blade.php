@@ -52,7 +52,7 @@
                                         </div>
                                         <div id="err_pilihan_terbit"></div>
                                     </div>
-                                    <div class="form-group" style="display:none" id="eB"> 
+                                    <div class="form-group" style="display:none" id="eB">
                                         <h6>Platform Ebook :</h6>
                                         @foreach ($platform_ebook as $ebook)
                                             <div class="form-check form-check-inline">
@@ -124,7 +124,7 @@
                                                 </p>
                                                 </li>
                                             @endforeach
-    
+
                                         </ul>
                                         @endif
                                     </div>
@@ -174,7 +174,7 @@
                                             @if (is_null($data->format_buku))
                                                 -
                                             @else
-                                                {{ $data->format_buku }}&nbsp;cm
+                                                {{ $format_buku }}&nbsp;cm
                                             @endif
                                         </p>
                                     </div>

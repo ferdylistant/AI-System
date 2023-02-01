@@ -43,7 +43,7 @@
                     $acronym .= mb_substr($w, 0, 1);
                 }
             @endphp
-            <img alt="{{ Str::upper($acronym) }}" src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
+            <img alt="{{ \Str::upper($acronym) }}" src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
                 class="rounded-circle profile-widget-picture">
             <div id="btn-pp" class="btn btn-sm">
                 <input class="inputfile" type="file" name="uedit_pp" accept="image/*">

@@ -136,7 +136,7 @@
                                 </th>
                                 @if (!is_null($data->format_buku))
                                     <td class="table-active text-right" id="formatBukuCol">
-                                        {{ $data->format_buku }} cm
+                                        {{ $format_buku }} cm
                                         <p class="text-small">
                                             <a href="javascript:void(0)"
                                                 id="formatBukuButton"><i
@@ -150,9 +150,9 @@
                                                 class="form-control select-format-buku"
                                                 required>
                                                 <option label="Pilih format buku"></option>
-                                                @foreach ($format_buku as $fb)
-                                                    <option value="{{ $fb->jenis_format }}"
-                                                        {{ $data->format_buku == $fb->jenis_format ? 'Selected' : '' }}>
+                                                @foreach ($format_buku_list as $fb)
+                                                    <option value="{{ $fb->id }}"
+                                                        {{ $data->format_buku == $fb->id ? 'Selected' : '' }}>
                                                         {{ $fb->jenis_format }}&nbsp;cm&nbsp;&nbsp;
                                                     </option>
                                                 @endforeach
@@ -170,8 +170,8 @@
                                         <select name="format_buku"
                                             class="form-control select-format-buku" required>
                                             <option label="Pilih format buku"></option>
-                                            @foreach ($format_buku as $fb)
-                                                <option value="{{ $fb->jenis_format }}">
+                                            @foreach ($format_buku_list as $fb)
+                                                <option value="{{ $fb->id }}">
                                                     {{ $fb->jenis_format }}&nbsp;cm&nbsp;&nbsp;
                                                 </option>
                                             @endforeach

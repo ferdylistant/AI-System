@@ -279,10 +279,8 @@ $(function () {
                         .addClass("btn-progress");
                 },
                 success: function (result) {
-                    if (result.status == "success") {
-                        tableFBuku.ajax.reload();
-                        notifToast(result.status, result.message);
-                    }
+                    notifToast(result.status, result.message);
+                    tableFBuku.ajax.reload();
                 },
                 error: function (err) {},
                 complete: function () {

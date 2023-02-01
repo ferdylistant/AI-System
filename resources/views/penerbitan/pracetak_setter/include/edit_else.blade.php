@@ -53,7 +53,7 @@
                             <th class="table-secondary" style="width: 25%">Format Buku:</th>
                             <td class="table-active text-right">
                                 @if (!is_null($data->format_buku))
-                                {{ $data->format_buku.' cm' }}
+                                {{ $format_buku.' cm' }}
                                 @else
                                 <span class="text-danger text-small">Belum diinput</span>
                                 @endif

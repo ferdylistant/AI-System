@@ -25,7 +25,8 @@ class UsersController extends Controller
                 if (auth()->id() != 'be8d42fa88a14406ac201974963d9c1b') { // Only Super Admin
                     $data = $data->where('u.id', '<>', 'be8d42fa88a14406ac201974963d9c1b');
                 }
-                $data = $data->select(DB::raw('
+                $data = $data->orderBy('u.nama', 'asc')
+                    ->select(DB::raw('
                             u.id, u.nama, u.email, (case when status > 0 then "Aktif" else "Non Aktif" end) as status,
                             c.nama as cabang, d.nama as divisi, j.nama as jabatan
                         '))
@@ -41,9 +42,9 @@ class UsersController extends Controller
                     })
                     ->addColumn('action', function ($data) {
                         $btn = '<a href="' . url('manajemen-web/user/' . $data->id) . '"
-                                    class="btn btn-sm btn-primary mr-2" >
+                                    class="d-block btn btn-sm btn-primary mr-1"  data-toggle="tooltip" title="Lihat Data">
                                     <div><i class="fa fa-folder-open"></i></div></a>';
-                        $btn .= '<a href="#" class="btn_DelUser btn btn-sm btn-danger"
+                        $btn .= '<a href="#" class="btn_DelUser d-block btn btn-sm btn-danger mr-1 mt-1"  data-toggle="tooltip" title="Hapus Data"
                                     data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                                     <div><i class="fa fa-trash"></i></div></a>';
                         return $btn;
@@ -75,10 +76,6 @@ class UsersController extends Controller
                 ->where('users_id', $id)
                 ->orderBy('last_login', 'desc')
                 ->get();
-            $update = Gate::allows('do_update', 'data-user-log');
-            // foreach ($data as $key => $value) {
-            //     $no = $key + 1;
-            // }
             $start = 1;
             return DataTables::of($data)
                 ->addColumn('no', function ($no) use (&$start) {
@@ -104,11 +101,11 @@ class UsersController extends Controller
         $urlPrev = url()->previous();
         $urlPrev = explode('/', $urlPrev);
         $btnPrev = end($urlPrev) == 'users' ? true : false;
+        if ($id == 'be8d42fa88a14406ac201974963d9c1b' and auth()->id() != 'be8d42fa88a14406ac201974963d9c1b') {
+            abort(403);
+        }
         $q = DB::table('users')->where('id', $id)->first('status');
         $userStatus = $q->status == 1 ? 'Aktif' : 'Tidak Aktif';
-        // if($id == 'be8d42fa88a14406ac201974963d9c1b' AND auth()->id() != 'be8d42fa88a14406ac201974963d9c1b') {
-        //     abort(404);
-        // }
 
         if (Gate::allows('do_update', 'ubah-data-user')) {
             $user = DB::table('users')->whereNull('deleted_at')
@@ -275,6 +272,9 @@ class UsersController extends Controller
 
     protected function updatePassword(Request $request)
     {
+        if (auth()->user()->id != $request->input('uedit_pwd_id')) {
+            return abort(403);
+        }
         $user = DB::table('users')->where('id', $request->input('uedit_pwd_id'))->first();
         if (is_null($user)) {
             return abort(404);

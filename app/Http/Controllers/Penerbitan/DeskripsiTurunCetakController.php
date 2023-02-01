@@ -81,15 +81,7 @@ class DeskripsiTurunCetakController extends Controller
                 })
                 ->addColumn('format_buku', function ($data) {
                     if (!is_null($data->format_buku)) {
-                        $res = $data->format_buku . ' cm';
-                    } else {
-                        $res = '-';
-                    }
-                    return $res;
-                })
-                ->addColumn('format_buku', function ($data) {
-                    if (!is_null($data->format_buku)) {
-                        $res = $data->format_buku . ' cm';
+                        $res = DB::table('format_buku')->where('id',$data->format_buku)->first()->jenis_format . ' cm';
                     } else {
                         $res = '-';
                     }
@@ -291,6 +283,10 @@ class DeskripsiTurunCetakController extends Controller
         $sasaran_pasar = is_null($sasaranPasar) ? null : $sasaranPasar->sasaran_pasar;
         $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first()->nama;
         $platform_ebook = DB::table('platform_digital_ebook')->whereNull('deleted_at')->get();
+        $format_buku = NULL;
+        if (!is_null($data->format_buku)) {
+            $format_buku = DB::table('format_buku')->where('id',$data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
+        }
         // dd($platform_ebook);
         return view('penerbitan.des_turun_cetak.detail', [
             'title' => 'Detail Deskripsi Turun Cetak',
@@ -299,7 +295,8 @@ class DeskripsiTurunCetakController extends Controller
             'sasaran_pasar' => $sasaran_pasar,
             'pic' => $pic,
             'platform_ebook' => $platform_ebook,
-            'pilihan_terbit' => $pilihan_terbit
+            'pilihan_terbit' => $pilihan_terbit,
+            'format_buku' => $format_buku,
         ]);
     }
     public function editDeskripsiTurunCetak(Request $request)
@@ -402,14 +399,19 @@ class DeskripsiTurunCetakController extends Controller
             ->where('pnp.naskah_id', '=', $data->naskah_id)
             ->select('pp.nama')
             ->get();
-        $format_buku = DB::table('format_buku')->whereNull('deleted_at')->get();
+        $format_buku_list = DB::table('format_buku')->whereNull('deleted_at')->get();
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_turun_cetak WHERE Field = 'tipe_order'"))[0]->Type;
         preg_match("/^set\(\'(.*)\'\)$/", $type, $matches);
         $tipeOrder = explode("','", $matches[1]);
+        $format_buku = NULL;
+        if (!is_null($data->format_buku)) {
+            $format_buku = DB::table('format_buku')->where('id',$data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
+        }
         return view('penerbitan.des_turun_cetak.edit', [
             'title' => 'Edit Deskripsi Turun Cetak',
             'data' => $data,
             'penulis' => $penulis,
+            'format_buku_list' => $format_buku_list,
             'format_buku' => $format_buku,
             'sasaran_pasar' => $sasaran_pasar,
             'tipe_order' => $tipeOrder
@@ -630,9 +632,9 @@ class DeskripsiTurunCetakController extends Controller
                             $html .= ' Edisi cetak tahun <b class="text-dark">' . $d->edisi_cetak_new . ' </b> ditambahkan.<br>';
                         }
                         if (!is_null($d->format_buku_his)) {
-                            $html .= ' Format buku <b class="text-dark">' . $d->format_buku_his . ' cm</b> diubah menjadi <b class="text-dark">' . $d->format_buku_new . ' cm</b>.<br>';
+                            $html .= ' Format buku <b class="text-dark">' . DB::table('format_buku')->where('id',$d->format_buku_his)->first()->jenis_format . ' cm</b> diubah menjadi <b class="text-dark">' . DB::table('format_buku')->where('id',$d->format_buku_new)->first()->jenis_format . ' cm</b>.<br>';
                         } elseif (!is_null($d->format_buku_new)) {
-                            $html .= ' Format buku <b class="text-dark">' . $d->format_buku_new . ' cm</b> ditambahkan.<br>';
+                            $html .= ' Format buku <b class="text-dark">' . DB::table('format_buku')->where('id',$d->format_buku_new)->first()->jenis_format . ' cm</b> ditambahkan.<br>';
                         }
                         if (!is_null($d->bulan_his)) {
                             $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->bulan_new)->translatedFormat('F Y') . '</b>.';

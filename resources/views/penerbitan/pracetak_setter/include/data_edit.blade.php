@@ -184,7 +184,7 @@
                 @if (is_null($data->format_buku))
                     -
                 @else
-                    {{ $data->format_buku }}
+                    {{ $format_buku }}
                 @endif
             </p>
         </div>

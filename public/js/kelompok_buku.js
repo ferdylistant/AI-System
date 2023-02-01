@@ -280,10 +280,8 @@ $(function () {
                         .addClass("btn-progress");
                 },
                 success: function (result) {
-                    if (result.status == "success") {
-                        tableKelompokBuku.ajax.reload();
-                        notifToast(result.status, result.message);
-                    }
+                    notifToast(result.status, result.message);
+                    tableKelompokBuku.ajax.reload();
                 },
                 error: function (err) {},
                 complete: function () {

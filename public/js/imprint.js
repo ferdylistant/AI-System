@@ -280,9 +280,7 @@ $(function () {
                 },
                 success: function (result) {
                     notifToast(result.status, result.message);
-                    if (result.status == "success") {
-                        tableImprint.ajax.reload();
-                    }
+                    tableImprint.ajax.reload();
                 },
                 error: function (err) {},
                 complete: function () {
