@@ -42,10 +42,11 @@
                                 }
                             @endphp
                             <div class="profile-widget-header">
-                                <a href="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}" data-magnify="gallery">
+                                <a href="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
+                                    data-magnify="gallery">
                                     <img alt="{{ Str::upper($acronym) }}"
-                                    src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
-                                    class="rounded-circle profile-widget-picture image-output">
+                                        src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
+                                        class="rounded-circle profile-widget-picture image-output">
                                 </a>
                             </div>
                             <div class="profile-widget-description">
@@ -160,8 +161,8 @@
                                         </form>
                                     </div>
                                 @endif
-                                <div class="tab-pane fade d-flex justify-content-center mt-5" id="user-status"
-                                    role="tabpanel" aria-labelledby="user-status-tab">
+                                <div class="tab-pane fade mt-3" id="user-status" role="tabpanel"
+                                    aria-labelledby="user-status-tab">
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" name="proses" class="custom-control-input"
                                             id="userStatus">
@@ -170,6 +171,38 @@
                                         </label>
                                     </div>
                                     <span class="badge badge-success">{{ $userStatus }}</span>
+                                    <table class="table table-striped my-3">
+                                        <tr>
+                                            <th>Dibuat Pada</th>
+                                            <td>:</td>
+                                            <td>{{ $user->created_at }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Dibuat Oleh</th>
+                                            <td>:</td>
+                                            <td>{{ $user->created_by }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Terakhir diubah Pada</th>
+                                            <td>:</td>
+                                            <td>{{ $user->updated_at }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Terakhir diubah Oleh</th>
+                                            <td>:</td>
+                                            <td>{{ $user->updated_by }}</td>
+                                        </tr>
+                                        {{-- <tr>
+                                            <th>Dihapus Pada</th>
+                                            <td>:</td>
+                                            <td>{{ $user->deleted_at }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Dihapus Oleh</th>
+                                            <td>:</td>
+                                            <td>{{ $user->deleted_by }}</td>
+                                        </tr> --}}
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -179,30 +212,32 @@
         </div>
     </section>
     <!-- This is the modal -->
-<div class="modal" tabindex="-1" role="dialog" aria-labelledby="titleCrop" aria-hidden="true" id="uploadimageModal">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="titleCrop"><span class="fas fa-crop"></span>&nbsp;Crop Photo Profile</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12 text-center">
-                        <input type="hidden" name="id" id="idInModal" value="">
-                        <div id="image_demo"></div>
+    <div class="modal" tabindex="-1" role="dialog" aria-labelledby="titleCrop" aria-hidden="true"
+        id="uploadimageModal">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titleCrop"><span class="fas fa-crop"></span>&nbsp;Crop Photo Profile</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <input type="hidden" name="id" id="idInModal" value="">
+                            <div id="image_demo"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary crop_image"><i class="fa fa-crop"></i> Crop and Save</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary crop_image"><i class="fa fa-crop"></i> Crop and
+                        Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 @endsection
 
 
@@ -241,30 +276,30 @@
                     $(this).valid();
                 }
             });
-            $('#uploadimageModal').on('hidden.bs.modal', function () {
+            $('#uploadimageModal').on('hidden.bs.modal', function() {
                 $('#image_demo').croppie('destroy');
             });
-            $('#cover_image').on('change', function(){
+            $('#cover_image').on('change', function() {
                 var id = $(this).data('id');
                 $('#idInModal').val(id);
                 $('#uploadimageModal').modal('show');
                 var boundaryWidth = $('.modal-body').width();
                 var boundaryHeight = boundaryWidth / 2;
-                var viewportWidth = boundaryWidth - (boundaryWidth/100*50);
-                var viewportHeight = boundaryHeight - (boundaryHeight/100*20);
+                var viewportWidth = boundaryWidth - (boundaryWidth / 100 * 50);
+                var viewportHeight = boundaryHeight - (boundaryHeight / 100 * 20);
                 $('#image_demo').croppie({
                     viewport: {
                         width: viewportWidth,
                         height: viewportWidth,
-                        type:'circle'
+                        type: 'circle'
                     },
-                    boundary:{
+                    boundary: {
                         width: boundaryWidth,
                         height: boundaryHeight
                     }
                 });
                 var reader = new FileReader();
-                reader.onload = function (event) {
+                reader.onload = function(event) {
                     $('#image_demo').croppie('bind', {
                         url: event.target.result,
                     });
@@ -273,16 +308,22 @@
                 // $('#uploadimageModal').modal('show');
             });
             /// Get button click event and get the current crop image
-            $('.crop_image').click(function(event){
+            $('.crop_image').click(function(event) {
                 var formData = new FormData();
                 let id = $('[name=id]').val();
-                $('#image_demo').croppie('result', {type: 'canvas',size: 'viewport', format: 'jpeg'|'png'|'webp'}).then(function(blob) {
+                $('#image_demo').croppie('result', {
+                    type: 'canvas',
+                    size: 'viewport',
+                    format: 'jpeg' | 'png' | 'webp'
+                }).then(function(blob) {
                     formData.append('cropped_image', blob);
-                    ajaxFormPost(formData, window.location.origin+"/manajemen-web/user/ajax/save-image/"+id); /// Calling my ajax function with my blob data passed to it
+                    ajaxFormPost(formData, window.location.origin +
+                        "/manajemen-web/user/ajax/save-image/" + id
+                    ); /// Calling my ajax function with my blob data passed to it
                 });
                 $('#uploadimageModal').modal('hide');
-            });/// Ajax Function
-            function ajaxFormPost(formData, actionURL){
+            }); /// Ajax Function
+            function ajaxFormPost(formData, actionURL) {
                 $.ajax({
                     url: actionURL,
                     type: 'POST',
@@ -292,19 +333,19 @@
                     processData: false,
                     contentType: false,
                     timeout: 5000,
-                    beforeSend: function () {
+                    beforeSend: function() {
                         $("#overlay").fadeIn(300);
                     },
                     success: function(response) {
                         // console.log(formData);
                         // console.log(response);
                         if (response.status === 'success') {
-                            $('.image-output').attr('src',response.path);
+                            $('.image-output').attr('src', response.path);
                         }
                         notifToast(response.status, response.message);
                     },
-                    complete: function(){
-                        setTimeout(function () {
+                    complete: function() {
+                        setTimeout(function() {
                             $("#overlay").fadeOut(300);
                         }, 500);
                     }

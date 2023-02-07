@@ -65,10 +65,12 @@ class MasterDataListener
                 break;
             case 'Insert History Delete Platform':
                 DB::beginTransaction();
-                $res =  DB::table('platform_digital_ebook')->where('id', $data['platform_id'])->update([
-                    'deleted_at' => $data['deleted_at'],
-                    'deleted_by' => $data['author_id']
-                ]);
+                $res =  DB::table('platform_digital_ebook')
+                    ->where('id', $data['platform_id'])
+                    ->update([
+                        'deleted_at' => $data['deleted_at'],
+                        'deleted_by' => $data['author_id']
+                    ]);
                 DB::table('platform_digital_ebook_history')->insert([
                     'platform_id' => $data['platform_id'],
                     'type_history' => $data['type_history'],
@@ -183,7 +185,7 @@ class MasterDataListener
                 break;
             case 'Insert History Delete Kelompok Buku':
                 DB::beginTransaction();
-                $res =DB::table('penerbitan_m_kelompok_buku')->where('id', $data['kelompok_buku_id'])->update([
+                $res = DB::table('penerbitan_m_kelompok_buku')->where('id', $data['kelompok_buku_id'])->update([
                     'deleted_at' => $data['deleted_at'],
                     'deleted_by' => $data['author_id']
                 ]);

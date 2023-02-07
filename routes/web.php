@@ -23,8 +23,8 @@ use App\Http\Controllers\Penerbitan\{OrderCetakController, OrderEbookController,
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('do-login', [AuthController::class, 'doLogin']);
 Route::post('/forgot-password', [AuthController::class, 'submitForgetPasswordForm'])->name('password.email');
-Route::get('/reset-password/{token}', function ($token,Request $request) {
-    return view('reset_password', ['token' => $token,'email'=> $request->email,'title' => 'Reset Password']);
+Route::get('/reset-password/{token}', function ($token, Request $request) {
+    return view('reset_password', ['token' => $token, 'email' => $request->email, 'title' => 'Reset Password']);
 })->name('password.reset');
 Route::post('reset-password', [AuthController::class, 'submitResetPasswordForm'])->name('reset.password.post');
 Route::get('tes-socket', function () {
@@ -106,10 +106,14 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('penerbitan')->group(function () {
         //Penulis
         Route::get('/penulis', [PenulisController::class, 'index']);
+        Route::get('/penulis/penulis-telah-dihapus', [PenulisController::class, 'penulisTelahDihapus'])->name('penulis.telah_dihapus');
         Route::match(['get', 'post'], '/penulis/membuat-penulis', [PenulisController::class, 'createPenulis']);
         Route::match(['get', 'post'], '/penulis/mengubah-penulis/{id}', [PenulisController::class, 'updatePenulis']);
         Route::match(['get', 'post'], '/penulis/detail-penulis/{id}', [PenulisController::class, 'detailPenulis']);
         Route::post('/penulis/hapus-penulis', [PenulisController::class, 'deletePenulis']);
+        Route::post('/penulis/restore', [PenulisController::class, 'restorePenulis'])->name('penulis.restore');
+        Route::post('/penulis/lihat-history', [PenulisController::class, 'lihatHistoryPenulis'])->name('penulis.history');
+
         //Naskah
         Route::get('/naskah', [NaskahController::class, 'index'])->name('naskah.view');
         Route::get('/naskah/ajax-call-page/{page}', [NaskahController::class, 'ajaxCallPage']);

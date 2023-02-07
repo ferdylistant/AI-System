@@ -69,7 +69,7 @@ $(function () {
             },
             function (data) {
                 $("#titleModalImprint").html(
-                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Imprint Ebook "' +
+                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Imprint "' +
                         judul +
                         '"'
                 );
@@ -308,21 +308,4 @@ $(function () {
         });
     });
     // Delete Imprint End
-
-    // Restore Imprint Start
-    $(document).on("click", ".btn_ResImprint", function (e) {
-        let nama = $(this).data("nama");
-        var getLink = $(this).attr("href");
-        swal({
-            text: "Kembalikan data imprint (" + nama + ")?",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((confirm_) => {
-            if (confirm_) {
-                window.location.href = getLink;
-            }
-        });
-    });
-    // Restore Imprint End
 });

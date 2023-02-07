@@ -81,6 +81,9 @@ class UsersController extends Controller
                 ->addColumn('no', function ($no) use (&$start) {
                     return $start++;
                 })
+                ->addColumn('id', function ($data) {
+                    return $data->users_id;
+                })
                 ->addColumn('ip', function ($data) {
                     return $data->ip_address;
                 })
@@ -89,7 +92,7 @@ class UsersController extends Controller
                 })
                 ->addColumn('terakhir_login', function ($data) {
                     $diff = Carbon::createFromFormat('Y-m-d H:i:s', $data->last_login, 'Asia/Jakarta')->diffForHumans();
-                    return $data->last_login.'<br>('.$diff.')';
+                    return $data->last_login . '<br>(' . $diff . ')';
                 })
                 ->rawColumns([
                     'no',
@@ -124,13 +127,27 @@ class UsersController extends Controller
                 ->where('u.id', $id)
                 ->first();
         }
-
+        // dd($user = collect($user));
         $user = collect($user)->map(function ($item, $key) {
-            if ($key == 'tanggal_lahir') {
-                return $item != '' ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y')
-                    : $item;
-            } else {
-                return $item;
+            switch ($key) {
+                case 'tanggal_lahir':
+                    return $item != '' ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                    break;
+                case 'created_at':
+                    return $item != '' ? Carbon::parse($item)->translatedFormat('d F Y, H:i') : '-';
+                    break;
+                case 'created_by':
+                    return $item != '' ? DB::table('users')->where('id', $item)->first()->nama : '-';
+                    break;
+                case 'updated_at':
+                    return $item != '' ? Carbon::parse($item)->translatedFormat('d F Y, H:i') : '-';
+                    break;
+                case 'updated_by':
+                    return $item != '' ? DB::table('users')->where('id', $item)->first()->nama : '-';
+                    break;
+                default:
+                    return $item;
+                    break;
             }
         })->all();
 
@@ -178,7 +195,7 @@ class UsersController extends Controller
                 return $this->storeImage($request);
                 break;
             default:
-            return abort(404);
+                return abort(404);
                 break;
         }
     }
@@ -221,8 +238,8 @@ class UsersController extends Controller
             $image_type_aux = explode("image/", $image_parts[0]);
             $image_type = $image_type_aux[1]; //png
             $image_base64 = base64_decode($image_parts[1]);
-            $avatar = uniqid() . '.'.$image_type;
-            $imageFullPath = Storage::path('users/' . $user->id . '/'.$avatar);
+            $avatar = uniqid() . '.' . $image_type;
+            $imageFullPath = Storage::path('users/' . $user->id . '/' . $avatar);
 
             file_put_contents($imageFullPath, $image_base64);
             DB::table('users')->where('id', $user->id)
