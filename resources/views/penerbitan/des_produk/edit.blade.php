@@ -451,17 +451,15 @@
                                                                                 <div class="input-group">
                                                                                     @if ($k < 1)
                                                                                         <div class="input-group-prepend">
-                                                                                            <span
-                                                                                                class="input-group-text text-danger font-weight-bold"><span
+                                                                                            <span class="input-group-text text-danger font-weight-bold"><span
                                                                                                     class="bullet"></span>Usulan
                                                                                                 Penulis</span>
                                                                                         </div>
                                                                                     @endif
-                                                                                    <input type="text"
+                                                                                    <textarea
                                                                                         name="alt_judul[]"
-                                                                                        value="{{ $alt_judul }}"
                                                                                         placeholder="Alternatif judul"
-                                                                                        class="form-control">
+                                                                                        class="form-control">{{ $alt_judul }}</textarea>
 
                                                                                 </div>
                                                                             </div>
@@ -482,9 +480,9 @@
                                                                                         class="bullet"></span>Usulan
                                                                                     Penulis</span>
                                                                             </div>
-                                                                            <input type="text" name="alt_judul[]"
+                                                                            <textarea name="alt_judul[]"
                                                                                 placeholder="Alternatif judul"
-                                                                                class="form-control">
+                                                                                class="form-control"></textarea>
                                                                         </div>
                                                                     </div>
                                                                 </td>

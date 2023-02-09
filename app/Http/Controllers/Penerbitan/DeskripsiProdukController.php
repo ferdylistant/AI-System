@@ -9,7 +9,9 @@ use App\Events\DesfinEvent;
 use App\Events\DesproEvent;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Events\TimelineEvent;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -213,7 +215,7 @@ class DeskripsiProdukController extends Controller
             )
             ->orderBy('dp.tgl_deskripsi', 'ASC')
             ->get();
-        //Kelengkapan Enum
+        //Status
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $statusProgress = explode("','", $matches[1]);
@@ -435,7 +437,12 @@ class DeskripsiProdukController extends Controller
     {
         try {
             $id = $request->id;
-            $data = DB::table('deskripsi_produk')->where('id', $id)->whereNull('deleted_at')->first();
+            DB::beginTransaction();
+            $data = DB::table('deskripsi_produk as dp')
+            ->join('penerbitan_naskah as pn','dp.naskah_id','=','pn.id')
+            ->where('dp.id', $id)
+            ->select('dp.*','pn.kode')
+            ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
@@ -448,11 +455,44 @@ class DeskripsiProdukController extends Controller
                     'message' => 'Pilih status yang berbeda dengan status saat ini!'
                 ]);
             }
-            if ($data->status == "Revisi") {
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            if ($data->status == 'Revisi') {
                 DB::table('deskripsi_produk')->where('id', $id)->update([
                     'alasan_revisi' => NULL,
                     'deadline_revisi' => NULL
                 ]);
+            }
+            switch ($request->status) {
+                case 'Selesai':
+                    $updateTimeline = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Deskripsi Produk',
+                        'tgl_selesai' => $tgl,
+                        'status' => $request->status
+                    ];
+                    event(new TimelineEvent($updateTimeline));
+                    $insertTimeline = [
+                        'params' => 'Insert Timeline',
+                        'id' => Uuid::uuid4()->toString(),
+                        'progress' => 'Penentuan Judul oleh GM Penerbitan',
+                        'naskah_id' => $id,
+                        'tgl_mulai' => $tgl,
+                        'url_action' => urlencode(URL::to('/penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$data->kode)),
+                        'status' => 'Proses'
+                    ];
+                    event(new TimelineEvent($insertTimeline));
+                    break;
+                default:
+                    $updateTimeline = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Deskripsi Produk',
+                        'tgl_selesai' => NULL,
+                        'status' => $request->status
+                    ];
+                    event(new TimelineEvent($updateTimeline));
+                    break;
             }
             $update = [
                 'params' => 'Update Status Despro',
@@ -468,14 +508,16 @@ class DeskripsiProdukController extends Controller
                 'status_his' => $data->status,
                 'status_new'  => $request->status,
                 'author_id' => auth()->user()->id,
-                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'modified_at' => $tgl
             ];
             event(new DesproEvent($insert));
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Status progress deskripsi produk berhasil diupdate'
             ], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
@@ -786,6 +828,7 @@ class DeskripsiProdukController extends Controller
         try {
             $kode = $request->input('kode');
             $judul_asli = $request->input('judul_asli');
+            DB::beginTransaction();
             $data = DB::table('deskripsi_produk')->where('id', $request->input('id'))->where('status', 'Selesai')->whereNull('deadline_revisi')->first();
             if (is_null($data)) {
                 return response()->json([
@@ -800,6 +843,14 @@ class DeskripsiProdukController extends Controller
                 'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                 'updated_by' => auth()->id()
             ]);
+            $updateTimeline = [
+                'params' => 'Update Timeline',
+                'naskah_id' => $data->naskah_id,
+                'progress' => 'Penentuan Judul oleh GM Penerbitan',
+                'tgl_selesai' => NULL,
+                'status' => 'Revisi'
+            ];
+            event(new TimelineEvent($updateTimeline));
             $insert = [
                 'params' => 'Insert History Revisi Despro',
                 'deskripsi_produk_id' => $request->input('id'),
@@ -813,11 +864,13 @@ class DeskripsiProdukController extends Controller
             ];
             //EVENT
             event(new DesproEvent($insert));
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Naskah "' . $kode . '" direvisi!'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
@@ -829,18 +882,31 @@ class DeskripsiProdukController extends Controller
         try {
             DB::beginTransaction();
             $id = $request->id;
-            $data = DB::table('deskripsi_produk')->where('id', $id)->whereNotNull('judul_final')->first();
+            $data = DB::table('deskripsi_produk as dp')->join('penerbitan_naskah as pn','dp.naskah_id','=','pn.id')
+            ->where('dp.id', $id)
+            ->whereNotNull('dp.judul_final')
+            ->select('dp.*','pn.kode')
+            ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Judul final belum ditentukan..'
                 ]);
             }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $updateTimeline = [
+                'params' => 'Update Timeline',
+                'naskah_id' => $data->naskah_id,
+                'progress' => 'Penentuan Judul oleh GM Penerbitan',
+                'tgl_selesai' => $tgl,
+                'status' => 'Acc'
+            ];
+            event(new TimelineEvent($updateTimeline));
             $despro = [
                 'params' => 'Approval Despro',
                 'id' => $data->id,
                 'status' => 'Acc',
-                'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'action_gm' => $tgl,
             ];
             // event(new DesproEvent($despro));
             // return response()->json($despro);
@@ -855,22 +921,42 @@ class DeskripsiProdukController extends Controller
                 'status_his' => $data->status,
                 'status_new' => 'Acc',
                 'author_id' => auth()->id(),
-                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'modified_at' => $tgl
             ];
-
+            $idDesfin = Uuid::uuid4()->toString();
             $desFin = [
                 'params' => 'Input Deskripsi',
-                'id' => Uuid::uuid4()->toString(),
+                'id' => $idDesfin,
                 'deskripsi_produk_id' => $id,
-                'tgl_deskripsi' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'tgl_deskripsi' => $tgl
             ];
-
+            $idDescov = Uuid::uuid4()->toString();
             $desCov = [
                 'params' => 'Input Deskripsi',
-                'id' => Uuid::uuid4()->toString(),
+                'id' => $idDescov,
                 'deskripsi_produk_id' => $id,
-                'tgl_deskripsi' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'tgl_deskripsi' => $tgl
             ];
+            $insertTimelineDesfin = [
+                'params' => 'Insert Timeline',
+                'id' => Uuid::uuid4()->toString(),
+                'progress' => 'Deskripsi Final',
+                'naskah_id' => $id,
+                'tgl_mulai' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'url_action' => urlencode(URL::to('/penerbitan/deskripsi/final/detail?desc='.$idDesfin.'&kode='.$data->kode)),
+                'status' => 'Antrian'
+            ];
+            event(new TimelineEvent($insertTimelineDesfin));
+            $insertTimelineDescov = [
+                'params' => 'Insert Timeline',
+                'id' => Uuid::uuid4()->toString(),
+                'progress' => 'Deskripsi Cover',
+                'naskah_id' => $id,
+                'tgl_mulai' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'url_action' => urlencode(URL::to('/penerbitan/deskripsi/cover/detail?desc='.$idDescov.'&kode='.$data->kode)),
+                'status' => 'Terkunci'
+            ];
+            event(new TimelineEvent($insertTimelineDescov));
             event(new DesproEvent($history));
             event(new DesfinEvent($desFin));
             event(new DescovEvent($desCov));

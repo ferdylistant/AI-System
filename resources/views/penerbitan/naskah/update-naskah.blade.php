@@ -84,7 +84,7 @@
                                         <div class="input-group-prepend">
                                             <div class="input-group-text"><i class="fas fa-flag"></i></div>
                                         </div>
-                                        <select class="form-control select2" name="edit_jalur_buku" readonly>
+                                        <select class="form-control select2" name="edit_jalur_buku">
                                             <option label="Pilih"></option>
                                             @php $arrJB = ['Reguler', 'MoU', 'MoU-Reguler', 'SMK/NonSMK', 'Pro Literasi']; @endphp
                                             @foreach ($arrJB as $v)
@@ -122,7 +122,7 @@
                                         <label class="form-check-label" for="cb{{ $v }}">{{ $v == 'SC' ? 'Soft Copy' : 'Hard Copy' }}</label>
                                     </div>
                                     @endforeach
-                                    <div id="err_sumber_naskah"></div>
+                                    <div id="err_edit_sumber_naskah"></div>
                                 </div>
                                 <div class="col-12 col-md-12" id="urlFile"></div>
                                 <div class="form-group col-12 col-md-6 mb-4">
@@ -253,7 +253,7 @@
                         if (naskah[n]) {
                             $('#urlFile').html(`<div class="form-group" style="display:none" id="SC">
                                     <label>URL File: <span class="text-danger">*</span></label>
-                                    <input type="url" class="form-control" name="edit_url_file" required>
+                                    <input type="url" class="form-control" name="edit_url_file">
                                     <div id="err_edit_url_file"></div>
                                 </div>`);
                             $('[name="edit_' + n + '"]').val(naskah[n]).change();
@@ -261,7 +261,7 @@
                         } else {
                             $('#urlFile').html(`<div class="form-group" style="display:none" id="SC">
                                     <label>URL File: <span class="text-danger">*</span></label>
-                                    <input type="url" class="form-control" name="edit_url_file" required>
+                                    <input type="url" class="form-control" name="edit_url_file">
                                     <div id="err_edit_url_file"></div>
                                 </div>`);
                         }
@@ -354,9 +354,6 @@
                 required: true
             },
             edit_pic_prodev: {
-                required: true
-            },
-            edit_url_file: {
                 required: true
             },
         });

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use App\Events\TesWebsocketEvent;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Penerbitan\TimelineController;
 use App\Http\Controllers\ManWeb\{StrukturAoController, UsersController, SettingController};
 use App\Http\Controllers\{AuthController, ApiController, HomeController, NotificationController};
 use App\Http\Controllers\Produksi\{EbookController, ProsesProduksiController, ProsesEbookController};
@@ -50,6 +51,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('home/penerbitan/{cat}', [HomeController::class, 'ajaxPenerbitan']);
     Route::post('public/penerbitan/fullcalendar/{cat}', [NaskahController::class, 'ajaxFromCalendar']);
 
+    Route::prefix('timeline')->group(function () {
+        Route::post('/{cat}',[TimelineController::class,'index']);
+    });
 
     // Manajemen User
     Route::prefix('manajemen-web')->group(function () {

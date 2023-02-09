@@ -299,9 +299,6 @@
             add_soft_copy: {
                 required: true
             },
-            edit_url_file: {
-                required: true
-            },
             add_pic_prodev: {
                 required: true
             },

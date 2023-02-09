@@ -1,7 +1,7 @@
 @php
     $arrPilihan_ = ["Baik", "Cukup", "Kurang"];
 @endphp
-@if($form == 'view') 
+@if($form == 'view')
 <div class="row">
     <div class="form-group col-12 col-md-4 mb-4">
         <label>Sistematika: <span class="text-danger">*</span></label>
@@ -72,7 +72,7 @@
     <div class="form-group col-12 col-md-4 mb-4">
         <label>File Tambahan (.rar; .zip) <span class="text-danger">**</span></label>
         @if($fileProdev)
-        <a href="{{url('storage/penerbitan/naskah/'.$naskah->id.'/'.$fileProdev->file)}}" 
+        <a href="{{url('storage/penerbitan/naskah/'.$naskah->id.'/'.$fileProdev->file)}}"
             class="btn btn-sm btn-primary text-white form-control">Download</a>
         @else
         <div class="">-</div>
@@ -185,7 +185,7 @@
     <input type="hidden" name="pn1_form" value="Edit">
     <div class="form-group col-12 col-md-4 mb-4">
         <label>Sistematika: <span class="text-danger">*</span></label>
-        <select class="form-control select2" name="pn1_sistematika" required>
+        <select class="form-control select2" name="pn1_sistematika" disabled>
             <option label="Pilih"></option>
             @foreach($arrPilihan_ as $ap)
             <option value="{{$ap}}" {{$pn_prodev->sistematika==$ap?'Selected':''}}>{{$ap}}</option>
@@ -195,7 +195,7 @@
     </div>
     <div class="form-group col-12 col-md-4 mb-4">
         <label>Nilai Keilmuan: <span class="text-danger">*</span></label>
-        <select class="form-control select2" name="pn1_nilai_keilmuan" required>
+        <select class="form-control select2" name="pn1_nilai_keilmuan" disabled>
             <option label="Pilih"></option>
             @foreach($arrPilihan_ as $ap)
             <option value="{{$ap}}" {{$pn_prodev->nilai_keilmuan==$ap?'Selected':''}}>{{$ap}}</option>
@@ -205,7 +205,7 @@
     </div>
     <div class="form-group col-12 col-md-4 mb-4">
         <label>Kelompok Buku: <span class="text-danger">*</span></label>
-        <select class="form-control select2ws" name="pn1_kelompok_buku_id" required>
+        <select class="form-control select2ws" name="pn1_kelompok_buku_id" disabled>
             <option label="Pilih"></option>
             @foreach($kbuku as $kb)
             <option value="{{$kb->id}}" {{$kb->id==$pn_prodev->kelompok_buku_id?'Selected':''}}>{{$kb->nama}}</option>
@@ -215,32 +215,32 @@
     </div>
     <div class="form-group col-12 col-md-6 mb-4">
         <label>Potensi: </label>
-        <input type="text" class="form-control" name="pn1_potensi" value="{{$pn_prodev->potensi}}" placeholder="Potensi Pasar">
+        <input type="text" class="form-control" name="pn1_potensi" value="{{$pn_prodev->potensi}}" placeholder="Potensi Pasar" disabled>
         <div id="err_pn1_potensi"></div>
     </div>
     <div class="form-group col-12 col-md-6 mb-4">
         <label>Sumber Dana Pasar: </label>
-        <input type="text" class="form-control" name="pn1_sumber_dana_pasar" value="{{$pn_prodev->sumber_dana_pasar}}" placeholder="Sumber Dana Pasar">
+        <input type="text" class="form-control" name="pn1_sumber_dana_pasar" value="{{$pn_prodev->sumber_dana_pasar}}" placeholder="Sumber Dana Pasar" disabled>
         <div id="err_pn1_sumber_dana_pasar"></div>
     </div>
     <div class="form-group col-12 mb-4">
         <label>Isi Materi: </label>
-        <textarea class="form-control" name="pn1_isi_materi" placeholder="Isi Materi Naskah">{{$pn_prodev->isi_materi}}</textarea>
+        <textarea class="form-control" name="pn1_isi_materi" placeholder="Isi Materi Naskah" disabled>{{$pn_prodev->isi_materi}}</textarea>
         <div id="err_pn1_isi_materi"></div>
     </div>
     <div class="form-group col-12 mb-4">
         <label>Sasaran Keilmuan: </label>
-        <textarea class="form-control" name="pn1_sasaran_keilmuan" placeholder="Sasaran Keilmuan Naskah">{{$pn_prodev->sasaran_keilmuan}}</textarea>
+        <textarea class="form-control" name="pn1_sasaran_keilmuan" placeholder="Sasaran Keilmuan Naskah" disabled>{{$pn_prodev->sasaran_keilmuan}}</textarea>
         <div id="err_pn1_sasaran_keilmuan"></div>
     </div>
     <div class="form-group col-12 mb-4">
         <label>Sasaran Pasar: </label>
-        <textarea class="form-control" name="pn1_sasaran_pasar" placeholder="Sasaran Pasar Naskah">{{$pn_prodev->sasaran_pasar}}</textarea>
+        <textarea class="form-control" name="pn1_sasaran_pasar" placeholder="Sasaran Pasar Naskah" disabled>{{$pn_prodev->sasaran_pasar}}</textarea>
         <div id="err_pn1_sasaran_pasar"></div>
     </div>
     <div class="form-group col-12 col-md-4 mb-4">
         <label>Skala Penilaian: <span class="text-danger">*</span></label>
-        <select class="form-control select2" name="pn1_skala_penilaian" required>
+        <select class="form-control select2" name="pn1_skala_penilaian" disabled>
             <option label="Pilih"></option>
             @foreach($arrPilihan_ as $ap)
             <option value="{{$ap}}" {{$pn_prodev->skala_penilaian==$ap?'Selected':''}}>{{$ap}}</option>
@@ -250,7 +250,7 @@
     </div>
     <div class="form-group col-12 col-md-4 mb-4">
         <label>Saran: <span class="text-danger">*</span></label>
-        <select class="form-control select2" name="pn1_saran" required>
+        <select class="form-control select2" name="pn1_saran" disabled>
             <option label="Pilih"></option>
             <option value="Diterima" {{$pn_prodev->saran=='Diterima'?'Selected':''}}>Diterima</option>
             <option value="Ditolak" {{$pn_prodev->saran=='Ditolak'?'Selected':''}}>Ditolak</option>
@@ -259,7 +259,7 @@
         </select>
         <div id="err_saran"></div>
     </div>
-    <div class="form-group col-12 col-md-4 mb-4">
+    {{-- <div class="form-group col-12 col-md-4 mb-4">
         <label>File Tambahan (.rar; .zip)
             @if($fileProdev)
             (<a href="{{url('storage/penerbitan/naskah/'.$naskah->id.'/'.$fileProdev->file)}}" class="text-primary"><strong>Download</strong></a>)
@@ -270,12 +270,12 @@
             <label class="custom-file-label" for="pn1_file_tambahan">Choose file</label>
         </div>
         <div id="err_pn1_file_tambahan" style="display: block;"></div>
-    </div>
+    </div> --}}
 </div>
 <div class="card-footer  p-0">
-    <span class="text-danger">*Wajib diisi.</span><br/>
-    <span class="text-danger">**File Input Abaikan jika tidak diubah/diinput.</span>
-    <button type="submit" class="btn btn-warning float-right">Simpan</button>
+    {{-- <span class="text-danger">*Wajib diisi.</span><br/>
+    <span class="text-danger">**File Input Abaikan jika tidak diubah/diinput.</span> --}}
+    <button type="submit" class="btn btn-warning float-right" disabled>Simpan</button>
 </div>
 </form>
 

@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
-use App\Events\DescovEvent;
 use Carbon\Carbon;
+use App\Events\DescovEvent;
 use App\Events\DesfinEvent;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Events\TimelineEvent;
 use Yajra\DataTables\DataTables;
+use PhpParser\Node\Stmt\Continue_;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
-use PhpParser\Node\Stmt\Continue_;
-use Illuminate\Support\Arr;
 
 class DeskripsiFinalController extends Controller
 {
@@ -304,7 +305,7 @@ class DeskripsiFinalController extends Controller
                     ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
                     ->where('df.id', $request->id)
                     ->whereNull('df.deleted_at')
-                    ->select('df.*', 'dp.judul_final', 'dp.nama_pena', 'dp.format_buku')
+                    ->select('df.*', 'dp.judul_final', 'dp.nama_pena', 'dp.format_buku','dp.kelengkapan')
                     ->first();
                 foreach ($request->bullet as $value) {
                     $bullet[] = $value;
@@ -315,6 +316,7 @@ class DeskripsiFinalController extends Controller
                     'id' => $request->id,
                     'judul_final' => $request->judul_final, //Di Deskripsi Produk
                     'nama_pena' => is_null($request->nama_pena)?NULL:json_encode($np), //Di Deskripsi Produk
+                    'kelengkapan' => $request->kelengkapan, //Deskripsi Produk
                     'format_buku' => $request->format_buku,
                     'sub_judul_final' => $request->sub_judul_final,
                     'kertas_isi' => $request->kertas_isi,
@@ -327,7 +329,6 @@ class DeskripsiFinalController extends Controller
                     'setter' => $request->setter,
                     'korektor' => $request->korektor,
                     'sinopsis' => $request->sinopsis,
-                    'kelengkapan' => $request->kelengkapan,
                     'catatan' => $request->catatan,
                     'bulan' => Carbon::createFromDate($request->bulan),
                     'updated_by' => auth()->id()
@@ -400,6 +401,7 @@ class DeskripsiFinalController extends Controller
                 'df.*',
                 'dp.naskah_id',
                 'dp.judul_final',
+                'dp.kelengkapan',
                 'dp.jml_hal_perkiraan',
                 'dp.nama_pena',
                 'dp.format_buku',
@@ -454,7 +456,7 @@ class DeskripsiFinalController extends Controller
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $kertas_isi = explode("','", $matches[1]);
         //Kelengkapan Enum
-        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_final WHERE Field = 'kelengkapan'"))[0]->Type;
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'kelengkapan'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $kelengkapan = explode("','", $matches[1]);
         //Isi Warna Enum
@@ -491,7 +493,11 @@ class DeskripsiFinalController extends Controller
     {
         try {
             $id = $request->id;
-            $data = DB::table('deskripsi_final')->where('id', $id)->whereNull('deleted_at')->first();
+            DB::beginTransaction();
+            $data = DB::table('deskripsi_final as df')->join('deskripsi_produk as dp','df.deskripsi_produk_id','=','dp.id')
+            ->where('df.id', $id)
+            ->select('df.*','dp.naskah_id')
+            ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
@@ -504,6 +510,7 @@ class DeskripsiFinalController extends Controller
                     'message' => 'Pilih status yang berbeda dengan status saat ini!'
                 ]);
             }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             $update = [
                 'params' => 'Update Status Desfin',
                 'id' => $data->id,
@@ -517,7 +524,7 @@ class DeskripsiFinalController extends Controller
                 'status_his' => $data->status,
                 'status_new'  => $request->status,
                 'author_id' => auth()->user()->id,
-                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'modified_at' => $tgl
             ];
             if ($data->status == 'Selesai') {
                 event(new DesfinEvent($update));
@@ -529,6 +536,22 @@ class DeskripsiFinalController extends Controller
                     'updated_by' => auth()->user()->id
                 ];
                 event(new DescovEvent($updateStatusDescov));
+                $updateTimelineDesfin = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Deskripsi Final',
+                    'tgl_selesai' => NULL,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineDesfin));
+                $updateTimelineDescov = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Deskripsi Cover',
+                    'tgl_selesai' => NULL,
+                    'status' => 'Terkunci'
+                ];
+                event(new TimelineEvent($updateTimelineDescov));
                 $msg = 'Status progress deskripsi final berhasil diupdate';
             } elseif ($request->status == 'Selesai') {
                 event(new DesfinEvent($update));
@@ -540,17 +563,43 @@ class DeskripsiFinalController extends Controller
                     'updated_by' => auth()->user()->id
                 ];
                 event(new DescovEvent($updateStatusDescov));
+                $updateTimelineDesfin = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Deskripsi Final',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineDesfin));
+                $updateTimelineDescov = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Deskripsi Cover',
+                    'tgl_selesai' => NULL,
+                    'status' => 'Antrian'
+                ];
+                event(new TimelineEvent($updateTimelineDescov));
                 $msg = 'Deskripsi final selesai, silahkan lanjut ke proses Deskripsi Cover..';
             } else {
                 event(new DesfinEvent($update));
                 event(new DesfinEvent($insert));
+                $updateTimelineDesfin = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Deskripsi Final',
+                    'tgl_selesai' => NULL,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineDesfin));
                 $msg = 'Status progress deskripsi final berhasil diupdate';
             }
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => $msg
             ], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

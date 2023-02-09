@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
-use App\Events\DesproEvent;
-use App\Events\NaskahEvent;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
+use App\Events\DesproEvent;
+use App\Events\NaskahEvent;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Events\TimelineEvent;
 use PhpParser\Node\Stmt\Catch_;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
@@ -76,11 +78,17 @@ class NaskahController extends Controller
                         ->addColumn('judul_asli', function ($data) {
                             return $data->judul_asli;
                         })
+                        ->addColumn('pic_prodev', function ($data) {
+                            return DB::table('users')->where('id',$data->pic_prodev)->first()->nama;
+                        })
                         ->addColumn('jalur_buku', function ($data) {
                             return $data->jalur_buku;
                         })
                         ->addColumn('masuk_naskah', function ($data) {
                             return Carbon::parse($data->tanggal_masuk_naskah)->translatedFormat('l, d F Y');
+                        })
+                        ->addColumn('created_by', function ($data) {
+                            return DB::table('users')->where('id',$data->created_by)->first()->nama;
                         })
                         ->addColumn('stts_penilaian', function ($data) {
                             $badge = '';
@@ -288,13 +296,24 @@ class NaskahController extends Controller
                         'created_by' => auth()->id()
                     ];
                     event(new NaskahEvent($addNaskah));
+                    $tgl = date('Y-m-d H:i:s');
+                    $addTimeline = [
+                        'params' => 'Insert Timeline',
+                        'id' => Uuid::uuid4()->toString(),
+                        'progress' => ($penilaian['selesai_penilaian'] > 0) ? 'Pelengkapan Data Penulis' : 'Penilaian Naskah',
+                        'naskah_id' => $idN,
+                        'tgl_mulai' => $tgl,
+                        'url_action' => urlencode(URL::to('/penerbitan/naskah/melihat-naskah',$idN)),
+                        'status' => 'Proses'
+                    ];
+                    event(new TimelineEvent($addTimeline));
                     $addPnStatus = [
                         'params' => 'Add Penilaian Status',
                         'id' => Str::uuid()->getHex(),
                         'naskah_id' => $idN,
                         'tgl_naskah_masuk' => Carbon::createFromFormat('d F Y', $request->input('add_tanggal_masuk_naskah'))
                             ->format('Y-m-d'),
-                        'tgl_pn_selesai' => ($penilaian['selesai_penilaian'] > 0) ? date('Y-m-d H:i:s') : null
+                        'tgl_pn_selesai' => ($penilaian['selesai_penilaian'] > 0) ? $tgl : null
                     ];
                     event(new NaskahEvent($addPnStatus));
 
@@ -383,6 +402,33 @@ class NaskahController extends Controller
                     $url_file = $request->input('edit_url_file');
                 }
                 DB::beginTransaction();
+                if ($request->input('edit_jalur_buku') != $naskah->jalur_buku) {
+                    switch ($naskah->jalur_buku) {
+                        case 'MoU':
+                            $prog = 'Pelengkapan Data Penulis';
+                            break;
+                        case 'SMK/NonSMK':
+                            $prog = 'Pelengkapan Data Penulis';
+                            break;
+                        default:
+                            $prog = 'Penilaian Naskah';
+                            break;
+                    }
+                    switch ($request->input('edit_jalur_buku')) {
+                        case 'MoU':
+                            $progNew = 'Pelengkapan Data Penulis';
+                            break;
+                        case 'SMK/NonSMK':
+                            $progNew = 'Pelengkapan Data Penulis';
+                            break;
+                        default:
+                            $progNew = 'Penilaian Naskah';
+                            break;
+                    }
+                    DB::table('timeline')->where('naskah_id',$naskah->id)->where('progress',$prog)->update([
+                        'progress' => $progNew
+                    ]);
+                }
                 try {
 
                     foreach ($request->input('edit_penulis') as $p) {
@@ -531,6 +577,7 @@ class NaskahController extends Controller
         try {
             $id = $request->id;
             // return response()->json($id);
+            DB::beginTransaction();
             $data = DB::table('penerbitan_naskah as pn')->where('id', $id)->first();
             if (is_null($data)) {
                 abort(404);
@@ -563,9 +610,10 @@ class NaskahController extends Controller
                     ]);
                 }
             }
+            $idProduk = Uuid::uuid4()->toString();
             $createDespro = [
                 'params' => 'Create Despro',
-                'id' => Uuid::uuid4()->toString(),
+                'id' => $idProduk,
                 'naskah_id' => $id,
                 'status' => 'Antrian'
             ];
@@ -585,11 +633,42 @@ class NaskahController extends Controller
                 'author_id' => auth()->id()
             ];
             event(new NaskahEvent($buktiEmailHistory));
+            switch ($data->jalur_buku) {
+                case 'MoU':
+                    $prog = 'Pelengkapan Data Penulis';
+                    break;
+                case 'SMK/NonSMK':
+                    $prog = 'Pelengkapan Data Penulis';
+                    break;
+                default:
+                    $prog = 'Penilaian Naskah';
+                    break;
+            }
+            $updateTimeline = [
+                'params' => 'Update Timeline',
+                'naskah_id' => $id,
+                'progress' => $prog,
+                'tgl_selesai' => $buktiEmail['bukti_email_penulis'],
+                'status' => 'selesai'
+            ];
+            event(new TimelineEvent($updateTimeline));
+            $insertTimeline = [
+                'params' => 'Insert Timeline',
+                'id' => Uuid::uuid4()->toString(),
+                'progress' => 'Deskripsi Produk',
+                'naskah_id' => $id,
+                'tgl_mulai' => $buktiEmail['bukti_email_penulis'],
+                'url_action' => urlencode(URL::to('/penerbitan/deskripsi/produk/detail?desc='.$idProduk.'&kode='.$request->kode)),
+                'status' => 'Antrian'
+            ];
+            event(new TimelineEvent($insertTimeline));
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Naskah selesai, silahkan lanjut pada proses Deskripsi Produk'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

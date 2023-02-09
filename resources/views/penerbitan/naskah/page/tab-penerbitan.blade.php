@@ -71,7 +71,7 @@
     <input type="hidden" name="pn4_id" value="{{$pn_penerbitan->id}}">
     <div class="form-group col-12 col-md-6 mb-4">
         <label>Saran: <span class="text-danger">*</span></label>
-        <select class="form-control select2" name="pn4_saran" required>
+        <select class="form-control select2" name="pn4_saran" disabled>
             <option label="Pilih"></option>
             <option value="Diterima" {{$pn_penerbitan->saran=='Diterima'?'selected':''}}>Diterima</option>
             <option value="Ditolak" {{$pn_penerbitan->saran=='Ditolak'?'selected':''}}>Ditolak</option>
@@ -82,22 +82,22 @@
     </div>
     <div class="form-group col-12 col-md-6 mb-4">
         <label>Potensi: </label>
-        <input type="text" class="form-control" name="pn4_potensi" value="{{$pn_penerbitan->potensi}}" placeholder="Potensi Pasar">
+        <input type="text" class="form-control" name="pn4_potensi" value="{{$pn_penerbitan->potensi}}" placeholder="Potensi Pasar" disabled>
         <div id="err_pn4_potensi"></div>
     </div>
     <div class="form-group col-12 mb-4">
         <label>Penilaian Umum: </label>
-        <textarea class="form-control" name="pn4_penilaian_umum" placeholder="Penilaian Umum">{{$pn_penerbitan->penilaian_umum}}</textarea>
+        <textarea class="form-control" name="pn4_penilaian_umum" placeholder="Penilaian Umum" disabled>{{$pn_penerbitan->penilaian_umum}}</textarea>
         <div id="err_pn4_penilaian_umum"></div>
     </div>
     <div class="form-group col-12 mb-4">
         <label>Catatan: </label>
-        <textarea class="form-control" name="pn4_catatan" placeholder="Catatan Penerbitan">{{$pn_penerbitan->catatan}}</textarea>
+        <textarea class="form-control" name="pn4_catatan" placeholder="Catatan Penerbitan" disabled>{{$pn_penerbitan->catatan}}</textarea>
         <div id="err_pn4_catatan"></div>
     </div>
 </div>
 <div class="card-footer text-right p-0">
-    <button type="submit" class="btn btn-warning">Simpan</button>
+    <button type="submit" class="btn btn-warning" disabled>Simpan</button>
 </div>
 </form>
 

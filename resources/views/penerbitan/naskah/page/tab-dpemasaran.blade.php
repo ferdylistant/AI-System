@@ -73,27 +73,27 @@
     <input type="hidden" name="pn6_id" value="{{$pn_pemasaran->id}}">
     <div class="form-group col-12 mb-4">
         <label>Tanggapan Penilaian Prospek Pasar: <span class="text-danger">*</span></label>
-        <textarea class="form-control" name="pn6_prospek_pasar" placeholder="Uraian" required>{{$pn_pemasaran->prospek_pasar}}</textarea>
+        <textarea class="form-control" name="pn6_prospek_pasar" placeholder="Uraian" disabled>{{$pn_pemasaran->prospek_pasar}}</textarea>
         <div id="err_pn6_prospek_pasar"></div>
     </div>
     <div class="form-group col-12">
         <label>Tanggapan Penilaian Potensi Dana: <span class="text-danger">*</span></label>
-        <textarea class="form-control" name="pn6_potensi_dana" placeholder="Uraian" required>{{$pn_pemasaran->potensi_dana}}</textarea>
+        <textarea class="form-control" name="pn6_potensi_dana" placeholder="Uraian" disabled>{{$pn_pemasaran->potensi_dana}}</textarea>
         <div id="err_pn6_potensi_dana"></div>
     </div>
     <div class="form-group col-12">
         <label>Tanggapan Penilaian DS / TB: <span class="text-danger">*</span></label>
-        <textarea class="form-control" name="pn6_dstb" placeholder="Uraian" required>{{$pn_pemasaran->ds_tb}}</textarea>
+        <textarea class="form-control" name="pn6_dstb" placeholder="Uraian" disabled>{{$pn_pemasaran->ds_tb}}</textarea>
         <div id="err_pn6_dstb"></div>
     </div>
     <div class="form-group col-12">
         <label>Tanggapan Penilaian Pilar: <span class="text-danger">*</span></label>
-        <textarea class="form-control" name="pn6_pilar" placeholder="Uraian" required>{{$pn_pemasaran->pilar}}</textarea>
+        <textarea class="form-control" name="pn6_pilar" placeholder="Uraian" disabled>{{$pn_pemasaran->pilar}}</textarea>
         <div id="err_pn6_pilar"></div>
     </div>
 </div>
 <div class="card-footer text-right p-0">
-    <button type="submit" class="btn btn-warning">Simpan</button>
+    <button type="submit" class="btn btn-warning" disabled>Simpan</button>
 </div>
 </form>
 

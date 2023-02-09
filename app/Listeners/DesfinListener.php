@@ -44,6 +44,7 @@ class DesfinListener
                         'dp.format_buku' => $data['format_buku'],
                         'dp.judul_final' => $data['judul_final'],
                         'dp.nama_pena' => $data['nama_pena'],
+                        'dp.kelengkapan' => $data['kelengkapan'],
                         // 'dp.jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
                         'df.sub_judul_final' => $data['sub_judul_final'],
                         'df.kertas_isi' => $data['kertas_isi'],
@@ -55,7 +56,6 @@ class DesfinListener
                         'df.setter' => $data['setter'],
                         'df.korektor' => $data['korektor'],
                         'df.sinopsis' => $data['sinopsis'],
-                        'df.kelengkapan' => $data['kelengkapan'],
                         'df.catatan' => $data['catatan'],
                         'df.bulan' => $data['bulan'],
                         'df.updated_by'=> $data['updated_by']
