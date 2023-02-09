@@ -42,6 +42,129 @@
             </div>
         </div>
     </section>
+    {{-- <div class="tickets-list" id="dataHistory">
+        <span class="ticket-item" id="newAppend">
+            <div class="ticket-title">
+                <span>
+                    <span class="bullet"></span> Alamat domisili <b class="text-dark">Jl. Anugerah Sejahtera No.999</b>
+                    ditambahkan.
+                </span>
+            </div>
+            <div class="ticket-title">
+                <span>
+                    <span class="bullet"></span> Sosmed facebook <b class="text-dark">FB</b> ditambahkan.
+                </span>
+            </div>
+            <div class="ticket-title">
+                <span>
+                    <span class="bullet"></span> Sosmed instagram <b class="text-dark">IG</b> ditambahkan.
+                </span>
+            </div>
+            <div class="ticket-title">
+                <span>
+                    <span class="bullet"></span> Sosmed twitter <b class="text-dark">TW</b>
+                </span>
+                ditambahkan.
+            </div>
+            <div class="ticket-info">
+                <div class="text-muted pt-2">Modified by <a
+                        href="http://127.0.0.1:8000/manajemen-web/user/be8d42fa88a14406ac201974963d9c1b">Super
+                        Admin</a></div>
+                <div class="bullet pt-2"></div>
+                <div class="pt-2">55 menit yang lalu (Selasa 07 Feb 2023, 14:59)</div>
+            </div>
+        </span>
+        <span class="ticket-item" id="newAppend">
+            <div class="ticket-title">
+                <span>
+                    <span class="bullet"></span> Penulis <b class="text-dark">Jalil</b>
+                    diubah menjadi <b class="text-dark">Jalil Eksotis</b>
+                </span>
+            </div>
+            <div class="ticket-title">
+                <span><span class="bullet"></span> Email <b class="text-dark">jalil@gmail.com</b>
+                    ditambahkan.<div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a
+                                href="http://127.0.0.1:8000/manajemen-web/user/be8d42fa88a14406ac201974963d9c1b">Super
+                                Admin</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">1 jam yang lalu (Selasa 07 Feb 2023,
+                            14:25)</div>
+                    </div>
+                </span>
+            </div>
+        </span>
+        <span class="ticket-item" id="newAppend">
+            <div class="ticket-title">
+                <span><span class="bullet"></span> Tanggal lahir <b class="text-dark">01 Feb 2023</b> diubah menjadi <b
+                        class="text-dark">20 Feb 2023</b>
+                    <div class="ticket-title">
+                        <span><span class="bullet"></span> Ponsel domisili <b class="text-dark">09</b> diubah menjadi <b
+                                class="text-dark">09-00</b>
+                            <div class="ticket-title">
+                                <span><span class="bullet"></span> Telepon domisili <b class="text-dark">09</b> diubah
+                                    menjadi <b class="text-dark">09-00</b>
+                                    <div class="ticket-info">
+                                        <div class="text-muted pt-2">Modified by <a
+                                                href="http://127.0.0.1:8000/manajemen-web/user/be8d42fa88a14406ac201974963d9c1b">Super
+                                                Admin</a></div>
+                                        <div class="bullet pt-2"></div>
+                                        <div class="pt-2">1 jam yang lalu (Selasa 07 Feb 2023, 14:10)</div>
+                                    </div>
+                                </span>
+                            </div>
+                        </span>
+                    </div>
+                </span>
+            </div>
+        </span>
+
+        <span class="ticket-item" id="newAppend">
+            <div class="ticket-title">
+                <span>
+                    <span class="bullet"></span> Tanggal lahir <b class="text-dark">01 Feb
+                        2023</b> ditambahkan.
+                    <div class="ticket-title">
+                        <span>
+                            <span class="bullet"></span> Ponsel domisili <b class="text-dark">12</b>
+                            diubah menjadi <b class="text-dark">09</b>
+                            <div class="ticket-title">
+                                <span><span class="bullet"></span> Telepon domisili <b class="text-dark">12</b>
+                                    diubah menjadi <b class="text-dark">09</b>
+                                    <div class="ticket-info">
+                                        <div class="text-muted pt-2">Modified by <a
+                                                href="http://127.0.0.1:8000/manajemen-web/user/be8d42fa88a14406ac201974963d9c1b">Super
+                                                Admin</a></div>
+                                        <div class="bullet pt-2"></div>
+                                        <div class="pt-2">1 jam yang lalu (Selasa 07 Feb 2023,
+                                            14:03)</div>
+                                    </div>
+                                </span>
+                            </div>
+                        </span>
+                    </div>
+                </span>
+            </div>
+        </span>
+        <span class="ticket-item" id="newAppend">
+            <div class="ticket-title">
+                <span>
+                    <span class="bullet"></span> Penulis dengan nama <b class="text-dark">Jalil</b> ditambahkan.
+                    <div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a
+                                href="http://127.0.0.1:8000/manajemen-web/user/be8d42fa88a14406ac201974963d9c1b">Super
+                                Admin</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">1 jam yang lalu (Selasa 07 Feb 2023, 14:02)</div>
+                    </div>
+                </span>
+            </div>
+        </span>
+    </div> --}}
+
+
+
+
     <!-- Modal Format Buku -->
     @include('penerbitan.penulis.modal_history_penulis')
 @endsection

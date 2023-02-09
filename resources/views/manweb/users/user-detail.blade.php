@@ -165,12 +165,14 @@
                                     aria-labelledby="user-status-tab">
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" name="proses" class="custom-control-input"
-                                            id="userStatus">
+                                            id="userStatus" data-id="{{ $user->id }}"
+                                            {{ $user->status == 1 ? 'checked' : '' }}>
                                         <label class="custom-control-label mr-3 text-dark" for="userStatus">
                                             Ubah Status
                                         </label>
                                     </div>
-                                    <span class="badge badge-success">{{ $userStatus }}</span>
+                                    <span class="badge badge-{{ $queryStatus == 1 ? 'success' : 'danger' }}"
+                                        id="statusShow">{{ $userStatus }}</span>
                                     <table class="table table-striped my-3">
                                         <tr>
                                             <th>Dibuat Pada</th>

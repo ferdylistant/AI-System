@@ -158,6 +158,7 @@ class UsersController extends Controller
                 'btnPrev' => $btnPrev,
                 'user' => (object)$user, 'lcab' => $lcab, 'ldiv' => $ldiv, 'ljab' => $ljab,
                 'userStatus' => $userStatus,
+                'queryStatus' => $q->status,
                 'accBagian' => collect($userAccess['accbag']),
                 'access' => collect(['ls' => $userAccess['ls'], 'ld' => $userAccess['ld']]),
                 'permissions' => $userAccess['perm'],
@@ -168,6 +169,7 @@ class UsersController extends Controller
                 'btnPrev' => $btnPrev,
                 'user' => (object)$user,
                 'userStatus' => $userStatus,
+                'queryStatus' => $q->status,
                 'title' => 'Detail User'
             ]);
         }
@@ -181,6 +183,9 @@ class UsersController extends Controller
                 break;
             case 'update':
                 return $this->updateUser($request);
+                break;
+            case 'update-status-user':
+                return $this->updateUserStatus($request);
                 break;
             case 'delete':
                 return $this->deleteUser($request);
@@ -315,7 +320,34 @@ class UsersController extends Controller
         }
         return;
     }
-
+    protected function updateUserStatus($request)
+    {
+        try {
+            $proses = $request->proses;
+            $id = $request->id;
+            $data = DB::table('users')->where('id', $id)->whereNull('deleted_at')->update([
+                'status' => $proses
+            ]);
+            if ($proses == 1) {
+                $class = 'badge badge-success';
+                $label  = 'Aktif';
+            } else {
+                $class = 'badge badge-danger';
+                $label  = 'Nonaktif';
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil mengubah status pengguna',
+                'data' => '<span class="' . $class . '">' . $label . '</span>'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'data' => []
+            ]);
+        }
+    }
     protected function updatePassword($request)
     {
         if (auth()->user()->id != $request->input('uedit_pwd_id')) {
