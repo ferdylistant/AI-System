@@ -369,7 +369,7 @@
 
 
 @section('jsNeeded')
-    <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
+    {{-- <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script> --}}
     <script src="https://unpkg.com/imask"></script>
     <script>
         var npwp = document.getElementById('npWP');
@@ -591,6 +591,7 @@
                         addClass('btn-progress')
                     },
                     success: function(result) {
+                        console.log(result);
                         data.find('[type="file"]').each((i, el) => {
                             $(el).parent().removeAttr('style')
                         })

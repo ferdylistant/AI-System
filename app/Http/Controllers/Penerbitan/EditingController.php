@@ -125,29 +125,29 @@ class EditingController extends Controller
                     }
                     return $res;
                 })
-                ->addColumn('copy_editor', function ($data) {
-                    if (!is_null($data->copy_editor)) {
-                        $res = '';
-                        $tgl = '';
-                        $edpros = DB::table('editing_proses_selesai')
-                        ->where('type','Copy Editor')
-                        ->where('editing_proses_id',$data->id)
-                        ->get();
-                        if (!$edpros->isEmpty()) {
-                            foreach ($edpros as $v) {
-                                if (in_array($v->users_id,json_decode($data->copy_editor, true))) {
-                                    $tgl = '('.Carbon::parse($v->tgl_proses_selesai)->translatedFormat('l d M Y, H:i').')';
-                                }
-                            }
-                        }
-                        foreach (json_decode($data->copy_editor, true) as $q) {
-                            $res .= '<span class="d-block">-&nbsp;' . DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama . ' <span class="text-success">'.$tgl.'</span></span>';
-                        }
-                    } else {
-                        $res = '-';
-                    }
-                    return $res;
-                })
+                // ->addColumn('copy_editor', function ($data) {
+                //     if (!is_null($data->copy_editor)) {
+                //         $res = '';
+                //         $tgl = '';
+                //         $edpros = DB::table('editing_proses_selesai')
+                //         ->where('type','Copy Editor')
+                //         ->where('editing_proses_id',$data->id)
+                //         ->get();
+                //         if (!$edpros->isEmpty()) {
+                //             foreach ($edpros as $v) {
+                //                 if (in_array($v->users_id,json_decode($data->copy_editor, true))) {
+                //                     $tgl = '('.Carbon::parse($v->tgl_proses_selesai)->translatedFormat('l d M Y, H:i').')';
+                //                 }
+                //             }
+                //         }
+                //         foreach (json_decode($data->copy_editor, true) as $q) {
+                //             $res .= '<span class="d-block">-&nbsp;' . DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama . ' <span class="text-success">'.$tgl.'</span></span>';
+                //         }
+                //     } else {
+                //         $res = '-';
+                //     }
+                //     return $res;
+                // })
                 ->addColumn('history', function ($data) {
                     $historyData = DB::table('editing_proses_history')->where('editing_proses_id', $data->id)->get();
                     if ($historyData->isEmpty()) {
