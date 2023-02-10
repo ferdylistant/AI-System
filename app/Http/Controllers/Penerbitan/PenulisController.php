@@ -179,8 +179,8 @@ class PenulisController extends Controller
                 }
 
                 try {
-                    $tglLahir = !$request->has('add_tanggal_lahir') ? NULL : Carbon::createFromFormat('d F Y', $request->input('add_tanggal_lahir'))->format('Y-m-d');
                     DB::beginTransaction();
+                    $tglLahir = is_null($request->add_tanggal_lahir) ? NULL : Carbon::createFromFormat('d F Y', $request->input('add_tanggal_lahir'))->format('Y-m-d');
                     DB::table('penerbitan_penulis')->insert([
                         'id' => $idPenulis,
                         'nama' => $request->input('add_nama'),
