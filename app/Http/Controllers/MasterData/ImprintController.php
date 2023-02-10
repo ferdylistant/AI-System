@@ -83,7 +83,7 @@ class ImprintController extends Controller
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-alt"></i></div></a>';
                     }
-                    if (Auth::user()->cannot('do_update','ubah-data-imprint') && Auth::user()->cannot('do_delete','hapus-data-imprint')) {
+                    if (Auth::user()->cannot('do_update', 'ubah-data-imprint') && Auth::user()->cannot('do_delete', 'hapus-data-imprint')) {
                         $btn = '<span class="badge badge-dark">No action</span>';
                     }
                     return $btn;
@@ -442,7 +442,7 @@ class ImprintController extends Controller
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-alt"></i></div></a>';
                     }
-                    if (Auth::user()->cannot('do_update','ubah-platform-digital') && Auth::user()->cannot('do_delete','hapus-platform-digital')) {
+                    if (Auth::user()->cannot('do_update', 'ubah-platform-digital') && Auth::user()->cannot('do_delete', 'hapus-platform-digital')) {
                         $btn = '<span class="badge badge-dark">No action</span>';
                     }
                     return $btn;
@@ -615,7 +615,7 @@ class ImprintController extends Controller
             $id = $request->id;
             $pil_terbit = DB::table('pilihan_penerbitan')->get();
             foreach ($pil_terbit as $pt) {
-                if (in_array($id,json_decode($pt->platform_digital_ebook_id))) {
+                if (in_array($id, json_decode($pt->platform_digital_ebook_id))) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Platform digital tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!'

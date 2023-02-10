@@ -103,7 +103,7 @@ class DesturcetListener
                 break;
             case 'Insert Order':
                 DB::beginTransaction();
-                $table = 'order_'.$data['type'];
+                $table = 'order_' . $data['type'];
                 $res = DB::table($table)->insert([
                     'id' => $data['id'],
                     'deskripsi_turun_cetak_id' => $data['deskripsi_turun_cetak_id'],

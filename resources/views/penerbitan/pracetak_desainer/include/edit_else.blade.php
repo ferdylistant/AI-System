@@ -41,10 +41,10 @@
                             <th class="table-secondary" style="width: 25%">Nama Pena:</th>
                             <td class="table-active text-right">
                                 @if (is_null($data->nama_pena))
-                                <span class="text-danger text-small">Belum diinput</span>
+                                    <span class="text-danger text-small">Belum diinput</span>
                                 @else
                                     @foreach (json_decode($data->nama_pena) as $p)
-                                    {{ $p }}-<br>
+                                        {{ $p }}-<br>
                                     @endforeach
                                 @endif
                             </td>

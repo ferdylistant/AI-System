@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
+use App\Events\PenulisEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Storage, Gate};
@@ -30,6 +31,15 @@ class PenulisController extends Controller
                 $update = Gate::allows('do_update', 'ubah-data-penulis');
                 $delete = Gate::allows('do_delete', 'hapus-data-penulis');
                 return Datatables::of($data)
+                    ->addColumn('history', function ($data) {
+                        $historyData = DB::table('penerbitan_penulis_history')->where('penerbitan_penulis_id', $data->id)->get();
+                        if ($historyData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-nama="' . $data->nama . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                            return $date;
+                        }
+                    })
                     ->addColumn('action', function ($data) use ($update, $delete) {
                         $btn = '<a href="' . url('penerbitan/penulis/detail-penulis/' . $data->id) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1">
@@ -46,11 +56,52 @@ class PenulisController extends Controller
                         }
                         return $btn;
                     })
+                    ->rawColumns(['history', 'action'])
                     ->make(true);
             }
         }
         return view('penerbitan.penulis.index', [
             'title' => 'Penulis Penerbitan'
+        ]);
+    }
+
+    public function penulisTelahDihapus(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = DB::table('penerbitan_penulis')
+                ->whereNotNull('deleted_at')
+                ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp')
+                ->get();
+            $data = collect($data)->map(function ($val) {
+                $val->email = is_null($val->email) ? '-' : $val->email;
+                $val->ponsel_domisili = is_null($val->ponsel_domisili) ? '-' : $val->ponsel_domisili;
+                $val->ktp = is_null($val->ktp) ? '-' : $val->ktp;
+                return $val;
+            });
+            $update = Gate::allows('do_delete', 'hapus-data-penulis');
+            // foreach ($data as $key => $value) {
+            //     $no = $key + 1;
+            // }
+            $start = 1;
+            return DataTables::of($data)
+                ->addColumn('action', function ($data) use ($update) {
+                    if ($update) {
+                        $btn = '<a href="#"
+                    class="d-block btn btn-sm btn_ResPenulis btn-dark btn-icon""
+                    data-toggle="tooltip" title="Restore Data"
+                    data-id="' . $data->id . '" data-nama="' . $data->nama . '">
+                    <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                    } else {
+                        $btn = '<span class="badge badge-dark">No action</span>';
+                    }
+                    return $btn;
+                })
+                ->rawColumns(['history', 'action'])
+                ->make(true);
+        }
+
+        return view('penerbitan.penulis.telah_dihapus', [
+            'title' => 'Penulis Telah Dihapus',
         ]);
     }
 
@@ -127,37 +178,73 @@ class PenulisController extends Controller
                     $fHibahRoyalti = end($fHibahRoyalti);
                 }
 
-                DB::table('penerbitan_penulis')->insert([
-                    'id' => $idPenulis,
-                    'nama' => $request->input('add_nama'),
-                    'tempat_lahir' => $request->input('add_tempat_lahir'),
-                    'tanggal_lahir' => is_null($request->input('add_tanggal_lahir')) ? NULL:Carbon::createFromFormat('d F Y', $request->input('add_tanggal_lahir'))->format('Y-m-d'),
-                    'kewarganegaraan' => $request->input('add_kewarganegaraan'),
-                    'alamat_domisili' => $request->input('add_alamat_domisili'),
-                    'telepon_domisili' => $request->input('add_telepon_domisili'),
-                    'ponsel_domisili' => $request->input('add_ponsel_domisili'),
-                    'email' => $request->input('add_email'),
-                    'nama_kantor' => $request->input('add_nama_kantor'),
-                    'alamat_kantor' => $request->input('add_alamat_kantor'),
-                    'jabatan_dikantor' => $request->input('add_jabatan_dikantor'),
-                    'telepon_kantor' => $request->input('add_telepon_kantor'),
-                    'sosmed_fb' => $request->input('add_sosmed_fb'),
-                    'sosmed_ig' => $request->input('add_sosmed_ig'),
-                    'sosmed_tw' => $request->input('add_sosmed_tw'),
-                    'no_rekening' => $request->input('add_no_rek'),
-                    'bank' => $request->input('add_bank'),
-                    'bank_atasnama' => $request->input('add_bank_atasnama'),
-                    'npwp' => $request->input('add_npwp'),
-                    'ktp' => $request->input('add_ktp'),
-                    'scan_npwp' => $scannpwp,
-                    'scan_ktp' => $scanktp,
-                    'foto_penulis' => $fotoPenulis,
-                    'url_tentang_penulis' => $request->input('add_url_tentang_penulis'),
-                    'file_hibah_royalti' => $fHibahRoyalti,
-                    'created_by' => auth()->id()
-                ]);
-
-                return;
+                try {
+                    $tglLahir = !$request->has('add_tanggal_lahir') ? NULL : Carbon::createFromFormat('d F Y', $request->input('add_tanggal_lahir'))->format('Y-m-d');
+                    DB::beginTransaction();
+                    DB::table('penerbitan_penulis')->insert([
+                        'id' => $idPenulis,
+                        'nama' => $request->input('add_nama'),
+                        'tempat_lahir' => $request->input('add_tempat_lahir'),
+                        'tanggal_lahir' => $tglLahir,
+                        'kewarganegaraan' => $request->input('add_kewarganegaraan'),
+                        'alamat_domisili' => $request->input('add_alamat_domisili'),
+                        'telepon_domisili' => $request->input('add_telepon_domisili'),
+                        'ponsel_domisili' => $request->input('add_ponsel_domisili'),
+                        'email' => $request->input('add_email'),
+                        'nama_kantor' => $request->input('add_nama_kantor'),
+                        'alamat_kantor' => $request->input('add_alamat_kantor'),
+                        'jabatan_dikantor' => $request->input('add_jabatan_dikantor'),
+                        'telepon_kantor' => $request->input('add_telepon_kantor'),
+                        'sosmed_fb' => $request->input('add_sosmed_fb'),
+                        'sosmed_ig' => $request->input('add_sosmed_ig'),
+                        'sosmed_tw' => $request->input('add_sosmed_tw'),
+                        'no_rekening' => $request->input('add_no_rek'),
+                        'bank' => $request->input('add_bank'),
+                        'bank_atasnama' => $request->input('add_bank_atasnama'),
+                        'npwp' => $request->input('add_npwp'),
+                        'ktp' => $request->input('add_ktp'),
+                        'scan_npwp' => $scannpwp,
+                        'scan_ktp' => $scanktp,
+                        'foto_penulis' => $fotoPenulis,
+                        'url_tentang_penulis' => $request->input('add_url_tentang_penulis'),
+                        'file_hibah_royalti' => $fHibahRoyalti,
+                        'created_by' => auth()->id()
+                    ]);
+                    $insert = [
+                        'params' => 'History Create Penulis',
+                        'type_history' => 'Create',
+                        'id' => $idPenulis,
+                        'nama' => $request->input('add_nama'),
+                        'tempat_lahir' => $request->input('add_tempat_lahir'),
+                        'tanggal_lahir' => $tglLahir,
+                        'kewarganegaraan' => $request->input('add_kewarganegaraan'),
+                        'alamat_domisili' => $request->input('add_alamat_domisili'),
+                        'telepon_domisili' => $request->input('add_telepon_domisili'),
+                        'ponsel_domisili' => $request->input('add_ponsel_domisili'),
+                        'email' => $request->input('add_email'),
+                        'nama_kantor' => $request->input('add_nama_kantor'),
+                        'alamat_kantor' => $request->input('add_alamat_kantor'),
+                        'jabatan_dikantor' => $request->input('add_jabatan_dikantor'),
+                        'telepon_kantor' => $request->input('add_telepon_kantor'),
+                        'sosmed_fb' => $request->input('add_sosmed_fb'),
+                        'sosmed_ig' => $request->input('add_sosmed_ig'),
+                        'sosmed_tw' => $request->input('add_sosmed_tw'),
+                        'author_id' => auth()->user()->id,
+                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new PenulisEvent($insert));
+                    DB::commit();
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data penulis berhasil ditambahkan!'
+                    ]);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $e->getMessage()
+                    ]);
+                }
             }
         }
         return view('penerbitan.penulis.create-penulis', [
@@ -203,11 +290,13 @@ class PenulisController extends Controller
                             ->store('penerbitan/penulis/' . $request->id . '/'));
                         $fHibahRoyalti = end($fHibahRoyalti);
                     }
+                    $history = DB::table('penerbitan_penulis')->where('id', $request->edit_id)->first();
+                    // DB::beginTransaction();
                     DB::table('penerbitan_penulis')->where('id', $request->id)
                         ->update([
                             'nama' => $request->input('edit_nama'),
                             'tempat_lahir' => $request->input('edit_tempat_lahir'),
-                            'tanggal_lahir' => is_null($request->input('edit_tanggal_lahir'))?NULL:Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_lahir'))->format('Y-m-d'),
+                            'tanggal_lahir' => is_null($request->edit_tanggal_lahir) ? NULL : Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_lahir'))->format('Y-m-d'),
                             'kewarganegaraan' => $request->input('edit_kewarganegaraan'),
                             'alamat_domisili' => $request->input('edit_alamat_domisili'),
                             'telepon_domisili' => $request->input('edit_telepon_domisili'),
@@ -233,6 +322,63 @@ class PenulisController extends Controller
                             'updated_at' => date('Y-m-d H:i:s'),
                             'updated_by' => auth()->id()
                         ]);
+                    // return response()->json($penulis);
+                    $insert = [
+                        'params' => 'History Update Penulis',
+                        'type_history' => 'Update',
+                        'id' => $request->id,
+                        'nama_his' => $history->nama == $request->edit_nama ? NULL : $history->nama,
+                        'nama_new' => $history->nama == $request->edit_nama ? NULL : $request->edit_nama,
+                        'tanggal_lahir_his' => $history->tanggal_lahir == Carbon::createFromFormat('d F Y', $request->edit_tanggal_lahir)->format('Y-m-d') ? NULL : $history->tanggal_lahir,
+                        'tanggal_lahir_new' => $history->tanggal_lahir == Carbon::createFromFormat('d F Y', $request->edit_tanggal_lahir)->format('Y-m-d') ? NULL : Carbon::createFromFormat('d F Y', $request->edit_tanggal_lahir)->format('Y-m-d'),
+                        // 'tanggal_lahir_new' => is_null($request->input('edit_tanggal_lahir')) ? NULL : Carbon::createFromFormat('d F Y', $request->edit_tanggal_lahir)->format('Y-m-d'),
+                        'tempat_lahir_his' => $history->tempat_lahir == $request->edit_tempat_lahir ? NULL : $history->tempat_lahir,
+                        'tempat_lahir_new' => $history->tempat_lahir == $request->edit_tempat_lahir ? NULL : $request->edit_tempat_lahir,
+                        'kewarganegaraan_his' => $history->kewarganegaraan == $request->edit_kewarganegaraan ? NULL : $history->kewarganegaraan,
+                        'kewarganegaraan_new' => $history->kewarganegaraan == $request->edit_kewarganegaraan ? NULL : $request->edit_kewarganegaraan,
+                        'alamat_domisili_his' => $history->alamat_domisili == $request->edit_alamat_domisili ? NULL : $history->alamat_domisili,
+                        'alamat_domisili_new' => $history->alamat_domisili == $request->edit_alamat_domisili ? NULL : $request->edit_alamat_domisili,
+                        'ponsel_domisili_his' => $history->ponsel_domisili == $request->edit_ponsel_domisili ? NULL : $history->ponsel_domisili,
+                        'ponsel_domisili_new' => $history->ponsel_domisili == $request->edit_ponsel_domisili ? NULL : $request->edit_ponsel_domisili,
+                        'telepon_domisili_his' => $history->telepon_domisili == $request->edit_telepon_domisili ? NULL : $history->telepon_domisili,
+                        'telepon_domisili_new' => $history->telepon_domisili == $request->edit_telepon_domisili ? NULL : $request->edit_telepon_domisili,
+                        'email_his' => $history->email == $request->edit_email ? NULL : $history->email,
+                        'email_new' => $history->email == $request->edit_email ? NULL : $request->edit_email,
+                        'nama_kantor_his' => $history->nama_kantor == $request->edit_nama_kantor ? NULL : $history->nama_kantor,
+                        'nama_kantor_new' => $history->nama_kantor == $request->edit_nama_kantor ? NULL : $request->edit_nama_kantor,
+                        'jabatan_dikantor_his' => $history->jabatan_dikantor == $request->edit_jabatan_dikantor ? NULL : $history->jabatan_dikantor,
+                        'jabatan_dikantor_new' => $history->jabatan_dikantor == $request->edit_jabatan_dikantor ? NULL : $request->edit_jabatan_dikantor,
+                        'alamat_kantor_his' => $history->alamat_kantor == $request->edit_alamat_kantor ? NULL : $history->alamat_kantor,
+                        'alamat_kantor_new' => $history->alamat_kantor == $request->edit_alamat_kantor ? NULL : $request->edit_alamat_kantor,
+                        'telepon_kantor_his' => $history->telepon_kantor == $request->edit_telepon_kantor ? NULL : $history->telepon_kantor,
+                        'telepon_kantor_new' => $history->telepon_kantor == $request->edit_telepon_kantor ? NULL : $request->edit_telepon_kantor,
+                        'sosmed_fb_his' => $history->sosmed_fb == $request->edit_sosmed_fb ? NULL : $history->sosmed_fb,
+                        'sosmed_fb_new' => $history->sosmed_fb == $request->edit_sosmed_fb ? NULL : $request->edit_sosmed_fb,
+                        'sosmed_ig_his' => $history->sosmed_ig == $request->edit_sosmed_ig ? NULL : $history->sosmed_ig,
+                        'sosmed_ig_new' => $history->sosmed_ig == $request->edit_sosmed_ig ? NULL : $request->edit_sosmed_ig,
+                        'sosmed_tw_his' => $history->sosmed_tw == $request->edit_sosmed_tw ? NULL : $history->sosmed_tw,
+                        'sosmed_tw_new' => $history->sosmed_tw == $request->edit_sosmed_tw ? NULL : $request->edit_sosmed_tw,
+                        'url_tentang_penulis_his' => $history->url_tentang_penulis == $request->edit_url_tentang_penulis ? NULL : $history->url_tentang_penulis,
+                        'url_tentang_penulis_new' => $history->url_tentang_penulis == $request->edit_url_tentang_penulis ? NULL : $request->edit_url_tentang_penulis,
+                        'bank_his' => $history->bank == $request->edit_bank ? NULL : $history->bank,
+                        'bank_new' => $history->bank == $request->edit_bank ? NULL : $request->edit_bank,
+                        'bank_atasnama_his' => $history->bank_atasnama == $request->edit_bank_atasnama ? NULL : $history->bank_atasnama,
+                        'bank_atasnama_new' => $history->bank_atasnama == $request->edit_bank_atasnama ? NULL : $request->edit_bank_atasnama,
+                        'no_rekening_his' => $history->no_rekening == $request->edit_no_rek ? NULL : $history->no_rekening,
+                        'no_rekening_new' => $history->no_rekening == $request->edit_no_rek ? NULL : $request->edit_no_rek,
+                        'npwp_his' => $history->npwp == $request->edit_npwp ? NULL : $history->npwp,
+                        'npwp_new' => $history->npwp == $request->edit_npwp ? NULL : $request->edit_npwp,
+                        'ktp_his' => $history->ktp == $request->edit_ktp ? NULL : $history->ktp,
+                        'ktp_new' => $history->ktp == $request->edit_ktp ? NULL : $request->edit_ktp,
+                        'author_id' => auth()->user()->id,
+                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new PenulisEvent($insert));
+                    // DB::commit();
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data penulis berhasil ditambahkan!'
+                    ]);
                 } catch (\Exception $e) {
                     if ($scanktp !== $penulis->scan_ktp) {
                         Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $scanktp);
@@ -280,12 +426,219 @@ class PenulisController extends Controller
 
     public function deletePenulis(Request $request)
     {
-        $data = DB::table('penerbitan_penulis')
-            ->where('id', $request->input('id'))
-            ->update([
-                'deleted_at' => date('Y-m-d H:i:s'),
-                'deleted_by' => auth()->id()
+        try {
+            DB::beginTransaction();
+            $id = $request->id;
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $delete = [
+                'params' => 'History Delete Penulis',
+                'id' => $id,
+                'type_history' => 'Delete',
+                'deleted_at' => $tgl,
+                'author_id' => auth()->user()->id,
+                'modified_at' => $tgl
+            ];
+            event(new PenulisEvent($delete));
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil hapus data penulis!'
             ]);
-        return $data;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function restorePenulis(Request $request)
+    {
+        $id = $request->id;
+        $restored = DB::table('penerbitan_penulis')
+            ->where('id', $id)
+            ->update(['deleted_at' => null, 'deleted_by' => null]);
+        $insert = [
+            'params' => 'History Restored Penulis',
+            'penerbitan_penulis_id' => $id,
+            'type_history' => 'Restore',
+            'restored_at' => now(),
+            'author_id' => auth()->user()->id,
+            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+        ];
+        event(new PenulisEvent($insert));
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Berhasil mengembalikan data penulis!'
+        ]);
+    }
+
+    public function lihatHistoryPenulis(Request $request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('penerbitan_penulis_history as pph')
+                ->join('penerbitan_penulis as pp', 'pp.id', '=', 'pph.penerbitan_penulis_id')
+                ->join('users as u', 'u.id', '=', 'pph.author_id')
+                ->where('pph.penerbitan_penulis_id', $id)
+                ->select('pph.*', 'u.nama')
+                ->orderBy('pph.id', 'desc')
+                ->paginate(2);
+
+            foreach ($data as $d) {
+                switch ($d->type_history) {
+                    case 'Create':
+                        $html .= '<span class="ticket-item" id="newAppend">';
+
+                        if (!is_null($d->nama_new)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Penulis dengan nama <b class="text-dark">' . $d->nama_new . '</b> ditambahkan.';
+                        }
+                        // if (!is_null($d->tanggal_lahir_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Tanggal lahir pada <b class="text-dark">' . $d->tanggal_lahir_new . '</b>';
+                        // }
+                        // if (!is_null($d->tempat_lahir_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Tempat lahir di <b class="text-dark">' . $d->tempat_lahir_new . '</b>';
+                        // }
+                        // if (!is_null($d->kewarganegaraan_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Kewarganegaraan <b class="text-dark">' . $d->kewarganegaraan_new . '</b>';
+                        // }
+                        // if (!is_null($d->alamat_domisili_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Alamat domisili di <b class="text-dark">' . $d->alamat_domisili_new . '</b>';
+                        // }
+                        // if (!is_null($d->ponsel_domisili_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Nomor ponsel <b class="text-dark">' . $d->ponsel_domisili_new . '</b>';
+                        // }
+                        // if (!is_null($d->telepon_domisili_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Nomor telpon <b class="text-dark">' . $d->telepon_domisili_new . '</b>';
+                        // }
+                        // if (!is_null($d->email_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Alamat e-mail <b class="text-dark">' . $d->email_new . '</b>';
+                        // }
+                        // if (!is_null($d->sosmed_fb_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Akun facebook <b class="text-dark">' . $d->sosmed_fb_new . '</b>';
+                        // }
+                        // if (!is_null($d->sosmed_ig_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Akun instagram <b class="text-dark">' . $d->sosmed_ig_new . '</b>';
+                        // }
+                        // if (!is_null($d->sosmed_tw_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Akun twitter <b class="text-dark">' . $d->sosmed_tw_new . '</b>';
+                        // }
+                        // if (!is_null($d->nama_kantor_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Nama kantor <b class="text-dark">' . $d->nama_kantor_new . '</b>';
+                        // }
+                        // if (!is_null($d->jabatan_dikantor_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Jabatan dikantor <b class="text-dark">' . $d->jabatan_dikantor_new . '</b>';
+                        // }
+                        // if (!is_null($d->alamat_kantor_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Alamat kantor <b class="text-dark">' . $d->alamat_kantor_new . '</b>';
+                        // }
+                        // if (!is_null($d->telepon_kantor_new)) {
+                        //     $html .= '<div class="ticket-title">
+                        //             <span><span class="bullet"></span> Nomor telpon kantor <b class="text-dark">' . $d->telepon_kantor_new . '</b>';
+                        // }
+                        $html .= '<div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        </div>
+                        </span>';
+                        break;
+                    case 'Update':
+                        $html .= '<span class="ticket-item" id="newAppend">';
+
+                        if (!is_null($d->nama_his)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Penulis <b class="text-dark">' . $d->nama_his . '</b> diubah menjadi <b class="text-dark">' . $d->nama_new . '</b>';
+                        } elseif (!is_null($d->nama_new)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Penulis <b class="text-dark">' . $d->nama_new . '</b> ditambahkan.';
+                        }
+                        if (!is_null($d->tanggal_lahir_his)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Tanggal lahir <b class="text-dark">' . $d->tanggal_lahir_his . '</b> diubah menjadi <b class="text-dark">' . $d->tanggal_lahir_new . '</b>';
+                        } elseif (!is_null($d->tanggal_lahir_new)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Tanggal lahir <b class="text-dark">' . $d->tanggal_lahir_new . '</b> ditambahkan.';
+                        }
+                        if (!is_null($d->tempat_lahir_his)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Tempat lahir <b class="text-dark">' . $d->tempat_lahir_his . '</b> diubah menjadi <b class="text-dark">' . $d->tempat_lahir_new . '</b>';
+                        } elseif (!is_null($d->tempat_lahir_new)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Tanggal lahir <b class="text-dark">' . $d->tempat_lahir_new . '</b> ditambahkan.';
+                        }
+                        if (!is_null($d->kewarganegaraan_his)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Kewarganegaraan <b class="text-dark">' . $d->kewarganegaraan_his . '</b> diubah menjadi <b class="text-dark">' . $d->kewarganegaraan_new . '</b>';
+                        } elseif (!is_null($d->kewarganegaraan_new)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Kewarganegaraan <b class="text-dark">' . $d->kewarganegaraan_new . '</b> ditambahkan.';
+                        }
+                        if (!is_null($d->alamat_domisili_his)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Alamat domisili <b class="text-dark">' . $d->alamat_domisili_his . '</b> diubah menjadi <b class="text-dark">' . $d->alamat_domisili_new . '</b>';
+                        } elseif (!is_null($d->alamat_domisili_new)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Alamat domisili <b class="text-dark">' . $d->alamat_domisili_new . '</b> ditambahkan.';
+                        }
+                        if (!is_null($d->ponsel_domisili_new)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Ponsel domisili <b class="text-dark">' . $d->ponsel_domisili_his . '</b> diubah menjadi <b class="text-dark">' . $d->ponsel_domisili_new . '</b>';
+                        }
+                        if (!is_null($d->telepon_domisili_new)) {
+                            $html .= '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Telepon domisili <b class="text-dark">' . $d->telepon_domisili_his . '</b> diubah menjadi <b class="text-dark">' . $d->telepon_domisili_new . '</b>';
+                        }
+                        $html .= '<div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                    </div>
+                    </span>';
+                        break;
+                    case 'Delete':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                            <div class="ticket-title">
+                                <span><span class="bullet"></span> Data Penulis dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                            </div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . ')</div>
+                            </div>
+                            </span>';
+                        break;
+                    case 'Restore':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                                <div class="ticket-title">
+                                    <span><span class="bullet"></span> Data Penulis direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                </div>
+                                <div class="ticket-info">
+                                    <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                    <div class="bullet pt-2"></div>
+                                    <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                                </div>
+                                </span>';
+                        break;
+                }
+            }
+            return $html;
+        }
     }
 }
