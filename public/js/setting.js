@@ -898,7 +898,11 @@ $(function () {
     $(document).ready(function () {
         $("input[name$=add_level]").change(function () {
             var res = $(this).val();
-
+            if (res == 2) {
+                $("[name='add_parent']").attr("required",true);
+            } else {
+                $("[name='add_parent']").attr("required",false);
+            }
             $("div.lvl").hide("slow");
             $("#level" + res).show("slow");
         });
