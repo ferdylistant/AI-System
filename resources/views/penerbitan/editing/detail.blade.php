@@ -53,8 +53,10 @@
                             <div class="row">
                                 @if ($data->proses == '1')
                                     <?php
-                                    $label = is_null($data->tgl_selesai_edit)?"editor":"copyeditor";
-                                    $dataRole  = is_null($data->tgl_selesai_edit)?$data->editor:$data->copy_editor;
+                                    $label = "editor";
+                                    // $label = is_null($data->tgl_selesai_edit)?"editor":"copyeditor";
+                                    $dataRole  = $data->editor;
+                                    // $dataRole  = is_null($data->tgl_selesai_edit)?$data->editor:$data->copy_editor;
                                     ?>
                                     @switch($data->jalur_buku)
                                         @case('Reguler')
@@ -370,7 +372,7 @@
                                             @endif
                                         </p>
                                     </div>
-                                    <div class="list-group-item flex-column align-items-start">
+                                    {{-- <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Copy Editor</h6>
                                         </div>
@@ -409,7 +411,7 @@
                                                 {{ Carbon\Carbon::parse($data->tgl_selesai_copyeditor)->translatedFormat('l d F Y, H:i') }}
                                             @endif
                                         </p>
-                                    </div>
+                                    </div> --}}
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Bulan</h6>

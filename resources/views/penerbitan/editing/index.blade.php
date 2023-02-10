@@ -230,11 +230,11 @@
                     name: 'editor',
                     title: 'Editor'
                 },
-                {
-                    data: 'copy_editor',
-                    name: 'copy_editor',
-                    title: 'Copy Editor'
-                },
+                // {
+                //     data: 'copy_editor',
+                //     name: 'copy_editor',
+                //     title: 'Copy Editor'
+                // },
                 {
                     data: 'history',
                     name: 'history',
