@@ -39,7 +39,7 @@
                     <div class="form-group row mb-4 lvl" style="display:none" id="level2">
                         <label class="col-form-label text-md-right col-12 col-md-3">Parent Level</label>
                         <div class="col-sm-12 col-md-9">
-                            <select id="add_parent" name="add_parent" class="form-control select-parent" required></select>
+                            <select id="add_parent" name="add_parent" class="form-control select-parent"></select>
                             <div id="err_add_parent"></div>
                         </div>
                     </div>

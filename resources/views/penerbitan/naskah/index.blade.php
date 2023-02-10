@@ -191,6 +191,11 @@
                         title: 'Judul Asli'
                     },
                     {
+                        data: 'pic_prodev',
+                        name: 'pic_prodev',
+                        title: 'PIC Prodev'
+                    },
+                    {
                         data: 'jalur_buku',
                         name: 'jalur_buku',
                         title: 'Jalur Buku'
@@ -199,6 +204,11 @@
                         data: 'masuk_naskah',
                         name: 'masuk_naskah',
                         title: 'Masuk Naskah'
+                    },
+                    {
+                        data: 'created_by',
+                        name: 'created_by',
+                        title: 'Pembuat Naskah'
                     },
                     {
                         data: 'stts_penilaian',

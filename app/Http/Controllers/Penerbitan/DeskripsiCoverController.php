@@ -270,7 +270,7 @@ class DeskripsiCoverController extends Controller
                     ->join('deskripsi_final as df', 'df.deskripsi_produk_id', '=', 'dp.id')
                     ->where('dc.id', $request->id)
                     ->whereNull('dc.deleted_at')
-                    ->select('dc.*', 'dp.judul_final','dp.nama_pena', 'dp.format_buku', 'df.sub_judul_final', 'df.bullet')
+                    ->select('dc.*', 'dp.judul_final','dp.nama_pena', 'dp.format_buku','dp.kelengkapan', 'df.sub_judul_final', 'df.bullet')
                     ->first();
                 foreach ($request->bullet as $value) {
                     $bullet[] = $value;
@@ -288,7 +288,7 @@ class DeskripsiCoverController extends Controller
                     'jilid' => $request->jilid,
                     'tipografi' => $request->tipografi,
                     'warna' => $request->warna,
-                    'kelengkapan' => $request->kelengkapan,
+                    'kelengkapan' => $request->kelengkapan, //Deskripsi Produk
                     'catatan' => $request->catatan,
                     'bullet' =>  json_encode(array_filter($bullet)), //Deskripsi Final
                     'desainer' => $request->desainer,
@@ -366,6 +366,7 @@ class DeskripsiCoverController extends Controller
                 'dp.nama_pena',
                 'dp.format_buku',
                 'dp.imprint',
+                'dp.kelengkapan',
                 'pn.kode',
                 'pn.judul_asli',
                 'pn.pic_prodev',
@@ -404,7 +405,7 @@ class DeskripsiCoverController extends Controller
         //Finishing Cover
         $finishingCover = ['Embosh', 'Foil', 'Glossy', 'Laminasi Dof', 'UV', 'UV Spot'];
         //Kelengkapan Enum
-        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_final WHERE Field = 'kelengkapan'"))[0]->Type;
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'kelengkapan'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $kelengkapan = explode("','", $matches[1]);
         $nama_imprint = '-';

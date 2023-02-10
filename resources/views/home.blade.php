@@ -1,437 +1,516 @@
 @extends('layouts.app')
 
 @section('cssRequired')
-<link rel="stylesheet" href="{{url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css')}}">
-<link rel="stylesheet" href="{{url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css')}}">
-<link rel="stylesheet" href="{{url('vendors/select2/dist/css/select2.min.css')}}">
-<link rel="stylesheet" href="{{url('vendors/bootstrap-daterangepicker/daterangepicker.css')}}">
-<link rel="stylesheet" href="{{url('vendors/fullcalendar/lib/main.min.css')}}">
+    <link rel="stylesheet" href="{{ url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.css') }}">
+    <link rel="stylesheet" href="{{ url('vendors/fullcalendar/lib/main.min.css') }}"> --}}
+    {{-- <link rel="stylesheet" href="{{ url('vendors/jquery.timeline-master/dist/css/timeline.min.css') }}"> --}}
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.jsdelivr.net/gh/ycodetech/horizontal-timeline-2.0@2/css/horizontal_timeline.2.0.min.css">
+    {{-- <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}"> --}}
 @endsection
 
 @section('cssNeeded')
-<style>
-    /* n => Naskah */
-    .fc-event-title {
-        color: #343a40;
-    }
-    .nMasuk .fc-daygrid-event-dot {
-        border-color: #007bff;
-    }
-    .nJadi .fc-daygrid-event-dot {
-        border-color: #28a745;
-    }
-    /* .fc-event-title {
-        color: #1a252f;
-    } */
+    <style>
+        /* n => Naskah */
+        .fc-event-title {
+            color: #343a40;
+        }
 
-    .tb-detail-naskah {
-        font-size: 12px;
-        border: 1px solid #ced4da;
-    }
-    .tb-detail-naskah th, .tb-detail-naskah td {
-        height: auto !important;
-        padding: 10px 15px 10px 15px !important;
-    }
-    .tb-detail-naskah th {
-        width: 30%;
-        color: #868ba1;
-        background-color: #E9ECEF;
-        text-align: right;
-    }
-    @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
+        .nMasuk .fc-daygrid-event-dot {
+            border-color: #007bff;
+        }
 
-:root {
-  --timeline-colour: #bb1919;
-}
+        .nJadi .fc-daygrid-event-dot {
+            border-color: #28a745;
+        }
 
-body {
-  font-family: "Open Sans", sans-serif;
-  color: #333;
-}
+        /* .fc-event-title {
+                            color: #1a252f;
+                        } */
 
-.timeline {
-  margin: 1rem;
-  padding: 1rem;
-  background-color: #eee;
+        .tb-detail-naskah {
+            font-size: 12px;
+            border: 1px solid #ced4da;
+        }
 
-  &__header {
-    position: relative;
-    padding-bottom: 0.5rem;
+        .tb-detail-naskah th,
+        .tb-detail-naskah td {
+            height: auto !important;
+            padding: 10px 15px 10px 15px !important;
+        }
 
-    &:before {
-      content: "";
-      width: 0.125rem;
-      height: 100%;
-      position: absolute;
-      top: .25rem;
-      left: calc(0.375rem - 1px);
-      background-color: var(--timeline-colour);
-    }
-  }
+        .tb-detail-naskah th {
+            width: 30%;
+            color: #868ba1;
+            background-color: #E9ECEF;
+            text-align: right;
+        }
 
-  &__live {
-    display: flex;
-    margin-bottom: 0.25rem;
+        /* @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
 
-    > span {
-      display: block;
-      margin-left: 0.25rem;
-      font-size: 1.125rem;
-      text-transform: uppercase;
-      font-weight: 700;
-    }
-  }
+            :root {
+                --timeline-colour: #bb1919;
+            }
 
-  &__title {
-    margin-left: 1rem;
-  }
+            body {
+                font-family: "Open Sans", sans-serif;
+                color: #333;
+            }
 
-  &__list {
-    > li {
-      display: flex;
-      gap: .5rem;
-      position: relative;
-      padding: 0.625rem 0;
-      font-size: 0.75rem;
+            .timeline {
+                margin: 1rem;
+                padding: 1rem;
+                background-color: #eee;
 
-      &:before {
-        content: "";
-        width: 0.125rem;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: calc(0.375rem - 1px);
-        background-color: var(--timeline-colour);
-      }
+                &__header {
+                    position: relative;
+                    padding-bottom: 0.5rem;
 
-      &:last-child:before {
-        height: .875rem;
-      }
-    }
-  }
+                    &:before {
+                        content: "";
+                        width: 0.125rem;
+                        height: 100%;
+                        position: absolute;
+                        top: .25rem;
+                        left: calc(0.375rem - 1px);
+                        background-color: var(--timeline-colour);
+                    }
+                }
 
-  &__marker {
-    width: .5rem;
-    min-width: .5rem;
-    height: .5rem;
-    margin-top: .0625rem;
-    margin-left: .125rem;
-    background-color: var(--timeline-colour);
-    border-radius: 50%;
+                &__live {
+                    display: flex;
+                    margin-bottom: 0.25rem;
 
-    &--live {
-      width: 0.75rem;
-      height: 0.75rem;
-      margin-left: 0;
-      animation-name: pulse;
-      animation-timing-function: ease-in-out;
-      animation-duration: 1.5s;
-      animation-iteration-count: infinite;
-    }
-  }
+                    >span {
+                        display: block;
+                        margin-left: 0.25rem;
+                        font-size: 1.125rem;
+                        text-transform: uppercase;
+                        font-weight: 700;
+                    }
+                }
 
-  &__timestamp {
-    font-weight: 700;
-  }
+                &__title {
+                    margin-left: 1rem;
+                }
 
-  &--alt {
-    --timeline-colour: #2866f6;
-  }
-}
+                &__list {
+                    >li {
+                        display: flex;
+                        gap: .5rem;
+                        position: relative;
+                        padding: 0.625rem 0;
+                        font-size: 0.75rem;
 
-@keyframes pulse {
-  from {
-    transform: scale3d(1, 1, 1);
-  }
+                        &:before {
+                            content: "";
+                            width: 0.125rem;
+                            height: 100%;
+                            position: absolute;
+                            top: 0;
+                            left: calc(0.375rem - 1px);
+                            background-color: var(--timeline-colour);
+                        }
 
-  50% {
-    transform: scale3d(.85, .85, .85);
-  }
+                        &:last-child:before {
+                            height: .875rem;
+                        }
+                    }
+                }
 
-  to {
-    transform: scale3d(1, 1, 1);
-  }
-}
-</style>
+                &__marker {
+                    width: .5rem;
+                    min-width: .5rem;
+                    height: .5rem;
+                    margin-top: .0625rem;
+                    margin-left: .125rem;
+                    background-color: var(--timeline-colour);
+                    border-radius: 50%;
+
+                    &--live {
+                        width: 0.75rem;
+                        height: 0.75rem;
+                        margin-left: 0;
+                        animation-name: pulse;
+                        animation-timing-function: ease-in-out;
+                        animation-duration: 1.5s;
+                        animation-iteration-count: infinite;
+                    }
+                }
+
+                &__timestamp {
+                    font-weight: 700;
+                }
+
+                &--alt {
+                    --timeline-colour: #2866f6;
+                }
+            }
+
+            @keyframes pulse {
+                from {
+                    transform: scale3d(1, 1, 1);
+                }
+
+                50% {
+                    transform: scale3d(.85, .85, .85);
+                }
+
+                to {
+                    transform: scale3d(1, 1, 1);
+                }
+            } */
+    </style>
 @endsection
 
 @section('content')
-
-<section class="section">
-    <div class="section-header">
-        <h1>Dashboard</h1>
-    </div>
-    <div class="section-body">
-        <div class="row mb-3">
-        @if (Gate::allows('do_update','ubah-data-user'))
-            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                <div class="card card-statistic-1">
-                    <div class="card-icon bg-primary">
-                    <i class="far fa-user"></i>
-                    </div>
-                    <div class="card-wrap">
-                    <div class="card-header">
-                        <h4>Total User</h4>
-                    </div>
-                    <div class="card-body">
-                        {{$users->count()}}
-                    </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                <div class="card card-statistic-1">
-                    <div class="card-icon bg-success">
-                        <i class="fas fa-network-wired"></i>
-                    </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                        <h4>Divisi</h4>
-                        </div>
-                        <div class="card-body">
-                        {{$divisi->count()}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if (Gate::allows('do_read_raw','lihat-penulis'))
-            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                <div class="card card-statistic-1">
-                    <div class="card-icon" style="background: #34395e">
-                        <i class="fas fa-pen"></i>
-                    </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                        <h4>Penulis</h4>
-                        </div>
-                        <div class="card-body">
-                        {{$penulis->count()}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if (Gate::allows('do_read_raw','lihat-imprint'))
-            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                <div class="card card-statistic-1">
-                    <div class="card-icon bg-danger">
-                        <i class="fas fa-stamp"></i>
-                    </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                        <h4>Imprint</h4>
-                        </div>
-                        <div class="card-body">
-                        {{$imprint->count()}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if (Gate::allows('do_read_raw','lihat-naskah'))
-            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                <div class="card card-statistic-1">
-                    <div class="card-icon bg-warning">
-                        <i class="far fa-file-alt"></i>
-                    </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                        <h4>Naskah</h4>
-                        </div>
-                        <div class="card-body">
-                        {{$naskah->count()}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if (Gate::allows('do_read_raw','lihat-order-cetak'))
-            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                <div class="card card-statistic-1">
-                    <div class="card-icon bg-info">
-                        <i class="fas fa-print"></i>
-                    </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                        <h4>Order Cetak</h4>
-                        </div>
-                        <div class="card-body">
-                        {{$or_ce->count()}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if (Gate::allows('do_read_raw','lihat-order-ebook'))
-            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                <div class="card card-statistic-1">
-                    <div class="card-icon bg-primary">
-                        <i class="fas fa-atlas"></i>
-                    </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                        <h4>Order E-Book</h4>
-                        </div>
-                        <div class="card-body">
-                        {{$or_eb->count()}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if (Gate::allows('do_read_raw','lihat-proses-produksi'))
-            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                <div class="card card-statistic-1">
-                    <div class="card-icon bg-success">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                    </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                        <h4>Proses Produksi Cetak</h4>
-                        </div>
-                        <div class="card-body">
-                        {{$proses_cetak->count()}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if (Gate::allows('do_read_raw','lihat-ebook-multimedia'))
-            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                <div class="card card-statistic-1">
-                    <div class="card-icon" style="background: #34395e">
-                        <i class="fas fa-globe"></i>
-                    </div>
-                    <div class="card-wrap">
-                        <div class="card-header">
-                        <h4>Proses Upload E-Book</h4>
-                        </div>
-                        <div class="card-body">
-                        {{$upload_ebook->count()}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
+    <section class="section">
+        <div class="section-header">
+            <h1>Dashboard</h1>
         </div>
-        <div class="row">
-            <div class="col-12 mb-4">
-                <div class="hero text-white hero-bg-image hero-bg-parallax" style="background-image: url('images/background-home.avif');">
-                    <div class="hero-inner">
-                        <h2>Selamat datang, {{ $userdata->nama}}!</h2>
-                        <p class="lead">You almost arrived, complete the information about your account to complete registration.</p>
-                        <div class="mt-4">
-                        <a href="{{url('manajemen-web/user/'.$userdata->id)}}" class="btn btn-outline-white btn-lg btn-icon icon-left"><i class="far fa-user"></i> Setup Account</a>
+        <div class="section-body">
+            <div class="row mb-3">
+                @if (Gate::allows('do_update', 'ubah-data-user'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-primary">
+                                <i class="far fa-user"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Total User</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $users->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-success">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Divisi</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $divisi->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-penulis'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon" style="background: #34395e">
+                                <i class="fas fa-pen"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Penulis</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $penulis->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-imprint'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-danger">
+                                <i class="fas fa-stamp"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Imprint</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $imprint->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-naskah'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-warning">
+                                <i class="far fa-file-alt"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Naskah</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $naskah->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-order-cetak'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-info">
+                                <i class="fas fa-print"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Order Cetak</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $or_ce->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-order-ebook'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-primary">
+                                <i class="fas fa-atlas"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Order E-Book</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $or_eb->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-proses-produksi'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-success">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Proses Produksi Cetak</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $proses_cetak->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-ebook-multimedia'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon" style="background: #34395e">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Proses Upload E-Book</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $upload_ebook->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </div>
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="hero text-white hero-bg-image hero-bg-parallax"
+                        style="background-image: url('images/background-home.avif');">
+                        <div class="hero-inner">
+                            <h2>Selamat datang, {{ $userdata->nama }}!</h2>
+                            <p class="lead">You almost arrived, complete the information about your account to complete
+                                registration.</p>
+                            <div class="mt-4">
+                                <a href="{{ url('manajemen-web/user/' . $userdata->id) }}"
+                                    class="btn btn-outline-white btn-lg btn-icon icon-left"><i class="far fa-user"></i>
+                                    Setup Account</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-12">
-                <div id="container_tb_naskah" class="card card-primary">
-                    <div class="card-wrap">
+                <div class="col-12">
+                    <div id="container_tb_naskah" class="card card-primary">
                         <div class="card-header">
-                            <h4>Timeline Progress</h4>
+                            <h5>Timeline</h5>
                         </div>
                         <div class="card-body">
-                            <div class="col-8 offset-2">
+                            <div class="col-12 offset-3">
                                 <div class="row">
                                     <div class="col-6">
-                                        <select class="form-control select-timeline" name="tb_naskah_tahapan">
+                                        <select class="form-control select2-timeline" name="tb_naskah_tahapan">
                                             <option label="Pilih timeline"></option>
                                             @foreach ($naskah_kode_timeline as $nas_timeline)
-                                            <option value="{{$nas_timeline->kode}}">{{$nas_timeline->kode}} &#9903; {{$nas_timeline->judul_asli}}</option>
+                                                <option value="{{ $nas_timeline->id }}">{{ $nas_timeline->kode }}
+                                                    &#9903; {{ $nas_timeline->judul_asli }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-6">
-                                        <input type="text" class="form-control drp-naskah" name="tb_naskah_tgl" placeholder="Tanggal">
-                                    </div>
                                 </div>
                             </div>
-                            <div class="col-12 table-responsive mt-3">
-                                <table class="table table-striped" id="tb_Naskah">
-                                </table>
-                            </div>
+                            <div id="showTimeline"></div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-
-
-{{-- <div id="md_EventDetail" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary">
-            </div>
-
-            <div class="modal-body">
-                <h5>#Detail Naskah / Buku</h5>
-                <div class="table-responsive">
-                    <table class="table tb-detail-naskah">
-                        <tr>
-                            <th>Kode Naskah:</th>
-                            <td>NA20220523003</td>
-                        </tr>
-                        <tr>
-                            <th>Judul Asli:</th>
-                            <td>Harry Plotter</td>
-                        </tr>
-                        <tr>
-                            <th>Jalur Buku:</th>
-                            <td>MoU-Reguler</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                <a href="" class="btn" target="_blank">Selengkapnya</a>
-            </div>
-        </div>
-    </div>
-</div> --}}
-
-
+    </section>
 @endsection
 
 @section('jsRequired')
-<script src="{{url('vendors/datatables/media/js/jquery.dataTables.min.js')}}"></script>
-<script src="{{url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
-<script src="{{url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js')}}"></script>
-<script src="{{url('vendors/select2/dist/js/select2.full.min.js')}}"></script>
-<script src="{{url('vendors/bootstrap-daterangepicker/daterangepicker.js')}}"></script>
-<script src="{{url('vendors/fullcalendar/lib/main.min.js')}}"></script>
+    <script src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}"></script>
+    <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
+    {{-- <script src="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <script src="{{ url('vendors/fullcalendar/lib/main.min.js') }}"></script> --}}
+    <script src="https://cdn.jsdelivr.net/gh/ycodetech/horizontal-timeline-2.0@2/JavaScript/horizontal_timeline.2.0.min.js">
+    </script>
+    {{-- <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script> --}}
 @endsection
 
 
 
 @section('jsNeeded')
     <script>
-        $(document).ready(function () {
-    $(".select-timeline")
-        .select2({
-            placeholder: "Pilih Timeline",
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(this).valid();
-            }
+        $(document).ready(function() {
+            $('[name="tb_naskah_tahapan"]').val('').change();
+            $(".select2-timeline")
+                .select2({
+                    placeholder: "Pilih Timeline",
+                });
+            $('#container_tb_naskah').on('change', '[name="tb_naskah_tahapan"]', function(e) {
+                // console.log($(this).val());
+                let id = $(this).val()
+                $.ajax({
+                    url: window.location.origin + "/timeline/show",
+                    type: 'POST',
+                    data: {
+                        id: id,
+                    },
+                    cache: false,
+                    dataType: 'json',
+                    beforeSend: function() {
+                        $("#overlay").fadeIn(300);
+                    },
+                    success: function(result) {
+                        // console.log(result);
+
+                        if (result.status == 'error') {
+                            notifToast(result.error, 'Belum ada progress!')
+                            $('#showTimeline').html(`<div class="col-12 offset-3 mt-5">
+                                <div class="row">
+                                    <div class="col-4 offset-1">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png" width="100%">
+                                    </div>
+                                </div>
+                            </div>`);
+                        } else {
+                            $('#showTimeline').html(result.data);
+                            timelineFunction();
+                        }
+                    }
+                }).done(function() {
+                    setTimeout(function() {
+                        $("#overlay").fadeOut(300);
+                    }, 500);
+                });
+            });
         });
-});
+
+        function timelineFunction() {
+            $('#timelineNaskah').horizontalTimeline({
+                // ! Deprecated in favour of the object options. //
+                desktopDateIntervals: 200, //************\\
+                tabletDateIntervals: 150, // Minimum: 120 \\
+                mobileDateIntervals: 120, //****************\\
+                minimalFirstDateInterval: true,
+                dateIntervals: {
+                    "desktop": 200, //************\\
+                    "tablet": 150, // Minimum: 120 \\
+                    "mobile": 120, //****************\\
+                    "minimal": true
+                },
+
+                /* End new object options */
+
+                dateDisplay: "dateTime", // dateTime, date, time, dayMonth, monthYear, year
+                dateOrder: "normal", // normal, reverse
+
+                autoplay: false,
+                autoplaySpeed: 8, // Sec
+                autoplayPause_onHover: false,
+
+                useScrollWheel: false,
+                useTouchSwipe: true,
+                useKeyboardKeys: true,
+                addRequiredFile: true,
+                useFontAwesomeIcons: true,
+                useNavBtns: true,
+                useScrollBtns: true,
+
+                // ! Deprecated in favour of the object options. //
+                iconBaseClass: "fas fa-3x", // Space separated class names
+                scrollLeft_iconClass: "fa-chevron-circle-left",
+                scrollRight_iconClass: "fa-chevron-circle-right",
+                prev_iconClass: "fa-arrow-circle-left",
+                next_iconClass: "fa-arrow-circle-right",
+                pause_iconClass: "fa-pause-circle",
+                play_iconClass: "fa-play-circle",
+
+                animation_baseClass: "animationSpeed", // Space separated class names
+                enter_animationClass: {
+                    "left": "enter-left",
+                    "right": "enter-right"
+                },
+                exit_animationClass: {
+                    "left": "exit-left",
+                    "right": "exit-right"
+                },
+                iconClass: {
+                    "base": "fas fa-3x", // Space separated class names
+                    "scrollLeft": "fa-chevron-circle-left",
+                    "scrollRight": "fa-chevron-circle-right",
+                    "prev": "fa-arrow-circle-left",
+                    "next": "fa-arrow-circle-right",
+                    "pause": "fa-pause-circle",
+                    "play": "fa-play-circle"
+                },
+                animationClass: {
+                    "base": "animationSpeed", // Space separated class names,
+                    "enter": {
+                        "left": "enter-left",
+                        "right": "enter-right"
+                    },
+                    "exit": {
+                        "left": "exit-left",
+                        "right": "exit-right"
+                    }
+                }
+
+                /* End new object options */
+            });
+        }
     </script>
-{{-- <script>
+    {{-- <script>
     document.addEventListener("DOMContentLoaded", function(event) {
         Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (e) => {
             console.log(e);
             });
     });
 </script> --}}
-{{-- <script>
+    {{-- <script>
     $(document).ready(function() {
         const url = window.location.href;
         const csrf = document.querySelector('meta[name="csrf-token"]').content;
@@ -614,7 +693,7 @@ body {
         calendar.render();
     })
 </script> --}}
-{{-- <style>
+    {{-- <style>
 
   #calendar a.fc-event {
     color: #fff; /* bootstrap default styles make it black. undo */

@@ -91,19 +91,19 @@
     <input type="hidden" name="pn3_id" value="{{$pn_pemasaran->id}}">
     <div class="form-group col-12 mb-4">
         <label>Prospek Pasar: <span class="text-danger">*</span></label>
-        <textarea class="form-control" name="pn3_prospek_pasar" placeholder="Prospek Pasar" required>{{$pn_pemasaran->prospek_pasar}}</textarea>
+        <textarea class="form-control" name="pn3_prospek_pasar" placeholder="Prospek Pasar" disabled>{{$pn_pemasaran->prospek_pasar}}</textarea>
         <div id="err_pn3_prospek_pasar"></div>
     </div>
     <div class="form-group col-12 mb-4">
         <label>Potensi Dana: <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" name="pn3_potensi_dana" value="{{$pn_pemasaran->potensi_dana}}" placeholder="Potensi Dana" required>
+        <input type="text" class="form-control" name="pn3_potensi_dana" value="{{$pn_pemasaran->potensi_dana}}" placeholder="Potensi Dana" disabled>
         <div id="err_pn3_potensi_dana"></div>
     </div>
     <div class="form-group col-12 mb-4">
         <label class="d-block">DS / TB: <span class="text-danger">*</span></label>
         @foreach($arrDSTB as $v)
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" id="cb_{{$v}}" name="pn3_dstb[]" value="{{$v}}" {{in_array($v, json_decode($pn_pemasaran->ds_tb))?'checked':''}}>
+            <input class="form-check-input" type="checkbox" id="cb_{{$v}}" name="pn3_dstb[]" value="{{$v}}" {{in_array($v, json_decode($pn_pemasaran->ds_tb))?'checked':''}} disabled>
             <label class="form-check-label" for="cb_{{$v}}">{{$v}}</label>
         </div>
         @endforeach
@@ -113,7 +113,7 @@
         <label class="d-block">Pilar: <span class="text-danger">*</span></label>
         @foreach($pilar as $key => $p)
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" id="P_{{$p->options}}" name="pn3_pilar[]" value="{{$p->options}}" {{in_array($p->options, json_decode($pn_pemasaran->pilar))?'checked':''}}>
+            <input class="form-check-input" type="checkbox" id="P_{{$p->options}}" name="pn3_pilar[]" value="{{$p->options}}" {{in_array($p->options, json_decode($pn_pemasaran->pilar))?'checked':''}} disabled>
             <label class="form-check-label" for="P_{{$p->options}}">{{$p->options}}</label>
         </div>
         @endforeach
@@ -121,7 +121,7 @@
     </div>
 </div>
 <div class="card-footer text-right p-0">
-    <button type="submit" class="btn btn-warning">Simpan</button>
+    <button type="submit" class="btn btn-warning" disabled>Simpan</button>
 </div>
 </form>
 

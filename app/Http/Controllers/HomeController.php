@@ -61,7 +61,7 @@ class HomeController extends Controller
         // });
 
         // return Datatables::of($data)->make(true);
-        $naskahSelectTimeline = DB::table('penerbitan_naskah')->get();
+        $naskahSelectTimeline = DB::table('penerbitan_naskah as pn')->get();
 
         $userdata = DB::table('users')->where('id', auth()->user()->id)->first();
         $users = DB::table('users')->whereNotIn('id', [auth()->user()->id])->whereNull('deleted_at')->get();

@@ -11,7 +11,7 @@ $(document).ready(function () {
             //max input box allowed
             x++; //text box increment
             $(wrapper).append(
-                '<div class="input-group-append"><input type="text" name="alt_judul[]" class="form-control" placeholder="Alternatif judul"/><button type="button" class="btn btn-outline-danger remove_field text-danger align-self-center" data-toggle="tooltip" title="Hapus Field"><i class="fas fa-times"></i></button></div>'
+                '<div class="input-group-append"><textarea name="alt_judul[]" class="form-control" placeholder="Alternatif judul"/></textarea><button type="button" class="btn btn-outline-danger remove_field text-danger align-self-center" data-toggle="tooltip" title="Hapus Field"><i class="fas fa-times"></i></button></div>'
             ); //add input box
         }
     });
