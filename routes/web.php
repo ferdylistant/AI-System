@@ -8,6 +8,7 @@ use App\Http\Controllers\{AuthController, ApiController, HomeController, Notific
 use App\Http\Controllers\Produksi\{EbookController, ProsesProduksiController, ProsesEbookController};
 use App\Http\Controllers\MasterData\{ImprintController, KelompokBukuController, FormatBukuController};
 use App\Http\Controllers\Penerbitan\{OrderCetakController, OrderEbookController, PenulisController, NaskahController, PenilaianNaskahController, DeskripsiCoverController, DeskripsiFinalController, DeskripsiProdukController, DeskripsiTurunCetakController, EditingController, PracetakSetterController, PracetakDesainerController};
+use App\Models\Naskah;
 
 /*
 |--------------------------------------------------------------------------
@@ -189,5 +190,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/proses/ebook-multimedia', [ProsesEbookController::class, 'index'])->name('proses.ebook.view');
         Route::get('/proses/ebook-multimedia/detail', [ProsesEbookController::class, 'detailProduksi'])->name('proses.ebook.detail');
         Route::match(['get', 'post'], '/proses/ebook-multimedia/edit', [ProsesEbookController::class, 'updateProduksi'])->name('proses.ebook.update');
+    });
+
+    Route::get('search', function () {
+        $query = ''; // <-- Change the query for testing.
+
+        $articles = Naskah::search($query)->get();
+
+        return $articles;
     });
 });

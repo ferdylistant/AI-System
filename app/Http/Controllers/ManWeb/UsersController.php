@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ManWeb;
 
+use App\Events\UserEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Hash, Gate, Storage};
@@ -221,16 +222,41 @@ class UsersController extends Controller
 
         Storage::copy("users/avatars/default.jpg", "users/" . $id . "/default.jpg");
 
-        DB::table('users')->insert([
-            'id' => $id,
-            'nama' => $request->input('adduser_nama'),
-            'email' => $request->input('adduser_email'),
-            'password' => Hash::make($password),
-            'cabang_id' => $request->input('adduser_cabang'),
-            'divisi_id' => $request->input('adduser_divisi'),
-            'jabatan_id' => $request->input('adduser_jabatan'),
-            'created_by' => auth()->id()
-        ]);
+        try {
+            DB::beginTransaction();
+            $create = [
+                'params' => 'Create User',
+                'id' => $id,
+                'nama' => $request->input('adduser_nama'),
+                'email' => $request->input('adduser_email'),
+                'password' => Hash::make($password),
+                'cabang_id' => $request->input('adduser_cabang'),
+                'divisi_id' => $request->input('adduser_divisi'),
+                'jabatan_id' => $request->input('adduser_jabatan'),
+                'created_by' => auth()->id()
+            ];
+            event(new UserEvent($create));
+            $history = [
+                'params' => 'History Create User',
+                'type_history' => 'Create',
+                'user_id' => $id,
+                'nama' => $request->input('adduser_nama'),
+                'author_id' => $request->input('adduser_nama'),
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            // event(new UserEvent($history));
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data pengguna berhasil ditambahkan!',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return;
     }

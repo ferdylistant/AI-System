@@ -44,12 +44,12 @@
                 }
             @endphp
             <a href="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}" data-magnify="gallery">
-                <img alt="{{ Str::upper($acronym) }}"
-                src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
-                class="rounded-circle profile-widget-picture image-output">
+                <img alt="{{ Str::upper($acronym) }}" src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
+                    class="rounded-circle profile-widget-picture image-output">
             </a>
             <div id="btn-pp" class="btn btn-sm">
-                <input class="inputfile" type="file" name="uedit_pp" data-id="{{$user->id}}" id="cover_image" accept="image/*">
+                <input class="inputfile" type="file" name="uedit_pp" data-id="{{ $user->id }}" id="cover_image"
+                    accept="image/*">
                 <i class="fa fa-camera"></i>
             </div>
             <div id="err_uedit_pp" style="display: block;"></div>

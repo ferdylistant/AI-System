@@ -118,6 +118,11 @@
                                     <a class="nav-link" id="user-status-tab" data-toggle="tab" href="#user-status"
                                         role="tab" aria-controls="user-status" aria-selected="false">User status</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="user-history-tab" data-toggle="tab" href="#user-history"
+                                        role="tab" aria-controls="user-history" aria-selected="false">User
+                                        history</a>
+                                </li>
                             </ul>
                             <div class="tab-content" id="myTabContent">
                                 @can('do_update', 'ubah-data-user')
@@ -194,17 +199,33 @@
                                             <td>:</td>
                                             <td>{{ $user->updated_by }}</td>
                                         </tr>
-                                        {{-- <tr>
-                                            <th>Dihapus Pada</th>
-                                            <td>:</td>
-                                            <td>{{ $user->deleted_at }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Dihapus Oleh</th>
-                                            <td>:</td>
-                                            <td>{{ $user->deleted_by }}</td>
-                                        </tr> --}}
                                     </table>
+                                </div>
+                                <div class="tab-pane fade mt-3" id="user-history" role="tabpanel"
+                                    aria-labelledby="user-history-tab">
+                                    <div class="overflow-auto" style="max-height:300px;">
+                                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum odit laudantium
+                                        ipsum magnam architecto tempora modi error maxime eveniet iste ratione sint
+                                        dolore,
+                                        dolor, assumenda dolorum aliquam repudiandae esse tenetur! Lorem ipsum dolor,
+                                        sit
+                                        amet consectetur adipisicing elit. Ex doloribus sint vitae temporibus excepturi
+                                        commodi voluptatibus repellat quo tempore optio ut consequuntur, rerum possimus
+                                        tenetur pariatur exercitationem vel maxime, ducimus est aliquam eaque veniam.
+                                        Porro,
+                                        eum minima? Molestias mollitia nulla molestiae excepturi exercitationem! Non cum
+                                        deserunt nostrum inventore exercitationem! Cum, mollitia distinctio reiciendis
+                                        expedita debitis sit odit itaque magnam et voluptates perferendis ipsam voluptas
+                                        sint! Molestiae eveniet quod ducimus numquam error reiciendis rem veritatis,
+                                        repudiandae magni, sapiente amet culpa! Odit laborum unde aut. Ipsum dignissimos
+                                        debitis beatae voluptate nam repellat! Minima aspernatur commodi magni ipsum
+                                        cum!
+                                        Deserunt officia repudiandae necessitatibus expedita blanditiis rerum optio
+                                        accusamus! Totam nobis reprehenderit maxime saepe debitis nam! Libero ex quos
+                                        animi
+                                        corporis numquam quis sequi modi architecto ratione? Ea temporibus minima
+                                        laudantium repudiandae fugit ad iure quae voluptates. Veniam, vitae.
+                                    </div>
                                 </div>
                             </div>
                         </div>
