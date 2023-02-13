@@ -391,7 +391,7 @@
 
             function ajaxEditUser(data) {
                 let el = data.get(0);
-                console.log(el);
+                // console.log(el);
                 $.ajax({
                     type: "POST",
                     url: "{{ url('manajemen-web/user/ajax/update/') }}",

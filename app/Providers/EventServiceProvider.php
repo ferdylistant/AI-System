@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use App\Events\{NotifikasiPenyetujuan,TimelineEvent, DescovEvent, DesfinEvent, DesproEvent, DesturcetEvent, NaskahEvent, EditingEvent, MasterDataEvent, PracetakCoverEvent, PracetakSetterEvent, OrderCetakEvent, OrderEbookEvent, PenulisEvent, UserLogEvent, SettingEvent};
-use App\Listeners\{NotifikasiPenyetujuanListener, TimelineListener,DescovListener, DesfinListener, DesproListener, DesturcetListener, NaskahListener, EditingListener, MasterDataListener, PracetakCoverListener, PracetakSetterListener, OrderCetakListener, OrderEbookListener, PenulisListener, UserLogListener, SettingListener};
+use App\Events\{NotifikasiPenyetujuan, TimelineEvent, DescovEvent, DesfinEvent, DesproEvent, DesturcetEvent, NaskahEvent, EditingEvent, MasterDataEvent, PracetakCoverEvent, PracetakSetterEvent, OrderCetakEvent, OrderEbookEvent, PenulisEvent, UserLogEvent, SettingEvent, UserEvent};
+use App\Listeners\{NotifikasiPenyetujuanListener, TimelineListener, DescovListener, DesfinListener, DesproListener, DesturcetListener, NaskahListener, EditingListener, MasterDataListener, PracetakCoverListener, PracetakSetterListener, OrderCetakListener, OrderEbookListener, PenulisListener, UserLogListener, SettingListener, UserListener};
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -84,6 +84,10 @@ class EventServiceProvider extends ServiceProvider
         Event::listen(
             MasterDataEvent::class,
             [MasterDataListener::class, 'handle']
+        );
+        Event::listen(
+            UserEvent::class,
+            [UserListener::class, 'handle']
         );
         Event::listen(
             UserLogEvent::class,

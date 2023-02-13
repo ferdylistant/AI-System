@@ -101,6 +101,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Format Buku -->
+    @include('manweb.users.modal_history_user')
 @endsection
 
 @section('jsRequired')
@@ -179,6 +182,11 @@
                         title: 'Status'
                     },
                     {
+                        data: 'history',
+                        name: 'history',
+                        title: 'History'
+                    },
+                    {
                         data: 'action',
                         name: 'action',
                         title: 'Action',
@@ -188,7 +196,9 @@
                 ],
             });
 
-            let addUser = jqueryValidation_('#fm_AddUser', {});
+            let addUser = jqueryValidation_('#fm_AddUser', {
+                adduser_email: 'email'
+            });
 
             function resetForm(form) {
                 console.log(form)
@@ -207,9 +217,11 @@
                         $("#md_AddUser").addClass('modal-progress');
                     },
                     success: function(data) {
-                        notifToast('success', 'Data user berhasil ditambahkan!');
+                        console.log(data);
                         $('#fm_AddUser').trigger('reset');
+                        $("#md_AddUser").modal("hide");
                         tableUsers.ajax.reload();
+                        notifToast(data.status, data.message);
                     },
                     error: function(err) {
                         notifToast('error', 'Data user gagal ditambahkan!');
@@ -262,7 +274,6 @@
                             }
                         });
                 }
-
             });
 
             $('#tb_Users').on('click', '.btn_DelUser', function(e) {
@@ -285,6 +296,62 @@
                         }
                     });
             });
+
+            // History User Start
+            tableUsers.on("click", ".btn-history", function(e) {
+                e.preventDefault();
+                var id = $(this).data("id");
+                var judul = $(this).data("nama");
+                $.post(
+                    window.location.origin + "/manajemen-web/user/lihat-history", {
+                        id: id,
+                    },
+                    function(data) {
+                        $("#titleModalUser").html(
+                            '<i class="fas fa-history"></i>&nbsp;History Perubahan User "' +
+                            judul +
+                            '"'
+                        );
+                        $("#load_more").data("id", id);
+                        $("#dataHistory").html(data);
+                        $("#md_UserHistory").modal("show");
+                    }
+                );
+            });
+            $(".load-more").click(function(e) {
+                e.preventDefault();
+                var page = $(this).data("paginate");
+                var id = $(this).data("id");
+                $(this).data("paginate", page + 1);
+
+                $.ajax({
+                    url: window.location.origin + "/manajemen-web/user/lihat-history",
+                    data: {
+                        id: id,
+                        page: page,
+                    },
+                    type: "post",
+                    cache: false,
+                    beforeSend: function() {
+                        $(".load-more").text("Loading...");
+                    },
+                    success: function(response) {
+                        if (response.length == 0) {
+                            notifToast("error", "Tidak ada data lagi");
+                        }
+                        $("#dataHistory").append(response);
+                        // Setting little delay while displaying new content
+                        // setTimeout(function() {
+                        //     // appending posts after last post with class="post"
+                        //     $("#dataHistory:last").htnl(response).show().fadeIn("slow");
+                        // }, 2000);
+                    },
+                    complete: function(params) {
+                        $(".load-more").text("Load more").fadeIn("slow");
+                    },
+                });
+            });
+            // History User End
         })
     </script>
 @endsection

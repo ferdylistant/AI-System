@@ -53,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('public/penerbitan/fullcalendar/{cat}', [NaskahController::class, 'ajaxFromCalendar']);
 
     Route::prefix('timeline')->group(function () {
-        Route::post('/{cat}',[TimelineController::class,'index']);
+        Route::post('/{cat}', [TimelineController::class, 'index']);
     });
 
     // Manajemen User
@@ -63,6 +63,7 @@ Route::middleware(['auth'])->group(function () {
         Route::match(['get', 'post'], '/user/ajax/{act}/{id?}', [UsersController::class, 'ajaxUser']);
         Route::get('/user/{id}', [UsersController::class, 'selectUser'])->name('user.view');
         Route::post('/user/update-access', [UsersController::class, 'updateAccess']);
+        Route::post('/user/lihat-history', [UsersController::class, 'lihatHistoryUser'])->name('user.history');
         //Struktur AO
         Route::get('/struktur-ao', [StrukturAoController::class, 'index']);
         Route::match(['get', 'post'], '/struktur-ao/{act}/{type}/{id?}', [StrukturAoController::class, 'crudSO']);

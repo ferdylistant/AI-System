@@ -351,7 +351,6 @@ class PenulisController extends Controller
                         'nama_new' => $history->nama == $request->edit_nama ? null : $request->edit_nama,
                         'tanggal_lahir_his' => $history->tanggal_lahir == date('Y-m-d', strtotime($request->edit_tanggal_lahir)) ? null : $history->tanggal_lahir,
                         'tanggal_lahir_new' => $history->tanggal_lahir == date('Y-m-d', strtotime($request->edit_tanggal_lahir)) ? null : Carbon::createFromFormat('d F Y', $request->edit_tanggal_lahir)->format('Y-m-d'),
-                        // 'tanggal_lahir_new' => is_null($request->input('edit_tanggal_lahir')) ? NULL : Carbon::createFromFormat('d F Y', $request->edit_tanggal_lahir)->format('Y-m-d'),
                         'tempat_lahir_his' => $history->tempat_lahir == $request->edit_tempat_lahir ? null : $history->tempat_lahir,
                         'tempat_lahir_new' => $history->tempat_lahir == $request->edit_tempat_lahir ? null : $request->edit_tempat_lahir,
                         'kewarganegaraan_his' => $history->kewarganegaraan == $request->edit_kewarganegaraan ? null : $history->kewarganegaraan,
