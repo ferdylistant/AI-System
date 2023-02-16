@@ -97,13 +97,13 @@ class UserListener
             case 'History Delete User':
                 DB::beginTransaction();
                 $res =  DB::table('users')
-                    ->where('id', $data['platform_id'])
+                    ->where('id', $data['user_id'])
                     ->update([
                         'deleted_at' => $data['deleted_at'],
                         'deleted_by' => $data['author_id']
                     ]);
                 DB::table('user_history')->insert([
-                    'platform_id' => $data['platform_id'],
+                    'user_id' => $data['user_id'],
                     'type_history' => $data['type_history'],
                     'deleted_at' => $data['deleted_at'],
                     'author_id' => $data['author_id'],
@@ -113,9 +113,19 @@ class UserListener
                 break;
             case 'History Restored User':
                 $res = DB::table('user_history')->insert([
-                    'platform_id' => $data['platform_id'],
+                    'user_id' => $data['user_id'],
                     'type_history' => $data['type_history'],
                     'restored_at' => $data['restored_at'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'History Status User':
+                $res = DB::table('user_history')->insert([
+                    'user_id' => $data['user_id'],
+                    'type_history' => $data['type_history'],
+                    'status_his' => $data['status_his'],
+                    'status_new' => $data['status_new'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);

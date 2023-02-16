@@ -247,7 +247,7 @@
         }, 120000);
     </script> --}}
     @yield('jsNeeded')
-    <script>
+    {{-- <script>
         const searchClient = algoliasearch('48PYOPQ4UX', '0d0db6942609a9c8667323100a037bdb');
 
         const INSTANT_SEARCH_INDEX_NAME = 'instant_search';
@@ -290,7 +290,7 @@
         ]);
 
         search.start();
-    </script>
+    </script> --}}
 </body>
 
 </html>

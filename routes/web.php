@@ -60,9 +60,11 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('manajemen-web')->group(function () {
         //Users
         Route::get('/users', [UsersController::class, 'index']);
+        Route::get('/users/user-telah-dihapus', [UsersController::class, 'userTelahDihapus'])->name('user.telah_dihapus');
         Route::match(['get', 'post'], '/user/ajax/{act}/{id?}', [UsersController::class, 'ajaxUser']);
         Route::get('/user/{id}', [UsersController::class, 'selectUser'])->name('user.view');
         Route::post('/user/update-access', [UsersController::class, 'updateAccess']);
+        Route::post('/user/restore', [UsersController::class, 'restoreUser'])->name('user.restore');
         Route::post('/user/lihat-history', [UsersController::class, 'lihatHistoryUser'])->name('user.history');
         //Struktur AO
         Route::get('/struktur-ao', [StrukturAoController::class, 'index']);

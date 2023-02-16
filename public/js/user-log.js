@@ -67,7 +67,7 @@ $(function () {
                     // console.log(result);
                     if (result.status == "error") {
                         notifToast(result.status, result.message);
-                        resetFrom($("#fup_pracetakDesainer"));
+                        // resetFrom($("#fup_pracetakDesainer"));
                     } else {
                         notifToast(result.status, result.message);
                         $("#statusShow").removeAttr("class");
