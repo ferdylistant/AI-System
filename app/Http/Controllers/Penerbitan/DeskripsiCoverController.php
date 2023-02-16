@@ -8,9 +8,11 @@ use App\Events\DescovEvent;
 use Illuminate\Support\Arr;
 use App\Events\EditingEvent;
 use Illuminate\Http\Request;
+use App\Events\TimelineEvent;
 use Yajra\DataTables\DataTables;
 use App\Events\PracetakCoverEvent;
 use App\Events\PracetakSetterEvent;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -481,6 +483,7 @@ class DeskripsiCoverController extends Controller
                     'message' => 'Pilih status yang berbeda dengan status saat ini!'
                 ]);
             }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             $update = [
                 'params' => 'Update Status Descov',
                 'deskripsi_produk_id' => $data->deskripsi_produk_id,
@@ -494,41 +497,93 @@ class DeskripsiCoverController extends Controller
                 'status_his' => $data->status,
                 'status_new'  => $request->status,
                 'author_id' => auth()->user()->id,
-                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'modified_at' => $tgl
             ];
             if ($request->status == 'Selesai') {
                 event(new DescovEvent($update));
                 event(new DescovEvent($insert));
+                $updateTimelineDescov = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Deskripsi Cover',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineDescov));
+                //INSERT EDITING
+                $idEditing = Uuid::uuid4()->toString();
                 $insertEditingProses = [
                     'params' => 'Insert Editing',
-                    'id' => Uuid::uuid4()->toString(),
+                    'id' => $idEditing,
                     'deskripsi_final_id' => $data->deskripsi_final_id,
                     'editor' => json_encode([$data->editor]),
-                    'tgl_masuk_editing' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    'tgl_masuk_editing' => $tgl
                 ];
                 event(new EditingEvent($insertEditingProses));
+                $insertTimelineEditing = [
+                    'params' => 'Insert Timeline',
+                    'id' => Uuid::uuid4()->toString(),
+                    'progress' => 'Editing',
+                    'naskah_id' => $data->naskah_id,
+                    'tgl_mulai' => $tgl,
+                    'url_action' => urlencode(URL::to('/penerbitan/editing/detail?editing='.$idEditing.'&kode='.$data->kode)),
+                    'status' => 'Antrian'
+                ];
+                event(new TimelineEvent($insertTimelineEditing));
+                //INSERT PRACETAK SETTER
+                $idPraset = Uuid::uuid4()->toString();
                 $insertPracetakSetter = [
                     'params' => 'Insert Pracetak Setter',
-                    'id' => Uuid::uuid4()->toString(),
+                    'id' => $idPraset,
                     'deskripsi_final_id' => $data->deskripsi_final_id,
                     'setter' => json_encode([$data->setter]),
                     'korektor' => json_encode([$data->korektor]),
                     'jml_hal_final' => $data->jml_hal_perkiraan,
-                    'tgl_masuk_pracetak' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                    'tgl_masuk_pracetak' => $tgl,
                 ];
                 event(new PracetakSetterEvent($insertPracetakSetter));
+                $insertTimelinePraset = [
+                    'params' => 'Insert Timeline',
+                    'id' => Uuid::uuid4()->toString(),
+                    'progress' => 'Pracetak Setter',
+                    'naskah_id' => $data->naskah_id,
+                    'tgl_mulai' => $tgl,
+                    'url_action' => urlencode(URL::to('/penerbitan/pracetak/setter/detail?pra='.$idPraset.'&kode='.$data->kode)),
+                    'status' => 'Antrian'
+                ];
+                event(new TimelineEvent($insertTimelinePraset));
+                //INSERT PRACETAK COVER
+                $idPracov = Uuid::uuid4()->toString();
                 $insertPracetakCover = [
                     'params' => 'Insert Pracetak Cover',
-                    'id' => Uuid::uuid4()->toString(),
+                    'id' => $idPracov,
                     'deskripsi_cover_id' => $data->id,
                     'desainer' => json_encode([$data->desainer]),
-                    'tgl_masuk_cover' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                    'tgl_masuk_cover' => $tgl,
                 ];
                 event(new PracetakCoverEvent($insertPracetakCover));
+                $insertTimelinePracov = [
+                    'params' => 'Insert Timeline',
+                    'id' => Uuid::uuid4()->toString(),
+                    'progress' => 'Pracetak Cover',
+                    'naskah_id' => $data->naskah_id,
+                    'tgl_mulai' => $tgl,
+                    'url_action' => urlencode(URL::to('/penerbitan/pracetak/designer/detail?pra='.$idPracov.'&kode='.$data->kode)),
+                    'status' => 'Antrian'
+                ];
+                event(new TimelineEvent($insertTimelinePracov));
                 $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
             } else {
                 event(new DescovEvent($update));
                 event(new DescovEvent($insert));
+                $updateTimelineDescov = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Deskripsi Cover',
+                    'tgl_selesai' => NULL,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineDescov));
                 $msg = 'Status progress deskripsi cover berhasil diupdate';
             }
             DB::commit();

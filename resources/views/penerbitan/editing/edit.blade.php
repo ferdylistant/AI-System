@@ -361,7 +361,7 @@
                                 @php
                                     $disable = "";
                                 @endphp
-                                @if (is_null($data->tgl_selesai_edit))
+                                @if (!is_null($data->tgl_selesai_edit))
                                     @php
                                         $disable = "disabled";
                                     @endphp

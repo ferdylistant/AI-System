@@ -3,7 +3,9 @@
 use Illuminate\Http\Request;
 use App\Events\TesWebsocketEvent;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\JasaCetak\OrderBukuController;
 use App\Http\Controllers\Penerbitan\TimelineController;
+use App\Http\Controllers\JasaCetak\OrderNonBukuController;
 use App\Http\Controllers\ManWeb\{StrukturAoController, UsersController, SettingController};
 use App\Http\Controllers\{AuthController, ApiController, HomeController, NotificationController};
 use App\Http\Controllers\Produksi\{EbookController, ProsesProduksiController, ProsesEbookController};
@@ -181,6 +183,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/order-ebook/detail', [OrderEbookController::class, 'detailOrderEbook'])->name('ebook.detail');
         Route::match(['get', 'post'], '/order-ebook/edit', [OrderEbookController::class, 'updateOrderEbook'])->name('ebook.update');
         Route::post('/order-ebook/ajax/{cat}', [OrderEbookController::class, 'ajaxRequest']);
+    });
+    Route::prefix('jasa-cetak')->group(function () {
+        Route::get('/order-buku',[OrderBukuController::class,'index']);
+        Route::get('/order-nonbuku',[OrderNonBukuController::class,'index']);
     });
     //Produksi
     Route::prefix('produksi')->group(function () {

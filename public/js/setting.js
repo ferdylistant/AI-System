@@ -308,11 +308,9 @@ $(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
+                notifToast(result.status, result.message);
                 if (result.status == "success") {
                     tableMenu.ajax.reload();
-                    notifToast(result.status, result.message);
-                } else {
-                    notifToast(result.status, result.message);
                 }
             },
             error: function (err) {
@@ -623,7 +621,7 @@ $(function () {
     $("#fm_EditMenu").on("submit", function (e) {
         e.preventDefault();
         if ($(this).valid()) {
-            let nama = $(this).find('[name="edit_oldnama"]').val();
+            let nama = $(this).find('[name="edit_name"]').val();
             swal({
                 text: "Ubah data (" + nama + ")?",
                 icon: "warning",
@@ -636,7 +634,161 @@ $(function () {
             });
         }
     });
+    // Proses Hapus //
+    $("#tb_Menu").on("click", ".btn_DelMenu", function (e) {
+        let nama = $(this).data("nama"),
+            id = $(this).data("id");
 
+        swal({
+            text: "Hapus data menu (" + nama + ")?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((confirm_) => {
+            if (confirm_) {
+                ajaxDeleteMenu({
+                    id: id,
+                });
+            }
+        });
+    });
+
+    $("#tb_Divisi, #tb_Jabatan").on("click", ".btn_DelDivJab", function (e) {
+        e.preventDefault();
+        let nama = $(this).data("nama"),
+            id = $(this).data("id"),
+            type = $(this).data("tipe");
+
+        swal({
+            text: "Hapus data " + type + " (" + nama + ")?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((confirm_) => {
+            if (confirm_) {
+                ajaxDeleteDivJab(
+                    {
+                        id: id,
+                    },
+                    type
+                );
+            }
+        });
+    });
+    $(".select-bagian")
+        .select2({
+            placeholder: "Pilih bagian",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(this).valid();
+            }
+        });
+    $("#edit_bagian")
+        .select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectBagian",
+                        term: params.term,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id,
+                            };
+                        }),
+                    };
+                },
+            },
+        }).on("select2:select", function (e) {
+            getEditParentVal(e.params.data.id);
+        });
+    $("#add_bagian")
+        .select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectBagian",
+                        term: params.term,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id,
+                            };
+                        }),
+                    };
+                },
+            },
+        })
+        .on("select2:select", function (e) {
+            getParentVal(e.params.data.id);
+        });
+    function getEditParentVal(id) {
+        $("#edit_parent").select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectParent",
+                        term: params.term,
+                        id: id,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                id: item.id,
+                                text: item.name,
+                            };
+                        }),
+                    };
+                },
+            },
+        });
+    }
+    function getParentVal(id) {
+        $("#add_parent").select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectParent",
+                        term: params.term,
+                        id: id,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id,
+                            };
+                        }),
+                    };
+                },
+            },
+        });
+    }
     // On Modal Open //
     $("#md_EditMenu").on("shown.bs.modal", function (e) {
         let id = $(e.relatedTarget).data("id"),
@@ -652,22 +804,44 @@ $(function () {
                     const rdio = ["level"];
                     if (rdio.includes(r)) {
                         $('[name="edit_' + r + '"]').val([result[r]]);
+                        if (result[r] == 1) {
+                            $("[name='edit_parent']").attr("required",false);
+                        } else {
+                            $("[name='edit_parent']").attr("required",true);
+                        }
                     } else if (r == "bagian_id") {
-                        $('[name="edit_bagian"]').val([result[r]]).change();
-                    } else if (r == "parent_id") {
+                        // console.log([result[r]]);
+                        // $('[name="edit_bagian"]').val([result[r]]).change();
+                        $('[name="edit_bagian"]').select2("trigger", "select", {
+                            data: {
+                                id: result[r].id,
+                                text: result[r].name
+                            }
+                        });
+                    }  else if (r == "parent_id") {
+                        console.log(result[r]);
                         if (result[r]) {
+                            // console.log(result[r]);
                             $("#parentId")
-                                .html(`<div class="form-group row mb-4 lvl" style="display:none" id="level2">
+                                .html(`<div class="form-group row mb-4 lvl" id="level2">
                             <label class="col-form-label text-md-right col-12 col-md-3">Parent Level</label>
                             <div class="col-sm-12 col-md-9">
                                 <select id="edit_parent" name="edit_parent" class="form-control select-parent" required></select>
                                 <div id="err_edit_parent"></div>
                             </div>
                             </div>`);
-                            $('[name="edit_' + r + '"]')
-                                .val(result[r])
-                                .change();
-                            $("#level2").show("slow");
+                            // $("#level2").show("slow");
+                            // if ($('[name="edit_parent"]').data('select2')) {
+                            // }
+                            // $('[name="edit_parent"]').select2('destroy');
+                            $('[name="edit_parent"]').val([result[r]]);
+                            $('[name="edit_parent"]').change();
+                            // $('[name="edit_parent"]').select2("trigger", "select", {
+                            //     data: {
+                            //         id: result[r].id,
+                            //         text: result[r].name
+                            //     }
+                            // });
                         } else {
                             $("#parentId")
                                 .html(`<div class="form-group row mb-4 lvl" style="display:none" id="level2">
@@ -791,110 +965,6 @@ $(function () {
         $(this).find("form").trigger("reset");
         $(this).addClass("modal-progress");
     });
-
-    // Proses Hapus //
-    $("#tb_Menu").on("click", ".btn_DelMenu", function (e) {
-        let nama = $(this).data("nama"),
-            id = $(this).data("id");
-
-        swal({
-            text: "Hapus data menu (" + nama + ")?",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((confirm_) => {
-            if (confirm_) {
-                ajaxDeleteMenu({
-                    id: id,
-                });
-            }
-        });
-    });
-
-    $("#tb_Divisi, #tb_Jabatan").on("click", ".btn_DelDivJab", function (e) {
-        e.preventDefault();
-        let nama = $(this).data("nama"),
-            id = $(this).data("id"),
-            type = $(this).data("tipe");
-
-        swal({
-            text: "Hapus data " + type + " (" + nama + ")?",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((confirm_) => {
-            if (confirm_) {
-                ajaxDeleteDivJab(
-                    {
-                        id: id,
-                    },
-                    type
-                );
-            }
-        });
-    });
-    $(".select-bagian")
-        .select2({
-            placeholder: "Pilih bagian",
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(this).valid();
-            }
-        });
-    $("#add_bagian")
-        .select2({
-            ajax: {
-                url: window.location.origin + "/setting",
-                type: "GET",
-                data: function (params) {
-                    var queryParameters = {
-                        request_: "selectBagian",
-                        term: params.term,
-                    };
-                    return queryParameters;
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.name,
-                                id: item.id,
-                            };
-                        }),
-                    };
-                },
-            },
-        })
-        .on("select2:select", function (e) {
-            getParentVal(e.params.data.id);
-        });
-    function getParentVal(id) {
-        $("#add_parent").select2({
-            ajax: {
-                url: window.location.origin + "/setting",
-                type: "GET",
-                data: function (params) {
-                    var queryParameters = {
-                        request_: "selectParent",
-                        term: params.term,
-                        id: id,
-                    };
-                    return queryParameters;
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.name,
-                                id: item.id,
-                            };
-                        }),
-                    };
-                },
-            },
-        });
-    }
     $(document).ready(function () {
         $("input[name$=add_level]").change(function () {
             var res = $(this).val();
@@ -905,6 +975,21 @@ $(function () {
             }
             $("div.lvl").hide("slow");
             $("#level" + res).show("slow");
+        });
+    });
+    $(document).ready(function () {
+        $("input[name$=edit_level]").change(function () {
+            var res = $(this).val();
+            if (res == 2) {
+                $("[name='edit_parent']").attr("required",true);
+                $("div.lvl").show("slow");
+                // $("#level" + res).show("slow");
+            } else {
+                $("[name='edit_parent']").attr("required",false);
+                $("div.lvl").hide("slow");
+                // $("#level" + res).hide("slow");
+            }
+
         });
     });
 });

@@ -941,7 +941,7 @@ class DeskripsiProdukController extends Controller
                 'params' => 'Insert Timeline',
                 'id' => Uuid::uuid4()->toString(),
                 'progress' => 'Deskripsi Final',
-                'naskah_id' => $id,
+                'naskah_id' => $data->naskah_id,
                 'tgl_mulai' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                 'url_action' => urlencode(URL::to('/penerbitan/deskripsi/final/detail?desc='.$idDesfin.'&kode='.$data->kode)),
                 'status' => 'Antrian'
@@ -951,7 +951,7 @@ class DeskripsiProdukController extends Controller
                 'params' => 'Insert Timeline',
                 'id' => Uuid::uuid4()->toString(),
                 'progress' => 'Deskripsi Cover',
-                'naskah_id' => $id,
+                'naskah_id' => $data->naskah_id,
                 'tgl_mulai' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                 'url_action' => urlencode(URL::to('/penerbitan/deskripsi/cover/detail?desc='.$idDescov.'&kode='.$data->kode)),
                 'status' => 'Terkunci'
