@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
-use App\Events\DesturcetEvent;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Events\TimelineEvent;
+use App\Events\DesturcetEvent;
 use Yajra\DataTables\DataTables;
 use App\Events\PracetakCoverEvent;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -289,8 +291,9 @@ class PracetakDesainerController extends Controller
                     $history = DB::table('pracetak_cover as pc')
                         ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
                         ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                        ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                         ->where('pc.id', $request->id)
-                        ->select('pc.*', 'dp.judul_final')
+                        ->select('pc.*', 'dp.naskah_id','dp.judul_final','pn.kode')
                         ->first();
                     if ($request->has('korektor')) {
                         foreach ($request->korektor as $ce) {
@@ -320,14 +323,26 @@ class PracetakDesainerController extends Controller
                                 ->where('status', 'Selesai')
                                 ->first();
                             if (!is_null($cekTidakKosong)) {
+                                $id_turcet = Uuid::uuid4()->toString();
                                 $turcet = [
                                     'params' => 'Insert Turun Cetak',
-                                    'id' => Uuid::uuid4()->toString(),
+                                    'id' => $id_turcet,
                                     'pracetak_cover_id' => $history->id,
                                     'pracetak_setter_id' => $request->id_praset,
                                     'tgl_masuk' => $tgl,
                                 ];
                                 event(new DesturcetEvent($turcet));
+                                //INSERT TIMELINE TURUN CETAK
+                                $insertTimelinePracov = [
+                                    'params' => 'Insert Timeline',
+                                    'id' => Uuid::uuid4()->toString(),
+                                    'progress' => 'Deskripsi Turun Cetak',
+                                    'naskah_id' => $history->naskah_id,
+                                    'tgl_mulai' => $tgl,
+                                    'url_action' => urlencode(URL::to('/penerbitan/deskripsi/turun-cetak/detail?desc=' . $id_turcet . '&kode=' . $history->kode)),
+                                    'status' => 'Antrian'
+                                ];
+                                event(new TimelineEvent($insertTimelinePracov));
                             }
                             DB::table('pracetak_cover')->where('id', $history->id)->update([
                                 'turun_cetak' => $tgl,
@@ -1164,7 +1179,16 @@ class PracetakDesainerController extends Controller
                 }
                 event(new PracetakCoverEvent($update));
                 event(new PracetakCoverEvent($insert));
-                $dataPraset = DB::table('pracetak_cover')
+                //UPDATE TIMELINE PRACETAK COVER
+                $updateTimelinePracetakCover = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Pracetak Cover',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelinePracetakCover));
+                $dataPraset = DB::table('pracetak_setter')
                     ->where('id', $data->praset_id)
                     ->where('status', 'Selesai')
                     ->first();
@@ -1173,19 +1197,42 @@ class PracetakDesainerController extends Controller
                         'proses_saat_ini' => 'Turun Cetak'
                     ]);
                     //Insert Deskripsi Turun Cetak
+                    $id_turcet = Uuid::uuid4()->toString();
                     $in = [
                         'params' => 'Insert Turun Cetak',
-                        'id' => Uuid::uuid4()->toString(),
+                        'id' => $id_turcet,
                         'pracetak_cover_id' => $data->id,
-                        'pracetak_cover_id' => $data->praset_id,
+                        'pracetak_setter_id' => $data->praset_id,
                         'tgl_masuk' => $tgl,
                     ];
                     event(new DesturcetEvent($in));
+                    //INSERT TIMELINE TURUN CETAK
+                    $insertTimelinePracov = [
+                        'params' => 'Insert Timeline',
+                        'id' => Uuid::uuid4()->toString(),
+                        'progress' => 'Deskripsi Turun Cetak',
+                        'naskah_id' => $data->naskah_id,
+                        'tgl_mulai' => $tgl,
+                        'url_action' => urlencode(URL::to('/penerbitan/deskripsi/turun-cetak/detail?desc=' . $id_turcet . '&kode=' . $data->kode)),
+                        'status' => 'Antrian'
+                    ];
+                    event(new TimelineEvent($insertTimelinePracov));
+                    $msg = 'Pracetak Cover selesai, silahkan lanjut ke proses deskripsi turun cetak..';
+                } else {
+                    $msg = 'Pracetak Cover selesai, silahkan selesaikan proses pracetak setter..';
                 }
-                $msg = 'Pracetak Cover selesai, silahkan lanjut ke proses deskripsi turun cetak..';
             } else {
                 event(new PracetakCoverEvent($update));
                 event(new PracetakCoverEvent($insert));
+                //UPDATE TIMELINE PRACETAK COVER
+                $updateTimelinePracetakCover = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Pracetak Cover',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelinePracetakCover));
                 $msg = 'Status progress pracetak cover berhasil diupdate';
             }
             return response()->json([

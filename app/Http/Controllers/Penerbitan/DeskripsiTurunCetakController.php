@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
-use App\Events\DesturcetEvent;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Events\TimelineEvent;
+use App\Events\DesturcetEvent;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -150,21 +152,25 @@ class DeskripsiTurunCetakController extends Controller
                 ])
                 ->make(true);
         }
-        $data = DB::table('deskripsi_final as df')
-            ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
-            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-            ->whereNull('df.deleted_at')
-            ->select(
-                'df.*',
-                'pn.kode',
-                'pn.judul_asli',
-                'pn.pic_prodev',
-                'dp.naskah_id',
-                'dp.imprint',
-                'dp.judul_final'
-            )
-            ->orderBy('df.tgl_deskripsi', 'ASC')
-            ->get();
+        $data = DB::table('deskripsi_turun_cetak as dtc')
+                ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->select(
+                    'dtc.*',
+                    'pn.kode',
+                    'pn.pic_prodev',
+                    'pn.jalur_buku',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'dp.nama_pena',
+                    'dp.format_buku',
+                )
+                ->orderBy('dtc.tgl_masuk', 'ASC')
+                ->get();
         //Isi Warna Enum
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_cover WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
@@ -194,27 +200,62 @@ class DeskripsiTurunCetakController extends Controller
                     DB::table('deskripsi_turun_cetak')->where('id', $request->id)->update([
                         'tgl_pil_terbit_selesai' => $tgl
                     ]);
+                    $data = DB::table('deskripsi_turun_cetak as dtc')
+                        ->join('pracetak_setter as ps','ps.id','=','dtc.pracetak_setter_id')
+                        ->join('deskripsi_final as df','df.id','=','ps.deskripsi_final_id')
+                        ->join('deskripsi_produk as dp','dp.id','=','dp.deskripsi_produk_id')
+                        ->join('penerbitan_naskah as pn','pn.id','=','dp.naskah_id')
+                        ->where('dtc.id', $request->id)
+                        ->select(
+                            'dtc.*',
+                            'dp.naskah_id',
+                            'pn.id',
+                            'pn.kode'
+                        )
+                        ->first();
+                    //UPDATE TIMELINE PILIHAN TERBIT
+                    $updateTimelinePilihanTerbit = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Pilihan Terbit',
+                        'tgl_selesai' => $tgl,
+                        'status' => 'Selesai'
+                    ];
+                    event(new TimelineEvent($updateTimelinePilihanTerbit));
                     foreach ($request->add_pilihan_terbit as $pt) {
                         switch ($pt) {
                             case 'ebook':
                                 $kodeOrder = $this->getOrderEbookId($request->type);
+                                $type = 'ebook';
                                 break;
                             case 'cetak':
                                 $kodeOrder = $this->getOrderCetakId($request->type);
+                                $type = 'cetak';
                                 break;
                         }
+                        $idOrder = Uuid::uuid4()->toString();
                         $order = [
                             'params' => 'Insert Order',
-                            'type' => $pt == 'cetak' ? 'cetak' : 'ebook',
-                            'id' => Uuid::uuid4()->toString(),
+                            'type' => $type,
+                            'id' => $idOrder,
                             'kode_order' => $kodeOrder,
                             'deskripsi_turun_cetak_id' => $request->id,
                             'tgl_masuk' => $tgl
                         ];
                         event(new DesturcetEvent($order));
+                        //INSERT TIMELINE ORDER CETAK / ORDER EBOOK
+                        $insertTimelineOrder = [
+                            'params' => 'Insert Timeline',
+                            'id' => Uuid::uuid4()->toString(),
+                            'progress' => 'Order '.ucfirst($type),
+                            'naskah_id' => $data->naskah_id,
+                            'tgl_mulai' => $tgl,
+                            'url_action' => urlencode(URL::to('/penerbitan/order-'.$type.'/detail?order=' . $idOrder . '&naskah=' . $data->kode)),
+                            'status' => 'Antrian'
+                        ];
+                        event(new TimelineEvent($insertTimelineOrder));
                     }
                     event(new DesturcetEvent($insert));
-
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Data pilihan terbit berhasil ditambahkan',
@@ -446,9 +487,15 @@ class DeskripsiTurunCetakController extends Controller
         try {
             $id = $request->id;
             $data = DB::table('deskripsi_turun_cetak as dtc')
+                ->join('pracetak_setter as ps','ps.id','=','dtc.pracetak_setter_id')
+                ->join('deskripsi_final as df','df.id','=','ps.deskripsi_final_id')
+                ->join('deskripsi_produk as dp','dp.id','=','dp.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn','pn.id','=','dp.naskah_id')
                 ->where('dtc.id', $id)
                 ->select(
                     'dtc.*',
+                    'dp.naskah_id',
+                    'pn.id'
                 )
                 ->first();
             if (is_null($data)) {
@@ -477,11 +524,11 @@ class DeskripsiTurunCetakController extends Controller
                 'status_his' => $data->status,
                 'status_new'  => $request->status,
                 'author_id' => auth()->user()->id,
-                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'modified_at' => $tgl
             ];
             if ($request->status == 'Selesai') {
-                $data = DB::table('deskripsi_turun_cetak')->where('id', $data->id)->whereNotNull('tipe_order')->first();
-                if (is_null($data)) {
+                $dataValidasi = DB::table('deskripsi_turun_cetak')->where('id', $data->id)->whereNotNull('tipe_order')->first();
+                if (is_null($dataValidasi)) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Tipe order wajib diisi!'
@@ -489,11 +536,38 @@ class DeskripsiTurunCetakController extends Controller
                 }
                 event(new DesturcetEvent($update));
                 event(new DesturcetEvent($insert));
-
+                //UPDATE TIMELINE DESKRIPSI TURUN CETAK
+                $updateTimelineDesturcet = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Deskripsi Turun Cetak',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineDesturcet));
+                //INSERT TIMELINE PILIHAN TERBIT
+                $insertTimelinePilTerbit = [
+                    'params' => 'Insert Timeline',
+                    'id' => Uuid::uuid4()->toString(),
+                    'progress' => 'Pilihan Terbit',
+                    'naskah_id' => $data->naskah_id,
+                    'tgl_mulai' => $tgl,
+                    'url_action' => urlencode(URL::to('/penerbitan/deskripsi/turun-cetak/detail?desc=' . $data->id . '&kode=' . $data->kode)),
+                    'status' => 'Proses'
+                ];
+                event(new TimelineEvent($insertTimelinePilTerbit));
                 $msg = 'Deskripsi turun cetak selesai';
             } else {
                 event(new DesturcetEvent($update));
                 event(new DesturcetEvent($insert));
+                $updateTimelineDesturcet = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Deskripsi Turun Cetak',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineDesturcet));
                 $msg = 'Status progress deskripsi turun cetak berhasil diupdate';
             }
             return response()->json([

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Penerbitan;
 use Carbon\Carbon;
 use App\Events\EditingEvent;
 use Illuminate\Http\Request;
+use App\Events\TimelineEvent;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
@@ -530,10 +531,26 @@ class EditingController extends Controller
                 DB::table('pracetak_setter')->where('deskripsi_final_id',$data->deskripsi_final_id)->update([
                     'jml_hal_final' => $data->jml_hal_perkiraan
                 ]);
+                $updateTimelineEditing = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Editing',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineEditing));
                 $msg = 'Proses editing selesai, proses akan dilanjukan ke tahap pracetak..';
             } else {
                 event(new EditingEvent($update));
                 event(new EditingEvent($insert));
+                $updateTimelineEditing = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Editing',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineEditing));
                 $msg = 'Status progress editing proses berhasil diupdate';
             }
             return response()->json([
