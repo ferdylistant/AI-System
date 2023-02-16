@@ -62,7 +62,12 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1>Data Penerbitan Editing Proses</h1>
+        <h1>Data Jasa Cetak Order Buku</h1>
+        @if (Gate::allows('do_create', 'create-order-buku-jasa-cetak'))
+                <div class="section-header-button">
+                    <a href="{{ url('jasa-cetak/order-buku/create') }}" class="btn btn-success">Tambah</a>
+                </div>
+            @endif
     </div>
     <div class="section-body">
         <div class="row">
@@ -72,7 +77,7 @@
                         <div class="row justify-content-between">
                             <div class="form-group col-auto col-md-3">
                                 <div class="input-group">
-                                    <select data-column="9" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
+                                    <select data-column="8" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
                                         <option label="Pilih Filter Status"></option>
                                         @foreach ($status_progress as $val)
                                         <option value="{{ $val }}">{{ $val }}&nbsp;&nbsp;</option>
@@ -82,13 +87,12 @@
                                     <button type="button" class="btn btn-outline-danger clear_field text-danger align-self-center" data-toggle="tooltip" title="Reset" hidden><i class="fas fa-times"></i></button>
                                 </div>
                             </div>
-                            <div class="col-auto">
-                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data editing
-                                    naskah: <b>{{ $count }}</b></span>
+                            <div class="col-auto mb-3">
+                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data order buku: <b>{{ $count }}</b></span>
                             </div>
                         </div>
                         <div class="col-12 table-responsive">
-                            <table id="tb_Editing" class="table table-striped dt-responsive" style="width:100%">
+                            <table id="tb_OrderBuku" class="table table-striped dt-responsive" style="width:100%">
                             </table>
                         </div>
                     </div>
@@ -97,33 +101,29 @@
         </div>
     </div>
 </section>
-<div id="md_UpdateStatusEditing" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal" aria-hidden="true">
+<div id="md_UpdateStatusSetter" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="titleModal">Update Status Progress Editing</h5>
+                <h5 class="modal-title" id="titleModal">Update Status Progress Pracetak Setter</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="fm_UpdateStatusEditing">
+            <form id="fm_UpdateStatusSetter">
                 <div class="modal-body">
                     <div class="form-group">
                         <input type="hidden" name="id" id="id" value="">
                         <input type="hidden" name="kode" id="kode" value="">
                         <input type="hidden" name="judul_final" id="judulFinal" value="">
-                        <label for="statusE">Status: <span class="text-danger">*</span></label>
-                        <select name="status" class="form-control select-status" id="statusE" required>
+                        <label for="statusSet">Status: <span class="text-danger">*</span></label>
+                        <select name="status" class="form-control select-status" id="statusSet" required>
                             <option label="Pilih Status"></option>
                             @foreach ($status_progress as $sp)
                             <option value="{{ $sp }}">{{ $sp }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <!-- <div class="form-group" style="display:none" id="ketStatusPending">
-                        <label for="ketPEnd">Keterangan Pending: <span class="text-danger">*</span></label>
-                        <textarea name="ket_pending" class="form-control" id="ketPEnd" cols="30" rows="10" required></textarea>
-                    </div> -->
                 </div>
 
                 <div class="modal-footer">
@@ -134,17 +134,17 @@
         </div>
     </div>
 </div>
-<div id="md_EditingHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalEditing" aria-hidden="true">
+<div id="md_SetterHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalSetter" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content ">
             <div class="modal-header bg-light">
-                <h5 class="modal-title" id="titleModalEditing"></h5>
+                <h5 class="modal-title" id="titleModalSetter"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body example-1 scrollbar-deep-purple bordered-deep-purple thin">
-                <div class="tickets-list" id="dataHistoryEditing">
+                <div class="tickets-list" id="dataHistorySetter">
 
                 </div>
 
@@ -169,109 +169,5 @@
 @endsection
 
 @section('jsNeeded')
-<script>
-    $(function() {
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        let tableDesProduk = $('#tb_Editing').DataTable({
-            "bSort": false,
-            "responsive": true,
-            "autoWidth": true,
-            processing: true,
-            serverSide: true,
-            language: {
-                searchPlaceholder: 'Search...',
-                sSearch: '',
-                lengthMenu: '_MENU_ items/page',
-            },
-            ajax: "{{ route('editing.view') }}",
-            columns: [
-                // { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "5%" },
-                {
-                    data: 'kode',
-                    name: 'kode',
-                    title: 'Kode'
-                },
-                {
-                    data: 'judul_final',
-                    name: 'judul_final',
-                    title: 'Judul Final'
-                },
-                {
-                    data: 'penulis',
-                    name: 'penulis',
-                    title: 'Penulis',
-                },
-                {
-                    data: 'nama_pena',
-                    name: 'nama_pena',
-                    title: 'Nama Pena',
-                },
-                {
-                    data: 'jalur_buku',
-                    name: 'jalur_buku',
-                    title: 'Jalur Buku'
-                },
-                {
-                    data: 'tgl_masuk_editing',
-                    name: 'tgl_masuk_editing',
-                    title: 'Tgl Masuk Editing'
-                },
-                {
-                    data: 'pic_prodev',
-                    name: 'pic_prodev',
-                    title: 'PIC Prodev'
-                },
-                {
-                    data: 'editor',
-                    name: 'editor',
-                    title: 'Editor'
-                },
-                // {
-                //     data: 'copy_editor',
-                //     name: 'copy_editor',
-                //     title: 'Copy Editor'
-                // },
-                {
-                    data: 'history',
-                    name: 'history',
-                    title: 'History Progress'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    title: 'Action',
-                    orderable: false
-                },
-            ],
-
-        });
-        $('[name="status_filter"]').on('change', function() {
-            var val = $.fn.dataTable.util.escapeRegex($(this).val());
-            tableDesProduk.column($(this).data('column'))
-                .search(val ? val : '', true, false)
-                .draw();
-        });
-    });
-</script>
-<script>
-    $('#tb_Editing').on('click', '.btn-history', function(e) {
-        var id = $(this).data('id');
-        var judul = $(this).data('judulfinal');
-        $.post("{{ route('editing.history') }}", {
-            id: id
-        }, function(data) {
-            // console.log(data);
-            $('#titleModalEditing').html(
-                '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
-            $('#load_more').data('id', id);
-            $('#dataHistoryEditing').html(data);
-            $('#md_EditingHistory').modal('show');
-        });
-    });
-</script>
-<script src="{{ url('js/update_progress_editing.js') }}"></script>
+<script src="{{ url('js/update_progress_jc_buku.js') }}"></script>
 @endsection

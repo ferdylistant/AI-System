@@ -163,19 +163,26 @@ class SettingController extends Controller
                     $result = DB::table('access')
                         ->where('id', $request->input('id'))
                         ->first();
-                    // $res = (object)collect($result)->map(function ($item, $key) {
-                    //     switch ($key) {
-                    //         case 'bagian':
-                    //             return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
-                    //             break;
-                    //         case 'nama_pena':
-                    //             return !is_null($item) ? implode(",", json_decode($item)) : '-';
-                    //             break;
-                    //         default:
-                    //             $item;
-                    //             break;
-                        // }
-                    return $result;
+                    $res = (object)collect($result)->map(function ($item, $key) {
+                        switch ($key) {
+                            case 'bagian_id':
+                                return !is_null($item) ? DB::table('access_bagian')->where('id',$item)->first() : '-';
+                                break;
+                            case 'parent_id':
+                                return !is_null($item) ? DB::table('access')
+                                ->where('id', $item)
+                                ->where('url', '#')
+                                ->whereNull('parent_id')->first()->id : NULL;
+                                break;
+                                // case 'nama_pena':
+                                //     return !is_null($item) ? implode(",", json_decode($item)) : '-';
+                                //     break;
+                            default:
+                                return $item;
+                                break;
+                        }
+                    });
+                    return $res;
                     break;
                 case 'data-section-menu':
                     $result = DB::table('access_bagian')
@@ -278,6 +285,35 @@ class SettingController extends Controller
                 'message' => 'Data menu berhasil disimpan!'
             ]);
         } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function editMenu($request)
+    {
+        try {
+            DB::beginTransaction();
+            $data = [
+                'params' => 'Edit Menu',
+                'id' => $request->edit_id,
+                'parent_id' => is_null($request->edit_parent) ? NULL : $request->edit_parent,
+                'bagian_id' => $request->edit_bagian,
+                'level' => $request->edit_level,
+                'order_menu' => $request->edit_order_menu,
+                'url' => $request->edit_url,
+                'icon' => $request->edit_icon,
+                'name' => $request->edit_name
+            ];
+            event(new SettingEvent($data));
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil update data!'
+            ]);
+        } catch(\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

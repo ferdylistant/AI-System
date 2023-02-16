@@ -268,7 +268,7 @@
                                                     </td>
                                                     @endif
                                                 </tr>
-                                                <tr>
+                                                {{-- <tr>
                                                     <th class="table-secondary" style="width: 25%">Copy Editor:
                                                         @if (!is_null($data->tgl_selesai_edit))
                                                         <span class="text-danger">*</span>
@@ -325,7 +325,7 @@
                                                         </div>
                                                     </td>
                                                     @endif
-                                                </tr>
+                                                </tr> --}}
                                                 <tr>
                                                     <th class="table-secondary" style="width: 25%">Bulan: <span class="text-danger">*</span></th>
                                                     @if (!is_null($data->bulan))
@@ -358,14 +358,23 @@
                         </div>
                         <div class="card-footer text-right">
                             <div class="custom-control custom-switch">
+                                @php
+                                    $disable = "";
+                                @endphp
+                                @if (!is_null($data->tgl_selesai_edit))
+                                    @php
+                                        $disable = "disabled";
+                                    @endphp
+                                @endif
                                 @if ($data->proses == '1')
                                 <?php $label = 'Stop'; ?>
                                 @else
                                 <?php $label = 'Mulai'; ?>
                                 @endif
-                                <input type="checkbox" name="proses" class="custom-control-input" id="prosesKerja" data-id="{{ $data->id }}" {{ $data->proses == '1' ? 'checked' : '' }}>
+                                <input type="checkbox" name="proses" class="custom-control-input" id="prosesKerja" data-id="{{ $data->id }}" {{ $data->proses == '1' ? 'checked' : '' }} {{$disable}}>
                                 <label class="custom-control-label mr-3 text-dark" for="prosesKerja">
-                                    {{ is_null($data->tgl_selesai_edit) ? $label . ' proses editor' : $label . ' proses copy editor' }}
+                                    {{ is_null($data->tgl_selesai_edit) ? $label . ' proses editor' : '-' }}
+                                    {{-- {{ is_null($data->tgl_selesai_edit) ? $label . ' proses editor' : $label . ' proses copy editor' }} --}}
                                 </label>
                             </div>
                             <button type="submit" class="btn btn-success">Update</button>
@@ -494,7 +503,7 @@
                                                     @endif
                                                 </td>
                                             </tr>
-                                            <tr>
+                                            {{-- <tr>
                                                 <th class="table-secondary" style="width: 25%">Copy Editor:
                                                 </th>
                                                 <td class="table-active text-right">
@@ -506,7 +515,7 @@
                                                     <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
                                                 </td>
-                                            </tr>
+                                            </tr> --}}
                                             <tr>
                                                 <th class="table-secondary" style="width: 25%">Bulan: <span class="text-danger">*</span></th>
                                                 <td class="table-active text-right">
@@ -551,7 +560,7 @@
         $('#prosesKerja').click(function() {
             var id = $(this).data('id');
             var editor = $('.select-editor-editing').val();
-            var copy_editor = $('.select-copyeditor').val();
+            // var copy_editor = $('.select-copyeditor').val();
             if (this.checked) {
                 value = '1';
             } else {
@@ -565,7 +574,7 @@
                     id: id,
                     proses: val,
                     editor: editor,
-                    copy_editor: copy_editor
+                    // copy_editor: copy_editor
                 },
                 dataType: 'json',
                 beforeSend: function() {

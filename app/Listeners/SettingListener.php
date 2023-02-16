@@ -54,8 +54,19 @@ class SettingListener
                     'icon' => $data['icon']
                 ]);
                 break;
+            case 'Edit Menu':
+                $res = DB::table('access')->where('id',$data['id'])->update([
+                    'parent_id' => $data['parent_id'],
+                    'bagian_id' => $data['bagian_id'],
+                    'level' => $data['level'],
+                    'order_menu' => $data['order_menu'],
+                    'url' => $data['url'],
+                    'icon' => $data['icon'],
+                    'name' => $data['name']
+                ]);
+                break;
             default:
-                # code...
+                return abort(500);
                 break;
         }
         return $res;

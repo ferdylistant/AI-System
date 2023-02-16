@@ -190,7 +190,7 @@ class EditingController extends Controller
                     'tgl_masuk_editing',
                     'pic_prodev',
                     'editor',
-                    'copy_editor',
+                    // 'copy_editor',
                     'history',
                     'action'
                 ])
@@ -233,14 +233,14 @@ class EditingController extends Controller
                     ->where('ep.id', $request->id)
                     ->select('ep.*', 'dp.judul_final', 'df.bullet', 'dp.jml_hal_perkiraan')
                     ->first();
-                if ($request->has('copy_editor')) {
-                    foreach ($request->copy_editor as $ce) {
-                        $req_copyeditor[] = $ce;
-                    }
-                    $copyeditor = json_encode($req_copyeditor);
-                } else {
-                    $copyeditor = null;
-                }
+                // if ($request->has('copy_editor')) {
+                //     foreach ($request->copy_editor as $ce) {
+                //         $req_copyeditor[] = $ce;
+                //     }
+                //     $copyeditor = json_encode($req_copyeditor);
+                // } else {
+                //     $copyeditor = null;
+                // }
                 if ($history->proses == '1') {
                     if (is_null($history->tgl_selesai_edit)) {
                         if ((json_decode($history->editor, true) != $request->editor) && (!is_null($history->tgl_mulai_edit))) {
@@ -265,7 +265,7 @@ class EditingController extends Controller
                     'catatan' => $request->catatan,
                     'bullet' =>  json_encode(array_filter($request->bullet)), //Deskripsi Final
                     'editor' => json_encode($request->editor),
-                    'copy_editor' => $request->has('copy_editor') ? json_encode($request->copy_editor) : null,
+                    // 'copy_editor' => $request->has('copy_editor') ? json_encode($request->copy_editor) : null,
                     'bulan' => Carbon::createFromDate($request->bulan)
                 ];
                 event(new EditingEvent($update));
@@ -280,8 +280,8 @@ class EditingController extends Controller
                     'jml_hal_perkiraan_new' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $request->jml_hal_perkiraan,
                     'bullet_his' => $history->bullet == json_encode(array_filter($request->bullet)) ? null : $history->bullet,
                     'bullet_new' => $history->bullet == json_encode(array_filter($request->bullet)) ? null : json_encode(array_filter($request->bullet)),
-                    'copy_editor_his' => $history->copy_editor == $copyeditor ? null : $history->copy_editor,
-                    'copy_editor_new' => $history->copy_editor == $copyeditor ? null : $copyeditor,
+                    // 'copy_editor_his' => $history->copy_editor == $copyeditor ? null : $history->copy_editor,
+                    // 'copy_editor_new' => $history->copy_editor == $copyeditor ? null : $copyeditor,
                     'catatan_his' => $history->catatan == $request->catatan ? null : $history->catatan,
                     'catatan_new' => $history->catatan == $request->catatan ? null : $request->catatan,
                     'bulan_his' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
@@ -340,27 +340,27 @@ class EditingController extends Controller
             foreach (json_decode($data->editor) as $e) {
                 $namaEditor[] = DB::table('users')->where('id', $e)->first()->nama;
             }
-            $copyEditor = DB::table('users as u')
-                ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-                ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-                ->where('j.nama', 'LIKE', '%Editor%')
-                ->where('d.nama', 'LIKE', '%Penerbitan%')
-                ->whereNotIn('u.id', json_decode($data->editor))
-                ->orWhere('j.nama', 'LIKE', '%Korektor%')
-                ->select('u.nama', 'u.id')
-                ->orderBy('u.nama', 'Asc')
-                ->get();
+            // $copyEditor = DB::table('users as u')
+            //     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+            //     ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+            //     ->where('j.nama', 'LIKE', '%Editor%')
+            //     ->where('d.nama', 'LIKE', '%Penerbitan%')
+            //     ->whereNotIn('u.id', json_decode($data->editor))
+            //     ->orWhere('j.nama', 'LIKE', '%Korektor%')
+            //     ->select('u.nama', 'u.id')
+            //     ->orderBy('u.nama', 'Asc')
+            //     ->get();
         } else {
             $namaEditor = null;
-            $copyEditor = null;
+            // $copyEditor = null;
         }
-        if (!is_null($data->copy_editor)) {
-            foreach (json_decode($data->copy_editor) as $ce) {
-                $namaCopyEditor[] = DB::table('users')->where('id', $ce)->first()->nama;
-            }
-        } else {
-            $namaCopyEditor = null;
-        }
+        // if (!is_null($data->copy_editor)) {
+        //     foreach (json_decode($data->copy_editor) as $ce) {
+        //         $namaCopyEditor[] = DB::table('users')->where('id', $ce)->first()->nama;
+        //     }
+        // } else {
+        //     $namaCopyEditor = null;
+        // }
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', function ($q) {
                 $q->on('pnp.penulis_id', '=', 'pp.id')
@@ -374,8 +374,8 @@ class EditingController extends Controller
             'data' => $data,
             'editor' => $editor,
             'nama_editor' => $namaEditor,
-            'copy_editor' => $copyEditor,
-            'nama_copyeditor' => $namaCopyEditor,
+            // 'copy_editor' => $copyEditor,
+            // 'nama_copyeditor' => $namaCopyEditor,
             'penulis' => $penulis,
         ]);
     }
@@ -429,20 +429,20 @@ class EditingController extends Controller
         } else {
             $namaEditor = null;
         }
-        if (!is_null($data->copy_editor)) {
-            foreach (json_decode($data->copy_editor, true) as $cpe) {
-                $namaCopyEditor[] = DB::table('users')->where('id', $cpe)->first();
-            }
-        } else {
-            $namaCopyEditor = null;
-        }
+        // if (!is_null($data->copy_editor)) {
+        //     foreach (json_decode($data->copy_editor, true) as $cpe) {
+        //         $namaCopyEditor[] = DB::table('users')->where('id', $cpe)->first();
+        //     }
+        // } else {
+        //     $namaCopyEditor = null;
+        // }
         return view('penerbitan.editing.detail', [
             'title' => 'Detail Editing Proses',
             'data' => $data,
             'penulis' => $penulis,
             'pic' => $pic,
             'nama_editor' => $namaEditor,
-            'nama_copyeditor' => $namaCopyEditor
+            // 'nama_copyeditor' => $namaCopyEditor
         ]);
     }
     public function updateStatusProgress(Request $request)
@@ -519,12 +519,12 @@ class EditingController extends Controller
                         'message' => 'Editor belum selesai'
                     ]);
                 }
-                if (is_null($data->tgl_selesai_copyeditor)) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Copy Editor belum selesai'
-                    ]);
-                }
+                // if (is_null($data->tgl_selesai_copyeditor)) {
+                //     return response()->json([
+                //         'status' => 'error',
+                //         'message' => 'Copy Editor belum selesai'
+                //     ]);
+                // }
                 event(new EditingEvent($update));
                 event(new EditingEvent($insert));
                 DB::table('pracetak_setter')->where('deskripsi_final_id',$data->deskripsi_final_id)->update([
@@ -595,23 +595,23 @@ class EditingController extends Controller
                             }
                             $html .= ' Editor <b class="text-dark">' . $loopEDNEW . '</b> ditambahkan.<br>';
                         }
-                        if (!is_null($d->copy_editor_his)) {
-                            $loopCEDHIS = '';
-                            $loopCEDNEW = '';
-                            foreach (json_decode($d->copy_editor_his, true) as $cedhis) {
-                                $loopCEDHIS .= '<b class="text-dark">' . DB::table('users')->where('id', $cedhis)->first()->nama . '</b>, ';
-                            }
-                            foreach (json_decode($d->copy_editor_new, true) as $cednew) {
-                                $loopCEDNEW .= '<span class="bullet"></span>' . DB::table('users')->where('id', $cednew)->first()->nama;
-                            }
-                            $html .= ' Copy Editor <b class="text-dark">' . $loopCEDHIS . '</b> diubah menjadi <b class="text-dark">' . $loopCEDNEW . '</b>.<br>';
-                        } elseif (!is_null($d->copy_editor_new)) {
-                            $loopCEDNEW = '';
-                            foreach (json_decode($d->copy_editor_new, true) as $cednew) {
-                                $loopCEDNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $cednew)->first()->nama . '</b>, ';
-                            }
-                            $html .= ' Editor <b class="text-dark">' . $loopCEDNEW . '</b> ditambahkan.<br>';
-                        }
+                        // if (!is_null($d->copy_editor_his)) {
+                        //     $loopCEDHIS = '';
+                        //     $loopCEDNEW = '';
+                        //     foreach (json_decode($d->copy_editor_his, true) as $cedhis) {
+                        //         $loopCEDHIS .= '<b class="text-dark">' . DB::table('users')->where('id', $cedhis)->first()->nama . '</b>, ';
+                        //     }
+                        //     foreach (json_decode($d->copy_editor_new, true) as $cednew) {
+                        //         $loopCEDNEW .= '<span class="bullet"></span>' . DB::table('users')->where('id', $cednew)->first()->nama;
+                        //     }
+                        //     $html .= ' Copy Editor <b class="text-dark">' . $loopCEDHIS . '</b> diubah menjadi <b class="text-dark">' . $loopCEDNEW . '</b>.<br>';
+                        // } elseif (!is_null($d->copy_editor_new)) {
+                        //     $loopCEDNEW = '';
+                        //     foreach (json_decode($d->copy_editor_new, true) as $cednew) {
+                        //         $loopCEDNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $cednew)->first()->nama . '</b>, ';
+                        //     }
+                        //     $html .= ' Editor <b class="text-dark">' . $loopCEDNEW . '</b> ditambahkan.<br>';
+                        // }
                         if (!is_null($d->bullet_his)) {
                             $loopFC = '';
                             $loopFCN = '';
@@ -774,18 +774,20 @@ class EditingController extends Controller
                             'author_id' => auth()->id(),
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
-                    } else {
-                        $dataProgress = [
-                            'params' => 'Progress Copy Editor',
-                            'id' => $id,
-                            'tgl_mulai_copyeditor' => null,
-                            'proses' => $value,
-                            'type_history' => 'Progress',
-                            'author_id' => auth()->id(),
-                            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                        ];
+                        event(new EditingEvent($dataProgress));
                     }
-                    event(new EditingEvent($dataProgress));
+                    // else {
+                    //     $dataProgress = [
+                    //         'params' => 'Progress Copy Editor',
+                    //         'id' => $id,
+                    //         'tgl_mulai_copyeditor' => null,
+                    //         'proses' => $value,
+                    //         'type_history' => 'Progress',
+                    //         'author_id' => auth()->id(),
+                    //         'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    //     ];
+                    // }
+
                     $msg = 'Proses diberhentikan!';
                 } else {
                     if (is_null($data->tgl_selesai_edit)) {
@@ -815,34 +817,35 @@ class EditingController extends Controller
                             ];
                             event(new EditingEvent($dataEditor));
                         }
-                    } else {
-                        if (!$request->has('copy_editor')) {
-                            return response()->json([
-                                'status' => 'error',
-                                'message' => 'Pilih copy editor terlebih dahulu!'
-                            ]);
-                        } else {
-                            if (json_decode($data->copy_editor, true) == $request->copy_editor) {
-                                if (is_null($data->tgl_mulai_copyeditor)) {
-                                    $tglCopyEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                                } else {
-                                    $tglCopyEditor = $data->tgl_mulai_copyeditor;
-                                }
-                            } else {
-                                $tglCopyEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                            }
-                            $dataCopyEditor = [
-                                'params' => 'Progress Copy Editor',
-                                'id' => $id,
-                                'tgl_mulai_copyeditor' => $tglCopyEditor,
-                                'proses' => $value,
-                                'type_history' => 'Progress',
-                                'author_id' => auth()->id(),
-                                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                            ];
-                            event(new EditingEvent($dataCopyEditor));
-                        }
                     }
+                    // else {
+                    //     if (!$request->has('copy_editor')) {
+                    //         return response()->json([
+                    //             'status' => 'error',
+                    //             'message' => 'Pilih copy editor terlebih dahulu!'
+                    //         ]);
+                    //     } else {
+                    //         if (json_decode($data->copy_editor, true) == $request->copy_editor) {
+                    //             if (is_null($data->tgl_mulai_copyeditor)) {
+                    //                 $tglCopyEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    //             } else {
+                    //                 $tglCopyEditor = $data->tgl_mulai_copyeditor;
+                    //             }
+                    //         } else {
+                    //             $tglCopyEditor = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    //         }
+                    //         $dataCopyEditor = [
+                    //             'params' => 'Progress Copy Editor',
+                    //             'id' => $id,
+                    //             'tgl_mulai_copyeditor' => $tglCopyEditor,
+                    //             'proses' => $value,
+                    //             'type_history' => 'Progress',
+                    //             'author_id' => auth()->id(),
+                    //             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    //         ];
+                    //         event(new EditingEvent($dataCopyEditor));
+                    //     }
+                    // }
                     $msg = 'Proses dimulai!';
                 }
                 return response()->json([
@@ -863,9 +866,9 @@ class EditingController extends Controller
             case 'editor':
                 return $this->selesaiEditor($id);
                 break;
-            case 'copyeditor':
-                return $this->selesaiCopyEditor($id);
-                break;
+            // case 'copyeditor':
+            //     return $this->selesaiCopyEditor($id);
+            //     break;
             default:
                 return response()->json([
                     'status' => 'error',
@@ -938,68 +941,68 @@ class EditingController extends Controller
             ]);
         }
     }
-    protected function selesaiCopyEditor($id)
-    {
-        try {
-            $data = DB::table('editing_proses')->where('id',$id)->first();
-            if (is_null($data)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data editing tidak ada'
-                ],404);
-            }
-            $dataProsesSelf = DB::table('editing_proses_selesai')
-            ->where('type','Copy Editor')
-            ->where('editing_proses_id',$data->id)
-            ->where('users_id',auth()->id())
-            ->get();
-            if (!$dataProsesSelf->isEmpty()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Anda sudah selesai melakukan koreksi'
-                ]);
-            }
-            $dataProses = DB::table('editing_proses_selesai')
-            ->where('type','Copy Editor')
-            ->where('editing_proses_id',$data->id)
-            ->get();
-            $edPros = count($dataProses) + 1;
-            if ($edPros == count(json_decode($data->copy_editor,true))) {
-                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                $pros = [
-                    'params' => 'Proses Selesai',
-                    'type' => 'Copy Editor',
-                    'editing_proses_id' => $data->id,
-                    'users_id' => auth()->id(),
-                    'tgl_proses_selesai' => $tgl
-                ];
-                event(new EditingEvent($pros));
-                $done = [
-                    'params' => 'Copy Editing Selesai',
-                    'id' => $data->id,
-                    'tgl_selesai_copyeditor' => $tgl,
-                    'proses' => '0'
-                ];
-                event(new EditingEvent($done));
-            } else {
-                $pros = [
-                    'params' => 'Proses Selesai',
-                    'type' => 'Copy Editor',
-                    'editing_proses_id' => $data->id,
-                    'users_id' => auth()->id(),
-                    'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                ];
-                event(new EditingEvent($pros));
-            }
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Pengerjaan selesai'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
+    // protected function selesaiCopyEditor($id)
+    // {
+    //     try {
+    //         $data = DB::table('editing_proses')->where('id',$id)->first();
+    //         if (is_null($data)) {
+    //             return response()->json([
+    //                 'status' => 'error',
+    //                 'message' => 'Data editing tidak ada'
+    //             ],404);
+    //         }
+    //         $dataProsesSelf = DB::table('editing_proses_selesai')
+    //         ->where('type','Copy Editor')
+    //         ->where('editing_proses_id',$data->id)
+    //         ->where('users_id',auth()->id())
+    //         ->get();
+    //         if (!$dataProsesSelf->isEmpty()) {
+    //             return response()->json([
+    //                 'status' => 'error',
+    //                 'message' => 'Anda sudah selesai melakukan koreksi'
+    //             ]);
+    //         }
+    //         $dataProses = DB::table('editing_proses_selesai')
+    //         ->where('type','Copy Editor')
+    //         ->where('editing_proses_id',$data->id)
+    //         ->get();
+    //         $edPros = count($dataProses) + 1;
+    //         if ($edPros == count(json_decode($data->copy_editor,true))) {
+    //             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+    //             $pros = [
+    //                 'params' => 'Proses Selesai',
+    //                 'type' => 'Copy Editor',
+    //                 'editing_proses_id' => $data->id,
+    //                 'users_id' => auth()->id(),
+    //                 'tgl_proses_selesai' => $tgl
+    //             ];
+    //             event(new EditingEvent($pros));
+    //             $done = [
+    //                 'params' => 'Copy Editing Selesai',
+    //                 'id' => $data->id,
+    //                 'tgl_selesai_copyeditor' => $tgl,
+    //                 'proses' => '0'
+    //             ];
+    //             event(new EditingEvent($done));
+    //         } else {
+    //             $pros = [
+    //                 'params' => 'Proses Selesai',
+    //                 'type' => 'Copy Editor',
+    //                 'editing_proses_id' => $data->id,
+    //                 'users_id' => auth()->id(),
+    //                 'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+    //             ];
+    //             event(new EditingEvent($pros));
+    //         }
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'message' => 'Pengerjaan selesai'
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => $e->getMessage()
+    //         ]);
+    //     }
+    // }
 }
