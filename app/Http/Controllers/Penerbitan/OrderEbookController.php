@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Penerbitan;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Events\TimelineEvent;
 use App\Events\OrderEbookEvent;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
@@ -550,9 +551,16 @@ class OrderEbookController extends Controller
     {
         try {
             $id = $request->id;
-            $data = DB::table('order_ebook')
-                ->where('id', $id)
-                ->select('*')
+            $data = DB::table('order_ebook as ob')
+                ->join('deskripsi_turun_cetak as dtc','dtc.id','=','ob.deskripsi_turun_cetak_id')
+                ->join('pracetak_cover as pc','pc.id','=','dtc.pracetak_cover_id')
+                ->join('deskripsi_cover as dc','dc.id','=','pc.deskripsi_cover_id')
+                ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
+                ->where('ob.id', $id)
+                ->select(
+                    'ob.*',
+                    'dp.naskah_id',
+                    )
                 ->first();
             if (is_null($data)) {
                 return response()->json([
@@ -613,10 +621,26 @@ class OrderEbookController extends Controller
                 }
                 event(new OrderEbookEvent($update));
                 event(new OrderEbookEvent($insert));
+                $updateTimelineOrderEbook = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Order Ebook',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineOrderEbook));
                 $msg = 'Order E-book selesai, silahkan lanjut ke proses produksi upload ke platform..';
             } else {
                 event(new OrderEbookEvent($update));
                 event(new OrderEbookEvent($insert));
+                $updateTimelineOrderEbook = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Order Ebook',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineOrderEbook));
                 $msg = 'Status progress order e-book berhasil diupdate';
             }
             return response()->json([

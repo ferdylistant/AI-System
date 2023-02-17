@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
-use App\Events\NotifikasiPenyetujuan;
-use App\Events\OrderCetakEvent;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Events\TimelineEvent;
+use App\Events\OrderCetakEvent;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
+use App\Events\NotifikasiPenyetujuan;
 use Illuminate\Support\Facades\{DB, Gate};
 
 class OrderCetakController extends Controller
@@ -643,9 +644,16 @@ class OrderCetakController extends Controller
     {
         try {
             $id = $request->id;
-            $data = DB::table('order_cetak')
-                ->where('id', $id)
-                ->select('*')
+            $data = DB::table('order_cetak as oc')
+                ->join('deskripsi_turun_cetak as dtc','dtc.id','=','oc.deskripsi_turun_cetak_id')
+                ->join('pracetak_cover as pc','pc.id','=','dtc.pracetak_cover_id')
+                ->join('deskripsi_cover as dc','dc.id','=','pc.deskripsi_cover_id')
+                ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
+                ->where('oc.id', $id)
+                ->select(
+                    'oc.*',
+                    'dp.naskah_id',
+                    )
                 ->first();
             if (is_null($data)) {
                 return response()->json([
@@ -706,10 +714,26 @@ class OrderCetakController extends Controller
                 }
                 event(new OrderCetakEvent($update));
                 event(new OrderCetakEvent($insert));
+                $updateTimelineOrderCetak = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Order Cetak',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineOrderCetak));
                 $msg = 'Order Cetak selesai, silahkan lanjut ke proses produksi upload ke platform..';
             } else {
                 event(new OrderCetakEvent($update));
                 event(new OrderCetakEvent($insert));
+                $updateTimelineOrderCetak = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Order Cetak',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelineOrderCetak));
                 $msg = 'Status progress order cetak berhasil diupdate';
             }
             return response()->json([
@@ -1390,7 +1414,7 @@ class OrderCetakController extends Controller
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
                             <div class="bullet pt-2"></div>
                             <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-    
+
                         </div>
                         </span>';
                         } elseif (!is_null($d->format_buku_new)) {
@@ -1402,7 +1426,7 @@ class OrderCetakController extends Controller
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
                             <div class="bullet pt-2"></div>
                             <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-    
+
                         </div>
                         </span>';
                         }
