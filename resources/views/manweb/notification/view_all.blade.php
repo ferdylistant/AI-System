@@ -12,19 +12,21 @@
         <div class="section-body">
             <div class="panel-group">
                 @foreach ($notification as $notif)
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
+                    <div class="card panel panel-default">
+                        <div class="panel-heading d-flex justify-content-between">
                             <h6 class="panel-title">
-                                <a data-toggle="collapse" href="#collapse-{{ $loop->iteration }}">{{ $notif->type }}</a>
+                                <a data-toggle="collapse" href="#collapse-{{ $loop->iteration }}">{{ $notif->section }} -
+                                    {{ $notif->type }}</a>
                             </h6>
+                            <span
+                                class="text-muted">{{ Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $notif->created_at)->format('d M Y, H:i') }}</span>
                         </div>
                         <div id="collapse-{{ $loop->iteration }}" class="panel-collapse collapse">
                             <div class="card">
-                                <div class="panel-body">Panel Body Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                                    Unde
-                                    sint, distinctio nobis similique fugiat, iure neque nostrum perferendis dolor accusamus
-                                    minima,
-                                    expedita vero! Cumque asperiores porro magni incidunt voluptatibus molestiae.
+                                <div class="card-body">
+                                    <div class="panel-body">
+                                        {{-- {{ $notif->judul_asli }} --}}
+                                    </div>
                                 </div>
                             </div>
                         </div>

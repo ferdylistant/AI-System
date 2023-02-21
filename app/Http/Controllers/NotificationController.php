@@ -646,10 +646,13 @@ class NotificationController extends Controller
     public function viewAll()
     {
         $notification = DB::table('notif as n')
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'n.form_id')
             ->join('notif_detail as nd', function ($j) {
-                $j->on('n.id', '=', 'nd.notif_id')
-                    ->where('nd.user_id', auth()->id());
+                $j->on('n.id', '=', 'nd.notif_id');
+                // ->where('nd.user_id', auth()->id());
             })
+            ->where('nd.seen', 1)
+            ->select('n.type', 'n.section', 'n.created_at')
             ->get();
 
         // dd($notification);
