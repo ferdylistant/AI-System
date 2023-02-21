@@ -9,6 +9,9 @@
     <!-- General CSS Files -->
     <link rel="stylesheet" href="{{ url('vendors/bootstrap/dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/font-awesome/css/all.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@8.0.0/themes/satellite-min.css"
+        integrity="sha256-p/rGN4RGy6EDumyxF9t7LKxWGg6/MZfGhJM/asKkqvA=" crossorigin="anonymous">
+
 
     <!-- CSS Libraries -->
     @yield('cssRequired')
@@ -162,6 +165,9 @@
 </head>
 
 <body>
+    <header class="header">
+        <div id="autocomplete"></div>
+    </header>
     <div id="app">
         <div id="overlay">
             <div class="cv-spinner">
@@ -199,6 +205,11 @@
     <script src="{{ url('vendors/sweetalert/dist/sweetalert.min.js') }}"></script>
     <script src="{{ url('vendors/moment/moment.js') }}"></script>
     <script src="{{ url('vendors/stisla/js/stisla.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.14.3/dist/algoliasearch-lite.umd.js"
+        integrity="sha256-dyJcbGuYfdzNfifkHxYVd/rzeR6SLLcDFYEidcybldM=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.50.3/dist/instantsearch.production.min.js"
+        integrity="sha256-VIZm35iFB4ETVstmsxpzZrlLm99QKqIzPuQb1T0ooOc=" crossorigin="anonymous"></script>
+
     <!-- JS Libraies -->
     @yield('jsRequired')
 
@@ -208,7 +219,7 @@
 
     <!-- Specific JS File -->
     <script>
-        $(document).on('click','#logout',function(e) {
+        $(document).on('click', '#logout', function(e) {
             e.preventDefault();
             swal({
                 title: "Apakah anda yakin ingin keluar?",
@@ -236,7 +247,50 @@
         }, 120000);
     </script> --}}
     @yield('jsNeeded')
+    {{-- <script>
+        const searchClient = algoliasearch('48PYOPQ4UX', '0d0db6942609a9c8667323100a037bdb');
 
+        const INSTANT_SEARCH_INDEX_NAME = 'instant_search';
+        // const instantSearchRouter = historyRouter();
+
+        const search = instantsearch({
+            searchClient,
+            indexName: INSTANT_SEARCH_INDEX_NAME,
+            // routing: instantSearchRouter,
+        });
+
+        // Mount a virtual search box to manipulate InstantSearch's `query` UI
+        // state parameter.
+        const virtualSearchBox = connectSearchBox(() => {});
+
+        search.addWidgets([
+            virtualSearchBox({}),
+            hierarchicalMenu({
+                container: '#categories',
+                attributes: ['hierarchicalCategories.lvl0', 'hierarchicalCategories.lvl1'],
+            }),
+            hits({
+                container: '#hits',
+                templates: {
+                    item(hit, {
+                        html,
+                        components
+                    }) {
+                        return html`
+          <div>
+            ${components.Highlight({ attribute: 'name', hit })}
+          </div>
+        `;
+                    },
+                },
+            }),
+            pagination({
+                container: '#pagination',
+            }),
+        ]);
+
+        search.start();
+    </script> --}}
 </body>
 
 </html>

@@ -432,28 +432,281 @@ class OrderBukuController extends Controller
             ->select('h.*', 'u.nama')
             ->orderBy('h.id', 'desc')
             ->paginate(2);
-        $data = (object)collect($data)->map(function ($item, $key) {
-            switch ($key) {
-                case 'tgl_order_his':
-                    return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
+        foreach ($data as $d) {
+            $d = (object)collect($d)->map(function ($item, $key) {
+                switch ($key) {
+                    case 'tgl_order_his':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
+                        break;
+                    case 'tgl_order_new':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
+                        break;
+                    case 'tgl_permintaan_selesai_his':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
+                        break;
+                    case 'tgl_permintaan_selesai_new':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
+                        break;
+                    case 'modified_at':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($item)->translatedFormat('l d M Y, H:i').')' : NULL;
+                        break;
+                    default:
+                        $item;
+                        break;
+                }
+                return $item;
+            })->all();
+            switch ($d->type_history) {
+                case 'Update':
+                    $html .= '<span class="ticket-item" id="newAppend">';
+
+                    if (!is_null($d->jalur_proses_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Jalur proses <b class="text-dark">' .
+                            $d->jalur_proses_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->jalur_proses_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->jalur_proses_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Jalur proses <b class="text-dark">' .
+                            $d->jalur_proses_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->nama_pemesan_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Nama pemesan <b class="text-dark">' .
+                            $d->nama_pemesan_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->nama_pemesan_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->nama_pemesan_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Nama pemesan <b class="text-dark">' .
+                            $d->nama_pemesan_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->judul_buku_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Judul buku <b class="text-dark">' .
+                            $d->judul_buku_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->judul_buku_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->judul_buku_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Judul buku <b class="text-dark">' .
+                            $d->judul_buku_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->pengarang_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Pengarang <b class="text-dark">' .
+                            $d->pengarang_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->pengarang_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->pengarang_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Pengarang <b class="text-dark">' .
+                            $d->pengarang_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->format_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Format <b class="text-dark">' .
+                            $d->format_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->format_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->format_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Format <b class="text-dark">' .
+                            $d->format_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->jml_halaman_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Jumlah halaman <b class="text-dark">' .
+                            $d->jml_halaman_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->jml_halaman_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->jml_halaman_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Jumlah halaman <b class="text-dark">' .
+                            $d->jml_halaman_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->kertas_isi_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Kertas isi <b class="text-dark">' .
+                            $d->kertas_isi_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->kertas_isi_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->kertas_isi_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Kertas isi <b class="text-dark">' .
+                            $d->kertas_isi_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->kertas_isi_tinta_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Kertas isi tinta <b class="text-dark">' .
+                            $d->kertas_isi_tinta_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->kertas_isi_tinta_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->kertas_isi_tinta_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Kertas isi tinta <b class="text-dark">' .
+                            $d->kertas_isi_tinta_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->kertas_cover_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Kertas cover <b class="text-dark">' .
+                            $d->kertas_cover_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->kertas_cover_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->kertas_cover_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Kertas cover <b class="text-dark">' .
+                            $d->kertas_cover_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->kertas_cover_tinta_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Kertas cover tinta <b class="text-dark">' .
+                            $d->kertas_cover_tinta_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->kertas_cover_tinta_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->kertas_cover_tinta_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Kertas cover tinta <b class="text-dark">' .
+                            $d->kertas_cover_tinta_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->status_cetak_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Status cetak <b class="text-dark">' .
+                            $d->status_cetak_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->status_cetak_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->status_cetak_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Status cetak <b class="text-dark">' .
+                            $d->status_cetak_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->jml_order_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Jumlah order <b class="text-dark">' .
+                            $d->jml_order_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->jml_order_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->jml_order_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Jumlah order <b class="text-dark">' .
+                            $d->jml_order_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->tgl_order_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Tanggal order <b class="text-dark">' .
+                            $d->tgl_order_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->tgl_order_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->tgl_order_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Tanggal order <b class="text-dark">' .
+                            $d->tgl_order_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->tgl_permintaan_selesai_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Tanggal permintaan selesai <b class="text-dark">' .
+                            $d->tgl_permintaan_selesai_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->tgl_permintaan_selesai_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->tgl_permintaan_selesai_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Tanggal permintaan selesai <b class="text-dark">' .
+                            $d->tgl_permintaan_selesai_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->keterangan_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Keterangan <b class="text-dark">' .
+                            $d->keterangan_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->keterangan_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->keterangan_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Keterangan <b class="text-dark">' .
+                            $d->keterangan_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    $html .=
+                        '<div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' .url('/manajemen-web/user/' . $d->author_id) .'">' .$d->nama .'</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' .$d->modified_at.'</div>
+                        </div>
+                        </span>';
                     break;
-                case 'tgl_order_new':
-                    return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
-                    break;
-                case 'tgl_permintaan_selesai_his':
-                    return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
-                    break;
-                case 'tgl_permintaan_selesai_new':
-                    return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
-                    break;
-                case 'modified_at':
-                    return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($item)->translatedFormat('l d M Y, H:i').')' : NULL;
-                    break;
-                default:
-                    $item;
+                case 'Status':
+                    $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Status jasa cetak order buku <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' .$d->modified_at.'</div>
+                        </div>
+                        </span>';
                     break;
             }
-            return $item;
-        })->all();
+        }
+        return $html;
     }
 }

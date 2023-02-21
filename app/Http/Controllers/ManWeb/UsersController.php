@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\ManWeb;
 
+use App\Events\UserEvent;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Hash, Gate, Storage};
 use Illuminate\Support\Str;
@@ -27,7 +29,7 @@ class UsersController extends Controller
                 }
                 $data = $data->orderBy('u.nama', 'asc')
                     ->select(DB::raw('
-                            u.id, u.nama, u.email, (case when status > 0 then "Aktif" else "Non Aktif" end) as status,
+                            u.id, u.nama, u.email, (case when status  <= 1 then "Aktif" else "Non Aktif" end) as status,
                             c.nama as cabang, d.nama as divisi, j.nama as jabatan
                         '))
                     ->get();
@@ -40,6 +42,15 @@ class UsersController extends Controller
                         }
                         return $data->divisi . ' - ' . $data->jabatan;
                     })
+                    ->addColumn('history', function ($data) {
+                        $historyData = DB::table('user_history')->where('user_id', $data->id)->get();
+                        if ($historyData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-nama="' . $data->nama . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                            return $date;
+                        }
+                    })
                     ->addColumn('action', function ($data) {
                         $btn = '<a href="' . url('manajemen-web/user/' . $data->id) . '"
                                     class="d-block btn btn-sm btn-primary mr-1"  data-toggle="tooltip" title="Lihat Data">
@@ -49,6 +60,16 @@ class UsersController extends Controller
                                     <div><i class="fa fa-trash"></i></div></a>';
                         return $btn;
                     })
+                    ->rawColumns([
+                        'no',
+                        'nama',
+                        'email',
+                        'cabang',
+                        'bagian',
+                        'status',
+                        'history',
+                        'action'
+                    ])
                     ->make(true);
             }
         }
@@ -66,6 +87,65 @@ class UsersController extends Controller
             'lcabang' => $lcabang,
             'ldivisi' => $ldivisi,
             'ljabatan' => $ljabatan,
+        ]);
+    }
+
+    public function userTelahDihapus(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = DB::table('users as u')
+                ->whereNotNull('deleted_at')
+                ->orderBy('nama', 'asc')
+                ->get();
+            $update = Gate::allows('do_delete', 'hapus-data-imprint');
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('status', function ($data) {
+                    return $data->status == 1 ? 'Aktif' : 'Non Aktif';
+                })
+                ->addColumn('dihapus_pada', function ($data) {
+                    if ($data->deleted_at == null) {
+                        return '-';
+                    } else {
+                        $date = date('d M Y, H:i', strtotime($data->deleted_at));
+                        return $date;
+                    }
+                })
+                ->addColumn('dihapus_oleh', function ($data) {
+                    if ($data->deleted_by == null) {
+                        return '-';
+                    } else {
+                        $dataUser = User::where('id', $data->deleted_by)->first();
+                        return $dataUser->nama;
+                    }
+                })
+                ->addColumn('action', function ($data) use ($update) {
+                    if ($update) {
+                        $btn = '<a href="#"
+                        class="d-block btn btn-sm btn_ResUser btn-dark btn-icon""
+                        data-toggle="tooltip" title="Restore Data"
+                        data-id="' . $data->id . '" data-nama="' . $data->nama . '">
+                        <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                    } else {
+                        $btn = '<span class="badge badge-dark">No action</span>';
+                    }
+                    return $btn;
+                })
+                ->rawColumns([
+                    'no',
+                    'nama',
+                    'email',
+                    'dihapus_pada',
+                    'dihapus_oleh',
+                    'status',
+                    'action'
+                ])
+                ->make(true);
+        }
+
+        return view('manweb.users.telah_dihapus', [
+            'title' => 'User Telah Dihapus'
         ]);
     }
 
@@ -158,6 +238,7 @@ class UsersController extends Controller
                 'btnPrev' => $btnPrev,
                 'user' => (object)$user, 'lcab' => $lcab, 'ldiv' => $ldiv, 'ljab' => $ljab,
                 'userStatus' => $userStatus,
+                'queryStatus' => $q->status,
                 'accBagian' => collect($userAccess['accbag']),
                 'access' => collect(['ls' => $userAccess['ls'], 'ld' => $userAccess['ld']]),
                 'permissions' => $userAccess['perm'],
@@ -168,6 +249,7 @@ class UsersController extends Controller
                 'btnPrev' => $btnPrev,
                 'user' => (object)$user,
                 'userStatus' => $userStatus,
+                'queryStatus' => $q->status,
                 'title' => 'Detail User'
             ]);
         }
@@ -181,6 +263,9 @@ class UsersController extends Controller
                 break;
             case 'update':
                 return $this->updateUser($request);
+                break;
+            case 'update-status-user':
+                return $this->updateUserStatus($request);
                 break;
             case 'delete':
                 return $this->deleteUser($request);
@@ -213,19 +298,47 @@ class UsersController extends Controller
         $password = is_null($request->input('adduser_password')) ? 'password'
             : $request->input('adduser_password');
         $id = Str::uuid()->getHex();
-
         Storage::copy("users/avatars/default.jpg", "users/" . $id . "/default.jpg");
 
-        DB::table('users')->insert([
-            'id' => $id,
-            'nama' => $request->input('adduser_nama'),
-            'email' => $request->input('adduser_email'),
-            'password' => Hash::make($password),
-            'cabang_id' => $request->input('adduser_cabang'),
-            'divisi_id' => $request->input('adduser_divisi'),
-            'jabatan_id' => $request->input('adduser_jabatan'),
-            'created_by' => auth()->id()
-        ]);
+        try {
+            DB::beginTransaction();
+            $create = [
+                'params' => 'Create User',
+                'id' => $id,
+                'nama' => $request->input('adduser_nama'),
+                'email' => $request->input('adduser_email'),
+                'password' => Hash::make($password),
+                'cabang_id' => $request->input('adduser_cabang'),
+                'divisi_id' => $request->input('adduser_divisi'),
+                'jabatan_id' => $request->input('adduser_jabatan'),
+                'created_by' => auth()->id()
+            ];
+            event(new UserEvent($create));
+            $history = [
+                'params' => 'History Create User',
+                'type_history' => 'Create',
+                'user_id' => $id,
+                'nama' => $request->input('adduser_nama'),
+                'email' => $request->input('adduser_email'),
+                'cabang_id' => $request->input('adduser_cabang'),
+                'divisi_id' => $request->input('adduser_divisi'),
+                'jabatan_id' => $request->input('adduser_jabatan'),
+                'author_id' => auth()->id(),
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new UserEvent($history));
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data pengguna berhasil ditambahkan!',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return;
     }
@@ -270,7 +383,10 @@ class UsersController extends Controller
             : Carbon::createFromFormat('d F Y', $request->input('uedit_tanggal_lahir'))->format('Y-m-d');
 
         try {
-            $user = DB::table('users')->where('id', $request->input('uedit_id'))->first();
+            // $user = DB::table('users')->where('id', $request->input('uedit_id'))->first();
+            $history = DB::table('users')
+                ->where('id', $request->input('uedit_id'))
+                ->first();
             if (Gate::allows('do_update', 'ubah-data-user')) {
                 $request->validate([
                     'uedit_nama' => 'required',
@@ -280,42 +396,116 @@ class UsersController extends Controller
                     'uedit_jabatan' => 'required',
                 ]);
 
-                DB::table('users')->where('id', $request->input('uedit_id'))
-                    ->update([
-                        'nama' => $request->input('uedit_nama'),
-                        'tanggal_lahir' => $tgl_lahir,
-                        'tempat_lahir' => $request->input('uedit_tempat_lahir'),
-                        'alamat' => $request->input('uedit_alamat'),
-                        'email' => $request->input('uedit_email'),
-                        'cabang_id' => $request->input('uedit_cabang'),
-                        'divisi_id' => $request->input('uedit_divisi'),
-                        'jabatan_id' => $request->input('uedit_jabatan'),
+                $update = [
+                    'params' => 'Update User',
+                    'id' => $request->input('uedit_id'),
+                    'nama' => $request->input('uedit_nama'),
+                    'tanggal_lahir' => $tgl_lahir,
+                    'tempat_lahir' => $request->input('uedit_tempat_lahir'),
+                    'alamat' => $request->input('uedit_alamat'),
+                    'email' => $request->input('uedit_email'),
+                    'cabang_id' => $request->input('uedit_cabang'),
+                    'divisi_id' => $request->input('uedit_divisi'),
+                    'jabatan_id' => $request->input('uedit_jabatan'),
+                    'updated_by' => auth()->id(),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+                $nama = event(new UserEvent($update));
+                if (array_sum($nama) > 0) {
+                    $insert = [
+                        'params' => 'History Update User',
+                        'type_history' => 'Update',
+                        'id' => $request->input('uedit_id'),
+                        'nama_his' => $history->nama == $request->input('uedit_nama') ? null : $history->nama,
+                        'nama_new' => $history->nama == $request->input('uedit_nama') ? null : $request->input('uedit_nama'),
+                        'tanggal_lahir_his' => $history->tanggal_lahir == $tgl_lahir ? null : $history->tanggal_lahir,
+                        'tanggal_lahir_new' => $history->tanggal_lahir == $tgl_lahir ? null : $tgl_lahir,
+                        'tempat_lahir_his' => $history->tempat_lahir == $request->input('uedit_tempat_lahir') ? null : $history->tempat_lahir,
+                        'tempat_lahir_new' => $history->tempat_lahir == $request->input('uedit_tempat_lahir') ? null : $request->input('uedit_tempat_lahir'),
+                        'alamat_his' => $history->alamat == $request->input('uedit_alamat') ? null : $history->alamat,
+                        'alamat_new' => $history->alamat == $request->input('uedit_alamat') ? null : $request->input('uedit_alamat'),
+                        'email_his' => $history->email == $request->input('uedit_email') ? null : $history->email,
+                        'email_new' => $history->email == $request->input('uedit_email') ? null : $request->input('uedit_email'),
+                        'cabang_id_his' => $history->cabang_id == $request->uedit_cabang ? null : $history->cabang_id,
+                        'cabang_id_new' => $history->cabang_id == $request->input('uedit_cabang') ? null : $request->input('uedit_cabang'),
+                        'divisi_id_his' => $history->divisi_id == $request->input('uedit_divisi') ? null : $history->divisi_id,
+                        'divisi_id_new' => $history->divisi_id == $request->input('uedit_divisi') ? null : $request->input('uedit_divisi'),
+                        'jabatan_id_his' => $history->jabatan_id == $request->input('uedit_jabatan') ? null : $history->jabatan_id,
+                        'jabatan_id_new' => $history->jabatan_id == $request->input('uedit_jabatan') ? null : $request->input('uedit_jabatan'),
                         'updated_by' => auth()->id(),
                         'updated_at' => date('Y-m-d H:i:s')
-                    ]);
+                    ];
+                    event(new UserEvent($insert));
+                }
             } else {
                 $request->validate([
                     'uedit_nama' => 'required',
                     'uedit_email' => 'required|unique:users,email,' . $request->input('uedit_id'),
                 ]);
 
-                DB::table('users')->where('id', $request->input('uedit_id'))
-                    ->update([
-                        'nama' => $request->input('uedit_nama'),
-                        'tanggal_lahir' => $tgl_lahir,
-                        'tempat_lahir' => $request->input('uedit_tempat_lahir'),
-                        'alamat' => $request->input('uedit_alamat'),
-                        'email' => $request->input('uedit_email'),
-                        'updated_by' => auth()->id(),
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
+                $update = [
+                    'params' => 'Update User',
+                    'id' => $request->input('uedit_id'),
+                    'nama' => $request->input('uedit_nama'),
+                    'tanggal_lahir' => $tgl_lahir,
+                    'tempat_lahir' => $request->input('uedit_tempat_lahir'),
+                    'alamat' => $request->input('uedit_alamat'),
+                    'email' => $request->input('uedit_email'),
+                    'updated_by' => auth()->id(),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+                event(new UserEvent($update));
             }
         } catch (\Exception $e) {
             return abort(500, $e->getMessage());
         }
         return;
     }
+    protected function updateUserStatus($request)
+    {
+        try {
+            $proses = $request->proses;
+            $id = $request->id;
+            if ($proses == 1) {
+                $class = 'badge badge-success';
+                $label  = 'Aktif';
+            } else {
+                $class = 'badge badge-danger';
+                $label  = 'Nonaktif';
+            }
+            $history = DB::table('users')
+                ->where('id', $id)
+                ->first();
+            DB::table('users')
+                ->where('id', $id)
+                ->whereNull('deleted_at')
+                ->update(['status' => $proses]);
+            // return response()->json($proses);
+            // dd();
+            $insert = [
+                'params' => 'History Status User',
+                'user_id' => $id,
+                'type_history' => 'Status',
+                'status_his' => $history->status,
+                'status_new' => $proses,
+                'author_id' => auth()->id(),
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new UserEvent($insert));
 
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil mengubah status pengguna',
+                'data' => '<span class="' . $class . '">' . $label . '</span>'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'data' => []
+            ]);
+        }
+    }
     protected function updatePassword($request)
     {
         if (auth()->user()->id != $request->input('uedit_pwd_id')) {
@@ -342,12 +532,29 @@ class UsersController extends Controller
 
     protected function deleteUser($request)
     {
-        DB::table('users')->where('id', $request->input('id'))
-            ->update([
-                'deleted_at' => date('Y-m-d H:i:s'),
-                'deleted_by' => auth()->id()
+        try {
+            $id = $request->id;
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $insert = [
+                'params' => 'History Delete User',
+                'user_id' => $id,
+                'type_history' => 'Delete',
+                'deleted_at' => $tgl,
+                'author_id' => auth()->user()->id,
+                'modified_at' => $tgl
+            ];
+            event(new UserEvent($insert));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil hapus data user!'
             ]);
-        return;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     protected function updateAccess($request)
@@ -510,5 +717,271 @@ class UsersController extends Controller
             'ld' => $ld,
             'perm' => $perm
         ];
+    }
+
+    public function lihatHistoryUser(Request $request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('user_history as uh')
+                ->join('users as u', 'u.id', '=', 'uh.author_id')
+                ->where('uh.user_id', $id)
+                ->select(
+                    'uh.*',
+                    'u.nama'
+                )
+                ->orderBy('uh.id', 'desc')
+                ->paginate(2);
+            foreach ($data as $d) {
+                switch ($d->type_history) {
+                    case 'Create':
+                        $html .= '<span class="ticket-item" id="newAppend">';
+
+                        if (!is_null($d->nama_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> User dengan nama <b class="text-dark">' .
+                                $d->nama_new .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        if (!is_null($d->email_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Email <b class="text-dark">' .
+                                $d->email_new .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        $html .=
+                            '<div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="' .
+                            url('/manajemen-web/user/' . $d->author_id) .
+                            '">' .
+                            $d->nama .
+                            '</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">' .
+                            Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() .
+                            ' (' .
+                            Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') .
+                            ')</div>
+                    </div>
+                    </span>';
+                        break;
+                    case 'Update':
+                        $html .= '<span class="ticket-item" id="newAppend">';
+
+                        if (!is_null($d->nama_his)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> User <b class="text-dark">' .
+                                $d->nama_his .
+                                '</b> diubah menjadi <b class="text-dark">' .
+                                $d->nama_new .
+                                '</b> </span></div>';
+                        } elseif (!is_null($d->nama_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> User <b class="text-dark">' .
+                                $d->nama_new .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        if (!is_null($d->email_his)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Email <b class="text-dark">' .
+                                $d->email_his .
+                                '</b> diubah menjadi <b class="text-dark">' .
+                                $d->email_new .
+                                '</b> </span></div>';
+                        } elseif (!is_null($d->email_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Email <b class="text-dark">' .
+                                $d->email_new .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        if (!is_null($d->tanggal_lahir_his)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Tanggal lahir <b class="text-dark">' .
+                                $d->tanggal_lahir_his .
+                                '</b> diubah menjadi <b class="text-dark">' .
+                                $d->tanggal_lahir_new .
+                                '</b> </span></div>';
+                        } elseif (!is_null($d->tanggal_lahir_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Tanggal lahir <b class="text-dark">' .
+                                $d->tanggal_lahir_new .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        if (!is_null($d->tempat_lahir_his)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Tempat lahir <b class="text-dark">' .
+                                $d->tempat_lahir_his .
+                                '</b> diubah menjadi <b class="text-dark">' .
+                                $d->tempat_lahir_new .
+                                '</b> </span></div>';
+                        } elseif (!is_null($d->tempat_lahir_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Tempat lahir <b class="text-dark">' .
+                                $d->tempat_lahir_new .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        if (!is_null($d->telepon_his)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Telepon <b class="text-dark">' .
+                                $d->telepon_his .
+                                '</b> diubah menjadi <b class="text-dark">' .
+                                $d->telepon_new .
+                                '</b> </span></div>';
+                        } elseif (!is_null($d->telepon_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Telepon <b class="text-dark">' .
+                                $d->telepon_new .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        if (!is_null($d->alamat_his)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Alamat <b class="text-dark">' .
+                                $d->alamat_his .
+                                '</b> diubah menjadi <b class="text-dark">' .
+                                $d->alamat_new .
+                                '</b> </span></div>';
+                        } elseif (!is_null($d->alamat_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Alamat <b class="text-dark">' .
+                                $d->alamat_new .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        if (!is_null($d->cabang_id_his)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Cabang <b class="text-dark">' .
+                                DB::table('cabang')->where('id', $d->cabang_id_his)->first()->nama .
+                                '</b> diubah menjadi <b class="text-dark">' .
+                                DB::table('cabang')->where('id', $d->cabang_id_new)->first()->nama .
+                                '</b> </span></div>';
+                        } elseif (!is_null($d->cabang_id_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Cabang <b class="text-dark">' .
+                                DB::table('cabang')->where('id', $d->cabang_id_new)->first()->nama .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        if (!is_null($d->divisi_id_his)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Divisi <b class="text-dark">' .
+                                DB::table('divisi')->where('id', $d->divisi_id_his)->first()->nama .
+                                '</b> diubah menjadi <b class="text-dark">' .
+                                DB::table('divisi')->where('id', $d->divisi_id_new)->first()->nama .
+                                '</b> </span></div>';
+                        } elseif (!is_null($d->divisi_id_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Divisi <b class="text-dark">' .
+                                DB::table('divisi')->where('id', $d->divisi_id_new)->first()->nama .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        if (!is_null($d->jabatan_id_his)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Jabatan <b class="text-dark">' .
+                                DB::table('jabatan')->where('id', $d->jabatan_id_his)->first()->nama .
+                                '</b> diubah menjadi <b class="text-dark">' .
+                                DB::table('jabatan')->where('id', $d->jabatan_id_new)->first()->nama .
+                                '</b> </span></div>';
+                        } elseif (!is_null($d->jabatan_id_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Jabatan <b class="text-dark">' .
+                                DB::table('jabatan')->where('id', $d->jabatan_id_new)->first()->nama .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        $html .=
+                            '<div class="ticket-info">
+                    <div class="text-muted pt-2">Modified by <a href="' .
+                            url('/manajemen-web/user/' . $d->author_id) .
+                            '">' .
+                            $d->nama .
+                            '</a></div>
+                    <div class="bullet pt-2"></div>
+                    <div class="pt-2">' .
+                            Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() .
+                            ' (' .
+                            Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') .
+                            ')</div>
+                </div>
+                </span>';
+                        break;
+                    case 'Delete':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                            <div class="ticket-title">
+                                <span><span class="bullet"></span> Data user dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                            </div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . ')</div>
+                            </div>
+                            </span>';
+                        break;
+                    case 'Restore':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                                <div class="ticket-title">
+                                    <span><span class="bullet"></span> Data user direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                </div>
+                                <div class="ticket-info">
+                                    <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                    <div class="bullet pt-2"></div>
+                                    <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                                </div>
+                                </span>';
+                        break;
+                    case 'Status':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                                    <div class="ticket-title">
+                                        <span><span class="bullet"></span> Data status user diubah dari <b class="text-dark">' . ($d->status_his == 1 ? 'Aktif' : 'Non Aktif') . '</b> menjadi <b class="text-dark">' . ($d->status_new == 1 ? 'Aktif' : 'Non Aktif') . '</b>.</span>
+                                    </div>
+                                    <div class="ticket-info">
+                                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                        <div class="bullet pt-2"></div>
+                                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                                    </div>
+                                    </span>';
+                        break;
+                }
+            }
+            return $html;
+        }
+    }
+
+    public function restoreUser(Request $request)
+    {
+        $id = $request->id;
+        $restored = DB::table('users')
+            ->where('id', $id)
+            ->update(['deleted_at' => null, 'deleted_by' => null]);
+        $insert = [
+            'params' => 'History Restored User',
+            'user_id' => $id,
+            'type_history' => 'Restore',
+            'restored_at' => now(),
+            'author_id' => auth()->user()->id,
+            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+        ];
+        event(new UserEvent($insert));
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Berhasil mengembalikan user!'
+        ]);
     }
 }

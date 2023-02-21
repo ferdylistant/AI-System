@@ -11,6 +11,7 @@ use App\Http\Controllers\{AuthController, ApiController, HomeController, Notific
 use App\Http\Controllers\Produksi\{EbookController, ProsesProduksiController, ProsesEbookController};
 use App\Http\Controllers\MasterData\{ImprintController, KelompokBukuController, FormatBukuController};
 use App\Http\Controllers\Penerbitan\{OrderCetakController, OrderEbookController, PenulisController, NaskahController, PenilaianNaskahController, DeskripsiCoverController, DeskripsiFinalController, DeskripsiProdukController, DeskripsiTurunCetakController, EditingController, PracetakSetterController, PracetakDesainerController};
+use App\Models\Naskah;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,7 +45,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/batal/pending/order-cetak/{id}', [ProduksiController::class, 'batalPendingOrderCetak']);
     Route::get('/batal/pending/order-ebook/{id}', [EbookController::class, 'batalPendingOrderEbook']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('notification', [NotificationController::class, 'index']);
     Route::get('/', [HomeController::class, 'index']);
     Route::post('import-db', [HomeController::class, 'importDB']);
 
@@ -54,16 +54,25 @@ Route::middleware(['auth'])->group(function () {
     Route::post('public/penerbitan/fullcalendar/{cat}', [NaskahController::class, 'ajaxFromCalendar']);
 
     Route::prefix('timeline')->group(function () {
-        Route::post('/{cat}',[TimelineController::class,'index']);
+        Route::post('/{cat}', [TimelineController::class, 'index']);
+    });
+
+    // Notification
+    Route::prefix('notification')->group(function () {
+        Route::post('/', [NotificationController::class, 'index']);
+        Route::get('/view-all', [NotificationController::class, 'viewAll'])->name('notification.view_all');
     });
 
     // Manajemen User
     Route::prefix('manajemen-web')->group(function () {
         //Users
         Route::get('/users', [UsersController::class, 'index']);
+        Route::get('/users/user-telah-dihapus', [UsersController::class, 'userTelahDihapus'])->name('user.telah_dihapus');
         Route::match(['get', 'post'], '/user/ajax/{act}/{id?}', [UsersController::class, 'ajaxUser']);
         Route::get('/user/{id}', [UsersController::class, 'selectUser'])->name('user.view');
         Route::post('/user/update-access', [UsersController::class, 'updateAccess']);
+        Route::post('/user/restore', [UsersController::class, 'restoreUser'])->name('user.restore');
+        Route::post('/user/lihat-history', [UsersController::class, 'lihatHistoryUser'])->name('user.history');
         //Struktur AO
         Route::get('/struktur-ao', [StrukturAoController::class, 'index']);
         Route::match(['get', 'post'], '/struktur-ao/{act}/{type}/{id?}', [StrukturAoController::class, 'crudSO']);
@@ -204,5 +213,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/proses/ebook-multimedia', [ProsesEbookController::class, 'index'])->name('proses.ebook.view');
         Route::get('/proses/ebook-multimedia/detail', [ProsesEbookController::class, 'detailProduksi'])->name('proses.ebook.detail');
         Route::match(['get', 'post'], '/proses/ebook-multimedia/edit', [ProsesEbookController::class, 'updateProduksi'])->name('proses.ebook.update');
+    });
+
+    Route::get('search', function () {
+        $query = ''; // <-- Change the query for testing.
+
+        $articles = Naskah::search($query)->get();
+
+        return $articles;
     });
 });

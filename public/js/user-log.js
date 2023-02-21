@@ -44,8 +44,6 @@ $(function () {
     $(function () {
         $("#userStatus").click(function () {
             var id = $(this).data("id");
-            var desainer = $(".select-desainer").val();
-            var korektor = $(".select-korektor").val();
             if (this.checked) {
                 value = "1";
             } else {
@@ -55,13 +53,11 @@ $(function () {
             $.ajax({
                 url:
                     window.location.origin +
-                    "/penerbitan/pracetak/designer/proses-kerja",
+                    "/manajemen-web/user/ajax/update-status-user/" +
+                    id,
                 type: "POST",
                 data: {
-                    id: id,
                     proses: val,
-                    desainer: desainer,
-                    korektor: korektor,
                 },
                 dataType: "json",
                 beforeSend: function () {
@@ -74,7 +70,8 @@ $(function () {
                         resetFrom($("#fup_pracetakDesainer"));
                     } else {
                         notifToast(result.status, result.message);
-                        location.reload();
+                        $("#statusShow").removeAttr("class");
+                        $("#statusShow").html(result.data);
                     }
                 },
             }).done(function () {

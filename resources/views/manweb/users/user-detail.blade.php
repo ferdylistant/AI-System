@@ -165,12 +165,14 @@
                                     aria-labelledby="user-status-tab">
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" name="proses" class="custom-control-input"
-                                            id="userStatus">
+                                            id="userStatus" data-id="{{ $user->id }}"
+                                            {{ $user->status == 1 ? 'checked' : '' }}>
                                         <label class="custom-control-label mr-3 text-dark" for="userStatus">
                                             Ubah Status
                                         </label>
                                     </div>
-                                    <span class="badge badge-success">{{ $userStatus }}</span>
+                                    <span class="badge badge-{{ $queryStatus == 1 ? 'success' : 'danger' }}"
+                                        id="statusShow">{{ $userStatus }}</span>
                                     <table class="table table-striped my-3">
                                         <tr>
                                             <th>Dibuat Pada</th>
@@ -192,16 +194,6 @@
                                             <td>:</td>
                                             <td>{{ $user->updated_by }}</td>
                                         </tr>
-                                        {{-- <tr>
-                                            <th>Dihapus Pada</th>
-                                            <td>:</td>
-                                            <td>{{ $user->deleted_at }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Dihapus Oleh</th>
-                                            <td>:</td>
-                                            <td>{{ $user->deleted_by }}</td>
-                                        </tr> --}}
                                     </table>
                                 </div>
                             </div>
@@ -368,7 +360,7 @@
 
             function ajaxEditUser(data) {
                 let el = data.get(0);
-                console.log(el);
+                // console.log(el);
                 $.ajax({
                     type: "POST",
                     url: "{{ url('manajemen-web/user/ajax/update/') }}",

@@ -18,7 +18,7 @@
             <div class="section-header-back">
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
-            <h1>Data Penulis Yang Telah Dihapus</h1>
+            <h1>Data User Yang Telah Dihapus</h1>
         </div>
 
         <div class="section-body">
@@ -27,7 +27,7 @@
                     <div class="card card-danger">
                         <div class="card-body">
                             <div class="col-12 table-responsive">
-                                <table class="table table-striped" id="tb_Penulis" style="width:100%">
+                                <table class="table table-striped" id="tb_User" style="width:100%">
                                 </table>
                             </div>
                         </div>
@@ -53,7 +53,7 @@
 @section('jsNeeded')
     <script>
         $(function() {
-            let tableDelPenulis = $('#tb_Penulis').DataTable({
+            let tableDelUser = $('#tb_User').DataTable({
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -63,12 +63,20 @@
                     lengthMenu: '_MENU_ items/page',
                 },
                 ajax: {
-                    url: "{{ url('penerbitan/penulis/penulis-telah-dihapus') }}",
+                    url: "{{ url('manajemen-web/users/user-telah-dihapus') }}",
                 },
                 columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        title: 'No',
+                        orderable: false,
+                        searchable: false,
+                        "width": "5%"
+                    },
+                    {
                         data: 'nama',
                         name: 'nama',
-                        title: 'Nama Penulis'
+                        title: 'Nama'
                     },
                     {
                         data: 'email',
@@ -76,13 +84,18 @@
                         title: 'Email'
                     },
                     {
-                        data: 'deleted_at',
-                        name: 'deleted_at',
+                        data: 'status',
+                        name: 'status',
+                        title: 'Status'
+                    },
+                    {
+                        data: 'dihapus_pada',
+                        name: 'dihapus_pada',
                         title: 'Dihapus pada'
                     },
                     {
-                        data: 'deleted_by',
-                        name: 'deleted_by',
+                        data: 'dihapus_oleh',
+                        name: 'dihapus_oleh',
                         title: 'Dihapus oleh'
                     },
                     {
@@ -95,51 +108,52 @@
                 ]
             });
 
-            // Restore Penulis Start
+            // Restore User Start
             $(document).ready(function() {
-                function ajaxRestorePenulis(data) {
+                function ajaxRestoreUser(data) {
                     $.ajax({
                         type: "POST",
                         url: window.location.origin +
-                            "/penerbitan/penulis/restore",
+                            "/manajemen-web/user/restore",
                         data: data,
                         beforeSend: function() {
-                            $(".btn_ResPenulis")
+                            $(".btn_ResUser")
                                 .prop("disabled", true)
                                 .addClass("btn-progress");
                         },
                         success: function(result) {
+                            // console.log(result);
+                            notifToast(result.status, result.message);
                             if (result.status == "success") {
-                                tableDelPenulis.ajax.reload();
-                                notifToast(result.status, result.message);
+                                tableDelUser.ajax.reload();
                             }
                         },
                         error: function(err) {},
                         complete: function() {
-                            $(".btn_ResPenulis")
+                            $(".btn_ResUser")
                                 .prop("disabled", true)
                                 .removeClass("btn-progress");
                         },
                     });
                 }
-                $(document).on("click", ".btn_ResPenulis", function(e) {
+                $(document).on("click", ".btn_ResUser", function(e) {
                     let nama = $(this).data("nama"),
                         id = $(this).data("id");
                     swal({
-                        text: "Kembalikan data Penulis (" + nama + ")?",
+                        text: "Kembalikan data user (" + nama + ")?",
                         icon: "warning",
                         buttons: true,
                         dangerMode: true,
                     }).then((confirm_) => {
                         if (confirm_) {
-                            ajaxRestorePenulis({
+                            ajaxRestoreUser({
                                 id: id
                             })
                         }
                     });
                 });
             });
-            // Restore Penulis End
+            // Restore User End
         })
     </script>
 @endsection

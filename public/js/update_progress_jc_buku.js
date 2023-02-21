@@ -81,6 +81,7 @@ $('#tb_OrderBuku').on('click', '.btn-history', function(e) {
             cardWrap.addClass('card-progress');
         },
         success: function (data) {
+            console.log(data);
             $('#titleModalOrderBuku').html(
                 '<i class="fas fa-history"></i>&nbsp;History Progress Order Buku "' + judul +
                 '"');
@@ -203,28 +204,28 @@ $(function () {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
+        let form = $('#md_OrderBukuHistory');
         $(this).data("paginate", page + 1);
 
         $.ajax({
             url:
-                window.location.origin +
-                "/penerbitan/order-cetak/ajax/lihat-history-order-cetak",
+                window.location.origin + "/jasa-cetak/order-buku/ajax/lihat-history",
             data: {
                 id: id,
                 page: page,
             },
             type: "post",
             beforeSend: function () {
-                $(".load-more").text("Loading...");
+                form.addClass("modal-progress");;
             },
             success: function (response) {
                 if (response.length == 0) {
                     notifToast("error", "Tidak ada data lagi");
                 }
-                $("#dataHistoryOrderCetak").append(response);
+                $("#dataHistoryOrderBuku").append(response);
             },
             complete: function (params) {
-                $(".load-more").text("Load more").fadeIn("slow");
+                form.removeClass("modal-progress");
             },
         });
     });
