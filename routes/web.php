@@ -184,8 +184,13 @@ Route::middleware(['auth'])->group(function () {
         Route::match(['get', 'post'], '/order-ebook/edit', [OrderEbookController::class, 'updateOrderEbook'])->name('ebook.update');
         Route::post('/order-ebook/ajax/{cat}', [OrderEbookController::class, 'ajaxRequest']);
     });
-    Route::prefix('jasa-cetak')->group(function () {
-        Route::get('/order-buku',[OrderBukuController::class,'index']);
+    Route::prefix('jasa-cetak/order-buku')->group(function () {
+        //? BUKU
+        Route::get('/',[OrderBukuController::class,'index']);
+        Route::match(['get', 'post'], '/create', [OrderBukuController::class, 'createOrder']);
+        Route::match(['get', 'post'], '/edit', [OrderBukuController::class, 'updateOrder']);
+        Route::post('/ajax/{cat}', [OrderBukuController::class, 'ajaxPost']);
+        //? NON-BUKU
         Route::get('/order-nonbuku',[OrderNonBukuController::class,'index']);
     });
     //Produksi

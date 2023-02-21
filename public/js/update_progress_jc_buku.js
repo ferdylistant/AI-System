@@ -1,4 +1,5 @@
 $(function(){
+    $('[name="status_filter"]').val('').change();
     let tableOrderBuku = $("#tb_OrderBuku").DataTable({
         "responsive": true,
         "autoWidth": true,
@@ -19,11 +20,6 @@ $(function(){
                 title: "Kode Order",
             },
             {
-                data: "jalur_proses",
-                name: "jalur_proses",
-                title: "Jalur Proses",
-            },
-            {
                 data: "nama_pemesan",
                 name: "nama_pemesan",
                 title: "Nama Pemesan",
@@ -34,9 +30,24 @@ $(function(){
                 title: "Judul Buku",
             },
             {
+                data: "jalur_proses",
+                name: "jalur_proses",
+                title: "Jalur Proses",
+            },
+            {
+                data: "status_cetak",
+                name: "status_cetak",
+                title: "Status Cetak",
+            },
+            {
                 data: "history",
                 name: "history",
                 title: "History",
+            },
+            {
+                data: "status",
+                name: "status",
+                title: "Status",
             },
             {
                 data: "action",
@@ -57,10 +68,10 @@ $(function(){
 });
 $('#tb_OrderBuku').on('click', '.btn-history', function(e) {
     var id = $(this).data('id');
-    var judul = $(this).data('judulfinal');
+    var judul = $(this).data('judul');
     let cardWrap = $('.section-body').find('.card');
     $.ajax({
-        url: window.location.origin + "/penerbitan/order-cetak/ajax/lihat-history-order-cetak",
+        url: window.location.origin + "/jasa-cetak/order-buku/ajax/lihat-history",
         type: "POST",
         data: {
             id: id
@@ -70,12 +81,12 @@ $('#tb_OrderBuku').on('click', '.btn-history', function(e) {
             cardWrap.addClass('card-progress');
         },
         success: function (data) {
-            $('#titleModalOrderCetak').html(
-                '<i class="fas fa-history"></i>&nbsp;History Progress Order Cetak "' + judul +
+            $('#titleModalOrderBuku').html(
+                '<i class="fas fa-history"></i>&nbsp;History Progress Order Buku "' + judul +
                 '"');
             $('#load_more').data('id', id);
-            $('#dataHistoryOrderCetak').html(data);
-            $('#md_OrderCetakHistory').modal('show');
+            $('#dataHistoryOrderBuku').html(data);
+            $('#md_OrderBukuHistory').modal('show');
         },
         complete: function () {
             cardWrap.removeClass('card-progress');

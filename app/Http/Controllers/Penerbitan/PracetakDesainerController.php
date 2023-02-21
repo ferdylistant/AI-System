@@ -441,7 +441,12 @@ class PracetakDesainerController extends Controller
             ->select('u.nama', 'u.id')
             ->orderBy('u.nama', 'Asc')
             ->get();
-        if (!is_null($data->desainer)) {
+            // return response()->json($data->desainer);
+        if ((is_null($data->desainer)) || ($data->desainer == "[null]")) {
+            $namaDesainer = null;
+            $korektor = null;
+
+        } else {
             foreach (json_decode($data->desainer) as $e) {
                 $namaDesainer[] = DB::table('users')->where('id', $e)->first()->nama;
             }
@@ -455,16 +460,13 @@ class PracetakDesainerController extends Controller
                 ->select('u.nama', 'u.id')
                 ->orderBy('u.nama', 'Asc')
                 ->get();
-        } else {
-            $namaDesainer = null;
-            $korektor = null;
         }
-        if (!is_null($data->korektor)) {
+        if (is_null($data->korektor)) {
+            $namakorektor = null;
+        } else {
             foreach (json_decode($data->korektor) as $ce) {
                 $namakorektor[] = DB::table('users')->where('id', $ce)->first()->nama;
             }
-        } else {
-            $namakorektor = null;
         }
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', function ($q) {
@@ -553,9 +555,9 @@ class PracetakDesainerController extends Controller
             ->select('pp.id', 'pp.nama')
             ->get();
         $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first();
-        if (!is_null($data->desainer)) {
-            foreach (json_decode($data->desainer, true) as $set) {
-                $namaDesainer[] = DB::table('users')->where('id', $set)->first();
+        if ((!is_null($data->desainer)) || (json_decode($data->desainer) != [null])) {
+            foreach (json_decode($data->desainer, true) as $des) {
+                $namaDesainer[] = DB::table('users')->where('id', $des)->first();
             }
         } else {
             $namaDesainer = null;

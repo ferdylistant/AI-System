@@ -77,7 +77,7 @@
                         <div class="row justify-content-between">
                             <div class="form-group col-auto col-md-3">
                                 <div class="input-group">
-                                    <select data-column="8" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
+                                    <select data-column="6" name="status_filter" id="status_filter" class="form-control select-filter status_filter" style="width: 200px">
                                         <option label="Pilih Filter Status"></option>
                                         @foreach ($status_progress as $val)
                                         <option value="{{ $val }}">{{ $val }}&nbsp;&nbsp;</option>
@@ -101,11 +101,11 @@
         </div>
     </div>
 </section>
-<div id="md_UpdateStatusSetter" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal" aria-hidden="true">
+<div id="md_UpdateStatusJasaCetakOrderBuku" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="titleModal">Update Status Progress Pracetak Setter</h5>
+                <h5 class="modal-title" id="titleModal">Update Status Progress Order Buku</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -119,7 +119,7 @@
                         <label for="statusSet">Status: <span class="text-danger">*</span></label>
                         <select name="status" class="form-control select-status" id="statusSet" required>
                             <option label="Pilih Status"></option>
-                            @foreach ($status_progress as $sp)
+                            @foreach ($status_action as $sp)
                             <option value="{{ $sp }}">{{ $sp }}</option>
                             @endforeach
                         </select>
@@ -134,17 +134,17 @@
         </div>
     </div>
 </div>
-<div id="md_SetterHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalSetter" aria-hidden="true">
+<div id="md_OrderBukuHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalOrderBuku" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content ">
             <div class="modal-header bg-light">
-                <h5 class="modal-title" id="titleModalSetter"></h5>
+                <h5 class="modal-title" id="titleModalOrderBuku"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body example-1 scrollbar-deep-purple bordered-deep-purple thin">
-                <div class="tickets-list" id="dataHistorySetter">
+                <div class="tickets-list" id="dataHistoryOrderBuku">
 
                 </div>
 

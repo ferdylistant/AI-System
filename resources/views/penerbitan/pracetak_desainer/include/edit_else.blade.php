@@ -168,7 +168,7 @@
                             <th class="table-secondary" style="width: 25%">Desainer: <span class="text-danger">*</span>
                             </th>
                             <td class="table-active text-right">
-                                @if (!is_null($data->desainer))
+                                @if ((!is_null($data->desainer)) || ($data->desainer != '[null]'))
                                     @foreach ($nama_desainer as $nd)
                                         <span class="bullet"></span>{{ $nd }}<br>
                                     @endforeach

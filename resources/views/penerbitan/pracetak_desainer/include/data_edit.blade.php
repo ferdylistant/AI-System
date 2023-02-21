@@ -286,13 +286,13 @@
                 <h6 class="mb-1">Desainer</h6>
             </div>
             <p class="mb-1 text-monospace">
-                @if (is_null($data->desainer))
+                @if (($data->desainer == '[null]')||(is_null($data->desainer)))
                     -
                 @else
-                    @foreach ($nama_desainer as $set)
+                    @foreach ($nama_desainer as $des)
                         <span class="bullet"></span>
                         <a
-                            href="{{ url('/manajemen-web/user/' . $set->id) }}">{{ $set->nama }}</a>
+                            href="{{ url('/manajemen-web/user/' . $des->id) }}">{{ $des->nama }}</a>
                         <br>
                     @endforeach
                 @endif
