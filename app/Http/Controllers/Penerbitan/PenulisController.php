@@ -82,12 +82,14 @@ class PenulisController extends Controller
         if ($request->ajax()) {
             $data = DB::table('penerbitan_penulis')
                 ->whereNotNull('deleted_at')
-                ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp')
+                ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp', 'deleted_at', 'deleted_by')
                 ->get();
             $data = collect($data)->map(function ($val) {
                 $val->email = is_null($val->email) ? '-' : $val->email;
                 $val->ponsel_domisili = is_null($val->ponsel_domisili) ? '-' : $val->ponsel_domisili;
                 $val->ktp = is_null($val->ktp) ? '-' : $val->ktp;
+                $val->deleted_at = is_null($val->deleted_at) ? '-' : date('d M Y, H:i', strtotime($val->deleted_at));
+                $val->deleted_by = is_null($val->deleted_by) ? '-' : DB::table('users')->where('id', $val->deleted_by)->first()->nama;
                 return $val;
             });
             $update = Gate::allows('do_delete', 'hapus-data-penulis');

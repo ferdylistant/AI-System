@@ -642,4 +642,20 @@ class NotificationController extends Controller
         }
         return $html;
     }
+
+    public function viewAll()
+    {
+        $notification = DB::table('notif as n')
+            ->join('notif_detail as nd', function ($j) {
+                $j->on('n.id', '=', 'nd.notif_id')
+                    ->where('nd.user_id', auth()->id());
+            })
+            ->get();
+
+        // dd($notification);
+        return view('manweb.notification.view_all', [
+            'title' => 'All notification',
+            'notification' => $notification
+        ]);
+    }
 }

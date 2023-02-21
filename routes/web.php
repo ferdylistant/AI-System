@@ -45,7 +45,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/batal/pending/order-cetak/{id}', [ProduksiController::class, 'batalPendingOrderCetak']);
     Route::get('/batal/pending/order-ebook/{id}', [EbookController::class, 'batalPendingOrderEbook']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('notification', [NotificationController::class, 'index']);
     Route::get('/', [HomeController::class, 'index']);
     Route::post('import-db', [HomeController::class, 'importDB']);
 
@@ -56,6 +55,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('timeline')->group(function () {
         Route::post('/{cat}', [TimelineController::class, 'index']);
+    });
+
+    // Notification
+    Route::prefix('notification')->group(function () {
+        Route::post('/', [NotificationController::class, 'index']);
+        Route::get('/view-all', [NotificationController::class, 'viewAll'])->name('notification.view_all');
     });
 
     // Manajemen User
@@ -189,8 +194,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/order-ebook/ajax/{cat}', [OrderEbookController::class, 'ajaxRequest']);
     });
     Route::prefix('jasa-cetak')->group(function () {
-        Route::get('/order-buku',[OrderBukuController::class,'index']);
-        Route::get('/order-nonbuku',[OrderNonBukuController::class,'index']);
+        Route::get('/order-buku', [OrderBukuController::class, 'index']);
+        Route::get('/order-nonbuku', [OrderNonBukuController::class, 'index']);
     });
     //Produksi
     Route::prefix('produksi')->group(function () {

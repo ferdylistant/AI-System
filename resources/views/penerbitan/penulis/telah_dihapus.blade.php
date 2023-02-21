@@ -76,9 +76,14 @@
                         title: 'Email'
                     },
                     {
-                        data: 'ponsel_domisili',
-                        name: 'ponsel_domisili',
-                        title: 'Ponsel'
+                        data: 'deleted_at',
+                        name: 'deleted_at',
+                        title: 'Dihapus pada'
+                    },
+                    {
+                        data: 'deleted_by',
+                        name: 'deleted_by',
+                        title: 'Dihapus oleh'
                     },
                     {
                         data: 'action',
