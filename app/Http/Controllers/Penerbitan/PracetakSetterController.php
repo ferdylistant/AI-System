@@ -6,9 +6,11 @@ use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Events\TimelineEvent;
 use App\Events\DesturcetEvent;
 use Yajra\DataTables\DataTables;
 use App\Events\PracetakSetterEvent;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -50,7 +52,7 @@ class PracetakSetterController extends Controller
                             $tandaProses = $data->proses == '1' ? '<span class="beep-success d-table"></span>' : '<span class="beep-danger d-table"></span>';
                         }
                     }
-                    return $dataKode.$tandaProses;
+                    return $dataKode . $tandaProses;
                 })
                 ->addColumn('judul_final', function ($data) {
                     if (is_null($data->judul_final)) {
@@ -202,8 +204,9 @@ class PracetakSetterController extends Controller
                     $history = DB::table('pracetak_setter as ps')
                         ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
                         ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                        ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                         ->where('ps.id', $request->id)
-                        ->select('ps.*', 'dp.judul_final')
+                        ->select('ps.*', 'dp.naskah_id','dp.judul_final','pn.kode')
                         ->first();
                     if ($request->has('korektor')) {
                         foreach ($request->korektor as $ce) {
@@ -244,14 +247,26 @@ class PracetakSetterController extends Controller
                                 ->where('status', 'Selesai')
                                 ->first();
                             if (!is_null($cekSelesaiCover)) {
+                                $id_turcet = Uuid::uuid4()->toString();
                                 $turcet = [
                                     'params' => 'Insert Turun Cetak',
-                                    'id' => Uuid::uuid4()->toString(),
+                                    'id' => $id_turcet,
                                     'pracetak_cover_id' => $request->id_pracov,
                                     'pracetak_setter_id' => $history->id,
                                     'tgl_masuk' => $tgl
                                 ];
                                 event(new DesturcetEvent($turcet));
+                                //INSERT TIMELINE TURUN CETAK
+                                $insertTimelinePraset = [
+                                    'params' => 'Insert Timeline',
+                                    'id' => Uuid::uuid4()->toString(),
+                                    'progress' => 'Deskripsi Turun Cetak',
+                                    'naskah_id' => $history->naskah_id,
+                                    'tgl_mulai' => $tgl,
+                                    'url_action' => urlencode(URL::to('/penerbitan/deskripsi/turun-cetak/detail?desc=' . $id_turcet . '&kode=' . $history->kode)),
+                                    'status' => 'Antrian'
+                                ];
+                                event(new TimelineEvent($insertTimelinePraset));
                             }
                             DB::table('pracetak_setter')->where('id', $request->id)->update([
                                 'turun_cetak' => $tgl,
@@ -400,11 +415,11 @@ class PracetakSetterController extends Controller
             ->get();
         $nama_imprint = '-';
         if (!is_null($data->imprint)) {
-            $nama_imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+            $nama_imprint = DB::table('imprint')->where('id', $data->imprint)->whereNull('deleted_at')->first()->nama;
         }
         $format_buku = NULL;
         if (!is_null($data->format_buku)) {
-            $format_buku = DB::table('format_buku')->where('id',$data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
+            $format_buku = DB::table('format_buku')->where('id', $data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
         }
         //Status
         $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_setter WHERE Field = 'proses_saat_ini'"))[0]->Type;
@@ -666,11 +681,11 @@ class PracetakSetterController extends Controller
         }
         $imprint = NULL;
         if (!is_null($data->imprint)) {
-            $imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+            $imprint = DB::table('imprint')->where('id', $data->imprint)->whereNull('deleted_at')->first()->nama;
         }
         $format_buku = NULL;
         if (!is_null($data->format_buku)) {
-            $format_buku = DB::table('format_buku')->where('id',$data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
+            $format_buku = DB::table('format_buku')->where('id', $data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
         }
         return view('penerbitan.pracetak_setter.detail', [
             'title' => 'Detail Pracetak Setter',
@@ -948,6 +963,8 @@ class PracetakSetterController extends Controller
             $data = DB::table('pracetak_setter as ps')
                 ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('deskripsi_cover as dc', 'dc.deskripsi_produk_id', '=', 'dp.id')
+                ->join('pracetak_cover as pc', 'pc.deskripsi_cover_id', '=', 'dc.id')
                 ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                 ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
                     $q->on('pn.kelompok_buku_id', '=', 'kb.id')
@@ -967,7 +984,8 @@ class PracetakSetterController extends Controller
                     'pn.judul_asli',
                     'pn.pic_prodev',
                     'pn.jalur_buku',
-                    'kb.nama'
+                    'kb.nama',
+                    'pc.id as pracov_id'
                 )
                 ->first();
             if (is_null($data)) {
@@ -1031,13 +1049,59 @@ class PracetakSetterController extends Controller
                 }
                 event(new PracetakSetterEvent($update));
                 event(new PracetakSetterEvent($insert));
-                DB::table('pracetak_setter')->where('id', $data->id)->update([
-                    'proses_saat_ini' => 'Turun Cetak'
-                ]);
-                $msg = 'Pracetak Setter selesai, silahkan lanjut ke proses deskripsi turun cetak..';
+                //UPDATE TIMELINE PRACETAK SETTER
+                $updateTimelinePracetakSetter = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Pracetak Setter',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelinePracetakSetter));
+                $dataPraset = DB::table('pracetak_cover')
+                    ->where('id', $data->pracov_id)
+                    ->where('status', 'Selesai')
+                    ->first();
+                if (!is_null($dataPraset)) {
+                    DB::table('pracetak_setter')->where('id', $data->id)->update([
+                        'proses_saat_ini' => 'Turun Cetak'
+                    ]);
+                    //Insert Deskripsi Turun Cetak
+                    $id_turcet = Uuid::uuid4()->toString();
+                    $in = [
+                        'params' => 'Insert Turun Cetak',
+                        'id' => $id_turcet,
+                        'pracetak_cover_id' => $data->pracov_id,
+                        'pracetak_setter_id' => $data->id,
+                        'tgl_masuk' => $tgl,
+                    ];
+                    event(new DesturcetEvent($in));
+                    //INSERT TIMELINE TURUN CETAK
+                    $insertTimelinePraset = [
+                        'params' => 'Insert Timeline',
+                        'id' => Uuid::uuid4()->toString(),
+                        'progress' => 'Deskripsi Turun Cetak',
+                        'naskah_id' => $data->naskah_id,
+                        'tgl_mulai' => $tgl,
+                        'url_action' => urlencode(URL::to('/penerbitan/deskripsi/turun-cetak/detail?desc=' . $id_turcet . '&kode=' . $data->kode)),
+                        'status' => 'Antrian'
+                    ];
+                    event(new TimelineEvent($insertTimelinePraset));
+                    $msg = 'Pracetak Setter selesai, silahkan lanjut ke proses deskripsi turun cetak..';
+                } else {
+                    $msg = 'Pracetak Setter selesai, silahkan selesaikan proses pracetak cover..';
+                }
             } else {
                 event(new PracetakSetterEvent($update));
                 event(new PracetakSetterEvent($insert));
+                $updateTimelinePracetakSetter = [
+                    'params' => 'Update Timeline',
+                    'naskah_id' => $data->naskah_id,
+                    'progress' => 'Pracetak Setter',
+                    'tgl_selesai' => $tgl,
+                    'status' => $request->status
+                ];
+                event(new TimelineEvent($updateTimelinePracetakSetter));
                 $msg = 'Status progress pracetak setter berhasil diupdate';
             }
             return response()->json([

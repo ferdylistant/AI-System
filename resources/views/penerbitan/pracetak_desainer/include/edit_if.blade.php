@@ -40,18 +40,7 @@
                                     @endforeach
                                 </td>
                             </tr>
-                            <tr>
-                                <th class="table-secondary" style="width: 25%">Nama Pena:</th>
-                                <td class="table-active text-right">
-                                    @if (is_null($data->nama_pena))
-                                        -
-                                    @else
-                                        @foreach (json_decode($data->nama_pena) as $p)
-                                            {{ $p }}-<br>
-                                        @endforeach
-                                    @endif
-                                </td>
-                            </tr>
+
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Format Buku:</th>
                                 <td class="table-active text-right">
@@ -79,9 +68,13 @@
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Finishing Cover:</th>
                                 <td class="table-active text-right">
-                                    @foreach (json_decode($data->finishing_cover, true) as $key => $aj)
-                                        <span class="bullet"></span>{{ $aj }}<br>
-                                    @endforeach
+                                    @if (!is_null($data->finishing_cover))
+                                        @foreach (json_decode($data->finishing_cover, true) as $key => $aj)
+                                            <span class="bullet"></span>{{ $aj }}<br>
+                                        @endforeach
+                                    @else
+                                    -
+                                    @endif
                                 </td>
                             </tr>
                             <tr>
@@ -104,9 +97,13 @@
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Bullet:</th>
                                 <td class="table-active text-right">
-                                    @foreach (json_decode($data->bullet, true) as $key => $aj)
-                                        <span class="bullet"></span>{{ $aj }}<br>
-                                    @endforeach
+                                    @if (!is_null($data->bullet))
+                                        @foreach (json_decode($data->bullet, true) as $key => $aj)
+                                            <span class="bullet"></span>{{ $aj }}<br>
+                                        @endforeach
+                                    @else
+                                    -
+                                    @endif
                                 </td>
                             </tr>
                             <tr>
@@ -163,7 +160,7 @@
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Desainer: <span
                                         class="text-danger">*</span></th>
-                                @if (is_null($data->desainer) || $data->desainer == '[]')
+                                @if ((is_null($data->desainer)) || (json_decode($data->desainer) == [null]))
                                     <td class="table-active text-left">
                                         <select name="desainer[]" class="form-control select-desainer"
                                             multiple="multiple" required>
