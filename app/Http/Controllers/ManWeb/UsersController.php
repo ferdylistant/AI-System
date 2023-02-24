@@ -211,7 +211,7 @@ class UsersController extends Controller
         $user = collect($user)->map(function ($item, $key) {
             switch ($key) {
                 case 'tanggal_lahir':
-                    return $item != '' ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                    return $item != '' ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
                     break;
                 case 'created_at':
                     return $item != '' ? Carbon::parse($item)->translatedFormat('d F Y, H:i') : '-';

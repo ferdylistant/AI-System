@@ -194,6 +194,11 @@ class OrderBukuController extends Controller
                 case 'getValue':
                     $data = (object)collect($data)->map(function ($item, $key) {
                         switch ($key) {
+                            case 'jml_order':
+                                $json = json_decode($item);
+                                $implode = implode(",",$json);
+                                return !is_null($item) ? $implode : NULL;
+                                break;
                             case 'tgl_order':
                                 return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
                                 break;
@@ -206,9 +211,6 @@ class OrderBukuController extends Controller
                             case 'created_by':
                                 return !is_null($item) ? DB::table('users')->where('id',$item)->first()->nama : NULL;
                                 break;
-                            case 'jml_order':
-                                return !is_null($item) ? json_decode($item,true) : NULL;
-                                break;
                             default:
                                 $item;
                                 break;
@@ -218,6 +220,10 @@ class OrderBukuController extends Controller
                     return ['data' => $data];
                     break;
                 case 'updateOrder':
+                    // $ex = explode(",",$request->input('edit_kalkulasi_harga'));
+                    // $r = preg_replace( '/[^0-9]/', '', $ex);
+                    // $res = json_encode($ex);
+                    // return response()->json($res);
                     DB::beginTransaction();
 
                     try {
@@ -226,6 +232,7 @@ class OrderBukuController extends Controller
                         //     'id_prodev' => $request->input('add_pic_prodev'),
                         //     'form_id' => $idN
                         // ]);
+
                         $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
                         $editOrderBuku = [
                             'params' => 'Edit Order Buku',

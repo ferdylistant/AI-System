@@ -1,3 +1,9 @@
+//!Format Penulisan ISBN dan HARGA
+var HARGA = document.getElementById('HARGA');
+var maskHARGA = {
+    mask: '000000000'
+};
+var mask = IMask(HARGA, maskHARGA,reverse = true);
 $(function() {
     loadDataValue();
     $(".select2").select2({
@@ -73,7 +79,7 @@ $(function() {
                 cardWrap.addClass('card-progress');
             },
             success: function(result) {
-                // console.log(result)
+                console.log(result)
                 // resetFrom(data);
                 loadDataValue();
                 notifToast(result.status, result.message);
@@ -139,6 +145,11 @@ function loadDataValue() {
                         break;
                     case 'created_at':
                         $('#createdAt').text(data[n]).change();
+                        break;
+                    case 'jml_order':
+                        // console.log(data[n]);
+                        // $('[name="edit_' + n + '"]').val(data[n]);
+                        $('[name="edit_' + n + '').tagsinput('add',data[n]);
                         break;
                     default:
                         $('[name="edit_' + n + '"]').val(data[n]).change();
