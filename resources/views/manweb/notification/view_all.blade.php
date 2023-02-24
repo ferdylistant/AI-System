@@ -11,21 +11,22 @@
 
         <div class="section-body">
             <div class="panel-group">
-                @foreach ($notification as $notif)
+                @foreach ($unique as $n)
                     <div class="card panel panel-default">
-                        <div class="panel-heading d-flex justify-content-between">
-                            <h6 class="panel-title">
-                                <a data-toggle="collapse" href="#collapse-{{ $loop->iteration }}">{{ $notif->section }} -
-                                    {{ $notif->type }}</a>
+                        <div class="panel-heading">
+                            <h6 class="panel-title text-uppercase p-3">
+                                {{ $n->notif_id }}
+                                <a class="text-decoration-none" data-toggle="collapse"
+                                    href="#collapse-{{ $n->notif_id }}-{{ $n->form_id }}">{{ $n->section }}</a>
                             </h6>
-                            <span
-                                class="text-muted">{{ Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $notif->created_at)->format('d M Y, H:i') }}</span>
                         </div>
-                        <div id="collapse-{{ $loop->iteration }}" class="panel-collapse collapse">
+                        <div id="collapse-{{ $n->notif_id }}-{{ $n->form_id }}" class="panel-collapse collapse">
                             <div class="card">
                                 <div class="card-body">
                                     <div class="panel-body">
-                                        {{-- {{ $notif->judul_asli }} --}}
+                                        @foreach ($notification as $nt)
+                                            {{ $nt->type }}<br>
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
@@ -34,6 +35,5 @@
                 @endforeach
             </div>
         </div>
-
     </section>
 @endsection

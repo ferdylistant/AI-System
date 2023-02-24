@@ -645,20 +645,26 @@ class NotificationController extends Controller
 
     public function viewAll()
     {
-        $notification = DB::table('notif as n')
-            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'n.form_id')
-            ->join('notif_detail as nd', function ($j) {
-                $j->on('n.id', '=', 'nd.notif_id');
-                // ->where('nd.user_id', auth()->id());
-            })
-            ->where('nd.seen', 1)
-            ->select('n.type', 'n.section', 'n.created_at')
+        $notification = DB::table('notif_detail as nd')
+            ->join('notif as n', 'nd.notif_id', '=', 'n.id')
+            ->where('nd.user_id', auth()->id())
+            // ->groupBy('n.section')
+            ->orderBy('nd.created_at', 'desc')
+            ->select('nd.notif_id', 'n.section', 'n.type', 'n.form_id')
             ->get();
 
-        // dd($notification);
+        $unique = $notification->unique(function ($item) {
+            return $item->section;
+        })->values()->all();
+
+        // foreach ($variable as $key => $value) {
+        //     # code...
+        // }
+        // dd($unique, auth()->user()->nama);
         return view('manweb.notification.view_all', [
             'title' => 'All notification',
-            'notification' => $notification
+            'notification' => $notification,
+            'unique' => $unique
         ]);
     }
 }
