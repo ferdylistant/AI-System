@@ -81,7 +81,7 @@ $('#tb_OrderBuku').on('click', '.btn-history', function(e) {
             cardWrap.addClass('card-progress');
         },
         success: function (data) {
-            console.log(data);
+            // console.log(data);
             $('#titleModalOrderBuku').html(
                 '<i class="fas fa-history"></i>&nbsp;History Progress Order Buku "' + judul +
                 '"');
@@ -95,14 +95,39 @@ $('#tb_OrderBuku').on('click', '.btn-history', function(e) {
     })
 });
 $(document).ready(function () {
-    $("#tb_Orcet").on("click", ".btn-status-orcetak", function (e) {
+    $("#tb_OrderBuku").on("click", ".btn-status-order-buku", function (e) {
         e.preventDefault();
         let id = $(this).data("id"),
-            kode = $(this).data("kode"),
-            judul = $(this).data("judul");
-        $("#id").val(id);
-        $("#kode").val(kode);
-        $("#judulFinal").val(judul);
+            kode = $(this).data("no_order"),
+            judul = $(this).data("judul"),
+            cardWrap = $('#md_UpdateStatusJasaCetakOrderBuku');
+            $.ajax({
+                url: window.location.origin + "/jasa-cetak/order-buku/ajax/catch-value-status",
+                data: {
+                    id : id,
+                    no_order : kode,
+                    judul_buku : judul
+                },
+                beforeSend: function () {
+                    cardWrap.addClass('modal-progress');
+                },
+                success: function (result) {
+                    let {
+                        data
+                    } = result;
+                    for (let n in data) {
+                        // console.log(data[n]);
+                        $('[name="' + n + '"]').val(data[n]).change();
+                    }
+                },
+                error: function (err) {
+                    notifToast("error", "Terjadi kesalahan!");
+                },
+                complete: function () {
+                    cardWrap.removeClass('modal-progress');
+                }
+
+            })
     });
 });
 $(function () {
@@ -129,29 +154,27 @@ $(function () {
                 $(this).valid();
             }
         });
-    function ajaxUpdateStatusOrderCetak(data) {
+    function ajaxUpdateStatusOrderBuku(data) {
         let el = data.get(0);
+        let form = $('#md_UpdateStatusJasaCetakOrderBuku');
         // console.log(el);
         $.ajax({
             type: "POST",
-            url:
-                window.location.origin +
-                "/penerbitan/order-cetak/ajax/update-status-progress",
+            url: window.location.origin + "/jasa-cetak/order-buku/ajax/update-status-progress",
             data: new FormData(el),
             processData: false,
             contentType: false,
+            cache: false,
             beforeSend: function () {
-                $('button[type="submit"]')
-                    .prop("disabled", true)
-                    .addClass("btn-progress");
+                form.addClass("modal-progress");
             },
             success: function (result) {
                 if (result.status == "error") {
                     notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusOrderCetak").trigger("reset");
+                    $("#fm_UpdateStatusOrderBuku").trigger("reset");
                 } else {
                     notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusOrderCetak").trigger("reset");
+                    $("#fm_UpdateStatusOrderBuku").trigger("reset");
                     location.reload();
                 }
             },
@@ -169,31 +192,29 @@ $(function () {
                 notifToast("error", "Gagal melakukan ubah status!");
             },
             complete: function () {
-                $('button[type="submit"]')
-                    .prop("disabled", false)
-                    .removeClass("btn-progress");
+                form.removeClass("modal-progress");
             },
         });
     }
-    $("#fm_UpdateStatusOrderCetak").on("submit", function (e) {
+    $("#fm_UpdateStatusOrderBuku").on("submit", function (e) {
         e.preventDefault();
         if ($(this).valid()) {
-            let kode = $(this).find('[name="kode"]').val();
-            let judul = $(this).find('[name="nama_pemesan"]').val();
+            let kode = $(this).find('[name="no_order"]').val();
+            let judul = $(this).find('[name="judul_buku"]').val();
             swal({
                 title:
-                    "Yakin mengubah status proses order cetak " +
+                    "Yakin mengubah status proses order buku " +
                     kode +
                     "-" +
                     judul +
                     "?",
-                text: "Anda sebagai Admin penerbitan tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
+                text: "Anda sebagai CS jasa cetak tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxUpdateStatusOrderCetak($(this));
+                    ajaxUpdateStatusOrderBuku($(this));
                 }
             });
         }
@@ -215,8 +236,9 @@ $(function () {
                 page: page,
             },
             type: "post",
+            cache: false,
             beforeSend: function () {
-                form.addClass("modal-progress");;
+                form.addClass("modal-progress");
             },
             success: function (response) {
                 if (response.length == 0) {
@@ -225,8 +247,13 @@ $(function () {
                 $("#dataHistoryOrderBuku").append(response);
             },
             complete: function (params) {
+                // console.log();
                 form.removeClass("modal-progress");
+
             },
         });
     });
+    $('#md_OrderBukuHistory').on('hidden.bs.modal', function () {
+        $('.load-more').data("paginate", 2);
+      });
 });

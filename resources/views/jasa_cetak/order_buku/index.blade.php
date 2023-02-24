@@ -110,12 +110,12 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="fm_UpdateStatusSetter">
+            <form id="fm_UpdateStatusOrderBuku">
                 <div class="modal-body">
                     <div class="form-group">
                         <input type="hidden" name="id" id="id" value="">
-                        <input type="hidden" name="kode" id="kode" value="">
-                        <input type="hidden" name="judul_final" id="judulFinal" value="">
+                        <input type="hidden" name="no_order" id="kode" value="">
+                        <input type="hidden" name="judul_buku" id="judul" value="">
                         <label for="statusSet">Status: <span class="text-danger">*</span></label>
                         <select name="status" class="form-control select-status" id="statusSet" required>
                             <option label="Pilih Status"></option>

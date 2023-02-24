@@ -198,7 +198,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/',[OrderBukuController::class,'index']);
         Route::match(['get', 'post'], '/create', [OrderBukuController::class, 'createOrder']);
         Route::match(['get', 'post'], '/edit', [OrderBukuController::class, 'updateOrder']);
-        Route::post('/ajax/{cat}', [OrderBukuController::class, 'ajaxPost']);
+        Route::match(['get', 'post'],'/ajax/{cat}', [OrderBukuController::class, 'ajaxRequest']);
         //? NON-BUKU
         Route::get('/order-nonbuku',[OrderNonBukuController::class,'index']);
     });
