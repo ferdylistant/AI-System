@@ -3,6 +3,7 @@ $(function () {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
+        let form = $("#md_EditingHistory");
         $(this).data("paginate", page + 1);
 
         $.ajax({
@@ -13,19 +14,24 @@ $(function () {
             },
             type: "post",
             beforeSend: function () {
-                $(".load-more").text("Loading...");
+                form.addClass("modal-progress");
             },
             success: function (response) {
                 // $("div , .tickets-list").slice(0, 2).slideDown();
                 if (response.length == 0) {
+                    $(".load-more").attr("disabled", true);
                     notifToast("error", "Tidak ada data lagi");
                 }
                 $("#dataHistoryEditing").append(response);
             },
             complete: function (params) {
-                $(".load-more").text("Load more").fadeIn("slow");
+                form.removeClass("modal-progress");
             },
         });
+    });
+    $("#md_EditingHistory").on("hidden.bs.modal", function () {
+        $(".load-more").data("paginate", 2);
+        $(".load-more").attr("disabled", false);
     });
 });
 $(document).ready(function () {

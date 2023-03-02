@@ -105,6 +105,22 @@ class JasaCetakListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
+            case 'Update Status Order Buku':
+                $res = DB::table('jasa_cetak_order_buku')->where('id', $data['id'])->update([
+                    'tgl_selesai_order' => $data['tgl_selesai_order'],
+                    'status' => $data['status']
+                ]);
+                break;
+            case 'Insert History Status Order Buku':
+                $res = DB::table('jasa_cetak_order_buku_history')->insert([
+                    'order_buku_id' => $data['order_buku_id'],
+                    'type_history' => $data['type_history'],
+                    'status_his' => $data['status_his'],
+                    'status_new' => $data['status_new'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
             default:
                 return abort(500);
                 break;

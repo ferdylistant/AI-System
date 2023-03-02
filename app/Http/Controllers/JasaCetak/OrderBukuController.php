@@ -87,6 +87,7 @@ class OrderBukuController extends Controller
                         'required' => 'This field is requried'
                     ]);
                     $noOrder = $request->input('add_no_order');
+                    $jmlOrder = explode(",",$request->add_jml_order);
                     $last = DB::table('jasa_cetak_order_buku')
                         ->select('no_order')
                         ->where('no_order',$noOrder)
@@ -122,7 +123,7 @@ class OrderBukuController extends Controller
                             'kertas_isi_tinta' => $request->input('add_kertas_isi_tinta'),
                             'kertas_cover' => $request->input('add_kertas_cover'),
                             'kertas_cover_tinta' => $request->input('add_kertas_cover_tinta'),
-                            'jml_order' => $request->input('add_jml_order'),
+                            'jml_order' => is_null($request->input('add_jml_order')) ? NULL : json_encode($jmlOrder),
                             'status_cetak' => $request->input('add_status_cetak'),
                             'keterangan' => $request->input('add_keterangan'),
                             'created_by' => auth()->id()
@@ -194,16 +195,19 @@ class OrderBukuController extends Controller
                     $data = (object)collect($data)->map(function ($item, $key) {
                         switch ($key) {
                             case 'tgl_order':
-                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
                                 break;
                             case 'tgl_permintaan_selesai':
-                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
                                 break;
                             case 'created_at':
                                 return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item)->format('d/m/Y H:i:s') : '-';
                                 break;
                             case 'created_by':
-                                return !is_null($item) ? DB::table('users')->where('id',$item)->first()->nama : '-';
+                                return !is_null($item) ? DB::table('users')->where('id',$item)->first()->nama : NULL;
+                                break;
+                            case 'jml_order':
+                                return !is_null($item) ? json_decode($item,true) : NULL;
                                 break;
                             default:
                                 $item;
@@ -323,6 +327,9 @@ class OrderBukuController extends Controller
         $btn = '';
         if (!Gate::allows('do_update','otorisasi-kabag-order-buku-jasa-cetak')) {
             switch ($status) {
+                case 'Kalkulasi':
+                    $btn .= '<span class="d-block badge badge-primary mr-1 mt-1">' . $status . '</span>';
+                    break;
                 case 'Antrian':
                     $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $status . '</span>';
                     break;
@@ -344,6 +351,9 @@ class OrderBukuController extends Controller
             }
         } else {
             switch ($status) {
+                case 'Kalkulasi':
+                    $btn .= '<span class="d-block badge badge-primary mr-1 mt-1">' . $status . '</span>';
+                    break;
                 case 'Antrian':
                     $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-order-buku" style="background:#34395E;color:white" data-id="' . $id . '" data-no_order="' . $no_order . '" data-judul="' . $judul . '" data-toggle="modal" data-target="#md_UpdateStatusJasaCetakOrderBuku" title="Update Status">
                         <div>' . $status . '</div></a>';
@@ -401,12 +411,18 @@ class OrderBukuController extends Controller
         }
         return $id;
     }
-    public function ajaxPost(Request $request)
+    public function ajaxRequest(Request $request)
     {
         try {
             switch ($request->cat) {
                 case 'lihat-history':
                     return $this->lihatHistory($request);
+                    break;
+                case 'catch-value-status':
+                    return $this->getValueStatus($request);
+                    break;
+                case 'update-status-progress':
+                    return $this->updateStatusProgress($request);
                     break;
                 default:
                     return response()->json([
@@ -708,5 +724,132 @@ class OrderBukuController extends Controller
             }
         }
         return $html;
+    }
+    protected function getValueStatus($request)
+    {
+        try {
+            $id = $request->id;
+            $no_order = $request->no_order;
+            $data = DB::table('jasa_cetak_order_buku')
+            ->where('id',$id)
+            ->where('no_order',$no_order)
+            ->first();
+            if (is_null($data)) {
+                return abort(404);
+            }
+            return ['data' => $data];
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function updateStatusProgress($request)
+    {
+        try {
+            $id = $request->id;
+            DB::beginTransaction();
+            $data = DB::table('jasa_cetak_order_buku')
+                ->where('id', $id)
+                ->first();
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data corrupt...'
+                ], 404);
+            }
+            if ($data->status == $request->status) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pilih status yang berbeda dengan status saat ini!'
+                ]);
+            }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $update = [
+                'params' => 'Update Status Order Buku',
+                'id' => $data->id,
+                'tgl_selesai_order' => $request->status == 'Selesai' ? $tgl : NULL,
+                'status' => $request->status,
+            ];
+            $insert = [
+                'params' => 'Insert History Status Order Buku',
+                'order_buku_id' => $data->id,
+                'type_history' => 'Status',
+                'status_his' => $data->status,
+                'status_new'  => $request->status,
+                'author_id' => auth()->user()->id,
+                'modified_at' => $tgl
+            ];
+            if ($data->proses == '1') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak bisa mengubah status, karena sedang proses kerja.'
+                ]);
+            }
+            if ($request->status == 'Selesai') {
+                if (is_null($data->jalur_proses)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Jalur proses belum ditentukan!'
+                    ]);
+                } else {
+                    switch ($data->jalur_proses) {
+                        case 'Jalur Reguler':
+                            if (is_null($data->selesai_desain)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses desain belum selesai dikerjakan'
+                                ]);
+                            }
+                            if (is_null($data->selesai_setter)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses setter belum selesai dikerjakan'
+                                ]);
+                            }
+                            if (is_null($data->selesai_proof)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses proof belum selesai dikerjakan'
+                                ]);
+                            }
+                            if (is_null($data->selesai_pracetak)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses pracetak belum selesai dikerjakan'
+                                ]);
+                            }
+                            break;
+                        case 'Jalur Pendek':
+                            if (is_null($data->selesai_pracetak)) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Proses pracetak belum selesai dikerjakan'
+                                ]);
+                            }
+                            break;
+                    }
+                }
+                event(new JasaCetakEvent($update));
+                event(new JasaCetakEvent($insert));
+                $msg = 'Order Buku selesai, silahkan selesaikan proses produksi..';
+            } else {
+                event(new JasaCetakEvent($update));
+                event(new JasaCetakEvent($insert));
+                $msg = 'Status progress order buku berhasil diupdate';
+            }
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => $msg
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }

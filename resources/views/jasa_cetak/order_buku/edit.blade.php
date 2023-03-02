@@ -4,12 +4,19 @@
 <link rel="stylesheet" href="{{url('vendors/izitoast/dist/css/iziToast.min.css')}}">
 <link rel="stylesheet" href="{{url('vendors/select2/dist/css/select2.min.css')}}">
 <link rel="stylesheet" href="{{url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css')}}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css"
+        integrity="sha512-xmGTNt20S0t62wHLmQec2DauG9T+owP9e6VU8GigI0anN7OXLip9i7IwEhelasml2osdxX71XcYm6BQunTQeQg=="
+        crossorigin="anonymous" />
 @endsection
 
 @section('cssNeeded')
 <style>
+    .bootstrap-tagsinput{
 
-</style>
+    width: 100%;
+
+    }
+    </style>
 @endsection
 
 @section('content')
@@ -112,11 +119,9 @@
                                 <div class="form-group col-12 col-md-6 mb-4">
                                     <label>Jumlah Order: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control" name="edit_jml_order" min="1" placeholder="Jumlah Order">
+                                        {{-- <input type="number" class="form-control" name="edit_jml_order" min="1" placeholder="Jumlah Order"> --}}
+                                        <input type="text" name="edit_jml_order" class="form-control input-tag" placeholder="Jumlah Order" data-role="tagsinput">
                                         <div id="err_edit_jml_order"></div>
-                                        <div class="input-group-append">
-                                            <div class="input-group-text"><b>Eks</b></div>
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group col-12 col-md-6 mb-4">
@@ -164,7 +169,7 @@
                             </div>
                         </div>
                         <div class="card-footer text-right">
-                            <button type="submit" class="btn btn-success">Simpan</button>
+                            <button type="submit" class="btn btn-success">Update</button>
                         </div>
                     </form>
                 </div>
@@ -180,6 +185,9 @@
 <script src="{{url('vendors/select2/dist/js/select2.full.min.js')}}"></script>
 <script src="{{url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js')}}"></script>
 <script src="{{url('vendors/izitoast/dist/js/iziToast.min.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.js"
+        integrity="sha512-VvWznBcyBJK71YKEKDMpZ0pCVxjNuKwApp4zLF3ul+CiflQi6aIJR+aZCP/qWsoFBA28avL5T5HA+RE+zrGQYg=="
+        crossorigin="anonymous"></script>
 @endsection
 
 

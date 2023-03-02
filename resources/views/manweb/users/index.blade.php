@@ -294,7 +294,7 @@
             function ajaxDeleteUser(data) {
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('manajemen-web/user/ajax/delete/') }}",
+                    url: "{{ url('/manajemen-web/user/ajax/delete/') }}",
                     data: data,
                     beforeSend: function() {
                         $('.btn_DelUser').prop('disabled', true).addClass('btn-progress')
@@ -374,6 +374,7 @@
                 e.preventDefault();
                 var page = $(this).data("paginate");
                 var id = $(this).data("id");
+                let form = $("#md_UserHistory");
                 $(this).data("paginate", page + 1);
 
                 $.ajax({
@@ -385,10 +386,11 @@
                     type: "post",
                     cache: false,
                     beforeSend: function() {
-                        $(".load-more").text("Loading...");
+                        form.addClass("modal-progress");
                     },
                     success: function(response) {
                         if (response.length == 0) {
+                            $(".load-more").attr("disabled", true);
                             notifToast("error", "Tidak ada data lagi");
                         }
                         $("#dataHistory").append(response);
@@ -399,11 +401,15 @@
                         // }, 2000);
                     },
                     complete: function(params) {
-                        $(".load-more").text("Load more").fadeIn("slow");
+                        form.removeClass("modal-progress");
                     },
                 });
             });
             // History User End
-        })
+            $("#md_UserHistory").on("hidden.bs.modal", function() {
+                $(".load-more").data("paginate", 2);
+                $(".load-more").attr("disabled", false);
+            });
+        });
     </script>
 @endsection
