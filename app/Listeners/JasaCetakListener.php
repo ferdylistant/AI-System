@@ -105,6 +105,22 @@ class JasaCetakListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
+            case 'Edit Or Add Kalkulasi Harga':
+                $res = DB::table('jasa_cetak_order_buku')->where('id',$data['id'])->where('no_order',$data['no_order'])
+                ->update([
+                    'kalkulasi_harga' => $data['kalkulasi_harga'],
+                ]);
+                break;
+            case 'History Edit Or Add Kalkulasi Harga':
+                $res = DB::table('jasa_cetak_order_buku_history')->insert([
+                    'type_history' => $data['type_history'],
+                    'order_buku_id' => $data['order_buku_id'],
+                    'kalkulasi_harga_his' => $data['kalkulasi_harga_his'],
+                    'kalkulasi_harga_new' => $data['kalkulasi_harga_new'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
             case 'Update Status Order Buku':
                 $res = DB::table('jasa_cetak_order_buku')->where('id', $data['id'])->update([
                     'tgl_selesai_order' => $data['tgl_selesai_order'],

@@ -1,9 +1,3 @@
-//!Format Penulisan ISBN dan HARGA
-var HARGA = document.getElementById('HARGA');
-var maskHARGA = {
-    mask: '000000000'
-};
-var mask = IMask(HARGA, maskHARGA,reverse = true);
 $(function() {
     loadDataValue();
     $(".select2").select2({
@@ -79,7 +73,7 @@ $(function() {
                 cardWrap.addClass('card-progress');
             },
             success: function(result) {
-                console.log(result)
+                // console.log(result)
                 // resetFrom(data);
                 loadDataValue();
                 notifToast(result.status, result.message);
@@ -132,13 +126,17 @@ function loadDataValue() {
         },
         success: function (result) {
             let {
-                data
+                data,gate
             } = result;
             for (let n in data) {
                 // console.log(data[n]);
                 switch (n) {
                     case 'id':
                         $('[name="edit_id"]').attr("data-id", data[n]).change();
+                        break;
+                    case 'no_order':
+                        $('[name="edit_' + n + '"]').attr("readonly",true);
+                        $('[name="edit_' + n + '').val(data[n]).change();
                         break;
                     case 'created_by':
                         $('#createdBy').text(data[n]).change();
@@ -147,11 +145,34 @@ function loadDataValue() {
                         $('#createdAt').text(data[n]).change();
                         break;
                     case 'jml_order':
+                        if (gate == true) {
+                            $('[name="edit_' + n + '"]').attr("readonly",true);
+                            $('[name="edit_' + n + '"]').attr("disabled",true);
+                        }
                         // console.log(data[n]);
-                        // $('[name="edit_' + n + '"]').val(data[n]);
+                        $('[name="edit_' + n + '').tagsinput('removeAll');
+                        $('[name="edit_' + n + '').tagsinput('refresh');
+                        $('[name="edit_' + n + '"]').val(data[n]).change();
+                        $('[name="edit_' + n + '').tagsinput('add',data[n]);
+                        break;
+                    case 'kalkulasi_harga':
+                        if (gate == false) {
+                            $('[name="edit_' + n + '"]').attr("readonly",true);
+                            $('[name="edit_' + n + '"]').attr("disabled",true);
+                        } else {
+                            $('[name="edit_' + n + '"]').attr("required",true);
+                        }
+                        // console.log(data[n]);
+                        $('[name="edit_' + n + '').tagsinput('removeAll');
+                        $('[name="edit_' + n + '').tagsinput('refresh');
+                        $('[name="edit_' + n + '"]').val(data[n]).change();
                         $('[name="edit_' + n + '').tagsinput('add',data[n]);
                         break;
                     default:
+                        if (gate == true) {
+                            $('[name="edit_' + n + '"]').attr("readonly",true);
+                            $('[name="edit_' + n + '"]').attr("disabled",true);
+                        }
                         $('[name="edit_' + n + '"]').val(data[n]).change();
                         break;
                 }

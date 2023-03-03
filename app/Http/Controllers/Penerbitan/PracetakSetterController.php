@@ -1047,6 +1047,18 @@ class PracetakSetterController extends Controller
                         'message' => 'Proses copyright belum selesai'
                     ]);
                 }
+                if (is_null($data->pengajuan_harga)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Proses pengajuan harga belum selesai'
+                    ]);
+                }
+                if (is_null($data->isbn)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'ISBN belum ditambahkan.'
+                    ]);
+                }
                 event(new PracetakSetterEvent($update));
                 event(new PracetakSetterEvent($insert));
                 //UPDATE TIMELINE PRACETAK SETTER

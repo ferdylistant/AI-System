@@ -27,15 +27,6 @@
         </div>
         <h1>Form Order Jasa Cetak</h1>
     </div>
-    @php
-        $labelNonOtorisasi = "";
-        $labelOtorisasi = "";
-        if (Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak')) {
-            $labelNonOtorisasi = "readonly disabled";
-        } else {
-            $labelOtorisasi = "readonly disabled";
-        }
-    @endphp
     <div class="section-body">
         <div class="row">
             <div class="col-12">
@@ -54,42 +45,42 @@
                                             <div class="input-group-text"><i class="fas fa-barcode"></i></div>
                                         </div>
                                         <input type="hidden" name="request_" value="updateOrder">
-                                        <input type="text" class="form-control" name="edit_no_order" placeholder="Nomor Order" readonly>
+                                        <input type="text" class="form-control" name="edit_no_order" placeholder="Nomor Order">
                                         <div id="err_edit_no_order"></div>
                                     </div>
                                 </div>
                                 <div class="form-group col-12 col-md-6 mb-4">
                                     <label>Judul Buku: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <textarea class="form-control" name="edit_judul_buku" placeholder="Judul Buku" {{$labelNonOtorisasi}} {{$labelOtorisasi}}></textarea>
+                                        <textarea class="form-control" name="edit_judul_buku" placeholder="Judul Buku"></textarea>
                                         <div id="err_edit_judul_buku"></div>
                                     </div>
                                 </div>
                                 <div class="form-group col-12 col-md-6 mb-4">
                                     <label>Nama Pemesan: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="edit_nama_pemesan" placeholder="Nama Pemesan" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <input type="text" class="form-control" name="edit_nama_pemesan" placeholder="Nama Pemesan">
                                         <div id="err_edit_nama_pemesan"></div>
                                     </div>
                                 </div>
                                 <div class="form-group col-12 col-md-6 mb-4">
                                     <label>Pengarang:</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="edit_pengarang" placeholder="Pengarang" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <input type="text" class="form-control" name="edit_pengarang" placeholder="Pengarang">
                                         <div id="err_edit_pengarang"></div>
                                     </div>
                                 </div>
                                 <div class="form-group col-12 col-md-6 mb-4">
                                     <label>Format: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="edit_format" placeholder="Format Buku" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <input type="text" class="form-control" name="edit_format" placeholder="Format Buku">
                                         <div id="err_edit_format"></div>
                                     </div>
                                 </div>
                                 <div class="form-group col-12 col-md-6 mb-4">
                                     <label>Jumlah Halaman: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control" name="edit_jml_halaman" min="1" placeholder="Jumlah Halaman" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <input type="number" class="form-control" name="edit_jml_halaman" min="1" placeholder="Jumlah Halaman">
                                         <div id="err_edit_jml_halaman"></div>
                                         <div class="input-group-append">
                                             <div class="input-group-text"><b>Hal</b></div>
@@ -99,28 +90,28 @@
                                 <div class="form-group col-12 col-md-3 mb-4">
                                     <label>Jenis Kertas Isi: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="edit_kertas_isi" placeholder="Jenis Kertas Isi" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <input type="text" class="form-control" name="edit_kertas_isi" placeholder="Jenis Kertas Isi">
                                         <div id="err_edit_kertas_isi"></div>
                                     </div>
                                 </div>
                                 <div class="form-group col-12 col-md-3 mb-4">
                                     <label>Tinta: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="edit_kertas_isi_tinta" placeholder="Tinta" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <input type="text" class="form-control" name="edit_kertas_isi_tinta" placeholder="Tinta">
                                         <div id="err_edit_kertas_isi_tinta"></div>
                                     </div>
                                 </div>
                                 <div class="form-group col-12 col-md-3 mb-4">
                                     <label>Jenis Kertas Cover: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="edit_kertas_cover" placeholder="Jenis Kertas Cover" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <input type="text" class="form-control" name="edit_kertas_cover" placeholder="Jenis Kertas Cover">
                                         <div id="err_edit_kertas_cover"></div>
                                     </div>
                                 </div>
                                 <div class="form-group col-12 col-md-3 mb-4">
                                     <label>Tinta: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="edit_kertas_cover_tinta" placeholder="Tinta" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <input type="text" class="form-control" name="edit_kertas_cover_tinta" placeholder="Tinta">
                                         <div id="err_edit_kertas_cover_tinta"></div>
                                     </div>
                                 </div>
@@ -128,36 +119,25 @@
                                     <label>Jumlah Order: <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         {{-- <input type="number" class="form-control" name="edit_jml_order" min="1" placeholder="Jumlah Order"> --}}
-                                        <input type="text" name="edit_jml_order" class="form-control input-tag" placeholder="Jumlah Order" data-role="tagsinput" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <input type="text" name="edit_jml_order" class="form-control input-tag" placeholder="Jumlah Order" data-role="tagsinput">
                                         <div id="err_edit_jml_order"></div>
                                     </div>
                                 </div>
-                                @if (Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak'))
                                 <div class="form-group col-12 col-md-6 mb-4">
                                     <label>Kalkulasi Harga: <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         {{-- <input type="number" class="form-control" name="edit_jml_order" min="1" placeholder="Jumlah Order"> --}}
-                                        <input type="text" name="edit_kalkulasi_harga" class="form-control input-tag" id="HARGA" placeholder="Kalkulasi Harga" data-role="tagsinput" {{$labelOtorisasi}}>
+                                        <input type="text" name="edit_kalkulasi_harga" class="form-control input-tag" placeholder="Kalkulasi Harga" data-role="tagsinput">
                                         <div id="err_edit_kalkulasi_harga"></div>
                                     </div>
                                 </div>
-                                @else
-                                <div class="form-group col-12 col-md-6 mb-4">
-                                    <label>Kalkulasi Harga: <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        {{-- <input type="number" class="form-control" name="edit_jml_order" min="1" placeholder="Jumlah Order"> --}}
-                                        <input type="text" name="edit_kalkulasi_harga" class="form-control input-tag" id="HARGA" placeholder="Kalkulasi Harga" data-role="tagsinput" {{$labelNonOtorisasi}}>
-                                        <div id="err_edit_kalkulasi_harga"></div>
-                                    </div>
-                                </div>
-                                @endif
                                 <div class="form-group col-12 col-md-12 mb-4">
                                     <label>Status Cetak: <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <div class="input-group-text"><i class="fas fa-flag"></i></div>
                                         </div>
-                                        <select class="form-control select2" name="edit_status_cetak" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <select class="form-control select2" name="edit_status_cetak">
                                             <option label="Pilih"></option>
                                             @foreach($status_cetak as $sc)
                                             <option value="{{$sc}}">{{$sc}}</option>
@@ -172,7 +152,7 @@
                                         <div class="input-group-prepend">
                                             <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                         </div>
-                                        <input type="text" class="form-control datepicker" name="edit_tgl_order" placeholder="Hari Bulan Tahun" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <input type="text" class="form-control datepicker" name="edit_tgl_order" placeholder="Hari Bulan Tahun">
                                         <div id="err_edit_tgl_order"></div>
                                     </div>
                                 </div>
@@ -182,14 +162,14 @@
                                         <div class="input-group-prepend">
                                             <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                                         </div>
-                                        <input type="text" class="form-control datepicker" name="edit_tgl_permintaan_selesai" placeholder="Hari Bulan Tahun" {{$labelNonOtorisasi}} {{$labelOtorisasi}}>
+                                        <input type="text" class="form-control datepicker" name="edit_tgl_permintaan_selesai" placeholder="Hari Bulan Tahun">
                                         <div id="err_edit_tgl_permintaan_selesai"></div>
                                     </div>
                                 </div>
                                 <div class="form-group col-12 mb-4">
                                     <label>Keterangan:</label>
                                     <div class="input-group">
-                                        <textarea class="form-control" name="edit_keterangan" placeholder="Keterangan Order Buku" {{$labelNonOtorisasi}} {{$labelOtorisasi}}></textarea>
+                                        <textarea class="form-control" name="edit_keterangan" placeholder="Keterangan Order Buku"></textarea>
                                         <div id="err_edit_keterangan"></div>
                                     </div>
                                 </div>
@@ -208,7 +188,6 @@
 
 @section('jsRequired')
 <script src="{{url('vendors/jquery-validation/dist/jquery.validate.min.js')}}"></script>
-<script src="https://unpkg.com/imask"></script>
 <script src="{{url('vendors/jquery-validation/dist/additional-methods.min.js')}}"></script>
 <script src="{{url('vendors/select2/dist/js/select2.full.min.js')}}"></script>
 <script src="{{url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js')}}"></script>

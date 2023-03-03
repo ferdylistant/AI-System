@@ -521,11 +521,18 @@ class EditingController extends Controller
                     ]);
                 }
                 // if (is_null($data->tgl_selesai_copyeditor)) {
-                //     return response()->json([
-                //         'status' => 'error',
-                //         'message' => 'Copy Editor belum selesai'
-                //     ]);
-                // }
+                    //     return response()->json([
+                        //         'status' => 'error',
+                        //         'message' => 'Copy Editor belum selesai'
+                        //     ]);
+                        // }
+                $desfin = DB::table('deskripsi_final')->where('id',$data->deskripsi_final_id)->whereNull('sinopsis')->first();
+                if ($desfin) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Sinopsis (bagian: Deskripsi Final) belum ditambahkan!'
+                    ]);
+                }
                 event(new EditingEvent($update));
                 event(new EditingEvent($insert));
                 DB::table('pracetak_setter')->where('deskripsi_final_id',$data->deskripsi_final_id)->update([

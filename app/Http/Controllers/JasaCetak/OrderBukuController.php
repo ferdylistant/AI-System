@@ -199,6 +199,15 @@ class OrderBukuController extends Controller
                                 $implode = implode(",",$json);
                                 return !is_null($item) ? $implode : NULL;
                                 break;
+                            case 'kalkulasi_harga':
+                                if (!is_null($item)) {
+                                    $json = json_decode($item);
+                                    $implode = implode(",",$json);
+                                } else {
+                                    $implode = NULL;
+                                }
+                                return $implode;
+                                break;
                             case 'tgl_order':
                                 return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
                                 break;
@@ -217,13 +226,14 @@ class OrderBukuController extends Controller
                         }
                         return $item;
                     })->all();
-                    return ['data' => $data];
+                    if (Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak')) {
+                        $gate = TRUE;
+                    } else {
+                        $gate = FALSE;
+                    }
+                    return ['data' => $data,'gate'=> $gate];
                     break;
                 case 'updateOrder':
-                    // $ex = explode(",",$request->input('edit_kalkulasi_harga'));
-                    // $r = preg_replace( '/[^0-9]/', '', $ex);
-                    // $res = json_encode($ex);
-                    // return response()->json($res);
                     DB::beginTransaction();
 
                     try {
@@ -232,67 +242,104 @@ class OrderBukuController extends Controller
                         //     'id_prodev' => $request->input('add_pic_prodev'),
                         //     'form_id' => $idN
                         // ]);
-
                         $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                        $editOrderBuku = [
-                            'params' => 'Edit Order Buku',
-                            'id' => $request->id,
-                            'no_order' => $noOrder,
-                            'judul_buku' => $request->input('edit_judul_buku'),
-                            'tgl_order' => Carbon::createFromFormat('d F Y', $request->input('edit_tgl_order'))
-                                ->format('Y-m-d'),
-                            'tgl_permintaan_selesai' => Carbon::createFromFormat('d F Y', $request->input('edit_tgl_permintaan_selesai'))
-                                ->format('Y-m-d'),
-                            'nama_pemesan' => $request->input('edit_nama_pemesan'),
-                            'pengarang' => $request->input('edit_pengarang'),
-                            'format' => $request->input('edit_format'),
-                            'jml_halaman' => $request->input('edit_jml_halaman'),
-                            'kertas_isi' => $request->input('edit_kertas_isi'),
-                            'kertas_isi_tinta' => $request->input('edit_kertas_isi_tinta'),
-                            'kertas_cover' => $request->input('edit_kertas_cover'),
-                            'kertas_cover_tinta' => $request->input('edit_kertas_cover_tinta'),
-                            'jml_order' => $request->input('edit_jml_order'),
-                            'status_cetak' => $request->input('edit_status_cetak'),
-                            'keterangan' => $request->input('edit_keterangan'),
-                        ];
-                        event(new JasaCetakEvent($editOrderBuku));
-                        $HistoryOrderBuku = [
-                            'params' => 'History Edit Order Buku',
-                            'type_history' => 'Update',
-                            'order_buku_id' => $request->id,
-                            'judul_buku_his' => $request->input('edit_judul_buku') == $data->judul_buku ? NULL : $data->judul_buku,
-                            'judul_buku_new' => $request->input('edit_judul_buku') == $data->judul_buku ? NULL : $request->input('edit_judul_buku'),
-                            'tgl_order_his' =>date('Y-m-d', strtotime($request->edit_tgl_order)) == date('Y-m-d', strtotime($data->tgl_order)) ? NULL : date('Y-m-d', strtotime($data->tgl_order)),
-                            'tgl_order_new' =>date('Y-m-d', strtotime($request->edit_tgl_order)) == date('Y-m-d', strtotime($data->tgl_order)) ? NULL : Carbon::createFromFormat('d F Y', $request->edit_tgl_order)->format('Y-m-d'),
-                            'tgl_permintaan_selesai_his' => date('Y-m-d', strtotime($request->edit_tgl_permintaan_selesai)) == date('Y-m-d', strtotime($data->tgl_permintaan_selesai)) ? NULL : date('Y-m-d', strtotime($data->tgl_permintaan_selesai)),
-                            'tgl_permintaan_selesai_new' => date('Y-m-d', strtotime($request->edit_tgl_permintaan_selesai)) == date('Y-m-d', strtotime($data->tgl_permintaan_selesai)) ? NULL : Carbon::createFromFormat('d F Y', $request->edit_tgl_permintaan_selesai)->format('Y-m-d'),
-                            'nama_pemesan_his' => $request->input('edit_nama_pemesan') == $data->nama_pemesan ? NULL : $data->nama_pemesan,
-                            'nama_pemesan_new' => $request->input('edit_nama_pemesan') == $data->nama_pemesan ? NULL : $request->input('edit_nama_pemesan'),
-                            'pengarang_his' => $request->input('edit_pengarang') == $data->pengarang ? NULL : $data->pengarang,
-                            'pengarang_new' => $request->input('edit_pengarang') == $data->pengarang ? NULL : $request->input('edit_pengarang'),
-                            'format_his' => $request->input('edit_format') == $data->format ? NULL : $data->format,
-                            'format_new' => $request->input('edit_format') == $data->format ? NULL : $request->input('edit_format'),
-                            'jml_halaman_his' => $request->input('edit_jml_halaman') == $data->jml_halaman ? NULL : $data->jml_halaman,
-                            'jml_halaman_new' => $request->input('edit_jml_halaman') == $data->jml_halaman ? NULL : $request->input('edit_jml_halaman'),
-                            'kertas_isi_his' => $request->input('edit_kertas_isi') == $data->kertas_isi ? NULL : $data->kertas_isi,
-                            'kertas_isi_new' => $request->input('edit_kertas_isi') == $data->kertas_isi ? NULL : $request->input('edit_kertas_isi'),
-                            'kertas_isi_tinta_his' => $request->input('edit_kertas_isi_tinta') == $data->kertas_isi_tinta ? NULL : $data->kertas_isi_tinta,
-                            'kertas_isi_tinta_new' => $request->input('edit_kertas_isi_tinta') == $data->kertas_isi_tinta ? NULL : $request->input('edit_kertas_isi_tinta'),
-                            'kertas_cover_his' => $request->input('edit_kertas_cover') == $data->kertas_cover ? NULL : $data->kertas_cover,
-                            'kertas_cover_new' => $request->input('edit_kertas_cover') == $data->kertas_cover ? NULL : $request->input('edit_kertas_cover'),
-                            'kertas_cover_tinta_his' => $request->input('edit_kertas_cover_tinta') == $data->kertas_cover_tinta ? NULL : $data->kertas_cover_tinta,
-                            'kertas_cover_tinta_new' => $request->input('edit_kertas_cover_tinta') == $data->kertas_cover_tinta ? NULL : $request->input('edit_kertas_cover_tinta'),
-                            'jml_order_his' => $request->input('edit_jml_order') == $data->jml_order ? NULL : $data->jml_order,
-                            'jml_order_new' => $request->input('edit_jml_order') == $data->jml_order ? NULL : $request->input('edit_jml_order'),
-                            'status_cetak_his' => $request->input('edit_status_cetak') == $data->status_cetak ? NULL : $data->status_cetak,
-                            'status_cetak_new' => $request->input('edit_status_cetak') == $data->status_cetak ? NULL : $request->input('edit_status_cetak'),
-                            'keterangan_his' => $request->input('edit_keterangan') == $data->keterangan ? NULL : $data->keterangan,
-                            'keterangan_new' => $request->input('edit_keterangan') == $data->keterangan ? NULL : $request->input('edit_keterangan'),
-                            'author_id' => auth()->id(),
-                            'modified_at' => $tgl
-                        ];
-                        event(new JasaCetakEvent($HistoryOrderBuku));
+                        if (Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak')) {
+                            $ex = explode(",",$request->input('edit_kalkulasi_harga'));
+                            foreach ($ex as $x) {
+                                $r[] = preg_replace( '/[^0-9]/', '', $x);
+                            }
+                            $kalkulasi_harga = json_encode(array_filter($r));
+                            if (count($r) != count(json_decode($data->jml_order))) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Total rancangan kalkulasi harga tidak sama dengan jumlah order!'
+                                ]);
+                            }
+                            $editOrAddKalkulasi = [
+                                'params' => 'Edit Or Add Kalkulasi Harga',
+                                'id' => $request->id,
+                                'no_order' => $noOrder,
+                                'kalkulasi_harga' => is_null($request->input('edit_kalkulasi_harga')) ? NULL : $kalkulasi_harga,
+                            ];
+                            event(new JasaCetakEvent($editOrAddKalkulasi));
+                            $HistoryOrderBuku = [
+                                'params' => 'History Edit Or Add Kalkulasi Harga',
+                                'type_history' => 'Update',
+                                'order_buku_id' => $request->id,
+                                'kalkulasi_harga_his' => $kalkulasi_harga == $data->kalkulasi_harga ? NULL : $data->kalkulasi_harga,
+                                'kalkulasi_harga_new' => $kalkulasi_harga == $data->kalkulasi_harga ? NULL : $kalkulasi_harga,
+                                'author_id' => auth()->id(),
+                                'modified_at' => $tgl
+                            ];
+                            event(new JasaCetakEvent($HistoryOrderBuku));
+                        } else {
+                            $exJ = explode(",",$request->input('edit_jml_order'));
+                            foreach ($exJ as $xJ) {
+                                $res[] = preg_replace( '/[^0-9]/', '', $xJ);
+                            }
+                            $jml_order = json_encode(array_filter($res));
+                            $editOrderBuku = [
+                                'params' => 'Edit Order Buku',
+                                'id' => $request->id,
+                                'no_order' => $noOrder,
+                                'judul_buku' => $request->input('edit_judul_buku'),
+                                'tgl_order' => Carbon::createFromFormat('d F Y', $request->input('edit_tgl_order'))
+                                    ->format('Y-m-d'),
+                                'tgl_permintaan_selesai' => Carbon::createFromFormat('d F Y', $request->input('edit_tgl_permintaan_selesai'))
+                                    ->format('Y-m-d'),
+                                'nama_pemesan' => $request->input('edit_nama_pemesan'),
+                                'pengarang' => $request->input('edit_pengarang'),
+                                'format' => $request->input('edit_format'),
+                                'jml_halaman' => $request->input('edit_jml_halaman'),
+                                'kertas_isi' => $request->input('edit_kertas_isi'),
+                                'kertas_isi_tinta' => $request->input('edit_kertas_isi_tinta'),
+                                'kertas_cover' => $request->input('edit_kertas_cover'),
+                                'kertas_cover_tinta' => $request->input('edit_kertas_cover_tinta'),
+                                'jml_order' => $jml_order,
+                                'status_cetak' => $request->input('edit_status_cetak'),
+                                'keterangan' => $request->input('edit_keterangan'),
+                            ];
+                            event(new JasaCetakEvent($editOrderBuku));
+                            // if (array_sum($update) > 0) {
 
+                            // }
+                            $HistoryOrderBuku = [
+                                'params' => 'History Edit Order Buku',
+                                'type_history' => 'Update',
+                                'order_buku_id' => $request->id,
+                                'judul_buku_his' => $request->input('edit_judul_buku') == $data->judul_buku ? NULL : $data->judul_buku,
+                                'judul_buku_new' => $request->input('edit_judul_buku') == $data->judul_buku ? NULL : $request->input('edit_judul_buku'),
+                                'tgl_order_his' =>date('Y-m-d', strtotime($request->edit_tgl_order)) == date('Y-m-d', strtotime($data->tgl_order)) ? NULL : date('Y-m-d', strtotime($data->tgl_order)),
+                                'tgl_order_new' =>date('Y-m-d', strtotime($request->edit_tgl_order)) == date('Y-m-d', strtotime($data->tgl_order)) ? NULL : Carbon::createFromFormat('d F Y', $request->edit_tgl_order)->format('Y-m-d'),
+                                'tgl_permintaan_selesai_his' => date('Y-m-d', strtotime($request->edit_tgl_permintaan_selesai)) == date('Y-m-d', strtotime($data->tgl_permintaan_selesai)) ? NULL : date('Y-m-d', strtotime($data->tgl_permintaan_selesai)),
+                                'tgl_permintaan_selesai_new' => date('Y-m-d', strtotime($request->edit_tgl_permintaan_selesai)) == date('Y-m-d', strtotime($data->tgl_permintaan_selesai)) ? NULL : Carbon::createFromFormat('d F Y', $request->edit_tgl_permintaan_selesai)->format('Y-m-d'),
+                                'nama_pemesan_his' => $request->input('edit_nama_pemesan') == $data->nama_pemesan ? NULL : $data->nama_pemesan,
+                                'nama_pemesan_new' => $request->input('edit_nama_pemesan') == $data->nama_pemesan ? NULL : $request->input('edit_nama_pemesan'),
+                                'pengarang_his' => $request->input('edit_pengarang') == $data->pengarang ? NULL : $data->pengarang,
+                                'pengarang_new' => $request->input('edit_pengarang') == $data->pengarang ? NULL : $request->input('edit_pengarang'),
+                                'format_his' => $request->input('edit_format') == $data->format ? NULL : $data->format,
+                                'format_new' => $request->input('edit_format') == $data->format ? NULL : $request->input('edit_format'),
+                                'jml_halaman_his' => $request->input('edit_jml_halaman') == $data->jml_halaman ? NULL : $data->jml_halaman,
+                                'jml_halaman_new' => $request->input('edit_jml_halaman') == $data->jml_halaman ? NULL : $request->input('edit_jml_halaman'),
+                                'kertas_isi_his' => $request->input('edit_kertas_isi') == $data->kertas_isi ? NULL : $data->kertas_isi,
+                                'kertas_isi_new' => $request->input('edit_kertas_isi') == $data->kertas_isi ? NULL : $request->input('edit_kertas_isi'),
+                                'kertas_isi_tinta_his' => $request->input('edit_kertas_isi_tinta') == $data->kertas_isi_tinta ? NULL : $data->kertas_isi_tinta,
+                                'kertas_isi_tinta_new' => $request->input('edit_kertas_isi_tinta') == $data->kertas_isi_tinta ? NULL : $request->input('edit_kertas_isi_tinta'),
+                                'kertas_cover_his' => $request->input('edit_kertas_cover') == $data->kertas_cover ? NULL : $data->kertas_cover,
+                                'kertas_cover_new' => $request->input('edit_kertas_cover') == $data->kertas_cover ? NULL : $request->input('edit_kertas_cover'),
+                                'kertas_cover_tinta_his' => $request->input('edit_kertas_cover_tinta') == $data->kertas_cover_tinta ? NULL : $data->kertas_cover_tinta,
+                                'kertas_cover_tinta_new' => $request->input('edit_kertas_cover_tinta') == $data->kertas_cover_tinta ? NULL : $request->input('edit_kertas_cover_tinta'),
+                                'jml_order_his' => $jml_order == $data->jml_order ? NULL : $data->jml_order,
+                                'jml_order_new' => $jml_order == $data->jml_order ? NULL : $jml_order,
+                                'status_cetak_his' => $request->input('edit_status_cetak') == $data->status_cetak ? NULL : $data->status_cetak,
+                                'status_cetak_new' => $request->input('edit_status_cetak') == $data->status_cetak ? NULL : $request->input('edit_status_cetak'),
+                                'keterangan_his' => $request->input('edit_keterangan') == $data->keterangan ? NULL : $data->keterangan,
+                                'keterangan_new' => $request->input('edit_keterangan') == $data->keterangan ? NULL : $request->input('edit_keterangan'),
+                                'author_id' => auth()->id(),
+                                'modified_at' => $tgl
+                            ];
+                            event(new JasaCetakEvent($HistoryOrderBuku));
+                        }
                         // $addTimeline = [
                         //     'params' => 'Insert Timeline',
                         //     'id' => Uuid::uuid4()->toString(),
@@ -327,6 +374,104 @@ class OrderBukuController extends Controller
         return view('jasa_cetak.order_buku.edit', [
             'status_cetak' => $status_cetak,
             'title' => 'Ubah Order Buku Jasa Cetak'
+        ]);
+    }
+    public function detailOrder(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->isMethod('GET')) {
+                $id = $request->order;
+                $no_order = $request->kode;
+                $data = DB::table('jasa_cetak_order_buku')
+                ->where('id',$id)
+                ->where('no_order',$no_order)
+                ->first();
+                if (is_null($data)) {
+                    return abort(404);
+                }
+            } else {
+
+            }
+            switch ($request->request_) {
+                case 'getValue':
+                    $useData = $data;
+                    $data = (object)collect($data)->map(function ($item, $key) use ($useData) {
+                        switch ($key) {
+                            case 'jml_order':
+                                $res = '';
+                                $json = json_decode($item);
+                                if (is_null($item)) {
+                                    $res .= '-';
+                                }
+                                foreach ($json as $i => $val) {
+                                    if (is_null($useData->kalkulasi_harga)) {
+                                        $res .= '<span class="bullet"></span>'.$val.' - <span class="text-danger">Kalkulasi harga belum diinput</span><br>';
+                                    } else {
+                                        foreach (json_decode($useData->kalkulasi_harga) as $k => $val2) {
+                                            if ($i != $k) {
+                                                continue;
+                                            }
+                                            $res .= '<span class="bullet"></span>'.$val.' - Rp.'.number_format($val2,0,',','.').'<br>';
+                                        }
+                                    }
+                                }
+                                return $res;
+                                break;
+                            case 'status':
+                                $res = '';
+                                switch($item){
+                                    case 'Antrian':
+                                        $res .='<span class="badge" style="background:#34395E;color:white">Antrian</span>';
+                                    break;
+                                    case 'Pending':
+                                        $res .='<span class="badge badge-danger">Pending</span>';
+                                    break;
+
+                                    case 'Proses':
+                                        $res .='<span class="badge badge-success">Proses</span>';
+                                    break;
+
+                                    case 'Selesai':
+                                        $res .='<span class="badge badge-light">Selesai</span>';
+                                    break;
+                                    case 'Revisi':
+                                        $res .='<span class="badge badge-info">Revisi</span>';
+                                    break;
+                                    default:
+                                        $res .='<span class="badge badge-primary">Kalkulasi</span>';
+                                    break;
+                                }
+                                return $res;
+                                break;
+                            case 'tgl_order':
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                                break;
+                            case 'tgl_permintaan_selesai':
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                                break;
+                            case 'created_at':
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item)->format('d F Y, H:i:s') : '-';
+                                break;
+                            case 'created_by':
+                                return !is_null($item) ? DB::table('users')->where('id',$item)->first()->nama : '-';
+                                break;
+                            default:
+                                $item;
+                                break;
+                        }
+                        return $item;
+                    })->all();
+                    if (Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak')) {
+                        $gate = TRUE;
+                    } else {
+                        $gate = FALSE;
+                    }
+                    return ['data' => $data,'gate'=> $gate];
+                    break;
+            }
+        }
+        return view('jasa_cetak.order_buku.detail',[
+            'title' => 'Detail Order Buku Jasa Cetak'
         ]);
     }
     protected function panelStatus($id,$no_order,$judul,$status = null)
@@ -469,6 +614,50 @@ class OrderBukuController extends Controller
                         break;
                     case 'tgl_permintaan_selesai_new':
                         return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
+                        break;
+                    case 'jml_order_his':
+                        if (!is_null($item)) {
+                            $jmlOrder = '';
+                            foreach (json_decode($item, true) as $his) {
+                                $jmlOrder .= '<b class="text-dark">' . $his . '</b>, ';
+                            }
+                        } else {
+                            $jmlOrder = NULL;
+                        }
+                        return $jmlOrder;
+                        break;
+                    case 'jml_order_new':
+                        if (!is_null($item)) {
+                            $jmlOrder = '';
+                            foreach (json_decode($item, true) as $new) {
+                                $jmlOrder .= '<span class="bullet"></span>' .$new;
+                            }
+                        } else {
+                            $jmlOrder = NULL;
+                        }
+                        return $jmlOrder;
+                        break;
+                    case 'kalkulasi_harga_his':
+                        if (!is_null($item)) {
+                            $kalkulasiHarga = '';
+                            foreach (json_decode($item, true) as $his) {
+                                $kalkulasiHarga .= '<b class="text-dark">Rp.' . number_format($his,0,',','.') . '</b>, ';
+                            }
+                        } else {
+                            $kalkulasiHarga = NULL;
+                        }
+                        return $kalkulasiHarga;
+                        break;
+                    case 'kalkulasi_harga_new':
+                        if (!is_null($item)) {
+                            $kalkulasiHarga = '';
+                            foreach (json_decode($item, true) as $new) {
+                                $kalkulasiHarga .= '<span class="bullet"></span>Rp.' .number_format($new,0,',','.');
+                            }
+                        } else {
+                            $kalkulasiHarga = NULL;
+                        }
+                        return $kalkulasiHarga;
                         break;
                     case 'modified_at':
                         return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($item)->translatedFormat('l d M Y, H:i').')' : NULL;
@@ -651,9 +840,9 @@ class OrderBukuController extends Controller
                     if (!is_null($d->jml_order_his)) {
                         $html .=
                             '<div class="ticket-title">
-                                <span><span class="bullet"></span> Jumlah order <b class="text-dark">' .
+                                <span><span class="bullet"></span> Jumlah order ' .
                             $d->jml_order_his .
-                            '</b> diubah menjadi <b class="text-dark">' .
+                            'diubah menjadi <b class="text-dark">' .
                             $d->jml_order_new .
                             '</b> </span></div>';
                     } elseif (!is_null($d->jml_order_new)) {
@@ -661,6 +850,21 @@ class OrderBukuController extends Controller
                             '<div class="ticket-title">
                                 <span><span class="bullet"></span> Jumlah order <b class="text-dark">' .
                             $d->jml_order_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->kalkulasi_harga_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Kalkulasi harga ' .
+                            $d->kalkulasi_harga_his .
+                            'diubah menjadi <b class="text-dark">' .
+                            $d->kalkulasi_harga_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->kalkulasi_harga_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Kalkulasi harga <b class="text-dark">' .
+                            $d->kalkulasi_harga_new .
                             '</b> ditambahkan. </span></div>';
                     }
                     if (!is_null($d->tgl_order_his)) {

@@ -242,6 +242,7 @@ $(function () {
             },
             success: function (response) {
                 if (response.length == 0) {
+                    $(".load-more").attr("disabled",true);
                     notifToast("error", "Tidak ada data lagi");
                 }
                 $("#dataHistoryOrderBuku").append(response);
@@ -255,5 +256,6 @@ $(function () {
     });
     $('#md_OrderBukuHistory').on('hidden.bs.modal', function () {
         $('.load-more').data("paginate", 2);
+        $(".load-more").attr("disabled",false);
       });
 });
