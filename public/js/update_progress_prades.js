@@ -1,37 +1,46 @@
-
-$('#tb_PraDes').on('click', '.btn-history', function(e) {
-    var id = $(this).data('id');
-    var judul = $(this).data('judulfinal');
-    $.post(window.location.origin + "/penerbitan/pracetak/designer/lihat-history", {
-        id: id
-    }, function(data) {
-        $('#titleModalPraDes').html(
-            '<i class="fas fa-history"></i>&nbsp;History Progress Pracetak Desainer "' + judul +
-            '"');
-        $('#load_more').data('id', id);
-        $('#dataHistoryPraDes').html(data);
-        $('#md_PraDesHistory').modal('show');
-    });
+$("#tb_PraDes").on("click", ".btn-history", function (e) {
+    var id = $(this).data("id");
+    var judul = $(this).data("judulfinal");
+    $.post(
+        window.location.origin + "/penerbitan/pracetak/designer/lihat-history",
+        {
+            id: id,
+        },
+        function (data) {
+            $("#titleModalPraDes").html(
+                '<i class="fas fa-history"></i>&nbsp;History Progress Pracetak Desainer "' +
+                    judul +
+                    '"'
+            );
+            $("#load_more").data("id", id);
+            $("#dataHistoryPraDes").html(data);
+            $("#md_PraDesHistory").modal("show");
+        }
+    );
 });
 $(function () {
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
+        let form = $("#md_PraDesHistory");
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/designer/lihat-history",
+            url:
+                window.location.origin +
+                "/penerbitan/pracetak/designer/lihat-history",
             data: {
                 id: id,
                 page: page,
             },
             type: "post",
             beforeSend: function () {
-                $(".load-more").text("Loading...");
+                form.addClass("modal-progress");
             },
             success: function (response) {
                 if (response.length == 0) {
+                    $(".load-more").attr("disabled", true);
                     notifToast("error", "Tidak ada data lagi");
                 }
                 $("#dataHistoryPraDes").append(response);
@@ -42,9 +51,13 @@ $(function () {
                 // }, 2000);
             },
             complete: function (params) {
-                $(".load-more").text("Load more").fadeIn("slow");
+                form.removeClass("modal-progress");
             },
         });
+    });
+    $("#md_PraDesHistory").on("hidden.bs.modal", function () {
+        $(".load-more").data("paginate", 2);
+        $(".load-more").attr("disabled", false);
     });
 });
 $(document).ready(function () {

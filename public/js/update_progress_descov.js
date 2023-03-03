@@ -1,18 +1,27 @@
-$('#tb_DesCover').on('click', '.btn-history', function (e) {
-    var id = $(this).data('id');
-    var judul = $(this).data('judulfinal');
-    $.post(window.location.origin + "/penerbitan/deskripsi/cover/lihat-history", { id: id }, function (data) {
-        $('#titleModalDescov').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
-        $('#load_more').data('id', id);
-        $('#dataHistoryDescov').html(data);
-        $('#md_DescovHistory').modal('show');
-    });
+$("#tb_DesCover").on("click", ".btn-history", function (e) {
+    var id = $(this).data("id");
+    var judul = $(this).data("judulfinal");
+    $.post(
+        window.location.origin + "/penerbitan/deskripsi/cover/lihat-history",
+        { id: id },
+        function (data) {
+            $("#titleModalDescov").html(
+                '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
+                    judul +
+                    '"'
+            );
+            $("#load_more").data("id", id);
+            $("#dataHistoryDescov").html(data);
+            $("#md_DescovHistory").modal("show");
+        }
+    );
 });
 $(function () {
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
+        let form = $("#md_DescovHistory");
         $(this).data("paginate", page + 1);
 
         $.ajax({
@@ -25,10 +34,11 @@ $(function () {
             },
             type: "post",
             beforeSend: function () {
-                $(".load-more").text("Loading...");
+                form.addClass("modal-progress");
             },
             success: function (response) {
                 if (response.length == 0) {
+                    $(".load-more").attr("disabled", true);
                     notifToast("error", "Tidak ada data lagi");
                 }
                 $("#dataHistoryDesturcet").append(response);
@@ -39,9 +49,13 @@ $(function () {
                 // }, 2000);
             },
             complete: function (params) {
-                $(".load-more").text("Load more").fadeIn("slow");
+                form.removeClass("modal-progress");
             },
         });
+    });
+    $("#md_DescovHistory").on("hidden.bs.modal", function () {
+        $(".load-more").data("paginate", 2);
+        $(".load-more").attr("disabled", false);
     });
 });
 $(document).ready(function () {

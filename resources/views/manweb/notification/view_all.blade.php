@@ -11,20 +11,23 @@
 
         <div class="section-body">
             <div class="panel-group">
-                @foreach ($notification as $notif)
-                    <div class="panel panel-default">
+                @foreach ($unique as $n)
+                    <div class="card panel panel-default">
                         <div class="panel-heading">
-                            <h6 class="panel-title">
-                                <a data-toggle="collapse" href="#collapse-{{ $loop->iteration }}">{{ $notif->type }}</a>
+                            <h6 class="panel-title text-uppercase p-3">
+                                {{ $n->notif_id }}
+                                <a class="text-decoration-none" data-toggle="collapse"
+                                    href="#collapse-{{ $n->notif_id }}-{{ $n->form_id }}">{{ $n->section }}</a>
                             </h6>
                         </div>
-                        <div id="collapse-{{ $loop->iteration }}" class="panel-collapse collapse">
+                        <div id="collapse-{{ $n->notif_id }}-{{ $n->form_id }}" class="panel-collapse collapse">
                             <div class="card">
-                                <div class="panel-body">Panel Body Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                                    Unde
-                                    sint, distinctio nobis similique fugiat, iure neque nostrum perferendis dolor accusamus
-                                    minima,
-                                    expedita vero! Cumque asperiores porro magni incidunt voluptatibus molestiae.
+                                <div class="card-body">
+                                    <div class="panel-body">
+                                        @foreach ($notification as $nt)
+                                            {{ $nt->type }}<br>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -32,6 +35,5 @@
                 @endforeach
             </div>
         </div>
-
     </section>
 @endsection

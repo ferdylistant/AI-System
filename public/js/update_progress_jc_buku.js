@@ -1,8 +1,8 @@
-$(function(){
-    $('[name="status_filter"]').val('').change();
+$(function () {
+    $('[name="status_filter"]').val("").change();
     let tableOrderBuku = $("#tb_OrderBuku").DataTable({
-        "responsive": true,
-        "autoWidth": true,
+        responsive: true,
+        autoWidth: true,
         processing: true,
         serverSide: true,
         language: {
@@ -66,33 +66,37 @@ $(function(){
             .draw();
     });
 });
-$('#tb_OrderBuku').on('click', '.btn-history', function(e) {
-    var id = $(this).data('id');
-    var judul = $(this).data('judul');
-    let cardWrap = $('.section-body').find('.card');
+$("#tb_OrderBuku").on("click", ".btn-history", function (e) {
+    var id = $(this).data("id");
+    var judul = $(this).data("judul");
+    let cardWrap = $(".section-body").find(".card");
     $.ajax({
-        url: window.location.origin + "/jasa-cetak/order-buku/ajax/lihat-history",
+        url:
+            window.location.origin +
+            "/jasa-cetak/order-buku/ajax/lihat-history",
         type: "POST",
         data: {
-            id: id
+            id: id,
         },
-        cache:false,
+        cache: false,
         beforeSend: function () {
-            cardWrap.addClass('card-progress');
+            cardWrap.addClass("card-progress");
         },
         success: function (data) {
             // console.log(data);
-            $('#titleModalOrderBuku').html(
-                '<i class="fas fa-history"></i>&nbsp;History Progress Order Buku "' + judul +
-                '"');
-            $('#load_more').data('id', id);
-            $('#dataHistoryOrderBuku').html(data);
-            $('#md_OrderBukuHistory').modal('show');
+            $("#titleModalOrderBuku").html(
+                '<i class="fas fa-history"></i>&nbsp;History Progress Order Buku "' +
+                    judul +
+                    '"'
+            );
+            $("#load_more").data("id", id);
+            $("#dataHistoryOrderBuku").html(data);
+            $("#md_OrderBukuHistory").modal("show");
         },
         complete: function () {
-            cardWrap.removeClass('card-progress');
-        }
-    })
+            cardWrap.removeClass("card-progress");
+        },
+    });
 });
 $(document).ready(function () {
     $("#tb_OrderBuku").on("click", ".btn-status-order-buku", function (e) {
@@ -100,34 +104,35 @@ $(document).ready(function () {
         let id = $(this).data("id"),
             kode = $(this).data("no_order"),
             judul = $(this).data("judul"),
-            cardWrap = $('#md_UpdateStatusJasaCetakOrderBuku');
-            $.ajax({
-                url: window.location.origin + "/jasa-cetak/order-buku/ajax/catch-value-status",
-                data: {
-                    id : id,
-                    no_order : kode,
-                    judul_buku : judul
-                },
-                beforeSend: function () {
-                    cardWrap.addClass('modal-progress');
-                },
-                success: function (result) {
-                    let {
-                        data
-                    } = result;
-                    for (let n in data) {
-                        // console.log(data[n]);
-                        $('[name="' + n + '"]').val(data[n]).change();
-                    }
-                },
-                error: function (err) {
-                    notifToast("error", "Terjadi kesalahan!");
-                },
-                complete: function () {
-                    cardWrap.removeClass('modal-progress');
+            cardWrap = $("#md_UpdateStatusJasaCetakOrderBuku");
+        $.ajax({
+            url:
+                window.location.origin +
+                "/jasa-cetak/order-buku/ajax/catch-value-status",
+            data: {
+                id: id,
+                no_order: kode,
+                judul_buku: judul,
+            },
+            beforeSend: function () {
+                cardWrap.addClass("modal-progress");
+            },
+            success: function (result) {
+                let { data } = result;
+                for (let n in data) {
+                    // console.log(data[n]);
+                    $('[name="' + n + '"]')
+                        .val(data[n])
+                        .change();
                 }
-
-            })
+            },
+            error: function (err) {
+                notifToast("error", "Terjadi kesalahan!");
+            },
+            complete: function () {
+                cardWrap.removeClass("modal-progress");
+            },
+        });
     });
 });
 $(function () {
@@ -156,11 +161,13 @@ $(function () {
         });
     function ajaxUpdateStatusOrderBuku(data) {
         let el = data.get(0);
-        let form = $('#md_UpdateStatusJasaCetakOrderBuku');
+        let form = $("#md_UpdateStatusJasaCetakOrderBuku");
         // console.log(el);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/jasa-cetak/order-buku/ajax/update-status-progress",
+            url:
+                window.location.origin +
+                "/jasa-cetak/order-buku/ajax/update-status-progress",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -225,12 +232,13 @@ $(function () {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
-        let form = $('#md_OrderBukuHistory');
+        let form = $("#md_OrderBukuHistory");
         $(this).data("paginate", page + 1);
 
         $.ajax({
             url:
-                window.location.origin + "/jasa-cetak/order-buku/ajax/lihat-history",
+                window.location.origin +
+                "/jasa-cetak/order-buku/ajax/lihat-history",
             data: {
                 id: id,
                 page: page,
@@ -250,7 +258,6 @@ $(function () {
             complete: function (params) {
                 // console.log();
                 form.removeClass("modal-progress");
-
             },
         });
     });

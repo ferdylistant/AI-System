@@ -3,6 +3,7 @@ $(function () {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
+        let form = $("#md_DesfinHistory");
         $(this).data("paginate", page + 1);
 
         $.ajax({
@@ -14,11 +15,13 @@ $(function () {
                 page: page,
             },
             type: "post",
+            cache: false,
             beforeSend: function () {
-                $(".load-more").text("Loading...");
+                form.addClass("modal-progress");
             },
             success: function (response) {
                 if (response.length == 0) {
+                    $(".load-more").attr("disabled", true);
                     notifToast("error", "Tidak ada data lagi");
                 }
                 $("#dataHistoryDesfin").append(response);
@@ -29,9 +32,13 @@ $(function () {
                 // }, 2000);
             },
             complete: function (params) {
-                $(".load-more").text("Load more").fadeIn("slow");
+                form.removeClass("modal-progress");
             },
         });
+    });
+    $("#md_DesfinHistory").on("hidden.bs.modal", function () {
+        $(".load-more").data("paginate", 2);
+        $(".load-more").attr("disabled", false);
     });
 });
 $(document).ready(function () {

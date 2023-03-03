@@ -28,8 +28,8 @@
         }
 
         /* .fc-event-title {
-                            color: #1a252f;
-                        } */
+                                color: #1a252f;
+                            } */
 
         .tb-detail-naskah {
             font-size: 12px;
@@ -51,118 +51,118 @@
 
         /* @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
 
-            :root {
-                --timeline-colour: #bb1919;
-            }
-
-            body {
-                font-family: "Open Sans", sans-serif;
-                color: #333;
-            }
-
-            .timeline {
-                margin: 1rem;
-                padding: 1rem;
-                background-color: #eee;
-
-                &__header {
-                    position: relative;
-                    padding-bottom: 0.5rem;
-
-                    &:before {
-                        content: "";
-                        width: 0.125rem;
-                        height: 100%;
-                        position: absolute;
-                        top: .25rem;
-                        left: calc(0.375rem - 1px);
-                        background-color: var(--timeline-colour);
-                    }
+                :root {
+                    --timeline-colour: #bb1919;
                 }
 
-                &__live {
-                    display: flex;
-                    margin-bottom: 0.25rem;
-
-                    >span {
-                        display: block;
-                        margin-left: 0.25rem;
-                        font-size: 1.125rem;
-                        text-transform: uppercase;
-                        font-weight: 700;
-                    }
+                body {
+                    font-family: "Open Sans", sans-serif;
+                    color: #333;
                 }
 
-                &__title {
-                    margin-left: 1rem;
-                }
+                .timeline {
+                    margin: 1rem;
+                    padding: 1rem;
+                    background-color: #eee;
 
-                &__list {
-                    >li {
-                        display: flex;
-                        gap: .5rem;
+                    &__header {
                         position: relative;
-                        padding: 0.625rem 0;
-                        font-size: 0.75rem;
+                        padding-bottom: 0.5rem;
 
                         &:before {
                             content: "";
                             width: 0.125rem;
                             height: 100%;
                             position: absolute;
-                            top: 0;
+                            top: .25rem;
                             left: calc(0.375rem - 1px);
                             background-color: var(--timeline-colour);
                         }
+                    }
 
-                        &:last-child:before {
-                            height: .875rem;
+                    &__live {
+                        display: flex;
+                        margin-bottom: 0.25rem;
+
+                        >span {
+                            display: block;
+                            margin-left: 0.25rem;
+                            font-size: 1.125rem;
+                            text-transform: uppercase;
+                            font-weight: 700;
                         }
                     }
-                }
 
-                &__marker {
-                    width: .5rem;
-                    min-width: .5rem;
-                    height: .5rem;
-                    margin-top: .0625rem;
-                    margin-left: .125rem;
-                    background-color: var(--timeline-colour);
-                    border-radius: 50%;
+                    &__title {
+                        margin-left: 1rem;
+                    }
 
-                    &--live {
-                        width: 0.75rem;
-                        height: 0.75rem;
-                        margin-left: 0;
-                        animation-name: pulse;
-                        animation-timing-function: ease-in-out;
-                        animation-duration: 1.5s;
-                        animation-iteration-count: infinite;
+                    &__list {
+                        >li {
+                            display: flex;
+                            gap: .5rem;
+                            position: relative;
+                            padding: 0.625rem 0;
+                            font-size: 0.75rem;
+
+                            &:before {
+                                content: "";
+                                width: 0.125rem;
+                                height: 100%;
+                                position: absolute;
+                                top: 0;
+                                left: calc(0.375rem - 1px);
+                                background-color: var(--timeline-colour);
+                            }
+
+                            &:last-child:before {
+                                height: .875rem;
+                            }
+                        }
+                    }
+
+                    &__marker {
+                        width: .5rem;
+                        min-width: .5rem;
+                        height: .5rem;
+                        margin-top: .0625rem;
+                        margin-left: .125rem;
+                        background-color: var(--timeline-colour);
+                        border-radius: 50%;
+
+                        &--live {
+                            width: 0.75rem;
+                            height: 0.75rem;
+                            margin-left: 0;
+                            animation-name: pulse;
+                            animation-timing-function: ease-in-out;
+                            animation-duration: 1.5s;
+                            animation-iteration-count: infinite;
+                        }
+                    }
+
+                    &__timestamp {
+                        font-weight: 700;
+                    }
+
+                    &--alt {
+                        --timeline-colour: #2866f6;
                     }
                 }
 
-                &__timestamp {
-                    font-weight: 700;
-                }
+                @keyframes pulse {
+                    from {
+                        transform: scale3d(1, 1, 1);
+                    }
 
-                &--alt {
-                    --timeline-colour: #2866f6;
-                }
-            }
+                    50% {
+                        transform: scale3d(.85, .85, .85);
+                    }
 
-            @keyframes pulse {
-                from {
-                    transform: scale3d(1, 1, 1);
-                }
-
-                50% {
-                    transform: scale3d(.85, .85, .85);
-                }
-
-                to {
-                    transform: scale3d(1, 1, 1);
-                }
-            } */
+                    to {
+                        transform: scale3d(1, 1, 1);
+                    }
+                } */
     </style>
 @endsection
 
@@ -332,7 +332,7 @@
                         <div class="hero-inner">
                             <h2>Selamat datang, {{ $userdata->nama }}!</h2>
                             <p class="lead">You almost arrived, complete the information about your account to complete
-                                registration. {{$id}}</p>
+                                registration. {{ $id }}</p>
                             <div class="mt-4">
                                 <a href="{{ url('manajemen-web/user/' . $userdata->id) }}"
                                     class="btn btn-outline-white btn-lg btn-icon icon-left"><i class="far fa-user"></i>
