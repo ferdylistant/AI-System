@@ -137,6 +137,37 @@ class JasaCetakListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
+            case 'Pilih Harga Order Buku':
+                $res = $data['data']->update([
+                    'harga_final' => $data['harga_final']
+                ]);
+                DB::table('jasa_cetak_order_buku_history')->insert([
+                    'order_buku_id' => $data['data']->first()->id,
+                    'type_history' => 'Pilih Harga',
+                    'harga_final_his' => $data['harga_final_his'],
+                    'harga_final_new' => $data['harga_final_new'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Approval Order Buku':
+                $res = $data['data']->update([
+                    'approve' => $data['approve'],
+                    'decline' => $data['decline'],
+                    'keterangan_decline' => $data['keterangan_decline'],
+                    'decline_by' => $data['decline_by'],
+                    'status' => $data['status'],
+                ]);
+                DB::table('jasa_cetak_order_buku_history')->insert([
+                    'order_buku_id' => $data['data']->first()->id,
+                    'type_history' => 'Approval',
+                    'approve' => $data['approve'],
+                    'decline' => $data['decline'],
+                    'keterangan_decline' => $data['keterangan_decline'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
             default:
                 return abort(500);
                 break;

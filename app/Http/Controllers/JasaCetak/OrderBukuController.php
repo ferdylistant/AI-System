@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\{DB, Gate};
 
 class OrderBukuController extends Controller
 {
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         if ($request->ajax()) {
             $data = DB::table('jasa_cetak_order_buku')
             ->orderBy('tgl_order', 'ASC')
@@ -44,7 +45,7 @@ class OrderBukuController extends Controller
                 })
                 ->addColumn('action', function ($data) {
                     $btn = '<a href="' . url('jasa-cetak/order-buku/detail?order=' . $data->id . '&kode=' . $data->no_order) . '"
-                                    class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
+                                    class="d-block btn btn-sm btn-primary btn-icon mr-1" data-role="page" data-ajax="false" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                     $btn = $this->buttonAction($data->id,$data->no_order,$btn);
 
@@ -65,7 +66,7 @@ class OrderBukuController extends Controller
         $type = DB::select(DB::raw("SHOW COLUMNS FROM jasa_cetak_order_buku WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $statusProgress = explode("','", $matches[1]);
-        $statusAction = Arr::except($statusProgress, ['4']);
+        $statusAction = Arr::except($statusProgress, ['0','5','6']);
         return view('jasa_cetak.order_buku.index', [
             'title' => 'Jasa Cetak Order Buku',
             'status_progress' => $statusProgress,
@@ -231,7 +232,12 @@ class OrderBukuController extends Controller
                     } else {
                         $gate = FALSE;
                     }
-                    return ['data' => $data,'gate'=> $gate];
+                    if ($data->status == "Tidak Deal") {
+                        $noDeal = TRUE;
+                    } else {
+                        $noDeal = FALSE;
+                    }
+                    return ['data' => $data,'gate'=> $gate,'nodeal' => $noDeal];
                     break;
                 case 'updateOrder':
                     DB::beginTransaction();
@@ -389,14 +395,55 @@ class OrderBukuController extends Controller
                 if (is_null($data)) {
                     return abort(404);
                 }
+                if ($request->has('req')) {
+                    if ($request->req == 'modal-decline') {
+                        return $this->showModalDecline($data);
+                    }
+                }
             } else {
+                switch ($request->req) {
+                    case 'pilih-harga':
+                        return $this->pilihHarga($request);
+                        break;
+                    case 'approval-order':
+                        return $this->approvalOrder($request);
+                        break;
 
+                    default:
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Terjadi kesalahan! Silahkan hubungi tim pengembang AI System.'
+                        ]);
+                        break;
+                }
             }
             switch ($request->request_) {
                 case 'getValue':
                     $useData = $data;
                     $data = (object)collect($data)->map(function ($item, $key) use ($useData) {
+                        // Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak')
+                        //  Gate::allows('do_create','create-order-buku-jasa-cetak')
                         switch ($key) {
+                            case 'id':
+                                $html = '';
+                                if (is_null($useData->approve) && is_null($useData->decline)) {
+                                    if (Gate::allows('do_create','create-order-buku-jasa-cetak') && !Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak')) {
+                                        $html .= '<div class="col-auto mr-auto">
+                                        <div class="mb-4">
+                                        <button type="submit" class="btn btn-success" id="btn-approve" data-ajax="false" data-id="'.$item.'" data-no_order="'.$useData->no_order.'" data-judul="'.$useData->judul_buku.'">
+                                        <i class="fas fa-check"></i>&nbsp;Deal</button>
+                                        <button type="button" class="btn btn-danger" id="btn-decline" data-ajax="false" data-id="'.$item.'" data-no_order="'.$useData->no_order.'">
+                                        <i class="fas fa-times"></i>&nbsp;Tidak Deal</button>
+                                        </div></div>';
+                                    }
+                                } elseif (!is_null($useData->decline)) {
+                                    $html .= '<div class="col-auto mr-auto">
+                                    <div class="mb-4">
+                                    <a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon" id="btn-decline" data-ajax="false" data-id="'.$useData->id.'" data-no_order="'.$useData->no_order.'" title="Keterangan Tidak Deal">
+                                    <i class="fas fa-eye"></i>&nbsp;Keterangan Tidak Deal</a></div></div>';
+                                }
+                                return $html;
+                                break;
                             case 'jml_order':
                                 $res = '';
                                 $json = json_decode($item);
@@ -411,7 +458,19 @@ class OrderBukuController extends Controller
                                             if ($i != $k) {
                                                 continue;
                                             }
-                                            $res .= '<span class="bullet"></span>'.$val.' - Rp.'.number_format($val2,0,',','.').'<br>';
+                                            $hargaFinal = $val.' Eks - Rp.'.number_format($val2,0,',','.');
+                                            if (Gate::allows('do_create','create-order-buku-jasa-cetak') && !Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak')) {
+                                                $labelDeal = $useData->status == "Tidak Deal"? 'readonly disabled':'';
+                                                $res .= '<div class="form-check">
+                                                <input class="form-check-input" type="radio" name="harga_final_radio" data-no_order="'.$useData->no_order.'" data-id="'.$useData->id.'" value="'.$val.' Eks - Rp.'.number_format($val2,0,',','.').'" data-ajax="false" id="hargaFinalRadio'.$k.'"
+                                                '.(is_null($useData->harga_final)?'':($useData->harga_final==$hargaFinal?'checked':'')).' '.$labelDeal.'>
+                                                <label class="form-check-label" for="hargaFinalRadio'.$k.'">'.$val.' Eks - Rp.'.number_format($val2,0,',','.').'
+                                                </label></div>';
+                                            } else {
+                                                $icon = $useData->harga_final==$hargaFinal ? '<i class="fas fa-check text-success"></i>' : '';
+                                                $text = $useData->harga_final==$hargaFinal ? 'text-success' : '';
+                                                $res .= '<span class="bullet '.$text.'"></span>'.$val.' Eks - Rp.'.number_format($val2,0,',','.').' '.$icon.'<br>';
+                                            }
                                         }
                                     }
                                 }
@@ -424,7 +483,7 @@ class OrderBukuController extends Controller
                                         $res .='<span class="badge" style="background:#34395E;color:white">Antrian</span>';
                                     break;
                                     case 'Pending':
-                                        $res .='<span class="badge badge-danger">Pending</span>';
+                                        $res .='<span class="badge badge-warning">Pending</span>';
                                     break;
 
                                     case 'Proses':
@@ -437,11 +496,17 @@ class OrderBukuController extends Controller
                                     case 'Revisi':
                                         $res .='<span class="badge badge-info">Revisi</span>';
                                     break;
+                                    case 'Tidak Deal':
+                                        $res .='<span class="badge badge-danger">Tidak Deal</span>';
+                                    break;
                                     default:
                                         $res .='<span class="badge badge-primary">Kalkulasi</span>';
                                     break;
                                 }
                                 return $res;
+                                break;
+                            case 'harga_final':
+                                return !is_null($item) ? $item : NULL;
                                 break;
                             case 'tgl_order':
                                 return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
@@ -461,17 +526,30 @@ class OrderBukuController extends Controller
                         }
                         return $item;
                     })->all();
-                    if (Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak')) {
-                        $gate = TRUE;
+                    if (Gate::allows('do_create','create-order-buku-jasa-cetak') && !Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak')) {
+                        $cs = TRUE;
                     } else {
-                        $gate = FALSE;
+                        $cs = FALSE;
                     }
-                    return ['data' => $data,'gate'=> $gate];
+                    return ['data' => $data,'cs'=> $cs];
                     break;
             }
         }
         return view('jasa_cetak.order_buku.detail',[
             'title' => 'Detail Order Buku Jasa Cetak'
+        ]);
+    }
+    public function otorisasiKabag(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->isMethod('GET')) {
+
+            } else {
+
+            }
+        }
+        return view('jasa_cetak.order_buku.otorisasi_kabag',[
+            'title' => 'Otorisasi Kabag Order Buku'
         ]);
     }
     protected function panelStatus($id,$no_order,$judul,$status = null)
@@ -486,7 +564,7 @@ class OrderBukuController extends Controller
                     $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $status . '</span>';
                     break;
                 case 'Pending':
-                    $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $status . '</span>';
+                    $btn .= '<span class="d-block badge badge-warning mr-1 mt-1">' . $status . '</span>';
                     break;
                 case 'Proses':
                     $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $status . '</span>';
@@ -496,6 +574,9 @@ class OrderBukuController extends Controller
                     break;
                 case 'Revisi':
                     $btn .= '<span class="d-block badge badge-info mr-1 mt-1">' . $status . '</span>';
+                    break;
+                case 'Tidak Deal':
+                    $btn .='<span class="d-block badge badge-danger mr-1 mt-1">' . $status . '</span>';
                     break;
                 default:
                     return abort(410);
@@ -511,7 +592,7 @@ class OrderBukuController extends Controller
                         <div>' . $status . '</div></a>';
                     break;
                 case 'Pending':
-                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-order-buku" data-id="' . $id . '" data-no_order="' . $no_order . '" data-judul="' . $judul . '" data-toggle="modal" data-target="#md_UpdateStatusJasaCetakOrderBuku" title="Update Status">
+                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1 btn-status-order-buku" data-id="' . $id . '" data-no_order="' . $no_order . '" data-judul="' . $judul . '" data-toggle="modal" data-target="#md_UpdateStatusJasaCetakOrderBuku" title="Update Status">
                         <div>' . $status . '</div></a>';
                     break;
                 case 'Proses':
@@ -524,6 +605,9 @@ class OrderBukuController extends Controller
                 case 'Revisi':
                     $btn .= '<span class="d-block badge badge-info mr-1 mt-1">' . $status . '</span>';
                     break;
+                case 'Tidak Deal':
+                    $btn .='<span class="d-block badge badge-danger mr-1 mt-1">' . $status . '</span>';
+                    break;
                 default:
                     return abort(410);
                     break;
@@ -534,7 +618,7 @@ class OrderBukuController extends Controller
     protected function buttonAction($id,$no_order,$btn)
     {
         //Button Edit
-        if (Gate::allows('do_update','update-order-buku-jasa-cetak')) {
+        if (Gate::allows('do_update','update-order-buku-jasa-cetak') || Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak')) {
             $btn .= '<a href="' . url('jasa-cetak/order-buku/edit?order=' . $id . '&kode=' . $no_order) . '"
             class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
             <div><i class="fas fa-edit"></i></div></a>';
@@ -546,6 +630,137 @@ class OrderBukuController extends Controller
             <div><i class="fas fa-tasks"></i></div></a>';
         }
         return $btn;
+    }
+    protected function showModalDecline($data)
+    {
+        try {
+            $html = '';
+            if (is_null($data->decline)) {
+                $html .= "<div class='form-group'>
+                <label for='keterangan_decline' class='col-form-label'>Alasan: <span class='text-danger'>*</span></label>
+                <textarea class='form-control' name='keterangan_decline' id='keterangan_decline' rows='4'></textarea>
+                <div id='err_keterangan_decline'></div>
+                </div>";
+                $title = '<i class="fas fa-times"></i>&nbsp;ORDER BUKU '.$data->no_order. "-" .$data->judul_buku;
+                $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Konfirmasi</button>';
+            } else {
+                $html .= "<div class='form-group mb-2'>
+                <label for='decline_by'>Oleh:</label>
+                <p id='decline_by'>".DB::table('users')->where('id',$data->decline_by)->first()->nama."</p></div>
+                <hr>
+                <div class='form-group mb-2'>
+                <label for='decline'>Dilakukan pada:</label>
+                <p id='decline'>".Carbon::parse($data->decline)->translatedFormat('l d F Y, H:i')."</p></div>
+                <hr>
+                <div class='form-group mb-2'>
+                <label for='keterangan_decline'>Alasan:</label>
+                <p id='keterangan_decline'>".$data->keterangan_decline."</p></div>";
+                $title = '<i class="fas fa-times"></i>&nbsp;ORDER BUKU '.$data->no_order. "-" .$data->judul_buku.', TIDAK DEAL';
+                $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>';
+            }
+            return response()->json([
+                'title' => $title,
+                'footer' => $footer,
+                'data' => $data,
+                'html' => $html
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function pilihHarga($request)
+    {
+        try {
+            $id = $request->id;
+            $no_order = $request->no_order;
+            $harga_final = $request->harga_final;
+            DB::beginTransaction();
+            $data = DB::table('jasa_cetak_order_buku')
+            ->where('no_order',$no_order)
+            ->where('id',$id);
+            if (is_null($data->first())) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data order buku tidak ditemukan!'
+                ]);
+            }
+            $res = [
+                'params' => 'Pilih Harga Order Buku',
+                'harga_final' => $harga_final,
+                'data' => $data,
+                'harga_final_his' => $harga_final == $data->first()->harga_final ? NULL : $data->first()->harga_final,
+                'harga_final_new' => $harga_final == $data->first()->harga_final ? NULL : $harga_final,
+                'author_id' => auth()->user()->id,
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new JasaCetakEvent($res));
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Harga berhasil dipilih!',
+                'data' => $harga_final
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'data' => NULL
+            ]);
+        }
+    }
+    protected function approvalOrder($request)
+    {
+        try {
+            $id = $request->id;
+            $no_order = $request->no_order;
+            $keterangan_decline = $request->keterangan_decline;
+            DB::beginTransaction();
+            $data = DB::table('jasa_cetak_order_buku')
+            ->where('no_order',$no_order)
+            ->where('id',$id);
+            if (is_null($data->first())) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data order buku tidak ditemukan!'
+                ]);
+            }
+            if (($request->type == 'approve') && (is_null($data->first()->harga_final))) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda belum menentukan jumlah order serta harga final!'
+                ]);
+            }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $res = [
+                'params' => 'Approval Order Buku',
+                'approve' => $request->type == 'approve' ? $tgl : NULL,
+                'decline' => $request->type == 'approve' ? NULL : $tgl,
+                'keterangan_decline' => $request->type == 'approve' ? NULL : $keterangan_decline,
+                'decline_by' => $request->type == 'approve' ? NULL : auth()->user()->id,
+                'status' => $request->type == 'approve' ? 'Antrian':'Tidak Deal',
+                'data' => $data,
+                'author_id' => auth()->user()->id,
+                'modified_at' => $tgl
+            ];
+            event(new JasaCetakEvent($res));
+            $lbl = $request->type == 'approve' ? 'deal':'tidak deal';
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Order buku '.$lbl.'!',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
     public static function generateId()
     {
@@ -601,7 +816,7 @@ class OrderBukuController extends Controller
             ->orderBy('h.id', 'desc')
             ->paginate(2);
         foreach ($data as $d) {
-            $d = (object)collect($d)->map(function ($item, $key) {
+            $d = (object)collect($d)->map(function ($item, $key) use ($id) {
                 switch ($key) {
                     case 'tgl_order_his':
                         return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
@@ -630,7 +845,7 @@ class OrderBukuController extends Controller
                         if (!is_null($item)) {
                             $jmlOrder = '';
                             foreach (json_decode($item, true) as $new) {
-                                $jmlOrder .= '<span class="bullet"></span>' .$new;
+                                $jmlOrder .= '<b class="text-dark">'.$new.'</b>, ';
                             }
                         } else {
                             $jmlOrder = NULL;
@@ -639,9 +854,15 @@ class OrderBukuController extends Controller
                         break;
                     case 'kalkulasi_harga_his':
                         if (!is_null($item)) {
+                            $kal = DB::table('jasa_cetak_order_buku')->where('id',$id)->first();
                             $kalkulasiHarga = '';
-                            foreach (json_decode($item, true) as $his) {
-                                $kalkulasiHarga .= '<b class="text-dark">Rp.' . number_format($his,0,',','.') . '</b>, ';
+                            foreach (json_decode($kal->jml_order, true) as $i => $v) {
+                                foreach (json_decode($item, true) as $j => $his) {
+                                    if ($i != $j) {
+                                        continue;
+                                    }
+                                    $kalkulasiHarga .= '<b class="text-dark">'.$v.' Eks - Rp.' . number_format($his,0,',','.') . '</b>,<br> ';
+                                }
                             }
                         } else {
                             $kalkulasiHarga = NULL;
@@ -650,9 +871,15 @@ class OrderBukuController extends Controller
                         break;
                     case 'kalkulasi_harga_new':
                         if (!is_null($item)) {
+                            $kal = DB::table('jasa_cetak_order_buku')->where('id',$id)->first();
                             $kalkulasiHarga = '';
-                            foreach (json_decode($item, true) as $new) {
-                                $kalkulasiHarga .= '<span class="bullet"></span>Rp.' .number_format($new,0,',','.');
+                            foreach(json_decode($kal->jml_order, true) as $i => $v) {
+                                foreach (json_decode($item, true) as $j => $new) {
+                                    if ($i != $j) {
+                                        continue;
+                                    }
+                                    $kalkulasiHarga .= '<b class="text-dark">'.$v.' Eks - Rp.' .number_format($new,0,',','.').'</b>,<br> ';
+                                }
                             }
                         } else {
                             $kalkulasiHarga = NULL;
@@ -842,30 +1069,28 @@ class OrderBukuController extends Controller
                             '<div class="ticket-title">
                                 <span><span class="bullet"></span> Jumlah order ' .
                             $d->jml_order_his .
-                            'diubah menjadi <b class="text-dark">' .
+                            'diubah menjadi ' .
                             $d->jml_order_new .
-                            '</b> </span></div>';
+                            '.</span></div>';
                     } elseif (!is_null($d->jml_order_new)) {
                         $html .=
                             '<div class="ticket-title">
-                                <span><span class="bullet"></span> Jumlah order <b class="text-dark">' .
+                                <span><span class="bullet"></span> Jumlah order ' .
                             $d->jml_order_new .
-                            '</b> ditambahkan. </span></div>';
+                            ' ditambahkan. </span></div>';
                     }
                     if (!is_null($d->kalkulasi_harga_his)) {
                         $html .=
                             '<div class="ticket-title">
-                                <span><span class="bullet"></span> Kalkulasi harga ' .
+                                <span><span class="bullet"></span> Kalkulasi harga<br>' .
                             $d->kalkulasi_harga_his .
-                            'diubah menjadi <b class="text-dark">' .
-                            $d->kalkulasi_harga_new .
-                            '</b> </span></div>';
+                            'diubah menjadi<br>' .$d->kalkulasi_harga_new .'</span></div>';
                     } elseif (!is_null($d->kalkulasi_harga_new)) {
                         $html .=
                             '<div class="ticket-title">
-                                <span><span class="bullet"></span> Kalkulasi harga <b class="text-dark">' .
+                                <span><span class="bullet"></span> Kalkulasi harga<br>' .
                             $d->kalkulasi_harga_new .
-                            '</b> ditambahkan. </span></div>';
+                            ' ditambahkan. </span></div>';
                     }
                     if (!is_null($d->tgl_order_his)) {
                         $html .=
@@ -927,6 +1152,54 @@ class OrderBukuController extends Controller
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' .$d->modified_at.'</div>
+                        </div>
+                        </span>';
+                    break;
+                case 'Pilih Harga':
+                    $html .= '<span class="ticket-item" id="newAppend">';
+
+                    if (!is_null($d->harga_final_his)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Harga Final <b class="text-dark">' .
+                            $d->harga_final_his .
+                            '</b> diubah menjadi <b class="text-dark">' .
+                            $d->harga_final_new .
+                            '</b> </span></div>';
+                    } elseif (!is_null($d->harga_final_new)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Harga Final <b class="text-dark">' .
+                            $d->harga_final_new .
+                            '</b> ditambahkan. </span></div>';
+                    }
+                    $html .=
+                        '<div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' .url('/manajemen-web/user/' . $d->author_id) .'">' .$d->nama .'</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' .$d->modified_at.'</div>
+                        </div>
+                        </span>';
+                    break;
+                case 'Approval':
+                    $html .= '<span class="ticket-item" id="newAppend">';
+
+                    if (!is_null($d->approve)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Order buku deal, status proses "Antrian". <i class="fas fa-check text-success"></i></span></div>';
+                    } elseif (!is_null($d->decline)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Order buku tidak deal, dengan alasan "<b class="text-dark">' .
+                            $d->keterangan_decline .
+                            '</b>". <i class="fas fa-times text-danger"></i> </span></div>';
+                    }
+                    $html .=
+                        '<div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' .url('/manajemen-web/user/' . $d->author_id) .'">' .$d->nama .'</a></div>
                             <div class="bullet pt-2"></div>
                             <div class="pt-2">' .$d->modified_at.'</div>
                         </div>

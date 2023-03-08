@@ -126,12 +126,17 @@ function loadDataValue() {
         },
         success: function (result) {
             let {
-                data,gate
+                data,gate,nodeal
             } = result;
             for (let n in data) {
                 // console.log(data[n]);
                 switch (n) {
                     case 'id':
+                        if (nodeal == true) {
+                            $('[name="edit_' + n + '"]').attr("readonly",true);
+                            $('[name="edit_' + n + '"]').attr("disabled",true);
+                            $('#btnSubmit').attr("disabled",true);
+                        }
                         $('[name="edit_id"]').attr("data-id", data[n]).change();
                         break;
                     case 'no_order':
@@ -145,6 +150,10 @@ function loadDataValue() {
                         $('#createdAt').text(data[n]).change();
                         break;
                     case 'jml_order':
+                        if (nodeal == true) {
+                            $('[name="edit_' + n + '"]').attr("readonly",true);
+                            $('[name="edit_' + n + '"]').attr("disabled",true);
+                        }
                         if (gate == true) {
                             $('[name="edit_' + n + '"]').attr("readonly",true);
                             $('[name="edit_' + n + '"]').attr("disabled",true);
@@ -156,11 +165,16 @@ function loadDataValue() {
                         $('[name="edit_' + n + '').tagsinput('add',data[n]);
                         break;
                     case 'kalkulasi_harga':
-                        if (gate == false) {
+                        if (nodeal == true) {
                             $('[name="edit_' + n + '"]').attr("readonly",true);
                             $('[name="edit_' + n + '"]').attr("disabled",true);
                         } else {
-                            $('[name="edit_' + n + '"]').attr("required",true);
+                            if (gate == false) {
+                                $('[name="edit_' + n + '"]').attr("readonly",true);
+                                $('[name="edit_' + n + '"]').attr("disabled",true);
+                            } else {
+                                $('[name="edit_' + n + '"]').attr("required",true);
+                            }
                         }
                         // console.log(data[n]);
                         $('[name="edit_' + n + '').tagsinput('removeAll');
@@ -169,6 +183,10 @@ function loadDataValue() {
                         $('[name="edit_' + n + '').tagsinput('add',data[n]);
                         break;
                     default:
+                        if (nodeal == true) {
+                            $('[name="edit_' + n + '"]').attr("readonly",true);
+                            $('[name="edit_' + n + '"]').attr("disabled",true);
+                        }
                         if (gate == true) {
                             $('[name="edit_' + n + '"]').attr("readonly",true);
                             $('[name="edit_' + n + '"]').attr("disabled",true);

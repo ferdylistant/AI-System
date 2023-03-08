@@ -1,6 +1,4 @@
-$(function () {
-    loadDataValue();
-});
+loadDataValue();
 function loadDataValue() {
     let id = window.location.search.split('?').pop(),
         cardWrap = $('.section-body').find('.card');
@@ -11,16 +9,28 @@ function loadDataValue() {
         },
         success: function (result) {
             let {
-                data,gate
+                data,cs
             } = result;
             for (let n in data) {
                 // console.log(data[n]);
                 switch (n) {
                     case 'id':
-                        $('[name="id"]').attr("data-id", data[n]).change();
+                        $('#buttonAct').html(data[n]).change();
                         break;
                     case 'jml_order':
+                        if (cs == true) {
+                            $('.jml-order-text').text('*Pilih sebelum klik deal');
+                        }
                         $('.'+n).html(data[n]).change();
+                        break;
+                    case 'harga_final':
+                        // console.log(data[n]);
+                        if (data[n] == null) {
+                            $('.'+n).text('Harga belum dipilih!').addClass('text-danger');
+                        } else {
+                            $('.' + n).text(data[n]).removeClass('text-danger').change();
+                        }
+
                         break;
                     case 'status':
                         $('.'+n).html(data[n]).change();
@@ -40,3 +50,181 @@ function loadDataValue() {
 
     })
 }
+$(function () {
+    $("#buttonAct").on("click","#btn-decline", function (e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var no_order = $(this).data("no_order");
+        let cardWrap = $('.section-body').find('.card');
+        $.ajax({
+            type: 'GET',
+            url: window.location.origin + "/jasa-cetak/order-buku/detail?req=modal-decline",
+            data: {
+                order : id,
+                kode : no_order,
+            },
+            beforeSend: function () {
+                cardWrap.addClass('card-progress');
+            },
+            success: function (response) {
+                $("#modalDecline").find("#titleModalOrderBuku").html(response.title).addClass('text-danger');
+                $("#modalDecline").find("form #contentData").html(response.html);
+                $("#modalDecline").find("form #footerDecline").html(response.footer);
+                $("[name='id']").val(response.data['id']);
+                $("[name='no_order']").val(response.data['no_order']);
+                $("[name='judul_buku']").val(response.data['judul_buku']);
+                $('#modalDecline').modal("show");
+
+            },
+            error: function (err) {
+                notifToast('error', err.statusText);
+            },
+            complete: function (params) {
+                cardWrap.removeClass('card-progress');
+            }
+        });
+    });
+    function ajaxPilihHarga(no_order,id,harga_final,cardWrap) {
+        $.ajax({
+            url:
+                window.location.origin + "/jasa-cetak/order-buku/detail?req=pilih-harga",
+            data: {
+                no_order: no_order,
+                id: id,
+                harga_final: harga_final,
+            },
+            type: "post",
+            dataType: "json",
+            beforeSend: function () {
+                cardWrap.addClass('card-progress');
+            },
+            success: function (response) {
+                // console.log(response);
+                $('.harga_final').removeClass('text-danger');
+                if (response.status == 'success') {
+                    $('.harga_final').text(response.data).change();
+                }
+                notifToast(response.status, response.message);
+            },
+            error: function (err) {
+                // console.log(err);
+                notifToast('error', err.statusText);
+            },
+            complete: function (params) {
+                // console.log();
+                cardWrap.removeClass("card-progress");
+            },
+        });
+    }
+    $(".jml_order").on("change",'input[type=radio][name=harga_final_radio]',function(){
+
+        var no_order = $(this).data('no_order');
+        var id = $(this).data('id');
+        var harga_final = $(this).val();
+        let cardWrap = $('.section-body').find('.card');
+        ajaxPilihHarga(no_order,id,harga_final,cardWrap);
+
+    });
+    //! DECLINE
+    let addForm = jqueryValidation_("#fadd_Decline", {
+        keterangan_decline: { required: true },
+    });
+    function ajaxDeclineOrderBuku(data) {
+        let el = data.get(0);
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/jasa-cetak/order-buku/detail?req=approval-order&type=decline",
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $('#modalDecline').addClass("modal-progress");
+            },
+            success: function (result) {
+                notifToast(result.status, result.message);
+                if (result.status == "success") {
+                    location.reload();
+                }
+            },
+            error: function (err) {
+                // console.log(err.responseJSON)
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    addForm.showErrors(err);
+                }
+                notifToast("error", err.statusText);
+            },
+            complete: function () {
+                $('#modalDecline').removeClass("modal-progress");
+            },
+        });
+    }
+    $('#fadd_Decline').on("submit", function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            let kode = $(this).find('[name="no_order"]').val();
+            let judul = $(this).find('[name="judul_buku"]').val();
+            swal({
+                title: 'Yakin order buku "' + kode + "-" + judul + '" tidak deal?',
+                text: "Setelah order buku tidak deal, proses tidak dilanjutkan, namun data tetap tersimpan sebagai arsip order buku.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxDeclineOrderBuku($(this));
+                }
+            });
+        }
+    });
+    //! APPROVE
+    function ajaxApproveOrderBuku(id,kode) {
+        let cardWrap = $('.section-body').find('.card');
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/jasa-cetak/order-buku/detail?req=approval-order&type=approve",
+            data: {
+                id: id,
+                no_order : kode
+            },
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (result) {
+                // console.log(result);
+                notifToast(result.status, result.message);
+                if (result.status == "success") {
+                    location.reload();
+                }
+            },
+            error: function (err) {
+                notifToast("error", err.statusText);
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            },
+        });
+    }
+    $("#buttonAct").on("click",'#btn-approve', function (e) {
+        e.preventDefault();
+        let id = $(this).data("id");
+        let kode = $(this).data("no_order");
+        let judul = $(this).data("judul");
+        swal({
+            title: 'Yakin order buku "' + kode + "-" + judul + '" deal?',
+            text: "Setelah order buku deal, status proses masuk 'Antrian'. Selanjutnya kabag akan memproses alur order buku.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((confirm_) => {
+            if (confirm_) {
+                ajaxApproveOrderBuku(id,kode);
+            }
+        });
+    });
+})

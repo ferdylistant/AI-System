@@ -163,7 +163,7 @@
                                 @endif
                                 <div class="tab-pane fade mt-3" id="user-status" role="tabpanel"
                                     aria-labelledby="user-status-tab">
-                                    <div class="custom-control custom-switch">
+                                    <div class="custom-control custom-switch" {{ Auth::user()->cannot('do_update', 'ubah-data-user') ? 'hidden':''}}>
                                         <input type="checkbox" name="proses" class="custom-control-input"
                                             id="userStatus" data-id="{{ $user->id }}"
                                             {{ $user->status == 1 ? 'checked' : '' }}>

@@ -9,7 +9,7 @@ function resetFrom(form) {
     $('[name="add_kertas_isi_tinta"]').val('').trigger('change');
     $('[name="add_kertas_cover"]').val('').trigger('change');
     $('[name="add_kertas_cover_tinta"]').val('').trigger('change');
-    $('[name="add_jml_order"]').val('').trigger('change');
+    $('[name="add_jml_order"]').val('').change();
     $('[name="add_status_cetak"]').val('').trigger('change');
     $('[name="add_tgl_order"]').val('').trigger('change');
     $('[name="add_tgl_permintaan_selesai"]').val('').trigger('change');
@@ -98,6 +98,8 @@ $(function() {
             success: function(result) {
                 // console.log(result)
                 resetFrom(data);
+                $('#fadd_OrderBuku [name="add_jml_order"]').tagsinput('removeAll');
+                $('#fadd_OrderBuku [name="add_jml_order"]').tagsinput('refresh');
                 notifToast(result.status, result.message);
             },
             error: function(err) {

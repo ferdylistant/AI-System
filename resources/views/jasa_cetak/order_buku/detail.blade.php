@@ -77,11 +77,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <form method="POST" id="fadd_Approval" name="id" data-id="">
-                                {{-- ! PERSETUJUAN --}}
-                                {{-- @include('penerbitan.order_cetak.include.persetujuan') --}}
-                                {{-- ! PERSETUJUAN BATAS --}}
-                            </form>
+                            <div id="buttonAct"></div>
                             <div class="row mb-4">
                                 <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">
@@ -143,11 +139,18 @@
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Jumlah Order</h6>
+                                            <small class="text-danger jml-order-text"></small>
                                         </div>
                                         <p class="mb-1 text-monospace jml_order"></p>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Harga Final</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace harga_final"></p>
+                                    </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Tanggal Order</h6>
@@ -186,8 +189,8 @@
             </div>
 
         </div>
-
     </section>
+    @include('jasa_cetak.order_buku.include.modal_decline')
 @endsection
 @section('jsRequired')
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
@@ -200,7 +203,7 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/detail_order_buku_jc.js') }}"></script>
+    <script type="text/javascript" src="{{ url('js/detail_order_buku_jc.js') }}"></script>
 @endsection
 
 @yield('jsNeededForm')

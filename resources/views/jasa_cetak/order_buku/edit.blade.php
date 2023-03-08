@@ -176,7 +176,7 @@
                             </div>
                         </div>
                         <div class="card-footer text-right">
-                            <button type="submit" class="btn btn-success">Update</button>
+                            <button type="submit" id="btnSubmit" class="btn btn-success">Update</button>
                         </div>
                     </form>
                 </div>
