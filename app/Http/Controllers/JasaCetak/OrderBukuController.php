@@ -66,11 +66,16 @@ class OrderBukuController extends Controller
         $type = DB::select(DB::raw("SHOW COLUMNS FROM jasa_cetak_order_buku WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $statusProgress = explode("','", $matches[1]);
-        $statusAction = Arr::except($statusProgress, ['0','5','6']);
+        $statusAction = Arr::except($statusProgress, ['0','5']);
+        //Jalur Proses
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM jasa_cetak_order_buku WHERE Field = 'jalur_proses'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $jalurProses = explode("','", $matches[1]);
         return view('jasa_cetak.order_buku.index', [
             'title' => 'Jasa Cetak Order Buku',
             'status_progress' => $statusProgress,
             'status_action' => $statusAction,
+            'jalur_proses' => $jalurProses,
             'count' => count($data)
         ]);
     }
@@ -543,14 +548,435 @@ class OrderBukuController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('GET')) {
-
+                $id = $request->order;
+                $no_order = $request->kode;
+                $data = DB::table('jasa_cetak_order_buku')
+                ->where('id',$id)
+                ->where('no_order',$no_order)
+                ->first();
+                if (is_null($data)) {
+                    return abort(404);
+                }
             } else {
+                $noOrder = $request->input('no_order');
+                $data = DB::table('jasa_cetak_order_buku')
+                ->where('id',$request->id)
+                ->where('no_order',$noOrder)
+                ->first();
+                if (is_null($data)) {
+                    return abort(404);
+                }
+            }
+            switch ($request->request_) {
+                case 'getValue':
+                    $useData = $data;
+                        $data = (object)collect($data)->map(function ($item, $key) use ($useData) {
+                        switch ($key) {
+                            case 'jalur_proses':
+                                $html ='';
+                                if (is_null($item)) {
+                                    $item = '<span class="text-danger">Jalur belum dipilih</span>';
+                                    $disabled = true;
+                                } elseif ($item == 'Jalur Reguler') {
+                                    $kabagFirst = '';
+                                    $desainProg = '';
+                                    $kabagSecond = '';
+                                    $proofProg = '';
+                                    $kabagThird = '';
+                                    $koreksiFirst = '';
+                                    $pracetakCTCP = '';
+                                    $koreksiSecond = '';
+                                    $kabagFourth = '';
+                                    $pracetakProd = '';
+                                    if (is_null($useData->mulai_desain) && is_null($useData->selesai_desain)) {
+                                        $kabagFirst = 'text-danger';
+                                    }
+                                    if (!is_null($useData->mulai_desain) && is_null($useData->selesai_desain)) {
+                                        $desainProg = 'text-danger';
+                                    }
+                                    if (!is_null($useData->selesai_desain) && is_null($useData->mulai_proof)) {
+                                        $kabagSecond = 'text-danger';
+                                    }
+                                    if (!is_null($useData->mulai_proof) && is_null($useData->selesai_proof)) {
+                                        $proofProg = 'text-danger';
+                                    }
+                                    if (!is_null($useData->selesai_proof) && is_null($useData->mulai_koreksi)) {
+                                        $kabagThird = 'text-danger';
+                                    }
+                                    if (!is_null($useData->mulai_koreksi) && is_null($useData->selesai_koreksi)) {
+                                        $koreksiFirst = 'text-danger';
+                                    }
+                                    if ((!is_null($useData->mulai_pracetak_ctcp) && is_null($useData->selesai_pracetak_ctcp)) && !is_null($useData->mulai_koreksi)) {
+                                        $pracetakCTCP = 'text-danger';
+                                    }
+                                    if (!is_null($useData->selesai_pracetak_ctcp) && !is_null($useData->mulai_koreksi)) {
+                                        $koreksiSecond = 'text-danger';
+                                    }
+                                    if (!is_null($useData->selesai_pracetak_ctcp) && is_null($useData->mulai_pracetak_prod)) {
+                                        $kabagFourth = 'text-danger';
+                                    }
+                                    if (!is_null($useData->mulai_pracetak_prod) && is_null($useData->selesai_pracetak_prod)) {
+                                        $pracetakProd = 'text-danger';
+                                    }
 
+                                    $html .= '<section class="time-line-box">
+                                            <div class="swiper-container text-center">
+                                                <div class="swiper-wrapper">
+                                                    <div class="swiper-slide '.$kabagFirst.'">
+                                                    <div class="timestamp"><span class="date">Proses delegasi ke tahap desain</span></div>
+                                                    <div class="status"><span>Kabag</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$desainProg.'">
+                                                    <div class="timestamp"><span class="date">Pengerjaan desain/setting</span></div>
+                                                    <div class="status"><span>Desain</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$kabagSecond.'">
+                                                    <div class="timestamp"><span class="date">Delegasi ke CS untuk Proofing</span></div>
+                                                    <div class="status"><span>Kabag</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$proofProg.'">
+                                                    <div class="timestamp"><span class="date">Proof Penulis</span></div>
+                                                    <div class="status"><span>CS</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$kabagThird.'">
+                                                    <div class="timestamp"><span class="date">Delegasi ke korektor</span></div>
+                                                    <div class="status"><span>Kabag</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$koreksiFirst.'">
+                                                    <div class="timestamp"><span class="date">Koreksi hasil fix proofing penulis</span></div>
+                                                    <div class="status"><span>Korektor</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$pracetakCTCP.'">
+                                                    <div class="timestamp"><span class="date">Pracetak CTCP</span></div>
+                                                    <div class="status"><span>Admin Pracetak</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$koreksiSecond.'">
+                                                    <div class="timestamp"><span class="date">Koreksi hasil CTCP</span></div>
+                                                    <div class="status"><span>Korektor</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$kabagFourth.'">
+                                                    <div class="timestamp"><span class="date">Delegasi ke admin pracetak</span></div>
+                                                    <div class="status"><span>Kabag</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$pracetakProd.'">
+                                                    <div class="timestamp"><span class="date">Mendaftarkan ke produksi</span></div>
+                                                    <div class="status"><span>Admin Pracetak</span></div>
+                                                    </div>
+                                                </div>
+                                                <div class="swiper-pagination"></div>
+                                            </div>
+                                            </section>';
+                                    $disabled = false;
+                                } elseif ($item == 'Jalur Pendek') {
+                                    $kabagFirst = '';
+                                    $koreksiFirst = '';
+                                    $pracetakCTCP = '';
+                                    $koreksiSecond = '';
+                                    $kabagSecond = '';
+                                    $pracetakProd = '';
+                                    if (is_null($useData->mulai_koreksi) && is_null($useData->selesai_koreksi)) {
+                                        $kabagFirst = 'text-danger';
+                                    }
+                                    if (!is_null($useData->mulai_koreksi) && is_null($useData->selesai_koreksi)) {
+                                        $koreksiFirst = 'text-danger';
+                                    }
+                                    if ((!is_null($useData->mulai_pracetak_ctcp) && is_null($useData->selesai_pracetak_ctcp)) && !is_null($useData->mulai_koreksi)) {
+                                        $pracetakCTCP = 'text-danger';
+                                    }
+                                    if (!is_null($useData->selesai_pracetak_ctcp) && !is_null($useData->mulai_koreksi)) {
+                                        $koreksiSecond = 'text-danger';
+                                    }
+                                    if (!is_null($useData->selesai_pracetak_ctcp) && is_null($useData->mulai_pracetak_prod)) {
+                                        $kabagSecond = 'text-danger';
+                                    }
+                                    if (!is_null($useData->mulai_pracetak_prod) && is_null($useData->selesai_pracetak_prod)) {
+                                        $pracetakProd = 'text-danger';
+                                    }
+                                    $html .= '<section class="time-line-box">
+                                            <div class="swiper-container text-center">
+                                                <div class="swiper-wrapper">
+                                                    <div class="swiper-slide '.$kabagFirst.'">
+                                                    <div class="timestamp"><span class="date">Delegasi ke korektor</span></div>
+                                                    <div class="status"><span>Kabag</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$koreksiFirst.'">
+                                                    <div class="timestamp"><span class="date">Koreksi bahan jadi</span></div>
+                                                    <div class="status"><span>Korektor</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$pracetakCTCP.'">
+                                                    <div class="timestamp"><span class="date">Pracetak CTCP</span></div>
+                                                    <div class="status"><span>Admin Pracetak</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$koreksiSecond.'">
+                                                    <div class="timestamp"><span class="date">Koreksi hasil CTCP</span></div>
+                                                    <div class="status"><span>Korektor</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$kabagSecond.'">
+                                                    <div class="timestamp"><span class="date">Delegasi ke admin pracetak</span></div>
+                                                    <div class="status"><span>Kabag</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide '.$pracetakProd.'">
+                                                    <div class="timestamp"><span class="date">Mendaftarkan ke produksi</span></div>
+                                                    <div class="status"><span>Admin Pracetak</span></div>
+                                                    </div>
+                                                </div>
+                                                <div class="swiper-pagination"></div>
+                                            </div>
+                                            </section>';
+                                    $disabled = true;
+                                } else {
+                                    $disabled = true;
+                                    $item = $item;
+                                }
+                                return ['html'=> $html,'item' => $item, 'disabled' => $disabled];
+                                break;
+                            case 'proses':
+                                $disable = false;
+                                $label = $item == 1 ? 'Stop':'Mulai';
+                                $checked = $useData->proses == '1' ? true : false;
+                                if ($useData->status == 'Proses') {
+                                    switch ($useData->jalur_proses) {
+                                        case 'Jalur Reguler':
+                                            if ((is_null($useData->mulai_desain) || !is_null($useData->mulai_desain)) && is_null($useData->selesai_desain)) {
+                                                $lbl = $label.' proses desain/setting';
+                                                $lbl_db = 'desain';
+                                                $author_db = 'desain_setter';
+                                            } elseif (!is_null($useData->mulai_proof) && is_null($useData->selesai_proof)) {
+                                                $disable = true;
+                                                $lbl = 'Sedang proses proof prodev';
+                                                $lbl_db = 'proof';
+                                                $author_db = 'proof';
+                                            } elseif (!is_null($useData->selesai_proof) && is_null($useData->selesai_koreksi)) {
+                                                $lbl = $label.' proses koreksi proof';
+                                                $lbl_db = 'koreksi';
+                                                $author_db = 'korektor';
+                                            } elseif ((!is_null($useData->selesai_koreksi)) && (is_null($useData->selesai_pracetak_ctcp))){
+                                                $lbl = $label.' proses pracetak CTCP';
+                                                $lbl_db = 'pracetak_ctcp';
+                                                $author_db = 'pracetak';
+                                            } elseif (is_null($useData->selesai_koreksi) && !is_null($useData->selesai_pracetak_ctcp)) {
+                                                $lbl = $label.' proses koreksi CTCP';
+                                                $lbl_db = 'koreksi';
+                                                $author_db = 'korektor';
+                                            } elseif ((!is_null($useData->selesai_koreksi)) && (!is_null($useData->selesai_pracetak_ctcp)) && (is_null($useData->selesai_pracetak_prod))){
+                                                $lbl = $label.' proses pracetak produksi';
+                                                $lbl_db = 'pracetak_prod';
+                                                $author_db = 'pracetak';
+                                            } else {
+                                                $disable = true;
+                                                $lbl = '-';
+                                                $lbl_db = '-';
+                                                $author_db = NULL;
+                                            }
+                                            break;
+                                        case 'Jalur Pendek':
+                                            if (is_null($useData->mulai_proof) && is_null($useData->selesai_koreksi) && (is_null($useData->mulai_pracetak_ctcp))) {
+                                                $lbl = $label.' proses koreksi';
+                                                $lbl_db = 'koreksi';
+                                                $author_db = 'korektor';
+                                            } elseif ((!is_null($useData->selesai_koreksi)) && (is_null($useData->selesai_pracetak_ctcp))){
+                                                $lbl = $label.' proses pracetak CTCP';
+                                                $lbl_db = 'pracetak_ctcp';
+                                                $author_db = 'pracetak';
+                                            } elseif (is_null($useData->selesai_koreksi) && !is_null($useData->selesai_pracetak_ctcp)) {
+                                                $lbl = $label.' proses koreksi CTCP';
+                                                $lbl_db = 'koreksi';
+                                                $author_db = 'korektor';
+                                            } elseif ((!is_null($useData->selesai_koreksi)) && (!is_null($useData->selesai_pracetak_ctcp)) && (is_null($useData->selesai_pracetak_prod))){
+                                                $lbl = $label.' proses pracetak produksi';
+                                                $lbl_db = 'pracetak_prod';
+                                                $author_db = 'pracetak';
+                                            } else {
+                                                $disable = true;
+                                                $lbl = '-';
+                                                $lbl_db = '-';
+                                                $author_db = NULL;
+                                            }
+                                            break;
+                                        default:
+                                            $disable = true;
+                                            $lbl = '-';
+                                            $lbl_db = '-';
+                                            $author_db = NULL;
+                                            break;
+                                    }
+                                } else {
+                                    $disable = true;
+                                    $lbl = '-';
+                                    $lbl_db = '-';
+                                    $author_db = NULL;
+                                }
+                                return [
+                                    'id' => $useData->id,
+                                    'no_order' => $useData->no_order,
+                                    'labelMulai' => $label,
+                                    'disabled' => $disable,
+                                    'checked' => $checked,
+                                    'label' => $lbl,
+                                    'prosesValue' => $item,
+                                    'labelDB' => $lbl_db,
+                                    'authorDB' => $author_db
+                                ];
+                                break;
+                            case 'status':
+                                $res = '';
+                                switch($item){
+                                    case 'Antrian':
+                                        $res .='<span class="badge" style="background:#34395E;color:white">Antrian</span>';
+                                    break;
+                                    case 'Pending':
+                                        $res .='<span class="badge badge-warning">Pending</span>';
+                                    break;
+
+                                    case 'Proses':
+                                        $res .='<span class="badge badge-success">Proses</span>';
+                                    break;
+
+                                    case 'Selesai':
+                                        $res .='<span class="badge badge-light">Selesai</span>';
+                                    break;
+                                    case 'Revisi':
+                                        $res .='<span class="badge badge-info">Revisi</span>';
+                                    break;
+                                    case 'Tidak Deal':
+                                        $res .='<span class="badge badge-danger">Tidak Deal</span>';
+                                    break;
+                                    default:
+                                        $res .='<span class="badge badge-primary">Kalkulasi</span>';
+                                    break;
+                                }
+                                return $res;
+                                break;
+                            case 'harga_final':
+                                return !is_null($item) ? $item : NULL;
+                                break;
+                            case 'tgl_order':
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                                break;
+                            case 'desain_setter':
+                                $data = !is_null($item) ? json_decode($item,true) : NULL;
+                                $disabled = $useData->jalur_proses == 'Jalur Reguler' ? false : true;
+                                $required = $useData->jalur_proses == 'Jalur Reguler' ? true : false;
+                                $nonRegulerInfo = $useData->jalur_proses == 'Jalur Reguler' ? '' : (is_null($useData->jalur_proses)?'':'<i class="fas fa-exclamation-circle"></i> Jalur Pendek tidak melalui tahap desain & setter');
+                                return ['data' => $data,'disabled' => $disabled, 'required' => $required, 'nonreguler' => $nonRegulerInfo];
+                                break;
+                            case 'korektor':
+                                return !is_null($item) ? json_decode($item,true) : NULL;
+                                break;
+                            case 'pracetak':
+                                return !is_null($item) ? json_decode($item,true) : NULL;
+                                break;
+                            case 'tgl_permintaan_selesai':
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                                break;
+                            case 'created_at':
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item)->format('d F Y, H:i:s') : '-';
+                                break;
+                            case 'created_by':
+                                return !is_null($item) ? DB::table('users')->where('id',$item)->first()->nama : '-';
+                                break;
+                            default:
+                                $item;
+                                break;
+                        }
+                        return $item;
+                    })->all();
+                    return ['data' => $data];
+                    break;
+                case 'proses-kerja':
+                    return $this->prosesKerja($request,$data);
+                    break;
             }
         }
+        $desSet = DB::table('users as u')
+        ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+        ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+        ->where('j.nama', 'LIKE', '%Design & Setter%')
+        ->where('d.nama', 'LIKE', '%Keuangan - Produksi%')
+        ->select('u.nama', 'u.id')
+        ->orderBy('u.nama', 'Asc')
+        ->get();
+        $kor = DB::table('users as u')
+        ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+        ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+        ->where('j.nama', 'LIKE', '%Korektor%')
+        ->where('d.nama', 'LIKE', '%Keuangan - Produksi%')
+        ->select('u.nama', 'u.id')
+        ->orderBy('u.nama', 'Asc')
+        ->get();
+        $pra = DB::table('users as u')
+        ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+        ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+        ->where('j.nama', 'LIKE', '%Pracetak%')
+        ->where('d.nama', 'LIKE', '%Keuangan - Produksi%')
+        ->select('u.nama', 'u.id')
+        ->orderBy('u.nama', 'Asc')
+        ->get();
         return view('jasa_cetak.order_buku.otorisasi_kabag',[
-            'title' => 'Otorisasi Kabag Order Buku'
+            'title' => 'Otorisasi Kabag Order Buku',
+            'data_des_set' => $desSet,
+            'data_kor' => $kor,
+            'data_pra' => $pra,
         ]);
+    }
+    protected function prosesKerja($request,$data)
+    {
+        if ($request->ajax()) {
+            try {
+                $proses = $request->proses;
+                $author = $request->author;
+                $label = $request->label;
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                if ($proses == 0) {
+                    $mulai = 'mulai_'.$label;
+                    $dataProgress = [
+                        'params' => 'Progress Desain-Proof-Korektor-Pracetak',
+                        'id' => $data->id,
+                        'label' => $label,
+                        $mulai => NULL,
+                        'proses' => $proses,
+                        'type_history' => 'Progress',
+                        'author_id' => auth()->id(),
+                        'modified_at' => $tgl
+                    ];
+                    $message = 'Proses diberhentikan!';
+                } else {
+                    if (is_null($data->$author)) {
+                        $msg = $author == 'desain_setter' ? 'Desain & Setter':ucfirst($author);
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => $msg.' belum ditentukan!'
+                        ]);
+                    }  else {
+                        $mulai = 'mulai_'.$label;
+                        $dataProgress = [
+                            'params' => 'Progress Desain-Proof-Korektor-Pracetak',
+                            'id' => $data->id,
+                            'label' => $label,
+                            $mulai => $tgl,
+                            'proses' => $proses,
+                            'type_history' => 'Progress',
+                            'author_id' => auth()->id(),
+                            'modified_at' => $tgl
+                        ];
+                        $message = 'Proses dimulai!';
+                    }
+                }
+                event(new JasaCetakEvent($dataProgress));
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $message
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+            }
+        } else {
+            return abort(400);
+        }
     }
     protected function panelStatus($id,$no_order,$judul,$status = null)
     {
@@ -625,7 +1051,7 @@ class OrderBukuController extends Controller
         }
         //Button Otorisasi Kabag
         if (Gate::allows('do_update','otorisasi-kabag-order-buku-jasa-cetak')) {
-            $btn .= '<a href="' . url('jasa-cetak/order-buku/edit?order=' . $id . '&kode=' . $no_order) . '"
+            $btn .= '<a href="' . url('jasa-cetak/order-buku/otorisasi-kabag?order=' . $id . '&kode=' . $no_order) . '"
             class="d-block btn btn-sm btn-info btn-icon mr-1 mt-1" data-toggle="tooltip" title="Otorisasi Kabag">
             <div><i class="fas fa-tasks"></i></div></a>';
         }
@@ -788,8 +1214,14 @@ class OrderBukuController extends Controller
                 case 'catch-value-status':
                     return $this->getValueStatus($request);
                     break;
+                case 'catch-value-jalurproses':
+                    return $this->getValueJalurProses($request);
+                    break;
                 case 'update-status-progress':
                     return $this->updateStatusProgress($request);
+                    break;
+                case 'update-jalur-proses':
+                    return $this->updateJalurProses($request);
                     break;
                 default:
                     return response()->json([
@@ -1145,6 +1577,18 @@ class OrderBukuController extends Controller
                         </div>
                         </span>';
                     break;
+                case 'Jalur Proses':
+                    $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title">
+                            <span><span class="bullet"></span> Jalur proses jasa cetak order buku <b class="text-dark">' . $d->jalur_proses . '</b>, telah ditambahkan.</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' .$d->modified_at.'</div>
+                        </div>
+                        </span>';
+                    break;
                 case 'Status':
                     $html .= '<span class="ticket-item" id="newAppend">
                         <div class="ticket-title">
@@ -1205,6 +1649,19 @@ class OrderBukuController extends Controller
                         </div>
                         </span>';
                     break;
+                case 'Progress':
+                    $ket = $d->progress == 1 ? 'Dimulai' : 'Dihentikan';
+                    $html .= '<span class="ticket-item" id="newAppend">
+                    <div class="ticket-title">
+                        <span><span class="bullet"></span> Progress order buku jasa cetak <b class="text-dark">' . $ket . '</b>.</span>
+                    </div>
+                    <div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">' .$d->modified_at. '</div>
+                    </div>
+                    </span>';
+                    break;
             }
         }
         return $html;
@@ -1221,6 +1678,42 @@ class OrderBukuController extends Controller
             if (is_null($data)) {
                 return abort(404);
             }
+            $data = (object)collect($data)->map(function($item,$key) {
+                return is_null($item) ? NULL : $item;
+            });
+            return ['data' => $data];
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function getValueJalurStatus($request)
+    {
+        try {
+            $id = $request->id;
+            $no_order = $request->no_order;
+            $data = DB::table('jasa_cetak_order_buku')
+            ->where('id',$id)
+            ->where('no_order',$no_order)
+            ->first();
+            if (is_null($data)) {
+                return abort(404);
+            }
+            $data = (object)collect($data)->map(function($item,$key) {
+                switch ($key) {
+                    case 'id':
+                        return $item;
+                        break;
+                    case 'no_order':
+                        return $item;
+                        break;
+                    case 'judul_buku':
+                        return $item;
+                        break;
+                }
+            });
             return ['data' => $data];
         } catch (\Exception $e) {
             return response()->json([
@@ -1233,9 +1726,11 @@ class OrderBukuController extends Controller
     {
         try {
             $id = $request->id;
+            $no_order = $request->no_order;
             DB::beginTransaction();
             $data = DB::table('jasa_cetak_order_buku')
                 ->where('id', $id)
+                ->where('no_order', $no_order)
                 ->first();
             if (is_null($data)) {
                 return response()->json([
@@ -1328,6 +1823,62 @@ class OrderBukuController extends Controller
                 'status' => 'success',
                 'message' => $msg
             ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function updateJalurProses($request)
+    {
+        try {
+            $id = $request->id;
+            $no_order = $request->no_order;
+            DB::beginTransaction();
+            $data = DB::table('jasa_cetak_order_buku')
+                ->where('id', $id)
+                ->where('no_order', $no_order);
+            if (is_null($data->first())) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data corrupt...'
+                ], 404);
+            }
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $author = auth()->user()->id;
+            $update = [
+                'params' => 'Update Status Order Buku',
+                'id' => $data->first()->id,
+                'tgl_selesai_order' => NULL,
+                'status' => $request->status,
+            ];
+            $insert = [
+                'params' => 'Insert History Status Order Buku',
+                'order_buku_id' => $data->first()->id,
+                'type_history' => 'Status',
+                'status_his' => $data->first()->status,
+                'status_new'  => $request->status,
+                'author_id' => $author,
+                'modified_at' => $tgl
+            ];
+            $jalurProses = [
+                'params' => 'Update Jalur Proses Order Buku',
+                'data' => $data,
+                'jalur_proses' => $request->jalur_proses,
+                'type_history' => 'Jalur Proses',
+                'author_id' => $author,
+                'modified_at' => $tgl
+            ];
+            event(new JasaCetakEvent($update));
+            event(new JasaCetakEvent($insert));
+            event(new JasaCetakEvent($jalurProses));
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil menentukan jalur proses!'
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

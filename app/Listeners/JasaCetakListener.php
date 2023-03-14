@@ -137,6 +137,18 @@ class JasaCetakListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
+            case 'Update Jalur Proses Order Buku':
+                $res = $data['data']->update([
+                    'jalur_proses' => $data['jalur_proses']
+                ]);
+                DB::table('jasa_cetak_order_buku_history')->insert([
+                    'order_buku_id' => $data['data']->first()->id,
+                    'type_history' => $data['type_history'],
+                    'jalur_proses' => $data['jalur_proses'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
             case 'Pilih Harga Order Buku':
                 $res = $data['data']->update([
                     'harga_final' => $data['harga_final']
@@ -167,6 +179,22 @@ class JasaCetakListener
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
+                break;
+            case 'Progress Desain-Proof-Korektor-Pracetak':
+                DB::beginTransaction();
+                $label = 'mulai_'.$data['label'];
+                $res = DB::table('jasa_cetak_order_buku')->where('id', $data['id'])->update([
+                    $label => $data[$label],
+                    'proses' => $data['proses'],
+                ]);
+                DB::table('jasa_cetak_order_buku_history')->insert([
+                    'order_buku_id' => $data['id'],
+                    'type_history' => $data['type_history'],
+                    'progress' => $data['proses'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                DB::commit();
                 break;
             default:
                 return abort(500);

@@ -116,6 +116,7 @@
                         <input type="hidden" name="id" id="id" value="">
                         <input type="hidden" name="no_order" id="kode" value="">
                         <input type="hidden" name="judul_buku" id="judul" value="">
+                        <input type="hidden" name="jalur_proses" id="jalur" value="">
                         <label for="statusSet">Status: <span class="text-danger">*</span></label>
                         <select name="status" class="form-control select-status" id="statusSet" required>
                             <option label="Pilih Status"></option>
@@ -123,6 +124,44 @@
                             <option value="{{ $sp }}">{{ $sp }}</option>
                             @endforeach
                         </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-success">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="md_PilihJalurProsesJasaCetakOrderBuku" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalJalur" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleModalJalur">Pilih Jalur Proses Order Buku</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="fm_PilihJalurProsesOrderBuku">
+                <div class="modal-body">
+                    <div class="form-group mb-2">
+                        <span class="badge badge-success status_proses"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" name="id" id="id" value="">
+                        <input type="hidden" name="no_order" id="kode" value="">
+                        <input type="hidden" name="judul_buku" id="judul" value="">
+                        <input type="hidden" name="status" id="status" value="">
+                        <label for="jalurProses">Jalur Proses: <span class="text-danger">*</span></label>
+                        <select name="jalur_proses" class="form-control select-jalur" id="jalurProses">
+                            <option label="Pilih Jalur Proses"></option>
+                            @foreach ($jalur_proses as $sp)
+                            <option value="{{ $sp }}">{{ $sp }}</option>
+                            @endforeach
+                        </select>
+                        <div id="err_jalur_proses"></div>
                     </div>
                 </div>
 

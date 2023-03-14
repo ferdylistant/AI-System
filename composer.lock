@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ebd71c3df18dd3a84a1781d9c891e7b9",
+    "content-hash": "1ee156c087c3ec65452aa5b3a23e4bea",
     "packages": [
         {
             "name": "algolia/algoliasearch-client-php",
@@ -82,16 +82,16 @@
         },
         {
             "name": "algolia/scout-extended",
-            "version": "v2.1.0",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/algolia/scout-extended.git",
-                "reference": "e097188175b77f7b3e88ee501e3ab43cf9d101a9"
+                "reference": "b6c530ce30cdca4b67cde905ee8b998ca32ca846"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/algolia/scout-extended/zipball/e097188175b77f7b3e88ee501e3ab43cf9d101a9",
-                "reference": "e097188175b77f7b3e88ee501e3ab43cf9d101a9",
+                "url": "https://api.github.com/repos/algolia/scout-extended/zipball/b6c530ce30cdca4b67cde905ee8b998ca32ca846",
+                "reference": "b6c530ce30cdca4b67cde905ee8b998ca32ca846",
                 "shasum": ""
             },
             "require": {
@@ -157,9 +157,9 @@
             ],
             "support": {
                 "issues": "https://github.com/algolia/scout-extended/issues",
-                "source": "https://github.com/algolia/scout-extended/tree/v2.1.0"
+                "source": "https://github.com/algolia/scout-extended/tree/v2.0.0"
             },
-            "time": "2022-10-21T14:55:52+00:00"
+            "time": "2022-01-28T09:19:24+00:00"
         },
         {
             "name": "asm89/stack-cors",

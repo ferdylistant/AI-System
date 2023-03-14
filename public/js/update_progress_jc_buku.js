@@ -86,8 +86,8 @@ $("#tb_OrderBuku").on("click", ".btn-history", function (e) {
             // console.log(data);
             $("#titleModalOrderBuku").html(
                 '<i class="fas fa-history"></i>&nbsp;History Progress Order Buku "' +
-                    judul +
-                    '"'
+                judul +
+                '"'
             );
             $("#load_more").data("id", id);
             $("#dataHistoryOrderBuku").html(data);
@@ -159,6 +159,47 @@ $(function () {
                 $(this).valid();
             }
         });
+    $(".select-jalur")
+        .select2({
+            placeholder: "Pilih Jalur Proses",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(this).valid();
+            }
+        });
+    function ajaxUpdateJalurProsesOrderBuku(data) {
+        let el = data.get(0);
+        let form = $("#md_PilihJalurProsesJasaCetakOrderBuku");
+        // console.log(el);
+        $.ajax({
+            type: "POST",
+            url:
+                window.location.origin +
+                "/jasa-cetak/order-buku/ajax/update-jalur-proses",
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            cache: false,
+            beforeSend: function () {
+                form.addClass("modal-progress");
+            },
+            success: function (result) {
+                // console.log(result);
+                notifToast(result.status, result.message);
+                $("#fm_PilihJalurProsesOrderBuku").trigger("reset");
+                if (result.status == "success") {
+                    location.reload();
+                }
+            },
+            error: function (err) {
+                notifToast("error", err.statusText);
+            },
+            complete: function () {
+                form.removeClass("modal-progress");
+            },
+        });
+    }
     function ajaxUpdateStatusOrderBuku(data) {
         let el = data.get(0);
         let form = $("#md_UpdateStatusJasaCetakOrderBuku");
@@ -176,12 +217,9 @@ $(function () {
                 form.addClass("modal-progress");
             },
             success: function (result) {
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusOrderBuku").trigger("reset");
-                } else {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusOrderBuku").trigger("reset");
+                notifToast(result.status, result.message);
+                $("#fm_UpdateStatusOrderBuku").trigger("reset");
+                if (result.status == "success") {
                     location.reload();
                 }
             },
@@ -203,27 +241,105 @@ $(function () {
             },
         });
     }
-    $("#fm_UpdateStatusOrderBuku").on("submit", function (e) {
+    function loadValueJalurProsesModal(id, kode, status) {
+        let cardWrap = $("#md_PilihJalurProsesJasaCetakOrderBuku");
+        let addForm = jqueryValidation_("#fm_PilihJalurProsesOrderBuku", {
+            jalur_proses: { required: true },
+        });
+        cardWrap.modal("show");
+        $('[name="jalur_proses"]').val("").change();
+        $.ajax({
+            url:
+                window.location.origin +
+                "/jasa-cetak/order-buku/ajax/catch-value-jalurproses",
+            data: {
+                id: id,
+                no_order: kode,
+            },
+            beforeSend: function () {
+                cardWrap.addClass("modal-progress");
+            },
+            success: function (result) {
+                $('.status_proses').text(status);
+                $('[name="status"]').val(status);
+                let { data } = result;
+                for (let n in data) {
+                    // console.log(data[n]);
+                    $('[name="' + n + '"]')
+                        .val(data[n])
+                        .change();
+                }
+            },
+            error: function (err) {
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    addForm.showErrors(err);
+                }
+                notifToast("error", "Terjadi kesalahan!");
+            },
+            complete: function () {
+                cardWrap.removeClass("modal-progress");
+            },
+        });
+    }
+    $("#fm_PilihJalurProsesOrderBuku").on("submit", function (e) {
         e.preventDefault();
         if ($(this).valid()) {
-            let kode = $(this).find('[name="no_order"]').val();
-            let judul = $(this).find('[name="judul_buku"]').val();
+            var kode = $(this).find('[name="no_order"]').val();
+            var judul = $(this).find('[name="judul_buku"]').val();
             swal({
                 title:
-                    "Yakin mengubah status proses order buku " +
+                    "Yakin pilihan jalur proses order buku '" +
                     kode +
                     "-" +
                     judul +
-                    "?",
-                text: "Anda sebagai CS jasa cetak tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
+                    "' sudah tepat??",
+                text: "Jalur proses mempengaruhi alur pengerjaan order buku, pastikan mengisi dengan benar.",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxUpdateStatusOrderBuku($(this));
+                    ajaxUpdateJalurProsesOrderBuku($(this));
                 }
             });
+
+        }
+    });
+    $("#fm_UpdateStatusOrderBuku").on("submit", function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            var id = $(this).find('[name="id"]').val();
+            var kode = $(this).find('[name="no_order"]').val();
+            var judul = $(this).find('[name="judul_buku"]').val();
+            var jalur = $(this).find('[name="jalur_proses"]').val();
+            var status = $(this).find('[name="status"]').val();
+            if (($(this).find('[name="status"]').val() == 'Proses') && (!jalur)) {
+                loadValueJalurProsesModal(id, kode, status);
+            } else {
+                swal({
+                    title:
+                        "Yakin mengubah status proses order buku " +
+                        kode +
+                        "-" +
+                        judul +
+                        "?",
+                    text: "Anda sebagai kabag jasa cetak tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((confirm_) => {
+                    if (confirm_) {
+                        ajaxUpdateStatusOrderBuku($(this));
+                    }
+                });
+
+            }
         }
     });
 });
@@ -250,7 +366,7 @@ $(function () {
             },
             success: function (response) {
                 if (response.length == 0) {
-                    $(".load-more").attr("disabled",true);
+                    $(".load-more").attr("disabled", true);
                     notifToast("error", "Tidak ada data lagi");
                 }
                 $("#dataHistoryOrderBuku").append(response);
@@ -263,6 +379,6 @@ $(function () {
     });
     $('#md_OrderBukuHistory').on('hidden.bs.modal', function () {
         $('.load-more').data("paginate", 2);
-        $(".load-more").attr("disabled",false);
-      });
+        $(".load-more").attr("disabled", false);
+    });
 });
