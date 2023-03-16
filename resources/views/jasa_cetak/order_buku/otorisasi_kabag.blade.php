@@ -119,7 +119,7 @@
                                 <div id="timelineProgress"></div>
                             </div>
                         </div>
-                        <form id="f_OrderBukuJasaCetak" name="id" data-id="">
+                        <form id="f_OrderBukuJasaCetak" name="id" data-id="" data-no_order="">
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-12">
@@ -156,11 +156,11 @@
                                                     </tr>
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Kertas Isi / Tinta:</th>
-                                                        <td class="table-active text-right kertas_isi"></td>
+                                                        <td class="table-active text-right"><span class="kertas_isi"></span> <b>/</b> <span class="kertas_isi_tinta"></span></td>
                                                     </tr>
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Kertas Cover / Tinta:</th>
-                                                        <td class="table-active text-right kertas_isi"></td>
+                                                        <td class="table-active text-right"><span class="kertas_cover"></span> <b>/</b> <span class="kertas_cover_tinta"></span></td>
                                                     </tr>
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Jumlah & Harga Final:</th>
@@ -182,7 +182,7 @@
                                                         <th class="table-secondary" style="width: 25%">Desainer & Setter:</th>
                                                         <td class="table-active text-left">
                                                             <small id="nonRegulerInfo"></small>
-                                                            <select name="desain[]" class="form-control select-2 select-desain" multiple="multiple">
+                                                            <select name="desain[]" class="form-control select-2 select-desain" multiple="multiple" required disabled>
                                                                 <option label="Pilih Desain"></option>
                                                                 @foreach ($data_des_set as $val)
                                                                     <option value="{{ $val->id }}">{{ $val->nama }}</option>

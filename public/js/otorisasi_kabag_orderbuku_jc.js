@@ -17,6 +17,10 @@ function loadDataValue() {
                     case 'id':
                         $('[name="id"').data('id', data[n]);
                         break;
+                    case 'no_order':
+                        $('.' + n).text(data[n]).change();
+                        $('[name="id"').data('no_order', data[n]);
+                        break;
                     case 'jalur_proses':
                         // console.log(data[n]['html']);
                         $('#timelineProgress').html(data[n]['html']);
@@ -81,52 +85,107 @@ $(function () {
                 $(this).valid();
             }
         });
+    //! UBAH DELEGASI SUBJEK
+    function ajaxUpDelegasiOrderBukuJasaCetak(data) {
+        let el = data.get(0);
+        let id = data.data('id');
+        let no_order = data.data('no_order');
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/jasa-cetak/order-buku/otorisasi-kabag?request_=delegasi&id="+id+"&no_order="+no_order,
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $("#overlay").fadeIn(300);
+            },
+            success: function (result) {
+                // console.log(result);
+                notifToast(result.status, result.message);
+
+                if (result.status == 'success') {
+                    location.reload();
+                }
+            },
+            error: function (err) {
+                notifToast("error", err.statusText);
+            },
+            complete: function () {
+                setTimeout(function () {
+                    $("#overlay").fadeOut(300);
+                }, 500);
+            },
+        });
+    }
+    $("#f_OrderBukuJasaCetak").on("submit", function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            let nama = $(this).find('.judul_buku').text();
+            swal({
+                text: "Update data delegasi order buku jasa cetak, (" + nama + ")?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxUpDelegasiOrderBukuJasaCetak($(this));
+                }
+            });
+        } else {
+            notifToast("error", "Periksa kembali form Anda!");
+        }
+    });
     //! SWITCH TOGGLE PROSES KERJA
     function resetFrom(form) {
         form.trigger("reset");
         $('[name="proses"]').val("").trigger("change");
     }
-    $(function () {
-        $('#f_OrderBukuJasaCetak #prosesKerja').click(function () {
-            var id = $(this).data('id');
-            var no_order = $(this).data('no_order');
-            var label = $(this).data('label_db');
-            var author = $(this).data('author_db');
-            let cardWrap = $('.section-body').find('.card');
-            if (this.checked) {
-                value = '1';
-            } else {
-                value = '0';
-            }
-            let val = value;
-            $.ajax({
-                url: window.location.origin + "/jasa-cetak/order-buku/otorisasi-kabag?request_=proses-kerja",
-                type: 'POST',
-                data: {
-                    id: id,
-                    no_order: no_order,
-                    proses: val,
-                    label: label,
-                    author: author
-                },
-                dataType: 'json',
-                beforeSend: function () {
-                    cardWrap.addClass('card-progress');
-                },
-                success: function (result) {
-                    notifToast(result.status, result.message);
-                    if (result.status == 'error') {
-                        resetFrom($('#f_OrderBukuJasaCetak'));
-                    } else {
-                        location.reload();
-                    }
+    $('#f_OrderBukuJasaCetak #prosesKerja').click(function () {
+        var id = $(this).data('id');
+        var no_order = $(this).data('no_order');
+        var label = $(this).data('label_db');
+        var author = $(this).data('author_db');
+        let cardWrap = $('.section-body').find('.card');
+        if (this.checked) {
+            value = '1';
+        } else {
+            value = '0';
+        }
+        let val = value;
+        $.ajax({
+            url: window.location.origin + "/jasa-cetak/order-buku/otorisasi-kabag?request_=proses-kerja",
+            type: 'POST',
+            data: {
+                id: id,
+                no_order: no_order,
+                proses: val,
+                label: label,
+                author: author
+            },
+            dataType: 'json',
+            timeout: 1000,
+            beforeSend: function () {
+                cardWrap.addClass('card-progress');
+            },
+            success: function (result) {
+                notifToast(result.status, result.message);
+                if (result.status == 'error') {
+                    resetFrom($('#f_OrderBukuJasaCetak'));
+                } else {
+                    location.reload();
                 }
-            }).done(function () {
-                setTimeout(function () {
-                    cardWrap.removeClass('card-progress');
-                }, 500);
-            });
-
+            },
+            error: function (err) {
+                if (err.statusText === "timeout") {
+                    notifToast("error", "Periksa koneksi internet Anda!");
+                } else {
+                    notifToast("error", err.statusText);
+                }
+            }
+        }).done(function () {
+            setTimeout(function () {
+                cardWrap.removeClass('card-progress');
+            }, 500);
         });
     });
 });

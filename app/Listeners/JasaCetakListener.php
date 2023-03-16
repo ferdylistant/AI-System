@@ -196,6 +196,27 @@ class JasaCetakListener
                 ]);
                 DB::commit();
                 break;
+            case 'Update Data Delegasi':
+                DB::beginTransaction();
+                $res = DB::table('jasa_cetak_order_buku')->where('id',$data['id'])->where('no_order',$data['no_order'])->update([
+                    'desain_setter' => $data['desain_setter'],
+                    'korektor' => $data['korektor'],
+                    'pracetak' => $data['pracetak']
+                ]);
+                DB::table('jasa_cetak_order_buku_history')->insert([
+                    'order_buku_id' => $data['id'],
+                    'type_history' => $data['type_history'],
+                    'desain_his' => $data['desain_his'],
+                    'desain_new' => $data['desain_new'],
+                    'korektor_his' => $data['korektor_his'],
+                    'korektor_new' => $data['korektor_new'],
+                    'pracetak_his' => $data['pracetak_his'],
+                    'pracetak_new' => $data['pracetak_new'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                DB::commit();
+                break;
             default:
                 return abort(500);
                 break;
