@@ -1305,6 +1305,7 @@ class OrderBukuController extends Controller
             ->select('h.*', 'u.nama')
             ->orderBy('h.id', 'desc')
             ->paginate(2);
+        // return response()->json($data);
         foreach ($data as $d) {
             $d = (object)collect($d)->map(function ($item, $key) use ($id) {
                 switch ($key) {
@@ -1427,7 +1428,7 @@ class OrderBukuController extends Controller
                         } else {
                             foreach (json_decode($item, true) as $val) {
                                 $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
-                    }
+                            }
                         }
                         return $loop;
                         break;
@@ -1680,7 +1681,7 @@ class OrderBukuController extends Controller
                                 <span><span class="bullet"></span> Kalkulasi harga<br>' .
                             $d->kalkulasi_harga_his .
                             'diubah menjadi<br>' . $d->kalkulasi_harga_new . '</span></div>';
-                    } elseif (!is_null($d->kalkulasi_harga_new)) {
+                    } elseif (is_null($d->kalkulasi_harga_new)) {
                         $html .=
                             '<div class="ticket-title">
                                 <span><span class="bullet"></span> Kalkulasi harga<br>' .

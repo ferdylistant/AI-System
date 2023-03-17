@@ -67,9 +67,11 @@ $(function () {
     });
 });
 $("#tb_OrderBuku").on("click", ".btn-history", function (e) {
+    e.preventDefault();
     var id = $(this).data("id");
     var judul = $(this).data("judul");
     let cardWrap = $(".section-body").find(".card");
+
     $.ajax({
         url:
             window.location.origin +
@@ -83,11 +85,11 @@ $("#tb_OrderBuku").on("click", ".btn-history", function (e) {
             cardWrap.addClass("card-progress");
         },
         success: function (data) {
-            // console.log(data);
+            console.log(data);
             $("#titleModalOrderBuku").html(
                 '<i class="fas fa-history"></i>&nbsp;History Progress Order Buku "' +
-                judul +
-                '"'
+                    judul +
+                    '"'
             );
             $("#load_more").data("id", id);
             $("#dataHistoryOrderBuku").html(data);
@@ -260,7 +262,7 @@ $(function () {
                 cardWrap.addClass("modal-progress");
             },
             success: function (result) {
-                $('.status_proses').text(status);
+                $(".status_proses").text(status);
                 $('[name="status"]').val(status);
                 let { data } = result;
                 for (let n in data) {
@@ -308,7 +310,6 @@ $(function () {
                     ajaxUpdateJalurProsesOrderBuku($(this));
                 }
             });
-
         }
     });
     $("#fm_UpdateStatusOrderBuku").on("submit", function (e) {
@@ -319,7 +320,7 @@ $(function () {
             var judul = $(this).find('[name="judul_buku"]').val();
             var jalur = $(this).find('[name="jalur_proses"]').val();
             var status = $(this).find('[name="status"]').val();
-            if (($(this).find('[name="status"]').val() == 'Proses') && (!jalur)) {
+            if ($(this).find('[name="status"]').val() == "Proses" && !jalur) {
                 loadValueJalurProsesModal(id, kode, status);
             } else {
                 swal({
@@ -338,7 +339,6 @@ $(function () {
                         ajaxUpdateStatusOrderBuku($(this));
                     }
                 });
-
             }
         }
     });
@@ -377,8 +377,8 @@ $(function () {
             },
         });
     });
-    $('#md_OrderBukuHistory').on('hidden.bs.modal', function () {
-        $('.load-more').data("paginate", 2);
+    $("#md_OrderBukuHistory").on("hidden.bs.modal", function () {
+        $(".load-more").data("paginate", 2);
         $(".load-more").attr("disabled", false);
     });
 });

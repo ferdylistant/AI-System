@@ -233,7 +233,7 @@ $(function () {
                     // console.log(result);
                     notifToast(result.status, result.message);
                     if (result.status == "success") {
-                        // $("#md_EditPlatformEbook").modal("hide");
+                        $("#md_EditPlatformEbook").modal("hide");
                         tablePlatform.ajax.reload();
                     }
                 },
