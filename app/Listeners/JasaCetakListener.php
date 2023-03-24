@@ -217,6 +217,35 @@ class JasaCetakListener
                 ]);
                 DB::commit();
                 break;
+                case 'Proses Kerja Selesai':
+                    DB::beginTransaction();
+                    $res = DB::table('jasa_cetak_order_buku_selesai')->insert([
+                        'type' => $data['type'],
+                        'section' => $data['section'],
+                        'tahap' => $data['tahap'],
+                        'order_buku_id' => $data['order_buku_id'],
+                        'users_id' => $data['users_id'],
+                        'ket_revisi' => $data['ket_revisi'],
+                        'tgl_action' => $data['tgl_action']
+                    ]);
+                    DB::commit();
+                    break;
+                case 'Selesai Otorisasi':
+                    DB::beginTransaction();
+                    $label = 'selesai_'.$data['label'];
+                    $res = $data['data']->update([
+                        $label => $data[$label],
+                        'proses' => $data['proses']
+                    ]);
+                    DB::table('jasa_cetak_order_buku_history')->insert([
+                        'type_history' => $data['type_history'],
+                        'order_buku_id' => $data['data']->first()->id,
+                        $label => $data[$label],
+                        'author_id' => $data['author_id'],
+                        'modified_at' => $data[$label]
+                    ]);
+                    DB::commit();
+                    break;
             default:
                 return abort(500);
                 break;

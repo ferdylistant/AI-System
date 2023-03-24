@@ -890,19 +890,19 @@ class PracetakDesainerController extends Controller
                                     'message' => 'Proses back cover selesai, silahkan ubah proses saat ini menjadi "Antrian Koreksi".'
                                 ]);
                             }
-                            $coll = DB::table('pracetak_setter as ps')->join('deskripsi_final df','df.id','=','ps.deskripsi_final_id')
+                            $coll = DB::table('pracetak_setter as ps')->join('deskripsi_final as df','df.id','=','ps.deskripsi_final_id')
                             ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
                             ->join('deskripsi_cover as dc','dc.deskripsi_produk_id','=','dp.id')
                             ->where('dc.id',$data->deskripsi_cover_id)
                             ->select('ps.pengajuan_harga','ps.isbn')
                             ->first();
-                            if (!is_null($coll->pengajuan_harga)) {
+                            if (is_null($coll->pengajuan_harga)) {
                                 return response()->json([
                                     'status' => 'error',
                                     'message' => 'Proses back cover belum dapat dilakukan karena pengajuan harga belum ditambahkan.'
                                 ]);
                             }
-                            if (!is_null($coll->isbn)) {
+                            if (is_null($coll->isbn)) {
                                 return response()->json([
                                     'status' => 'error',
                                     'message' => 'Proses back cover belum dapat dilakukan karena ISBN belum ditambahkan.'

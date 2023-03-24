@@ -398,54 +398,194 @@ class OrderBukuController extends Controller
                     ->where('no_order', $no_order)
                     ->first();
                 if (is_null($data)) {
-                    return abort(404);
-                }
-                if ($request->has('req')) {
-                    if ($request->req == 'modal-decline') {
-                        return $this->showModalDecline($data);
-                    }
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data order buku tidak ditemukan!'
+                    ]);
                 }
             } else {
-                switch ($request->req) {
-                    case 'pilih-harga':
-                        return $this->pilihHarga($request);
-                        break;
-                    case 'approval-order':
-                        return $this->approvalOrder($request);
-                        break;
-
-                    default:
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Terjadi kesalahan! Silahkan hubungi tim pengembang AI System.'
-                        ]);
-                        break;
+                $id = $request->id;
+                $no_order = $request->no_order;
+                $data = DB::table('jasa_cetak_order_buku')
+                    ->where('no_order', $no_order)
+                    ->where('id', $id);
+                if (is_null($data->first())) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data order buku tidak ditemukan!'
+                    ]);
                 }
             }
             switch ($request->request_) {
                 case 'getValue':
                     $useData = $data;
                     $data = (object)collect($data)->map(function ($item, $key) use ($useData) {
-                        // Gate::allows('do_update','otorisasi-kalkulasi-order-buku-jasa-cetak')
-                        //  Gate::allows('do_create','create-order-buku-jasa-cetak')
                         switch ($key) {
                             case 'id':
                                 $html = '';
-                                if (is_null($useData->approve) && is_null($useData->decline)) {
+                                if ($useData->status == 'Kalkulasi') {
                                     if (Gate::allows('do_create', 'create-order-buku-jasa-cetak') && !Gate::allows('do_update', 'otorisasi-kalkulasi-order-buku-jasa-cetak')) {
-                                        $html .= '<div class="col-auto mr-auto">
-                                        <div class="mb-4">
-                                        <button type="submit" class="btn btn-success" id="btn-approve" data-ajax="false" data-id="' . $item . '" data-no_order="' . $useData->no_order . '" data-judul="' . $useData->judul_buku . '">
-                                        <i class="fas fa-check"></i>&nbsp;Deal</button>
-                                        <button type="button" class="btn btn-danger" id="btn-decline" data-ajax="false" data-id="' . $item . '" data-no_order="' . $useData->no_order . '">
-                                        <i class="fas fa-times"></i>&nbsp;Tidak Deal</button>
-                                        </div></div>';
+                                        if (is_null($useData->approve) && is_null($useData->decline)) {
+                                            $html .= '<div class="col-auto mr-auto">
+                                            <div class="mb-4">
+                                            <button type="submit" class="btn btn-success" id="btn-approve" data-ajax="false" data-decline_revisi="deal_decline" data-id="' . $item . '" data-no_order="' . $useData->no_order . '" data-judul="' . $useData->judul_buku . '">
+                                            <i class="fas fa-check"></i>&nbsp;Deal</button>
+                                            <button type="button" class="btn btn-danger" id="btn-decline" data-ajax="false" data-id="' . $item . '" data-no_order="' . $useData->no_order . '">
+                                            <i class="fas fa-times"></i>&nbsp;Tidak Deal</button>
+                                            </div></div>';
+                                        } elseif (!is_null($useData->decline)) {
+                                            $html .= '<div class="col-auto mr-auto">
+                                            <div class="mb-4">
+                                            <a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon" id="btn-decline" data-ajax="false" data-id="' . $useData->id . '" data-no_order="' . $useData->no_order . '" title="Keterangan Tidak Deal">
+                                            <i class="fas fa-eye"></i>&nbsp;Keterangan Tidak Deal</a></div></div>';
+                                        }
                                     }
-                                } elseif (!is_null($useData->decline)) {
-                                    $html .= '<div class="col-auto mr-auto">
-                                    <div class="mb-4">
-                                    <a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon" id="btn-decline" data-ajax="false" data-id="' . $useData->id . '" data-no_order="' . $useData->no_order . '" title="Keterangan Tidak Deal">
-                                    <i class="fas fa-eye"></i>&nbsp;Keterangan Tidak Deal</a></div></div>';
+                                }
+                                return $html;
+                                break;
+                            case 'proses':
+                                $html = '';
+                                $author_db = NULL;
+                                $label_db = NULL;
+                                if ($useData->status == 'Proses') {
+                                    switch ($useData->jalur_proses) {
+                                        case 'Jalur Reguler':
+                                            if ((is_null($useData->mulai_desain) || !is_null($useData->mulai_desain)) && is_null($useData->selesai_desain)) {
+                                                $author_db = 'desainer';
+                                                $label_db = 'desain_setter';
+                                            } elseif (!is_null($useData->mulai_proof) && is_null($useData->selesai_proof)) {
+                                                $author_db = 'proof';
+                                                $label_db = 'proof';
+                                            } elseif (!is_null($useData->selesai_proof) && is_null($useData->selesai_koreksi)) {
+                                                $author_db = 'korektor';
+                                                $label_db = 'korektor';
+                                            } elseif ((!is_null($useData->selesai_koreksi)) && (is_null($useData->selesai_pracetak_ctcp))) {
+                                                $author_db = 'pracetak';
+                                                $label_db = 'pracetak';
+                                            } elseif (is_null($useData->selesai_koreksi) && !is_null($useData->selesai_pracetak_ctcp)) {
+                                                $author_db = 'korektor';
+                                                $label_db = 'korektor';
+                                            } elseif ((!is_null($useData->selesai_koreksi)) && (!is_null($useData->selesai_pracetak_ctcp)) && (is_null($useData->selesai_pracetak_prod))) {
+                                                $author_db = 'pracetak';
+                                                $label_db = 'pracetak';
+                                            } else {
+                                                $author_db = NULL;
+                                                $label_db = NULL;
+                                            }
+                                            break;
+                                        case 'Jalur Pendek':
+                                            if (is_null($useData->mulai_proof) && is_null($useData->selesai_koreksi) && (is_null($useData->mulai_pracetak_ctcp))) {
+                                                $author_db = 'korektor';
+                                                $label_db = 'korektor';
+                                            } elseif ((!is_null($useData->selesai_koreksi)) && (is_null($useData->selesai_pracetak_ctcp))) {
+                                                $author_db = 'pracetak';
+                                                $label_db = 'pracetak';
+                                            } elseif (is_null($useData->selesai_koreksi) && !is_null($useData->selesai_pracetak_ctcp)) {
+                                                $author_db = 'korektor';
+                                                $label_db = 'korektor';
+                                            } elseif ((!is_null($useData->selesai_koreksi)) && (!is_null($useData->selesai_pracetak_ctcp)) && (is_null($useData->selesai_pracetak_prod))) {
+                                                $author_db = 'pracetak';
+                                                $label_db = 'pracetak';
+                                            } else {
+                                                $author_db = NULL;
+                                                $label_db = NULL;
+                                            }
+                                            break;
+                                        default:
+                                            $author_db = NULL;
+                                            $label_db = NULL;
+                                            break;
+                                    }
+                                    $doneProses = DB::table('jasa_cetak_order_buku_selesai')
+                                        ->where('type', ucfirst($label_db))
+                                        ->where('order_buku_id', $useData->id)
+                                        ->where('users_id', auth()->user()->id)
+                                        ->orderBy('id', 'desc')
+                                        ->first();
+                                    switch ($label_db) {
+                                        case 'desain_setter':
+                                            if (is_null($doneProses)) {
+                                                $done_proses = FALSE;
+                                            } else {
+                                                switch ($doneProses->section) {
+                                                    case 'Desain/Setter First':
+                                                        $done_proses = is_null($useData->selesai_desain) ? FALSE : TRUE;
+                                                        break;
+                                                    case 'Desain/Setter Revision Proof':
+                                                        $lastProof = DB::table('jasa_cetak_order_buku_selesai')
+                                                            ->where('type', 'Proof')
+                                                            ->where('section', 'Proof')
+                                                            ->where('order_buku_id', $useData->id)
+                                                            ->orderBy('id', 'desc')
+                                                            ->first();
+                                                        $doneSelf = DB::table('jasa_cetak_order_buku_selesai')
+                                                            ->where('type', ucfirst($label_db))
+                                                            ->where('section', 'Desain/Setter Revision Proof')
+                                                            ->where('tahap', $lastProof->tahap)
+                                                            ->where('order_buku_id', $useData->id)
+                                                            ->get();
+                                                        if (!$doneSelf->isEmpty()) {
+                                                            foreach ($doneSelf as $d) {
+                                                                $userId[] = $d->users_id;
+                                                            }
+                                                            if (in_array(auth()->user()->id, $userId)) {
+                                                                $done_proses = TRUE;
+                                                            } else {
+                                                                $tahap = $doneProses->tahap + 1;
+                                                                $doneNext = DB::table('jasa_cetak_order_buku_selesai')
+                                                                    ->where('type', ucfirst($label_db))
+                                                                    ->where('section', 'Desain/Setter Revision Proof')
+                                                                    ->where('tahap', $tahap)
+                                                                    ->where('order_buku_id', $useData->id)
+                                                                    ->where('users_id', auth()->user()->id)
+                                                                    ->first();
+                                                                if (!is_null($doneNext)) {
+                                                                    $done_proses = TRUE;
+                                                                } else {
+                                                                    $done_proses = FALSE;
+                                                                }
+                                                            }
+                                                        } else {
+                                                            $done_proses = FALSE;
+                                                        }
+                                                        break;
+                                                }
+                                            }
+                                            break;
+                                    }
+                                } else {
+                                    $done_proses = TRUE;
+                                }
+                                if ($useData->proses == '1') {
+                                    if (Gate::allows('do_update', 'otorisasi-' . $author_db . '-order-buku-jasa-cetak')) {
+                                        if ($label_db != 'proof' || $label_db != NULL) {
+                                            if (!is_null($useData->$label_db)) {
+                                                foreach (json_decode($useData->$label_db) as $edt) {
+                                                    if (auth()->id() == $edt) {
+                                                        if ($done_proses == FALSE) {
+                                                            $html .= '<div class="col-auto">
+                                                                <div class="mb-4">
+                                                                    <button type="submit" class="btn btn-success" id="btn-done-order-buku" data-id="' . $useData->id . '" data-no_order="' . $useData->no_order . '" data-author="' . $label_db . '">
+                                                                        <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                                                </div>
+                                                            </div>';
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } elseif (Gate::allows('do_approval', 'proof-order-buku-jasa-cetak')) {
+                                        if (!is_null($useData->mulai_proof) && is_null($useData->selesai_proof)) {
+                                            $html .= '<div class="col-auto mr-auto">
+                                                <div class="mb-4">
+                                                <button type="submit" class="btn btn-success" id="btn-approve" data-ajax="false" data-decline_revisi="approve_revisi" data-id="' . $useData->id . '" data-no_order="' . $useData->no_order . '" data-judul="' . $useData->judul_buku . '">
+                                                <i class="fas fa-check"></i>&nbsp;Proof</button>
+                                                    <button type="button" class="btn btn-danger" id="btn-decline" data-id="' . $useData->id . '"
+                                                        data-no_order="' . $useData->no_order . '" data-ajax="false"><i class="fas fa-tools"></i>&nbsp;Revisi</button>
+                                                </div>
+                                            </div>';
+                                        }
+                                    }
                                 }
                                 return $html;
                                 break;
@@ -538,6 +678,40 @@ class OrderBukuController extends Controller
                     }
                     return ['data' => $data, 'cs' => $cs];
                     break;
+                case 'pilih-harga':
+                    return $this->pilihHarga($request, $data);
+                    break;
+                case 'approval-order':
+                    return $this->approvalOrder($request, $data);
+                    break;
+                case 'modal-decline-revisi':
+                    return $this->showModal($data);
+                    break;
+                case 'done-work':
+                    switch ($request->author) {
+                        case 'desain_setter':
+                            return $this->doneWorkDesainSetter($request->author, $data);
+                            break;
+                        case 'korektor':
+                            return $this->doneWorkKorektor($request->author, $data);
+                            break;
+                        case 'pracetak':
+                            return $this->doneWorkPracetak($request->author, $data);
+                            break;
+                        default:
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Terjadi kesalahan!'
+                            ]);
+                            break;
+                    }
+                    break;
+                default:
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Terjadi kesalahan! Silahkan hubungi tim pengembang AI System.'
+                    ]);
+                    break;
             }
         }
         return view('jasa_cetak.order_buku.detail', [
@@ -554,24 +728,47 @@ class OrderBukuController extends Controller
                     ->where('id', $id)
                     ->where('no_order', $no_order)
                     ->first();
-                if (is_null($data)) {
-                    return abort(404);
-                }
             } else {
                 $noOrder = $request->input('no_order');
                 $data = DB::table('jasa_cetak_order_buku')
                     ->where('id', $request->id)
                     ->where('no_order', $noOrder)
                     ->first();
-                if (is_null($data)) {
-                    return abort(404);
-                }
+            }
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data order buku tidak ditemukan!'
+                ]);
             }
             switch ($request->request_) {
                 case 'getValue':
                     $useData = $data;
                     $data = (object)collect($data)->map(function ($item, $key) use ($useData) {
                         switch ($key) {
+                            case 'id':
+                                $html = '';
+                                if ($useData->status == 'Revisi') {
+                                    $last =  DB::table('jasa_cetak_order_buku_selesai')
+                                    ->where('type','Proof')
+                                    ->where('section','Proof')
+                                    ->where('order_buku_id',$item)
+                                    ->orderBy('id', 'desc')
+                                    ->first();
+                                    $html .= '<div class="row card-header">
+                                    <div class="col-lg-12"><button type="button" class="btn btn-success form-control" id="done-revision"
+                                    data-id="'.$item.'" data-judul="'.$useData->judul_buku.'"
+                                    data-no_order="'.$useData->no_order.'">
+                                    <i class="fas fa-check"></i>&nbsp;Selesai Revisi</button>
+                                    </div>
+                                <div class="col-lg-12 mt-3">
+                                <h6 class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Keterangan Revisi:</h6>
+                                <p><span class="bullet"></span>'.$last->ket_revisi.'</p>
+                                </div>
+                                </div>';
+                                }
+                                return ['html'=>$html,'id'=> $item];
+                                break;
                             case 'jalur_proses':
                                 $html = '';
                                 if (is_null($item)) {
@@ -588,6 +785,12 @@ class OrderBukuController extends Controller
                                     $koreksiSecond = '';
                                     $kabagFourth = '';
                                     $pracetakProd = '';
+                                    $textKabag = '';
+                                    if ($useData->status == 'Revisi') {
+                                        $textKabag = 'Otorisasi klik penyelesaian revisi';
+                                    } else {
+                                        $textKabag = 'Delegasi ke CS untuk Proofing';
+                                    }
                                     if (is_null($useData->mulai_desain) && is_null($useData->selesai_desain)) {
                                         $kabagFirst = 'text-danger';
                                     }
@@ -631,7 +834,7 @@ class OrderBukuController extends Controller
                                                     <div class="status"><span>Desain</span></div>
                                                     </div>
                                                     <div class="swiper-slide ' . $kabagSecond . '">
-                                                    <div class="timestamp"><span class="date">Delegasi ke CS untuk Proofing</span></div>
+                                                    <div class="timestamp"><span class="date">'.$textKabag.'</span></div>
                                                     <div class="status"><span>Kabag</span></div>
                                                     </div>
                                                     <div class="swiper-slide ' . $proofProg . '">
@@ -741,9 +944,13 @@ class OrderBukuController extends Controller
                                                 $lbl = $label . ' proses desain/setting';
                                                 $lbl_db = 'desain';
                                                 $author_db = 'desain_setter';
+                                            } elseif (!is_null($useData->selesai_desain) && is_null($useData->mulai_proof)) {
+                                                $lbl = $label . ' proses proof CS ke penulis';
+                                                $lbl_db = 'proof';
+                                                $author_db = 'proof';
                                             } elseif (!is_null($useData->mulai_proof) && is_null($useData->selesai_proof)) {
                                                 $disable = true;
-                                                $lbl = 'Sedang proses proof prodev';
+                                                $lbl = 'Sedang proses proof CS ke penulis';
                                                 $lbl_db = 'proof';
                                                 $author_db = 'proof';
                                             } elseif (!is_null($useData->selesai_proof) && is_null($useData->selesai_koreksi)) {
@@ -800,6 +1007,11 @@ class OrderBukuController extends Controller
                                             $author_db = NULL;
                                             break;
                                     }
+                                } elseif ($useData->status == 'Revisi') {
+                                    $disable = true;
+                                    $lbl = 'Sedang proses penyelesaian revisi proof';
+                                    $lbl_db = 'proof';
+                                    $author_db = 'proof';
                                 } else {
                                     $disable = true;
                                     $lbl = '-';
@@ -854,17 +1066,38 @@ class OrderBukuController extends Controller
                                 return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
                                 break;
                             case 'desain_setter':
-                                $data = !is_null($item) ? json_decode($item, true) : NULL;
+                                $data = !is_null($item) ? json_decode($item,true) : NULL;
+                                // if (!is_null($item)) {
+                                //     foreach (json_decode($item, true) as $l) {
+                                //         $data[] = DB::table('users')->where('id', $l)->select('id','nama')->first();
+                                //     }
+                                // } else {
+                                //     $data = NULL;
+                                // }
                                 $disabled = $useData->jalur_proses == 'Jalur Reguler' ? false : true;
                                 $required = $useData->jalur_proses == 'Jalur Reguler' ? true : false;
                                 $nonRegulerInfo = $useData->jalur_proses == 'Jalur Reguler' ? '' : (is_null($useData->jalur_proses) ? '' : '<i class="fas fa-exclamation-circle"></i> Jalur Pendek tidak melalui tahap desain & setter');
                                 return ['data' => $data, 'disabled' => $disabled, 'required' => $required, 'nonreguler' => $nonRegulerInfo];
                                 break;
                             case 'korektor':
-                                return !is_null($item) ? json_decode($item, true) : NULL;
+                                if (!is_null($item)) {
+                                    foreach (json_decode($item, true) as $l) {
+                                        $data[] = DB::table('users')->where('id', $l)->select('id', 'nama')->first();
+                                    }
+                                } else {
+                                    $data = NULL;
+                                }
+                                return $data;
                                 break;
                             case 'pracetak':
-                                return !is_null($item) ? json_decode($item, true) : NULL;
+                                if (!is_null($item)) {
+                                    foreach (json_decode($item, true) as $l) {
+                                        $data[] = DB::table('users')->where('id', $l)->select('id', 'nama')->first();
+                                    }
+                                } else {
+                                    $data = NULL;
+                                }
+                                return $data;
                                 break;
                             case 'tgl_permintaan_selesai':
                                 return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
@@ -888,6 +1121,15 @@ class OrderBukuController extends Controller
                     break;
                 case 'delegasi':
                     return $this->editDelegasiKorektorDesainerPracetak($request, $data);
+                    break;
+                case 'done-revision':
+                    return $this->donerevisionActKabag($data);
+                    break;
+                default:
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Terjadi kesalahan!'
+                    ]);
                     break;
             }
         }
@@ -944,27 +1186,29 @@ class OrderBukuController extends Controller
                     ];
                     $message = 'Proses diberhentikan!';
                 } else {
-                    if (is_null($data->$author)) {
-                        $msg = $author == 'desain_setter' ? 'Desain & Setter' : ucfirst($author);
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => $msg . ' belum ditentukan!'
-                        ]);
-                    } else {
-                        $mulai = 'mulai_' . $label;
-                        $dataProgress = [
-                            'params' => 'Progress Desain-Proof-Korektor-Pracetak',
-                            'id' => $data->id,
-                            'label' => $label,
-                            $mulai => $tgl,
-                            'proses' => $proses,
-                            'type_history' => 'Progress',
-                            'author_id' => auth()->id(),
-                            'modified_at' => $tgl
-                        ];
-                        $message = 'Proses dimulai!';
+                    if ($author != 'proof') {
+                        if (is_null($data->$author)) {
+                            $msg = $author == 'desain_setter' ? 'Desain & Setter' : ucfirst($author);
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => $msg . ' belum ditentukan!'
+                            ]);
+                        }
                     }
+                    $mulai = 'mulai_' . $label;
+                    $dataProgress = [
+                        'params' => 'Progress Desain-Proof-Korektor-Pracetak',
+                        'id' => $data->id,
+                        'label' => $label,
+                        $mulai => $tgl,
+                        'proses' => $proses,
+                        'type_history' => 'Progress',
+                        'author_id' => auth()->id(),
+                        'modified_at' => $tgl
+                    ];
+                    $message = 'Proses dimulai!';
                 }
+
                 event(new JasaCetakEvent($dataProgress));
                 return response()->json([
                     'status' => 'success',
@@ -993,40 +1237,108 @@ class OrderBukuController extends Controller
             if ($request->has('desain')) {
                 $desain = json_encode($request->desain);
             } else {
-                $desain = NULL;
+                if (is_null($data->desain)) {
+                    $desain = NULL;
+                } else {
+                    $desain = $data->desain;
+                }
             }
+            return response()->json($request->has('desain'));
             if ($request->has('korektor')) {
                 $korektor = json_encode($request->korektor);
             } else {
-                $korektor = NULL;
+                if (is_null($data->korektor)) {
+                    $korektor = NULL;
+                } else {
+                    $korektor = $data->korektor;
+                }
             }
             if ($request->has('pracetak')) {
                 $pracetak = json_encode($request->pracetak);
             } else {
-                $pracetak = NULL;
+                if (is_null($data->pracetak)) {
+                    $pracetak = NULL;
+                } else {
+                    $pracetak = $data->pracetak;
+                }
             }
-            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-            $update = [
-                'params' => 'Update Data Delegasi',
-                'id' => $data->id,
-                'no_order' => $data->no_order,
-                'desain_setter' => $desain,
-                'korektor' => $korektor,
-                'pracetak' => $pracetak,
-                'type_history' => 'Update', //History
-                'desain_his' => $data->desain_setter == $desain ? NULL : $data->desain_setter, //History
-                'desain_new' => $data->desain_setter == $desain ? NULL : $desain, //History
-                'korektor_his' => $data->korektor == $korektor ? NULL : $data->korektor, //History
-                'korektor_new' => $data->korektor == $korektor ? NULL : $korektor, //History
-                'pracetak_his' => $data->pracetak == $pracetak ? NULL : $data->pracetak, //History
-                'pracetak_new' => $data->pracetak == $pracetak ? NULL : $pracetak, //History
-                'author_id' => auth()->user()->id, //History
-                'modified_at' => $tgl //History
-            ];
-            event(new JasaCetakEvent($update));
+            if ($request->has('desain') || $request->has('korektor') || $request->has('pracetak')) {
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                $update = [
+                    'params' => 'Update Data Delegasi',
+                    'id' => $data->id,
+                    'no_order' => $data->no_order,
+                    'desain_setter' => $desain,
+                    'korektor' => $korektor,
+                    'pracetak' => $pracetak,
+                    'type_history' => 'Update', //History
+                    'desain_his' => $data->desain_setter == $desain ? NULL : $data->desain_setter, //History
+                    'desain_new' => $data->desain_setter == $desain ? NULL : $desain, //History
+                    'korektor_his' => $data->korektor == $korektor ? NULL : $data->korektor, //History
+                    'korektor_new' => $data->korektor == $korektor ? NULL : $korektor, //History
+                    'pracetak_his' => $data->pracetak == $pracetak ? NULL : $data->pracetak, //History
+                    'pracetak_new' => $data->pracetak == $pracetak ? NULL : $pracetak, //History
+                    'author_id' => auth()->user()->id, //History
+                    'modified_at' => $tgl //History
+                ];
+                event(new JasaCetakEvent($update));
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => 'Berhasil update!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function donerevisionActKabag($data)
+    {
+        try {
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            DB::beginTransaction();
+            $last =  DB::table('jasa_cetak_order_buku_selesai')
+            ->where('type','Kabag')
+            ->where('section','Kabag Done Revision')
+            ->where('order_buku_id',$data->id)
+            ->orderBy('id', 'desc')
+            ->first();
+            if (is_null($last)) {
+                $tahapSelanjutnya = 1;
+            } else {
+                $tahapSelanjutnya = $last->tahap + 1;
+            }
+            $pros = [
+                'params' => 'Proses Kerja Selesai',
+                'type' => 'Kabag',
+                'section' => 'Kabag Done Revision',
+                'tahap' => $tahapSelanjutnya,
+                'order_buku_id' => $data->id,
+                'users_id' => auth()->id(),
+                'ket_revisi' => NULL,
+                'tgl_action' => $tgl
+            ];
+            event(new JasaCetakEvent($pros));
+            DB::table('jasa_cetak_order_buku')->where('id', $data->id)->where('no_order', $data->no_order)->update([
+                'mulai_proof' => $tgl,
+                'status' => 'Proses',
+                'proses' => '1'
+            ]);
+            DB::table('jasa_cetak_order_buku_history')->insert([
+                'type_history' => 'Update',
+                'order_buku_id' => $data->id,
+                'mulai_proof' => $tgl,
+                'selesai_revisi_kabag' => $tgl,
+                'author_id' => auth()->id(),
+                'modified_at' => $tgl
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Order buku yang di-proof telah selesai direvisi! Selanjutnya akan dikembalikan ke CS.'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1115,34 +1427,72 @@ class OrderBukuController extends Controller
         }
         return $btn;
     }
-    protected function showModalDecline($data)
+    protected function showModal($data)
     {
         try {
             $html = '';
-            if (is_null($data->decline)) {
-                $html .= "<div class='form-group'>
-                <label for='keterangan_decline' class='col-form-label'>Alasan: <span class='text-danger'>*</span></label>
-                <textarea class='form-control' name='keterangan_decline' id='keterangan_decline' rows='4'></textarea>
-                <div id='err_keterangan_decline'></div>
-                </div>";
-                $title = '<i class="fas fa-times"></i>&nbsp;ORDER BUKU ' . $data->no_order . "-" . $data->judul_buku;
-                $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Konfirmasi</button>';
-            } else {
-                $html .= "<div class='form-group mb-2'>
-                <label for='decline_by'>Oleh:</label>
-                <p id='decline_by'>" . DB::table('users')->where('id', $data->decline_by)->first()->nama . "</p></div>
-                <hr>
-                <div class='form-group mb-2'>
-                <label for='decline'>Dilakukan pada:</label>
-                <p id='decline'>" . Carbon::parse($data->decline)->translatedFormat('l d F Y, H:i') . "</p></div>
-                <hr>
-                <div class='form-group mb-2'>
-                <label for='keterangan_decline'>Alasan:</label>
-                <p id='keterangan_decline'>" . $data->keterangan_decline . "</p></div>";
-                $title = '<i class="fas fa-times"></i>&nbsp;ORDER BUKU ' . $data->no_order . "-" . $data->judul_buku . ', TIDAK DEAL';
-                $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>';
+            switch ($data->status) {
+                case 'Kalkulasi':
+                    if (is_null($data->decline)) {
+                        $html .= "<div class='form-group'>
+                        <label for='keterangan_decline' class='col-form-label'>Alasan: <span class='text-danger'>*</span></label>
+                        <input type='hidden' name='decline_revisi' value='deal_decline'>
+                        <textarea class='form-control' name='keterangan_decline' id='keterangan_decline' rows='4'></textarea>
+                        <div id='err_keterangan_decline'></div>
+                        </div>";
+                        $title = '<i class="fas fa-times"></i>&nbsp;ORDER BUKU ' . $data->no_order . "-" . $data->judul_buku;
+                        $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Konfirmasi</button>';
+                    } else {
+                        $html .= "<div class='form-group mb-2'>
+                        <label for='decline_by'>Oleh:</label>
+                        <p id='decline_by'>" . DB::table('users')->where('id', $data->decline_by)->first()->nama . "</p></div>
+                        <hr>
+                        <div class='form-group mb-2'>
+                        <label for='decline'>Dilakukan pada:</label>
+                        <p id='decline'>" . Carbon::parse($data->decline)->translatedFormat('l d F Y, H:i') . "</p></div>
+                        <hr>
+                        <div class='form-group mb-2'>
+                        <label for='keterangan_decline'>Alasan:</label>
+                        <p id='keterangan_decline'>" . $data->keterangan_decline . "</p></div>";
+                        $title = '<i class="fas fa-times"></i>&nbsp;ORDER BUKU ' . $data->no_order . "-" . $data->judul_buku . ', TIDAK DEAL';
+                        $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>';
+                    }
+                    break;
+                case 'Proses':
+                    $html .= "<div class='form-group'>
+                        <label for='ket_revisi' class='col-form-label'>Alasan: <span class='text-danger'>*</span></label>
+                        <input type='hidden' name='decline_revisi' value='approve_revisi'>
+                        <textarea class='form-control' name='ket_revisi' id='ket_revisi' rows='4'></textarea>
+                        <div id='err_ket_revisi'></div>
+                        </div>";
+                        $title = '<i class="fas fa-times"></i>&nbsp;REVISI ORDER BUKU ' . $data->no_order . "-" . $data->judul_buku;
+                        $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Konfirmasi</button>';
+                    break;
+                case 'Revisi':
+                    $ketRevisi = DB::table('jasa_cetak_order_buku_selesai')
+                    ->where('type','Proof')
+                    ->where('section','Proof')
+                    ->where('order_buku_id',$data->id)
+                    ->whereNotNull('ket_revisi')
+                    ->first();
+                    $html .= "<div class='form-group mb-2'>
+                        <label for='decline_by'>Oleh:</label>
+                        <p id='decline_by'>" . DB::table('users')->where('id', $ketRevisi->users_id)->first()->nama . "</p></div>
+                        <hr>
+                        <div class='form-group mb-2'>
+                        <label for='decline'>Dilakukan pada:</label>
+                        <p id='decline'>" . Carbon::parse($ketRevisi->tgl_action)->translatedFormat('l d F Y, H:i') . "</p></div>
+                        <hr>
+                        <div class='form-group mb-2'>
+                        <label for='keterangan_decline'>Alasan:</label>
+                        <p id='keterangan_decline'>" . $ketRevisi->ket_revisi . "</p></div>";
+                        $title = '<i class="fas fa-times"></i>&nbsp;ORDER BUKU ' . $data->no_order . "-" . $data->judul_buku . ', REVISI';
+                        $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>';
+                    break;
             }
+
             return response()->json([
                 'title' => $title,
                 'footer' => $footer,
@@ -1156,22 +1506,11 @@ class OrderBukuController extends Controller
             ]);
         }
     }
-    protected function pilihHarga($request)
+    protected function pilihHarga($request, $data)
     {
         try {
-            $id = $request->id;
-            $no_order = $request->no_order;
             $harga_final = $request->harga_final;
             DB::beginTransaction();
-            $data = DB::table('jasa_cetak_order_buku')
-                ->where('no_order', $no_order)
-                ->where('id', $id);
-            if (is_null($data->first())) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data order buku tidak ditemukan!'
-                ]);
-            }
             $res = [
                 'params' => 'Pilih Harga Order Buku',
                 'harga_final' => $harga_final,
@@ -1197,46 +1536,162 @@ class OrderBukuController extends Controller
             ]);
         }
     }
-    protected function approvalOrder($request)
+    protected function approvalOrder($request, $data)
     {
         try {
-            $id = $request->id;
-            $no_order = $request->no_order;
-            $keterangan_decline = $request->keterangan_decline;
-            DB::beginTransaction();
-            $data = DB::table('jasa_cetak_order_buku')
-                ->where('no_order', $no_order)
-                ->where('id', $id);
-            if (is_null($data->first())) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data order buku tidak ditemukan!'
-                ]);
-            }
-            if (($request->type == 'approve') && (is_null($data->first()->harga_final))) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Anda belum menentukan jumlah order serta harga final!'
-                ]);
-            }
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-            $res = [
-                'params' => 'Approval Order Buku',
-                'approve' => $request->type == 'approve' ? $tgl : NULL,
-                'decline' => $request->type == 'approve' ? NULL : $tgl,
-                'keterangan_decline' => $request->type == 'approve' ? NULL : $keterangan_decline,
-                'decline_by' => $request->type == 'approve' ? NULL : auth()->user()->id,
-                'status' => $request->type == 'approve' ? 'Antrian' : 'Tidak Deal',
-                'data' => $data,
-                'author_id' => auth()->user()->id,
-                'modified_at' => $tgl
-            ];
-            event(new JasaCetakEvent($res));
-            $lbl = $request->type == 'approve' ? 'deal' : 'tidak deal';
-            DB::commit();
+            switch ($request->decline_revisi) {
+                case 'approve_revisi':
+                    $ket_revisi = $request->ket_revisi;
+                    DB::beginTransaction();
+                    $last =  DB::table('jasa_cetak_order_buku_selesai')
+                    ->where('type','Proof')
+                    ->where('section','Proof')
+                    ->where('order_buku_id',$data->first()->id)
+                    ->orderBy('id', 'desc');
+                    if (is_null($last->first())) {
+                        $tahapSelanjutnya = 1;
+                    } else {
+                        $tahapSelanjutnya = $last->first()->tahap + 1;
+                    }
+                    if ($request->type == 'decline') {
+                        $pros = [
+                            'params' => 'Proses Kerja Selesai',
+                            'type' => 'Proof',
+                            'section' =>  'Proof',
+                            'tahap' => $tahapSelanjutnya,
+                            'order_buku_id' => $data->first()->id,
+                            'users_id' => auth()->id(),
+                            'ket_revisi' => $ket_revisi,
+                            'tgl_action' => $tgl
+                        ];
+                        event(new JasaCetakEvent($pros));
+                        $data->update([
+                            'status' => 'Revisi',
+                            'mulai_proof' => NULL,
+                            'selesai_proof' => NULL
+                        ]);
+                    } else {
+                        $pros = [
+                            'params' => 'Proses Kerja Selesai',
+                            'type' => 'Proof',
+                            'section' =>  'Proof',
+                            'tahap' => $tahapSelanjutnya,
+                            'order_buku_id' => $data->first()->id,
+                            'users_id' => auth()->id(),
+                            'ket_revisi' => NULL,
+                            'tgl_action' => $tgl
+                        ];
+                        event(new JasaCetakEvent($pros));
+                        $done = [
+                            'params' => 'Selesai Otorisasi',
+                            'label' => 'proof',
+                            'data' => $data,
+                            'selesai_proof' => $tgl,
+                            'proses' => '0',
+                            //Pracetak Setter History
+                            'type_history' => 'Update',
+                            'author_id' => auth()->id()
+                        ];
+                        event(new JasaCetakEvent($done));
+                    }
+                    $lbl = $request->type == 'approve' ? 'selesai' : 'perlu direvisi';
+                    DB::commit();
+                    break;
+                case 'deal_decline':
+                    $keterangan_decline = $request->keterangan_decline;
+                    DB::beginTransaction();
+                    if (($request->type == 'approve') && (is_null($data->first()->harga_final))) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Anda belum menentukan jumlah order serta harga final!'
+                        ]);
+                    }
+                    $res = [
+                        'params' => 'Approval Order Buku',
+                        'approve' => $request->type == 'approve' ? $tgl : NULL,
+                        'decline' => $request->type == 'approve' ? NULL : $tgl,
+                        'keterangan_decline' => $request->type == 'approve' ? NULL : $keterangan_decline,
+                        'decline_by' => $request->type == 'approve' ? NULL : auth()->user()->id,
+                        'status' => $request->type == 'approve' ? 'Antrian' : 'Tidak Deal',
+                        'data' => $data,
+                        'author_id' => auth()->user()->id,
+                        'modified_at' => $tgl
+                    ];
+                    event(new JasaCetakEvent($res));
+                    $lbl = $request->type == 'approve' ? 'deal' : 'tidak deal';
+                    DB::commit();
+                    break;
+                default:
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Terjadi kesalahan!'
+                    ]);
+                    break;
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => 'Order buku ' . $lbl . '!',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function doneWorkDesainSetter($author, $data)
+    {
+        try {
+            $dataProses = DB::table('jasa_cetak_order_buku_selesai')
+                ->where('type', ucfirst($author))
+                ->where('section', 'Desain/Setter First')
+                ->where('tahap', 1)
+                ->where('order_buku_id', $data->first()->id)
+                ->get();
+            $setPros = count($dataProses) + 1;
+            if ($setPros == count(json_decode($data->first()->$author, true))) {
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                $pros = [
+                    'params' => 'Proses Kerja Selesai',
+                    'type' => ucfirst($author),
+                    'section' =>  'Desain/Setter First',
+                    'tahap' => 1,
+                    'order_buku_id' => $data->first()->id,
+                    'users_id' => auth()->id(),
+                    'ket_revisi' => NULL,
+                    'tgl_action' => $tgl
+                ];
+                event(new JasaCetakEvent($pros));
+                $done = [
+                    'params' => 'Selesai Otorisasi',
+                    'label' => 'desain',
+                    'data' => $data,
+                    'selesai_desain' => $tgl,
+                    'proses' => '0',
+                    //Pracetak Setter History
+                    'type_history' => 'Update',
+                    'author_id' => auth()->id()
+                ];
+                event(new JasaCetakEvent($done));
+            } else {
+                $pros = [
+                    'params' => 'Proses Kerja Selesai',
+                    'type' => ucfirst($author),
+                    'section' =>  'Desain/Setter First',
+                    'tahap' => 1,
+                    'order_buku_id' => $data->first()->id,
+                    'users_id' => auth()->id(),
+                    'ket_revisi' => NULL,
+                    'tgl_action' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                ];
+                event(new JasaCetakEvent($pros));
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pengerjaan selesai'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1427,7 +1882,7 @@ class OrderBukuController extends Controller
                         } else {
                             foreach (json_decode($item, true) as $val) {
                                 $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
-                    }
+                            }
                         }
                         return $loop;
                         break;

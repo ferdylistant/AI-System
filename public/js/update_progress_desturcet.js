@@ -113,12 +113,10 @@ $(document).ready(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusDesturcet").trigger("reset");
-                } else {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusDesturcet").trigger("reset");
+                // console.log(result);
+                notifToast(result.status, result.message);
+                $("#fm_UpdateStatusDesturcet").trigger("reset");
+                if (result.status == "success") {
                     location.reload();
                 }
             },

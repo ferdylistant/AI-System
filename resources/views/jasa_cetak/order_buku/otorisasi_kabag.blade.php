@@ -119,6 +119,7 @@
                                 <div id="timelineProgress"></div>
                             </div>
                         </div>
+                        <div id="buttonAct"></div>
                         <form id="f_OrderBukuJasaCetak" name="id" data-id="" data-no_order="">
                             <div class="card-body">
                                 <div class="row">
@@ -182,7 +183,7 @@
                                                         <th class="table-secondary" style="width: 25%">Desainer & Setter:</th>
                                                         <td class="table-active text-left">
                                                             <small id="nonRegulerInfo"></small>
-                                                            <select name="desain[]" class="form-control select-2 select-desain" multiple="multiple" required disabled>
+                                                            <select name="desain[]" class="form-control select-2 select-desain" multiple="multiple">
                                                                 <option label="Pilih Desain"></option>
                                                                 @foreach ($data_des_set as $val)
                                                                     <option value="{{ $val->id }}">{{ $val->nama }}</option>
@@ -193,7 +194,7 @@
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Korektor:</th>
                                                         <td class="table-active text-right">
-                                                            <select name="korektor[]" class="form-control select-2" multiple="multiple">
+                                                            <select name="korektor[]" class="form-control select-2 select-korektor" multiple="multiple">
                                                                 <option label="Pilih Korektor"></option>
                                                                 @foreach ($data_kor as $val)
                                                                     <option value="{{ $val->id }}">{{ $val->nama }}</option>
@@ -204,7 +205,7 @@
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Pracetak:</th>
                                                         <td class="table-active text-right">
-                                                            <select name="pracetak[]" class="form-control select-2" multiple="multiple">
+                                                            <select name="pracetak[]" class="form-control select-2 select-pracetak" multiple="multiple">
                                                                 <option label="Pilih Pracetak"></option>
                                                                 @foreach ($data_pra as $val)
                                                                     <option value="{{ $val->id }}">{{ $val->nama }}</option>

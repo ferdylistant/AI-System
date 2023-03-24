@@ -486,16 +486,17 @@ class DeskripsiTurunCetakController extends Controller
     {
         try {
             $id = $request->id;
+            // return response()->json($request->id);
+            DB::beginTransaction();
             $data = DB::table('deskripsi_turun_cetak as dtc')
                 ->join('pracetak_setter as ps','ps.id','=','dtc.pracetak_setter_id')
                 ->join('deskripsi_final as df','df.id','=','ps.deskripsi_final_id')
-                ->join('deskripsi_produk as dp','dp.id','=','dp.deskripsi_produk_id')
+                ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
                 ->join('penerbitan_naskah as pn','pn.id','=','dp.naskah_id')
                 ->where('dtc.id', $id)
                 ->select(
                     'dtc.*',
                     'dp.naskah_id',
-                    'pn.id'
                 )
                 ->first();
             if (is_null($data)) {
@@ -504,6 +505,7 @@ class DeskripsiTurunCetakController extends Controller
                     'message' => 'Data corrupt...'
                 ], 404);
             }
+            // return response()->json($data);
             if ($data->status == $request->status) {
                 return response()->json([
                     'status' => 'error',
@@ -560,6 +562,7 @@ class DeskripsiTurunCetakController extends Controller
             } else {
                 event(new DesturcetEvent($update));
                 event(new DesturcetEvent($insert));
+                // return response()->json($update);
                 $updateTimelineDesturcet = [
                     'params' => 'Update Timeline',
                     'naskah_id' => $data->naskah_id,
@@ -570,11 +573,13 @@ class DeskripsiTurunCetakController extends Controller
                 event(new TimelineEvent($updateTimelineDesturcet));
                 $msg = 'Status progress deskripsi turun cetak berhasil diupdate';
             }
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => $msg
             ], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

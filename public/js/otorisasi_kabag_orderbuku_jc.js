@@ -15,7 +15,9 @@ function loadDataValue() {
                 // console.log(data[n]);
                 switch (n) {
                     case 'id':
-                        $('[name="id"').data('id', data[n]);
+                        $('[name="id"').data('id', data[n]['id']);
+                        $('#buttonAct').html(data[n]['html']).change();
+                        $('#buttonAct p').addClass('text-justify').change();
                         break;
                     case 'no_order':
                         $('.' + n).text(data[n]).change();
@@ -41,17 +43,48 @@ function loadDataValue() {
                         $('#f_OrderBukuJasaCetak [name="proses"]').data('label_db', data[n]['labelDB']).change();
                         $('#f_OrderBukuJasaCetak [name="proses"]').val(data[n]['prosesValue']).change();
                         $('#f_OrderBukuJasaCetak .proses_kerja_input').attr('checked', data[n]['checked']).change();
+                        $('#f_OrderBukuJasaCetak .select-2').attr('disabled', data[n]['disabled']).change();
                         $('#f_OrderBukuJasaCetak .proses_kerja_input').attr('disabled', data[n]['disabled']).change();
                         $('#f_OrderBukuJasaCetak #labelProses').text(data[n]['label']).change();
                         $('#f_OrderBukuJasaCetak button').attr('disabled', data[n]['disabled']).change();
                         break;
                     case 'desain_setter':
-                        $('#f_OrderBukuJasaCetak').trigger("reset");
-                        $('[name="desain_setter"]').val("").trigger("change");
-                        $('#f_OrderBukuJasaCetak [name="desain_setter"]').val(data[n]).change();
-                        $('#f_OrderBukuJasaCetak [name="desain_setter"]').attr('required', data[n]['required']).change();
-                        $('#f_OrderBukuJasaCetak [name="desain_setter"]').attr('disabled', data[n]['disabled']).change();
+                        // console.log(data[n]['data']);
+                        $('#f_OrderBukuJasaCetak .select-desain').val(data[n]['data']);
+                        $('#f_OrderBukuJasaCetak .select-desain').trigger('change');
+                        $('#f_OrderBukuJasaCetak [name="desain"]').attr('required', data[n]['required']).change();
+                        $('#f_OrderBukuJasaCetak [name="desain"]').attr('disabled', data[n]['disabled']).change();
                         $('#f_OrderBukuJasaCetak #nonRegulerInfo').html(data[n]['nonreguler']).addClass('text-danger').change();
+                        break;
+                    case 'korektor':
+                        $('#f_OrderBukuJasaCetak').trigger("reset");
+                        $('[name="korektor"]').val("").trigger("change");
+                        if (data[n] != null) {
+                            for (let i in data[n]) {
+                                // console.log(data[n][i].nama);
+                                $(".select-korektor").select2("trigger", "select" ,{
+                                    data: {
+                                        id: data[n][i].id,
+                                        text: data[n][i].nama
+                                    }
+                                });
+                            }
+                        }
+                        break;
+                    case 'pracetak':
+                        $('#f_OrderBukuJasaCetak').trigger("reset");
+                        $('[name="pracetak"]').val("").trigger("change");
+                        if (data[n] != null) {
+                            for (let i in data[n]) {
+                                // console.log(data[n][i].nama);
+                                $(".select-pracetak").select2("trigger", "select" ,{
+                                    data: {
+                                        id: data[n][i].id,
+                                        text: data[n][i].nama
+                                    }
+                                });
+                            }
+                        }
                         break;
                     case 'created_by':
                         $('#createdBy').text(data[n]).change();
@@ -168,6 +201,7 @@ $(function () {
                 cardWrap.addClass('card-progress');
             },
             success: function (result) {
+                // console.log(result);
                 notifToast(result.status, result.message);
                 if (result.status == 'error') {
                     resetFrom($('#f_OrderBukuJasaCetak'));
@@ -186,6 +220,51 @@ $(function () {
             setTimeout(function () {
                 cardWrap.removeClass('card-progress');
             }, 500);
+        });
+    });
+    //! DONE REVISION ACT KABAG
+    function ajaxDoneRevisionOrderBuku(id,kode) {
+        let cardWrap = $('.section-body').find('.card');
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/jasa-cetak/order-buku/otorisasi-kabag?request_=done-revision",
+            data: {
+                id: id,
+                no_order : kode
+            },
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (result) {
+                // console.log(result);
+                notifToast(result.status, result.message);
+                if (result.status == "success") {
+                    location.reload();
+                }
+            },
+            error: function (err) {
+                notifToast("error", err.statusText);
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            },
+        });
+    }
+    $("#buttonAct").on("click",'#done-revision', function (e) {
+        e.preventDefault();
+        let id = $(this).data("id");
+        let kode = $(this).data("no_order");
+        let judul = $(this).data("judul");
+        swal({
+            title: "Yakin desain/setter telah selesai merevisi order buku '" + judul + "-" + kode + "'?",
+            text: "Harap diperiksa kembali, supaya tidak terjadi kekeliruan data.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((confirm_) => {
+            if (confirm_) {
+                ajaxDoneRevisionOrderBuku(id,kode);
+            }
         });
     });
 });
