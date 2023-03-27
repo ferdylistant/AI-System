@@ -203,7 +203,7 @@ class DeskripsiTurunCetakController extends Controller
                     $data = DB::table('deskripsi_turun_cetak as dtc')
                         ->join('pracetak_setter as ps','ps.id','=','dtc.pracetak_setter_id')
                         ->join('deskripsi_final as df','df.id','=','ps.deskripsi_final_id')
-                        ->join('deskripsi_produk as dp','dp.id','=','dp.deskripsi_produk_id')
+                        ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
                         ->join('penerbitan_naskah as pn','pn.id','=','dp.naskah_id')
                         ->where('dtc.id', $request->id)
                         ->select(
@@ -497,6 +497,7 @@ class DeskripsiTurunCetakController extends Controller
                 ->select(
                     'dtc.*',
                     'dp.naskah_id',
+                    'pn.kode'
                 )
                 ->first();
             if (is_null($data)) {

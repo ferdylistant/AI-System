@@ -60,7 +60,7 @@
             <div class="section-header-back">
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
-            <h1>Detail Penerbitan Order Cetak Buku</h1>
+            <h1>Detail Jasa Cetak Order Buku</h1>
         </div>
 
         <div class="section-body">
@@ -197,8 +197,8 @@
     <script src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
-    <script src="{{ url('vendors/flipbook/min_version/pdf.min.js') }}"></script>
-    <script src="{{ url('vendors/flipbook/min_version/jquery.ipages.min.js') }}"></script>
+    {{-- <script src="{{ url('vendors/flipbook/min_version/pdf.min.js') }}"></script>
+    <script src="{{ url('vendors/flipbook/min_version/jquery.ipages.min.js') }}"></script> --}}
     <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
 @endsection
 

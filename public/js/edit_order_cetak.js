@@ -226,6 +226,7 @@ function loadDataValue() {
                         break;
                     case 'nama_pena':
                         $('[name="up_nama_pena"]').val([data[n]]);
+                        $('[name="up_nama_pena"]').trigger('change');
                         break;
                     case 'sub_judul_final':
                         if (data[n]) {

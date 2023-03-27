@@ -246,7 +246,7 @@ class OrderCetakController extends Controller
                             return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
                             break;
                         case 'nama_pena':
-                            return !is_null($item) ? implode(",", json_decode($item)) : '-';
+                            return !is_null($item) ? implode(",", json_decode($item,true)) : '-';
                             break;
                         default:
                             $item;

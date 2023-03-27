@@ -507,49 +507,31 @@ class OrderBukuController extends Controller
                                             if (is_null($doneProses)) {
                                                 $done_proses = FALSE;
                                             } else {
-                                                switch ($doneProses->section) {
-                                                    case 'Desain/Setter First':
-                                                        $done_proses = is_null($useData->selesai_desain) ? FALSE : TRUE;
-                                                        break;
-                                                    case 'Desain/Setter Revision Proof':
-                                                        $lastProof = DB::table('jasa_cetak_order_buku_selesai')
-                                                            ->where('type', 'Proof')
-                                                            ->where('section', 'Proof')
-                                                            ->where('order_buku_id', $useData->id)
-                                                            ->orderBy('id', 'desc')
-                                                            ->first();
-                                                        $doneSelf = DB::table('jasa_cetak_order_buku_selesai')
-                                                            ->where('type', ucfirst($label_db))
-                                                            ->where('section', 'Desain/Setter Revision Proof')
-                                                            ->where('tahap', $lastProof->tahap)
-                                                            ->where('order_buku_id', $useData->id)
-                                                            ->get();
-                                                        if (!$doneSelf->isEmpty()) {
-                                                            foreach ($doneSelf as $d) {
-                                                                $userId[] = $d->users_id;
-                                                            }
-                                                            if (in_array(auth()->user()->id, $userId)) {
-                                                                $done_proses = TRUE;
-                                                            } else {
-                                                                $tahap = $doneProses->tahap + 1;
-                                                                $doneNext = DB::table('jasa_cetak_order_buku_selesai')
-                                                                    ->where('type', ucfirst($label_db))
-                                                                    ->where('section', 'Desain/Setter Revision Proof')
-                                                                    ->where('tahap', $tahap)
-                                                                    ->where('order_buku_id', $useData->id)
-                                                                    ->where('users_id', auth()->user()->id)
-                                                                    ->first();
-                                                                if (!is_null($doneNext)) {
-                                                                    $done_proses = TRUE;
-                                                                } else {
-                                                                    $done_proses = FALSE;
-                                                                }
-                                                            }
-                                                        } else {
-                                                            $done_proses = FALSE;
-                                                        }
-                                                        break;
-                                                }
+                                                $done_proses = is_null($useData->selesai_desain) ? FALSE : TRUE;
+                                            }
+                                            break;
+                                        case 'korektor':
+                                            if (is_null($doneProses)) {
+                                                $done_proses = FALSE;
+                                            } else {
+                                                $done_proses = is_null($useData->selesai_koreksi) ? FALSE : TRUE;
+                                                // $doneSelf = DB::table('jasa_cetak_order_buku_selesai')
+                                                //     ->where('type', ucfirst($label_db))
+                                                //     ->where('tahap', $doneProses->tahap + 1)
+                                                //     ->where('order_buku_id', $useData->id)
+                                                //     ->get();
+                                                // if (!$doneSelf->isEmpty()) {
+                                                //     foreach ($doneSelf as $d) {
+                                                //         $userId[] = $d->users_id;
+                                                //     }
+                                                //     if (in_array(auth()->user()->id, $userId)) {
+                                                //         $done_proses = TRUE;
+                                                //     } else {
+                                                //         $done_proses = FALSE;
+                                                //     }
+                                                // } else {
+                                                //     $done_proses = FALSE;
+                                                // }
                                             }
                                             break;
                                     }
@@ -750,24 +732,24 @@ class OrderBukuController extends Controller
                                 $html = '';
                                 if ($useData->status == 'Revisi') {
                                     $last =  DB::table('jasa_cetak_order_buku_selesai')
-                                    ->where('type','Proof')
-                                    ->where('section','Proof')
-                                    ->where('order_buku_id',$item)
-                                    ->orderBy('id', 'desc')
-                                    ->first();
+                                        ->where('type', 'Proof')
+                                        ->where('section', 'Proof')
+                                        ->where('order_buku_id', $item)
+                                        ->orderBy('id', 'desc')
+                                        ->first();
                                     $html .= '<div class="row card-header">
                                     <div class="col-lg-12"><button type="button" class="btn btn-success form-control" id="done-revision"
-                                    data-id="'.$item.'" data-judul="'.$useData->judul_buku.'"
-                                    data-no_order="'.$useData->no_order.'">
+                                    data-id="' . $item . '" data-judul="' . $useData->judul_buku . '"
+                                    data-no_order="' . $useData->no_order . '">
                                     <i class="fas fa-check"></i>&nbsp;Selesai Revisi</button>
                                     </div>
                                 <div class="col-lg-12 mt-3">
                                 <h6 class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Keterangan Revisi:</h6>
-                                <p><span class="bullet"></span>'.$last->ket_revisi.'</p>
+                                <p><span class="bullet"></span>' . $last->ket_revisi . '</p>
                                 </div>
                                 </div>';
                                 }
-                                return ['html'=>$html,'id'=> $item];
+                                return ['html' => $html, 'id' => $item];
                                 break;
                             case 'jalur_proses':
                                 $html = '';
@@ -784,12 +766,14 @@ class OrderBukuController extends Controller
                                     $pracetakCTCP = '';
                                     $koreksiSecond = '';
                                     $kabagFourth = '';
+                                    $kabagFifth = '';
+                                    $kabagSixth = '';
                                     $pracetakProd = '';
-                                    $textKabag = '';
+                                    $textKabagSecond = '';
                                     if ($useData->status == 'Revisi') {
-                                        $textKabag = 'Otorisasi klik penyelesaian revisi';
+                                        $textKabagSecond = 'Otorisasi klik penyelesaian revisi';
                                     } else {
-                                        $textKabag = 'Delegasi ke CS untuk Proofing';
+                                        $textKabagSecond = 'Delegasi ke CS untuk Proofing';
                                     }
                                     if (is_null($useData->mulai_desain) && is_null($useData->selesai_desain)) {
                                         $kabagFirst = 'text-danger';
@@ -809,14 +793,20 @@ class OrderBukuController extends Controller
                                     if (!is_null($useData->mulai_koreksi) && is_null($useData->selesai_koreksi)) {
                                         $koreksiFirst = 'text-danger';
                                     }
+                                    if (!is_null($useData->selesai_koreksi) && is_null($useData->mulai_pracetak_ctcp)) {
+                                        $kabagFourth = 'text-danger';
+                                    }
                                     if ((!is_null($useData->mulai_pracetak_ctcp) && is_null($useData->selesai_pracetak_ctcp)) && !is_null($useData->mulai_koreksi)) {
                                         $pracetakCTCP = 'text-danger';
+                                    }
+                                    if (!is_null($useData->selesai_pracetak_ctcp) && is_null($useData->mulai_koreksi) && is_null($useData->selesai_koreksi)) {
+                                        $kabagFifth = 'text-danger';
                                     }
                                     if (!is_null($useData->selesai_pracetak_ctcp) && !is_null($useData->mulai_koreksi)) {
                                         $koreksiSecond = 'text-danger';
                                     }
                                     if (!is_null($useData->selesai_pracetak_ctcp) && is_null($useData->mulai_pracetak_prod)) {
-                                        $kabagFourth = 'text-danger';
+                                        $kabagSixth = 'text-danger';
                                     }
                                     if (!is_null($useData->mulai_pracetak_prod) && is_null($useData->selesai_pracetak_prod)) {
                                         $pracetakProd = 'text-danger';
@@ -834,7 +824,7 @@ class OrderBukuController extends Controller
                                                     <div class="status"><span>Desain</span></div>
                                                     </div>
                                                     <div class="swiper-slide ' . $kabagSecond . '">
-                                                    <div class="timestamp"><span class="date">'.$textKabag.'</span></div>
+                                                    <div class="timestamp"><span class="date">' . $textKabagSecond . '</span></div>
                                                     <div class="status"><span>Kabag</span></div>
                                                     </div>
                                                     <div class="swiper-slide ' . $proofProg . '">
@@ -849,15 +839,23 @@ class OrderBukuController extends Controller
                                                     <div class="timestamp"><span class="date">Koreksi hasil fix proofing penulis</span></div>
                                                     <div class="status"><span>Korektor</span></div>
                                                     </div>
+                                                    <div class="swiper-slide ' . $kabagFourth . '">
+                                                    <div class="timestamp"><span class="date">Delegasi ke Pracetak CTCP</span></div>
+                                                    <div class="status"><span>Kabag</span></div>
+                                                    </div>
                                                     <div class="swiper-slide ' . $pracetakCTCP . '">
                                                     <div class="timestamp"><span class="date">Pracetak CTCP</span></div>
                                                     <div class="status"><span>Admin Pracetak</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide ' . $kabagFifth . '">
+                                                    <div class="timestamp"><span class="date">Delegasi ke korektor (CTCP)</span></div>
+                                                    <div class="status"><span>Kabag</span></div>
                                                     </div>
                                                     <div class="swiper-slide ' . $koreksiSecond . '">
                                                     <div class="timestamp"><span class="date">Koreksi hasil CTCP</span></div>
                                                     <div class="status"><span>Korektor</span></div>
                                                     </div>
-                                                    <div class="swiper-slide ' . $kabagFourth . '">
+                                                    <div class="swiper-slide ' . $kabagSixth . '">
                                                     <div class="timestamp"><span class="date">Delegasi ke admin pracetak</span></div>
                                                     <div class="status"><span>Kabag</span></div>
                                                     </div>
@@ -874,23 +872,31 @@ class OrderBukuController extends Controller
                                     $kabagFirst = '';
                                     $koreksiFirst = '';
                                     $pracetakCTCP = '';
-                                    $koreksiSecond = '';
                                     $kabagSecond = '';
+                                    $koreksiSecond = '';
+                                    $kabagThird = '';
                                     $pracetakProd = '';
+                                    $kabagFourth = '';
                                     if (is_null($useData->mulai_koreksi) && is_null($useData->selesai_koreksi)) {
                                         $kabagFirst = 'text-danger';
                                     }
                                     if (!is_null($useData->mulai_koreksi) && is_null($useData->selesai_koreksi)) {
                                         $koreksiFirst = 'text-danger';
                                     }
+                                    if (!is_null($useData->selesai_koreksi) && is_null($useData->mulai_pracetak_ctcp)) {
+                                        $kabagSecond = 'text-danger';
+                                    }
                                     if ((!is_null($useData->mulai_pracetak_ctcp) && is_null($useData->selesai_pracetak_ctcp)) && !is_null($useData->mulai_koreksi)) {
                                         $pracetakCTCP = 'text-danger';
+                                    }
+                                    if (!is_null($useData->selesai_pracetak_ctcp) && is_null($useData->mulai_koreksi) && is_null($useData->selesai_koreksi)) {
+                                        $kabagThird = 'text-danger';
                                     }
                                     if (!is_null($useData->selesai_pracetak_ctcp) && !is_null($useData->mulai_koreksi)) {
                                         $koreksiSecond = 'text-danger';
                                     }
                                     if (!is_null($useData->selesai_pracetak_ctcp) && is_null($useData->mulai_pracetak_prod)) {
-                                        $kabagSecond = 'text-danger';
+                                        $kabagFourth = 'text-danger';
                                     }
                                     if (!is_null($useData->mulai_pracetak_prod) && is_null($useData->selesai_pracetak_prod)) {
                                         $pracetakProd = 'text-danger';
@@ -906,15 +912,23 @@ class OrderBukuController extends Controller
                                                     <div class="timestamp"><span class="date">Koreksi bahan jadi</span></div>
                                                     <div class="status"><span>Korektor</span></div>
                                                     </div>
+                                                    <div class="swiper-slide ' . $kabagSecond . '">
+                                                    <div class="timestamp"><span class="date">Delegasi ke Pracetak CTCP</span></div>
+                                                    <div class="status"><span>Kabag</span></div>
+                                                    </div>
                                                     <div class="swiper-slide ' . $pracetakCTCP . '">
                                                     <div class="timestamp"><span class="date">Pracetak CTCP</span></div>
                                                     <div class="status"><span>Admin Pracetak</span></div>
+                                                    </div>
+                                                    <div class="swiper-slide ' . $kabagThird . '">
+                                                    <div class="timestamp"><span class="date">Delegasi ke korektor (CTCP)</span></div>
+                                                    <div class="status"><span>Kabag</span></div>
                                                     </div>
                                                     <div class="swiper-slide ' . $koreksiSecond . '">
                                                     <div class="timestamp"><span class="date">Koreksi hasil CTCP</span></div>
                                                     <div class="status"><span>Korektor</span></div>
                                                     </div>
-                                                    <div class="swiper-slide ' . $kabagSecond . '">
+                                                    <div class="swiper-slide ' . $kabagFourth . '">
                                                     <div class="timestamp"><span class="date">Delegasi ke admin pracetak</span></div>
                                                     <div class="status"><span>Kabag</span></div>
                                                     </div>
@@ -1066,14 +1080,7 @@ class OrderBukuController extends Controller
                                 return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
                                 break;
                             case 'desain_setter':
-                                $data = !is_null($item) ? json_decode($item,true) : NULL;
-                                // if (!is_null($item)) {
-                                //     foreach (json_decode($item, true) as $l) {
-                                //         $data[] = DB::table('users')->where('id', $l)->select('id','nama')->first();
-                                //     }
-                                // } else {
-                                //     $data = NULL;
-                                // }
+                                $data = !is_null($item) ? json_decode($item, true) : NULL;
                                 $disabled = $useData->jalur_proses == 'Jalur Reguler' ? false : true;
                                 $required = $useData->jalur_proses == 'Jalur Reguler' ? true : false;
                                 $nonRegulerInfo = $useData->jalur_proses == 'Jalur Reguler' ? '' : (is_null($useData->jalur_proses) ? '' : '<i class="fas fa-exclamation-circle"></i> Jalur Pendek tidak melalui tahap desain & setter');
@@ -1234,16 +1241,17 @@ class OrderBukuController extends Controller
                     'message' => 'Hentikan proses untuk update data'
                 ]);
             }
+            // return response()->json();
             if ($request->has('desain')) {
                 $desain = json_encode($request->desain);
             } else {
-                if (is_null($data->desain)) {
+                if (is_null($data->desain_setter)) {
                     $desain = NULL;
                 } else {
-                    $desain = $data->desain;
+                    $desain = $data->desain_setter;
                 }
             }
-            return response()->json($request->has('desain'));
+            // return response()->json($request->has('desain'));
             if ($request->has('korektor')) {
                 $korektor = json_encode($request->korektor);
             } else {
@@ -1262,6 +1270,7 @@ class OrderBukuController extends Controller
                     $pracetak = $data->pracetak;
                 }
             }
+
             if ($request->has('desain') || $request->has('korektor') || $request->has('pracetak')) {
                 $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
                 $update = [
@@ -1282,10 +1291,14 @@ class OrderBukuController extends Controller
                     'modified_at' => $tgl //History
                 ];
                 event(new JasaCetakEvent($update));
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Berhasil update!'
+                ]);
             }
             return response()->json([
                 'status' => 'success',
-                'message' => 'Berhasil update!'
+                'message' => 'Tidak ada perubahan data!'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1301,11 +1314,11 @@ class OrderBukuController extends Controller
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             DB::beginTransaction();
             $last =  DB::table('jasa_cetak_order_buku_selesai')
-            ->where('type','Kabag')
-            ->where('section','Kabag Done Revision')
-            ->where('order_buku_id',$data->id)
-            ->orderBy('id', 'desc')
-            ->first();
+                ->where('type', 'Kabag')
+                ->where('section', 'Kabag Done Revision')
+                ->where('order_buku_id', $data->id)
+                ->orderBy('id', 'desc')
+                ->first();
             if (is_null($last)) {
                 $tahapSelanjutnya = 1;
             } else {
@@ -1323,7 +1336,7 @@ class OrderBukuController extends Controller
             ];
             event(new JasaCetakEvent($pros));
             DB::table('jasa_cetak_order_buku')->where('id', $data->id)->where('no_order', $data->no_order)->update([
-                'mulai_proof' => $tgl,
+                'mulai_proof' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                 'status' => 'Proses',
                 'proses' => '1'
             ]);
@@ -1466,17 +1479,17 @@ class OrderBukuController extends Controller
                         <textarea class='form-control' name='ket_revisi' id='ket_revisi' rows='4'></textarea>
                         <div id='err_ket_revisi'></div>
                         </div>";
-                        $title = '<i class="fas fa-times"></i>&nbsp;REVISI ORDER BUKU ' . $data->no_order . "-" . $data->judul_buku;
-                        $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    $title = '<i class="fas fa-times"></i>&nbsp;REVISI ORDER BUKU ' . $data->no_order . "-" . $data->judul_buku;
+                    $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary">Konfirmasi</button>';
                     break;
                 case 'Revisi':
                     $ketRevisi = DB::table('jasa_cetak_order_buku_selesai')
-                    ->where('type','Proof')
-                    ->where('section','Proof')
-                    ->where('order_buku_id',$data->id)
-                    ->whereNotNull('ket_revisi')
-                    ->first();
+                        ->where('type', 'Proof')
+                        ->where('section', 'Proof')
+                        ->where('order_buku_id', $data->id)
+                        ->whereNotNull('ket_revisi')
+                        ->first();
                     $html .= "<div class='form-group mb-2'>
                         <label for='decline_by'>Oleh:</label>
                         <p id='decline_by'>" . DB::table('users')->where('id', $ketRevisi->users_id)->first()->nama . "</p></div>
@@ -1488,8 +1501,8 @@ class OrderBukuController extends Controller
                         <div class='form-group mb-2'>
                         <label for='keterangan_decline'>Alasan:</label>
                         <p id='keterangan_decline'>" . $ketRevisi->ket_revisi . "</p></div>";
-                        $title = '<i class="fas fa-times"></i>&nbsp;ORDER BUKU ' . $data->no_order . "-" . $data->judul_buku . ', REVISI';
-                        $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>';
+                    $title = '<i class="fas fa-times"></i>&nbsp;ORDER BUKU ' . $data->no_order . "-" . $data->judul_buku . ', REVISI';
+                    $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>';
                     break;
             }
 
@@ -1545,10 +1558,10 @@ class OrderBukuController extends Controller
                     $ket_revisi = $request->ket_revisi;
                     DB::beginTransaction();
                     $last =  DB::table('jasa_cetak_order_buku_selesai')
-                    ->where('type','Proof')
-                    ->where('section','Proof')
-                    ->where('order_buku_id',$data->first()->id)
-                    ->orderBy('id', 'desc');
+                        ->where('type', 'Proof')
+                        ->where('section', 'Proof')
+                        ->where('order_buku_id', $data->first()->id)
+                        ->orderBy('id', 'desc');
                     if (is_null($last->first())) {
                         $tahapSelanjutnya = 1;
                     } else {
@@ -1701,6 +1714,34 @@ class OrderBukuController extends Controller
             ]);
         }
     }
+    protected function doneWorkKorektor($author, $data)
+    {
+        try {
+            $dataProses = DB::table('jasa_cetak_order_buku_selesai')
+                ->where('order_buku_id', $data->first()->id)
+                ->orderBy('id','desc')
+                ->first();
+            if (is_null($dataProses)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Terjadi kesalahan!'
+                ]);
+            }
+
+            //! TULIS KODE DISINI
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pengerjaan selesai'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
     public static function generateId()
     {
         $last = DB::table('jasa_cetak_order_buku')
@@ -1764,16 +1805,16 @@ class OrderBukuController extends Controller
             $d = (object)collect($d)->map(function ($item, $key) use ($id) {
                 switch ($key) {
                     case 'tgl_order_his':
-                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item, 'Asia/Jakarta')->translatedFormat('d F Y') : NULL;
                         break;
                     case 'tgl_order_new':
-                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item, 'Asia/Jakarta')->translatedFormat('d F Y') : NULL;
                         break;
                     case 'tgl_permintaan_selesai_his':
-                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item, 'Asia/Jakarta')->translatedFormat('d F Y') : NULL;
                         break;
                     case 'tgl_permintaan_selesai_new':
-                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : NULL;
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item, 'Asia/Jakarta')->translatedFormat('d F Y') : NULL;
                         break;
                     case 'jml_order_his':
                         if (!is_null($item)) {
@@ -1834,7 +1875,7 @@ class OrderBukuController extends Controller
                     case 'desain_his':
                         $loop = '';
                         if (is_null($item)) {
-                            $loop = NULL;
+                            $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
                                 $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
@@ -1845,7 +1886,7 @@ class OrderBukuController extends Controller
                     case 'desain_new':
                         $loop = '';
                         if (is_null($item)) {
-                            $loop = NULL;
+                            $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
                                 $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
@@ -1856,7 +1897,7 @@ class OrderBukuController extends Controller
                     case 'korektor_his':
                         $loop = '';
                         if (is_null($item)) {
-                            $loop = NULL;
+                            $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
                                 $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
@@ -1867,7 +1908,7 @@ class OrderBukuController extends Controller
                     case 'korektor_new':
                         $loop = '';
                         if (is_null($item)) {
-                            $loop = NULL;
+                            $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
                                 $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
@@ -1878,7 +1919,7 @@ class OrderBukuController extends Controller
                     case 'pracetak_his':
                         $loop = '';
                         if (is_null($item)) {
-                            $loop = NULL;
+                            $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
                                 $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
@@ -1889,13 +1930,46 @@ class OrderBukuController extends Controller
                     case 'pracetak_new':
                         $loop = '';
                         if (is_null($item)) {
-                            $loop = NULL;
+                            $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
                                 $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
                             }
                         }
                         return $loop;
+                        break;
+                    case 'mulai_desain':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->translatedFormat('d F Y, H:i:s') : NULL;
+                        break;
+                    case 'selesai_desain':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->translatedFormat('d F Y, H:i:s') : NULL;
+                        break;
+                    case 'mulai_proof':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->translatedFormat('d F Y, H:i:s') : NULL;
+                        break;
+                    case 'selesai_proof':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->translatedFormat('d F Y, H:i:s') : NULL;
+                        break;
+                    case 'selesai_revisi_kabag':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->translatedFormat('d F Y, H:i:s') : NULL;
+                        break;
+                    case 'mulai_koreksi':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->translatedFormat('d F Y, H:i:s') : NULL;
+                        break;
+                    case 'selesai_koreksi':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->translatedFormat('d F Y, H:i:s') : NULL;
+                        break;
+                    case 'mulai_pracetak_ctcp':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->translatedFormat('d F Y, H:i:s') : NULL;
+                        break;
+                    case 'selesai_pracetak_ctcp':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->translatedFormat('d F Y, H:i:s') : NULL;
+                        break;
+                    case 'mulai_pracetak_prod':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->translatedFormat('d F Y, H:i:s') : NULL;
+                        break;
+                    case 'selesai_pracetak_prod':
+                        return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->translatedFormat('d F Y, H:i:s') : NULL;
                         break;
                     case 'modified_at':
                         return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($item)->translatedFormat('l d M Y, H:i') . ')' : NULL;
@@ -1910,21 +1984,6 @@ class OrderBukuController extends Controller
                 case 'Update':
                     $html .= '<span class="ticket-item" id="newAppend">';
 
-                    if (!is_null($d->jalur_proses_his)) {
-                        $html .=
-                            '<div class="ticket-title">
-                                <span><span class="bullet"></span> Jalur proses <b class="text-dark">' .
-                            $d->jalur_proses_his .
-                            '</b> diubah menjadi <b class="text-dark">' .
-                            $d->jalur_proses_new .
-                            '</b> </span></div>';
-                    } elseif (!is_null($d->jalur_proses_new)) {
-                        $html .=
-                            '<div class="ticket-title">
-                                <span><span class="bullet"></span> Jalur proses <b class="text-dark">' .
-                            $d->jalur_proses_new .
-                            '</b> ditambahkan. </span></div>';
-                    }
                     if (!is_null($d->nama_pemesan_his)) {
                         $html .=
                             '<div class="ticket-title">
@@ -2186,6 +2245,78 @@ class OrderBukuController extends Controller
                                 <span><span class="bullet"></span> Keterangan <b class="text-dark">' .
                             $d->keterangan_new .
                             '</b> ditambahkan. </span></div>';
+                    }
+                    if (!is_null($d->mulai_desain)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Desain/Setter dimulai pada <b class="text-dark">' .
+                            $d->mulai_desain .
+                            '</b>. </span></div>';
+                    } elseif (!is_null($d->selesai_desain)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Desain/Setter selesai pada <b class="text-dark">' .
+                            $d->selesai_desain .
+                            '</b>. </span></div>';
+                    }
+                    if (!is_null($d->mulai_proof)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Proof penulis oleh CS dimulai pada <b class="text-dark">' .
+                            $d->mulai_proof .
+                            '</b>. </span></div>';
+                    } elseif (!is_null($d->selesai_proof)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Proof penulis oleh CS selesai pada <b class="text-dark">' .
+                            $d->selesai_proof .
+                            '</b>. </span></div>';
+                    }
+                    if (!is_null($d->selesai_revisi_kabag)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Revisi telah dinyatakan selesai selesai pada <b class="text-dark">' .
+                            $d->selesai_revisi_kabag .
+                            '</b>. </span></div>';
+                    }
+                    if (!is_null($d->mulai_koreksi)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Koreksi dimulai pada <b class="text-dark">' .
+                            $d->mulai_koreksi .
+                            '</b>. </span></div>';
+                    } elseif (!is_null($d->selesai_koreksi)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Koreksi selesai pada <b class="text-dark">' .
+                            $d->selesai_koreksi .
+                            '</b>. </span></div>';
+                    }
+                    if (!is_null($d->mulai_pracetak_ctcp)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Pracetak CTCP dimulai pada <b class="text-dark">' .
+                            $d->mulai_pracetak_ctcp .
+                            '</b>. </span></div>';
+                    } elseif (!is_null($d->selesai_pracetak_ctcp)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Pracetak CTCP selesai pada <b class="text-dark">' .
+                            $d->selesai_pracetak_ctcp .
+                            '</b>. </span></div>';
+                    }
+                    if (!is_null($d->mulai_pracetak_prod)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Pracetak produksi dimulai pada <b class="text-dark">' .
+                            $d->mulai_pracetak_prod .
+                            '</b>. </span></div>';
+                    } elseif (!is_null($d->selesai_pracetak_prod)) {
+                        $html .=
+                            '<div class="ticket-title">
+                                <span><span class="bullet"></span> Pracetak produksi selesai pada <b class="text-dark">' .
+                            $d->selesai_pracetak_prod .
+                            '</b>. </span></div>';
                     }
                     $html .=
                         '<div class="ticket-info">

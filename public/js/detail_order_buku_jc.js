@@ -15,10 +15,14 @@ function loadDataValue() {
                 // console.log(data[n]);
                 switch (n) {
                     case 'id':
-                        $('#buttonAct').html(data[n]).change();
+                        if (data[n] != '') {
+                            $('#buttonAct').html(data[n]).change();
+                        }
                         break;
                     case 'proses':
-                        $('#buttonAct').html(data[n]).change();
+                        if (data[n] != '') {
+                            $('#buttonAct').html(data[n]).change();
+                        }
                         break;
                     case 'jml_order':
                         if (cs == true) {
@@ -275,7 +279,7 @@ $(function () {
         let id = $(this).data("id");
         let no_order = $(this).data("no_order");
         let autor = $(this).data("author");
-        var label = autor == "desain_setter" ? "desain/setter " : autor;
+        var label = autor == "desain_setter" ? "desain/setter " : autor+" ";
         swal({
             title: "Yakin telah menyelesaikan proses " + label + no_order + "?",
             text: "Harap diperiksa kembali, supaya tidak terjadi kesalahan.",
