@@ -259,10 +259,11 @@ $(function () {
                 $("#overlay").fadeIn(300);
             },
             success: function (result) {
-                notifToast(result.status, result.message);
-                if (result.status == "success") {
-                    location.reload();
-                }
+                console.log(result);
+                // notifToast(result.status, result.message);
+                // if (result.status == "success") {
+                //     location.reload();
+                // }
             },
             error: function (err) {
                 notifToast("error", "Terjadi Kesalahan!");

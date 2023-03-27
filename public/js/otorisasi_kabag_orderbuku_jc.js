@@ -196,7 +196,6 @@ $(function () {
                 author: author
             },
             dataType: 'json',
-            timeout: 1000,
             beforeSend: function () {
                 cardWrap.addClass('card-progress');
             },
@@ -210,11 +209,7 @@ $(function () {
                 }
             },
             error: function (err) {
-                if (err.statusText === "timeout") {
-                    notifToast("error", "Periksa koneksi internet Anda!");
-                } else {
-                    notifToast("error", err.statusText);
-                }
+                notifToast("error", err.statusText);
             }
         }).done(function () {
             setTimeout(function () {

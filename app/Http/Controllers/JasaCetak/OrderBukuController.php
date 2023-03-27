@@ -636,19 +636,19 @@ class OrderBukuController extends Controller
                                 return !is_null($item) ? $item : NULL;
                                 break;
                             case 'tgl_order':
-                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->translatedFormat('d F Y') : '-';
                                 break;
                             case 'tgl_permintaan_selesai':
-                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->translatedFormat('d F Y') : '-';
                                 break;
                             case 'created_at':
-                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item)->format('d F Y, H:i:s') : '-';
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item)->translatedFormat('d F Y, H:i:s') : '-';
                                 break;
                             case 'created_by':
                                 return !is_null($item) ? DB::table('users')->where('id', $item)->first()->nama : '-';
                                 break;
                             default:
-                                $item;
+                                return $item;
                                 break;
                         }
                         return $item;
@@ -1077,7 +1077,7 @@ class OrderBukuController extends Controller
                                 return !is_null($item) ? $item : NULL;
                                 break;
                             case 'tgl_order':
-                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->translatedFormat('d F Y') : '-';
                                 break;
                             case 'desain_setter':
                                 $data = !is_null($item) ? json_decode($item, true) : NULL;
@@ -1107,10 +1107,10 @@ class OrderBukuController extends Controller
                                 return $data;
                                 break;
                             case 'tgl_permintaan_selesai':
-                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->translatedFormat('d F Y') : '-';
                                 break;
                             case 'created_at':
-                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item)->format('d F Y, H:i:s') : '-';
+                                return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item)->translatedFormat('d F Y, H:i:s') : '-';
                                 break;
                             case 'created_by':
                                 return !is_null($item) ? DB::table('users')->where('id', $item)->first()->nama : '-';
@@ -1717,6 +1717,7 @@ class OrderBukuController extends Controller
     protected function doneWorkKorektor($author, $data)
     {
         try {
+            return response()->json($author);
             $dataProses = DB::table('jasa_cetak_order_buku_selesai')
                 ->where('order_buku_id', $data->first()->id)
                 ->orderBy('id','desc')
