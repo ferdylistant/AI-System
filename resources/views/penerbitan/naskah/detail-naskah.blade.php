@@ -156,12 +156,14 @@
                                 <h4>Penilaian Naskah</h4>
                             </div>
                             <div id="form_penilaian" class="card-body">
-                                <ul class="nav nav-tabs"role="tablist">
+                                <ul class="nav nav-tabs" role="tablist">
                                     <li class="nav-item">
                                         <a class="nav-link {{ $startPn == 'guest' ? 'active' : ($startPn == 'prodev' ? 'active' : '') }}"
                                             id="prodev-tab" data-toggle="tab" data-penilaian="Prodev"
                                             data-naskahid="{{ $naskah->id }}" href="#pn_Prodev" role="tab"
-                                            aria-controls="prodev">Prodev</a>
+                                            aria-controls="prodev">Prodev&nbsp;<span
+                                                class="{{ $badgeDraf }}">{{ $badgeDrafText }}</span></a>
+
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ in_array($startPn, ['editor', 'setter']) ? 'active' : '' }}"
@@ -523,11 +525,11 @@
             }
 
             // Submit Penilaian Prodev
-            function ajaxPenProdev(data) {
+            function ajaxPenProdev(data,param) {
                 let el = data.get(0);
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('penerbitan/naskah/penilaian/prodev') }}",
+                    url: window.location.origin + "/penerbitan/naskah/penilaian/prodev?simpan="+param,
                     data: new FormData(el),
                     processData: false,
                     contentType: false,
@@ -537,7 +539,10 @@
                     },
                     success: function(result) {
                         // console.log(result)
-                        notifToast('success', 'Penilaian berhasil disimpan!', true);
+                        notifToast(result.status, result.message);
+                        if (result.status == 'success') {
+                            location.reload();
+                        }
                     },
                     error: function(err) {
                         rs = err.responseJSON.errors;
@@ -563,15 +568,37 @@
                     swal({
                             text: 'Simpan Penilaian Naskah?',
                             icon: 'warning',
-                            buttons: true,
+                            buttons: {
+                                cancel: true,
+                                draf: {
+                                    text: "Simpan Sebagai Draf",
+                                    value: "draf",
+                                },
+                                confirm: "Selesai",
+                            },
                             dangerMode: true,
                         })
                         .then((confirm_) => {
                             if (confirm_) {
-                                ajaxPenProdev($(this))
+                                console.log(confirm_);
+                                switch (confirm_) {
+                                    case "draf":
+                                        ajaxPenProdev($(this),'draf')
+                                        break;
+
+                                    case true:
+                                        ajaxPenProdev($(this),'done')
+                                        break;
+
+                                }
                             }
+                            // console.log(confirm_);
                         });
 
+                }
+
+                function createButton(text, cb) {
+                    return $('<button>' + text + '</button>').on('click', cb);
                 }
             })
             // Submit Penilaian Editor/Setter

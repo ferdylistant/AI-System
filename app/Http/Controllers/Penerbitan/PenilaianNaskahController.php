@@ -52,7 +52,7 @@ class PenilaianNaskahController extends Controller
             ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
             ->whereNull('pn.deleted_at')
             ->where('pn.id', $request->input('naskah_id'))
-            ->select(DB::raw('pn.id, pn.jalur_buku, pn.pic_prodev, pns.tgl_pn_prodev,
+            ->select(DB::raw('pn.id, pn.jalur_buku, pn.pic_prodev, pn.selesai_penilaian, pns.tgl_pn_prodev,
                         pns.tgl_pn_direksi'))
             ->first();
         if (is_null($naskah)) {
@@ -62,54 +62,65 @@ class PenilaianNaskahController extends Controller
         if ($naskah->jalur_buku == 'Reguler' or $naskah->jalur_buku == 'MoU-Reguler') {
             if (Gate::allows('do_update', 'naskah-pn-prodev') and $naskah->pic_prodev == auth()->id()) {
                 if (is_null($naskah->tgl_pn_prodev)) { // Add form prodev
+                    $form = 'add';
+                    $title = 'Tambah Penilaian Prodev';
+                    $pn_prodev = NULL;
                     $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
+                    if (!is_null($naskah->selesai_penilaian)) { // Edit form prodev/Draf
+                        $title = 'Edit Penilaian Prodev';
+                        $form = 'edit';
+                        $pn_prodev = DB::table('penerbitan_pn_prodev')->where('naskah_id', $naskah->id)->first();
+                    }
+
                     return view('penerbitan.naskah.page.tab-prodev', [
-                        'form' => 'add',
-                        'naskah' => $naskah,
-                        'kbuku' => $kbuku,
-                        'title' => 'Tambah Penilaian Prodev'
-                    ]);
-                } elseif (is_null($naskah->tgl_pn_direksi)) { // Edit form prodev
-                    $pn_prodev = DB::table('penerbitan_pn_prodev')->where('naskah_id', $naskah->id)->first();
-                    $fileProdev = DB::table('penerbitan_naskah_files')->where('naskah_id', $naskah->id)
-                        ->where('kategori', 'File Tambahan Naskah Prodev')->first();
-                    $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
-                    return view('penerbitan.naskah.page.tab-prodev', [
-                        'form' => 'edit',
+                        'form' => $form,
                         'naskah' => $naskah,
                         'pn_prodev' => $pn_prodev,
                         'kbuku' => $kbuku,
-                        'fileProdev' => $fileProdev,
-                        'title' => 'Edit Penilaian Prodev'
+                        'title' => $title
                     ]);
                 } else {
                     $pn_prodev = DB::table('penerbitan_pn_prodev')->where('naskah_id', $naskah->id)->first();
-                    $fileProdev = DB::table('penerbitan_naskah_files')->where('naskah_id', $naskah->id)
-                        ->where('kategori', 'File Tambahan Naskah Prodev')->first();
+                    // $fileProdev = DB::table('penerbitan_naskah_files')->where('naskah_id', $naskah->id)
+                    //     ->where('kategori', 'File Tambahan Naskah Prodev')->first();
                     $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
                     return view('penerbitan.naskah.page.tab-prodev', [
                         'form' => 'view',
                         'naskah' => $naskah,
                         'pn_prodev' => $pn_prodev,
                         'kbuku' => $kbuku,
-                        'fileProdev' => $fileProdev,
+                        // 'fileProdev' => $fileProdev,
                         'title' => 'Lihat Penilaian Prodev'
                     ]);
                 }
             } else {
                 if (is_null($naskah->tgl_pn_prodev)) {
-                    return '<h5>Prodev belum membuat penilaian.</h5>';
+                    if (!is_null($naskah->selesai_penilaian)) { // Edit form prodev/Draf
+                        $title = 'Edit Penilaian Prodev';
+                        $form = 'view';
+                        $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
+                        $pn_prodev = DB::table('penerbitan_pn_prodev')->where('naskah_id', $naskah->id)->first();
+                        return view('penerbitan.naskah.page.tab-prodev', [
+                            'form' => $form,
+                            'naskah' => $naskah,
+                            'pn_prodev' => $pn_prodev,
+                            'kbuku' => $kbuku,
+                            'title' => 'Lihat Penilaian Prodev'
+                        ]);
+                    } else {
+                        return '<h5>Prodev belum membuat penilaian.</h5>';
+                    }
                 } else {
                     $pn_prodev = DB::table('penerbitan_pn_prodev')->where('naskah_id', $naskah->id)->first();
-                    $fileProdev = DB::table('penerbitan_naskah_files')->where('naskah_id', $naskah->id)
-                        ->where('kategori', 'File Tambahan Naskah Prodev')->first();
+                    // $fileProdev = DB::table('penerbitan_naskah_files')->where('naskah_id', $naskah->id)
+                    //     ->where('kategori', 'File Tambahan Naskah Prodev')->first();
                     $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
                     return view('penerbitan.naskah.page.tab-prodev', [
                         'form' => 'view',
                         'naskah' => $naskah,
                         'pn_prodev' => $pn_prodev,
                         'kbuku' => $kbuku,
-                        'fileProdev' => $fileProdev,
+                        // 'fileProdev' => $fileProdev,
                         'title' => 'Lihat Penilaian Prodev'
                     ]);
                 }
@@ -440,17 +451,18 @@ class PenilaianNaskahController extends Controller
 
         DB::beginTransaction();
         try {
+            $msg = "";
             if ($request->input('pn1_form') == 'Add') {
-                if ($request->file('pn1_file_tambahan')) {
-                    $fileN = explode('/', $request->file('pn1_file_tambahan')
-                        ->store('penerbitan/naskah/' . $request->input('pn1_naskah_id')));
-                    DB::table('penerbitan_naskah_files')->insert([
-                        'id' => Str::uuid()->getHex(),
-                        'naskah_id' => $request->input('pn1_naskah_id'),
-                        'kategori' => 'File Tambahan Naskah Prodev',
-                        'file' => end($fileN)
-                    ]);
-                }
+                // if ($request->file('pn1_file_tambahan')) {
+                //     $fileN = explode('/', $request->file('pn1_file_tambahan')
+                //         ->store('penerbitan/naskah/' . $request->input('pn1_naskah_id')));
+                //     DB::table('penerbitan_naskah_files')->insert([
+                //         'id' => Str::uuid()->getHex(),
+                //         'naskah_id' => $request->input('pn1_naskah_id'),
+                //         'kategori' => 'File Tambahan Naskah Prodev',
+                //         'file' => end($fileN)
+                //     ]);
+                // }
                 DB::table('penerbitan_pn_prodev')->insert([
                     'id' => Str::uuid()->getHex(),
                     'naskah_id' => $request->input('pn1_naskah_id'),
@@ -466,38 +478,53 @@ class PenilaianNaskahController extends Controller
                     'potensi' => $request->input('pn1_potensi'),
                     'created_by' => auth()->id(),
                 ]);
-                DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn1_naskah_id'))
-                    ->update([
-                        'tgl_pn_prodev' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                    ]);
-                $notif = DB::table('notif')->whereNull('expired')->where('permission_id', 'ebca07da8aad42c4aee304e3a6b81001') // Notif Prodev
-                    ->where('form_id', $request->input('pn1_naskah_id'))->first();
-                if (!is_null($notif)) {
-                    DB::table('notif')->where('id', $notif->id)->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
-                    DB::table('notif_detail')->where('notif_id', $notif->id)->where('user_id', auth()->id())
-                        ->update(['seen' => '1', 'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
+                switch ($request->simpan) {
+                    case 'done':
+                        DB::table('penerbitan_naskah')->where('id',$request->input('pn1_naskah_id'))->update([
+                            'selesai_penilaian' => NULL
+                        ]);
+                        DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn1_naskah_id'))
+                        ->update([
+                            'tgl_pn_prodev' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        ]);
+                        $notif = DB::table('notif')->whereNull('expired')->where('permission_id', 'ebca07da8aad42c4aee304e3a6b81001') // Notif Prodev
+                            ->where('form_id', $request->input('pn1_naskah_id'))->first();
+                        if (!is_null($notif)) {
+                            DB::table('notif')->where('id', $notif->id)->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
+                            DB::table('notif_detail')->where('notif_id', $notif->id)->where('user_id', auth()->id())
+                                ->update(['seen' => '1', 'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
+                        }
+                        $msg = 'Penilaian selesai!';
+                        break;
+                    case 'draf':
+                        DB::table('penerbitan_naskah')->where('id',$request->input('pn1_naskah_id'))->update([
+                            'selesai_penilaian' => '0'
+                        ]);
+                        $msg = 'Penilaian berhasil disimpan sebagai draf!';
+                        break;
                 }
+
             } else {
-                if ($request->file('pn1_file_tambahan')) {
-                    $fileN = explode('/', $request->file('pn1_file_tambahan')
-                        ->store('penerbitan/naskah/' . $request->input('pn1_naskah_id')));
-                    $oldFile = DB::table('penerbitan_naskah_files')->where('naskah_id', $request->input('pn1_naskah_id'))
-                        ->where('kategori', 'File Tambahan Naskah Prodev')->first();
-                    if ($oldFile) {
-                        Storage::delete('penerbitan/naskah/' . $request->input('pn1_naskah_id') . '/' .
-                            $oldFile->file);
-                        DB::table('penerbitan_naskah_files')->where('id', $oldFile->id)->update([
-                            'file' => end($fileN)
-                        ]);
-                    } else {
-                        DB::table('penerbitan_naskah_files')->insert([
-                            'id' => Str::uuid()->getHex(),
-                            'naskah_id' => $request->input('pn1_naskah_id'),
-                            'kategori' => 'File Tambahan Naskah Prodev',
-                            'file' => end($fileN)
-                        ]);
-                    }
-                }
+                // if ($request->file('pn1_file_tambahan')) {
+                //     $fileN = explode('/', $request->file('pn1_file_tambahan')
+                //         ->store('penerbitan/naskah/' . $request->input('pn1_naskah_id')));
+                //     $oldFile = DB::table('penerbitan_naskah_files')->where('naskah_id', $request->input('pn1_naskah_id'))
+                //         ->where('kategori', 'File Tambahan Naskah Prodev')->first();
+                //     if ($oldFile) {
+                //         Storage::delete('penerbitan/naskah/' . $request->input('pn1_naskah_id') . '/' .
+                //             $oldFile->file);
+                //         DB::table('penerbitan_naskah_files')->where('id', $oldFile->id)->update([
+                //             'file' => end($fileN)
+                //         ]);
+                //     } else {
+                //         DB::table('penerbitan_naskah_files')->insert([
+                //             'id' => Str::uuid()->getHex(),
+                //             'naskah_id' => $request->input('pn1_naskah_id'),
+                //             'kategori' => 'File Tambahan Naskah Prodev',
+                //             'file' => end($fileN)
+                //         ]);
+                //     }
+                // }
                 DB::table('penerbitan_pn_prodev')->where('id', $request->input('pn1_id'))->update([
                     'sistematika' => $request->input('pn1_sistematika'),
                     'nilai_keilmuan' => $request->input('pn1_nilai_keilmuan'),
@@ -512,13 +539,45 @@ class PenilaianNaskahController extends Controller
                     'updated_by' => auth()->id(),
                     'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ]);
+                switch ($request->simpan) {
+                    case 'done':
+                        DB::table('penerbitan_naskah')->where('id',$request->input('pn1_naskah_id'))->update([
+                            'selesai_penilaian' => NULL
+                        ]);
+                        DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn1_naskah_id'))
+                        ->update([
+                            'tgl_pn_prodev' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        ]);
+                        $notif = DB::table('notif')->whereNull('expired')->where('permission_id', 'ebca07da8aad42c4aee304e3a6b81001') // Notif Prodev
+                            ->where('form_id', $request->input('pn1_naskah_id'))->first();
+                        if (!is_null($notif)) {
+                            DB::table('notif')->where('id', $notif->id)->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
+                            DB::table('notif_detail')->where('notif_id', $notif->id)->where('user_id', auth()->id())
+                                ->update(['seen' => '1', 'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
+                        }
+                        break;
+
+                        $msg = 'Penilaian selesai!';
+                    case 'draf':
+                        DB::table('penerbitan_naskah')->where('id',$request->input('pn1_naskah_id'))->update([
+                            'selesai_penilaian' => '0'
+                        ]);
+                        $msg = 'Penilaian berhasil disimpan sebagai draf!';
+                        break;
+                }
             }
 
             DB::commit();
-            return;
+            return response()->json([
+                'status' => 'success',
+                'message' => $msg
+            ]);
         } catch (\Exception $e) {
             DB::rollback();
-            return abort(500, $e->getMessage());
+            return response()->json([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
         }
     }
 

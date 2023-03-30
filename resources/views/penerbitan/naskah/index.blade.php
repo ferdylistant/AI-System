@@ -80,7 +80,7 @@
                             <div class="row justify-content-between">
                                 <div class="form-group col-auto col-md-3">
                                     <div class="input-group">
-                                        <select data-column="2" name="status_filter_jb" id="status_filter_jb"
+                                        <select data-column="3" name="status_filter_jb" id="status_filter_jb"
                                             class="form-control select-filter-jb status_filter_jb">
                                             <option label="Pilih Filter Data"></option>
                                             @foreach ($jalur_b as $val)
@@ -96,7 +96,7 @@
                                 </div>
                                 <div class="form-group col-auto col-md-3">
                                     <div class="input-group">
-                                        <select data-column="4" name="status_filter" id="status_filter"
+                                        <select data-column="6" name="status_filter" id="status_filter"
                                             class="form-control select-filter status_filter">
                                             <option label="Pilih Filter Data"></option>
                                             @foreach ($data_naskah_penulis as $val)
@@ -162,6 +162,7 @@
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
 @endsection
 
 @section('jsNeeded')
@@ -169,15 +170,15 @@
     <script>
         $(function() {
             let tableNaskah = $('#tb_Naskah').DataTable({
-                "bSort": true,
-                "responsive": true,
-                'autoWidth': true,
+                // bSort: true,
+                responsive: true,
+                autoWidth: true,
+                "pagingType": 'input',
                 processing: true,
-                serverSide: true,
+                serverSide: false,
                 language: {
-                    searchPlaceholder: 'Search...',
+                    searchPlaceholder: 'Cari...',
                     sSearch: '',
-                    lengthMenu: '_MENU_ items/page',
                 },
                 ajax: "{{ route('naskah.view') }}",
                 columns: [{
@@ -227,8 +228,14 @@
                         searchable: false,
                         orderable: false
                     },
-                ]
+                ],
             });
+            // tableNaskah.on('init.dt', function (e) {
+            //     tableNaskah.page(56).draw(false);
+            //     // tableNaskah.order( [[ 1, 'desc' ]] ).draw( false );
+            //     var info = tableNaskah.page.info();
+            //     console.log(info.pages);
+            // });
             $('[name="status_filter_jb"]').on('change', function() {
                 var val = $.fn.dataTable.util.escapeRegex($(this).val());
                 tableNaskah.column($(this).data('column'))

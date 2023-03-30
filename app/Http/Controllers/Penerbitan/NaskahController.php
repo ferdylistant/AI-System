@@ -47,8 +47,11 @@ class NaskahController extends Controller
                 default:
                     $data = DB::table('penerbitan_naskah as pn')
                         ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
-                        ->whereNull('pn.deleted_at')
-                        ->select(
+                        ->whereNull('pn.deleted_at');
+                        if ((Gate::allows('do_update','naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
+                            $data->where('pic_prodev',auth()->user()->id);
+                        }
+                        $data->select(
                             'pn.id',
                             'pn.kode',
                             'pn.judul_asli',
@@ -179,7 +182,7 @@ class NaskahController extends Controller
                             }
                             return $btn;
                         })
-                        ->rawColumns(['kode', 'judul_asli', 'jalur_buku', 'masuk_naskah', 'stts_penilaian', 'history', 'action'])
+                        ->rawColumns(['kode', 'judul_asli','pic_prodev', 'jalur_buku', 'masuk_naskah','created_by', 'stts_penilaian', 'history', 'action'])
                         ->make(true);
                     break;
             }
@@ -565,9 +568,12 @@ class NaskahController extends Controller
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', 'pnp.penulis_id', '=', 'pp.id')
             ->where('pnp.naskah_id', $naskah->id)->select('pp.id', 'pp.nama')->get();
-
+        $drafBadge = $naskah->selesai_penilaian == '0' ? 'badge badge-info' : ''; //Draf
+        $drafBadgeText = $naskah->selesai_penilaian == '0' ? 'Draf' : ''; //Draf Text
         return view('penerbitan.naskah.detail-naskah', [
             'naskah' => $naskah, 'penulis' => $penulis, 'startPn' => $startPn,
+            'badgeDraf' => $drafBadge,
+            'badgeDrafText' => $drafBadgeText,
             'title' => 'Detail Naskah'
         ]);
     }
