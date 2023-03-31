@@ -34,7 +34,7 @@
                                 <div class="form-group col-12 col-md-6 mb-4">
                                     <label>Judul Asli: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <textarea class="form-control" name="add_judul_asli" placeholder="Judul Asli Naskah"></textarea>
+                                        <textarea class="form-control" name="add_judul_asli" placeholder="Judul Asli Naskah" style="height: 64px !important;resize:none !important"></textarea>
                                         <div id="err_add_judul_asli"></div>
                                     </div>
                                 </div>
@@ -153,13 +153,19 @@
                                 <div class="form-group col-12 mb-4">
                                     <label>Keterangan: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <textarea class="form-control" name="add_keterangan" placeholder="Keterangan Tambahan Naskah" required></textarea>
+                                        <textarea class="form-control" name="add_keterangan" placeholder="Keterangan Tambahan Naskah" style="height: 100px !important;resize:none !important" required></textarea>
                                         <div id="err_add_keterangan"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer text-right">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" name="add_urgent" class="custom-control-input" id="urgentNaskah">
+                                <label class="custom-control-label mr-3 text-dark" for="urgentNaskah">
+                                    Naskah Urgent
+                                </label>
+                            </div>
                             <button type="submit" class="btn btn-success">Simpan</button>
                         </div>
                     </form>
@@ -211,6 +217,7 @@
         $('[name="add_jalur_buku"]').val('').trigger('change');
         $('[name="add_pic_prodev"]').val('').trigger('change');
         $('[name="add_penulis[]"]').val('').trigger('change');
+        $('[name="add_urgent"]').val('').trigger('change');
         $('#tb_selectedPenulis').find('tbody').empty();
         // $('[name="add_file_naskah"]').next('.custom-file-label').html('Choose file');
         $.ajax({

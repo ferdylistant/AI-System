@@ -49,7 +49,7 @@
                             <div class="row">
                                 <div class="form-group col-12 col-md-6 mb-4">
                                     <label>Judul Asli: <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" name="edit_judul_asli" placeholder="Judul Asli Naskah"></textarea>
+                                    <textarea class="form-control" name="edit_judul_asli" placeholder="Judul Asli Naskah" style="height: 64px !important;resize:none !important"></textarea>
                                     <input type="hidden" name="edit_id">
                                     <div id="err_edit_judul_asli"></div>
                                 </div>
@@ -161,14 +161,20 @@
                                 <div class="form-group col-12 mb-4">
                                     <label>Keterangan: <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <textarea class="form-control" name="edit_keterangan" placeholder="Keterangan Tambahan Naskah" required></textarea>
+                                        <textarea class="form-control" name="edit_keterangan" placeholder="Keterangan Tambahan Naskah" style="height: 100px !important;resize:none !important" required></textarea>
                                         <div id="err_edit_keterangan"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer text-right">
-                            <button type="submit" class="btn btn-warning">Simpan</button>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" name="edit_urgent" class="custom-control-input" id="urgentNaskah">
+                                <label class="custom-control-label mr-3 text-dark" for="urgentNaskah">
+                                    Naskah Urgent
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-warning" id="btnSimpan">Update</button>
                         </div>
                     </form>
                 </div>
@@ -225,7 +231,8 @@
             success: function(result) {
                 let {
                     naskah,
-                    penulis
+                    penulis,
+                    disabled
                 } = result;
                 for (let p of penulis) {
                     $("#edit_penulis").select2("trigger", "select", {
@@ -243,12 +250,22 @@
                     const rdio = ['cdqr_code']
                     if (rdio.includes(n)) {
                         $('[name="edit_' + n + '"]').val([naskah[n]]);
+                        $('[name="edit_' + n + '"]').attr('disabled',disabled).change();
                     } else if (n == 'kelompok_buku_id') {
                         $('[name="edit_kelompok_buku"]').val([naskah[n]]).change();
+                        $('[name="edit_' + n + '"]').attr('disabled',disabled).change();
                     } else if (n == 'sumber_naskah') {
                         $('#fedit_Naskah').find(':checkbox[name^="edit_sumber_naskah"]').each(function() {
                             $(this).prop("checked", ($.inArray($(this).val(), JSON.parse(naskah[n])) != -1));
                         });
+                        $('[name^="edit_' + n + '"]').attr('disabled',disabled).change();
+                    } else if (n == 'urgent') {
+                        // console.log(naskah[n]);
+                        var checked = naskah[n] == 1 ? true:false;
+                        var valueData = naskah[n] == 1? 'on' : '0';
+                        // $('[name="edit_' + n + '"]').val(valueData).change();
+                        $('[name="edit_' + n + '"]').attr('checked',checked).change();
+                        $('[name="edit_' + n + '"]').attr('disabled',disabled).change();
                     } else if (n == 'url_file') {
                         if (naskah[n]) {
                             $('#urlFile').html(`<div class="form-group" style="display:none" id="SC">
@@ -258,6 +275,7 @@
                                 </div>`);
                             $('[name="edit_' + n + '"]').val(naskah[n]).change();
                             $('#SC').show('slow');
+                            $('[name="edit_' + n + '"]').attr('disabled',disabled).change();
                         } else {
                             $('#urlFile').html(`<div class="form-group" style="display:none" id="SC">
                                     <label>URL File: <span class="text-danger">*</span></label>
@@ -267,6 +285,8 @@
                         }
                     } else {
                         $('[name="edit_' + n + '"]').val(naskah[n]).change();
+                        $('[name="edit_' + n + '"]').attr('disabled',disabled).change();
+                        $('#btnSimpan').attr('disabled',disabled).change();
                     }
                 }
             },

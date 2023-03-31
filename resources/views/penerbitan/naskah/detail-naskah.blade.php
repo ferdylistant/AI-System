@@ -91,6 +91,10 @@
                                             <td>{{ $naskah->cdqr_code }}</td>
                                         </tr>
                                         <tr>
+                                            <th>Urgent:</th>
+                                            <td>{{ $naskah->urgent }}</td>
+                                        </tr>
+                                        <tr>
                                             <th>PIC Prodev</th>
                                             <td>
                                                 <a href="{{ url('manajemen-web/user/' . $naskah->pic_prodev) }}"
@@ -718,6 +722,7 @@
                         addClass('btn-progress')
                     },
                     success: function(result) {
+                        // console.log(result);
                         notifToast('success', 'Penilaian berhasil disimpan!', true);
                     },
                     error: function(err) {

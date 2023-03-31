@@ -334,7 +334,7 @@ class PenilaianNaskahController extends Controller
             ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
             ->whereNull('pn.deleted_at')
             ->where('pn.id', $request->input('naskah_id'))
-            ->select(DB::raw('pn.id, pn.jalur_buku, pns.tgl_pn_prodev, pns.tgl_pn_m_penerbitan,
+            ->select(DB::raw('pn.id, pn.jalur_buku,pn.urgent, pns.tgl_pn_prodev, pns.tgl_pn_m_penerbitan,
                             pns.tgl_pn_direksi'))
             ->first();
         if (is_null($naskah)) {
@@ -368,7 +368,9 @@ class PenilaianNaskahController extends Controller
                     ]);
                 }
             } else {
-                if (is_null($naskah->tgl_pn_m_penerbitan)) {
+                if (is_null($naskah->tgl_pn_prodev)) {
+                    return '<h5>Prodev belum mengisi penilaian (Menunggu penilaian prodev)</h5>';
+                } elseif (is_null($naskah->tgl_pn_m_penerbitan)) {
                     return '<h5>Penerbitan belum membuat penilaian.</h5>';
                 } else {
                     $pn_penerbitan = DB::table('penerbitan_pn_penerbitan')->where('naskah_id', $naskah->id)->first();
@@ -813,14 +815,30 @@ class PenilaianNaskahController extends Controller
                     'catatan' => $request->input('pn4_catatan'),
                     'created_by' => auth()->id()
                 ]);
-
+                $checkDB = DB::table('penerbitan_naskah')->where('id',$request->input('pn4_naskah_id'))
+                ->select('urgent')
+                ->first();
+                $urgent = $request->pn4_urgent == 'on' ? '1':'0';
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                DB::table('penerbitan_naskah')->where('id',$request->input('pn4_naskah_id'))->update([
+                    'urgent' => $urgent
+                ]);
+                if ($checkDB->urgent != $urgent) {
+                    DB::table('penerbitan_naskah_history')->insert([
+                        'naskah_id' => $request->input('pn4_naskah_id'),
+                        'type_history' => 'Update',
+                        'urgent' => $urgent,
+                        'modified_at' => $tgl,
+                        'author_id' => auth()->id()
+                    ]);
+                }
                 DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn4_naskah_id'))
                     ->update([
-                        'tgl_pn_m_penerbitan' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        'tgl_pn_m_penerbitan' => $tgl
                     ]);
                 DB::table('notif')->whereNull('expired')->where('permission_id', '12b852d92d284ab5a654c26e8856fffd')
                     ->where('form_id', $request->input('pn4_naskah_id'))->update([
-                        'expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        'expired' => $tgl
                     ]);
             } else {
                 DB::table('penerbitan_pn_penerbitan')->where('id', $request->input('pn4_id'))
@@ -832,6 +850,23 @@ class PenilaianNaskahController extends Controller
                         'updated_by' => auth()->id(),
                         'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ]);
+                $checkDB = DB::table('penerbitan_naskah')->where('id',$request->input('pn4_naskah_id'))
+                ->select('urgent')
+                ->first();
+                $urgent = $request->pn4_urgent == 'on' ? '1':'0';
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                DB::table('penerbitan_naskah')->where('id',$request->input('pn4_naskah_id'))->update([
+                    'urgent' => $urgent
+                ]);
+                if ($checkDB->urgent != $urgent) {
+                    DB::table('penerbitan_naskah_history')->insert([
+                        'naskah_id' => $request->input('pn4_naskah_id'),
+                        'type_history' => 'Update',
+                        'urgent' => $urgent,
+                        'modified_at' => $tgl,
+                        'author_id' => auth()->id()
+                    ]);
+                }
             }
 
             $pn = DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn4_naskah_id'))

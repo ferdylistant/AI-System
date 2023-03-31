@@ -42,6 +42,7 @@ class NaskahListener
                     'keterangan' => $data['keterangan'],
                     'pic_prodev' => $data['pic_prodev'],
                     'url_file' => $data['url_file'],
+                    'urgent' => $data['urgent'],
                     'penilaian_naskah' => $data['penilaian_naskah'],
                     'created_by' => $data['created_by']
                 ]);
@@ -65,6 +66,7 @@ class NaskahListener
                     'keterangan' => $data['keterangan'],
                     'pic_prodev' => $data['pic_prodev'],
                     'url_file' => $data['url_file'],
+                    'urgent' => $data['urgent'],
                     'updated_by' => $data['updated_by'],
                     'updated_at' => $data['updated_at']
                 ]);
@@ -86,6 +88,7 @@ class NaskahListener
                     'pic_prodev_his' => $data['pic_prodev_his'],
                     'pic_prodev_new' => $data['pic_prodev_new'],
                     'penulis_new' => $data['penulis_new'],
+                    'urgent' => $data['urgent'],
                     'modified_at' => $data['modified_at'],
                     'author_id' => $data['author_id']
                 ]);

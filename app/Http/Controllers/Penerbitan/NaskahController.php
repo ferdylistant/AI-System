@@ -61,6 +61,7 @@ class NaskahController extends Controller
                             'pn.tanggal_masuk_naskah',
                             'pn.selesai_penilaian',
                             'pn.bukti_email_penulis',
+                            'pn.urgent',
                             'pns.tgl_pn_prodev',
                             'pns.tgl_pn_m_penerbitan',
                             'pns.tgl_pn_m_pemasaran',
@@ -76,7 +77,10 @@ class NaskahController extends Controller
 
                     return Datatables::of($data)
                         ->addColumn('kode', function ($data) {
-                            return $data->kode;
+                            $html = '';
+                            $danger = $data->urgent == '0' ? '' : 'class="text-danger"';
+                            $html .='<span '.$danger.'>'.$data->kode.'</span>';
+                            return $html;
                         })
                         ->addColumn('judul_asli', function ($data) {
                             return $data->judul_asli;
@@ -295,6 +299,7 @@ class NaskahController extends Controller
                         'keterangan' => $request->input('add_keterangan'),
                         'pic_prodev' => $request->input('add_pic_prodev'),
                         'url_file' => $request->input('add_url_file'),
+                        'urgent' => $request->add_urgent == 'on' ? '1':'0',
                         'penilaian_naskah' => ($penilaian['penilaian_naskah'] ? '1' : '0'),
                         'created_by' => auth()->id()
                     ];
@@ -352,7 +357,7 @@ class NaskahController extends Controller
             ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
             ->whereNull('pn.deleted_at')
             ->where('pn.id', $request->id)
-            ->select(DB::raw('pn.*, pns.tgl_pn_prodev'))
+            ->select(DB::raw('pn.*, pns.tgl_pn_prodev, pns.tgl_pn_m_penerbitan'))
             ->first();
 
         if (is_null($naskah)) {
@@ -372,9 +377,10 @@ class NaskahController extends Controller
                     ->where('naskah_id', $naskah->id)
                     ->select('pp.id', 'pp.nama')
                     ->get();
-
-                return ['naskah' => $naskah, 'penulis' => $penulis];
+                $disabled = is_null($naskah->tgl_pn_m_penerbitan) ? false:true;
+                return ['naskah' => $naskah, 'penulis' => $penulis, 'disabled' => $disabled];
             } elseif ($request->isMethod('POST')) {
+                // return response()->json($request->edit_urgent);
                 $request->validate([
                     'edit_judul_asli' => 'required',
                     'edit_kode' => 'required|unique:penerbitan_naskah,kode,' . $request->id,
@@ -465,10 +471,12 @@ class NaskahController extends Controller
                         'keterangan' => $request->input('edit_keterangan'),
                         'pic_prodev' => $request->input('edit_pic_prodev'),
                         'url_file' => $url_file,
+                        'urgent' => $request->edit_urgent == 'on' ? '1':'0',
                         'updated_by' => auth()->id(),
                         'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ];
                     event(new NaskahEvent($editNaskah));
+                    $urgent = $request->edit_urgent == 'on' ? '1':'0';
                     $insertHistoryEdit = [
                         'params' => 'Insert Edit Naskah History',
                         'type_history' => 'Update',
@@ -492,6 +500,7 @@ class NaskahController extends Controller
                         'pic_prodev_his' => $naskah->pic_prodev == $request->input('edit_pic_prodev') ? NULL : $naskah->pic_prodev,
                         'pic_prodev_new' => $naskah->pic_prodev == $request->input('edit_pic_prodev') ? NULL : $request->input('edit_pic_prodev'),
                         'penulis_new' => json_encode($daftarPenulis),
+                        'urgent' => $naskah->urgent == $urgent ? NULL : $urgent,
                         'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                         'author_id' => auth()->id()
                     ];
@@ -540,6 +549,9 @@ class NaskahController extends Controller
                     return $item != '' ? Carbon::parse($item)->translatedFormat('l, d F Y') : '-';
                 case 'cdqr_code':
                     return is_null($item)? 'Tidak diinput' : ($item ? 'Ya' : 'Tidak');
+                case 'urgent':
+                    return $item == '1' ? 'Ya' : 'Tidak';
+                    break;
                 default:
                     return $item;
             }
@@ -568,8 +580,8 @@ class NaskahController extends Controller
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', 'pnp.penulis_id', '=', 'pp.id')
             ->where('pnp.naskah_id', $naskah->id)->select('pp.id', 'pp.nama')->get();
-        $drafBadge = $naskah->selesai_penilaian == '0' ? 'badge badge-info' : ''; //Draf
-        $drafBadgeText = $naskah->selesai_penilaian == '0' ? 'Draf' : ''; //Draf Text
+        $drafBadge = (is_null($naskah->selesai_penilaian)? '' : ($naskah->selesai_penilaian == '0' ? 'badge badge-info' : '')); //Draf
+        $drafBadgeText = (is_null($naskah->selesai_penilaian)? '' : ($naskah->selesai_penilaian == '0' ? 'Draf' : '')); //Draf Text
         return view('penerbitan.naskah.detail-naskah', [
             'naskah' => $naskah, 'penulis' => $penulis, 'startPn' => $startPn,
             'badgeDraf' => $drafBadge,
@@ -733,6 +745,11 @@ class NaskahController extends Controller
                     }
                     if (!is_null($d->pic_prodev_his)) {
                         $html .= ' PIC prodev <b class="text-dark">' . DB::table('users')->where('id', $d->pic_prodev_his)->whereNull('deleted_at')->first()->nama . '</b> diubah menjadi <b class="text-dark">' . DB::table('users')->where('id', $d->pic_prodev_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
+                    }
+                    if (!is_null($d->urgent)) {
+                        $urgent = $d->urgent == '0'?'Tidak Urgent':'Urgent';
+                        $textColor = $d->urgent == '0'?'dark':'danger';
+                        $html .= ' Naskah diubah menjadi <b class="text-'.$textColor.'">"' .  $urgent. '"</b>.<br>';
                     }
                     $html .= '</span></div>
                     <div class="ticket-info">
