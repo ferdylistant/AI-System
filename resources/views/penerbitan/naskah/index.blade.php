@@ -154,102 +154,19 @@
 @section('jsRequired')
     <script src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}"></script>
+    {{-- <script src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}"></script> --}}
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script type="text/javascript" charset="utf8" src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
 @endsection
 
 @section('jsNeeded')
     <script src="{{ url('js/tandai_naskah_lengkap.js') }}"></script>
-    <script>
-        $(function() {
-            let tableNaskah = $('#tb_Naskah').DataTable({
-                // bSort: true,
-                responsive: true,
-                autoWidth: true,
-                "pagingType": 'input',
-                processing: true,
-                serverSide: false,
-                language: {
-                    searchPlaceholder: 'Cari...',
-                    sSearch: '',
-                },
-                ajax: "{{ route('naskah.view') }}",
-                columns: [{
-                        data: 'kode',
-                        name: 'kode',
-                        title: 'Kode'
-                    },
-                    {
-                        data: 'judul_asli',
-                        name: 'judul_asli',
-                        title: 'Judul Asli'
-                    },
-                    {
-                        data: 'pic_prodev',
-                        name: 'pic_prodev',
-                        title: 'PIC Prodev'
-                    },
-                    {
-                        data: 'jalur_buku',
-                        name: 'jalur_buku',
-                        title: 'Jalur Buku'
-                    },
-                    {
-                        data: 'masuk_naskah',
-                        name: 'masuk_naskah',
-                        title: 'Masuk Naskah'
-                    },
-                    {
-                        data: 'created_by',
-                        name: 'created_by',
-                        title: 'Pembuat Naskah'
-                    },
-                    {
-                        data: 'stts_penilaian',
-                        name: 'stts_penilaian',
-                        title: 'Penilaian'
-                    },
-                    {
-                        data: 'history',
-                        name: 'history',
-                        title: 'History'
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        title: 'Action',
-                        searchable: false,
-                        orderable: false
-                    },
-                ],
-            });
-            // tableNaskah.on('init.dt', function (e) {
-            //     tableNaskah.page(56).draw(false);
-            //     // tableNaskah.order( [[ 1, 'desc' ]] ).draw( false );
-            //     var info = tableNaskah.page.info();
-            //     console.log(info.pages);
-            // });
-            $('[name="status_filter_jb"]').on('change', function() {
-                var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                tableNaskah.column($(this).data('column'))
-                    .search(val ? val : '', true, false)
-                    .draw();
-            });
-            $('[name="status_filter"]').on('change', function() {
-                var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                tableNaskah.column($(this).data('column'))
-                    .search(val ? val : '', true, false)
-                    .draw();
-            });
-        });
-    </script>
     <script>
         $('#tb_Naskah').on('click', '.btn-history', function(e) {
             var id = $(this).data('id');
