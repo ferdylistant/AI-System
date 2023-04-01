@@ -112,7 +112,7 @@
                                 </div>
                                 <div class="col-auto">
                                     <span class="badge badge-warning"><i class="fas fa-database"></i> Total data naskah
-                                        masuk: <b>{{ $count }}</b></span>
+                                        masuk: <b id="totalNaskah">0</b></span>
                                 </div>
                             </div>
                             <div class="col-12 table-responsive">
@@ -167,56 +167,4 @@
 
 @section('jsNeeded')
     <script src="{{ url('js/tandai_naskah_lengkap.js') }}"></script>
-    <script>
-        $('#tb_Naskah').on('click', '.btn-history', function(e) {
-            var id = $(this).data('id');
-            var judul = $(this).data('judulasli');
-            $.post("{{ route('naskah.history') }}", {
-                id: id
-            }, function(data) {
-                $('#titleModalNaskah').html(
-                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
-                $('#load_more').data('id', id);
-                $('#dataHistoryNaskah').html(data);
-                $('#md_NaskahHistory').modal('show');
-            });
-        });
-    </script>
-    <script>
-        $(function() {
-            $('.load-more').click(function(e) {
-                e.preventDefault();
-                var page = $(this).data('paginate');
-                var id = $(this).data('id');
-                $(this).data('paginate', page + 1);
-
-                $.ajax({
-                    url: "{{ route('naskah.history') }}",
-                    data: {
-                        id: id,
-                        page: page
-                    },
-                    type: 'post',
-                    beforeSend: function() {
-                        $(".load-more").text("Loading...");
-                    },
-                    success: function(response) {
-                        if (response.length == 0) {
-                            notifToast('error', 'Tidak ada data lagi');
-                        }
-                        $('#dataHistoryNaskah').append(response);
-                        // Setting little delay while displaying new content
-                        // setTimeout(function() {
-                        //     // appending posts after last post with class="post"
-                        //     $("#dataHistory:last").htnl(response).show().fadeIn("slow");
-                        // }, 2000);
-
-                    },
-                    complete: function(params) {
-                        $(".load-more").text("Load more").fadeIn("slow");
-                    }
-                });
-            });
-        });
-    </script>
 @endsection

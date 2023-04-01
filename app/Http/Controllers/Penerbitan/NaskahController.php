@@ -19,8 +19,34 @@ class NaskahController extends Controller
 {
     public function index(Request $request)
     {
+        $naskah = DB::table('penerbitan_naskah as pn')
+            ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+            ->whereNull('pn.deleted_at')
+            ->select(
+                'pn.id',
+                'pn.kode',
+                'pn.judul_asli',
+                'pn.jalur_buku',
+                'pn.pic_prodev',
+                'pn.tanggal_masuk_naskah',
+                'pn.selesai_penilaian',
+                'pn.bukti_email_penulis',
+                'pns.tgl_pn_prodev',
+                'pns.tgl_pn_m_penerbitan',
+                'pns.tgl_pn_m_pemasaran',
+                'pns.tgl_pn_d_pemasaran',
+                'pns.tgl_pn_direksi',
+                'pns.tgl_pn_editor',
+                'pns.tgl_pn_setter',
+                'pns.tgl_pn_selesai'
+            )
+            ->orderBy('pn.tanggal_masuk_naskah', 'asc')
+            ->get();
         if ($request->ajax()) {
             switch ($request->input('request_')) {
+                case 'getCountNaskah':
+                    return $naskah->count();
+                    break;
                 case 'selectPenulis':
                     $data = DB::table('penerbitan_penulis')
                         ->whereNull('deleted_at')
@@ -191,29 +217,6 @@ class NaskahController extends Controller
                     break;
             }
         }
-        $data = DB::table('penerbitan_naskah as pn')
-            ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
-            ->whereNull('pn.deleted_at')
-            ->select(
-                'pn.id',
-                'pn.kode',
-                'pn.judul_asli',
-                'pn.jalur_buku',
-                'pn.pic_prodev',
-                'pn.tanggal_masuk_naskah',
-                'pn.selesai_penilaian',
-                'pn.bukti_email_penulis',
-                'pns.tgl_pn_prodev',
-                'pns.tgl_pn_m_penerbitan',
-                'pns.tgl_pn_m_pemasaran',
-                'pns.tgl_pn_d_pemasaran',
-                'pns.tgl_pn_direksi',
-                'pns.tgl_pn_editor',
-                'pns.tgl_pn_setter',
-                'pns.tgl_pn_selesai'
-            )
-            ->orderBy('pn.tanggal_masuk_naskah', 'asc')
-            ->get();
         $dataLengkap = [
             [
                 'value' => 'Data Belum Lengkap'
@@ -228,7 +231,6 @@ class NaskahController extends Controller
         return view('penerbitan.naskah.index', [
             'title' => 'Naskah Penerbitan',
             'data_naskah_penulis' => $dataLengkap,
-            'count' => count($data),
             'jalur_b' => $jalurB
         ]);
     }

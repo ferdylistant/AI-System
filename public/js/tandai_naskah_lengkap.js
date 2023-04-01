@@ -1,4 +1,8 @@
 $(function() {
+    loadData();
+
+    $(".select-filter-jb").val("").trigger("change");
+    $(".select-filter").val("").trigger("change");
     let tableNaskah = $('#tb_Naskah').DataTable({
         // bSort: true,
         responsive: true,
@@ -79,6 +83,17 @@ $(function() {
             .draw();
     });
 });
+function loadData() {
+    $.ajax({
+        url: window.location.origin + "/penerbitan/naskah?request_=getCountNaskah",
+        type: "GET",
+        dataType: "JSON",
+        success: function(data) {
+            // console.log(data);
+            $("#totalNaskah").html(data);
+        },
+    });
+}
 $(document).ready(function() {
     $(".select-filter-jb")
         .select2({
@@ -113,6 +128,71 @@ $(document).ready(function() {
         $('.clear_field').attr('hidden', 'hidden');
     });
 });
+//! Open history
+$(function () {
+    $("#tb_Naskah").on("click", ".btn-history", function (e) {
+        var id = $(this).data("id");
+        var judul = $(this).data("judulasli");
+        let cardWrap = $(".section-body").find(".card");
+        $.ajax({
+            url: window.location.origin + "/penerbitan/naskah/lihat-history",
+            type: "POST",
+            data: {
+                id: id,
+            },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                // console.log(data);
+                $("#titleModalNaskah").html('<i class="fas fa-history"></i>&nbsp;History Progress Naskah "' + judul + '"');
+                $("#load_more").data("id", id);
+                $("#dataHistoryNaskah").html(data);
+                $("#md_NaskahHistory").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            },
+        });
+    });
+    $(".load-more").click(function (e) {
+        e.preventDefault();
+        var page = $(this).data("paginate");
+        var id = $(this).data("id");
+        let form = $("#md_NaskahHistory");
+        $(this).data("paginate", page + 1);
+
+        $.ajax({
+            url: window.location.origin + "/penerbitan/naskah/lihat-history",
+            data: {
+                id: id,
+                page: page,
+            },
+            type: "post",
+            cache: false,
+            beforeSend: function () {
+                form.addClass("modal-progress");
+            },
+            success: function (response) {
+                if (response.length == 0) {
+                    $(".load-more").attr("disabled", true);
+                    notifToast("error", "Tidak ada data lagi");
+                }
+                $("#dataHistoryNaskah").append(response);
+            },
+            complete: function (params) {
+                // console.log();
+                form.removeClass("modal-progress");
+            },
+        });
+    });
+    $('#md_NaskahHistory').on('hidden.bs.modal', function () {
+        $('.load-more').data("paginate", 2);
+        $(".load-more").attr("disabled", false);
+    });
+});
+//! Tandai naskah lengkap
 function ajaxTandaDataLengkap(data) {
     let id = data.data("id");
     let judul_asli = data.data("judul");
