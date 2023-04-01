@@ -315,7 +315,7 @@
                 <h6 class="mb-1">Setter</h6>
             </div>
             <p class="mb-1 text-monospace">
-                @if (is_null($data->setter))
+                @if ((is_null($data->setter)) || ($data->setter == '[null]'))
                     -
                 @else
                     @foreach ($nama_setter as $set)
@@ -356,7 +356,7 @@
                 <h6 class="mb-1">Korektor</h6>
             </div>
             <p class="mb-1 text-monospace">
-                @if (is_null($data->korektor))
+                @if ((is_null($data->korektor)) || ($data->korektor == '[null]'))
                     -
                 @else
                     @foreach ($nama_korektor as $kor)

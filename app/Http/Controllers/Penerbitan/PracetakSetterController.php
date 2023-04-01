@@ -380,7 +380,7 @@ class PracetakSetterController extends Controller
             ->select('u.nama', 'u.id')
             ->orderBy('u.nama', 'Asc')
             ->get();
-        if (!is_null($data->setter)) {
+        if ((!is_null($data->setter)) && ($data->setter != '[null]')) {
             foreach (json_decode($data->setter) as $e) {
                 $namaSetter[] = DB::table('users')->where('id', $e)->first()->nama;
             }
@@ -398,7 +398,7 @@ class PracetakSetterController extends Controller
             $namaSetter = null;
             $korektor = null;
         }
-        if (!is_null($data->korektor)) {
+        if ((!is_null($data->korektor)) && ($data->korektor != '[null]')) {
             foreach (json_decode($data->korektor) as $ce) {
                 $namakorektor[] = DB::table('users')->where('id', $ce)->first()->nama;
             }
@@ -487,14 +487,15 @@ class PracetakSetterController extends Controller
             ->select('pp.id', 'pp.nama')
             ->get();
         $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->first();
-        if (!is_null($data->setter)) {
+        if ((!is_null($data->setter)) && ($data->setter != '[null]')) {
             foreach (json_decode($data->setter, true) as $set) {
                 $namaSetter[] = DB::table('users')->where('id', $set)->first();
             }
+            // dd($data->setter);
         } else {
             $namaSetter = null;
         }
-        if (!is_null($data->korektor)) {
+        if ((!is_null($data->korektor)) && ($data->korektor != '[null]')) {
             foreach (json_decode($data->korektor, true) as $kor) {
                 $namaKorektor[] = DB::table('users')->where('id', $kor)->first();
             }

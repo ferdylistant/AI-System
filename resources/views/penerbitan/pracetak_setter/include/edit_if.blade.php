@@ -157,7 +157,7 @@
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Setter: <span class="text-danger">*</span></th>
-                                @if (is_null($data->setter) || $data->setter == '[]')
+                                @if (is_null($data->setter) || $data->setter == '[null]')
                                 <td class="table-active text-left">
                                     <select name="setter[]" class="form-control select-setter" multiple="multiple" required>
                                         <option label="Pilih setter"></option>
@@ -205,7 +205,7 @@
                                     <span class="text-danger">*</span>
                                     @endif
                                 </th>
-                                @if (is_null($data->korektor) || $data->korektor == '[]')
+                                @if (is_null($data->korektor) || $data->korektor == '[null]')
                                 <td class="table-active text-left">
                                     {{ $dis = '' }}
                                     @if (is_null($data->selesai_proof))

@@ -145,7 +145,7 @@
                         <tr>
                             <th class="table-secondary" style="width: 25%">Setter: <span class="text-danger">*</span></th>
                             <td class="table-active text-right">
-                                @if (!is_null($data->setter))
+                                @if ((!is_null($data->setter)) && ($data->setter != '[null]'))
                                 @foreach ($nama_setter as $ne)
                                 <span class="bullet"></span>{{ $ne }}<br>
                                 @endforeach
@@ -158,7 +158,7 @@
                             <th class="table-secondary" style="width: 25%">Korektor:
                             </th>
                             <td class="table-active text-right">
-                                @if (!is_null($data->korektor))
+                                @if ((!is_null($data->korektor)) && ($data->korektor != '[null]'))
                                 @foreach ($nama_korektor as $nc)
                                     <span class="bullet"></span>{{ $nc }}<br>
                                     @endforeach
