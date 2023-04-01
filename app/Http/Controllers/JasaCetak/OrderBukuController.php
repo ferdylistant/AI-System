@@ -19,8 +19,10 @@ class OrderBukuController extends Controller
             $data = DB::table('jasa_cetak_order_buku')
                 ->orderBy('tgl_order', 'ASC')
                 ->get();
-
-            return DataTables::of($data)
+            if ($request->has('count_data')) {
+                return $data->count();
+            } else {
+                return DataTables::of($data)
                 ->addColumn('jalur_proses', function ($data) {
                     $label = 'Belum ditentukan kabag';
                     if (Gate::allows('do_update', 'otorisasi-kabag-order-buku-jasa-cetak')) {
@@ -58,10 +60,8 @@ class OrderBukuController extends Controller
                     'action'
                 ])
                 ->make(true);
+            }
         }
-        $data = DB::table('jasa_cetak_order_buku')
-            ->orderBy('tgl_order', 'ASC')
-            ->get();
         //Status
         $type = DB::select(DB::raw("SHOW COLUMNS FROM jasa_cetak_order_buku WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
@@ -76,7 +76,6 @@ class OrderBukuController extends Controller
             'status_progress' => $statusProgress,
             'status_action' => $statusAction,
             'jalur_proses' => $jalurProses,
-            'count' => count($data)
         ]);
     }
     public function createOrder(Request $request)

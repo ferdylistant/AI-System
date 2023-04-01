@@ -58,6 +58,7 @@ $(function () {
             },
         ],
     });
+    loadDataCount();
     $('[name="status_filter"]').on("change", function () {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());
         tableOrderBuku
@@ -66,6 +67,16 @@ $(function () {
             .draw();
     });
 });
+function loadDataCount() {
+    $.ajax({
+        url: window.location.origin + "/jasa-cetak/order-buku?count_data=true",
+        type: "GET",
+        dataType: "JSON",
+        success: function (result) {
+            $("#totalCount").html(result);
+        },
+    });
+}
 $("#tb_OrderBuku").on("click", ".btn-history", function (e) {
     var id = $(this).data("id");
     var judul = $(this).data("judul");

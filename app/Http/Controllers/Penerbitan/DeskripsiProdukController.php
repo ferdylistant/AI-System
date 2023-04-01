@@ -22,7 +22,6 @@ class DeskripsiProdukController extends Controller
         if ($request->ajax()) {
             $data = DB::table('deskripsi_produk as dp')
                 ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->whereNull('dp.deleted_at')
                 ->select(
                     'dp.*',
                     'pn.kode',
@@ -33,8 +32,10 @@ class DeskripsiProdukController extends Controller
                 ->orderBy('dp.tgl_deskripsi', 'ASC')
                 ->get();
             $update = Gate::allows('do_create', 'ubah-atau-buat-des-produk');
-
-            return DataTables::of($data)
+            if ($request->has('count_data')) {
+                return $data->count();
+            } else {
+                return DataTables::of($data)
                 // ->addIndexColumn()
                 ->addColumn('kode', function ($data) {
                     return $data->kode;
@@ -203,18 +204,8 @@ class DeskripsiProdukController extends Controller
                     'action'
                 ])
                 ->make(true);
+            }
         }
-        $data = DB::table('deskripsi_produk as dp')
-            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-            ->whereNull('dp.deleted_at')
-            ->select(
-                'dp.*',
-                'pn.kode',
-                'pn.judul_asli',
-                'pn.pic_prodev'
-            )
-            ->orderBy('dp.tgl_deskripsi', 'ASC')
-            ->get();
         //Status
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
@@ -225,7 +216,6 @@ class DeskripsiProdukController extends Controller
             'title' => 'Deskripsi Produk',
             'status_progress' => $statusProgress,
             'status_action' => Arr::sort($statusAction),
-            'count' => count($data)
         ]);
     }
     public function detailDeskripsiProduk(Request $request)

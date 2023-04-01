@@ -88,7 +88,7 @@
                                 </div>
                             </div>
                             <div class="col-auto mb-3">
-                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data order buku: <b>{{ $count }}</b></span>
+                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data order buku: <b id="totalCount">0</b></span>
                             </div>
                         </div>
                         <div class="col-12 table-responsive">

@@ -1,6 +1,4 @@
 $(function() {
-    loadData();
-
     $(".select-filter-jb").val("").trigger("change");
     $(".select-filter").val("").trigger("change");
     let tableNaskah = $('#tb_Naskah').DataTable({
@@ -13,6 +11,7 @@ $(function() {
         language: {
             searchPlaceholder: 'Cari...',
             sSearch: '',
+            lengthMenu: "_MENU_ /halaman",
         },
         ajax: window.location.origin + "/penerbitan/naskah",
         columns: [{
@@ -64,6 +63,7 @@ $(function() {
             },
         ],
     });
+    loadData();
     // tableNaskah.on('init.dt', function (e) {
     //     tableNaskah.page(56).draw(false);
     //     // tableNaskah.order( [[ 1, 'desc' ]] ).draw( false );
