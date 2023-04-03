@@ -4,6 +4,9 @@ $(function () {
         // bSort: false,
         responsive: true,
         autoWidth: true,
+        "order": [
+            [1, "asc"]
+        ],
         pagingType: 'input',
         processing: true,
         serverSide: false,
@@ -39,6 +42,7 @@ $(function () {
                 name: "action",
                 title: "Action",
                 orderable: false,
+                searchable: false,
             },
         ],
     });
@@ -50,6 +54,19 @@ $(function () {
             .search(val ? val : "", true, false)
             .draw();
     });
+
+});
+function loadDataCount() {
+    $.ajax({
+        url: window.location.origin + "/penerbitan/deskripsi/produk?count_data=true",
+        type: "get",
+        dataType: "json",
+        success: function (response) {
+            $("#count_despro").html(response);
+        },
+    });
+}
+$(function() {
     $("#tb_DesProduk").on("click", ".btn-history", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
@@ -112,16 +129,6 @@ $(function () {
         $(".load-more").attr("disabled", false);
     });
 });
-function loadDataCount() {
-    $.ajax({
-        url: window.location.origin + "/penerbitan/deskripsi/produk?count_data=true",
-        type: "get",
-        dataType: "json",
-        success: function (response) {
-            $("#count_despro").html(response);
-        },
-    });
-}
 $(document).ready(function () {
     $(".select-status")
         .select2({

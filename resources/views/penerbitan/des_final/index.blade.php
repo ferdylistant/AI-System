@@ -83,7 +83,7 @@
                                 </div>
                             </div>
                             <div class="col-auto">
-                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data deskripsi final: <b>{{$count}}</b></span>
+                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data deskripsi final: <b id="countData">0</b></span>
                             </div>
                         </div>
                         <div class="col-12 table-responsive">
@@ -159,66 +159,11 @@
 <script src="{{url('vendors/select2/dist/js/select2.full.min.js')}}"></script>
 <script src="{{url('vendors/jquery-validation/dist/jquery.validate.js')}}"></script>
 <script src="{{url('vendors/izitoast/dist/js/iziToast.min.js')}}"></script>
+<script type="text/javascript" charset="utf8" src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
 @endsection
 
 @section('jsNeeded')
-<script>
-    $(function() {
-        $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-        });
-        let tableDesFinal = $('#tb_DesFinal').DataTable({
-            "bSort": false,
-            "responsive": true,
-            "autoWidth" : true,
-            processing: true,
-            serverSide: true,
-            language: {
-                searchPlaceholder: 'Search...',
-                sSearch: '',
-                lengthMenu: '_MENU_ items/page',
-            },
-            ajax: "{{ route('desfin.view') }}"
-            ,
-            columns: [
-                // { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "5%" },
-                { data: 'kode', name: 'kode', title: 'Kode' },
-                { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
-                { data: 'penulis', name: 'penulis', title: 'Penulis'},
-                { data: 'nama_pena', name: 'nama_pena', title: 'Nama Pena'},
-                { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku'},
-                { data: 'imprint', name: 'imprint', title: 'Imprint'},
-                { data: 'judul_final', name: 'judul_final', title: 'Judul Final'},
-                { data: 'tgl_deskripsi', name: 'tgl_deskripsi', title: 'Tgl Deskripsi'},
-                { data: 'pic_prodev', name: 'pic_prodev', title: 'PIC Prodev'},
-                { data: 'history', name: 'history', title: 'History Progress'},
-                { data: 'action', name: 'action', title: 'Action', orderable: false},
-            ],
-
-        });
-        $('[name="status_filter"]').on('change', function(){
-            var val = $.fn.dataTable.util.escapeRegex($(this).val());
-            tableDesFinal.column( $(this).data('column') )
-            .search( val ? val : '', true, false )
-            .draw();
-        });
-    });
-</script>
-<script>
-    $('#tb_DesFinal').on('click','.btn-history',function(e){
-        var id = $(this).data('id');
-        var judul = $(this).data('judulfinal');
-        $.post("{{route('desfin.history')}}", {id: id}, function(data){
-            $('#titleModalDesfin').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "'+judul+'"');
-            $('#load_more').data('id',id);
-            $('#dataHistoryDesfin').html(data);
-            $('#md_DesfinHistory').modal('show');
-        });
-    });
-</script>
 <script src="{{url('js/update_progress_desfin.js')}}"></script>
 @endsection

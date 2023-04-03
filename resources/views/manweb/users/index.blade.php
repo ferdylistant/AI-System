@@ -165,6 +165,7 @@
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
+    <script type="text/javascript" charset="utf8" src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
@@ -185,6 +186,10 @@
             let tableUsers = $('#tb_Users').DataTable({
                 "responsive": true,
                 "autoWidth": true,
+                "order": [
+                    [1, "asc"]
+                ],
+                "pagingType": "input",
                 processing: true,
                 serverSide: true,
                 language: {

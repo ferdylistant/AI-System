@@ -38,8 +38,10 @@ class DeskripsiTurunCetakController extends Controller
                 ->orderBy('dtc.tgl_masuk', 'ASC')
                 ->get();
             $update = Gate::allows('do_create', 'ubah-atau-buat-des-cover');
-
-            return DataTables::of($data)
+            if ($request->has('count_data')) {
+                return $data->count();
+            } else {
+                return DataTables::of($data)
                 // ->addIndexColumn()
                 ->addColumn('kode', function ($data) {
                     return $data->kode;
@@ -151,26 +153,8 @@ class DeskripsiTurunCetakController extends Controller
                     'action'
                 ])
                 ->make(true);
+            }
         }
-        $data = DB::table('deskripsi_turun_cetak as dtc')
-                ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
-                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->select(
-                    'dtc.*',
-                    'pn.kode',
-                    'pn.pic_prodev',
-                    'pn.jalur_buku',
-                    'dp.naskah_id',
-                    'dp.judul_final',
-                    'dp.nama_pena',
-                    'dp.format_buku',
-                )
-                ->orderBy('dtc.tgl_masuk', 'ASC')
-                ->get();
         //Isi Warna Enum
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_cover WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
@@ -181,7 +165,6 @@ class DeskripsiTurunCetakController extends Controller
             'title' => 'Deskripsi Turun Cetak',
             'status_progress' => $statusFilter,
             'status_action' => $statusAction,
-            'count' => count($data)
         ]);
     }
     public function detailDeskripsiTurunCetak(Request $request)

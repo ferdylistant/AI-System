@@ -1,24 +1,106 @@
-$("#tb_DesTurCet").on("click", ".btn-history", function (e) {
-    var id = $(this).data("id");
-    var judul = $(this).data("judulfinal");
-    console.log(judul);
-    $.post(
-        window.location.origin +
-            "/penerbitan/deskripsi/turun-cetak/lihat-history",
-        { id: id },
-        function (data) {
-            $("#titleModalDesturcet").html(
-                '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
-                    judul +
-                    '"'
-            );
-            $("#load_more").data("id", id);
-            $("#dataHistoryDesturcet").html(data);
-            $("#md_DesturcetHistory").modal("show");
-        }
-    );
+$(function() {
+    $('[name="status_filter"]').val('').trigger('change');
+    let tableDesTurunCetak = $('#tb_DesTurCet').DataTable({
+        "bSort": false,
+        "responsive": true,
+        "autoWidth": true,
+        pagingType: 'input',
+        processing: true,
+        serverSide: false,
+        language: {
+            searchPlaceholder: 'Cari...',
+            sSearch: '',
+            lengthMenu: '_MENU_ /halaman',
+        },
+        ajax: window.location.origin + '/penerbitan/deskripsi/turun-cetak',
+        columns: [{
+                data: 'kode',
+                name: 'kode',
+                title: 'Kode'
+            },
+            {
+                data: 'judul_final',
+                name: 'judul_final',
+                title: 'Judul Final'
+            },
+            {
+                data: 'penulis',
+                name: 'penulis',
+                title: 'Penulis',
+            },
+            {
+                data: 'nama_pena',
+                name: 'nama_pena',
+                title: 'Nama Pena',
+            },
+            {
+                data: 'format_buku',
+                name: 'format_buku',
+                title: 'Format Buku',
+            },
+            {
+                data: 'pic_prodev',
+                name: 'pic_prodev',
+                title: 'PIC Prodev'
+            },
+            {
+                data: 'tgl_masuk',
+                name: 'tgl_masuk',
+                title: 'Tgl Masuk'
+            },
+            {
+                data: 'history',
+                name: 'history',
+                title: 'History Progress'
+            },
+            {
+                data: 'action',
+                name: 'action',
+                title: 'Action',
+                orderable: false
+            },
+        ],
+
+    });
+    loadDataCount();
+    $('[name="status_filter"]').on('change', function() {
+        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+        tableDesTurunCetak.column($(this).data('column'))
+            .search(val ? val : '', true, false)
+            .draw();
+    });
 });
-$(function () {
+function loadDataCount() {
+    $.ajax({
+        url: window.location.origin + "/penerbitan/deskripsi/turun-cetak?count_data=true",
+        type: "get",
+        dataType: "json",
+        success: function (response) {
+            $("#countData").html(response);
+        },
+    });
+}
+$(document).ready(function () {
+    $("#tb_DesTurCet").on("click", ".btn-history", function (e) {
+        var id = $(this).data("id");
+        var judul = $(this).data("judulfinal");
+        // console.log(judul);
+        $.post(
+            window.location.origin +
+                "/penerbitan/deskripsi/turun-cetak/lihat-history",
+            { id: id },
+            function (data) {
+                $("#titleModalDesturcet").html(
+                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
+                        judul +
+                        '"'
+                );
+                $("#load_more").data("id", id);
+                $("#dataHistoryDesturcet").html(data);
+                $("#md_DesturcetHistory").modal("show");
+            }
+        );
+    });
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
@@ -53,6 +135,10 @@ $(function () {
                 $(".load-more").text("Load more").fadeIn("slow");
             },
         });
+    });
+    $("#md_DesturcetHistory").on("hidden.bs.modal", function () {
+        $(".load-more").data("paginate", 2);
+        $(".load-more").attr("disabled", false);
     });
 });
 $(document).ready(function () {

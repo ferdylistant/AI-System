@@ -1,3 +1,53 @@
+$(function () {
+    $("[name='status_filter']").val("").trigger("change");
+    let tableDesCover = $('#tb_DesCover').DataTable({
+        "bSort": false,
+        "responsive": true,
+        "autoWidth" : true,
+        pagingType: "input",
+        processing: true,
+        serverSide: false,
+        language: {
+            searchPlaceholder: 'Cari...',
+            sSearch: '',
+            lengthMenu: '_MENU_ /halaman',
+        },
+        ajax: window.location.origin + "/penerbitan/deskripsi/cover"
+        ,
+        columns: [
+            // { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "5%" },
+            { data: 'kode', name: 'kode', title: 'Kode' },
+            { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
+            { data: 'judul_final', name: 'judul_final', title: 'Judul Final'},
+            { data: 'penulis', name: 'penulis', title: 'Penulis'},
+            { data: 'nama_pena', name: 'nama_pena', title: 'Nama Pena'},
+            { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku'},
+            { data: 'kelompok_buku', name: 'kelompok_buku', title: 'Kelompok Buku'},
+            { data: 'tgl_deskripsi', name: 'tgl_deskripsi', title: 'Tgl Deskripsi'},
+            { data: 'pic_prodev', name: 'pic_prodev', title: 'PIC Prodev'},
+            { data: 'history', name: 'history', title: 'History Progress'},
+            { data: 'action', name: 'action', title: 'Action', orderable: false},
+        ],
+
+    });
+    loadDataCount();
+    $('[name="status_filter"]').on('change', function(){
+        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+        tableDesCover.column( $(this).data('column') )
+        .search( val ? val : '', true, false )
+        .draw();
+    });
+});
+function loadDataCount() {
+    $.ajax({
+        url: window.location.origin + "/penerbitan/deskripsi/cover?count_data=true",
+        method: "GET",
+        dataType: "json",
+        success: function (data) {
+            $("#countData").html(data);
+        },
+    });
+}
 $("#tb_DesCover").on("click", ".btn-history", function (e) {
     var id = $(this).data("id");
     var judul = $(this).data("judulfinal");
