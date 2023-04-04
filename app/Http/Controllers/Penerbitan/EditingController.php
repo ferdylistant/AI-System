@@ -33,8 +33,10 @@ class EditingController extends Controller
                 )
                 ->orderBy('ep.tgl_mulai_edit', 'ASC')
                 ->get();
-
-            return DataTables::of($data)
+            if ($request->has('count_data')) {
+                return $data->count();
+            } else {
+                return DataTables::of($data)
                 // ->addIndexColumn()
                 ->addColumn('kode', function ($data) {
                     $tandaProses = '';
@@ -196,24 +198,8 @@ class EditingController extends Controller
                     'action'
                 ])
                 ->make(true);
+            }
         }
-        $data = DB::table('editing_proses as ep')
-            ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
-            ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
-            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-            ->whereNull('dp.deleted_at')
-            ->select(
-                'ep.*',
-                'pn.kode',
-                'pn.pic_prodev',
-                'pn.jalur_buku',
-                'pn.kelompok_buku_id',
-                'dp.naskah_id',
-                'dp.judul_final',
-                'df.bullet'
-            )
-            ->orderBy('ep.tgl_mulai_edit', 'ASC')
-            ->get();
         //Isi Warna Enum
         $type = DB::select(DB::raw("SHOW COLUMNS FROM editing_proses WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
@@ -221,7 +207,6 @@ class EditingController extends Controller
         return view('penerbitan.editing.index', [
             'title' => 'Editing Proses',
             'status_progress' => $statusProgress,
-            'count' => count($data)
         ]);
     }
     public function editEditing(Request $request)
@@ -600,9 +585,9 @@ class EditingController extends Controller
                         </span>';
                         break;
                     case 'Update':
-                        $html .= '<span class="ticket-item" id="newAppend">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                        $html .= '<span class="ticket-item" id="newAppend">';
                         if (!is_null($d->editor_his)) {
+                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopEDHIS = '';
                             $loopEDNEW = '';
                             foreach (json_decode($d->editor_his, true) as $edhis) {
@@ -612,12 +597,15 @@ class EditingController extends Controller
                                 $loopEDNEW .= '<span class="bullet"></span>' . DB::table('users')->where('id', $ednew)->first()->nama;
                             }
                             $html .= ' Editor <b class="text-dark">' . $loopEDHIS . '</b> diubah menjadi <b class="text-dark">' . $loopEDNEW . '</b>.<br>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->editor_new)) {
+                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopEDNEW = '';
                             foreach (json_decode($d->editor_new, true) as $ednew) {
                                 $loopEDNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $ednew)->first()->nama . '</b>, ';
                             }
                             $html .= ' Editor <b class="text-dark">' . $loopEDNEW . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>';
                         }
                         // if (!is_null($d->copy_editor_his)) {
                         //     $loopCEDHIS = '';
@@ -637,6 +625,7 @@ class EditingController extends Controller
                         //     $html .= ' Editor <b class="text-dark">' . $loopCEDNEW . '</b> ditambahkan.<br>';
                         // }
                         if (!is_null($d->bullet_his)) {
+                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopFC = '';
                             $loopFCN = '';
                             foreach (json_decode($d->bullet_his, true) as $fc) {
@@ -646,28 +635,40 @@ class EditingController extends Controller
                                 $loopFCN .= '<span class="bullet"></span>' . $fcn;
                             }
                             $html .= ' Bullet <b class="text-dark">' . $loopFC . '</b> diubah menjadi <b class="text-dark">' . $loopFCN . '</b>.<br>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->bullet_new)) {
+                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopFCNew = '';
                             foreach (json_decode($d->bullet_new, true) as $fcn) {
                                 $loopFCNew .= '<span class="bullet"></span>' . $fcn;
                             }
                             $html .= ' Bullet ' . $loopFCNew . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->jml_hal_perkiraan_his)) {
+                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Jumlah halaman final <b class="text-dark">' . $d->jml_hal_perkiraan_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b>.<br>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->jml_hal_perkiraan_new)) {
+                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Jumlah halaman final <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b> ditambahkan.';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->catatan_his)) {
+                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Catatan <b class="text-dark">' . $d->catatan_his . '</b> diubah menjadi <b class="text-dark">' . $d->catatan_new . '</b>.<br>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->catatan_new)) {
+                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Catatan <b class="text-dark">' . $d->catatan_new . '</b> ditambahkan.<br>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->bulan_his)) {
+                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->bulan_new)->translatedFormat('F Y') . '</b>.';
+                            $html .= '</span></div>';
                         }
-                        $html .= '</span></div>
-                        <div class="ticket-info">
+                        $html .= '<div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
                             <div class="bullet pt-2"></div>
                             <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>

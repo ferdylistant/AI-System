@@ -84,7 +84,7 @@
                             </div>
                             <div class="col-auto">
                                 <span class="badge badge-warning"><i class="fas fa-database"></i> Total data editing
-                                    naskah: <b>{{ $count }}</b></span>
+                                    naskah: <b id="countData">0</b></span>
                             </div>
                         </div>
                         <div class="col-12 table-responsive">
@@ -164,114 +164,11 @@
 <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
 <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
 <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+<script type="text/javascript" charset="utf8" src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
 @endsection
 
 @section('jsNeeded')
-<script>
-    $(function() {
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        let tableDesProduk = $('#tb_Editing').DataTable({
-            "bSort": false,
-            "responsive": true,
-            "autoWidth": true,
-            processing: true,
-            serverSide: true,
-            language: {
-                searchPlaceholder: 'Search...',
-                sSearch: '',
-                lengthMenu: '_MENU_ items/page',
-            },
-            ajax: "{{ route('editing.view') }}",
-            columns: [
-                // { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "5%" },
-                {
-                    data: 'kode',
-                    name: 'kode',
-                    title: 'Kode'
-                },
-                {
-                    data: 'judul_final',
-                    name: 'judul_final',
-                    title: 'Judul Final'
-                },
-                {
-                    data: 'penulis',
-                    name: 'penulis',
-                    title: 'Penulis',
-                },
-                {
-                    data: 'nama_pena',
-                    name: 'nama_pena',
-                    title: 'Nama Pena',
-                },
-                {
-                    data: 'jalur_buku',
-                    name: 'jalur_buku',
-                    title: 'Jalur Buku'
-                },
-                {
-                    data: 'tgl_masuk_editing',
-                    name: 'tgl_masuk_editing',
-                    title: 'Tgl Masuk Editing'
-                },
-                {
-                    data: 'pic_prodev',
-                    name: 'pic_prodev',
-                    title: 'PIC Prodev'
-                },
-                {
-                    data: 'editor',
-                    name: 'editor',
-                    title: 'Editor'
-                },
-                // {
-                //     data: 'copy_editor',
-                //     name: 'copy_editor',
-                //     title: 'Copy Editor'
-                // },
-                {
-                    data: 'history',
-                    name: 'history',
-                    title: 'History Progress'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    title: 'Action',
-                    orderable: false
-                },
-            ],
-
-        });
-        $('[name="status_filter"]').on('change', function() {
-            var val = $.fn.dataTable.util.escapeRegex($(this).val());
-            tableDesProduk.column($(this).data('column'))
-                .search(val ? val : '', true, false)
-                .draw();
-        });
-    });
-</script>
-<script>
-    $('#tb_Editing').on('click', '.btn-history', function(e) {
-        var id = $(this).data('id');
-        var judul = $(this).data('judulfinal');
-        $.post("{{ route('editing.history') }}", {
-            id: id
-        }, function(data) {
-            // console.log(data);
-            $('#titleModalEditing').html(
-                '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
-            $('#load_more').data('id', id);
-            $('#dataHistoryEditing').html(data);
-            $('#md_EditingHistory').modal('show');
-        });
-    });
-</script>
 <script src="{{ url('js/update_progress_editing.js') }}"></script>
 @endsection

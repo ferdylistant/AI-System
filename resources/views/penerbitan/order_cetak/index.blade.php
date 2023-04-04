@@ -94,7 +94,7 @@
                                 </div>
                                 <div class="col-auto pb-3">
                                     <span class="badge badge-warning"><i class="fas fa-database"></i> Total data order
-                                        cetak: <b>{{ $count }}</b></span>
+                                        cetak: <b id="countData">0</b></span>
                                 </div>
                             </div>
                             <div class="col-12 table-responsive">
@@ -173,6 +173,7 @@
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script type="text/javascript" charset="utf8" src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"

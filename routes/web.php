@@ -180,8 +180,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pracetak/designer', [PracetakDesainerController::class, 'index'])->name('prades.view');
         Route::get('/pracetak/designer/detail', [PracetakDesainerController::class, 'detailPracetakDesainer'])->name('prades.detail');
         Route::match(['get', 'post'], '/pracetak/designer/edit', [PracetakDesainerController::class, 'editDesigner'])->name('prades.edit');
-        Route::post('/pracetak/designer/selesai/{cat}/{id}', [PracetakDesainerController::class, 'prosesSelesaiDesigner'])->name('prades.selesai')->middleware('throttle:5,1');
-        Route::post('/pracetak/designer/{act}', [PracetakDesainerController::class, 'actionAjax'])->middleware('throttle:5,1');
+        Route::post('/pracetak/designer/selesai/{cat}/{id}', [PracetakDesainerController::class, 'prosesSelesaiDesigner'])->name('prades.selesai');
+        Route::post('/pracetak/designer/{act}', [PracetakDesainerController::class, 'actionAjax']);
         //Order Cetak
         Route::get('/order-cetak', [OrderCetakController::class, 'index'])->name('cetak.view');
         Route::get('/order-cetak/detail', [OrderCetakController::class, 'detailOrderCetak'])->name('cetak.detail');

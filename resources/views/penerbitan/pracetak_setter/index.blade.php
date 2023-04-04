@@ -83,7 +83,7 @@
                                 </div>
                             </div>
                             <div class="col-auto">
-                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data pracetak setter: <b>{{ $count }}</b></span>
+                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total data pracetak setter: <b id="countData">0</b></span>
                             </div>
                         </div>
                         <div class="col-12 table-responsive">
@@ -159,87 +159,11 @@
 <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
 <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
 <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+<script type="text/javascript" charset="utf8" src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
 @endsection
 
 @section('jsNeeded')
-<script>
-    $(function() {
-        let tableDesProduk = $('#tb_Setter').DataTable({
-            "responsive": true,
-            "autoWidth": true,
-            processing: true,
-            serverSide: true,
-            language: {
-                searchPlaceholder: 'Search...',
-                sSearch: '',
-                lengthMenu: '_MENU_ items/page',
-            },
-            ajax: "{{ route('setter.view') }}",
-            columns: [
-                // { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "5%" },
-                {
-                    data: 'kode',
-                    name: 'kode',
-                    title: 'Kode'
-                },
-                {
-                    data: 'judul_final',
-                    name: 'judul_final',
-                    title: 'Judul Final'
-                },
-                {
-                    data: 'penulis',
-                    name: 'penulis',
-                    title: 'Penulis',
-                },
-                {
-                    data: 'nama_pena',
-                    name: 'nama_pena',
-                    title: 'Nama Pena',
-                },
-                {
-                    data: 'jalur_buku',
-                    name: 'jalur_buku',
-                    title: 'Jalur Buku'
-                },
-                {
-                    data: 'tgl_masuk_pracetak',
-                    name: 'tgl_masuk_pracetak',
-                    title: 'Tgl Masuk Pracetak'
-                },
-                {
-                    data: 'pic_prodev',
-                    name: 'pic_prodev',
-                    title: 'PIC Prodev'
-                },
-                {
-                    data: 'proses_saat_ini',
-                    name: 'proses_saat_ini',
-                    title: 'Proses Saat Ini'
-                },
-                {
-                    data: 'history',
-                    name: 'history',
-                    title: 'History Progress'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    title: 'Action',
-                    orderable: false
-                },
-            ],
-
-        });
-        $('[name="status_filter"]').on('change', function() {
-            var val = $.fn.dataTable.util.escapeRegex($(this).val());
-            tableDesProduk.column($(this).data('column'))
-                .search(val ? val : '', true, false)
-                .draw();
-        });
-    });
-</script>
 <script src="{{ url('js/update_progress_praset.js') }}"></script>
 @endsection

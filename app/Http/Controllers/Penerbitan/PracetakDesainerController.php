@@ -37,152 +37,140 @@ class PracetakDesainerController extends Controller
                 )
                 ->orderBy('pc.tgl_masuk_cover', 'ASC')
                 ->get();
-            return DataTables::of($data)
-                // ->addIndexColumn()
-                ->addColumn('kode', function ($data) {
-                    $tandaProses = '';
-                    $dataKode = $data->kode;
-                    if ($data->status == 'Proses') {
-                        if ($data->proses_saat_ini == 'Siap Turcet') {
-                            $tandaProses = '<span class="beep-primary"></span>';
-                            $dataKode = '<span class="text-primary">' . $data->kode . '</span>';
+            if ($request->has('count_data')) {
+                return $data->count();
+            } else {
+                return DataTables::of($data)
+                    // ->addIndexColumn()
+                    ->addColumn('kode', function ($data) {
+                        $tandaProses = '';
+                        $dataKode = $data->kode;
+                        if ($data->status == 'Proses') {
+                            if ($data->proses_saat_ini == 'Siap Turcet') {
+                                $tandaProses = '<span class="beep-primary"></span>';
+                                $dataKode = '<span class="text-primary">' . $data->kode . '</span>';
+                            } else {
+                                $tandaProses = $data->proses == '1' ? '<span class="beep-success"></span>' : '<span class="beep-danger"></span>';
+                                $dataKode = $data->proses == '1'  ? '<span class="text-success">' . $data->kode . '</span>' : '<span class="text-danger">' . $data->kode . '</span>';
+                            }
+                        }
+                        return $tandaProses . $dataKode;
+                    })
+                    ->addColumn('judul_final', function ($data) {
+                        if (is_null($data->judul_final)) {
+                            $res = '-';
                         } else {
-                            $tandaProses = $data->proses == '1' ? '<span class="beep-success"></span>' : '<span class="beep-danger"></span>';
-                            $dataKode = $data->proses == '1'  ? '<span class="text-success">' . $data->kode . '</span>' : '<span class="text-danger">' . $data->kode . '</span>';
+                            $res = $data->judul_final;
                         }
-                    }
-                    return $tandaProses . $dataKode;
-                })
-                ->addColumn('judul_final', function ($data) {
-                    if (is_null($data->judul_final)) {
-                        $res = '-';
-                    } else {
-                        $res = $data->judul_final;
-                    }
-                    return $res;
-                })
-                ->addColumn('penulis', function ($data) {
-                    // return $data->penulis;
-                    $result = '';
-                    $res = DB::table('penerbitan_naskah_penulis as pnp')
-                        ->join('penerbitan_penulis as pp', function ($q) {
-                            $q->on('pnp.penulis_id', '=', 'pp.id')
-                                ->whereNull('pp.deleted_at');
-                        })
-                        ->where('pnp.naskah_id', '=', $data->naskah_id)
-                        ->select('pp.nama')
-                        // ->pluck('pp.nama');
-                        ->get();
-                    foreach ($res as $q) {
-                        $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
-                    }
-                    return $result;
-                    //  $res;
-                })
-                ->addColumn('nama_pena', function ($data) {
-                    $result = '';
-                    if (is_null($data->nama_pena)) {
-                        $result .= "-";
-                    } else {
-                        foreach (json_decode($data->nama_pena) as $q) {
-                            $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
+                        return $res;
+                    })
+                    ->addColumn('penulis', function ($data) {
+                        // return $data->penulis;
+                        $result = '';
+                        $res = DB::table('penerbitan_naskah_penulis as pnp')
+                            ->join('penerbitan_penulis as pp', function ($q) {
+                                $q->on('pnp.penulis_id', '=', 'pp.id')
+                                    ->whereNull('pp.deleted_at');
+                            })
+                            ->where('pnp.naskah_id', '=', $data->naskah_id)
+                            ->select('pp.nama')
+                            // ->pluck('pp.nama');
+                            ->get();
+                        foreach ($res as $q) {
+                            $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
                         }
-                    }
-                    return $result;
-                })
-                ->addColumn('jalur_buku', function ($data) {
-                    if (!is_null($data->jalur_buku)) {
-                        $res = $data->jalur_buku;
-                    } else {
-                        $res = '-';
-                    }
-                    return $res;
-                })
-                ->addColumn('tgl_masuk_cover', function ($data) {
-                    return Carbon::parse($data->tgl_masuk_cover)->translatedFormat('l d M Y H:i');
-                })
-                ->addColumn('pic_prodev', function ($data) {
-                    $result = '';
-                    $res = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')
-                        ->select('nama')
-                        ->get();
-                    foreach (json_decode($res) as $q) {
-                        $result .= $q->nama;
-                    }
-                    return $result;
-                })
-                ->addColumn('proses_saat_ini', function ($data) {
-                    if (!is_null($data->proses_saat_ini)) {
-                        $res = '<span class="badge badge-light">' . $data->proses_saat_ini . '</span>';
-                    } else {
-                        $res = '<span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada proses</span>';
-                    }
-                    return $res;
-                })
-                ->addColumn('history', function ($data) {
-                    $historyData = DB::table('pracetak_cover_history')->where('pracetak_cover_id', $data->id)->get();
-                    if ($historyData->isEmpty()) {
-                        return '-';
-                    } else {
-                        $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-history"></i>&nbsp;History</button>';
-                        return $date;
-                    }
-                })
-                ->addColumn('action', function ($data) {
-                    $btn = '<a href="' . url('penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode) . '"
-                        class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
-                        <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                    switch ($data->jalur_buku) {
-                        case 'Reguler':
-                            $jb = 'reguler';
-                            $btn = $this->logicPermissionAction($data->status, $jb, $data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                        case 'MoU':
-                            $jb = 'mou';
-                            $btn = $this->logicPermissionAction($data->status, $jb, $data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                        case 'SMK/NonSMK':
-                            $jb = 'smk';
-                            $btn = $this->logicPermissionAction($data->status, $jb, $data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                        default:
-                            $jb = 'MoU-Reguler';
-                            $btn = $this->logicPermissionAction($data->status, $jb, $data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                    }
-                    return $btn;
-                    return $btn;
-                })
-                ->rawColumns([
-                    'kode',
-                    'judul_final',
-                    'penulis',
-                    'nama_pena',
-                    'jalur_buku',
-                    'tgl_masuk_cover',
-                    'pic_prodev',
-                    'proses_saat_ini',
-                    'history',
-                    'action'
-                ])
-                ->make(true);
+                        return $result;
+                        //  $res;
+                    })
+                    ->addColumn('nama_pena', function ($data) {
+                        $result = '';
+                        if (is_null($data->nama_pena)) {
+                            $result .= "-";
+                        } else {
+                            foreach (json_decode($data->nama_pena) as $q) {
+                                $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
+                            }
+                        }
+                        return $result;
+                    })
+                    ->addColumn('jalur_buku', function ($data) {
+                        if (!is_null($data->jalur_buku)) {
+                            $res = $data->jalur_buku;
+                        } else {
+                            $res = '-';
+                        }
+                        return $res;
+                    })
+                    ->addColumn('tgl_masuk_cover', function ($data) {
+                        return Carbon::parse($data->tgl_masuk_cover)->translatedFormat('l d M Y H:i');
+                    })
+                    ->addColumn('pic_prodev', function ($data) {
+                        $result = '';
+                        $res = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')
+                            ->select('nama')
+                            ->get();
+                        foreach (json_decode($res) as $q) {
+                            $result .= $q->nama;
+                        }
+                        return $result;
+                    })
+                    ->addColumn('proses_saat_ini', function ($data) {
+                        if (!is_null($data->proses_saat_ini)) {
+                            $res = '<span class="badge badge-light">' . $data->proses_saat_ini . '</span>';
+                        } else {
+                            $res = '<span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada proses</span>';
+                        }
+                        return $res;
+                    })
+                    ->addColumn('history', function ($data) {
+                        $historyData = DB::table('pracetak_cover_history')->where('pracetak_cover_id', $data->id)->get();
+                        if ($historyData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                            return $date;
+                        }
+                    })
+                    ->addColumn('action', function ($data) {
+                        $btn = '<a href="' . url('penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode) . '"
+                            class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
+                            <div><i class="fas fa-envelope-open-text"></i></div></a>';
+                        switch ($data->jalur_buku) {
+                            case 'Reguler':
+                                $jb = 'reguler';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                            case 'MoU':
+                                $jb = 'mou';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                            case 'SMK/NonSMK':
+                                $jb = 'smk';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                            default:
+                                $jb = 'MoU-Reguler';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                        }
+                        return $btn;
+                        return $btn;
+                    })
+                    ->rawColumns([
+                        'kode',
+                        'judul_final',
+                        'penulis',
+                        'nama_pena',
+                        'jalur_buku',
+                        'tgl_masuk_cover',
+                        'pic_prodev',
+                        'proses_saat_ini',
+                        'history',
+                        'action'
+                    ])
+                    ->make(true);
+            }
         }
-        $data = DB::table('pracetak_cover as pc')
-            ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
-            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-            ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
-            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-            ->whereNull('dp.deleted_at')
-            ->select(
-                'pc.*',
-                'pn.kode',
-                'pn.pic_prodev',
-                'pn.jalur_buku',
-                'dp.naskah_id',
-                'dp.judul_final'
-            )
-            ->orderBy('pc.tgl_masuk_cover', 'ASC')
-            ->get();
         //Status
         $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_cover WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
@@ -194,7 +182,6 @@ class PracetakDesainerController extends Controller
             'title' => 'Pracetak Desainer',
             'status_action' => $statusAction,
             'status_progress' => $statusProgress,
-            'count' => count($data)
         ]);
     }
     protected function logicPermissionAction($status = null, $jb = null, $id, $kode, $judul_final, $btn)
@@ -1296,35 +1283,19 @@ class PracetakDesainerController extends Controller
                         </span>';
                         break;
                     case 'Update':
+                        $html .= '<span class="ticket-item">';
                         if (!is_null($d->status_his)) {
-                            $html .= '<span class="ticket-item">
-                            <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Status pracetak cover <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->ket_revisi)) {
-                            $html .= '<span class="ticket-item">
-                            <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Status pracetak cover <b class="text-dark">' . $d->status_new . '</b> dengan keterangan revisi: <b class="text-dark">' . $d->ket_revisi . '</b>.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->desainer_his)) {
-                            $html .= '<span class="ticket-item">
-                            <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopDesainerHIS = '';
                             $loopDesainNEW = '';
                             foreach (json_decode($d->desainer_his, true) as $sethis) {
@@ -1334,34 +1305,18 @@ class PracetakDesainerController extends Controller
                                 $loopDesainNEW .= '<span class="bullet"></span>' . DB::table('users')->where('id', $setnew)->first()->nama;
                             }
                             $html .= ' Desainer <b class="text-dark">' . $loopDesainerHIS . '</b> diubah menjadi <b class="text-dark">' . $loopDesainNEW . '</b>.<br>';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->desainer_new)) {
-                            $html .= '<span class="ticket-item">
-                            <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopDesainNEW = '';
                             foreach (json_decode($d->desainer_new, true) as $setnew) {
                                 $loopDesainNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $setnew)->first()->nama . '</b>, ';
                             }
                             $html .= ' Desainer <b class="text-dark">' . $loopDesainNEW . '</b> ditambahkan.<br>';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->korektor_his)) {
-                            $html .= '<span class="ticket-item">
-                            <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopKorHIS = '';
                             $loopKorNEW = '';
                             foreach (json_decode($d->korektor_his, true) as $korhis) {
@@ -1371,206 +1326,86 @@ class PracetakDesainerController extends Controller
                                 $loopKorNEW .= '<span class="bullet"></span>' . DB::table('users')->where('id', $kornew)->first()->nama;
                             }
                             $html .= ' Korektor <b class="text-dark">' . $loopKorHIS . '</b> diubah menjadi <b class="text-dark">' . $loopKorNEW . '</b>.<br>';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->korektor_new)) {
-                            $html .= '<span class="ticket-item">
-                            <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopKorNEW = '';
                             foreach (json_decode($d->korektor_new, true) as $kornew) {
                                 $loopKorNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $kornew)->first()->nama . '</b>, ';
                             }
                             $html .= ' Korektor <b class="text-dark">' . $loopKorNEW . '</b> ditambahkan.<br>';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->catatan_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Catatan <b class="text-dark">' . $d->catatan_his . '</b> diubah menjadi <b class="text-dark">' . $d->catatan_new . '</b>.<br>';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->catatan_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Catatan <b class="text-dark">' . $d->catatan_new . '</b> ditambahkan.<br>';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->proses_ini_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Proses saat ini <b class="text-dark">' . $d->proses_ini_his . '</b> diubah menjadi <b class="text-dark">' . $d->proses_ini_new . '</b>.<br>';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->proses_ini_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Proses saat ini <b class="text-dark">' . $d->proses_ini_new . '</b> ditambahkan.<br>';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->mulai_pengajuan_cover)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Pengajuan desain cover dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_pengajuan_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->selesai_pengajuan_cover)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Pengajuan desain cover selesai pada <b class="text-dark">' . Carbon::parse($d->selesai_pengajuan_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->mulai_proof)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Approval desain cover oleh prodev dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_proof)->translatedFormat('l d F Y, H:i') . '</b>.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->selesai_proof)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Desain telah dipilih pada <b class="text-dark">' . Carbon::parse($d->selesai_proof)->translatedFormat('l d F Y, H:i') . '</b>.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->mulai_koreksi)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Koreksi dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_koreksi)->translatedFormat('l d F Y, H:i') . '</b>.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->selesai_koreksi)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Koreksi selesai pada <b class="text-dark">' . Carbon::parse($d->selesai_koreksi)->translatedFormat('l d F Y, H:i') . '</b>.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->mulai_cover)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Proses back cover dimulai pada <b class="text-dark">' . Carbon::parse($d->mulai_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->selesai_cover)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Proses back cover selesai pada <b class="text-dark">' . Carbon::parse($d->selesai_cover)->translatedFormat('l d F Y, H:i') . '</b>.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->bulan_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->bulan_new)->translatedFormat('F Y') . '</b>.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->bulan_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> ditambahkan.';
-                            $html .= '</span></div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                        </div>
-                        </span>';
+                            $html .= '</span></div>';
                         }
+                        $html .= '<div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                    </div>
+                    </span>';
                         break;
                     case 'Progress':
                         $ket = $d->progress == 1 ? 'Dimulai' : 'Dihentikan';

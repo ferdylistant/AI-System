@@ -1,23 +1,105 @@
-$("#tb_PraDes").on("click", ".btn-history", function (e) {
-    var id = $(this).data("id");
-    var judul = $(this).data("judulfinal");
-    $.post(
-        window.location.origin + "/penerbitan/pracetak/designer/lihat-history",
-        {
-            id: id,
+$(function() {
+    $('[name="status_filter"]').val('').trigger('change');
+    let tableDesCover = $('#tb_PraDes').DataTable({
+        "responsive": true,
+        "autoWidth": true,
+        processing: true,
+        serverSide: false,
+        language: {
+            searchPlaceholder: 'Cari...',
+            sSearch: '',
+            lengthMenu: '_MENU_ /halaman',
         },
-        function (data) {
-            $("#titleModalPraDes").html(
-                '<i class="fas fa-history"></i>&nbsp;History Progress Pracetak Desainer "' +
-                    judul +
-                    '"'
-            );
-            $("#load_more").data("id", id);
-            $("#dataHistoryPraDes").html(data);
-            $("#md_PraDesHistory").modal("show");
-        }
-    );
+        ajax: window.location.origin + "/penerbitan/pracetak/designer",
+        columns: [
+            // { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "5%" },
+            {
+                data: 'kode',
+                name: 'kode',
+                title: 'Kode'
+            },
+            {
+                data: 'judul_final',
+                name: 'judul_final',
+                title: 'Judul Final'
+            },
+            {
+                data: 'penulis',
+                name: 'penulis',
+                title: 'Penulis',
+            },
+            {
+                data: 'nama_pena',
+                name: 'nama_pena',
+                title: 'Nama Pena',
+            },
+            {
+                data: 'jalur_buku',
+                name: 'jalur_buku',
+                title: 'Jalur Buku'
+            },
+            {
+                data: 'tgl_masuk_cover',
+                name: 'tgl_masuk_cover',
+                title: 'Tgl Masuk'
+            },
+            {
+                data: 'pic_prodev',
+                name: 'pic_prodev',
+                title: 'PIC Prodev'
+            },
+            {
+                data: 'proses_saat_ini',
+                name: 'proses_saat_ini',
+                title: 'Proses Saat Ini'
+            },
+            {
+                data: 'history',
+                name: 'history',
+                title: 'History Progress'
+            },
+            {
+                data: 'action',
+                name: 'action',
+                title: 'Action',
+                orderable: false
+            },
+        ],
+
+    });
+    loadCountData();
+    $('[name="status_filter"]').on('change', function() {
+        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+        tableDesCover.column($(this).data('column'))
+            .search(val ? val : '', true, false)
+            .draw();
+    });
+    $("#tb_PraDes").on("click", ".btn-history", function (e) {
+        var id = $(this).data("id");
+        var judul = $(this).data("judulfinal");
+        $.post(
+            window.location.origin + "/penerbitan/pracetak/designer/lihat-history",
+            {
+                id: id,
+            },
+            function (data) {
+                $("#titleModalPraDes").html(
+                    '<i class="fas fa-history"></i>&nbsp;History Progress Pracetak Desainer "' +
+                        judul +
+                        '"'
+                );
+                $("#load_more").data("id", id);
+                $("#dataHistoryPraDes").html(data);
+                $("#md_PraDesHistory").modal("show");
+            }
+        );
+    });
 });
+function loadCountData() {
+    $.get(window.location.origin + "/penerbitan/pracetak/designer?count_data=true", function (data) {
+        $("#countData").html(data);
+    });
+}
 $(function () {
     $(".load-more").click(function (e) {
         e.preventDefault();

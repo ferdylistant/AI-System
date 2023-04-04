@@ -1,12 +1,14 @@
 $(function() {
+    $('[name="status_filter"]').val('').trigger('change');
     let tableOrderEbook = $('#tb_OrderEbook').DataTable({
         responsive: true,
+        pagingType: 'input',
         processing: true,
-        serverSide: true,
+        serverSide: false,
         language: {
-            searchPlaceholder: 'Search...',
+            searchPlaceholder: 'Cari...',
             sSearch: '',
-            lengthMenu: '_MENU_ items/page',
+            lengthMenu: '_MENU_ /halaman',
         },
         ajax: {
             url: window.location.origin + "/penerbitan/order-ebook",
@@ -22,40 +24,46 @@ $(function() {
             { data: 'action', name: 'action', title: 'Action', orderable: false },
         ]
     });
+    loadCountData();
     $('[name="status_filter"]').on('change', function () {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());
         tableOrderEbook.column($(this).data('column'))
             .search(val ? val : '', true, false)
             .draw();
     });
+    $('#tb_OrderEbook').on('click', '.btn-history', function(e) {
+        var id = $(this).data('id');
+        var judul = $(this).data('judulfinal');
+        let cardWrap = $('.section-body').find('.card');
+        $.ajax({
+            url: window.location.origin + "/penerbitan/order-ebook/ajax/lihat-history-order-ebook",
+            type: "POST",
+            data: {
+                id: id
+            },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass('card-progress');
+            },
+            success: function (data) {
+                $('#titleModalOrderEbook').html(
+                    '<i class="fas fa-history"></i>&nbsp;History Progress Order E-book "' + judul +
+                    '"');
+                $('#load_more').data('id', id);
+                $('#dataHistoryOrderEbook').html(data);
+                $('#md_OrderEbookHistory').modal('show');
+            },
+            complete: function () {
+                cardWrap.removeClass('card-progress');
+            }
+        })
+    });
 });
-$('#tb_OrderEbook').on('click', '.btn-history', function(e) {
-    var id = $(this).data('id');
-    var judul = $(this).data('judulfinal');
-    let cardWrap = $('.section-body').find('.card');
-    $.ajax({
-        url: window.location.origin + "/penerbitan/order-ebook/ajax/lihat-history-order-ebook",
-        type: "POST",
-        data: {
-            id: id
-        },
-        cache: false,
-        beforeSend: function () {
-            cardWrap.addClass('card-progress');
-        },
-        success: function (data) {
-            $('#titleModalOrderEbook').html(
-                '<i class="fas fa-history"></i>&nbsp;History Progress Order E-book "' + judul +
-                '"');
-            $('#load_more').data('id', id);
-            $('#dataHistoryOrderEbook').html(data);
-            $('#md_OrderEbookHistory').modal('show');
-        },
-        complete: function () {
-            cardWrap.removeClass('card-progress');
-        }
-    })
-});
+function loadCountData() {
+    $.get(window.location.origin + "/penerbitan/order-ebook", function (response) {
+        $("#countData").html(response);
+    });
+}
 $(document).ready(function () {
     $("#tb_OrderEbook").on("click", ".btn-status-orebook", function (e) {
         e.preventDefault();

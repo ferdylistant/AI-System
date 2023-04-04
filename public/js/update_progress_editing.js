@@ -1,3 +1,106 @@
+$(function() {
+    $('[name="status_filter"]').val("").trigger('change');
+    let tableDesProduk = $('#tb_Editing').DataTable({
+        "bSort": false,
+        "responsive": true,
+        "autoWidth": true,
+        pagingType: 'input',
+        processing: true,
+        serverSide: false,
+        language: {
+            searchPlaceholder: 'Cari...',
+            sSearch: '',
+            lengthMenu: '_MENU_ /halaman',
+        },
+        ajax: window.location.origin + "/penerbitan/editing",
+        columns: [
+            // { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "5%" },
+            {
+                data: 'kode',
+                name: 'kode',
+                title: 'Kode'
+            },
+            {
+                data: 'judul_final',
+                name: 'judul_final',
+                title: 'Judul Final'
+            },
+            {
+                data: 'penulis',
+                name: 'penulis',
+                title: 'Penulis',
+            },
+            {
+                data: 'nama_pena',
+                name: 'nama_pena',
+                title: 'Nama Pena',
+            },
+            {
+                data: 'jalur_buku',
+                name: 'jalur_buku',
+                title: 'Jalur Buku'
+            },
+            {
+                data: 'tgl_masuk_editing',
+                name: 'tgl_masuk_editing',
+                title: 'Tgl Masuk Editing'
+            },
+            {
+                data: 'pic_prodev',
+                name: 'pic_prodev',
+                title: 'PIC Prodev'
+            },
+            {
+                data: 'editor',
+                name: 'editor',
+                title: 'Editor'
+            },
+            // {
+            //     data: 'copy_editor',
+            //     name: 'copy_editor',
+            //     title: 'Copy Editor'
+            // },
+            {
+                data: 'history',
+                name: 'history',
+                title: 'History Progress'
+            },
+            {
+                data: 'action',
+                name: 'action',
+                title: 'Action',
+                orderable: false
+            },
+        ],
+
+    });
+    loadCountData();
+    $('[name="status_filter"]').on('change', function() {
+        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+        tableDesProduk.column($(this).data('column'))
+            .search(val ? val : '', true, false)
+            .draw();
+    });
+    $('#tb_Editing').on('click', '.btn-history', function(e) {
+        var id = $(this).data('id');
+        var judul = $(this).data('judulfinal');
+        $.post(window.location.origin + "/penerbitan/editing/lihat-history", {
+            id: id
+        }, function(data) {
+            // console.log(data);
+            $('#titleModalEditing').html(
+                '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
+            $('#load_more').data('id', id);
+            $('#dataHistoryEditing').html(data);
+            $('#md_EditingHistory').modal('show');
+        });
+    });
+});
+function loadCountData() {
+    $.get(window.location.origin + "/penerbitan/editing?count_data=true", function(data) {
+        $('#countData').html(data);
+    });
+}
 $(function () {
     $(".load-more").click(function (e) {
         e.preventDefault();

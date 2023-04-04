@@ -35,7 +35,10 @@ class OrderEbookController extends Controller
                     'dp.judul_final'
                 )
                 ->get();
-            $update = Gate::allows('do_update', 'update-order-ebook');
+            if ($request->has('count_data')) {
+                return $data->count();
+            } else {
+                $update = Gate::allows('do_update', 'update-order-ebook');
 
             return DataTables::of($data)
                 ->addColumn('no_order', function ($data) {
@@ -167,17 +170,14 @@ class OrderEbookController extends Controller
                     'action'
                 ])
                 ->make(true);
+            }
         }
-        $data = DB::table('order_ebook as ps')
-            ->orderBy('tgl_masuk', 'ASC')
-            ->get();
         //Status
         $type = DB::select(DB::raw("SHOW COLUMNS FROM order_ebook WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $statusProgress = explode("','", $matches[1]);
         return view('penerbitan.order_ebook.index', [
             'title' => 'Order E-Book',
-            'count' => count($data),
             'status_progress' => $statusProgress
         ]);
     }
@@ -866,232 +866,95 @@ class OrderEbookController extends Controller
                         </span>';
                         break;
                     case 'Update':
-
+                        $html .= '<span class="ticket-item">';
                         if (!is_null($d->tipe_order_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Tipe order <b class="text-dark">' . $d->tipe_order_his . '</b> diubah menjadi <b class="text-dark">' . $d->tipe_order_new . '</b>.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->tipe_order_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Tipe order <b class="text-dark">' . $d->tipe_order_new . '</b> ditambahkan.';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->tgl_upload_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Tanggal upload <b class="text-dark">' . Carbon::parse($d->tgl_upload_his)->translatedFormat('d F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->tgl_upload_new)->translatedFormat('d F Y') . '</b>.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->tgl_upload_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Tanggal upload <b class="text-dark">' . Carbon::parse($d->tgl_upload_new)->translatedFormat('d F Y') . '</b> ditambahkan.';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->jml_hal_perkiraan_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Jumlah halaman final <b class="text-dark">' . $d->jml_hal_perkiraan_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b>.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->jml_hal_perkiraan_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Jumlah halaman final <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b> ditambahkan.';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->tahun_terbit_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Tahun terbit <b class="text-dark">' . $d->tahun_terbit_his . '</b> diubah menjadi <b class="text-dark">' . $d->tahun_terbit_new . '</b>.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->tahun_terbit_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Tahun terbit <b class="text-dark">' . $d->tahun_terbit_new . '</b> ditambahkan.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->edisi_cetak_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Edisi cetak <b class="text-dark">' . $d->edisi_cetak_his . '</b> diubah menjadi <b class="text-dark">' . $d->edisi_cetak_new . '</b>.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->edisi_cetak_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Edisi cetak <b class="text-dark">' . $d->edisi_cetak_new . '</b> ditambahkan.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->spp_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' SPP <b class="text-dark">' . $d->spp_his . '</b> diubah menjadi <b class="text-dark">' . $d->spp_new . '</b>.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->spp_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' SPP <b class="text-dark">' . $d->spp_new . '</b> ditambahkan.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->keterangan_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Keterangan <b class="text-dark">' . $d->keterangan_his . '</b> diubah menjadi <b class="text-dark">' . $d->keterangan_new . '</b>.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->keterangan_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Keterangan <b class="text-dark">' . $d->keterangan_new . '</b> ditambahkan.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->perlengkapan_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Perlengkapan <b class="text-dark">' . $d->perlengkapan_his . '</b> diubah menjadi <b class="text-dark">' . $d->perlengkapan_new . '</b>.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->perlengkapan_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Perlengkapan <b class="text-dark">' . $d->perlengkapan_new . '</b> ditambahkan.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         }
                         if (!is_null($d->eisbn_his)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' EISBN <b class="text-dark">' . $d->eisbn_his . '</b> diubah menjadi <b class="text-dark">' . $d->eisbn_new . '</b>.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         } elseif (!is_null($d->eisbn_new)) {
-                            $html .= '<span class="ticket-item">
-                        <div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' EISBN <b class="text-dark">' . $d->eisbn_new . '</b> ditambahkan.<br>';
-                            $html .= '</span></div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-
-                            </div>
-                            </span>';
+                            $html .= '</span></div>';
                         }
+                        $html .= '<div class="ticket-info">
+                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                        <div class="bullet pt-2"></div>
+                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                    </div>
+                    </span>';
                         break;
                     case 'Progress':
                         $ket = $d->progress == 1 ? 'Dimulai' : 'Dihentikan';
