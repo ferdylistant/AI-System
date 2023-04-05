@@ -113,6 +113,7 @@ $(document).ready(function () {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
+        let form = $("#md_DesturcetHistory");
         $(this).data("paginate", page + 1);
 
         $.ajax({
@@ -125,11 +126,12 @@ $(document).ready(function () {
             },
             type: "post",
             beforeSend: function () {
-                $(".load-more").text("Loading...");
+                form.addClass("modal-progress");
             },
             success: function (response) {
                 // console.log(response);
                 if (response.length == 0) {
+                    $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
                 }
                 $("#dataHistoryDesturcet").append(response);
@@ -140,13 +142,13 @@ $(document).ready(function () {
                 // }, 2000);
             },
             complete: function (params) {
-                $(".load-more").text("Load more").fadeIn("slow");
+                form.addClass("modal-progress");
             },
         });
     });
     $("#md_DesturcetHistory").on("hidden.bs.modal", function () {
         $(".load-more").data("paginate", 2);
-        $(".load-more").attr("disabled", false);
+        $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
 });
 $(document).ready(function () {

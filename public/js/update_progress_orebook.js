@@ -179,6 +179,7 @@ $(function () {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
+        let form = $("#md_OrderEbookHistory");
         $(this).data("paginate", page + 1);
 
         $.ajax({
@@ -189,17 +190,22 @@ $(function () {
             },
             type: "POST",
             beforeSend: function () {
-                $(".load-more").text("Loading...");
+                form.addClass("modal-progress");
             },
             success: function (response) {
                 if (response.length == 0) {
+                    $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
                 }
                 $("#dataHistoryOrderEbook").append(response);
             },
             complete: function (params) {
-                $(".load-more").text("Load more").fadeIn("slow");
+                form.removeClass("modal-progress");
             },
         });
+    });
+    $('#md_OrderEbookHistory').on('hidden.bs.modal', function () {
+        $('.load-more').data("paginate", 2);
+        $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
 });

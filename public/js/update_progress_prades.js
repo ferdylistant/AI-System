@@ -130,7 +130,7 @@ $(function () {
             },
             success: function (response) {
                 if (response.length == 0) {
-                    $(".load-more").attr("disabled", true);
+                    $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
                 }
                 $("#dataHistoryPraDes").append(response);
@@ -147,7 +147,7 @@ $(function () {
     });
     $("#md_PraDesHistory").on("hidden.bs.modal", function () {
         $(".load-more").data("paginate", 2);
-        $(".load-more").attr("disabled", false);
+        $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
 });
 $(document).ready(function () {
