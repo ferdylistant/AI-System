@@ -1,6 +1,6 @@
 $(function () {
     let tablePenulis = $("#tb_Penulis").DataTable({
-        bSort: true,
+        // bSort: true,
         responsive: true,
         autoWidth: true,
         pagingType: "input",
@@ -172,7 +172,15 @@ function loadCountData() {
         },
         type: "get",
         success: function (response) {
-            $("#countData").html(response);
+            $("#countData").prop('Counter',0).animate({
+                Counter: response
+            }, {
+                duration: 1000,
+                easing: 'swing',
+                step: function (now) {
+                    $(this).text(Math.ceil(now));
+                }
+            });
         },
     });
 }

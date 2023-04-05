@@ -1,7 +1,7 @@
 $(function() {
     $('[name="status_filter"]').val("").trigger('change');
     let tableDesProduk = $('#tb_Editing').DataTable({
-        "bSort": false,
+        // "bSort": false,
         "responsive": true,
         "autoWidth": true,
         pagingType: 'input',
@@ -98,7 +98,15 @@ $(function() {
 });
 function loadCountData() {
     $.get(window.location.origin + "/penerbitan/editing?count_data=true", function(data) {
-        $('#countData').html(data);
+        $('#countData').prop('Counter',0).animate({
+            Counter: data
+        }, {
+            duration: 1000,
+            easing: 'swing',
+            step: function (now) {
+                $(this).text(Math.ceil(now));
+            }
+        });
     });
 }
 $(function () {

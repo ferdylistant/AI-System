@@ -61,7 +61,15 @@ $(function() {
 });
 function loadCountData() {
     $.get(window.location.origin + "/penerbitan/order-ebook", function (response) {
-        $("#countData").html(response);
+        $("#countData").prop('Counter',0).animate({
+            Counter: response
+        }, {
+            duration: 1000,
+            easing: 'swing',
+            step: function (now) {
+                $(this).text(Math.ceil(now));
+            }
+        });
     });
 }
 $(document).ready(function () {

@@ -1,7 +1,7 @@
 $(function() {
     $('[name="status_filter"]').val('').trigger('change');
     let tableDesTurunCetak = $('#tb_DesTurCet').DataTable({
-        "bSort": false,
+        // "bSort": false,
         "responsive": true,
         "autoWidth": true,
         pagingType: 'input',
@@ -76,7 +76,15 @@ function loadDataCount() {
         type: "get",
         dataType: "json",
         success: function (response) {
-            $("#countData").html(response);
+            $("#countData").prop('Counter',0).animate({
+                Counter: response
+            }, {
+                duration: 1000,
+                easing: 'swing',
+                step: function (now) {
+                    $(this).text(Math.ceil(now));
+                }
+            });
         },
     });
 }

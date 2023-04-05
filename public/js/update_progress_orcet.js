@@ -98,7 +98,15 @@ $(function(){
 });
 function loadCountData() {
     $.get(window.location.origin + "/penerbitan/order-cetak?count_data=true", function (data) {
-        $("#countData").html(data);
+        $("#countData").prop('Counter',0).animate({
+            Counter: data
+        }, {
+            duration: 1000,
+            easing: 'swing',
+            step: function (now) {
+                $(this).text(Math.ceil(now));
+            }
+        });
     });
 }
 $(document).ready(function () {

@@ -1,10 +1,29 @@
+function loadData() {
+    $.ajax({
+        url: window.location.origin + "/penerbitan/naskah?request_=getCountNaskah",
+        type: "GET",
+        dataType: "JSON",
+        success: function(data) {
+            // console.log(data);
+            $("#totalNaskah").prop('Counter',0).animate({
+                Counter: data
+            }, {
+                duration: 4000,
+                easing: 'swing',
+                step: function (now) {
+                    $(this).text(Math.ceil(now));
+                }
+            });
+        },
+    });
+}
 $(function() {
     $(".select-filter-jb").val("").trigger("change");
     $(".select-filter").val("").trigger("change");
     let tableNaskah = $('#tb_Naskah').DataTable({
-        // bSort: true,
-        responsive: true,
-        autoWidth: true,
+        // "bSort": false,
+        "responsive": true,
+        "autoWidth": true,
         pagingType: 'input',
         processing: true,
         serverSide: false,
@@ -82,54 +101,6 @@ $(function() {
             .search(val ? val : '', true, false)
             .draw();
     });
-});
-function loadData() {
-    $.ajax({
-        url: window.location.origin + "/penerbitan/naskah?request_=getCountNaskah",
-        type: "GET",
-        dataType: "JSON",
-        success: function(data) {
-            // console.log(data);
-            $("#totalNaskah").html(data);
-        },
-    });
-}
-$(document).ready(function() {
-    $(".select-filter-jb")
-        .select2({
-            placeholder: "Filter Jalur Buku",
-        })
-        .on("change", function(e) {
-            if (this.value) {
-                $(".clear_field_jb").removeAttr("hidden");
-                // $(this).valid();
-            }
-        });
-});
-$(document).ready(function() {
-    $(".clear_field_jb").click(function() {
-        $(".select-filter-jb").val("").trigger("change");
-        $(".clear_field_jb").attr("hidden", "hidden");
-    });
-});
-$(document).ready(function() {
-    $(".select-filter").select2({
-        placeholder: 'Filter Data Lengkap/Belum\xa0\xa0',
-    }).on('change', function(e) {
-        if (this.value) {
-            $('.clear_field').removeAttr('hidden');
-            // $(this).valid();
-        }
-    });
-});
-$(document).ready(function() {
-    $('.clear_field').click(function() {
-        $(".select-filter").val('').trigger('change');
-        $('.clear_field').attr('hidden', 'hidden');
-    });
-});
-//! Open history
-$(function () {
     $("#tb_Naskah").on("click", ".btn-history", function (e) {
         var id = $(this).data("id");
         var judul = $(this).data("judulasli");
@@ -191,73 +162,108 @@ $(function () {
         $('.load-more').data("paginate", 2);
         $(".load-more").attr("disabled", false);
     });
-});
-//! Tandai naskah lengkap
-function ajaxTandaDataLengkap(data) {
-    let id = data.data("id");
-    let judul_asli = data.data("judul");
-    let kode = data.data("kode");
-    $.ajax({
-        type: "POST",
-        url: window.location.origin + "/penerbitan/naskah/tandai-data-lengkap",
-        data: {
-            id: id,
-            judul_asli: judul_asli,
-            kode: kode,
-        },
-        beforeSend: function () {
-            $("#sectionDataNaskah").parent().addClass("card-progress");
-        },
-        success: function (result) {
-            if (result.status == "success") {
-                notifToast(result.status, result.message);
-                location.reload();
-            } else {
-                notifToast(result.status, result.message);
-            }
-            // $('#modalDecline').modal('hide');
-            // ajax.reload();
-            // location.href = result.redirect;
-        },
-        error: function (err) {
-            // console.log(err.responseJSON)
-            rs = err.responseJSON.errors;
-            if (rs != undefined) {
-                err = {};
-                Object.entries(rs).forEach((entry) => {
-                    let [key, value] = entry;
-                    err[key] = value;
-                });
-                addForm.showErrors(err);
-            }
-            notifToast("error", "Terjadi kesalahan!");
-        },
-        complete: function () {
-            $("#sectionDataNaskah").parent().removeClass("card-progress");
-        },
+    $(document).ready(function() {
+        $(".select-filter-jb")
+            .select2({
+                placeholder: "Filter Jalur Buku",
+            })
+            .on("change", function(e) {
+                if (this.value) {
+                    $(".clear_field_jb").removeAttr("hidden");
+                    // $(this).valid();
+                }
+            });
     });
-}
-$(document).on("click", ".mark-sent-email", function (e) {
-    e.preventDefault();
-    let judul_asli = $(this).data("judul");
-    let kode = $(this).data("kode");
-    swal({
-        title:
-            "Apakah anda yakin data " +
-            kode +
-            "_" +
-            judul_asli +
-            " sudah lengkap?",
-        text: "Data naskah dan data penulis harus sudah lengkap..",
-        type: "warning",
-        html: true,
-        icon: "warning",
-        buttons: true,
-        dangerMode: true,
-    }).then((confirm_) => {
-        if (confirm_) {
-            // window.location.href = getLink
-            ajaxTandaDataLengkap($(this));
-        }
+    $(document).ready(function() {
+        $(".clear_field_jb").click(function() {
+            $(".select-filter-jb").val("").trigger("change");
+            $(".clear_field_jb").attr("hidden", "hidden");
+        });
+    });
+    $(document).ready(function() {
+        $(".select-filter").select2({
+            placeholder: 'Filter Data Lengkap/Belum\xa0\xa0',
+        }).on('change', function(e) {
+            if (this.value) {
+                $('.clear_field').removeAttr('hidden');
+                // $(this).valid();
+            }
+        });
+    });
+    $(document).ready(function() {
+        $('.clear_field').click(function() {
+            $(".select-filter").val('').trigger('change');
+            $('.clear_field').attr('hidden', 'hidden');
+        });
+    });
+    //! Tandai naskah lengkap
+    function ajaxTandaDataLengkap(data) {
+        let id = data.data("id");
+        let judul_asli = data.data("judul");
+        let kode = data.data("kode");
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/penerbitan/naskah/tandai-data-lengkap",
+            data: {
+                id: id,
+                judul_asli: judul_asli,
+                kode: kode,
+            },
+            beforeSend: function () {
+                $("#sectionDataNaskah").parent().addClass("card-progress");
+            },
+            success: function (result) {
+                if (result.status == "success") {
+                    notifToast(result.status, result.message);
+                    location.reload();
+                } else {
+                    notifToast(result.status, result.message);
+                }
+                // $('#modalDecline').modal('hide');
+                // ajax.reload();
+                // location.href = result.redirect;
+            },
+            error: function (err) {
+                // console.log(err.responseJSON)
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    addForm.showErrors(err);
+                }
+                notifToast("error", "Terjadi kesalahan!");
+            },
+            complete: function () {
+                $("#sectionDataNaskah").parent().removeClass("card-progress");
+            },
+        });
+    }
+    $(document).on("click", ".mark-sent-email", function (e) {
+        e.preventDefault();
+        let judul_asli = $(this).data("judul");
+        let kode = $(this).data("kode");
+        swal({
+            title:
+                "Apakah anda yakin data " +
+                kode +
+                "_" +
+                judul_asli +
+                " sudah lengkap?",
+            text: "Data naskah dan data penulis harus sudah lengkap..",
+            type: "warning",
+            html: true,
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((confirm_) => {
+            if (confirm_) {
+                // window.location.href = getLink
+                ajaxTandaDataLengkap($(this));
+            }
+        });
     });
 });
+

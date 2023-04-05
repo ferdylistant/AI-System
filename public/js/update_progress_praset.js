@@ -102,7 +102,15 @@ function loadCountData() {
         url: window.location.origin + "/penerbitan/pracetak/setter?count_data=true",
         type: "get",
         success: function (response) {
-            $("#countData").html(response);
+            $("#countData").prop('Counter',0).animate({
+                Counter: response
+            }, {
+                duration: 1000,
+                easing: 'swing',
+                step: function (now) {
+                    $(this).text(Math.ceil(now));
+                }
+            });
         },
     });
 }

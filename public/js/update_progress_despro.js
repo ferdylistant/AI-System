@@ -2,11 +2,9 @@ $(function () {
     $('[name="status_filter"]').val("").trigger("change");
     let tableDesProduk = $("#tb_DesProduk").DataTable({
         // bSort: false,
+        "responsive": true,
         responsive: true,
         autoWidth: true,
-        "order": [
-            [1, "asc"]
-        ],
         pagingType: 'input',
         processing: true,
         serverSide: false,
@@ -62,7 +60,15 @@ function loadDataCount() {
         type: "get",
         dataType: "json",
         success: function (response) {
-            $("#count_despro").html(response);
+            $("#count_despro").prop('Counter',0).animate({
+                Counter: response
+            }, {
+                duration: 1000,
+                easing: 'swing',
+                step: function (now) {
+                    $(this).text(Math.ceil(now));
+                }
+            });
         },
     });
 }

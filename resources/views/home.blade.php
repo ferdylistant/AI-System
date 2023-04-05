@@ -173,166 +173,13 @@
         </div>
         <div class="section-body">
             <div class="row mb-3">
-                @if (Gate::allows('do_update', 'ubah-data-user'))
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card card-statistic-1">
-                            <div class="card-icon bg-primary">
-                                <i class="far fa-user"></i>
-                            </div>
-                            <div class="card-wrap">
-                                <div class="card-header">
-                                    <h4>Total User</h4>
-                                </div>
-                                <div class="card-body">
-                                    {{ $users->count() }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card card-statistic-1">
-                            <div class="card-icon bg-success">
-                                <i class="fas fa-network-wired"></i>
-                            </div>
-                            <div class="card-wrap">
-                                <div class="card-header">
-                                    <h4>Divisi</h4>
-                                </div>
-                                <div class="card-body">
-                                    {{ $divisi->count() }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-                @if (Gate::allows('do_read_raw', 'lihat-penulis'))
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card card-statistic-1">
-                            <div class="card-icon" style="background: #34395e">
-                                <i class="fas fa-pen"></i>
-                            </div>
-                            <div class="card-wrap">
-                                <div class="card-header">
-                                    <h4>Penulis</h4>
-                                </div>
-                                <div class="card-body">
-                                    {{ $penulis->count() }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-                @if (Gate::allows('do_read_raw', 'lihat-imprint'))
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card card-statistic-1">
-                            <div class="card-icon bg-danger">
-                                <i class="fas fa-stamp"></i>
-                            </div>
-                            <div class="card-wrap">
-                                <div class="card-header">
-                                    <h4>Imprint</h4>
-                                </div>
-                                <div class="card-body">
-                                    {{ $imprint->count() }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-                @if (Gate::allows('do_read_raw', 'lihat-naskah'))
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card card-statistic-1">
-                            <div class="card-icon bg-warning">
-                                <i class="far fa-file-alt"></i>
-                            </div>
-                            <div class="card-wrap">
-                                <div class="card-header">
-                                    <h4>Naskah</h4>
-                                </div>
-                                <div class="card-body">
-                                    {{ $naskah->count() }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-                @if (Gate::allows('do_read_raw', 'lihat-order-cetak'))
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card card-statistic-1">
-                            <div class="card-icon bg-info">
-                                <i class="fas fa-print"></i>
-                            </div>
-                            <div class="card-wrap">
-                                <div class="card-header">
-                                    <h4>Order Cetak</h4>
-                                </div>
-                                <div class="card-body">
-                                    {{ $or_ce->count() }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-                @if (Gate::allows('do_read_raw', 'lihat-order-ebook'))
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card card-statistic-1">
-                            <div class="card-icon bg-primary">
-                                <i class="fas fa-atlas"></i>
-                            </div>
-                            <div class="card-wrap">
-                                <div class="card-header">
-                                    <h4>Order E-Book</h4>
-                                </div>
-                                <div class="card-body">
-                                    {{ $or_eb->count() }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-                @if (Gate::allows('do_read_raw', 'lihat-proses-produksi'))
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card card-statistic-1">
-                            <div class="card-icon bg-success">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                            </div>
-                            <div class="card-wrap">
-                                <div class="card-header">
-                                    <h4>Proses Produksi Cetak</h4>
-                                </div>
-                                <div class="card-body">
-                                    {{ $proses_cetak->count() }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-                @if (Gate::allows('do_read_raw', 'lihat-ebook-multimedia'))
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card card-statistic-1">
-                            <div class="card-icon" style="background: #34395e">
-                                <i class="fas fa-globe"></i>
-                            </div>
-                            <div class="card-wrap">
-                                <div class="card-header">
-                                    <h4>Proses Upload E-Book</h4>
-                                </div>
-                                <div class="card-body">
-                                    {{ $upload_ebook->count() }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            </div>
-            <div class="row">
                 <div class="col-12 mb-4">
                     <div class="hero text-white hero-bg-image hero-bg-parallax"
                         style="background-image: url('images/background-home.avif');">
                         <div class="hero-inner">
                             <h2>Selamat datang, {{ $userdata->nama }}!</h2>
                             <p class="lead">You almost arrived, complete the information about your account to complete
-                                registration. {{ $id }}</p>
+                                registration.</p>
                             <div class="mt-4">
                                 <a href="{{ url('manajemen-web/user/' . $userdata->id) }}"
                                     class="btn btn-outline-white btn-lg btn-icon icon-left"><i class="far fa-user"></i>
@@ -365,6 +212,278 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                @if (Gate::allows('do_update', 'ubah-data-user'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-primary">
+                                <i class="far fa-user"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Total User</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $users->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-success">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Divisi</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $divisi->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-penulis'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon" style="background: #34395e">
+                                <i class="fas fa-pen"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Penulis</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $penulis->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-imprint'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-danger">
+                                <i class="fas fa-stamp"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Imprint</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $imprint->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-naskah'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-warning">
+                                <i class="far fa-file-alt"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Naskah</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $naskah->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-deskripsi-produk'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-secondary">
+                                <i class="far fa-file-alt"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Deskripsi Produk</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $desprod->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-deskripsi-final'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-info">
+                                <i class="far fa-file-alt"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Deskripsi Final</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $desfin->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-deskripsi-cover'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-primary">
+                                <i class="far fa-file-alt"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Deskripsi Cover</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $desfin->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-editing'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-success">
+                                <i class="far fa-edit"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Editing</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $editing->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-pracetak-setter'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon" style="background: #34395e">
+                                <i class="far fa-edit"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Pracetak Setter</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $praset->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-pracetak-designer'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-danger">
+                                <i class="far fa-edit"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Pracetak Designer</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $prades->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-deskripsi-turuncetak'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-warning">
+                                <i class="fas fa-print"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Deskripsi Turun Cetak</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $desturcet->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-order-cetak'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-secondary">
+                                <i class="fas fa-print"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Order Cetak</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $or_ce->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-order-ebook'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-info">
+                                <i class="fas fa-atlas"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Order E-Book</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $or_eb->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-proses-produksi'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-success">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Proses Produksi Cetak</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $proses_cetak->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (Gate::allows('do_read_raw', 'lihat-ebook-multimedia'))
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon" style="background: #34395e">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Proses Upload E-Book</h4>
+                                </div>
+                                <div class="card-body counter">
+                                    {{ $upload_ebook->count() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </div>
     </section>
 @endsection
 
@@ -385,6 +504,17 @@
 @section('jsNeeded')
     <script>
         $(document).ready(function() {
+            $('.counter').each(function () {
+                $(this).prop('Counter',0).animate({
+                    Counter: $(this).text()
+                }, {
+                    duration: 3000,
+                    easing: 'swing',
+                    step: function (now) {
+                        $(this).text(Math.ceil(now));
+                    }
+                });
+            });
             $('[name="tb_naskah_tahapan"]').val('').change();
             $(".select2-timeline")
                 .select2({
