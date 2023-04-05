@@ -3,12 +3,13 @@ $(function () {
         bSort: true,
         responsive: true,
         autoWidth: true,
+        pagingType: "input",
         processing: true,
-        serverSide: true,
+        serverSide: false,
         language: {
-            searchPlaceholder: "Search...",
+            searchPlaceholder: "Cari...",
             sSearch: "",
-            lengthMenu: "_MENU_ items/page",
+            lengthMenu: "_MENU_ /halaman",
         },
         ajax: {
             url: window.location.origin + "/penerbitan/penulis",
@@ -51,7 +52,7 @@ $(function () {
             },
         ],
     });
-
+    loadCountData();
     // History Penulis Start
     tablePenulis.on("click", ".btn-history", function (e) {
         e.preventDefault();
@@ -133,7 +134,9 @@ $(function () {
                     notifToast(result.status, result.message);
                     tablePenulis.ajax.reload();
                 },
-                error: function (err) {},
+                error: function (err) {
+                    notifToast("error", "Terjadi kesalahan");
+                },
                 complete: function () {
                     $(".btn_DelPenulis")
                         .prop("disabled", true)
@@ -161,3 +164,15 @@ $(function () {
     });
     //Delete Penulis End
 });
+function loadCountData() {
+    $.ajax({
+        url: window.location.origin + "/penerbitan/penulis",
+        data: {
+            request_: "count-data",
+        },
+        type: "get",
+        success: function (response) {
+            $("#countData").html(response);
+        },
+    });
+}

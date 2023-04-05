@@ -15,61 +15,69 @@ class PenulisController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            if ($request->input('request_') === 'table-penulis') {
-                $data = DB::table('penerbitan_penulis')
-                    ->whereNull('deleted_at')
-                    ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp')
-                    ->get();
-                $data = collect($data)->map(function ($val) {
-                    $val->email = is_null($val->email) ? '-' : $val->email;
-                    $val->ponsel_domisili = is_null($val->ponsel_domisili) ? '-' : $val->ponsel_domisili;
-                    $val->ktp = is_null($val->ktp) ? '-' : $val->ktp;
-                    return $val;
-                });
+            $data = DB::table('penerbitan_penulis')
+                ->whereNull('deleted_at')
+                ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp')
+                ->get();
+            switch ($request->input('request_')) {
+                case 'table-penulis':
+                    $data = collect($data)->map(function ($val) {
+                        $val->email = is_null($val->email) ? '-' : $val->email;
+                        $val->ponsel_domisili = is_null($val->ponsel_domisili) ? '-' : $val->ponsel_domisili;
+                        $val->ktp = is_null($val->ktp) ? '-' : $val->ktp;
+                        return $val;
+                    });
 
-                $update = Gate::allows('do_update', 'ubah-data-penulis');
-                $delete = Gate::allows('do_delete', 'hapus-data-penulis');
-                return Datatables::of($data)
-                    ->addColumn('history', function ($data) {
-                        $historyData = DB::table('penerbitan_penulis_history')
-                            ->where('penerbitan_penulis_id', $data->id)
-                            ->get();
-                        if ($historyData->isEmpty()) {
-                            return '-';
-                        } else {
-                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-nama="' . $data->nama . '"><i class="fas fa-history"></i>&nbsp;History</button>';
-                            return $date;
-                        }
-                    })
-                    ->addColumn('action', function ($data) use ($update, $delete) {
-                        $btn =
-                            '<a href="' .
-                            url('penerbitan/penulis/detail-penulis/' . $data->id) .
-                            '"
-                                    class="d-block btn btn-sm btn-primary btn-icon mr-1">
-                                    <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                        if ($update) {
-                            $btn .=
+                    $update = Gate::allows('do_update', 'ubah-data-penulis');
+                    $delete = Gate::allows('do_delete', 'hapus-data-penulis');
+                    return Datatables::of($data)
+                        ->addColumn('history', function ($data) {
+                            $historyData = DB::table('penerbitan_penulis_history')
+                                ->where('penerbitan_penulis_id', $data->id)
+                                ->get();
+                            if ($historyData->isEmpty()) {
+                                return '-';
+                            } else {
+                                $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-nama="' . $data->nama . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                                return $date;
+                            }
+                        })
+                        ->addColumn('action', function ($data) use ($update, $delete) {
+                            $btn =
                                 '<a href="' .
-                                url('penerbitan/penulis/mengubah-penulis/' . $data->id) .
+                                url('penerbitan/penulis/detail-penulis/' . $data->id) .
                                 '"
-                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1">
-                                    <div><i class="fas fa-edit"></i></div></a>';
-                        }
-                        if ($delete) {
-                            $btn .=
-                                '<a href="#" class="d-block btn btn-sm btn_DelPenulis btn-danger btn-icon mr-1 mt-1"
-                                    data-id ="' .
-                                $data->id .
-                                '" data-nama="' .
-                                $data->nama .
-                                '">
-                                    <div><i class="fas fa-trash-alt"></i></div></a>';
-                        }
-                        return $btn;
-                    })
-                    ->rawColumns(['history', 'action'])
-                    ->make(true);
+                                        class="d-block btn btn-sm btn-primary btn-icon mr-1">
+                                        <div><i class="fas fa-envelope-open-text"></i></div></a>';
+                            if ($update) {
+                                $btn .=
+                                    '<a href="' .
+                                    url('penerbitan/penulis/mengubah-penulis/' . $data->id) .
+                                    '"
+                                        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1">
+                                        <div><i class="fas fa-edit"></i></div></a>';
+                            }
+                            if ($delete) {
+                                $btn .=
+                                    '<a href="#" class="d-block btn btn-sm btn_DelPenulis btn-danger btn-icon mr-1 mt-1"
+                                        data-id ="' .
+                                    $data->id .
+                                    '" data-nama="' .
+                                    $data->nama .
+                                    '">
+                                        <div><i class="fas fa-trash-alt"></i></div></a>';
+                            }
+                            return $btn;
+                        })
+                        ->rawColumns(['history', 'action'])
+                        ->make(true);
+                    break;
+                case 'count-data':
+                    return $data->count();
+                    break;
+                default:
+                    return $data;
+                    break;
             }
         }
         return view('penerbitan.penulis.index', [
@@ -522,62 +530,6 @@ class PenulisController extends Controller
                                 $d->nama_new .
                                 '</b> ditambahkan. </span></div>';
                         }
-                        // if (!is_null($d->tanggal_lahir_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Tanggal lahir pada <b class="text-dark">' . $d->tanggal_lahir_new . '</b>';
-                        // }
-                        // if (!is_null($d->tempat_lahir_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Tempat lahir di <b class="text-dark">' . $d->tempat_lahir_new . '</b>';
-                        // }
-                        // if (!is_null($d->kewarganegaraan_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Kewarganegaraan <b class="text-dark">' . $d->kewarganegaraan_new . '</b>';
-                        // }
-                        // if (!is_null($d->alamat_domisili_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Alamat domisili di <b class="text-dark">' . $d->alamat_domisili_new . '</b>';
-                        // }
-                        // if (!is_null($d->ponsel_domisili_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Nomor ponsel <b class="text-dark">' . $d->ponsel_domisili_new . '</b>';
-                        // }
-                        // if (!is_null($d->telepon_domisili_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Nomor telpon <b class="text-dark">' . $d->telepon_domisili_new . '</b>';
-                        // }
-                        // if (!is_null($d->email_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Alamat e-mail <b class="text-dark">' . $d->email_new . '</b>';
-                        // }
-                        // if (!is_null($d->sosmed_fb_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Akun facebook <b class="text-dark">' . $d->sosmed_fb_new . '</b>';
-                        // }
-                        // if (!is_null($d->sosmed_ig_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Akun instagram <b class="text-dark">' . $d->sosmed_ig_new . '</b>';
-                        // }
-                        // if (!is_null($d->sosmed_tw_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Akun twitter <b class="text-dark">' . $d->sosmed_tw_new . '</b>';
-                        // }
-                        // if (!is_null($d->nama_kantor_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Nama kantor <b class="text-dark">' . $d->nama_kantor_new . '</b>';
-                        // }
-                        // if (!is_null($d->jabatan_dikantor_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Jabatan dikantor <b class="text-dark">' . $d->jabatan_dikantor_new . '</b>';
-                        // }
-                        // if (!is_null($d->alamat_kantor_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Alamat kantor <b class="text-dark">' . $d->alamat_kantor_new . '</b>';
-                        // }
-                        // if (!is_null($d->telepon_kantor_new)) {
-                        //     $html .= '<div class="ticket-title">
-                        //             <span><span class="bullet"></span> Nomor telpon kantor <b class="text-dark">' . $d->telepon_kantor_new . '</b>';
-                        // }
                         $html .=
                             '<div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' .
