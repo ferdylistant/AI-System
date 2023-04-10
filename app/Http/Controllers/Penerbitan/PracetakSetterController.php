@@ -42,133 +42,133 @@ class PracetakSetterController extends Controller
                 return $data->count();
             } else {
                 return DataTables::of($data)
-                // ->addIndexColumn()
-                ->addColumn('kode', function ($data) {
-                    $tandaProses = '';
-                    $dataKode = $data->kode;
-                    if ($data->status == 'Proses') {
-                        if ($data->proses_saat_ini == 'Siap Turcet') {
-                            $dataKode = '<span class="text-primary">' . $data->kode . '</span>';
-                            $tandaProses = '<span class="beep-primary d-table"></span>';
+                    // ->addIndexColumn()
+                    ->addColumn('kode', function ($data) {
+                        $tandaProses = '';
+                        $dataKode = $data->kode;
+                        if ($data->status == 'Proses') {
+                            if ($data->proses_saat_ini == 'Siap Turcet') {
+                                $dataKode = '<span class="text-primary">' . $data->kode . '</span>';
+                                $tandaProses = '<span class="beep-primary d-table"></span>';
+                            } else {
+                                $dataKode = $data->proses == '1'  ? '<span class="text-success">' . $data->kode . '</span>' : '<span class="text-danger">' . $data->kode . '</span>';
+                                $tandaProses = $data->proses == '1' ? '<span class="beep-success d-table"></span>' : '<span class="beep-danger d-table"></span>';
+                            }
+                        }
+                        return $dataKode . $tandaProses;
+                    })
+                    ->addColumn('judul_final', function ($data) {
+                        if (is_null($data->judul_final)) {
+                            $res = '-';
                         } else {
-                            $dataKode = $data->proses == '1'  ? '<span class="text-success">' . $data->kode . '</span>' : '<span class="text-danger">' . $data->kode . '</span>';
-                            $tandaProses = $data->proses == '1' ? '<span class="beep-success d-table"></span>' : '<span class="beep-danger d-table"></span>';
+                            $res = $data->judul_final;
                         }
-                    }
-                    return $dataKode . $tandaProses;
-                })
-                ->addColumn('judul_final', function ($data) {
-                    if (is_null($data->judul_final)) {
-                        $res = '-';
-                    } else {
-                        $res = $data->judul_final;
-                    }
-                    return $res;
-                })
-                ->addColumn('penulis', function ($data) {
-                    // return $data->penulis;
-                    $result = '';
-                    $res = DB::table('penerbitan_naskah_penulis as pnp')
-                        ->join('penerbitan_penulis as pp', function ($q) {
-                            $q->on('pnp.penulis_id', '=', 'pp.id')
-                                ->whereNull('pp.deleted_at');
-                        })
-                        ->where('pnp.naskah_id', '=', $data->naskah_id)
-                        ->select('pp.nama')
-                        // ->pluck('pp.nama');
-                        ->get();
-                    foreach ($res as $q) {
-                        $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
-                    }
-                    return $result;
-                    //  $res;
-                })
-                ->addColumn('nama_pena', function ($data) {
-                    $result = '';
-                    if (is_null($data->nama_pena)) {
-                        $result .= "-";
-                    } else {
-                        foreach (json_decode($data->nama_pena) as $q) {
-                            $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
+                        return $res;
+                    })
+                    ->addColumn('penulis', function ($data) {
+                        // return $data->penulis;
+                        $result = '';
+                        $res = DB::table('penerbitan_naskah_penulis as pnp')
+                            ->join('penerbitan_penulis as pp', function ($q) {
+                                $q->on('pnp.penulis_id', '=', 'pp.id')
+                                    ->whereNull('pp.deleted_at');
+                            })
+                            ->where('pnp.naskah_id', '=', $data->naskah_id)
+                            ->select('pp.nama')
+                            // ->pluck('pp.nama');
+                            ->get();
+                        foreach ($res as $q) {
+                            $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
                         }
-                    }
-                    return $result;
-                })
-                ->addColumn('jalur_buku', function ($data) {
-                    if (!is_null($data->jalur_buku)) {
-                        $res = $data->jalur_buku;
-                    } else {
-                        $res = '-';
-                    }
-                    return $res;
-                })
-                ->addColumn('tgl_masuk_pracetak', function ($data) {
-                    return Carbon::parse($data->tgl_masuk_pracetak)->translatedFormat('l d M Y H:i');
-                })
-                ->addColumn('pic_prodev', function ($data) {
-                    $result = '';
-                    $res = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')
-                        ->select('nama')
-                        ->get();
-                    foreach (json_decode($res) as $q) {
-                        $result .= $q->nama;
-                    }
-                    return $result;
-                })
-                ->addColumn('proses_saat_ini', function ($data) {
-                    if (!is_null($data->proses_saat_ini)) {
-                        $res = '<span class="badge badge-light">' . $data->proses_saat_ini . '</span>';
-                    } else {
-                        $res = '<span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada proses</span>';
-                    }
-                    return $res;
-                })
-                ->addColumn('history', function ($data) {
-                    $historyData = DB::table('pracetak_setter_history')->where('pracetak_setter_id', $data->id)->get();
-                    if ($historyData->isEmpty()) {
-                        return '-';
-                    } else {
-                        $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-history"></i>&nbsp;History</button>';
-                        return $date;
-                    }
-                })
-                ->addColumn('action', function ($data) {
-                    $btn = '<a href="' . url('penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode) . '"
+                        return $result;
+                        //  $res;
+                    })
+                    ->addColumn('nama_pena', function ($data) {
+                        $result = '';
+                        if (is_null($data->nama_pena)) {
+                            $result .= "-";
+                        } else {
+                            foreach (json_decode($data->nama_pena) as $q) {
+                                $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
+                            }
+                        }
+                        return $result;
+                    })
+                    ->addColumn('jalur_buku', function ($data) {
+                        if (!is_null($data->jalur_buku)) {
+                            $res = $data->jalur_buku;
+                        } else {
+                            $res = '-';
+                        }
+                        return $res;
+                    })
+                    ->addColumn('tgl_masuk_pracetak', function ($data) {
+                        return Carbon::parse($data->tgl_masuk_pracetak)->translatedFormat('l d M Y H:i');
+                    })
+                    ->addColumn('pic_prodev', function ($data) {
+                        $result = '';
+                        $res = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')
+                            ->select('nama')
+                            ->get();
+                        foreach (json_decode($res) as $q) {
+                            $result .= $q->nama;
+                        }
+                        return $result;
+                    })
+                    ->addColumn('proses_saat_ini', function ($data) {
+                        if (!is_null($data->proses_saat_ini)) {
+                            $res = '<span class="badge badge-light">' . $data->proses_saat_ini . '</span>';
+                        } else {
+                            $res = '<span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Belum ada proses</span>';
+                        }
+                        return $res;
+                    })
+                    ->addColumn('history', function ($data) {
+                        $historyData = DB::table('pracetak_setter_history')->where('pracetak_setter_id', $data->id)->get();
+                        if ($historyData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                            return $date;
+                        }
+                    })
+                    ->addColumn('action', function ($data) {
+                        $btn = '<a href="' . url('penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                    switch ($data->jalur_buku) {
-                        case 'Reguler':
-                            $jb = 'reguler';
-                            $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                        case 'MoU':
-                            $jb = 'mou';
-                            $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                        case 'SMK/NonSMK':
-                            $jb = 'smk';
-                            $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                        default:
-                            $jb = 'MoU-Reguler';
-                            $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                    }
-                    return $btn;
-                })
-                ->rawColumns([
-                    'kode',
-                    'judul_final',
-                    'penulis',
-                    'nama_pena',
-                    'jalur_buku',
-                    'tgl_masuk_pracetak',
-                    'pic_prodev',
-                    'proses_saat_ini',
-                    'history',
-                    'action'
-                ])
-                ->make(true);
+                        switch ($data->jalur_buku) {
+                            case 'Reguler':
+                                $jb = 'reguler';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                            case 'MoU':
+                                $jb = 'mou';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                            case 'SMK/NonSMK':
+                                $jb = 'smk';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                            default:
+                                $jb = 'MoU-Reguler';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                        }
+                        return $btn;
+                    })
+                    ->rawColumns([
+                        'kode',
+                        'judul_final',
+                        'penulis',
+                        'nama_pena',
+                        'jalur_buku',
+                        'tgl_masuk_pracetak',
+                        'pic_prodev',
+                        'proses_saat_ini',
+                        'history',
+                        'action'
+                    ])
+                    ->make(true);
             }
         }
 
@@ -187,7 +187,869 @@ class PracetakSetterController extends Controller
     public function editSetter(Request $request)
     {
         if ($request->ajax()) {
-            if ($request->isMethod('POST')) {
+            if ($request->isMethod('GET')) {
+                $id = $request->get('setter');
+                $kodenaskah = $request->get('kode');
+                $data = DB::table('pracetak_setter as ps')
+                    ->join('deskripsi_final as df', 'ps.deskripsi_final_id', '=', 'df.id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->join('deskripsi_cover as dc', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                    ->join('pracetak_cover as pc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                        $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                            ->whereNull('kb.deleted_at');
+                    })
+                    ->where('ps.id', $id)
+                    ->where('pn.kode', $kodenaskah)
+                    ->select(
+                        'ps.*',
+                        'df.sub_judul_final',
+                        'df.bullet',
+                        'df.sinopsis',
+                        'df.kertas_isi',
+                        'df.isi_warna',
+                        'df.isi_huruf',
+                        'df.ukuran_asli',
+                        'dp.naskah_id',
+                        'dp.judul_final',
+                        'dp.nama_pena',
+                        'dp.imprint',
+                        'dp.format_buku',
+                        'dp.jml_hal_perkiraan',
+                        'pn.kode',
+                        'pn.jalur_buku',
+                        'pn.pic_prodev',
+                        'kb.nama',
+                        'pc.id as id_pracov'
+                    )
+                    ->first();
+                if (is_null($data)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data tidak ditemukan'
+                    ]);
+                }
+                $useData = $data;
+
+                $data = collect($data)->put('penulis',DB::table('penerbitan_naskah_penulis as pnp')
+                ->join('penerbitan_penulis as pp', function ($q) {
+                    $q->on('pnp.penulis_id', '=', 'pp.id')
+                        ->whereNull('pp.deleted_at');
+                })
+                ->where('pnp.naskah_id', '=', $data->naskah_id)
+                ->select('pp.nama')
+                ->get());
+                // return response()->json($useData);
+                $data = (object)collect($data)->map(function ($item, $key) use ($useData) {
+                    switch ($key) {
+                        case 'status':
+                            $html = '';
+                            switch ($item) {
+                                case 'Antrian':
+                                    $html .= '<i class="far fa-circle" style="color:#34395E;"></i>
+                                    Status Progress:
+                                    <span class="badge" style="background:#34395E;color:white">' . $item . '</span>';
+                                    break;
+
+                                case 'Pending':
+                                    $html .= '<i class="far fa-circle text-danger"></i>
+                                    Status Progress:
+                                    <span class="badge badge-danger">' . $item . '</span>';
+                                    break;
+
+                                case 'Proses':
+                                    $html .= '<i class="far fa-circle text-success"></i>
+                                    Status Progress:
+                                    <span class="badge badge-success">' . $item . '</span>';
+                                    break;
+
+                                case 'Selesai':
+                                    $html .= '<i class="far fa-circle text-dark"></i>
+                                    Status Progress:
+                                    <span class="badge badge-light">' . $item . '</span>';
+                                    break;
+
+                                case 'Revisi':
+                                    $html .= '<i class="far fa-circle text-info"></i>
+                                    Status Progress:
+                                    <span class="badge badge-info">' . $item . '</span>';
+                                    break;
+                            }
+                            return $html;
+                            break;
+                        case 'proses_saat_ini':
+                            $htmlHeader = '';
+                            $htmlHeader .= '<i class="fas fa-exclamation-circle"></i>&nbsp;Proses Saat Ini:';
+                            switch ($item) {
+                                case 'Antrian Koreksi':
+                                    $htmlHeader .= '<span class="text-dark"> Antri Koreksi</span>';
+                                    break;
+
+                                case 'Antrian Setting':
+                                    $htmlHeader .= '<span class="text-dark"> Antrian Setting</span>';
+                                    break;
+
+                                case 'Setting':
+                                    $htmlHeader .= '<span class="text-dark" class="text-dark"> Setting</span>';
+                                    break;
+
+                                case 'Proof Prodev':
+                                    $htmlHeader .= '<span class="text-dark"> Proof Prodev</span>';
+                                    break;
+
+                                case 'Koreksi':
+                                    $htmlHeader .= '<span class="text-dark"> Koreksi</span>';
+                                    break;
+
+                                case 'Siap Turcet':
+                                    $htmlHeader .= '<span class="text-dark"> Siap Turcet</span>';
+                                    break;
+
+                                case 'Turun Cetak':
+                                    $htmlHeader .= '<span class="text-dark"> Turun Cetak</span>';
+                                    break;
+
+                                case 'Upload E-Book':
+                                    $htmlHeader .= '<span class="text-dark"> Upload E-Book</span>';
+                                    break;
+
+                                case 'Setting Revisi':
+                                    $htmlHeader .= '<span class="text-dark"> Setting Revisi</span>';
+                                    break;
+
+                                default:
+                                    $htmlHeader .= '<span class="text-danger"> Belum ada proses</span>';
+                                    break;
+                            }
+                            if ($item == 'Revisi') {
+                                $htmlHeader .= '<br>
+                                <button type="button" class="btn btn-warning" id="done-revision"
+                                    data-id="' . $useData->id . '" data-judul="' . $useData->judul_final . '"
+                                    data-kode="' . $useData->kode . '">
+                                    <i class="fas fa-check"></i>&nbsp;Selesai Revisi
+                                </button>';
+                            }
+                            //!FORM
+                            $html = '';
+                            $htmlHidden = '';
+                            $idCol = "";
+                            $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_setter WHERE Field = 'proses_saat_ini'"))[0]->Type;
+                            preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+                            $prosesSaatIni = explode("','", $matches[1]);
+                            $prosesFilter = Arr::except($prosesSaatIni, ['1', '4', '7']);
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                if (is_null($item)) {
+                                    $textAlign = 'text-left';
+                                    $html .= '<div class="input-group">
+                                    <select name="proses_saat_ini" class="form-control select-proses" required>
+                                        <option label="Pilih proses saat ini"></option>';
+                                    foreach ($prosesFilter as $k) {
+                                        $html .= '<option value="'.$k.'">'.$k.'&nbsp;&nbsp;</option>';
+                                    }
+                                    $html .='</select>
+                                </div>';
+                                } else {
+                                    $idCol = "prosCol";
+                                    $textAlign = 'text-right';
+                                    $html .= $item.'
+                                    <p class="text-small">
+                                        <a href="javascript:void(0)" id="prosButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                    </p>';
+                                $htmlHidden .='<div class="input-group">
+                                <select name="proses_saat_ini" class="form-control select-proses" required>
+                                    <option label="Pilih proses saat ini"></option>';
+                                    foreach ($prosesFilter as $k) {
+                                        $sel = $item==$k ? 'Selected' : '';
+                                        $htmlHidden .= '<option value="'.$k.'" '.$sel.'>'.$k.'&nbsp;&nbsp;</option>';
+                                    }
+                                $htmlHidden .= '</select>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger batal_edit_proses text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>';
+                                }
+                            } else {
+                                $textAlign = 'text-right';
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $html .= $item;
+                                }
+                            }
+                            return ['htmlHeader'=>$htmlHeader,'data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            break;
+                        case 'penulis':
+                            $html = '';
+                            if (is_null($item)) {
+                                $html .= '-';
+                            } else {
+                                foreach ($item as $value) {
+                                    $html .= '<span class="bullet"></span>'.$value->nama . '<br>';
+                                }
+                            }
+                            return $html;
+                            break;
+                        case 'nama_pena':
+                            $html = '';
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                if (is_null($item)) {
+                                    $html = '-';
+                                } else {
+                                    foreach ($item as $value) {
+                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
+                                    }
+                                }
+                            } else {
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $html = 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    foreach ($item as $value) {
+                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
+                                    }
+                                }
+                            }
+                            return ['data' => $html,'textColor' => $text];
+                            break;
+                        case 'imprint':
+                            $res = DB::table('imprint')->whereNull('deleted_at')->first()->nama;
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                $return = is_null($item) ? '-' : $res;
+                            } else {
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $return = 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $return = $res;
+                                }
+                            }
+                            return ['data' => $return,'textColor' => $text];
+                            break;
+                        case 'format_buku':
+                            $res = DB::table('format_buku')->whereNull('deleted_at')->first()->jenis_format;
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                $return = is_null($item) ? '-' : $res.' cm';
+                            } else {
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $return = 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $return = $res.' cm';
+                                }
+                            }
+                            return ['data' => $return,'textColor' => $text];
+                            break;
+                        case 'bullet':
+                            $html = '';
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                if ((is_null($item)) || ($item == '[]')) {
+                                    $html .= '-';
+                                } else {
+                                    foreach ($item as $value) {
+                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
+                                    }
+                                }
+                            } else {
+                                $text = 'text-danger';
+                                if ((is_null($item)) || ($item == '[]')) {
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    foreach ($item as $value) {
+                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
+                                    }
+                                }
+                            }
+                            return ['data' => $html,'textColor' => $text];
+                            break;
+                        case 'jml_hal_final':
+                            $html = '';
+                            $htmlHidden = '';
+                            $idCol = "";
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                if (is_null($item)) {
+                                    $textAlign = 'text-left';
+                                    $html .= '<input type="number" name="jml_hal_final" class="form-control" min="1" required>';
+                                } else {
+                                    $idCol = "jmlHalCol";
+                                    $textAlign = 'text-right';
+                                    $html .= $item.'
+                                    <p class="text-small">
+                                        <a href="javascript:void(0)" id="jmlHalButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                    </p>';
+                                $htmlHidden .='<div class="input-group">
+                                        <input type="number" name="jml_hal_final" value="'.$item.'" class="form-control" min="1" required>
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-danger batal_edit_jml text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                        </div>
+                                    </div>';
+                                }
+                            } else {
+                                $textAlign = 'text-right';
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $html .= $item;
+                                }
+                            }
+                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            break;
+                        case 'catatan':
+                            $html = '';
+                            $htmlHidden = '';
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                if (is_null($item)) {
+                                    $idCol = "catCol";
+                                    $textAlign = 'text-left';
+                                    $html .= '<a href="javascript:void(0)" id="catButton"><i class="fa fa-plus"></i>&nbsp;Tambahkan</a>';
+                                    $htmlHidden .= '<div class="input-group">
+                                    <textarea name="catatan" class="form-control" cols="30" rows="10"></textarea>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-danger batal_edit_cat text-danger" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>';
+                                } else {
+                                    $idCol = "catCol";
+                                    $textAlign = 'text-right';
+                                    $html .= $item.'
+                                    <p class="text-small">
+                                        <a href="javascript:void(0)" id="jmlHalButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                    </p>';
+                                $htmlHidden .='<div class="input-group">
+                                <textarea name="catatan" class="form-control" cols="30" rows="10">'.$item.'</textarea>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger batal_edit_cat text-danger" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                </div>
+                                </div>';
+                                }
+                            } else {
+                                $textAlign = 'text-right';
+                                $idCol = "";
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $html .= $item;
+                                }
+                            }
+                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            break;
+                        case 'setter':
+                            $html = '';
+                            $htmlHidden = '';
+                            $idCol = "";
+                            $setter = DB::table('users as u')
+                            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+                            ->where('j.nama', 'LIKE', '%Setter%')
+                            ->where('d.nama', 'LIKE', '%Penerbitan%')
+                            ->select('u.nama', 'u.id')
+                            ->orderBy('u.nama', 'Asc')
+                            ->get();
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                if ((is_null($item)) || ($item == '[null]')) {
+
+                                    $textAlign = 'text-left';
+                                    $html .= '<select name="setter[]" class="form-control select-setter" multiple="multiple" required>
+                                    <option label="Pilih setter"></option>';
+                                    foreach ($setter as $i => $edList) {
+                                    $html .='<option value="'. $edList->id .'">
+                                        '. $edList->nama .'&nbsp;&nbsp;
+                                    </option>';
+                                    }
+                                    $html .='</select>';
+                                } else {
+                                    $idCol = "setterCol";
+                                    $textAlign = 'text-right';
+                                    if ((!is_null($item)) && ($item != '[null]')) {
+                                        foreach (json_decode($item) as $e) {
+                                            $namaSetter[] = DB::table('users')->where('id', $e)->first()->nama;
+                                        }
+                                        $korektor = DB::table('users as u')
+                                            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                                            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+                                            ->where('j.nama', 'LIKE', '%Setter%')
+                                            ->where('d.nama', 'LIKE', '%Penerbitan%')
+                                            ->whereNotIn('u.id', json_decode($item))
+                                            ->orWhere('j.nama', 'LIKE', '%Korektor%')
+                                            ->select('u.nama', 'u.id')
+                                            ->orderBy('u.nama', 'Asc')
+                                            ->get();
+                                    } else {
+                                        $namaSetter = null;
+                                        $korektor = null;
+                                    }
+                                    foreach ($namaSetter as $key => $aj) {
+                                    $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                    }
+                                    $html .= '<p class="text-small">
+                                        <a href="javascript:void(0)" id="setterButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
+                                    </p>';
+                                $htmlHidden .='<div class="input-group">
+                                <select name="setter[]" class="form-control select-setter" multiple="multiple">
+                                    <option label="Pilih setter"></option>';
+                                    foreach ($setter as $i => $edList) {
+                                    $sel = '';
+                                    if (in_array($edList->nama, $namaSetter)) {
+                                        $sel = ' selected="selected" ';
+                                    }
+                                    $htmlHidden .='<option value="'. $edList->id .'" '. $sel .'>
+                                        '. $edList->nama .'&nbsp;&nbsp;
+                                    </option>';
+                                    }
+                                $htmlHidden .='</select>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger batal_edit_setter text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>';
+                                }
+                            } else {
+                                $textAlign = 'text-right';
+                                if ((is_null($item)) || ($item == '[null]')) {
+                                    $text = 'text-danger';
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    foreach (json_decode($item) as $e) {
+                                        $namaSetter[] = DB::table('users')->where('id', $e)->first()->nama;
+                                    }
+                                    foreach ($namaSetter as $key => $aj) {
+                                        $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                    }
+                                }
+                            }
+                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            break;
+                        case 'korektor':
+                            $html = '';
+                            $htmlHidden = '';
+                            $idCol = "";
+                            $setter = DB::table('users as u')
+                            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+                            ->where('j.nama', 'LIKE', '%Setter%')
+                            ->where('d.nama', 'LIKE', '%Penerbitan%')
+                            ->select('u.nama', 'u.id')
+                            ->orderBy('u.nama', 'Asc')
+                            ->get();
+                            if ((!is_null($useData->setter)) && ($useData->setter != '[null]')) {
+                                $korektor = DB::table('users as u')
+                                    ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                                    ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+                                    ->where('j.nama', 'LIKE', '%Setter%')
+                                    ->where('d.nama', 'LIKE', '%Penerbitan%')
+                                    ->whereNotIn('u.id', json_decode($useData->setter))
+                                    ->orWhere('j.nama', 'LIKE', '%Korektor%')
+                                    ->select('u.nama', 'u.id')
+                                    ->orderBy('u.nama', 'Asc')
+                                    ->get();
+                            } else {
+                                $korektor = null;
+                            }
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                if ((is_null($item)) || ($item == '[null]')) {
+                                    $textAlign = 'text-left';
+                                    $dis = '';
+                                    if (is_null($useData->selesai_proof)) {
+                                        $html .='<span class="text-danger"><i class="fas fa-exclamation-circle"></i>
+                                            Belum bisa melanjutkan proses koreksi,
+                                            proses setting belum selesai.</span>';
+                                        $dis = 'disabled';
+                                    }
+                                    $html .='<select name="korektor[]" class="form-control select-korektor" multiple="multiple" '. $dis .' required>
+                                        <option label="Pilih korektor"></option>';
+                                        if (!is_null($korektor)) {
+                                            foreach ($korektor as $cpeList) {
+                                                $html .='<option value="'. $cpeList->id .'">
+                                                '.$cpeList->nama .'&nbsp;&nbsp;
+                                                </option>';
+                                            }
+                                        }
+                                    $html .='</select>';
+                                    foreach ($setter as $i => $edList) {
+                                    $html .='<option value="'. $edList->id .'">
+                                        '. $edList->nama .'&nbsp;&nbsp;
+                                    </option>';
+                                    }
+                                    $html .='</select>';
+                                } else {
+                                    $idCol = "korektorCol";
+                                    $textAlign = 'text-right';
+                                    if ((!is_null($item)) && ($item != '[null]')) {
+                                        foreach (json_decode($item) as $ce) {
+                                            $namakorektor[] = DB::table('users')->where('id', $ce)->first()->nama;
+                                        }
+                                    } else {
+                                        $namakorektor = null;
+                                    }
+                                    foreach ($namakorektor as $key => $aj) {
+                                    $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                    }
+                                    if (is_null($useData->selesai_koreksi)) {
+                                        $html .= '<p class="text-small">
+                                        <a href="javascript:void(0)" id="korektorButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
+                                        </p>';
+                                    }
+                                $htmlHidden .='<div class="input-group">
+                                <select name="korektor[]" class="form-control select-korektor" multiple="multiple">
+                                    <option label="Pilih korektor"></option>';
+                                    foreach ($korektor as $i => $edList) {
+                                    $sel = '';
+                                    if (in_array($edList->nama, $namakorektor)) {
+                                        $sel = ' selected="selected" ';
+                                    }
+                                    $htmlHidden .='<option value="'. $edList->id .'" '. $sel .'>
+                                        '. $edList->nama .'&nbsp;&nbsp;
+                                    </option>';
+                                    }
+                                $htmlHidden .='</select>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger batal_edit_korektor text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                </div>
+                                </div>';
+                                }
+                            } else {
+                                $textAlign = 'text-right';
+                                if ((is_null($item)) || ($item == '[null]')) {
+                                    $text = 'text-danger';
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    foreach (json_decode($item) as $e) {
+                                        $namakorektor[] = DB::table('users')->where('id', $e)->first()->nama;
+                                    }
+                                    foreach ($namakorektor as $key => $aj) {
+                                        $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                    }
+                                }
+                            }
+                            $required ='';
+                            $requiredColor ='';
+                            if (!is_null($useData->selesai_proof)){
+                                $required = '*';
+                                $requiredColor = 'text-danger';
+                            }
+                            return [
+                                'data' => $html,
+                                'textColor' => $text,
+                                'htmlHidden' => $htmlHidden,
+                                'idCol' => $idCol,
+                                'textAlign' => $textAlign,
+                                'required' => $required,
+                                'requiredColor' => $requiredColor
+                            ];
+                            break;
+                        case 'edisi_cetak':
+                            $html = '';
+                            $htmlHidden = '';
+                            $idCol = "";
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                if (is_null($item)) {
+                                    $textAlign = 'text-left';
+                                    $html .= '<input type="text" name="edisi_cetak" class="form-control">';
+                                } else {
+                                    $idCol = "edCetakCol";
+                                    $textAlign = 'text-right';
+                                    $html .= $item.'
+                                    <p class="text-small">
+                                        <a href="javascript:void(0)" id="edCetakButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                    </p>';
+                                $htmlHidden .='<div class="input-group">
+                                    <input type="text" name="edisi_cetak" value="'. $item .'" class="form-control">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-danger batal_edit_edisicetak text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>';
+                                }
+                            } else {
+                                $textAlign = 'text-right';
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $html .= $item;
+                                }
+                            }
+                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            break;
+                        case 'mulai_p_copyright':
+                            $html = '';
+                            $htmlHidden = '';
+                            $idCol = "";
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                if (is_null($item)) {
+                                    $textAlign = 'text-left';
+                                    $html .= '<input name="mulai_p_copyright" class="form-control datepicker-copyright" placeholder="Tanggal mulai proses copyright" readonly>';
+                                } else {
+                                    $idCol = "copyrightCol";
+                                    $textAlign = 'text-right';
+                                    $html .= Carbon::parse($item)->translatedFormat('l d F Y, H:i').'
+                                    <p class="text-small">
+                                        <a href="javascript:void(0)" id="copyrightButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                    </p>';
+                                $htmlHidden .='<div class="input-group">
+                                <input name="mulai_p_copyright" class="form-control datepicker-copyright" placeholder="Tanggal mulai proses copyright" readonly>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger batal_edit_copyright text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>';
+                                }
+                            } else {
+                                $textAlign = 'text-right';
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $html .= Carbon::parse($item)->translatedFormat('l d F Y, H:i');
+                                }
+                            }
+                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            break;
+                        case 'selesai_p_copyright':
+                            $html = '';
+                            $htmlHidden = '';
+                            $idCol = "";
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                if (is_null($item)) {
+                                    $textAlign = 'text-left';
+                                    $html .= '<input name="selesai_p_copyright" class="form-control datepicker-copyright" placeholder="Tanggal selesai proses copyright" readonly>';
+                                } else {
+                                    $idCol = "copyrightSelCol";
+                                    $textAlign = 'text-right';
+                                    $html .= Carbon::parse($item)->translatedFormat('l d F Y, H:i').'
+                                    <p class="text-small">
+                                        <a href="javascript:void(0)" id="copyrightSelButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                    </p>';
+                                $htmlHidden .='<div class="input-group">
+                                <input name="selesai_p_copyright" class="form-control datepicker-copyright" placeholder="Tanggal selesai proses copyright" readonly>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger batal_edit_selesaicopyright text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>';
+                                }
+                            } else {
+                                $textAlign = 'text-right';
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $html .= Carbon::parse($item)->translatedFormat('l d F Y, H:i');
+                                }
+                            }
+                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            break;
+                        case 'isbn':
+                            $html = '';
+                            $htmlHidden = '';
+                            $idCol = "";
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                $hiddenForm = false;
+                                if (is_null($item)) {
+                                    $textAlign = 'text-left';
+                                    $html .= '<div class="input-group">
+                                    <input type="text" name="isbn" class="form-control"  placeholder="000000000000" id="ISBN">
+                                </div>';
+                                } else {
+                                    $idCol = "isbnCol";
+                                    $textAlign = 'text-right';
+                                    $html .= $item.'
+                                    <p class="text-small">
+                                        <a href="javascript:void(0)" id="isbnButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                    </p>';
+                                $htmlHidden .='<div class="input-group">
+                                <input type="text" name="isbn" class="form-control" value="'.$item.'"  placeholder="000000000000" id="ISBN">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger batal_edit_isbn text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>';
+                                }
+                            } else {
+                                $hiddenForm = true;
+                                $textAlign = 'text-right';
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $html .= $item;
+                                }
+                            }
+                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign,'hiddenForm' => $hiddenForm];
+                            break;
+                        case 'pengajuan_harga':
+                            $html = '';
+                            $htmlHidden = '';
+                            $idCol = "";
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                $hiddenForm = false;
+                                if (is_null($item)) {
+
+                                    $textAlign = 'text-left';
+                                    $html .= '<div class="input-group">
+                                    <input type="text" name="pengajuan_harga" class="form-control" placeholder="000000000000" id="HARGA">
+                                </div>';
+                                } else {
+                                    $idCol = "hargaCol";
+                                    $textAlign = 'text-right';
+                                    $html .= $item.'
+                                    <p class="text-small">
+                                        <a href="javascript:void(0)" id="hargaButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                    </p>';
+                                $htmlHidden .='<div class="input-group">
+                                <input type="text" name="pengajuan_harga" class="form-control" value="'. $item .'"  placeholder="000000000000" id="HARGA">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger batal_edit_pengajuan_harga text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>';
+                                }
+                            } else {
+                                $textAlign = 'text-right';
+                                $hiddenForm = true;
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $html .= $item;
+                                }
+                            }
+                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign,'hiddenForm' => $hiddenForm];
+                            break;
+                        case 'bulan':
+                            $html = '';
+                            $htmlHidden = '';
+                            $idCol = "";
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                if (is_null($item)) {
+                                    $idCol = "";
+                                    $textAlign = 'text-left';
+                                    $html .= '<input name="bulan" class="form-control datepicker" placeholder="Bulan proses" readonly required>';
+                                } else {
+                                    $idCol = "bulanCol";
+                                    $textAlign = 'text-right';
+                                    $html .= Carbon::parse($item)->translatedFormat('F Y').'
+                                    <p class="text-small">
+                                        <a href="javascript:void(0)" id="bulanButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                    </p>';
+                                $htmlHidden .='<div class="input-group">
+                                <input name="bulan" class="form-control datepicker" value="'.Carbon::createFromFormat('Y-m-d',$item,'Asia/Jakarta')->format('F Y').'" placeholder="Bulan proses" readonly required>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger batal_edit_bulan text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>';
+                                }
+                            } else {
+                                $textAlign = 'text-right';
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $html .= 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $html .= Carbon::parse($item)->translatedFormat('F Y');
+                                }
+                            }
+                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            break;
+                        case 'proses':
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $label = $item == 1 ? 'Stop' : 'Mulai';
+                                $checked = $item == 1 ? true : false;
+                                $disable = false;
+                                $cursor = 'pointer';
+                                if (!is_null($useData->mulai_proof) && is_null($useData->selesai_proof)) {
+                                    $disable = true;
+                                    $cursor = 'not-allowed';
+                                    $lbl = 'Sedang proses proof prodev';
+                                } elseif (is_null($useData->selesai_setting) && is_null($useData->selesai_koreksi)) {
+                                    $lbl = $label.' proses setting';
+                                } elseif (!is_null($useData->selesai_setting) && is_null($useData->mulai_proof)) {
+                                    $lbl = $label.' proses proof prodev';
+                                } elseif (is_null($useData->selesai_koreksi) && !is_null($useData->selesai_setting)) {
+                                    $lbl = $label.' proses koreksi';
+                                } elseif ((!is_null($useData->selesai_koreksi)) && ($useData->proses_saat_ini == 'Setting Revisi') && ($useData->status == 'Proses')) {
+                                    $lbl = $label.' proses revisi setting';
+                                } else {
+                                    $disable = true;
+                                    $cursor = 'not-allowed';
+                                    $lbl = '-';
+                                }
+                            } else {
+                                $checked = $item == 1 ? true : false;
+                                $disable = true;
+                                $cursor = 'not-allowed';
+                                $lbl = '-';
+                            }
+                            return [
+                                'id' => $useData->id,
+                                'data' => $item,
+                                'checked' => $checked,
+                                'disabled' => $disable,
+                                'cursor' => $cursor,
+                                'label' => $lbl
+                            ];
+                            break;
+                        default:
+                                if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                $text = 'text-dark';
+                                $return = is_null($item) ? '-' : $item;
+                            } else {
+                                if (is_null($item)) {
+                                    $text = 'text-danger';
+                                    $return = 'Belum diinput';
+                                } else {
+                                    $text = 'text-dark';
+                                    $return = $item;
+                                }
+                            }
+                            return ['data' => $return,'textColor' => $text];
+                            break;
+                    }
+                })->all();
+                return $data;
+            } else {
                 try {
                     DB::beginTransaction();
                     $history = DB::table('pracetak_setter as ps')
@@ -195,7 +1057,7 @@ class PracetakSetterController extends Controller
                         ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
                         ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                         ->where('ps.id', $request->id)
-                        ->select('ps.*', 'dp.naskah_id','dp.judul_final','pn.kode')
+                        ->select('ps.*', 'dp.naskah_id', 'dp.judul_final', 'pn.kode')
                         ->first();
                     if ($request->has('korektor')) {
                         foreach ($request->korektor as $ce) {
@@ -324,92 +1186,47 @@ class PracetakSetterController extends Controller
                 }
             }
         }
-        $id = $request->get('setter');
-        $kodenaskah = $request->get('kode');
-        $data = DB::table('pracetak_setter as ps')
-            ->join('deskripsi_final as df', 'ps.deskripsi_final_id', '=', 'df.id')
-            ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
-            ->join('deskripsi_cover as dc', 'dp.id', '=', 'dc.deskripsi_produk_id')
-            ->join('pracetak_cover as pc', 'dc.id', '=', 'pc.deskripsi_cover_id')
-            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                    ->whereNull('kb.deleted_at');
-            })
-            ->where('ps.id', $id)
-            ->where('pn.kode', $kodenaskah)
-            ->select(
-                'ps.*',
-                'df.sub_judul_final',
-                'df.bullet',
-                'df.sinopsis',
-                'df.kertas_isi',
-                'df.isi_warna',
-                'df.isi_huruf',
-                'df.ukuran_asli',
-                'dp.naskah_id',
-                'dp.judul_final',
-                'dp.nama_pena',
-                'dp.imprint',
-                'dp.format_buku',
-                'dp.jml_hal_perkiraan',
-                'pn.kode',
-                'pn.jalur_buku',
-                'pn.pic_prodev',
-                'kb.nama',
-                'pc.id as id_pracov'
-            )
-            ->first();
-        is_null($data) ? abort(404) :
-            $setter = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-            ->where('j.nama', 'LIKE', '%Setter%')
-            ->where('d.nama', 'LIKE', '%Penerbitan%')
-            ->select('u.nama', 'u.id')
-            ->orderBy('u.nama', 'Asc')
-            ->get();
-        if ((!is_null($data->setter)) && ($data->setter != '[null]')) {
-            foreach (json_decode($data->setter) as $e) {
-                $namaSetter[] = DB::table('users')->where('id', $e)->first()->nama;
-            }
-            $korektor = DB::table('users as u')
-                ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-                ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-                ->where('j.nama', 'LIKE', '%Setter%')
-                ->where('d.nama', 'LIKE', '%Penerbitan%')
-                ->whereNotIn('u.id', json_decode($data->setter))
-                ->orWhere('j.nama', 'LIKE', '%Korektor%')
-                ->select('u.nama', 'u.id')
-                ->orderBy('u.nama', 'Asc')
-                ->get();
-        } else {
-            $namaSetter = null;
-            $korektor = null;
-        }
-        if ((!is_null($data->korektor)) && ($data->korektor != '[null]')) {
-            foreach (json_decode($data->korektor) as $ce) {
-                $namakorektor[] = DB::table('users')->where('id', $ce)->first()->nama;
-            }
-        } else {
-            $namakorektor = null;
-        }
-        $penulis = DB::table('penerbitan_naskah_penulis as pnp')
-            ->join('penerbitan_penulis as pp', function ($q) {
-                $q->on('pnp.penulis_id', '=', 'pp.id')
-                    ->whereNull('pp.deleted_at');
-            })
-            ->where('pnp.naskah_id', '=', $data->naskah_id)
-            ->select('pp.nama')
-            ->get();
-        $nama_imprint = '-';
-        if (!is_null($data->imprint)) {
-            $nama_imprint = DB::table('imprint')->where('id', $data->imprint)->whereNull('deleted_at')->first()->nama;
-        }
-        $format_buku = NULL;
-        if (!is_null($data->format_buku)) {
-            $format_buku = DB::table('format_buku')->where('id', $data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
-        }
+        //     $setter = DB::table('users as u')
+        //     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+        //     ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+        //     ->where('j.nama', 'LIKE', '%Setter%')
+        //     ->where('d.nama', 'LIKE', '%Penerbitan%')
+        //     ->select('u.nama', 'u.id')
+        //     ->orderBy('u.nama', 'Asc')
+        //     ->get();
+        // if ((!is_null($data->setter)) && ($data->setter != '[null]')) {
+        //     foreach (json_decode($data->setter) as $e) {
+        //         $namaSetter[] = DB::table('users')->where('id', $e)->first()->nama;
+        //     }
+        //     $korektor = DB::table('users as u')
+        //         ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+        //         ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+        //         ->where('j.nama', 'LIKE', '%Setter%')
+        //         ->where('d.nama', 'LIKE', '%Penerbitan%')
+        //         ->whereNotIn('u.id', json_decode($data->setter))
+        //         ->orWhere('j.nama', 'LIKE', '%Korektor%')
+        //         ->select('u.nama', 'u.id')
+        //         ->orderBy('u.nama', 'Asc')
+        //         ->get();
+        // } else {
+        //     $namaSetter = null;
+        //     $korektor = null;
+        // }
+        // if ((!is_null($data->korektor)) && ($data->korektor != '[null]')) {
+        //     foreach (json_decode($data->korektor) as $ce) {
+        //         $namakorektor[] = DB::table('users')->where('id', $ce)->first()->nama;
+        //     }
+        // } else {
+        //     $namakorektor = null;
+        // }
+        // $nama_imprint = '-';
+        // if (!is_null($data->imprint)) {
+        //     $nama_imprint = DB::table('imprint')->where('id', $data->imprint)->whereNull('deleted_at')->first()->nama;
+        // }
+        // $format_buku = NULL;
+        // if (!is_null($data->format_buku)) {
+        //     $format_buku = DB::table('format_buku')->where('id', $data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
+        // }
         //Status
         $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_setter WHERE Field = 'proses_saat_ini'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
@@ -417,15 +1234,13 @@ class PracetakSetterController extends Controller
         $prosesFilter = Arr::except($prosesSaatIni, ['1', '4', '7']);
         return view('penerbitan.pracetak_setter.edit', [
             'title' => 'Pracetak Setter Proses',
-            'data' => $data,
-            'setter' => $setter,
-            'nama_setter' => $namaSetter,
-            'korektor' => $korektor,
-            'nama_korektor' => $namakorektor,
-            'proses_saat_ini' => $prosesFilter,
-            'penulis' => $penulis,
-            'nama_imprint' => $nama_imprint,
-            'format_buku' => $format_buku,
+            // 'setter' => $setter,
+            // 'nama_setter' => $namaSetter,
+            // 'korektor' => $korektor,
+            // 'nama_korektor' => $namakorektor,
+            // 'proses_saat_ini' => $prosesFilter,
+            // 'nama_imprint' => $nama_imprint,
+            // 'format_buku' => $format_buku,
         ]);
     }
     public function detailSetter(Request $request)
