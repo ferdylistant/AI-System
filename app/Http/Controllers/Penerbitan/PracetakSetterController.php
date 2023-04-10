@@ -673,7 +673,42 @@ class PracetakSetterController extends Controller
                             if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
                             ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
                                 $text = 'text-dark';
-                                if ((is_null($item)) || ($item == '[null]')) {
+                                if ((!is_null($item)) && ($item != '[null]')) {
+                                    $idCol = "korektorCol";
+                                    $textAlign = 'text-right';
+                                    if ((!is_null($item)) && ($item != '[null]')) {
+                                        foreach (json_decode($item) as $ce) {
+                                            $namakorektor[] = DB::table('users')->where('id', $ce)->first()->nama;
+                                        }
+                                    } else {
+                                        $namakorektor = null;
+                                    }
+                                    foreach ($namakorektor as $key => $aj) {
+                                    $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                    }
+                                    if (is_null($useData->selesai_koreksi)) {
+                                        $html .= '<p class="text-small">
+                                        <a href="javascript:void(0)" id="korektorButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
+                                        </p>';
+                                    }
+                                    $htmlHidden .='<div class="input-group">
+                                    <select name="korektor[]" class="form-control select-korektor" multiple="multiple">
+                                    <option label="Pilih korektor"></option>';
+                                    foreach ($korektor as $i => $edList) {
+                                    $sel = '';
+                                    if (in_array($edList->nama, $namakorektor)) {
+                                        $sel = ' selected="selected" ';
+                                    }
+                                    $htmlHidden .='<option value="'. $edList->id .'" '. $sel .'>
+                                        '. $edList->nama .'&nbsp;&nbsp;
+                                    </option>';
+                                    }
+                                $htmlHidden .='</select>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger batal_edit_korektor text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
+                                </div>
+                                </div>';
+                                } else {
                                     $textAlign = 'text-left';
                                     $dis = '';
                                     if (is_null($useData->selesai_proof)) {
@@ -692,47 +727,6 @@ class PracetakSetterController extends Controller
                                             }
                                         }
                                     $html .='</select>';
-                                    foreach ($setter as $i => $edList) {
-                                    $html .='<option value="'. $edList->id .'">
-                                        '. $edList->nama .'&nbsp;&nbsp;
-                                    </option>';
-                                    }
-                                    $html .='</select>';
-                                } else {
-                                    $idCol = "korektorCol";
-                                    $textAlign = 'text-right';
-                                    if ((!is_null($item)) && ($item != '[null]')) {
-                                        foreach (json_decode($item) as $ce) {
-                                            $namakorektor[] = DB::table('users')->where('id', $ce)->first()->nama;
-                                        }
-                                    } else {
-                                        $namakorektor = null;
-                                    }
-                                    foreach ($namakorektor as $key => $aj) {
-                                    $html .= '<span class="bullet"></span>'. $aj .'<br>';
-                                    }
-                                    if (is_null($useData->selesai_koreksi)) {
-                                        $html .= '<p class="text-small">
-                                        <a href="javascript:void(0)" id="korektorButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
-                                        </p>';
-                                    }
-                                $htmlHidden .='<div class="input-group">
-                                <select name="korektor[]" class="form-control select-korektor" multiple="multiple">
-                                    <option label="Pilih korektor"></option>';
-                                    foreach ($korektor as $i => $edList) {
-                                    $sel = '';
-                                    if (in_array($edList->nama, $namakorektor)) {
-                                        $sel = ' selected="selected" ';
-                                    }
-                                    $htmlHidden .='<option value="'. $edList->id .'" '. $sel .'>
-                                        '. $edList->nama .'&nbsp;&nbsp;
-                                    </option>';
-                                    }
-                                $htmlHidden .='</select>
-                                <div class="input-group-append">
-                                    <button type="button" class="btn btn-outline-danger batal_edit_korektor text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
-                                </div>
-                                </div>';
                                 }
                             } else {
                                 $textAlign = 'text-right';
