@@ -202,7 +202,7 @@
                                     </li>
                                 </ul>
 
-                                <div class="tab-content" style="max-height: 750px; overflow-y: auto; overflow-x: hidden;">
+                                <div class="tab-content">
                                     <div class="tab-pane fade {{ $startPn == 'guest' ? 'show active' : ($startPn == 'prodev' ? 'show active' : '') }}"
                                         id="pn_Prodev" role="tabpanel" aria-labelledby="prodev-tab"></div>
                                     <div class="tab-pane fade {{ in_array($startPn, ['editor', 'setter']) ? 'show active' : '' }}"
