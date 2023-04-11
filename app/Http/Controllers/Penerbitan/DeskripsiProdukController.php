@@ -29,8 +29,11 @@ class DeskripsiProdukController extends Controller
                     'pn.pic_prodev',
                     'pn.jalur_buku'
                 )
-                ->orderBy('dp.tgl_deskripsi', 'ASC')
-                ->get();
+                ->orderBy('dp.tgl_deskripsi', 'ASC');
+            if (in_array(auth()->id(),$data->pluck('pic_prodev')->toArray())) {
+                $data->where('pn.pic_prodev', auth()->id());
+            }
+            $data->get();
             $update = Gate::allows('do_create', 'ubah-atau-buat-des-produk');
             if ($request->has('count_data')) {
                 return $data->count();

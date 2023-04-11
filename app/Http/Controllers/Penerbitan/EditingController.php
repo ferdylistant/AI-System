@@ -31,8 +31,14 @@ class EditingController extends Controller
                     'dp.nama_pena',
                     'df.bullet'
                 )
-                ->orderBy('ep.tgl_mulai_edit', 'ASC')
-                ->get();
+                ->orderBy('ep.tgl_mulai_edit', 'ASC');
+            if (in_array(auth()->id(),$data->pluck('pic_prodev')->toArray())) {
+                $data->where('pn.pic_prodev', auth()->id());
+            }
+            if (Gate::allows('do_create','otorisasi-editor-editing-reguler') || Gate::allows('do_create','otorisasi-editor-editing-mou') || Gate::allows('do_create','otorisasi-editor-editing-smk')) {
+                $data->where('ep.editor', 'like', '%"'.auth()->id().'"%');
+            }
+            $data->get();
             if ($request->has('count_data')) {
                 return $data->count();
             } else {

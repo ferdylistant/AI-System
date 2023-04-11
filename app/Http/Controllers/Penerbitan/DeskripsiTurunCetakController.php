@@ -35,8 +35,11 @@ class DeskripsiTurunCetakController extends Controller
                     'dp.nama_pena',
                     'dp.format_buku',
                 )
-                ->orderBy('dtc.tgl_masuk', 'ASC')
-                ->get();
+                ->orderBy('dtc.tgl_masuk', 'ASC');
+            if (in_array(auth()->id(),$data->pluck('pic_prodev')->toArray())) {
+                $data->where('pn.pic_prodev', auth()->id());
+            }
+            $data->get();
             $update = Gate::allows('do_create', 'ubah-atau-buat-des-cover');
             if ($request->has('count_data')) {
                 return $data->count();

@@ -33,8 +33,11 @@ class DeskripsiFinalController extends Controller
                     'dp.nama_pena',
                     'dp.judul_final'
                 )
-                ->orderBy('df.tgl_deskripsi', 'ASC')
-                ->get();
+                ->orderBy('df.tgl_deskripsi', 'ASC');
+            if (in_array(auth()->id(),$data->pluck('pic_prodev')->toArray())) {
+                $data->where('pn.pic_prodev', auth()->id());
+            }
+            $data->get();
             $update = Gate::allows('do_create', 'ubah-atau-buat-des-final');
 
             if ($request->has('count_data')) {

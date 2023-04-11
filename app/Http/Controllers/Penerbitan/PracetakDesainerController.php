@@ -35,8 +35,20 @@ class PracetakDesainerController extends Controller
                     'dp.judul_final',
                     'dp.nama_pena',
                 )
-                ->orderBy('pc.tgl_masuk_cover', 'ASC')
-                ->get();
+                ->orderBy('pc.tgl_masuk_cover', 'ASC');
+            $reguler = Gate::allows('do_create', 'otorisasi-desainer-prades-reguler');
+            $mou = Gate::allows('do_create', 'otorisasi-desainer-prades-mou');
+            $smk = Gate::allows('do_create', 'otorisasi-desainer-prades-smk');
+            if (in_array(auth()->id(),$data->pluck('pic_prodev')->toArray())) {
+                $data->where('pn.pic_prodev', auth()->id());
+            }
+            if ($reguler || $mou || $smk) {
+                $data->where('pc.desainer','like', '%"'.auth()->id().'"%');
+            }
+            if (Gate::allows('do_create', 'otorisasi-korektor-prades-reguler')||Gate::allows('do_create', 'otorisasi-korektor-prades-mou')||Gate::allows('do_create', 'otorisasi-korektor-prades-smk')) {
+                $data->where('pc.korektor','like', '%"'.auth()->id().'"%');
+            }
+            $data->get();
             if ($request->has('count_data')) {
                 return $data->count();
             } else {

@@ -35,9 +35,20 @@ class PracetakSetterController extends Controller
                     'dp.nama_pena',
                     'df.bullet'
                 )
-                ->orderBy('ps.tgl_masuk_pracetak', 'ASC')
-                ->get();
-
+                ->orderBy('ps.tgl_masuk_pracetak', 'ASC');
+            $reguler = Gate::allows('do_create', 'otorisasi-setter-praset-reguler');
+            $mou = Gate::allows('do_create', 'otorisasi-setter-praset-mou');
+            $smk = Gate::allows('do_create', 'otorisasi-setter-praset-smk');
+            if (in_array(auth()->id(),$data->pluck('pic_prodev')->toArray())) {
+                $data->where('pn.pic_prodev', auth()->id());
+            }
+            if ($reguler || $mou || $smk) {
+                $data->where('ps.setter','like', '%"'.auth()->id().'"%');
+            }
+            if (Gate::allows('do_create', 'otorisasi-korektor-praset-reguler')||Gate::allows('do_create', 'otorisasi-korektor-praset-mou')||Gate::allows('do_create', 'otorisasi-korektor-praset-smk')) {
+                $data->where('ps.korektor','like', '%"'.auth()->id().'"%');
+            }
+            $data->get();
             if ($request->has('count_data')) {
                 return $data->count();
             } else {
