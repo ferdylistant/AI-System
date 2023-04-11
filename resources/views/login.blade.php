@@ -79,6 +79,12 @@
                                         {{ Session::get('status') }}
 
                                     </div>
+                                @elseif (session('error'))
+                                <div class="alert alert-danger" style="width: 100%" role="alert">
+                                    <h4 class="alert-heading">Gagal!</h4>
+                                    {{ session('error') }}
+
+                                </div>
                                 @elseif ($errors->any())
                                     <div class="alert alert-danger" style="width: 100%" role="alert">
                                         <h4 class="alert-heading">Gagal!</h4>
