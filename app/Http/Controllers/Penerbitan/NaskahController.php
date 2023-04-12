@@ -127,7 +127,8 @@ class NaskahController extends Controller
                             $badge = '';
                             if (in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
                                 if (!is_null($data->tgl_pn_selesai)) {
-                                    $badge .= '<span class="badge badge-primary">Selesai Dinilai</span>';
+                                    $statusPenilaianDB = DB::table('penerbitan_pn_direksi')->where('naskah_id',$data->id)->pluck('keputusan_final')->first();
+                                    $badge .= '<span class="badge badge-primary">Diputuskan: '.$statusPenilaianDB.'</span>';
                                     if ($data->pic_prodev == auth()->user()->id) {
                                         if (is_null($data->bukti_email_penulis)) {
                                             $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning">Data belum lengkap</span>';
@@ -741,6 +742,53 @@ class NaskahController extends Controller
                             $loopSNN .= '<span class="bullet"></span>' . ($fcn == 'SC' ? 'Soft Copy' : 'Hard Copy');
                         }
                         $html .= ' Sumber Naskah <b class="text-dark">' . $loopSN . '</b>diubah menjadi <b class="text-dark">' . $loopSNN . '</b>.<br>';
+                    }
+                    if (!is_null($d->penulis_his)) {
+                        $loopPH = '';
+                        $loopPN = '';
+                        foreach (json_decode($d->penulis_his, true) as $ph) {
+                            $ph = (object)collect($ph)->map(function ($item, $key) {
+                                switch($key) {
+                                    case 'penulis_id':
+                                        return DB::table('penerbitan_m_penulis')->where('id', $item)->whereNull('deleted_at')->first()->nama;
+                                        break;
+                                    default:
+                                        return $item;
+                                        break;
+                                }
+                            })->all();
+                            $loopPH .= '<b class="text-dark">' . $ph->penulis_id . '</b>, ';
+                        }
+                        foreach (json_decode($d->penulis_new, true) as $pn) {
+                            $pn = (object)collect($pn)->map(function ($item, $key) {
+                                switch($key) {
+                                    case 'penulis_id':
+                                        return DB::table('penerbitan_penulis')->where('id', $item)->whereNull('deleted_at')->first()->nama;
+                                        break;
+                                    default:
+                                        return $item;
+                                        break;
+                                }
+                            })->all();
+                            $loopPN .= '<span class="bullet"></span>' . $pn->penulis_id;
+                        }
+                        $html .= ' Penulis <b class="text-dark">' . $loopPH . '</b>diubah menjadi <b class="text-dark">' . $loopPN . '</b>.<br>';
+                    } elseif (!is_null($d->penulis_new)) {
+                        $loopPN = '';
+                        foreach (json_decode($d->penulis_new, true) as $pn) {
+                            $pn = (object)collect($pn)->map(function ($item, $key) {
+                                switch($key) {
+                                    case 'penulis_id':
+                                        return DB::table('penerbitan_penulis')->where('id', $item)->whereNull('deleted_at')->first()->nama;
+                                        break;
+                                    default:
+                                        return $item;
+                                        break;
+                                }
+                            })->all();
+                            $loopPN .= '<span class="bullet"></span>' . $pn->penulis_id;
+                        }
+                        $html .= ' Penulis <b class="text-dark">' . $loopPN . '</b> ditambahkan.<br>';
                     }
                     if (!is_null($d->cdqr_code_his)) {
                         $html .= ' Cdqr code <b class="text-dark">' . $d->cdqr_code_his . '</b> diubah menjadi <b class="text-dark">' . $d->cdqr_code_new . '</b>.<br>';
