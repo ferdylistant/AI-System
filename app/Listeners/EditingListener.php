@@ -63,7 +63,7 @@ class EditingListener
                         'df.bullet' => $data['bullet'],
                         'ep.catatan' => $data['catatan'],
                         'ep.editor' => $data['editor'],
-                        'ep.copy_editor' => $data['copy_editor'],
+                        // 'ep.copy_editor' => $data['copy_editor'],
                         'ep.bulan' => $data['bulan']
                     ]);
                 break;
@@ -77,8 +77,8 @@ class EditingListener
                     'jml_hal_perkiraan_new' => $data['jml_hal_perkiraan_new'],
                     'bullet_his' => $data['bullet_his'],
                     'bullet_new' => $data['bullet_new'],
-                    'copy_editor_his' => $data['copy_editor_his'],
-                    'copy_editor_new' => $data['copy_editor_new'],
+                    // 'copy_editor_his' => $data['copy_editor_his'],
+                    // 'copy_editor_new' => $data['copy_editor_new'],
                     'catatan_his' => $data['catatan_his'],
                     'catatan_new' => $data['catatan_new'],
                     'bulan_his' => $data['bulan_his'],
@@ -131,6 +131,15 @@ class EditingListener
                 $res = DB::table('editing_proses')->where('id',$data['id'])->update([
                     'tgl_selesai_copyeditor' => $data['tgl_selesai_copyeditor'],
                     'proses' => $data['proses']
+                ]);
+                break;
+            case 'Revisi':
+                $res = DB::table('editing_proses_selesai')->insert([
+                    'type' => $data['type'],
+                    'editing_proses_id' => $data['editing_proses_id'],
+                    'users_id' => $data['users_id'],
+                    'ket_revisi' => $data['ket_revisi'],
+                    'tgl_proses_selesai' => $data['tgl_proses_selesai']
                 ]);
                 break;
             default:

@@ -262,4 +262,75 @@ $(function () {
             notifToast("error", "Periksa kembali form Anda!");
         }
     });
+    function ajaxDoneRevisionOrderBuku(id,kode) {
+        let cardWrap = $('.section-body').find('.card');
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/jasa-cetak/order-buku/otorisasi-kabag?request_=done-revision",
+            data: {
+                id: id,
+                no_order : kode
+            },
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (result) {
+                // console.log(result);
+                notifToast(result.status, result.message);
+                if (result.status == "success") {
+                    location.reload();
+                }
+            },
+            error: function (err) {
+                notifToast("error", err.statusText);
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            },
+        });
+    }
+    function ajaxDoneRevisionEditing(id,kode) {
+        let cardWrap = $('.section-body').find('.card');
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/penerbitan/editing/edit?request_revision=true",
+            data: {
+                id: id,
+                kode : kode
+            },
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (result) {
+                // console.log(result);
+                notifToast(result.status, result.message);
+                if (result.status == "success") {
+                    location.reload();
+                }
+            },
+            error: function (err) {
+                notifToast("error", err.statusText);
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            },
+        });
+    }
+    $("#fup_editingProses").on("click",'#done-revision', function (e) {
+        e.preventDefault();
+        let id = $(this).data("id");
+        let kode = $(this).data("kode");
+        let judul = $(this).data("judul");
+        swal({
+            title: "Yakin data '" + judul + "-" + kode + "' telah selesai revisi?",
+            text: "Harap diperiksa kembali, supaya tidak terjadi kekeliruan data.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((confirm_) => {
+            if (confirm_) {
+                ajaxDoneRevisionEditing(id,kode);
+            }
+        });
+    });
 });

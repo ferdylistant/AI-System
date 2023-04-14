@@ -21,28 +21,33 @@
             <div class="row">
                 <div class="col-12 col-md-12">
                     <div class="card card-warning">
-                        <div class="card-header">
-                            <h4>Data Detail Editing Proses&nbsp;
-                                -
-                            </h4>
-                            @switch($data->status)
-                                @case('Antrian')
-                                    <span class="badge" style="background:#34395E;color:white">{{ $data->status }}</span>
-                                @break
+                        <div class="card-header justify-content-between">
+                            <div class="col-auto d-flex">
+                                <h4>Data Detail Editing Proses&nbsp;
+                                    -
+                                </h4>
+                                @switch($data->status)
+                                    @case('Antrian')
+                                        <span class="badge" style="background:#34395E;color:white">{{ $data->status }}</span>
+                                    @break
 
-                                @case('Pending')
-                                    <span class="badge badge-danger">{{ $data->status }}</span>
-                                @break
+                                    @case('Pending')
+                                        <span class="badge badge-danger">{{ $data->status }}</span>
+                                    @break
 
-                                @case('Proses')
-                                    <span class="badge badge-success">{{ $data->status }}</span>
-                                @break
+                                    @case('Proses')
+                                        <span class="badge badge-success">{{ $data->status }}</span>
+                                    @break
 
-                                @case('Selesai')
-                                    <span class="badge badge-light">{{ $data->status }}</span>
-                                @break
-                            @endswitch
-                            <div class="col">
+                                    @case('Selesai')
+                                        <span class="badge badge-light">{{ $data->status }}</span>
+                                    @break
+                                    @case('Revisi')
+                                        <span class="badge badge-info">{{ $data->status }}</span>
+                                    @break
+                                @endswitch
+                            </div>
+                            <div class="col-auto">
                                 @if ($data->proses == '1')
                                     <span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Sedang proses
                                             pengerjaan {{is_null($data->tgl_selesai_edit)?'editor':'copy editor'}}</span>
@@ -51,93 +56,102 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                @if ($data->proses == '1')
-                                    <?php
-                                    $label = "editor";
-                                    // $label = is_null($data->tgl_selesai_edit)?"editor":"copyeditor";
-                                    $dataRole  = $data->editor;
-                                    // $dataRole  = is_null($data->tgl_selesai_edit)?$data->editor:$data->copy_editor;
-                                    ?>
-                                    @switch($data->jalur_buku)
-                                        @case('Reguler')
-                                            @foreach (json_decode($dataRole, true) as $edt)
-                                                @if (auth()->id() == $edt)
-                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler'))
-                                                        <div class="col-auto">
-                                                            <div class="mb-4">
-                                                                <button type="submit" class="btn btn-success"
-                                                                    id="btn-done-editing" data-id="{{ $data->id }}"
-                                                                    data-kode="{{ $data->kode }}" data-autor="{{$label}}">
-                                                                    <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                @if ($data->status == 'Revisi')
+                                <div class="col-auto mr-auto">
+                                    <div class="mb-4">
+                                    <a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon" id="btn-revisi-editing" data-ajax="false" data-id="{{$data->id}}" title="Keterangan Revisi">
+                                    <i class="fas fa-eye"></i>&nbsp;Keterangan Revisi</a></div></div>
+                                @else
+                                    @if ($data->proses == '1')
+                                        <?php
+                                        $label = "editor";
+                                        // $label = is_null($data->tgl_selesai_edit)?"editor":"copyeditor";
+                                        $dataRole  = $data->editor;
+                                        // $dataRole  = is_null($data->tgl_selesai_edit)?$data->editor:$data->copy_editor;
+                                        ?>
+                                        @switch($data->jalur_buku)
+                                            @case('Reguler')
+                                                @foreach (json_decode($dataRole, true) as $edt)
+                                                    @if (auth()->id() == $edt)
+                                                        @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler'))
+                                                            <div class="col-auto">
+                                                                <div class="mb-4">
+                                                                    <button type="submit" class="btn btn-success"
+                                                                        id="btn-done-editing" data-ajax="false" data-id="{{ $data->id }}"
+                                                                        data-kode="{{ $data->kode }}" data-autor="{{$label}}">
+                                                                        <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                                                    <button type="button" class="btn btn-danger" id="btn-revisi-editing" data-id="{{ $data->id }}" data-ajax="false">
+                                                                            <i class="fas fa-tools"></i>&nbsp;Revisi</button>
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        @endif
                                                     @endif
-                                                @endif
-                                            @endforeach
-                                        @break
+                                                @endforeach
+                                            @break
 
-                                        @case('MoU')
-                                            @foreach (json_decode($dataRole) as $edt)
-                                                @if (auth()->id() == $edt)
-                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-mou'))
-                                                        <div class="col-auto">
-                                                            <div class="mb-4">
-                                                                <button type="submit" class="btn btn-success"
-                                                                    id="btn-done-editing" data-id="{{ $data->id }}"
-                                                                    data-kode="{{ $data->kode }}" data-autor="{{$label}}">
-                                                                    <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                            @case('MoU')
+                                                @foreach (json_decode($dataRole) as $edt)
+                                                    @if (auth()->id() == $edt)
+                                                        @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-mou'))
+                                                            <div class="col-auto">
+                                                                <div class="mb-4">
+                                                                    <button type="submit" class="btn btn-success"
+                                                                        id="btn-done-editing" data-id="{{ $data->id }}"
+                                                                        data-kode="{{ $data->kode }}" data-autor="{{$label}}">
+                                                                        <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        @endif
                                                     @endif
-                                                @endif
-                                            @endforeach
-                                        @break
+                                                @endforeach
+                                            @break
 
-                                        @case('MoU-Reguler')
-                                            @foreach (json_decode($dataRole) as $edt)
-                                                @if (auth()->id() == $edt)
-                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler') ||
-                                                        Gate::allows('do_create', 'otorisasi-'.$label.'-editing-mou'))
-                                                        <div class="col-auto">
-                                                            <div class="mb-4">
-                                                                <button type="submit" class="btn btn-success"
-                                                                    id="btn-done-editing" data-id="{{ $data->id }}"
-                                                                    data-kode="{{ $data->kode }}" data-autor="{{$label}}">
-                                                                    <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                            @case('MoU-Reguler')
+                                                @foreach (json_decode($dataRole) as $edt)
+                                                    @if (auth()->id() == $edt)
+                                                        @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler') ||
+                                                            Gate::allows('do_create', 'otorisasi-'.$label.'-editing-mou'))
+                                                            <div class="col-auto">
+                                                                <div class="mb-4">
+                                                                    <button type="submit" class="btn btn-success"
+                                                                        id="btn-done-editing" data-id="{{ $data->id }}"
+                                                                        data-kode="{{ $data->kode }}" data-autor="{{$label}}">
+                                                                        <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        @endif
                                                     @endif
-                                                @endif
-                                            @endforeach
-                                        @break
+                                                @endforeach
+                                            @break
 
-                                        @case('SMK/NonSMK')
-                                            @foreach (json_decode($dataRole) as $edt)
-                                                @if (auth()->id() == $edt)
-                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-smk'))
-                                                        <div class="col-auto">
-                                                            <div class="mb-4">
-                                                                <button type="submit" class="btn btn-success"
-                                                                    id="btn-done-editing" data-id="{{ $data->id }}"
-                                                                    data-kode="{{ $data->kode }}" data-autor="{{$label}}">
-                                                                    <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                            @case('SMK/NonSMK')
+                                                @foreach (json_decode($dataRole) as $edt)
+                                                    @if (auth()->id() == $edt)
+                                                        @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-smk'))
+                                                            <div class="col-auto">
+                                                                <div class="mb-4">
+                                                                    <button type="submit" class="btn btn-success"
+                                                                        id="btn-done-editing" data-id="{{ $data->id }}"
+                                                                        data-kode="{{ $data->kode }}" data-autor="{{$label}}">
+                                                                        <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        @endif
                                                     @endif
-                                                @endif
-                                            @endforeach
-                                        @break
+                                                @endforeach
+                                            @break
 
-                                        @case('Pro Literasi')
-                                            @foreach (json_decode($dataRole) as $edt)
-                                                @if (auth()->id() == $edt)
-                                                    @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler') ||
-                                                        Gate::allows('do_create', 'otorisasi-editor-editing-mou'))
+                                            @case('Pro Literasi')
+                                                @foreach (json_decode($dataRole) as $edt)
+                                                    @if (auth()->id() == $edt)
+                                                        @if (Gate::allows('do_create', 'otorisasi-'.$label.'-editing-reguler') ||
+                                                            Gate::allows('do_create', 'otorisasi-editor-editing-mou'))
+                                                        @endif
                                                     @endif
-                                                @endif
-                                            @endforeach
-                                        @break
-                                    @endswitch
+                                                @endforeach
+                                            @break
+                                        @endswitch
+                                    @endif
                                 @endif
 
                             </div>
@@ -434,6 +448,7 @@
         </div>
 
     </section>
+    @include('penerbitan.editing.include.modal_decline')
     <style>
         #md_updateSubtimeline table {
             width: 100%;

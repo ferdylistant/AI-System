@@ -51,21 +51,45 @@
                             Status Progress:
                             <span class="badge badge-light">{{ $data->status }}</span>
                             @break
+                            @case('Revisi')
+                            <i class="far fa-circle text-info"></i>
+                            Status Progress:
+                            <span class="badge badge-info">{{ $data->status }}</span>
+                            @break
                             @endswitch
                         </div>
                         @if ($data->proses == '1')
+                            @if ($data->status == 'Revisi')
+                                @php
+                                    $tag = 'revisi';
+                                @endphp
+                            @else
+                                @php
+                                    $tag = is_null($data->tgl_selesai_edit) ? 'editor' : 'copy editor'
+                                @endphp
+                            @endif
                         <div class="col-auto">
                             <span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Sedang proses
-                                pengerjaan {{ is_null($data->tgl_selesai_edit) ? 'editor' : 'copy editor' }}</span>
+                                pengerjaan {{ $tag }}</span>
                         </div>
                         @endif
 
                     </div>
-                    @if ($data->status == 'Proses' ||
+                    @if ($data->status == 'Proses' || $data->status == 'Revisi' ||
                     ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
                     <form id="fup_editingProses">
                         <div class="card-body">
                             <div class="row">
+                                @if ($data->status == 'Revisi')
+                                <div class="col-auto mr-auto">
+                                    <div class="mb-4">
+                                        <button type="button" class="btn btn-warning" id="done-revision"
+                                        data-id="{{$data->id}}" data-judul="{{$data->judul_final}}" data-kode="{{$data->kode}}">
+                                            <i class="fas fa-check"></i>&nbsp;Selesai Revisi
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
                                 <div class="col-12">
                                     <div class="table-responsive">
                                         <table class="table table-bordered">
@@ -223,7 +247,15 @@
                                                     @endif
                                                 </tr>
                                                 <tr>
-                                                    <th class="table-secondary" style="width: 25%">Editor: <span class="text-danger">*</span></th>
+                                                    @php
+                                                    $cannotEdit = '';
+                                                    @endphp
+                                                    @if ($data->status == 'Revisi')
+                                                        @php
+                                                        $cannotEdit = 'Editor tidak dapat diubah karena status revisi';
+                                                        @endphp
+                                                    @endif
+                                                    <th class="table-secondary" style="width: 25%">Editor: <span class="text-danger">*{{$cannotEdit}}</span></th>
                                                     @if (is_null($data->editor) || $data->editor == '[]')
                                                     <td class="table-active text-left">
                                                         <select name="editor[]" class="form-control select-editor-editing" multiple="multiple" required>
@@ -249,7 +281,15 @@
                                                     </td>
                                                     <td class="table-active text-left" id="editorColInput" hidden>
                                                         <div class="input-group">
-                                                            <select name="editor[]" class="form-control select-editor-editing" multiple="multiple">
+                                                            @php
+                                                            $disabled = '';
+                                                            @endphp
+                                                            @if ($data->status == 'Revisi')
+                                                                @php
+                                                                $disabled = 'disabled';
+                                                                @endphp
+                                                            @endif
+                                                            <select name="editor[]" class="form-control select-editor-editing" multiple="multiple" {{$disabled}}>
                                                                 <option label="Pilih editor"></option>
                                                                 @foreach ($editor as $i => $edList)
                                                                 {{ $sel = '' }}
@@ -362,6 +402,11 @@
                                     $disable = "";
                                 @endphp
                                 @if (!is_null($data->tgl_selesai_edit))
+                                    @php
+                                        $disable = "disabled";
+                                    @endphp
+                                @endif
+                                @if ($data->status == 'Revisi')
                                     @php
                                         $disable = "disabled";
                                     @endphp

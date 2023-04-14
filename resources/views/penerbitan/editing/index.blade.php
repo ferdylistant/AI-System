@@ -115,7 +115,7 @@
                         <label for="statusE">Status: <span class="text-danger">*</span></label>
                         <select name="status" class="form-control select-status" id="statusE" required>
                             <option label="Pilih Status"></option>
-                            @foreach ($status_progress as $sp)
+                            @foreach ($status_action as $sp)
                             <option value="{{ $sp }}">{{ $sp }}</option>
                             @endforeach
                         </select>

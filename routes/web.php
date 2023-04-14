@@ -164,7 +164,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/deskripsi/turun-cetak/{act}', [DeskripsiTurunCetakController::class, 'actionAjax']);
         //Editing
         Route::get('/editing', [EditingController::class, 'index'])->name('editing.view');
-        Route::get('/editing/detail', [EditingController::class, 'detailEditing'])->name('editing.detail');
+        Route::match(['get', 'post'],'/editing/detail', [EditingController::class, 'detailEditing'])->name('editing.detail');
         Route::match(['get', 'post'], '/editing/edit', [EditingController::class, 'editEditing'])->name('editing.edit');
         Route::post('/editing/update-status-progress', [EditingController::class, 'updateStatusProgress']);
         Route::post('/editing/lihat-history', [EditingController::class, 'lihatHistoryEditing'])->name('editing.history');

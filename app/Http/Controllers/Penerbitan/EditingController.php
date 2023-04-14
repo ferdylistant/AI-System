@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use App\Events\EditingEvent;
 use Illuminate\Http\Request;
 use App\Events\TimelineEvent;
@@ -32,187 +33,190 @@ class EditingController extends Controller
                     'df.bullet'
                 )
                 ->orderBy('ep.tgl_mulai_edit', 'ASC');
-            if (in_array(auth()->id(),$data->pluck('pic_prodev')->toArray())) {
+            if (in_array(auth()->id(), $data->pluck('pic_prodev')->toArray())) {
                 $data->where('pn.pic_prodev', auth()->id());
             }
-            if (Gate::allows('do_create','otorisasi-editor-editing-reguler') || Gate::allows('do_create','otorisasi-editor-editing-mou') || Gate::allows('do_create','otorisasi-editor-editing-smk')) {
-                $data->where('ep.editor', 'like', '%"'.auth()->id().'"%');
+            if (Gate::allows('do_create', 'otorisasi-editor-editing-reguler') || Gate::allows('do_create', 'otorisasi-editor-editing-mou') || Gate::allows('do_create', 'otorisasi-editor-editing-smk')) {
+                $data->where('ep.editor', 'like', '%"' . auth()->id() . '"%');
             }
             $data->get();
             if ($request->has('count_data')) {
                 return $data->count();
             } else {
                 return DataTables::of($data)
-                // ->addIndexColumn()
-                ->addColumn('kode', function ($data) {
-                    $tandaProses = '';
-                    $dataKode = $data->kode;
-                    if ($data->status == 'Proses') {
-                        $tandaProses = $data->proses == '1' ? '<span class="beep-success"></span>' : '<span class="beep-danger"></span>';
-                        $dataKode = $data->proses == '1'  ? '<span class="text-success">'.$data->kode.'</span>':'<span class="text-danger">'.$data->kode.'</span>';
-                    }
-                    return $tandaProses . $dataKode;
-                })
-                ->addColumn('judul_final', function ($data) {
-                    if (is_null($data->judul_final)) {
-                        $res = '-';
-                    } else {
-                        $res = $data->judul_final;
-                    }
-                    return $res;
-                })
-                ->addColumn('penulis', function ($data) {
-                    // return $data->penulis;
-                    $result = '';
-                    $res = DB::table('penerbitan_naskah_penulis as pnp')
-                        ->join('penerbitan_penulis as pp', function ($q) {
-                            $q->on('pnp.penulis_id', '=', 'pp.id')
-                                ->whereNull('pp.deleted_at');
-                        })
-                        ->where('pnp.naskah_id', '=', $data->naskah_id)
-                        ->select('pp.nama')
-                        // ->pluck('pp.nama');
-                        ->get();
-                    foreach ($res as $q) {
-                        $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
-                    }
-                    return $result;
-                    //  $res;
-                })
-                ->addColumn('nama_pena', function ($data) {
-                    $result = '';
-                    if (is_null($data->nama_pena)) {
-                        $result .= "-";
-                    } else {
-                        foreach (json_decode($data->nama_pena) as $q) {
-                            $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
+                    // ->addIndexColumn()
+                    ->addColumn('kode', function ($data) {
+                        $tandaProses = '';
+                        $dataKode = $data->kode;
+                        if ($data->status == 'Proses') {
+                            $tandaProses = $data->proses == '1' ? '<span class="beep-success"></span>' : '<span class="beep-danger"></span>';
+                            $dataKode = $data->proses == '1'  ? '<span class="text-success">' . $data->kode . '</span>' : '<span class="text-danger">' . $data->kode . '</span>';
                         }
-                    }
-                    return $result;
-                })
-                ->addColumn('jalur_buku', function ($data) {
-                    if (!is_null($data->jalur_buku)) {
-                        $res = $data->jalur_buku;
-                    } else {
-                        $res = '-';
-                    }
-                    return $res;
-                })
-                ->addColumn('tgl_masuk_editing', function ($data) {
-                    return Carbon::parse($data->tgl_masuk_editing)->translatedFormat('l d M Y H:i');
-                })
-                ->addColumn('pic_prodev', function ($data) {
-                    $result = '';
-                    $res = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')
-                        ->select('nama')
-                        ->get();
-                    foreach (json_decode($res) as $q) {
-                        $result .= $q->nama;
-                    }
-                    return $result;
-                })
-                ->addColumn('editor', function ($data) {
-                    if (!is_null($data->editor)) {
-                        $res = '';
-                        $tgl = '';
-                        $edpros = DB::table('editing_proses_selesai')
-                        ->where('type','Editor')
-                        ->where('editing_proses_id',$data->id)
-                        ->get();
-                        if (!$edpros->isEmpty()) {
-                            foreach ($edpros as $v) {
-                                if (in_array($v->users_id,json_decode($data->editor, true))) {
-                                    $tgl = '('.Carbon::parse($v->tgl_proses_selesai)->translatedFormat('l d M Y, H:i').')';
-                                }
+                        return $tandaProses . $dataKode;
+                    })
+                    ->addColumn('judul_final', function ($data) {
+                        if (is_null($data->judul_final)) {
+                            $res = '-';
+                        } else {
+                            $res = $data->judul_final;
+                        }
+                        return $res;
+                    })
+                    ->addColumn('penulis', function ($data) {
+                        // return $data->penulis;
+                        $result = '';
+                        $res = DB::table('penerbitan_naskah_penulis as pnp')
+                            ->join('penerbitan_penulis as pp', function ($q) {
+                                $q->on('pnp.penulis_id', '=', 'pp.id')
+                                    ->whereNull('pp.deleted_at');
+                            })
+                            ->where('pnp.naskah_id', '=', $data->naskah_id)
+                            ->select('pp.nama')
+                            // ->pluck('pp.nama');
+                            ->get();
+                        foreach ($res as $q) {
+                            $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
+                        }
+                        return $result;
+                        //  $res;
+                    })
+                    ->addColumn('nama_pena', function ($data) {
+                        $result = '';
+                        if (is_null($data->nama_pena)) {
+                            $result .= "-";
+                        } else {
+                            foreach (json_decode($data->nama_pena) as $q) {
+                                $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
                             }
                         }
-                        foreach (json_decode($data->editor, true) as $q) {
-                            $res .= '<span class="d-block">-&nbsp;' . DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama . ' <span class="text-success">'.$tgl.'</span></span>';
+                        return $result;
+                    })
+                    ->addColumn('jalur_buku', function ($data) {
+                        if (!is_null($data->jalur_buku)) {
+                            $res = $data->jalur_buku;
+                        } else {
+                            $res = '-';
                         }
-                    } else {
-                        $res = '-';
-                    }
-                    return $res;
-                })
-                // ->addColumn('copy_editor', function ($data) {
-                //     if (!is_null($data->copy_editor)) {
-                //         $res = '';
-                //         $tgl = '';
-                //         $edpros = DB::table('editing_proses_selesai')
-                //         ->where('type','Copy Editor')
-                //         ->where('editing_proses_id',$data->id)
-                //         ->get();
-                //         if (!$edpros->isEmpty()) {
-                //             foreach ($edpros as $v) {
-                //                 if (in_array($v->users_id,json_decode($data->copy_editor, true))) {
-                //                     $tgl = '('.Carbon::parse($v->tgl_proses_selesai)->translatedFormat('l d M Y, H:i').')';
-                //                 }
-                //             }
-                //         }
-                //         foreach (json_decode($data->copy_editor, true) as $q) {
-                //             $res .= '<span class="d-block">-&nbsp;' . DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama . ' <span class="text-success">'.$tgl.'</span></span>';
-                //         }
-                //     } else {
-                //         $res = '-';
-                //     }
-                //     return $res;
-                // })
-                ->addColumn('history', function ($data) {
-                    $historyData = DB::table('editing_proses_history')->where('editing_proses_id', $data->id)->get();
-                    if ($historyData->isEmpty()) {
-                        return '-';
-                    } else {
-                        $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-history"></i>&nbsp;History</button>';
-                        return $date;
-                    }
-                })
-                ->addColumn('action', function ($data) {
-                    $btn = '<a href="' . url('penerbitan/editing/detail?editing=' . $data->id . '&kode=' . $data->kode) . '"
+                        return $res;
+                    })
+                    ->addColumn('tgl_masuk_editing', function ($data) {
+                        return Carbon::parse($data->tgl_masuk_editing)->translatedFormat('l d M Y H:i');
+                    })
+                    ->addColumn('pic_prodev', function ($data) {
+                        $result = '';
+                        $res = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')
+                            ->select('nama')
+                            ->get();
+                        foreach (json_decode($res) as $q) {
+                            $result .= $q->nama;
+                        }
+                        return $result;
+                    })
+                    ->addColumn('editor', function ($data) {
+                        if (!is_null($data->editor)) {
+                            $res = '';
+                            $tgl = '';
+                            $edpros = DB::table('editing_proses_selesai')
+                                ->where('type', 'Editor')
+                                ->where('editing_proses_id', $data->id)
+                                ->get();
+                            if (!$edpros->isEmpty()) {
+                                foreach ($edpros as $v) {
+                                    if (in_array($v->users_id, json_decode($data->editor, true))) {
+                                        $tgl = '(' . Carbon::parse($v->tgl_proses_selesai)->translatedFormat('l d M Y, H:i') . ')';
+                                    }
+                                }
+                            }
+                            foreach (json_decode($data->editor, true) as $q) {
+                                $res .= '<span class="d-block">-&nbsp;' . DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama . ' <span class="text-success">' . $tgl . '</span></span>';
+                            }
+                        } else {
+                            $res = '-';
+                        }
+                        return $res;
+                    })
+                    // ->addColumn('copy_editor', function ($data) {
+                    //     if (!is_null($data->copy_editor)) {
+                    //         $res = '';
+                    //         $tgl = '';
+                    //         $edpros = DB::table('editing_proses_selesai')
+                    //         ->where('type','Copy Editor')
+                    //         ->where('editing_proses_id',$data->id)
+                    //         ->get();
+                    //         if (!$edpros->isEmpty()) {
+                    //             foreach ($edpros as $v) {
+                    //                 if (in_array($v->users_id,json_decode($data->copy_editor, true))) {
+                    //                     $tgl = '('.Carbon::parse($v->tgl_proses_selesai)->translatedFormat('l d M Y, H:i').')';
+                    //                 }
+                    //             }
+                    //         }
+                    //         foreach (json_decode($data->copy_editor, true) as $q) {
+                    //             $res .= '<span class="d-block">-&nbsp;' . DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama . ' <span class="text-success">'.$tgl.'</span></span>';
+                    //         }
+                    //     } else {
+                    //         $res = '-';
+                    //     }
+                    //     return $res;
+                    // })
+                    ->addColumn('history', function ($data) {
+                        $historyData = DB::table('editing_proses_history')->where('editing_proses_id', $data->id)->get();
+                        if ($historyData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                            return $date;
+                        }
+                    })
+                    ->addColumn('action', function ($data) {
+                        $btn = '<a href="' . url('penerbitan/editing/detail?editing=' . $data->id . '&kode=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                    switch ($data->jalur_buku) {
-                        case 'Reguler':
-                            $jb = 'reguler';
-                            $btn = $this->logicPermissionAction($data->status,$jb,$data->pic_prodev,$data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                        case 'MoU':
-                            $jb = 'mou';
-                            $btn = $this->logicPermissionAction($data->status,$jb,$data->pic_prodev,$data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                        case 'SMK/NonSMK':
-                            $jb = 'smk';
-                            $btn = $this->logicPermissionAction($data->status,$jb,$data->pic_prodev,$data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                        default:
-                            $jb = 'MoU-Reguler';
-                            $btn = $this->logicPermissionAction($data->status,$jb,$data->pic_prodev,$data->id, $data->kode, $data->judul_final, $btn);
-                            break;
-                    }
-                    return $btn;
-                })
-                ->rawColumns([
-                    'kode',
-                    'judul_final',
-                    'penulis',
-                    'nama_pena',
-                    'jalur_buku',
-                    'tgl_masuk_editing',
-                    'pic_prodev',
-                    'editor',
-                    // 'copy_editor',
-                    'history',
-                    'action'
-                ])
-                ->make(true);
+                        switch ($data->jalur_buku) {
+                            case 'Reguler':
+                                $jb = 'reguler';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                            case 'MoU':
+                                $jb = 'mou';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                            case 'SMK/NonSMK':
+                                $jb = 'smk';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                            default:
+                                $jb = 'MoU-Reguler';
+                                $btn = $this->logicPermissionAction($data->status, $jb, $data->pic_prodev, $data->id, $data->kode, $data->judul_final, $btn);
+                                break;
+                        }
+                        return $btn;
+                    })
+                    ->rawColumns([
+                        'kode',
+                        'judul_final',
+                        'penulis',
+                        'nama_pena',
+                        'jalur_buku',
+                        'tgl_masuk_editing',
+                        'pic_prodev',
+                        'editor',
+                        // 'copy_editor',
+                        'history',
+                        'action'
+                    ])
+                    ->make(true);
             }
         }
         //Isi Warna Enum
         $type = DB::select(DB::raw("SHOW COLUMNS FROM editing_proses WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $statusProgress = explode("','", $matches[1]);
+        $statusAction = Arr::except($statusProgress, ['4']);
+        $statusProgress = Arr::sort($statusProgress);
         return view('penerbitan.editing.index', [
             'title' => 'Editing Proses',
             'status_progress' => $statusProgress,
+            'status_action' => $statusAction,
         ]);
     }
     public function editEditing(Request $request)
@@ -225,68 +229,72 @@ class EditingController extends Controller
                     ->where('ep.id', $request->id)
                     ->select('ep.*', 'dp.judul_final', 'df.bullet', 'dp.jml_hal_perkiraan')
                     ->first();
-                // if ($request->has('copy_editor')) {
-                //     foreach ($request->copy_editor as $ce) {
-                //         $req_copyeditor[] = $ce;
-                //     }
-                //     $copyeditor = json_encode($req_copyeditor);
-                // } else {
-                //     $copyeditor = null;
-                // }
-                if ($history->proses == '1') {
-                    if (is_null($history->tgl_selesai_edit)) {
-                        if ((json_decode($history->editor, true) != $request->editor) && (!is_null($history->tgl_mulai_edit))) {
-                            return response()->json([
-                                'status' => 'error',
-                                'message' => 'Hentikan proses untuk mengubah editor'
-                            ]);
-                        }
-                    } else {
-                        if ((json_decode($history->copy_editor, true) != $request->copy_editor) && (!is_null($history->tgl_mulai_copyeditor))) {
-                            return response()->json([
-                                'status' => 'error',
-                                'message' => 'Hentikan proses untuk mengubah copy editor'
-                            ]);
+                if ($request->has('request_revision')) {
+                    return $this->donerevisionActKabag($history);
+                } else {
+                    // if ($request->has('copy_editor')) {
+                    //     foreach ($request->copy_editor as $ce) {
+                    //         $req_copyeditor[] = $ce;
+                    //     }
+                    //     $copyeditor = json_encode($req_copyeditor);
+                    // } else {
+                    //     $copyeditor = null;
+                    // }
+                    if ($history->proses == '1') {
+                        if (is_null($history->tgl_selesai_edit)) {
+                            if ((json_decode($history->editor, true) != $request->editor) && (!is_null($history->tgl_mulai_edit))) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Hentikan proses untuk mengubah editor'
+                                ]);
+                            }
+                        } else {
+                            if ((json_decode($history->copy_editor, true) != $request->copy_editor) && (!is_null($history->tgl_mulai_copyeditor))) {
+                                return response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Hentikan proses untuk mengubah copy editor'
+                                ]);
+                            }
                         }
                     }
-                }
-                $update = [
-                    'params' => 'Edit Editing',
-                    'id' => $request->id,
-                    'jml_hal_perkiraan' => $request->jml_hal_perkiraan, //Deskripsi Produk
-                    'catatan' => $request->catatan,
-                    'bullet' =>  json_encode(array_filter($request->bullet)), //Deskripsi Final
-                    'editor' => json_encode($request->editor),
-                    // 'copy_editor' => $request->has('copy_editor') ? json_encode($request->copy_editor) : null,
-                    'bulan' => Carbon::createFromDate($request->bulan)
-                ];
-                event(new EditingEvent($update));
+                    $update = [
+                        'params' => 'Edit Editing',
+                        'id' => $request->id,
+                        'jml_hal_perkiraan' => $request->jml_hal_perkiraan, //Deskripsi Produk
+                        'catatan' => $request->catatan,
+                        'bullet' =>  json_encode(array_filter($request->bullet)), //Deskripsi Final
+                        'editor' => json_encode($request->editor),
+                        // 'copy_editor' => $request->has('copy_editor') ? json_encode($request->copy_editor) : null,
+                        'bulan' => Carbon::createFromDate($request->bulan)
+                    ];
+                    event(new EditingEvent($update));
 
-                $insert = [
-                    'params' => 'Insert History Edit Editing',
-                    'editing_proses_id' => $request->id,
-                    'type_history' => 'Update',
-                    'editor_his' => $history->editor == json_encode(array_filter($request->editor)) ? null : $history->editor,
-                    'editor_new' => $history->editor == json_encode(array_filter($request->editor)) ? null : json_encode(array_filter($request->editor)),
-                    'jml_hal_perkiraan_his' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $history->jml_hal_perkiraan,
-                    'jml_hal_perkiraan_new' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $request->jml_hal_perkiraan,
-                    'bullet_his' => $history->bullet == json_encode(array_filter($request->bullet)) ? null : $history->bullet,
-                    'bullet_new' => $history->bullet == json_encode(array_filter($request->bullet)) ? null : json_encode(array_filter($request->bullet)),
-                    // 'copy_editor_his' => $history->copy_editor == $copyeditor ? null : $history->copy_editor,
-                    // 'copy_editor_new' => $history->copy_editor == $copyeditor ? null : $copyeditor,
-                    'catatan_his' => $history->catatan == $request->catatan ? null : $history->catatan,
-                    'catatan_new' => $history->catatan == $request->catatan ? null : $request->catatan,
-                    'bulan_his' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
-                    'bulan_new' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : Carbon::createFromDate($request->bulan),
-                    'author_id' => auth()->id(),
-                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                ];
-                event(new EditingEvent($insert));
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Data editing proses berhasil ditambahkan',
-                    'route' => route('editing.view')
-                ]);
+                    $insert = [
+                        'params' => 'Insert History Edit Editing',
+                        'editing_proses_id' => $request->id,
+                        'type_history' => 'Update',
+                        'editor_his' => $history->editor == json_encode(array_filter($request->editor)) ? null : $history->editor,
+                        'editor_new' => $history->editor == json_encode(array_filter($request->editor)) ? null : json_encode(array_filter($request->editor)),
+                        'jml_hal_perkiraan_his' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $history->jml_hal_perkiraan,
+                        'jml_hal_perkiraan_new' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $request->jml_hal_perkiraan,
+                        'bullet_his' => $history->bullet == json_encode(array_filter($request->bullet)) ? null : $history->bullet,
+                        'bullet_new' => $history->bullet == json_encode(array_filter($request->bullet)) ? null : json_encode(array_filter($request->bullet)),
+                        // 'copy_editor_his' => $history->copy_editor == $copyeditor ? null : $history->copy_editor,
+                        // 'copy_editor_new' => $history->copy_editor == $copyeditor ? null : $copyeditor,
+                        'catatan_his' => $history->catatan == $request->catatan ? null : $history->catatan,
+                        'catatan_new' => $history->catatan == $request->catatan ? null : $request->catatan,
+                        'bulan_his' => date('Y-m', strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
+                        'bulan_new' => date('Y-m', strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : Carbon::createFromDate($request->bulan),
+                        'author_id' => auth()->id(),
+                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new EditingEvent($insert));
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data editing proses berhasil ditambahkan',
+                        'route' => route('editing.view')
+                    ]);
+                }
             }
         }
         $id = $request->get('editing');
@@ -373,8 +381,8 @@ class EditingController extends Controller
     }
     public function detailEditing(Request $request)
     {
-        $id = $request->get('editing');
-        $kode = $request->get('kode');
+        $id = $request->editing;
+        $kode = $request->kode;
         $data = DB::table('editing_proses as ep')
             ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
             ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
@@ -402,6 +410,20 @@ class EditingController extends Controller
                 'kb.nama'
             )
             ->first();
+
+        if ($request->ajax()) {
+            if (is_null($data)) {
+                return abort(404);
+            }
+            if ($request->isMethod('GET')) {
+                //show modal revisi
+                return $this->showModal($data);
+            } else {
+                //submit revisi
+                return $this->submitRevisi($request, $data);
+            }
+        }
+
         if (is_null($data)) {
             return abort(404);
         }
@@ -411,9 +433,9 @@ class EditingController extends Controller
                     ->whereNull('pp.deleted_at');
             })
             ->where('pnp.naskah_id', '=', $data->naskah_id)
-            ->select('pp.id','pp.nama')
+            ->select('pp.id', 'pp.nama')
             ->get();
-        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->select('id','nama')->first();
+        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->select('id', 'nama')->first();
         if (!is_null($data->editor)) {
             foreach (json_decode($data->editor, true) as $ed) {
                 $namaEditor[] = DB::table('users')->where('id', $ed)->first();
@@ -484,8 +506,8 @@ class EditingController extends Controller
             $update = [
                 'params' => 'Update Status Editing',
                 'id' => $data->id,
-                'tgl_selesai_proses' => $request->status=='Selesai'?$tgl:NULL,
-                'turun_pracetak' => $request->status=='Selesai'?$tgl:NULL,
+                'tgl_selesai_proses' => $request->status == 'Selesai' ? $tgl : NULL,
+                'turun_pracetak' => $request->status == 'Selesai' ? $tgl : NULL,
                 'status' => $request->status,
             ];
             $insert = [
@@ -498,10 +520,10 @@ class EditingController extends Controller
                 'modified_at' => $tgl
             ];
             if ($data->proses == '1') {
-                $label = is_null($data->tgl_selesai_edit)?'editor':'copy editor';
+                $label = is_null($data->tgl_selesai_edit) ? 'editor' : 'copy editor';
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Tidak bisa mengubah status, karena sedang proses kerja '.$label
+                    'message' => 'Tidak bisa mengubah status, karena sedang proses kerja ' . $label
                 ]);
             }
             if ($request->status == 'Selesai') {
@@ -512,12 +534,12 @@ class EditingController extends Controller
                     ]);
                 }
                 // if (is_null($data->tgl_selesai_copyeditor)) {
-                    //     return response()->json([
-                        //         'status' => 'error',
-                        //         'message' => 'Copy Editor belum selesai'
-                        //     ]);
-                        // }
-                $desfin = DB::table('deskripsi_final')->where('id',$data->deskripsi_final_id)->whereNull('sinopsis')->first();
+                //     return response()->json([
+                //         'status' => 'error',
+                //         'message' => 'Copy Editor belum selesai'
+                //     ]);
+                // }
+                $desfin = DB::table('deskripsi_final')->where('id', $data->deskripsi_final_id)->whereNull('sinopsis')->first();
                 if ($desfin) {
                     return response()->json([
                         'status' => 'error',
@@ -526,7 +548,7 @@ class EditingController extends Controller
                 }
                 event(new EditingEvent($update));
                 event(new EditingEvent($insert));
-                DB::table('pracetak_setter')->where('deskripsi_final_id',$data->deskripsi_final_id)->update([
+                DB::table('pracetak_setter')->where('deskripsi_final_id', $data->deskripsi_final_id)->update([
                     'jml_hal_final' => $data->jml_hal_perkiraan
                 ]);
                 $updateTimelineEditing = [
@@ -573,7 +595,7 @@ class EditingController extends Controller
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
                 ->join('users as u', 'eph.author_id', '=', 'u.id')
                 ->where('eph.editing_proses_id', $id)
-                ->select('eph.*','dp.judul_final', 'u.nama')
+                ->select('eph.*', 'dp.judul_final', 'u.nama')
                 ->orderBy('eph.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
@@ -593,7 +615,7 @@ class EditingController extends Controller
                     case 'Update':
                         $html .= '<span class="ticket-item" id="newAppend">';
                         if (!is_null($d->editor_his)) {
-                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopEDHIS = '';
                             $loopEDNEW = '';
                             foreach (json_decode($d->editor_his, true) as $edhis) {
@@ -605,7 +627,7 @@ class EditingController extends Controller
                             $html .= ' Editor <b class="text-dark">' . $loopEDHIS . '</b> diubah menjadi <b class="text-dark">' . $loopEDNEW . '</b>.<br>';
                             $html .= '</span></div>';
                         } elseif (!is_null($d->editor_new)) {
-                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopEDNEW = '';
                             foreach (json_decode($d->editor_new, true) as $ednew) {
                                 $loopEDNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $ednew)->first()->nama . '</b>, ';
@@ -631,7 +653,7 @@ class EditingController extends Controller
                         //     $html .= ' Editor <b class="text-dark">' . $loopCEDNEW . '</b> ditambahkan.<br>';
                         // }
                         if (!is_null($d->bullet_his)) {
-                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopFC = '';
                             $loopFCN = '';
                             foreach (json_decode($d->bullet_his, true) as $fc) {
@@ -643,7 +665,7 @@ class EditingController extends Controller
                             $html .= ' Bullet <b class="text-dark">' . $loopFC . '</b> diubah menjadi <b class="text-dark">' . $loopFCN . '</b>.<br>';
                             $html .= '</span></div>';
                         } elseif (!is_null($d->bullet_new)) {
-                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopFCNew = '';
                             foreach (json_decode($d->bullet_new, true) as $fcn) {
                                 $loopFCNew .= '<span class="bullet"></span>' . $fcn;
@@ -652,25 +674,25 @@ class EditingController extends Controller
                             $html .= '</span></div>';
                         }
                         if (!is_null($d->jml_hal_perkiraan_his)) {
-                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Jumlah halaman final <b class="text-dark">' . $d->jml_hal_perkiraan_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b>.<br>';
                             $html .= '</span></div>';
                         } elseif (!is_null($d->jml_hal_perkiraan_new)) {
-                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Jumlah halaman final <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b> ditambahkan.';
                             $html .= '</span></div>';
                         }
                         if (!is_null($d->catatan_his)) {
-                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Catatan <b class="text-dark">' . $d->catatan_his . '</b> diubah menjadi <b class="text-dark">' . $d->catatan_new . '</b>.<br>';
                             $html .= '</span></div>';
                         } elseif (!is_null($d->catatan_new)) {
-                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Catatan <b class="text-dark">' . $d->catatan_new . '</b> ditambahkan.<br>';
                             $html .= '</span></div>';
                         }
                         if (!is_null($d->bulan_his)) {
-                            $html .='<div class="ticket-title"><span><span class="bullet"></span>';
+                            $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $html .= ' Bulan <b class="text-dark">' . Carbon::parse($d->bulan_his)->translatedFormat('F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->bulan_new)->translatedFormat('F Y') . '</b>.';
                             $html .= '</span></div>';
                         }
@@ -700,14 +722,14 @@ class EditingController extends Controller
             return $html;
         }
     }
-    protected function logicPermissionAction($status = null, $jb = null, $pic_prodev,$id, $kode, $judul_final, $btn)
+    protected function logicPermissionAction($status = null, $jb = null, $pic_prodev, $id, $kode, $judul_final, $btn)
     {
         switch ($jb) {
             case 'MoU-Reguler':
                 $gate = Gate::allows('do_create', 'ubah-atau-buat-editing-reguler') || Gate::allows('do_create', 'ubah-atau-buat-editing-mou');
                 break;
             default:
-                $gate = Gate::allows('do_create', 'ubah-atau-buat-editing-'.$jb);
+                $gate = Gate::allows('do_create', 'ubah-atau-buat-editing-' . $jb);
                 break;
         }
         if ($gate) {
@@ -744,6 +766,9 @@ class EditingController extends Controller
             case 'Selesai':
                 $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
                 break;
+            case 'Revisi':
+                $btn .= '<span class="d-block badge badge-info mr-1 mt-1">' . $status . '</span>';
+                break;
             default:
                 return abort(410);
                 break;
@@ -767,6 +792,9 @@ class EditingController extends Controller
                 break;
             case 'Selesai':
                 $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Revisi':
+                $btn .= '<span class="d-block badge badge-info mr-1 mt-1">' . $status . '</span>';
                 break;
             default:
                 return abort(410);
@@ -891,15 +919,15 @@ class EditingController extends Controller
             }
         }
     }
-    public function prosesSelesaiEditing($autor,$id)
+    public function prosesSelesaiEditing($autor, $id)
     {
         switch ($autor) {
             case 'editor':
                 return $this->selesaiEditor($id);
                 break;
-            // case 'copyeditor':
-            //     return $this->selesaiCopyEditor($id);
-            //     break;
+                // case 'copyeditor':
+                //     return $this->selesaiCopyEditor($id);
+                //     break;
             default:
                 return response()->json([
                     'status' => 'error',
@@ -908,59 +936,210 @@ class EditingController extends Controller
                 break;
         }
     }
+    protected function showModal($data)
+    {
+        try {
+            $html = '';
+            switch ($data->status) {
+                case 'Proses':
+                    $html .= "<div class='form-group'>
+                        <label for='ket_revisi' class='col-form-label'>Alasan: <span class='text-danger'>*</span></label>
+                        <textarea class='form-control' name='ket_revisi' id='ket_revisi' rows='4'></textarea>
+                        <div id='err_ket_revisi'></div>
+                        </div>";
+                    $title = '<i class="fas fa-times"></i>&nbsp;REVISI DATA EDITING ' . $data->kode . "-" . $data->judul_final;
+                    $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Konfirmasi</button>';
+                    break;
+                case 'Revisi':
+                    $ketRevisi = DB::table('editing_proses_selesai')
+                        ->where('type', 'Editor')
+                        ->where('editing_proses_id', $data->id)
+                        ->whereNotNull('ket_revisi')
+                        ->first();
+                    $html .= "<div class='form-group mb-2'>
+                        <label for='decline_by'>Oleh:</label>
+                        <p id='decline_by'>" . DB::table('users')->where('id', $ketRevisi->users_id)->first()->nama . "</p></div>
+                        <hr>
+                        <div class='form-group mb-2'>
+                        <label for='decline'>Dilakukan pada:</label>
+                        <p id='decline'>" . Carbon::parse($ketRevisi->tgl_proses_selesai)->translatedFormat('l d F Y, H:i') . "</p></div>
+                        <hr>
+                        <div class='form-group mb-2'>
+                        <label for='keterangan_decline'>Alasan:</label>
+                        <p id='keterangan_decline'>" . $ketRevisi->ket_revisi . "</p></div>";
+                    $title = '<i class="fas fa-times"></i>&nbsp;ORDER BUKU ' . $data->kode . "-" . $data->judul_final . ', REVISI';
+                    $footer = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>';
+                    break;
+            }
+
+            return response()->json([
+                'title' => $title,
+                'footer' => $footer,
+                'data' => $data,
+                'html' => $html
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function submitRevisi($request, $data)
+    {
+        try {
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $ket_revisi = $request->ket_revisi;
+            DB::beginTransaction();
+            $pros = [
+                'params' => 'Revisi',
+                'type' => 'Editor',
+                'editing_proses_id' => $data->id,
+                'users_id' => auth()->id(),
+                'ket_revisi' => $ket_revisi,
+                'tgl_proses_selesai' => $tgl
+            ];
+            event(new EditingEvent($pros));
+            DB::table('editing_proses')->where('id', $data->id)
+                ->update([
+                    'status' => 'Revisi',
+                    'tgl_mulai_edit' => NULL,
+                    'tgl_selesai_edit' => NULL
+                ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil direvisi!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function donerevisionActKabag($data)
+    {
+        try {
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            DB::beginTransaction();
+            $pros = [
+                'params' => 'Revisi',
+                'type' => 'Kabag',
+                'editing_proses_id' => $data->id,
+                'users_id' => auth()->id(),
+                'ket_revisi' => NULL,
+                'tgl_proses_selesai' => $tgl
+            ];
+            event(new EditingEvent($pros));
+            DB::table('editing_proses')->where('id', $data->id)->update([
+                'tgl_mulai_edit' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'status' => 'Proses',
+                'proses' => '1'
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data editing telah selesai direvisi! Selanjutnya akan dikembalikan ke Editor.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
     protected function selesaiEditor($id)
     {
         try {
-            $data = DB::table('editing_proses')->where('id',$id)->first();
+            $data = DB::table('editing_proses')->where('id', $id)->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Data editing tidak ada'
-                ],404);
+                ], 404);
             }
             $dataProsesSelf = DB::table('editing_proses_selesai')
-            ->where('type','Editor')
-            ->where('editing_proses_id',$data->id)
-            ->where('users_id',auth()->id())
-            ->get();
-            if (!$dataProsesSelf->isEmpty()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Anda sudah selesai melakukan editing'
-                ]);
-            }
-            $dataProses = DB::table('editing_proses_selesai')
-            ->where('type','Editor')
-            ->where('editing_proses_id',$data->id)
-            ->get();
-            $edPros = count($dataProses) + 1;
-            if ($edPros == count(json_decode($data->editor,true))) {
-                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                $pros = [
-                    'params' => 'Proses Selesai',
-                    'type' => 'Editor',
-                    'editing_proses_id' => $data->id,
-                    'users_id' => auth()->id(),
-                    'tgl_proses_selesai' => $tgl
-                ];
-                event(new EditingEvent($pros));
-                $done = [
-                    'params' => 'Editing Selesai',
-                    'id' => $data->id,
-                    'tgl_selesai_edit' => $tgl,
-                    'proses' => '0'
-                ];
-                event(new EditingEvent($done));
+                ->where('editing_proses_id', $data->id)
+                ->orderBy('id', 'desc');
+            if ($dataProsesSelf->first()->type != 'Kabag') {
+                if ($dataProsesSelf->first()->users_id == auth()->id()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Anda sudah selesai melakukan editing'
+                    ]);
+                }
+                $dataProses = DB::table('editing_proses_selesai')
+                    ->where('type', 'Editor')
+                    ->where('editing_proses_id', $data->id)
+                    ->get();
+                $edPros = count($dataProses) + 1;
+                if ($edPros == count(json_decode($data->editor, true))) {
+                    $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    $pros = [
+                        'params' => 'Proses Selesai',
+                        'type' => 'Editor',
+                        'editing_proses_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => $tgl
+                    ];
+                    event(new EditingEvent($pros));
+                    $done = [
+                        'params' => 'Editing Selesai',
+                        'id' => $data->id,
+                        'tgl_selesai_edit' => $tgl,
+                        'proses' => '0'
+                    ];
+                    event(new EditingEvent($done));
+                } else {
+                    $pros = [
+                        'params' => 'Proses Selesai',
+                        'type' => 'Editor',
+                        'editing_proses_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new EditingEvent($pros));
+                }
             } else {
-                $pros = [
-                    'params' => 'Proses Selesai',
-                    'type' => 'Editor',
-                    'editing_proses_id' => $data->id,
-                    'users_id' => auth()->id(),
-                    'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                ];
-                event(new EditingEvent($pros));
+                $dataProses = DB::table('editing_proses_selesai')
+                    ->where('id', '>', $dataProsesSelf->first()->id)
+                    ->where('type', 'Editor')
+                    ->where('editing_proses_id', $data->id)
+                    ->get();
+                $edPros = count($dataProses) + 1;
+                if ($edPros == count(json_decode($data->editor, true))) {
+                    $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    $pros = [
+                        'params' => 'Proses Selesai',
+                        'type' => 'Editor',
+                        'editing_proses_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => $tgl
+                    ];
+                    event(new EditingEvent($pros));
+                    $done = [
+                        'params' => 'Editing Selesai',
+                        'id' => $data->id,
+                        'tgl_selesai_edit' => $tgl,
+                        'proses' => '0'
+                    ];
+                    event(new EditingEvent($done));
+                } else {
+                    $pros = [
+                        'params' => 'Proses Selesai',
+                        'type' => 'Editor',
+                        'editing_proses_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new EditingEvent($pros));
+                }
             }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Pengerjaan selesai'
