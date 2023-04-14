@@ -284,7 +284,77 @@ class PracetakDesainerController extends Controller
     public function editDesigner(Request $request)
     {
         if ($request->ajax()) {
-            if ($request->isMethod('POST')) {
+            if ($request->isMethod('GET')) {
+                $id = $request->get('cover');
+                $kodenaskah = $request->get('kode');
+                $data = DB::table('pracetak_cover as pc')
+                ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                        ->whereNull('kb.deleted_at');
+                })
+                ->where('pc.id', $id)
+                ->where('pn.kode', $kodenaskah)
+                ->select(
+                    'pc.*',
+                    'df.sub_judul_final',
+                    'df.bullet',
+                    'df.sinopsis',
+                    'dc.des_front_cover',
+                    'dc.des_back_cover',
+                    'dc.finishing_cover',
+                    'dc.jilid',
+                    'dc.tipografi',
+                    'dc.warna',
+                    'dc.contoh_cover',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'dp.nama_pena',
+                    'dp.imprint',
+                    'dp.format_buku',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                    'kb.nama',
+                    'ps.id as id_praset'
+
+                )
+                ->first();
+                if (is_null($data)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data tidak ditemukan'
+                    ]);
+                }
+                $useData = $data;
+                $data = collect($data)->put('penulis',DB::table('penerbitan_naskah_penulis as pnp')
+                ->join('penerbitan_penulis as pp', function ($q) {
+                    $q->on('pnp.penulis_id', '=', 'pp.id')
+                        ->whereNull('pp.deleted_at');
+                })
+                ->where('pnp.naskah_id', '=', $data->naskah_id)
+                ->select('pp.nama')
+                ->get());
+
+                //! BELOM SELESAI DIJADIIN KAYAK PRACETAK SETTER
+                $data = (object) collect($data)->map(function ($item, $key) {
+                    switch ($key) {
+                        case 'status':
+                            return json_decode($item);
+                            break;
+                        case 'contoh_cover':
+                            return asset('storage/' . $item);
+                            break;
+                        default:
+                            return $item;
+                            break;
+                    }
+                })->all();
+            } else {
                 try {
                     DB::beginTransaction();
                     $history = DB::table('pracetak_cover as pc')
@@ -392,45 +462,7 @@ class PracetakDesainerController extends Controller
                 }
             }
         }
-        $id = $request->get('cover');
-        $kodenaskah = $request->get('kode');
-        $data = DB::table('pracetak_cover as pc')
-            ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
-            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-            ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
-            ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
-            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                    ->whereNull('kb.deleted_at');
-            })
-            ->where('pc.id', $id)
-            ->where('pn.kode', $kodenaskah)
-            ->select(
-                'pc.*',
-                'df.sub_judul_final',
-                'df.bullet',
-                'df.sinopsis',
-                'dc.des_front_cover',
-                'dc.des_back_cover',
-                'dc.finishing_cover',
-                'dc.jilid',
-                'dc.tipografi',
-                'dc.warna',
-                'dc.contoh_cover',
-                'dp.naskah_id',
-                'dp.judul_final',
-                'dp.nama_pena',
-                'dp.imprint',
-                'dp.format_buku',
-                'pn.kode',
-                'pn.jalur_buku',
-                'pn.pic_prodev',
-                'kb.nama',
-                'ps.id as id_praset'
 
-            )
-            ->first();
         is_null($data) ? abort(404) :
             $desainer = DB::table('users as u')
             ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
