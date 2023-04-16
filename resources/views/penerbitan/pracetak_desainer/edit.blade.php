@@ -26,92 +26,10 @@
             <div class="col-12">
                 <div class="card card-warning">
                     <div class="row card-header justify-content-between">
-                        <div class="col-auto">
-                            @switch($data->status)
-                            @case('Antrian')
-                            <i class="far fa-circle" style="color:#34395E;"></i>
-                            Status Progress:
-                            <span class="badge" style="background:#34395E;color:white">{{ $data->status }}</span>
-                            @break
-
-                            @case('Pending')
-                            <i class="far fa-circle text-danger"></i>
-                            Status Progress:
-                            <span class="badge badge-danger">{{ $data->status }}</span>
-                            @break
-
-                            @case('Proses')
-                            <i class="far fa-circle text-success"></i>
-                            Status Progress:
-                            <span class="badge badge-success">{{ $data->status }}</span>
-                            @break
-
-                            @case('Selesai')
-                            <i class="far fa-circle text-dark"></i>
-                            Status Progress:
-                            <span class="badge badge-light">{{ $data->status }}</span>
-                            @break
-
-                            @case('Revisi')
-                            <i class="far fa-circle text-info"></i>
-                            Status Progress:
-                            <span class="badge badge-info">{{ $data->status }}</span>
-                            @break
-                            @endswitch
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-exclamation-circle"></i>&nbsp;Proses Saat Ini:
-                            @switch($data->proses_saat_ini)
-                                @case('Antrian Pengajuan Desain')
-                                    <span class="text-dark"> Antri Pengajuan Desain</span>
-                                    @break
-                                @case('Pengajuan Desain')
-                                    <span class="text-dark"> Pengajuan Desain</span>
-                                    @break
-                                @case('Antrian Desain Back Cover')
-                                    <span class="text-dark" class="text-dark"> Antri Desain Back Cover</span>
-                                    @break
-                                @case('Desain Back Cover')
-                                    <span class="text-dark" class="text-dark"> Desain Back Cover</span>
-                                    @break
-                                @case('Approval Prodev')
-                                    <span class="text-dark"> Approval Prodev</span>
-                                    @break
-                                @case('Antrian Koreksi')
-                                    <span class="text-dark"> Antrian Koreksi</span>
-                                    @break
-                                @case('Koreksi')
-                                    <span class="text-dark"> Koreksi</span>
-                                    @break
-                                @case('Siap Turcet')
-                                    <span class="text-dark"> Siap Turcet</span>
-                                    @break
-                                @case('Turun Cetak')
-                                    <span class="text-dark"> Turun Cetak</span>
-                                    @break
-                                @case('Desain Revisi')
-                                    <span class="text-dark"> Desain Revisi</span>
-                                    @break
-                                @default
-                                    <span class="text-danger"> Belum ada proses</span>
-                                    @break
-                            @endswitch
-                            @if ($data->status == 'Revisi')
-                            <br>
-                                <button type="button" class="btn btn-warning" id="done-revision"
-                                data-id="{{$data->id}}" data-judul="{{$data->judul_final}}" data-kode="{{$data->kode}}">
-                                    <i class="fas fa-check"></i>&nbsp;Selesai Revisi
-                                </button>
-                            @endif
-                        </div>
-
+                        <div class="col-auto" id="status"></div>
+                        <div class="col-auto" id="proses_saat_ini"></div>
                     </div>
-                    @if ($data->status == 'Proses' || $data->status == 'Revisi' ||
-                    ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
-                        @include('penerbitan.pracetak_desainer.include.edit_if')
-                    @else
-                        @include('penerbitan.pracetak_desainer.include.edit_else')
-                    @endif
+                    @include('penerbitan.pracetak_desainer.include.edit_if')
                 </div>
             </div>
         </div>

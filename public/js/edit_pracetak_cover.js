@@ -1,48 +1,5 @@
 $(function () {
-    //! SELECT2
-    $(".select-proses")
-        .select2({
-            placeholder: "Pilih proses saat ini",
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(this).valid();
-            }
-        });
-    $(".select-desainer")
-        .select2({
-            placeholder: "Pilih desainer",
-            multiple: true,
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(this).valid();
-            }
-        });
-    $(".select-korektor")
-        .select2({
-            placeholder: "Pilih korektor",
-            multiple: true,
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(this).valid();
-            }
-        });
-    //! DATEPICKER
-    $(".datepicker-copyright").datepicker({
-        format: "dd MM yyyy",
-        autoclose: true,
-        clearBtn: true,
-        todayHighlight: true,
-    });
-    $(".datepicker").datepicker({
-        format: "MM yyyy",
-        viewMode: "months",
-        minViewMode: "months",
-        autoclose: true,
-        clearBtn: true,
-    });
+    loadData();
     //! PROSES UPDATE FORM
     function ajaxUpPracetakDesainer(data) {
         let el = data.get(0);
@@ -93,10 +50,8 @@ $(function () {
                 $("#overlay").fadeIn(300);
             },
             success: function (result) {
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                } else {
-                    notifToast(result.status, result.message);
+                notifToast(result.status, result.message);
+                if (result.status == "success") {
                     location.reload();
                 }
             },
@@ -156,140 +111,183 @@ $(function () {
         });
     });
 });
+function loadData() {
+    let path = window.location.search.split("?").pop();
+    $.ajax({
+        type: "GET",
+        url: window.location.origin + "/penerbitan/pracetak/designer/edit?" + path,
+        processData: false,
+        contentType: false,
+        beforeSend: function () {
+            $("#overlay").fadeIn(300);
+        },
+        success: function (result) {
+            for (let n in result) {
+                switch (n) {
+                    case "id":
+                        $("#fup_pracetakDesainer").data("id", result[n]['data']);
+                        break;
+                    case "id_praset":
+                        $("#fup_pracetakDesainer").data("id_praset", result[n]['data']);
+                        break;
+                    case "judul_final":
+                        $("#fup_pracetakDesainer").find('[name="judul_final"]').val(result[n]['data']);
+                        $("#" + n).text(result[n]['data']);
+                        break;
+                    case "penulis":
+                        $("#" + n).html(result[n]);
+                        break;
+                    case "status":
+                        $("#"+n).html(result[n]);
+                        break;
+                    case "proses_saat_ini":
+                        $("#"+n).html(result[n]['htmlHeader']);
+                        $("."+n).html(result[n]['data']).addClass(result[n]['textColor']);
+                        $("."+n).html(result[n]['data']).addClass(result[n]['textAlign']);
+                        $("."+n).html(result[n]['data']).attr('id', result[n]['idCol']);
+                        $(".prosColInput").html(result[n]['htmlHidden']).change();
+                        $("#prosButton").click(function (e) {
+                            e.preventDefault();
+                            $("#prosCol").attr("hidden", "hidden");
+                            $("#prosColInput").removeAttr("hidden");
+                        });
+                        $(".batal_edit_proses").click(function (e) {
+                            e.preventDefault();
+                            $("#prosColInput").attr("hidden", "hidden");
+                            $("#prosCol").removeAttr("hidden");
+                        });
+                        $(".select-proses")
+                            .select2({
+                                placeholder: "Pilih proses saat ini",
+                            })
+                            .on("change", function (e) {
+                                if (this.value) {
+                                    $(this).valid();
+                                }
+                            });
+                        break;
+                    case 'catatan':
+                        $("."+n).html(result[n]['data']).addClass(result[n]['textColor']);
+                        $("."+n).html(result[n]['data']).addClass(result[n]['textAlign']);
+                        $("."+n).html(result[n]['data']).attr('id', result[n]['idCol']);
+                        $(".catColInput").html(result[n]['htmlHidden']).change();
+                        $("#catButton").click(function (e) {
+                            e.preventDefault();
+                            $("#catCol").attr("hidden", "hidden");
+                            $("#catColInput").removeAttr("hidden");
+                        });
+                        $(".batal_edit_cat").click(function (e) {
+                            e.preventDefault();
+                            $("#catColInput").attr("hidden", "hidden");
+                            $("#catCol").removeAttr("hidden");
+                        });
+                        break;
+                    case 'desainer':
+                        $("."+n).html(result[n]['data']).addClass(result[n]['textColor']);
+                        $("."+n).html(result[n]['data']).addClass(result[n]['textAlign']);
+                        $("."+n).html(result[n]['data']).attr('id', result[n]['idCol']);
+                        $(".desainerColInput").html(result[n]['htmlHidden']).change();
+                        $("#desainerButton").click(function (e) {
+                            e.preventDefault();
+                            $("#desainerCol").attr("hidden", "hidden");
+                            $("#desainerColInput").removeAttr("hidden");
+                        });
+                        $(".batal_edit_desainer").click(function (e) {
+                            e.preventDefault();
+                            $("#desainerColInput").attr("hidden", "hidden");
+                            $("#desainerCol").removeAttr("hidden");
+                        });
+                        $(".select-desainer")
+                            .select2({
+                                placeholder: "Pilih desainer",
+                                multiple: true,
+                            })
+                            .on("change", function (e) {
+                                if (this.value) {
+                                    $(this).valid();
+                                }
+                            });
+                        break;
+                    case 'korektor':
+                        $("#requiredKorektor").text(result[n]['required']).addClass(result[n]['requiredColor']);
+                        $("."+n).html(result[n]['data']).addClass(result[n]['textColor']);
+                        $("."+n).html(result[n]['data']).addClass(result[n]['textAlign']);
+                        $("."+n).html(result[n]['data']).attr('id', result[n]['idCol']);
+                        $(".korektorColInput").html(result[n]['htmlHidden']).change();
+                        $("#korektorButton").click(function (e) {
+                            e.preventDefault();
+                            $("#korektorCol").attr("hidden", "hidden");
+                            $("#korektorColInput").removeAttr("hidden");
+                        });
+                        $(".batal_edit_korektor").click(function (e) {
+                            e.preventDefault();
+                            $("#korektorColInput").attr("hidden", "hidden");
+                            $("#korektorCol").removeAttr("hidden");
+                        });
+                        $(".select-korektor")
+                            .select2({
+                                placeholder: "Pilih korektor",
+                                multiple: true,
+                            })
+                            .on("change", function (e) {
+                                if (this.value) {
+                                    $(this).valid();
+                                }
+                            });
+                        break;
+                    case 'bulan':
+                        $("."+n).html(result[n]['data']).addClass(result[n]['textColor']);
+                        $("."+n).html(result[n]['data']).addClass(result[n]['textAlign']);
+                        $("."+n).html(result[n]['data']).attr('id', result[n]['idCol']);
+                        $(".bulanColInput").html(result[n]['htmlHidden']).change();
+                        $("#bulanButton").click(function (e) {
+                            e.preventDefault();
+                            $("#bulanCol").attr("hidden", "hidden");
+                            $("#bulanColInput").removeAttr("hidden");
+                        });
+                        $(".batal_edit_bulan").click(function (e) {
+                            e.preventDefault();
+                            $("#bulanColInput").attr("hidden", "hidden");
+                            $("#bulanCol").removeAttr("hidden");
+                        });
+                        $(".datepicker").datepicker({
+                            format: "MM yyyy",
+                            viewMode: "months",
+                            minViewMode: "months",
+                            autoclose: true,
+                            clearBtn: true,
+                        });
+                        break;
+                    case 'proses':
+                        $('#fup_pracetakDesainer').trigger("reset");
+                        $('[name="'+n+'"]').val("").trigger("change");
+                        $('#fup_pracetakDesainer [name="'+n+'"]').val(result[n]['data']).change();
+                        $('#fup_pracetakDesainer [name="'+n+'"]').data('id', result[n]['id']).change();
+                        $('#fup_pracetakDesainer [name="'+n+'"]').attr('checked', result[n]['checked']).change();
+                        $('#fup_pracetakDesainer [name="'+n+'"]').attr('disabled', result[n]['disabled']).change();
+                        $('#fup_pracetakDesainer [name="'+n+'"]').css('cursor',result[n]['cursor']).change();
+                        $('#fup_pracetakDesainer #labelProses').text(result[n]['label']).change();
+                        $('#fup_pracetakDesainer #labelProses').css('cursor',result[n]['cursor']).change();
+                        $('#fup_pracetakDesainer button').attr('disabled', result[n]['disabled']).change();
+                        $('#fup_pracetakDesainer button').css('cursor',result[n]['cursor']).change();
+                        break;
+                    default:
+                        $("#" + n).text(result[n]['data']).addClass(result[n]['textColor']);
+                        break;
+                }
+            }
+        },
+        error: function (err) {
+            // console.log(err.responseJSON);
+            notifToast("error", "Data gagal dimuat!");
+        }
+    }).done(function () {
+        setTimeout(function () {
+            $("#overlay").fadeOut(300);
+        }, 500);
+    });
+}
 
-//! TOGGLE INPUT
-$(document).ready(function () {
-    $("#korektorButton").click(function (e) {
-        e.preventDefault();
-        $("#korektorCol").attr("hidden", "hidden");
-        $("#korektorColInput").removeAttr("hidden");
-    });
-    $(".batal_edit_korektor").click(function (e) {
-        e.preventDefault();
-        $("#korektorColInput").attr("hidden", "hidden");
-        $("#korektorCol").removeAttr("hidden");
-    });
-});
-$(document).ready(function () {
-    $("#desainerButton").click(function (e) {
-        e.preventDefault();
-        $("#desainerCol").attr("hidden", "hidden");
-        $("#desainerColInput").removeAttr("hidden");
-    });
-    $(".batal_edit_desainer").click(function (e) {
-        e.preventDefault();
-        $("#desainerColInput").attr("hidden", "hidden");
-        $("#desainerCol").removeAttr("hidden");
-    });
-});
-$(document).ready(function () {
-    $("#jmlHalButton").click(function (e) {
-        e.preventDefault();
-        $("#jmlHalCol").attr("hidden", "hidden");
-        $("#jmlHalColInput").removeAttr("hidden");
-    });
-    $(".batal_edit_jml").click(function (e) {
-        e.preventDefault();
-        $("#jmlHalColInput").attr("hidden", "hidden");
-        $("#jmlHalCol").removeAttr("hidden");
-    });
-});
-$(document).ready(function () {
-    $("#edCetakButton").click(function (e) {
-        e.preventDefault();
-        $("#edCetakCol").attr("hidden", "hidden");
-        $("#edCetakColInput").removeAttr("hidden");
-    });
-    $(".batal_edit_edisicetak").click(function (e) {
-        e.preventDefault();
-        $("#edCetakColInput").attr("hidden", "hidden");
-        $("#edCetakCol").removeAttr("hidden");
-    });
-});
-$(document).ready(function () {
-    $("#catButton").click(function (e) {
-        e.preventDefault();
-        $("#catCol").attr("hidden", "hidden");
-        $("#catColInput").removeAttr("hidden");
-    });
-    $(".batal_edit_cat").click(function (e) {
-        e.preventDefault();
-        $("#catColInput").attr("hidden", "hidden");
-        $("#catCol").removeAttr("hidden");
-    });
-});
-$(document).ready(function () {
-    $("#prosButton").click(function (e) {
-        e.preventDefault();
-        $("#prosCol").attr("hidden", "hidden");
-        $("#prosColInput").removeAttr("hidden");
-    });
-    $(".batal_edit_proses").click(function (e) {
-        e.preventDefault();
-        $("#prosColInput").attr("hidden", "hidden");
-        $("#prosCol").removeAttr("hidden");
-    });
-});
-$(document).ready(function () {
-    $("#copyrightButton").click(function (e) {
-        e.preventDefault();
-        $("#copyrightCol").attr("hidden", "hidden");
-        $("#copyrightColInput").removeAttr("hidden");
-    });
-    $(".batal_edit_copyright").click(function (e) {
-        e.preventDefault();
-        $("#copyrightColInput").attr("hidden", "hidden");
-        $("#copyrightCol").removeAttr("hidden");
-    });
-});
-$(document).ready(function () {
-    $("#copyrightSelButton").click(function (e) {
-        e.preventDefault();
-        $("#copyrightSelCol").attr("hidden", "hidden");
-        $("#copyrightSelColInput").removeAttr("hidden");
-    });
-    $(".batal_edit_selesaicopyright").click(function (e) {
-        e.preventDefault();
-        $("#copyrightSelColInput").attr("hidden", "hidden");
-        $("#copyrightSelCol").removeAttr("hidden");
-    });
-});
-$(document).ready(function () {
-    $("#isbnButton").click(function (e) {
-        e.preventDefault();
-        $("#isbnCol").attr("hidden", "hidden");
-        $("#isbnColInput").removeAttr("hidden");
-    });
-    $(".batal_edit_isbn").click(function (e) {
-        e.preventDefault();
-        $("#isbnColInput").attr("hidden", "hidden");
-        $("#isbnCol").removeAttr("hidden");
-    });
-});
-$(document).ready(function () {
-    $("#hargaButton").click(function (e) {
-        e.preventDefault();
-        $("#hargaCol").attr("hidden", "hidden");
-        $("#hargaColInput").removeAttr("hidden");
-    });
-    $(".batal_edit_pengajuan_harga").click(function (e) {
-        e.preventDefault();
-        $("#hargaColInput").attr("hidden", "hidden");
-        $("#hargaCol").removeAttr("hidden");
-    });
-});
-$(document).ready(function () {
-    $("#bulanButton").click(function (e) {
-        e.preventDefault();
-        $("#bulanCol").attr("hidden", "hidden");
-        $("#bulanColInput").removeAttr("hidden");
-    });
-    $(".batal_edit_bulan").click(function (e) {
-        e.preventDefault();
-        $("#bulanColInput").attr("hidden", "hidden");
-        $("#bulanCol").removeAttr("hidden");
-    });
-});
 
 //! SWITCH TOGGLE PROSES KERJA
 function resetFrom(form) {
@@ -322,11 +320,10 @@ $(function() {
             },
             success: function(result) {
                 // console.log(result);
+                notifToast(result.status, result.message);
                 if (result.status == 'error') {
-                    notifToast(result.status, result.message);
                     resetFrom($('#fup_pracetakDesainer'));
                 } else {
-                    notifToast(result.status, result.message);
                     location.reload();
                 }
             }

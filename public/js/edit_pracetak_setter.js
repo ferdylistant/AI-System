@@ -53,10 +53,8 @@ $(function () {
                 $("#overlay").fadeIn(300);
             },
             success: function (result) {
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                } else {
-                    notifToast(result.status, result.message);
+                notifToast(result.status, result.message);
+                if (result.status == "success") {
                     location.reload();
                 }
             },
@@ -462,11 +460,10 @@ $(function() {
             },
             success: function(result) {
                 // console.log(result);
+                notifToast(result.status, result.message);
                 if (result.status == 'error') {
-                    notifToast(result.status, result.message);
                     resetFrom($('#fup_pracetakSetter'));
                 } else {
-                    notifToast(result.status, result.message);
                     location.reload();
                 }
             }

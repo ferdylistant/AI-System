@@ -333,7 +333,7 @@ class PracetakSetterController extends Controller
                                     $htmlHeader .= '<span class="text-danger"> Belum ada proses</span>';
                                     break;
                             }
-                            if ($item == 'Revisi') {
+                            if ($useData->status == 'Revisi') {
                                 $htmlHeader .= '<br>
                                 <button type="button" class="btn btn-warning" id="done-revision"
                                     data-id="' . $useData->id . '" data-judul="' . $useData->judul_final . '"
@@ -545,7 +545,7 @@ class PracetakSetterController extends Controller
                                     $textAlign = 'text-right';
                                     $html .= $item.'
                                     <p class="text-small">
-                                        <a href="javascript:void(0)" id="jmlHalButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
+                                        <a href="javascript:void(0)" id="catButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
                                 $htmlHidden .='<div class="input-group">
                                 <textarea name="catatan" class="form-control" cols="30" rows="10">'.$item.'</textarea>
