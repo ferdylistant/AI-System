@@ -188,29 +188,32 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12">
-                    <div id="container_tb_naskah" class="card card-primary">
-                        <div class="card-header">
-                            <h5>Timeline</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="col-12 offset-3">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <select class="form-control select2-timeline" name="tb_naskah_tahapan">
-                                            <option label="Pilih timeline"></option>
-                                            @foreach ($naskah_kode_timeline as $nas_timeline)
-                                                <option value="{{ $nas_timeline->id }}">{{ $nas_timeline->kode }}
-                                                    &#9903; {{ $nas_timeline->judul_asli }}</option>
-                                            @endforeach
-                                        </select>
+                @if ($timeline == TRUE)
+
+                    <div class="col-12">
+                        <div id="container_tb_naskah" class="card card-primary">
+                            <div class="card-header">
+                                <h5>Timeline</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="col-12 offset-2">
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <select class="form-control select2-timeline" name="tb_naskah_tahapan">
+                                                <option label="Pilih timeline"></option>
+                                                @foreach ($naskah_kode_timeline as $nas_timeline)
+                                                    <option value="{{ $nas_timeline->id }}">{{ $nas_timeline->kode }}
+                                                        &#9903; {{ $nas_timeline->judul_asli }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
+                                <div id="showTimeline"></div>
                             </div>
-                            <div id="showTimeline"></div>
                         </div>
                     </div>
-                </div>
+                @endif
             </div>
             <div class="row">
                 @if (Gate::allows('do_update', 'ubah-data-user'))

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class HomeController extends Controller
 {
@@ -61,14 +62,42 @@ class HomeController extends Controller
         // });
 
         // return Datatables::of($data)->make(true);
-        $naskahSelectTimeline = DB::table('penerbitan_naskah as pn')->get();
-
+        $timeline = FALSE;
+        $naskahSelectTimeline = DB::table('penerbitan_naskah as pn');
+        if (in_array(auth()->id(),$naskahSelectTimeline->pluck('pic_prodev')->toArray())) {
+            $timeline = TRUE;
+            $naskahSelectTimeline=$naskahSelectTimeline->where('pic_prodev', auth()->id());
+        }
+        $naskahSelectTimeline=$naskahSelectTimeline->get();
+        if (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') {
+            $timeline = TRUE;
+        } elseif (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
+            $timeline = TRUE;
+        } elseif (Gate::allows('do_create', 'ubah-atau-buat-setter-mou')) {
+            $timeline = TRUE;
+        } elseif (Gate::allows('do_create', 'ubah-atau-buat-setter-reguler')) {
+            $timeline = TRUE;
+        } elseif (Gate::allows('do_create', 'ubah-atau-buat-setter-smk')) {
+            $timeline = TRUE;
+        } elseif (Gate::allows('do_create', 'otorisasi-kabag-prades-mou')) {
+            $timeline = TRUE;
+        } elseif (Gate::allows('do_create', 'otorisasi-kabag-prades-reguler')) {
+            $timeline = TRUE;
+        } elseif (Gate::allows('do_create', 'otorisasi-kabag-prades-smk')) {
+            $timeline = TRUE;
+        } elseif (Gate::allows('do_create', 'ubah-atau-buat-editing-smk')) {
+            $timeline = TRUE;
+        } elseif (Gate::allows('do_create', 'ubah-atau-buat-editing-reguler')) {
+            $timeline = TRUE;
+        } elseif (Gate::allows('do_create', 'ubah-atau-buat-editing-mou')) {
+            $timeline = TRUE;
+        }
+        $naskah = DB::table('penerbitan_naskah')->whereNull('deleted_at')->get();
         $userdata = DB::table('users')->where('id', auth()->user()->id)->first();
         $users = DB::table('users')->whereNotIn('id', [auth()->user()->id])->whereNull('deleted_at')->get();
         $imprint = DB::table('imprint')->get();
         $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
         $divisi = DB::table('divisi')->whereNull('deleted_at')->get();
-        $naskah = DB::table('penerbitan_naskah')->whereNull('deleted_at')->get();
         $desprod = DB::table('deskripsi_produk')->get();
         $desfin = DB::table('deskripsi_final')->get();
         $descov = DB::table('deskripsi_cover')->get();
@@ -100,6 +129,7 @@ class HomeController extends Controller
             'or_eb' => $or_eb,
             'proses_cetak' => $proses_cetak,
             'upload_ebook' => $upload_ebook,
+            'timeline' => $timeline,
             'naskah_kode_timeline'=>$naskahSelectTimeline
         ]);
     }
