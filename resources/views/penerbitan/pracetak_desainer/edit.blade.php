@@ -47,5 +47,5 @@
 
 
 @section('jsNeeded')
-<script src="{{ url('js/edit_pracetak_cover.js') }}"></script>
+<script src="{{ url('js/edit_pracetak_cover.js') }}" defer></script>
 @endsection

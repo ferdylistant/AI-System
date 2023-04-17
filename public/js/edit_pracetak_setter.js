@@ -417,7 +417,7 @@ function loadData() {
             }
         },
         error: function (err) {
-            // console.log(err.responseJSON);
+            // console.log(err);
             notifToast("error", "Data pracetak setter gagal dimuat!");
         }
     }).done(function () {

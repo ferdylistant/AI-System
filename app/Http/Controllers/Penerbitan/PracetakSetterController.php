@@ -413,7 +413,7 @@ class PracetakSetterController extends Controller
                                 if (is_null($item)) {
                                     $html = '-';
                                 } else {
-                                    foreach ($item as $value) {
+                                    foreach (json_decode($item) as $value) {
                                         $html .= '<span class="bullet"></span>'.$value . '<br>';
                                     }
                                 }
@@ -423,7 +423,7 @@ class PracetakSetterController extends Controller
                                     $html = 'Belum diinput';
                                 } else {
                                     $text = 'text-dark';
-                                    foreach ($item as $value) {
+                                    foreach (json_decode($item) as $value) {
                                         $html .= '<span class="bullet"></span>'.$value . '<br>';
                                     }
                                 }
@@ -472,7 +472,7 @@ class PracetakSetterController extends Controller
                                 if ((is_null($item)) || ($item == '[]')) {
                                     $html .= '-';
                                 } else {
-                                    foreach ($item as $value) {
+                                    foreach (json_decode($item) as $value) {
                                         $html .= '<span class="bullet"></span>'.$value . '<br>';
                                     }
                                 }
@@ -481,7 +481,8 @@ class PracetakSetterController extends Controller
                                 if ((is_null($item)) || ($item == '[]')) {
                                     $html .= 'Belum diinput';
                                 } else {
-                                    foreach ($item as $value) {
+                                    $text = 'text-dark';
+                                    foreach (json_decode($item) as $value) {
                                         $html .= '<span class="bullet"></span>'.$value . '<br>';
                                     }
                                 }

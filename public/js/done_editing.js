@@ -1,4 +1,5 @@
 $(function () {
+    loadData();
     function ajaxDoneEditing(id,autor) {
         $.ajax({
             type: "POST",
@@ -65,7 +66,7 @@ $(function () {
         cardWrap = $('.section-body').find('.card');
         $.ajax({
             type: 'GET',
-            url: window.location.origin + "/penerbitan/editing/detail?" + id,
+            url: window.location.origin + "/penerbitan/editing/detail?" + id + "&request_=show-modal-revisi",
             beforeSend: function () {
                 cardWrap.addClass('card-progress');
             },
@@ -145,3 +146,35 @@ $(function () {
         }
     });
 });
+function loadData() {
+    let id = window.location.search.split('?').pop(),
+        cardWrap = $('.section-body').find('.card');
+    $.ajax({
+        type: 'GET',
+        url: window.location.origin + "/penerbitan/editing/detail?" + id + "&request_=load-data",
+        beforeSend: function () {
+            cardWrap.addClass('card-progress');
+        },
+        success: function (response) {
+            // console.log(response);
+            for (n in response) {
+                switch (n) {
+                    case 'status':
+                        $('#'+n).html(response[n]['status']);
+                        $('#prosesPengerjaan').html(response[n]['proses']);
+                        break;
+                    default:
+                        $('#'+n).html(response[n]);
+                        break;
+                }
+            }
+        },
+        error: function (err) {
+            // console.log(err);
+            notifToast('error', 'Gagal memuat data!');
+        },
+        complete: function (params) {
+            cardWrap.removeClass('card-progress');
+        }
+    });
+}

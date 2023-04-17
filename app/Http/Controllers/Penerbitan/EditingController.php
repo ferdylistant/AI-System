@@ -416,48 +416,264 @@ class EditingController extends Controller
                 return abort(404);
             }
             if ($request->isMethod('GET')) {
-                //show modal revisi
-                return $this->showModal($data);
+                switch ($request->request_) {
+                    case 'load-data':
+                        //load data
+                        return $this->loadData($data);
+                        break;
+                    case 'show-modal-revisi':
+                        //show modal revisi
+                        return $this->showModal($data);
+                        break;
+                    default:
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Request tidak ditemukan',
+                        ]);
+                        break;
+                }
             } else {
                 //submit revisi
                 return $this->submitRevisi($request, $data);
             }
         }
-
-        if (is_null($data)) {
-            return abort(404);
-        }
-        $penulis = DB::table('penerbitan_naskah_penulis as pnp')
-            ->join('penerbitan_penulis as pp', function ($q) {
-                $q->on('pnp.penulis_id', '=', 'pp.id')
-                    ->whereNull('pp.deleted_at');
-            })
-            ->where('pnp.naskah_id', '=', $data->naskah_id)
-            ->select('pp.id', 'pp.nama')
-            ->get();
-        $pic = DB::table('users')->where('id', $data->pic_prodev)->whereNull('deleted_at')->select('id', 'nama')->first();
-        if (!is_null($data->editor)) {
-            foreach (json_decode($data->editor, true) as $ed) {
-                $namaEditor[] = DB::table('users')->where('id', $ed)->first();
-            }
-        } else {
-            $namaEditor = null;
-        }
-        // if (!is_null($data->copy_editor)) {
-        //     foreach (json_decode($data->copy_editor, true) as $cpe) {
-        //         $namaCopyEditor[] = DB::table('users')->where('id', $cpe)->first();
-        //     }
-        // } else {
-        //     $namaCopyEditor = null;
-        // }
         return view('penerbitan.editing.detail', [
             'title' => 'Detail Editing Proses',
-            'data' => $data,
-            'penulis' => $penulis,
-            'pic' => $pic,
-            'nama_editor' => $namaEditor,
-            // 'nama_copyeditor' => $namaCopyEditor
         ]);
+    }
+    protected function loadData($data)
+    {
+        try {
+            $useData = $data;
+            $data = collect($data)->put('penulis', DB::table('penerbitan_naskah_penulis as pnp')
+                ->join('penerbitan_penulis as pp', function ($q) {
+                    $q->on('pnp.penulis_id', '=', 'pp.id')
+                        ->whereNull('pp.deleted_at');
+                })
+                ->where('pnp.naskah_id', '=', $data->naskah_id)
+                ->select('pp.id', 'pp.nama')
+                ->get());
+            $data = (object)collect($data)->map(function ($item, $key) use ($useData) {
+                switch ($key) {
+                    case 'proses':
+                        $html = '';
+                        if ($useData->status == 'Revisi') {
+                            $html .= '<div class="col-auto mr-auto">
+                                <div class="mb-4">
+                                    <a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon" id="btn-revisi-editing" data-ajax="false" data-id="' . $useData->id . '" title="Keterangan Revisi">
+                                    <i class="fas fa-eye"></i>&nbsp;Keterangan Revisi</a>
+                                </div>
+                            </div>';
+                        } else {
+                            if ($item == '1') {
+                                $label = "editor";
+                                // $label = is_null($data->tgl_selesai_edit)?"editor":"copyeditor";
+                                $dataRole  = $useData->editor;
+                                // $dataRole  = is_null($data->tgl_selesai_edit)?$data->editor:$data->copy_editor;
+                                switch ($useData->jalur_buku) {
+                                    case 'Reguler':
+                                        foreach (json_decode($dataRole, true) as $edt) {
+                                            if (auth()->id() == $edt) {
+                                                if (Gate::allows('do_create', 'otorisasi-' . $label . '-editing-reguler')) {
+                                                    $html .= '<div class="col-auto">
+                                                        <div class="mb-4">
+                                                            <button type="submit" class="btn btn-success"
+                                                                id="btn-done-editing" data-ajax="false" data-id="' . $useData->id . '"
+                                                                data-kode="' . $useData->kode . '" data-autor="' . $label . '">
+                                                                <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                                            <button type="button" class="btn btn-danger" id="btn-revisi-editing" data-id="' . $useData->id . '" data-ajax="false">
+                                                                    <i class="fas fa-tools"></i>&nbsp;Revisi</button>
+                                                        </div>
+                                                    </div>';
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case 'MoU':
+                                        foreach (json_decode($dataRole) as $edt) {
+                                            if (auth()->id() == $edt) {
+                                                if (Gate::allows('do_create', 'otorisasi-' . $label . '-editing-mou')) {
+                                                    $html .= '<div class="col-auto">
+                                                            <div class="mb-4">
+                                                            <button type="submit" class="btn btn-success"
+                                                                id="btn-done-editing" data-id="' . $useData->id . '"
+                                                                data-kode="' . $useData->kode . '" data-autor="' . $label . '">
+                                                                <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                                        </div>
+                                                    </div>';
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case 'MoU-Reguler':
+                                        foreach (json_decode($dataRole) as $edt) {
+                                            if (auth()->id() == $edt) {
+                                                if (
+                                                    Gate::allows('do_create', 'otorisasi-' . $label . '-editing-reguler') ||
+                                                    Gate::allows('do_create', 'otorisasi-' . $label . '-editing-mou')
+                                                ) {
+                                                    $html .= '<div class="col-auto">
+                                                        <div class="mb-4">
+                                                            <button type="submit" class="btn btn-success"
+                                                                id="btn-done-editing" data-id="' . $useData->id . '"
+                                                                data-kode="' . $useData->kode . '" data-autor="' . $label . '">
+                                                                <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                                        </div>
+                                                    </div>';
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case 'SMK/NonSMK':
+                                        foreach (json_decode($dataRole) as $edt) {
+                                            if (auth()->id() == $edt) {
+                                                if (Gate::allows('do_create', 'otorisasi-' . $label . '-editing-smk')) {
+                                                    $html .= '<div class="col-auto">
+                                                        <div class="mb-4">
+                                                            <button type="submit" class="btn btn-success"
+                                                                id="btn-done-editing" data-id="' . $useData->id . '"
+                                                                data-kode="' . $useData->kode . '" data-autor="' . $label . '">
+                                                                <i class="fas fa-check"></i>&nbsp;Selesai</button>
+                                                        </div>
+                                                    </div>';
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case 'Pro Literasi':
+                                        foreach (json_decode($dataRole) as $edt) {
+                                            if (auth()->id() == $edt) {
+                                                if (
+                                                    Gate::allows('do_create', 'otorisasi-' . $label . '-editing-reguler') ||
+                                                    Gate::allows('do_create', 'otorisasi-editor-editing-mou')
+                                                ) {
+                                                }
+                                            }
+                                        }
+                                        break;
+                                }
+                            }
+                        }
+                        return $html;
+                        break;
+                    case 'status':
+                        $html = '';
+                        switch ($item) {
+                            case 'Antrian':
+                                $html .= '<span class="badge" style="background:#34395E;color:white">' . $item . '</span>';
+                                break;
+
+                            case 'Pending':
+                                $html .= '<span class="badge badge-danger">' . $item . '</span>';
+                                break;
+
+                            case 'Proses':
+                                $html .= '<span class="badge badge-success">' . $item . '</span>';
+                                break;
+
+                            case 'Selesai':
+                                $html .= '<span class="badge badge-light">' . $item . '</span>';
+                                break;
+                            case 'Revisi':
+                                $html .= '<span class="badge badge-info">' . $item . '</span>';
+                                break;
+                        }
+                        $proses = '';
+                        if ($useData->proses == '1') {
+                            $label = is_null($useData->tgl_selesai_edit) ? 'editor' : 'copy editor';
+                            $proses .= '<span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Sedang proses
+                                    pengerjaan ' . $label . '</span>';
+                        }
+                        return ['status' => $html, 'proses' => $proses];
+                        break;
+                    case 'bullet':
+                        $html = '';
+                        if (!is_null($item) && $item != '[]') {
+                            foreach (json_decode($item, true) as $key => $value) {
+                                $html .= '<span class="bullet">' . $value . '</span>';
+                            }
+                        } else {
+                            $html .= '-';
+                        }
+                        return $html;
+                        break;
+                    case 'penulis':
+                        $html = '';
+                        if (!is_null($item)) {
+                            foreach ($item as $key => $value) {
+                                $html .= '<span class="bullet"></span>
+                                <a href="' . url('/penerbitan/penulis/detail-penulis/' . $value->id) . '">' . $value->nama . '</a>';
+                            }
+                        } else {
+                            $html .= '-';
+                        }
+                        return $html;
+                        break;
+                    case 'nama_pena':
+                        $html = '';
+                        if (!is_null($item)) {
+                            foreach (json_decode($item, true) as $key => $value) {
+                                $html .= '<span class="bullet"></span>' . $value ;
+                            }
+                        } else {
+                            $html .= '-';
+                        }
+                        return $html;
+                        break;
+                    case 'pic_prodev':
+                        $html = '';
+                        $pic = DB::table('users')->where('id', $item)->whereNull('deleted_at')->select('id', 'nama')->first();
+                        if (!is_null($item)) {
+                            $html .= '<a href="' . url('/manajemen-web/user/' . $pic->id) . '">' . $pic->nama . '</a>';
+                        } else {
+                            $html .= '-';
+                        }
+                        return $html;
+                        break;
+                    case 'tgl_masuk_editing':
+                        return $item ? Carbon::parse($item)->translatedFormat('l d F Y, H:i') : '-';
+                        break;
+                    case 'tgl_mulai_edit':
+                        return $item ? Carbon::parse($item)->translatedFormat('l d F Y, H:i') : '-';
+                        break;
+                    case 'tgl_selesai_edit':
+                        return $item ? Carbon::parse($item)->translatedFormat('l d F Y, H:i') : '-';
+                        break;
+                    case 'tgl_selesai_edit':
+                        return $item ? Carbon::parse($item)->translatedFormat('F Y') : '-';
+                        break;
+                    case 'editor':
+                        $html = '';
+                        if (!is_null($item)) {
+                            $item = collect($item)->map(function ($item) {
+                                $return = DB::table('users')->where('id', json_decode($item))->whereNull('deleted_at')->select('id', 'nama')->first();
+                                return $return;
+                            })->all();
+                            foreach ($item as $key => $value) {
+                                $html .= '<span class="bullet"></span>
+                            <a href="' . url('/manajemen-web/user/' . $value->id) . '">' . $value->nama . '</a><br>';
+                            }
+                        } else {
+                            $html .= '-';
+                        }
+                        return $html;
+                        break;
+                    default:
+                        return $item ? $item : '-';
+                        break;
+                }
+            })->all();
+            return $data;
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
     public function updateStatusProgress(Request $request)
     {

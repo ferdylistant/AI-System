@@ -546,35 +546,37 @@ class PracetakDesainerController extends Controller
                             return ['data' => $return,'textColor' => $text];
                             break;
                         case 'bullet':
-                            $return ='';
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' || ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            $html = '';
+                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
                                 $text = 'text-dark';
-                                if (!is_null($item)) {
-                                    foreach (json_decode($item, true) as $key => $aj) {
-                                        $return .= '<span class="bullet"></span>'.$aj .'<br>';
-                                    }
+                                if ((is_null($item)) || ($item == '[]')) {
+                                    $html .= '-';
                                 } else {
-                                    $return .= '-';
+                                    foreach (json_decode($item) as $value) {
+                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
+                                    }
                                 }
                             } else {
-                                if (is_null($item)) {
-                                    $text = 'text-danger';
-                                    $return .= 'Belum diinput';
+                                $text = 'text-danger';
+                                if ((is_null($item)) || ($item == '[]')) {
+                                    $html .= 'Belum diinput';
                                 } else {
                                     $text = 'text-dark';
-                                    foreach (json_decode($item, true) as $key => $aj) {
-                                        $return .= '<span class="bullet"></span>'.$aj .'<br>';
+                                    foreach (json_decode($item) as $value) {
+                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
                                     }
                                 }
                             }
-                            return ['data' => $return,'textColor' => $text];
+                            return ['data' => $html,'textColor' => $text];
                             break;
                         case 'contoh_cover':
                             $return ='';
                             if ($useData->status == 'Proses' || $useData->status == 'Revisi' || ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
                                 $text = 'text-dark';
                                 if (!is_null($item)) {
-                                    $return .='<a href="'.$item .'" class="text-warning"><i
+                                    $text = 'text-warning';
+                                    $return .='<a href="'.$item .'" class="text-warning" target="_blank"><i
                                     class="fas fa-link"></i>&nbsp;'.$item .'</a>';
                                 } else {
                                     $return .= '-';
@@ -584,8 +586,8 @@ class PracetakDesainerController extends Controller
                                     $text = 'text-danger';
                                     $return .= 'Belum diinput';
                                 } else {
-                                    $text = 'text-dark';
-                                    $return .='<a href="'.$item .'" class="text-warning"><i
+                                    $text = 'text-warning';
+                                    $return .='<a href="'.$item .'" class="text-warning" target="_blank"><i
                                     class="fas fa-link"></i>&nbsp;'.$item .'</a>';
                                 }
                             }

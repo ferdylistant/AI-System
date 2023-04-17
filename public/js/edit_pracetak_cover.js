@@ -258,6 +258,16 @@ function loadData() {
                             clearBtn: true,
                         });
                         break;
+                    case 'finishing_cover':
+                        $("#"+n).html(result[n]['data']).addClass(result[n]['textColor']);
+                        break;
+                    case 'contoh_cover':
+                        $("#"+n).html(result[n]['data']).addClass(result[n]['textColor']);
+                        break;
+                    case "bullet":
+                        // console.log(result[n]);
+                        $("#" + n).html(result[n]['data']).addClass(result[n]['textColor']);
+                        break;
                     case 'proses':
                         $('#fup_pracetakDesainer').trigger("reset");
                         $('[name="'+n+'"]').val("").trigger("change");
