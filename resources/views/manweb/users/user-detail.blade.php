@@ -95,7 +95,7 @@
 
                 <div class="col-12 col-md-6">
                     <div class="card card-primary">
-                        <div class="card-body">
+                        <div id="loadAction" class="card-body">
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 @can('do_update', 'ubah-data-user')
                                     <li class="nav-item">

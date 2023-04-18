@@ -185,123 +185,126 @@ class UsersController extends Controller
                         ->make(true);
                     break;
                 case 'access':
-                    $userAccess = $this->getDataPermissions($id);
-                    $accBagian = collect($userAccess['accbag']);
-                    $access = collect(['ls' => $userAccess['ls'], 'ld' => $userAccess['ld']]);
-                    $permissions = $userAccess['perm'];
-                    $html = '';
-                    $html .= '<ul id="treeview" class="hummingbird-base">';
-                    foreach ($accBagian as $ab) {
-                        $check = $ab->checked ? 'checked' : '';
-                        $html .= '<li>
-                            <i class="fa fa-minus"></i>
-                            <label>
-                                <input id="xnode-' . $ab->id . '" data-id="custom-' . $ab->id . '" type="checkbox" ' . $check . ' /> ' . $ab->name . '
-                            </label>
-                            <ul style="display:block">';
-                        foreach ($access['ls'] as $ls) {
-                            if ($ab->id === $ls->bagian_id) {
-                                $check = $ls->checked ? 'checked' : '';
-                                $html .= '<li>
-                                        <i class="fa fa-plus"></i>
-                                        <label>
-                                            <input id="xnode-' . $ab->id . '-' . $ls->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '" type="checkbox" ' . $check . '/> ' . $ls->name . '
-                                        </label>';
-
-                                if ($ls->url == '#') {
-                                    $html .= '<ul>';
-                                    foreach ($access['ld'] as $ld) {
-                                        if ($ls->id === $ld->parent_id) {
-                                            $check = $ld->checked ? 'checked' : '';
-                                            $html .= '<li>
+                    if (Gate::allows('do_update', 'ubah-data-user')) {
+                        $userAccess = $this->getDataPermissions($id);
+                        $accBagian = collect($userAccess['accbag']);
+                        $access = collect(['ls' => $userAccess['ls'], 'ld' => $userAccess['ld']]);
+                        $permissions = $userAccess['perm'];
+                        $html = '';
+                        $html .= '<ul id="treeview" class="hummingbird-base">';
+                        foreach ($accBagian as $ab) {
+                            $check = $ab->checked ? 'checked' : '';
+                            $html .= '<li>
+                                <i class="fa fa-minus"></i>
+                                <label>
+                                    <input id="xnode-' . $ab->id . '" data-id="custom-' . $ab->id . '" type="checkbox" ' . $check . ' /> ' . $ab->name . '
+                                </label>
+                                <ul style="display:block">';
+                            foreach ($access['ls'] as $ls) {
+                                if ($ab->id === $ls->bagian_id) {
+                                    $check = $ls->checked ? 'checked' : '';
+                                    $html .= '<li>
                                             <i class="fa fa-plus"></i>
                                             <label>
-                                                <input id="xnode-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '" type="checkbox" ' . $check . '/> ' . $ld->name . '
-                                            </label>
+                                                <input id="xnode-' . $ab->id . '-' . $ls->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '" type="checkbox" ' . $check . '/> ' . $ls->name . '
+                                            </label>';
 
-                                            <ul>';
-                                            foreach ($permissions as $p) {
-                                                switch ($p->type) {
-                                                    case 'Read':
-                                                        $iconld = 'fas fa-envelope-open-text';
-                                                        break;
-                                                    case 'Create':
-                                                        $iconld = 'fas fa-plus-square';
-                                                        break;
-                                                    case 'Update':
-                                                        $iconld = 'fas fa-edit';
-                                                        break;
-                                                    case 'Delete':
-                                                        $iconld = 'fas fa-trash-alt';
-                                                        break;
-                                                    case 'Approval':
-                                                        $iconld = 'fas fa-check-circle';
-                                                        break;
-                                                    default:
-                                                        $iconld = 'fas fa-question-circle';
-                                                        break;
+                                    if ($ls->url == '#') {
+                                        $html .= '<ul>';
+                                        foreach ($access['ld'] as $ld) {
+                                            if ($ls->id === $ld->parent_id) {
+                                                $check = $ld->checked ? 'checked' : '';
+                                                $html .= '<li>
+                                                <i class="fa fa-plus"></i>
+                                                <label>
+                                                    <input id="xnode-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '" type="checkbox" ' . $check . '/> ' . $ld->name . '
+                                                </label>
+
+                                                <ul>';
+                                                foreach ($permissions as $p) {
+                                                    switch ($p->type) {
+                                                        case 'Read':
+                                                            $iconld = 'fas fa-envelope-open-text';
+                                                            break;
+                                                        case 'Create':
+                                                            $iconld = 'fas fa-plus-square';
+                                                            break;
+                                                        case 'Update':
+                                                            $iconld = 'fas fa-edit';
+                                                            break;
+                                                        case 'Delete':
+                                                            $iconld = 'fas fa-trash-alt';
+                                                            break;
+                                                        case 'Approval':
+                                                            $iconld = 'fas fa-check-circle';
+                                                            break;
+                                                        default:
+                                                            $iconld = 'fas fa-question-circle';
+                                                            break;
+                                                    }
+                                                    if ($ld->id == $p->access_id) {
+                                                        $check = $p->checked ? 'checked' : '';
+                                                        $html .= '<li>
+                                                        <i class="' . $iconld . '"></i>
+                                                        <label>
+                                                            <input id="xnode-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '-' . $p->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '-' . $p->id . '" value="' . $p->id . '" name="access[]" type="checkbox" ' . $check . '/> ' . $p->name . '
+                                                        </label>
+                                                    </li>';
+                                                    }
                                                 }
-                                                if ($ld->id == $p->access_id) {
-                                                    $check = $p->checked ? 'checked' : '';
-                                                    $html .= '<li>
-                                                    <i class="' . $iconld . '"></i>
-                                                    <label>
-                                                        <input id="xnode-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '-' . $p->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '-' . $p->id . '" value="' . $p->id . '" name="access[]" type="checkbox" ' . $check . '/> ' . $p->name . '
-                                                    </label>
-                                                </li>';
-                                                }
+
+                                                $html .= '</ul>
+                                            </li>';
                                             }
-
-                                            $html .= '</ul>
-                                        </li>';
                                         }
+                                        $html .= '</ul>';
+                                    } else {
+                                        $html .= '<ul>';
+                                        foreach ($permissions as $p) {
+                                            switch ($p->type) {
+                                                case 'Read':
+                                                    $iconls = 'fas fa-envelope-open-text';
+                                                    break;
+                                                case 'Create':
+                                                    $iconls = 'fas fa-plus-square';
+                                                    break;
+                                                case 'Update':
+                                                    $iconls = 'fas fa-edit';
+                                                    break;
+                                                case 'Delete':
+                                                    $iconls = 'fas fa-trash-alt';
+                                                    break;
+                                                case 'Approval':
+                                                    $iconld = 'fas fa-check-circle';
+                                                    break;
+                                                default:
+                                                    $iconls = 'fas fa-question-circle';
+                                                    break;
+                                            }
+                                            if ($ls->id == $p->access_id) {
+                                                $check = $p->checked ? 'checked' : '';
+                                                $html .= '<li>
+                                                <i class="' . $iconls . '"></i>
+                                                <label>
+                                                    <input id="xnode-' . $ab->id . '-' . $ls->id . '-' . $p->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '-' . $p->id . '" value="' . $p->id . '" name="access[]" type="checkbox" ' . $check . '/> ' . $p->name . '
+                                                </label>
+                                            </li>';
+                                            }
+                                        }
+
+
+                                        $html .= '</ul>';
                                     }
-                                    $html .= '</ul>';
-                                } else {
-                                    $html .= '<ul>';
-                                    foreach ($permissions as $p) {
-                                        switch ($p->type) {
-                                            case 'Read':
-                                                $iconls = 'fas fa-envelope-open-text';
-                                                break;
-                                            case 'Create':
-                                                $iconls = 'fas fa-plus-square';
-                                                break;
-                                            case 'Update':
-                                                $iconls = 'fas fa-edit';
-                                                break;
-                                            case 'Delete':
-                                                $iconls = 'fas fa-trash-alt';
-                                                break;
-                                            case 'Approval':
-                                                $iconld = 'fas fa-check-circle';
-                                                break;
-                                            default:
-                                                $iconls = 'fas fa-question-circle';
-                                                break;
-                                        }
-                                        if ($ls->id == $p->access_id) {
-                                            $check = $p->checked ? 'checked' : '';
-                                            $html .= '<li>
-                                            <i class="' . $iconls . '"></i>
-                                            <label>
-                                                <input id="xnode-' . $ab->id . '-' . $ls->id . '-' . $p->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '-' . $p->id . '" value="' . $p->id . '" name="access[]" type="checkbox" ' . $check . '/> ' . $p->name . '
-                                            </label>
-                                        </li>';
-                                        }
-                                    }
-
-
-                                    $html .= '</ul>';
+                                    $html .= '</li>';
                                 }
-                                $html .= '</li>';
                             }
+                            $html .= '</ul>
+                            </li>';
                         }
-                        $html .= '</ul>
-                        </li>';
+                        $html .= '</ul>';
+                        return $html;
                     }
-                    $html .= '</ul>';
-                    return $html;
+                    return;
                     break;
                 default:
                     return abort(400);

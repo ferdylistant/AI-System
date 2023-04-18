@@ -42,54 +42,54 @@ $(function () {
     // User log end
 
     // User status start
-    function ajaxUserStatus(id, value) {
-        let val = value;
-        $.ajax({
-            url:
-                window.location.origin +
-                "/manajemen-web/user/ajax/update-status-user/" +
-                id,
-            type: "POST",
-            data: {
-                proses: val,
-            },
-            dataType: "json",
-            beforeSend: function () {
-                $("#overlay").fadeIn(300);
-            },
-            success: function (result) {
-                // console.log(result);
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                    resetFrom($("#fup_pracetakDesainer"));
-                } else {
-                    notifToast(result.status, result.message);
-                    $("#statusShow").removeAttr("class");
-                    $("#statusShow").html(result.data);
-                }
-            },
-        }).done(function () {
-            setTimeout(function () {
-                $("#overlay").fadeOut(300);
-            }, 500);
-        });
-    }
-    function confirmSweetAlert(id, value) {
-        swal({
-            title: "Yakin ingin menonaktifkan akun user?",
-            text: "Harap diperiksa kembali, supaya tidak terjadi kesalahan.",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((confirm_) => {
-            if (confirm_) {
-                ajaxUserStatus(id, value);
-            } else {
-                $("#userStatus").prop("checked", true);
-            }
-        });
-    }
 });
+function ajaxUserStatus(id, value) {
+    let val = value;
+    $.ajax({
+        url:
+            window.location.origin +
+            "/manajemen-web/user/ajax/update-status-user/" +
+            id,
+        type: "POST",
+        data: {
+            proses: val,
+        },
+        dataType: "json",
+        beforeSend: function () {
+            $("#overlay").fadeIn(300);
+        },
+        success: function (result) {
+            // console.log(result);
+            if (result.status == "error") {
+                notifToast(result.status, result.message);
+                resetFrom($("#fup_pracetakDesainer"));
+            } else {
+                notifToast(result.status, result.message);
+                $("#statusShow").removeAttr("class");
+                $("#statusShow").html(result.data);
+            }
+        },
+    }).done(function () {
+        setTimeout(function () {
+            $("#overlay").fadeOut(300);
+        }, 500);
+    });
+}
+function confirmSweetAlert(id, value) {
+    swal({
+        title: "Yakin ingin menonaktifkan akun user?",
+        text: "Harap diperiksa kembali, supaya tidak terjadi kesalahan.",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+    }).then((confirm_) => {
+        if (confirm_) {
+            ajaxUserStatus(id, value);
+        } else {
+            $("#userStatus").prop("checked", true);
+        }
+    });
+}
 $(function () {
     $("#userStatus").click(function () {
         var id = $(this).data("id");
@@ -113,7 +113,7 @@ function loadDataAccess(){
         type: "GET",
         dataType: "html",
         beforeSend: function () {
-            $("#overlay").fadeIn(300);
+            $('#loadAction').parent().addClass('card-progress')
         },
         success: function (result) {
             // console.log(result);
@@ -124,10 +124,9 @@ function loadDataAccess(){
             console.log(xhr.status);
             console.log(thrownError);
             notifToast("error", "Terjadi kesalahan, silahkan coba lagi.");
+        },
+        complete: function () {
+            $('#loadAction').parent().removeClass('card-progress')
         }
-    }).done(function () {
-        setTimeout(function () {
-            $("#overlay").fadeOut(300);
-        }, 500);
     });
 }
