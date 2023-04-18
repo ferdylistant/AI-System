@@ -948,6 +948,7 @@ class OrderBukuController extends Controller
                                 break;
                             case 'proses':
                                 $disable = false;
+                                $cursor = 'pointer';
                                 $label = $item == 1 ? 'Stop' : 'Mulai';
                                 $checked = $useData->proses == '1' ? true : false;
                                 if ($useData->status == 'Proses') {
@@ -963,6 +964,7 @@ class OrderBukuController extends Controller
                                                 $author_db = 'proof';
                                             } elseif (!is_null($useData->mulai_proof) && is_null($useData->selesai_proof)) {
                                                 $disable = true;
+                                                $cursor = 'not-allowed';
                                                 $lbl = 'Sedang proses proof CS ke penulis';
                                                 $lbl_db = 'proof';
                                                 $author_db = 'proof';
@@ -984,6 +986,7 @@ class OrderBukuController extends Controller
                                                 $author_db = 'pracetak';
                                             } else {
                                                 $disable = true;
+                                                $cursor = 'not-allowed';
                                                 $lbl = '-';
                                                 $lbl_db = '-';
                                                 $author_db = NULL;
@@ -1008,6 +1011,7 @@ class OrderBukuController extends Controller
                                                 $author_db = 'pracetak';
                                             } else {
                                                 $disable = true;
+                                                $cursor = 'not-allowed';
                                                 $lbl = '-';
                                                 $lbl_db = '-';
                                                 $author_db = NULL;
@@ -1015,6 +1019,7 @@ class OrderBukuController extends Controller
                                             break;
                                         default:
                                             $disable = true;
+                                            $cursor = 'not-allowed';
                                             $lbl = '-';
                                             $lbl_db = '-';
                                             $author_db = NULL;
@@ -1022,11 +1027,13 @@ class OrderBukuController extends Controller
                                     }
                                 } elseif ($useData->status == 'Revisi') {
                                     $disable = true;
+                                    $cursor = 'not-allowed';
                                     $lbl = 'Sedang proses penyelesaian revisi proof';
                                     $lbl_db = 'proof';
                                     $author_db = 'proof';
                                 } else {
                                     $disable = true;
+                                    $cursor = 'not-allowed';
                                     $lbl = '-';
                                     $lbl_db = '-';
                                     $author_db = NULL;
@@ -1036,6 +1043,7 @@ class OrderBukuController extends Controller
                                     'no_order' => $useData->no_order,
                                     'labelMulai' => $label,
                                     'disabled' => $disable,
+                                    'cursor' => $cursor,
                                     'checked' => $checked,
                                     'label' => $lbl,
                                     'prosesValue' => $item,
@@ -1079,30 +1087,100 @@ class OrderBukuController extends Controller
                                 return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->translatedFormat('d F Y') : '-';
                                 break;
                             case 'desain_setter':
-                                $data = !is_null($item) ? json_decode($item, true) : NULL;
-                                $disabled = $useData->jalur_proses == 'Jalur Reguler' ? false : true;
-                                $required = $useData->jalur_proses == 'Jalur Reguler' ? true : false;
+                                $data = '';
+                                $desSet = DB::table('users as u')
+                                ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                                ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+                                ->where('j.nama', 'LIKE', '%Design & Setter%')
+                                ->where('d.nama', 'LIKE', '%Keuangan - Produksi%')
+                                ->select('u.nama', 'u.id')
+                                ->orderBy('u.nama', 'Asc')
+                                ->get();
+                                $desSet = (object)collect($desSet)->map(function ($item) {
+                                    return (object)[
+                                        'id' => $item->id,
+                                        'nama' => $item->nama
+                                    ];
+                                })->toArray();
                                 $nonRegulerInfo = $useData->jalur_proses == 'Jalur Reguler' ? '' : (is_null($useData->jalur_proses) ? '' : '<i class="fas fa-exclamation-circle"></i> Jalur Pendek tidak melalui tahap desain & setter');
-                                return ['data' => $data, 'disabled' => $disabled, 'required' => $required, 'nonreguler' => $nonRegulerInfo];
-                                break;
-                            case 'korektor':
+                                $disabled = $useData->jalur_proses == 'Jalur Reguler' ? '' : 'disabled';
+                                $required = $useData->jalur_proses == 'Jalur Reguler' ? 'required' : '';
+                                $data .='<small>'.$nonRegulerInfo.'</small>';
+                                $data .='<select name="desain[]" class="form-control select-desain" multiple="multiple" '.$disabled.' '.$required.'>
+                                    <option label="Pilih Desain"></option>';
                                 if (!is_null($item)) {
-                                    foreach (json_decode($item, true) as $l) {
-                                        $data[] = DB::table('users')->where('id', $l)->select('id', 'nama')->first();
+                                    foreach ($desSet as $val) {
+                                        $selected = in_array($val->id,json_decode($item,true)) ? 'selected="selected"':'';
+                                        $data .='<option value="'. $val->id .'" '.$selected.'>'. $val->nama .'</option>';
                                     }
                                 } else {
-                                    $data = NULL;
+                                    foreach ($desSet as $val) {
+                                        $data .='<option value="'. $val->id .'">'. $val->nama .'</option>';
+                                    }
                                 }
+                                $data .='</select>';
+                                return $data;
+                                break;
+                            case 'korektor':
+                                $data = '';
+                                $kor = DB::table('users as u')
+                                ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                                ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+                                ->where('j.nama', 'LIKE', '%Korektor%')
+                                ->where('d.nama', 'LIKE', '%Keuangan - Produksi%')
+                                ->select('u.nama', 'u.id')
+                                ->orderBy('u.nama', 'Asc')
+                                ->get();
+                                $kor = (object)collect($kor)->map(function ($item) {
+                                    return (object)[
+                                        'id' => $item->id,
+                                        'nama' => $item->nama
+                                    ];
+                                })->toArray();
+                                $data .='<select name="korektor[]" class="form-control select-korektor" multiple="multiple">
+                                    <option label="Pilih Korektor"></option>';
+                                if (!is_null($item)) {
+                                    foreach ($kor as $val) {
+                                        $selected = in_array($val->id,json_decode($item,true)) ? 'selected="selected"':'';
+                                        $data .='<option value="'. $val->id .'" '.$selected.'>'. $val->nama .'</option>';
+                                    }
+                                } else {
+                                    foreach ($kor as $val) {
+                                        $data .='<option value="'. $val->id .'">'. $val->nama .'</option>';
+                                    }
+                                }
+                                $data .='</select>';
                                 return $data;
                                 break;
                             case 'pracetak':
+                                $data = '';
+                                $pra = DB::table('users as u')
+                                    ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                                    ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+                                    ->where('j.nama', 'LIKE', '%Pracetak%')
+                                    ->where('d.nama', 'LIKE', '%Keuangan - Produksi%')
+                                    ->select('u.nama', 'u.id')
+                                    ->orderBy('u.nama', 'Asc')
+                                    ->get();
+                                $pra = (object)collect($pra)->map(function ($item) {
+                                    return (object)[
+                                        'id' => $item->id,
+                                        'nama' => $item->nama
+                                    ];
+                                })->toArray();
+                                $data .='<select name="pracetak[]" class="form-control select-pracetak" multiple="multiple">
+                                    <option label="Pilih Pracetak"></option>';
                                 if (!is_null($item)) {
-                                    foreach (json_decode($item, true) as $l) {
-                                        $data[] = DB::table('users')->where('id', $l)->select('id', 'nama')->first();
+                                    foreach ($pra as $val) {
+                                        $selected = in_array($val->id,json_decode($item,true)) ? 'selected="selected"':'';
+                                        $data .='<option value="'. $val->id .'" '.$selected.'>'. $val->nama .'</option>';
                                     }
                                 } else {
-                                    $data = NULL;
+                                    foreach ($pra as $val) {
+                                        $data .='<option value="'. $val->id .'">'. $val->nama .'</option>';
+                                    }
                                 }
+                                $data .='</select>';
                                 return $data;
                                 break;
                             case 'tgl_permintaan_selesai':
@@ -1115,7 +1193,7 @@ class OrderBukuController extends Controller
                                 return !is_null($item) ? DB::table('users')->where('id', $item)->first()->nama : '-';
                                 break;
                             default:
-                                $item;
+                                return $item;
                                 break;
                         }
                         return $item;
@@ -1139,35 +1217,9 @@ class OrderBukuController extends Controller
                     break;
             }
         }
-        $desSet = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-            ->where('j.nama', 'LIKE', '%Design & Setter%')
-            ->where('d.nama', 'LIKE', '%Keuangan - Produksi%')
-            ->select('u.nama', 'u.id')
-            ->orderBy('u.nama', 'Asc')
-            ->get();
-        $kor = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-            ->where('j.nama', 'LIKE', '%Korektor%')
-            ->where('d.nama', 'LIKE', '%Keuangan - Produksi%')
-            ->select('u.nama', 'u.id')
-            ->orderBy('u.nama', 'Asc')
-            ->get();
-        $pra = DB::table('users as u')
-            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-            ->where('j.nama', 'LIKE', '%Pracetak%')
-            ->where('d.nama', 'LIKE', '%Keuangan - Produksi%')
-            ->select('u.nama', 'u.id')
-            ->orderBy('u.nama', 'Asc')
-            ->get();
+
         return view('jasa_cetak.order_buku.otorisasi_kabag', [
             'title' => 'Otorisasi Kabag Order Buku',
-            'data_des_set' => $desSet,
-            'data_kor' => $kor,
-            'data_pra' => $pra,
         ]);
     }
     protected function prosesKerja($request, $data)

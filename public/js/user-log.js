@@ -1,4 +1,5 @@
 $(function () {
+    loadDataAccess();
     // User log start
     let id = window.location.pathname.split("/").pop();
     $("#tb_UserLog").DataTable({
@@ -13,7 +14,7 @@ $(function () {
             lengthMenu: "_MENU_ /halaman",
         },
         ajax: {
-            url: window.location.origin + "/manajemen-web/user/" + id,
+            url: window.location.origin + "/manajemen-web/user/" + id +"?type=log",
         },
         columns: [
             {
@@ -88,18 +89,45 @@ $(function () {
             }
         });
     }
-    $(function () {
-        $("#userStatus").click(function () {
-            var id = $(this).data("id");
-            if (this.checked) {
-                value = "1";
-                ajaxUserStatus(id, value);
-            } else {
-                value = "0";
-                confirmSweetAlert(id, value);
-            }
-
-        });
-        // User status end
-    });
 });
+$(function () {
+    $("#userStatus").click(function () {
+        var id = $(this).data("id");
+        if (this.checked) {
+            value = "1";
+            ajaxUserStatus(id, value);
+        } else {
+            value = "0";
+            confirmSweetAlert(id, value);
+        }
+
+    });
+    // User status end
+});
+function loadDataAccess(){
+    let id = window.location.pathname.split("/").pop();
+    $.ajax({
+        url:
+            window.location.origin +
+            "/manajemen-web/user/" + id + "?type=access",
+        type: "GET",
+        dataType: "html",
+        beforeSend: function () {
+            $("#overlay").fadeIn(300);
+        },
+        success: function (result) {
+            // console.log(result);
+            $(".hummingbird-treeview").html(result);
+            $('#treeview').hummingbird();
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status);
+            console.log(thrownError);
+            notifToast("error", "Terjadi kesalahan, silahkan coba lagi.");
+        }
+    }).done(function () {
+        setTimeout(function () {
+            $("#overlay").fadeOut(300);
+        }, 500);
+    });
+}

@@ -8,7 +8,6 @@
 
 @section('cssNeeded')
     <style>
-
 .time-line-box {
   width: 100%;
   /* background-color: #dadefe; */
@@ -181,37 +180,15 @@
                                                     </tr>
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Desainer & Setter:</th>
-                                                        <td class="table-active text-left">
-                                                            <small id="nonRegulerInfo"></small>
-                                                            <select name="desain[]" class="form-control select-2 select-desain" multiple="multiple">
-                                                                <option label="Pilih Desain"></option>
-                                                                @foreach ($data_des_set as $val)
-                                                                    <option value="{{ $val->id }}">{{ $val->nama }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </td>
+                                                        <td class="table-active text-right desain_setter"></td>
                                                     </tr>
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Korektor:</th>
-                                                        <td class="table-active text-right">
-                                                            <select name="korektor[]" class="form-control select-2 select-korektor" multiple="multiple">
-                                                                <option label="Pilih Korektor"></option>
-                                                                @foreach ($data_kor as $val)
-                                                                    <option value="{{ $val->id }}">{{ $val->nama }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </td>
+                                                        <td class="table-active text-right korektor"></td>
                                                     </tr>
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Pracetak:</th>
-                                                        <td class="table-active text-right">
-                                                            <select name="pracetak[]" class="form-control select-2 select-pracetak" multiple="multiple">
-                                                                <option label="Pilih Pracetak"></option>
-                                                                @foreach ($data_pra as $val)
-                                                                    <option value="{{ $val->id }}">{{ $val->nama }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </td>
+                                                        <td class="table-active text-right pracetak"></td>
                                                     </tr>
                                                 </tbody>
                                             </table>

@@ -152,35 +152,161 @@ class UsersController extends Controller
     public function selectUser(Request $request, $id)
     {
         if ($request->ajax()) {
-            $data = DB::table('user_log')
-                ->where('users_id', $id)
-                ->orderBy('last_login', 'desc')
-                ->get();
-            $start = 1;
-            return DataTables::of($data)
-                ->addColumn('no', function ($no) use (&$start) {
-                    return $start++;
-                })
-                ->addColumn('id', function ($data) {
-                    return $data->users_id;
-                })
-                ->addColumn('ip', function ($data) {
-                    return $data->ip_address;
-                })
-                ->addColumn('browser', function ($data) {
-                    return $data->user_agent;
-                })
-                ->addColumn('terakhir_login', function ($data) {
-                    $diff = Carbon::createFromFormat('Y-m-d H:i:s', $data->last_login, 'Asia/Jakarta')->diffForHumans();
-                    return $data->last_login . '<br>(' . $diff . ')';
-                })
-                ->rawColumns([
-                    'no',
-                    'ip',
-                    'browser',
-                    'terakhir_login'
-                ])
-                ->make(true);
+            switch ($request->type) {
+                case 'log':
+                    $data = DB::table('user_log')
+                        ->where('users_id', $id)
+                        ->orderBy('last_login', 'desc')
+                        ->get();
+                    $start = 1;
+                    return DataTables::of($data)
+                        ->addColumn('no', function ($no) use (&$start) {
+                            return $start++;
+                        })
+                        ->addColumn('id', function ($data) {
+                            return $data->users_id;
+                        })
+                        ->addColumn('ip', function ($data) {
+                            return $data->ip_address;
+                        })
+                        ->addColumn('browser', function ($data) {
+                            return $data->user_agent;
+                        })
+                        ->addColumn('terakhir_login', function ($data) {
+                            $diff = Carbon::createFromFormat('Y-m-d H:i:s', $data->last_login, 'Asia/Jakarta')->diffForHumans();
+                            return $data->last_login . '<br>(' . $diff . ')';
+                        })
+                        ->rawColumns([
+                            'no',
+                            'ip',
+                            'browser',
+                            'terakhir_login'
+                        ])
+                        ->make(true);
+                    break;
+                case 'access':
+                    $userAccess = $this->getDataPermissions($id);
+                    $accBagian = collect($userAccess['accbag']);
+                    $access = collect(['ls' => $userAccess['ls'], 'ld' => $userAccess['ld']]);
+                    $permissions = $userAccess['perm'];
+                    $html = '';
+                    $html .= '<ul id="treeview" class="hummingbird-base">';
+                    foreach ($accBagian as $ab) {
+                        $check = $ab->checked ? 'checked' : '';
+                        $html .= '<li>
+                            <i class="fa fa-minus"></i>
+                            <label>
+                                <input id="xnode-' . $ab->id . '" data-id="custom-' . $ab->id . '" type="checkbox" ' . $check . ' /> ' . $ab->name . '
+                            </label>
+                            <ul style="display:block">';
+                        foreach ($access['ls'] as $ls) {
+                            if ($ab->id === $ls->bagian_id) {
+                                $check = $ls->checked ? 'checked' : '';
+                                $html .= '<li>
+                                        <i class="fa fa-plus"></i>
+                                        <label>
+                                            <input id="xnode-' . $ab->id . '-' . $ls->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '" type="checkbox" ' . $check . '/> ' . $ls->name . '
+                                        </label>';
+
+                                if ($ls->url == '#') {
+                                    $html .= '<ul>';
+                                    foreach ($access['ld'] as $ld) {
+                                        if ($ls->id === $ld->parent_id) {
+                                            $check = $ld->checked ? 'checked' : '';
+                                            $html .= '<li>
+                                            <i class="fa fa-plus"></i>
+                                            <label>
+                                                <input id="xnode-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '" type="checkbox" ' . $check . '/> ' . $ld->name . '
+                                            </label>
+
+                                            <ul>';
+                                            foreach ($permissions as $p) {
+                                                switch ($p->type) {
+                                                    case 'Read':
+                                                        $iconld = 'fas fa-envelope-open-text';
+                                                        break;
+                                                    case 'Create':
+                                                        $iconld = 'fas fa-plus-square';
+                                                        break;
+                                                    case 'Update':
+                                                        $iconld = 'fas fa-edit';
+                                                        break;
+                                                    case 'Delete':
+                                                        $iconld = 'fas fa-trash-alt';
+                                                        break;
+                                                    case 'Approval':
+                                                        $iconld = 'fas fa-check-circle';
+                                                        break;
+                                                    default:
+                                                        $iconld = 'fas fa-question-circle';
+                                                        break;
+                                                }
+                                                if ($ld->id == $p->access_id) {
+                                                    $check = $p->checked ? 'checked' : '';
+                                                    $html .= '<li>
+                                                    <i class="' . $iconld . '"></i>
+                                                    <label>
+                                                        <input id="xnode-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '-' . $p->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '-' . $ld->id . '-' . $p->id . '" value="' . $p->id . '" name="access[]" type="checkbox" ' . $check . '/> ' . $p->name . '
+                                                    </label>
+                                                </li>';
+                                                }
+                                            }
+
+                                            $html .= '</ul>
+                                        </li>';
+                                        }
+                                    }
+                                    $html .= '</ul>';
+                                } else {
+                                    $html .= '<ul>';
+                                    foreach ($permissions as $p) {
+                                        switch ($p->type) {
+                                            case 'Read':
+                                                $iconls = 'fas fa-envelope-open-text';
+                                                break;
+                                            case 'Create':
+                                                $iconls = 'fas fa-plus-square';
+                                                break;
+                                            case 'Update':
+                                                $iconls = 'fas fa-edit';
+                                                break;
+                                            case 'Delete':
+                                                $iconls = 'fas fa-trash-alt';
+                                                break;
+                                            case 'Approval':
+                                                $iconld = 'fas fa-check-circle';
+                                                break;
+                                            default:
+                                                $iconls = 'fas fa-question-circle';
+                                                break;
+                                        }
+                                        if ($ls->id == $p->access_id) {
+                                            $check = $p->checked ? 'checked' : '';
+                                            $html .= '<li>
+                                            <i class="' . $iconls . '"></i>
+                                            <label>
+                                                <input id="xnode-' . $ab->id . '-' . $ls->id . '-' . $p->id . '" data-id="custom-' . $ab->id . '-' . $ls->id . '-' . $p->id . '" value="' . $p->id . '" name="access[]" type="checkbox" ' . $check . '/> ' . $p->name . '
+                                            </label>
+                                        </li>';
+                                        }
+                                    }
+
+
+                                    $html .= '</ul>';
+                                }
+                                $html .= '</li>';
+                            }
+                        }
+                        $html .= '</ul>
+                        </li>';
+                    }
+                    $html .= '</ul>';
+                    return $html;
+                    break;
+                default:
+                    return abort(400);
+                    break;
+            }
         }
         $urlPrev = url()->previous();
         $urlPrev = explode('/', $urlPrev);
@@ -232,16 +358,12 @@ class UsersController extends Controller
         })->all();
 
         if (Gate::allows('do_update', 'ubah-data-user')) {
-            $userAccess = $this->getDataPermissions($id);
 
             return view('manweb.users.user-detail', [
                 'btnPrev' => $btnPrev,
                 'user' => (object)$user, 'lcab' => $lcab, 'ldiv' => $ldiv, 'ljab' => $ljab,
                 'userStatus' => $userStatus,
                 'queryStatus' => $q->status,
-                'accBagian' => collect($userAccess['accbag']),
-                'access' => collect(['ls' => $userAccess['ls'], 'ld' => $userAccess['ld']]),
-                'permissions' => $userAccess['perm'],
                 'title' => 'User Detail',
             ]);
         } else {

@@ -256,7 +256,7 @@
         $(document).ready(function() {
 
             // Initial
-            $('#treeview').hummingbird();
+
             $('.datepicker').datepicker({
                 format: 'dd MM yyyy'
             });
