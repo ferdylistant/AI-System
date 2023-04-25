@@ -1183,6 +1183,9 @@ class OrderBukuController extends Controller
                                 $data .='</select>';
                                 return $data;
                                 break;
+                            case 'format':
+                                return !is_null($item) ? $item.' cm':'-';
+                                break;
                             case 'tgl_permintaan_selesai':
                                 return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->translatedFormat('d F Y') : '-';
                                 break;
@@ -1193,7 +1196,7 @@ class OrderBukuController extends Controller
                                 return !is_null($item) ? DB::table('users')->where('id', $item)->first()->nama : '-';
                                 break;
                             default:
-                                return $item;
+                            return !is_null($item) ? $item:'-';
                                 break;
                         }
                         return $item;
