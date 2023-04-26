@@ -1933,7 +1933,7 @@ class OrderBukuController extends Controller
                             $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
-                                $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
+                                $loop .= '<b class="text-dark">' . ucwords(DB::table('users')->where('id', $val)->first()->nama) . '</b>,<br> ';
                             }
                         }
                         return $loop;
@@ -1944,7 +1944,7 @@ class OrderBukuController extends Controller
                             $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
-                                $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
+                                $loop .= '<b class="text-dark">' . ucwords(DB::table('users')->where('id', $val)->first()->nama) . '</b>,<br> ';
                             }
                         }
                         return $loop;
@@ -1955,7 +1955,7 @@ class OrderBukuController extends Controller
                             $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
-                                $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
+                                $loop .= '<b class="text-dark">' . ucwords(DB::table('users')->where('id', $val)->first()->nama) . '</b>,<br> ';
                             }
                         }
                         return $loop;
@@ -1966,7 +1966,7 @@ class OrderBukuController extends Controller
                             $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
-                                $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
+                                $loop .= '<b class="text-dark">' . ucwords(DB::table('users')->where('id', $val)->first()->nama) . '</b>,<br> ';
                             }
                         }
                         return $loop;
@@ -1977,7 +1977,7 @@ class OrderBukuController extends Controller
                             $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
-                                $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
+                                $loop .= '<b class="text-dark">' . ucwords(DB::table('users')->where('id', $val)->first()->nama) . '</b>,<br> ';
                             }
                         }
                         return $loop;
@@ -1988,7 +1988,7 @@ class OrderBukuController extends Controller
                             $loop = $item;
                         } else {
                             foreach (json_decode($item, true) as $val) {
-                                $loop .= '<b class="text-dark">' . DB::table('users')->where('id', $val)->first()->nama . '</b>,<br> ';
+                                $loop .= '<b class="text-dark">' . ucwords(DB::table('users')->where('id', $val)->first()->nama) . '</b>,<br> ';
                             }
                         }
                         return $loop;
@@ -2043,15 +2043,15 @@ class OrderBukuController extends Controller
                         $html .=
                             '<div class="ticket-title">
                                 <span><span class="bullet"></span> Nama pemesan <b class="text-dark">' .
-                            $d->nama_pemesan_his .
+                            ucwords($d->nama_pemesan_his) .
                             '</b> diubah menjadi <b class="text-dark">' .
-                            $d->nama_pemesan_new .
+                            ucwords($d->nama_pemesan_new) .
                             '</b> </span></div>';
                     } elseif (!is_null($d->nama_pemesan_new)) {
                         $html .=
                             '<div class="ticket-title">
                                 <span><span class="bullet"></span> Nama pemesan <b class="text-dark">' .
-                            $d->nama_pemesan_new .
+                            ucwords($d->nama_pemesan_new) .
                             '</b> ditambahkan. </span></div>';
                     }
                     if (!is_null($d->judul_buku_his)) {
@@ -2375,7 +2375,7 @@ class OrderBukuController extends Controller
                     }
                     $html .=
                         '<div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . ucwords($d->nama) . '</a></div>
                             <div class="bullet pt-2"></div>
                             <div class="pt-2">' . $d->modified_at . '</div>
                         </div>
@@ -2387,7 +2387,7 @@ class OrderBukuController extends Controller
                             <span><span class="bullet"></span> Jalur proses jasa cetak order buku <b class="text-dark">' . $d->jalur_proses . '</b>, telah ditambahkan.</span>
                         </div>
                         <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . ucwords($d->nama) . '</a></div>
                             <div class="bullet pt-2"></div>
                             <div class="pt-2">' . $d->modified_at . '</div>
                         </div>
@@ -2399,7 +2399,7 @@ class OrderBukuController extends Controller
                             <span><span class="bullet"></span> Status jasa cetak order buku <b class="text-dark">' . $d->status_his . '</b> diubah menjadi <b class="text-dark">' . $d->status_new . '</b>.</span>
                         </div>
                         <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . ucwords($d->nama) . '</a></div>
                             <div class="bullet pt-2"></div>
                             <div class="pt-2">' . $d->modified_at . '</div>
                         </div>
@@ -2425,7 +2425,7 @@ class OrderBukuController extends Controller
                     }
                     $html .=
                         '<div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . ucwords($d->nama) . '</a></div>
                             <div class="bullet pt-2"></div>
                             <div class="pt-2">' . $d->modified_at . '</div>
                         </div>
@@ -2447,7 +2447,7 @@ class OrderBukuController extends Controller
                     }
                     $html .=
                         '<div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . ucwords($d->nama) . '</a></div>
                             <div class="bullet pt-2"></div>
                             <div class="pt-2">' . $d->modified_at . '</div>
                         </div>
@@ -2460,7 +2460,7 @@ class OrderBukuController extends Controller
                         <span><span class="bullet"></span> Progress order buku jasa cetak <b class="text-dark">' . $ket . '</b>.</span>
                     </div>
                     <div class="ticket-info">
-                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . ucwords($d->nama) . '</a></div>
                         <div class="bullet pt-2"></div>
                         <div class="pt-2">' . $d->modified_at . '</div>
                     </div>

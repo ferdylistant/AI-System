@@ -265,12 +265,10 @@ $(function () {
             },
             success: function (result) {
                 // console.log(result);
+                notifToast(result.status, result.message);
                 if (result.status == "success") {
                     tableMenu.ajax.reload();
-                    notifToast(result.status, result.message);
                     data.trigger("reset");
-                } else {
-                    notifToast(result.status, result.message);
                 }
             },
             error: function (err) {
