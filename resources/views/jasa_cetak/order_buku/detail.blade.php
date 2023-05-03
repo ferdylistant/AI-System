@@ -110,6 +110,14 @@
                                         </div>
                                         <p class="mb-1 text-monospace pengarang"></p>
                                     </div>
+                                    @if ($desain_setter == TRUE)
+                                    <div class="list-group-item flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Desain/Setter</h6>
+                                        </div>
+                                        <p class="mb-1 text-monospace desain_setter"></p>
+                                    </div>
+                                    @endif
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <div class="list-group-item flex-column align-items-start">

@@ -75,7 +75,7 @@ class EditingController extends Controller
                             // ->pluck('pp.nama');
                             ->get();
                         foreach ($res as $q) {
-                            $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
+                            $result .= '<span class="d-block">-&nbsp;' . ucwords($q->nama) . '</span>';
                         }
                         return $result;
                         //  $res;
@@ -86,7 +86,7 @@ class EditingController extends Controller
                             $result .= "-";
                         } else {
                             foreach (json_decode($data->nama_pena) as $q) {
-                                $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
+                                $result .= '<span class="d-block">-&nbsp;' . ucwords($q) . '</span>';
                             }
                         }
                         return $result;
@@ -108,7 +108,7 @@ class EditingController extends Controller
                             ->select('nama')
                             ->get();
                         foreach (json_decode($res) as $q) {
-                            $result .= $q->nama;
+                            $result .= ucwords($q->nama);
                         }
                         return $result;
                     })
@@ -128,7 +128,7 @@ class EditingController extends Controller
                                 }
                             }
                             foreach (json_decode($data->editor, true) as $q) {
-                                $res .= '<span class="d-block">-&nbsp;' . DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama . ' <span class="text-success">' . $tgl . '</span></span>';
+                                $res .= '<span class="d-block">-&nbsp;' . ucwords(DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama) . ' <span class="text-success">' . $tgl . '</span></span>';
                             }
                         } else {
                             $res = '-';
@@ -257,13 +257,15 @@ class EditingController extends Controller
                             }
                         }
                     }
+                    $bullet = $request->bullet ? json_encode(array_filter($request->bullet)) : NULL;
+                    $editor = $request->editor ? json_encode($request->editor) : NULL;
                     $update = [
                         'params' => 'Edit Editing',
                         'id' => $request->id,
                         'jml_hal_perkiraan' => $request->jml_hal_perkiraan, //Deskripsi Produk
                         'catatan' => $request->catatan,
-                        'bullet' =>  json_encode(array_filter($request->bullet)), //Deskripsi Final
-                        'editor' => json_encode($request->editor),
+                        'bullet' =>  $bullet, //Deskripsi Final
+                        'editor' => $editor,
                         // 'copy_editor' => $request->has('copy_editor') ? json_encode($request->copy_editor) : null,
                         'bulan' => Carbon::createFromDate($request->bulan)
                     ];
@@ -273,12 +275,12 @@ class EditingController extends Controller
                         'params' => 'Insert History Edit Editing',
                         'editing_proses_id' => $request->id,
                         'type_history' => 'Update',
-                        'editor_his' => $history->editor == json_encode(array_filter($request->editor)) ? null : $history->editor,
-                        'editor_new' => $history->editor == json_encode(array_filter($request->editor)) ? null : json_encode(array_filter($request->editor)),
+                        'editor_his' => $history->editor == $editor ? null : $history->editor,
+                        'editor_new' => $history->editor == $editor ? null : $editor,
                         'jml_hal_perkiraan_his' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $history->jml_hal_perkiraan,
                         'jml_hal_perkiraan_new' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? null : $request->jml_hal_perkiraan,
-                        'bullet_his' => $history->bullet == json_encode(array_filter($request->bullet)) ? null : $history->bullet,
-                        'bullet_new' => $history->bullet == json_encode(array_filter($request->bullet)) ? null : json_encode(array_filter($request->bullet)),
+                        'bullet_his' => $history->bullet == $bullet ? null : $history->bullet,
+                        'bullet_new' => $history->bullet == $bullet ? null : $bullet,
                         // 'copy_editor_his' => $history->copy_editor == $copyeditor ? null : $history->copy_editor,
                         // 'copy_editor_new' => $history->copy_editor == $copyeditor ? null : $copyeditor,
                         'catatan_his' => $history->catatan == $request->catatan ? null : $history->catatan,
@@ -662,6 +664,9 @@ class EditingController extends Controller
                         }
                         return $html;
                         break;
+                    case 'bulan':
+                        return $item ? Carbon::parse($item)->translatedFormat('F Y') : '-';
+                        break;
                     default:
                         return $item ? $item : '-';
                         break;
@@ -835,10 +840,10 @@ class EditingController extends Controller
                             $loopEDHIS = '';
                             $loopEDNEW = '';
                             foreach (json_decode($d->editor_his, true) as $edhis) {
-                                $loopEDHIS .= '<b class="text-dark">' . DB::table('users')->where('id', $edhis)->first()->nama . '</b>, ';
+                                $loopEDHIS .= '<b class="text-dark">' . ucwords(DB::table('users')->where('id', $edhis)->first()->nama) . '</b>, ';
                             }
                             foreach (json_decode($d->editor_new, true) as $ednew) {
-                                $loopEDNEW .= '<span class="bullet"></span>' . DB::table('users')->where('id', $ednew)->first()->nama;
+                                $loopEDNEW .= '<span class="bullet"></span>' . ucwords(DB::table('users')->where('id', $ednew)->first()->nama);
                             }
                             $html .= ' Editor <b class="text-dark">' . $loopEDHIS . '</b> diubah menjadi <b class="text-dark">' . $loopEDNEW . '</b>.<br>';
                             $html .= '</span></div>';
@@ -846,7 +851,7 @@ class EditingController extends Controller
                             $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
                             $loopEDNEW = '';
                             foreach (json_decode($d->editor_new, true) as $ednew) {
-                                $loopEDNEW .= '<b class="text-dark">' . DB::table('users')->where('id', $ednew)->first()->nama . '</b>, ';
+                                $loopEDNEW .= '<b class="text-dark">' . ucwords(DB::table('users')->where('id', $ednew)->first()->nama) . '</b>, ';
                             }
                             $html .= ' Editor <b class="text-dark">' . $loopEDNEW . '</b> ditambahkan.<br>';
                             $html .= '</span></div>';

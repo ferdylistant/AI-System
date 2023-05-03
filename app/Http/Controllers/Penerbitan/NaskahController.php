@@ -19,33 +19,38 @@ class NaskahController extends Controller
 {
     public function index(Request $request)
     {
-        $naskah = DB::table('penerbitan_naskah as pn')
-            ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
-            ->whereNull('pn.deleted_at')
-            ->select(
-                'pn.id',
-                'pn.kode',
-                'pn.judul_asli',
-                'pn.jalur_buku',
-                'pn.pic_prodev',
-                'pn.tanggal_masuk_naskah',
-                'pn.selesai_penilaian',
-                'pn.bukti_email_penulis',
-                'pns.tgl_pn_prodev',
-                'pns.tgl_pn_m_penerbitan',
-                'pns.tgl_pn_m_pemasaran',
-                'pns.tgl_pn_d_pemasaran',
-                'pns.tgl_pn_direksi',
-                'pns.tgl_pn_editor',
-                'pns.tgl_pn_setter',
-                'pns.tgl_pn_selesai'
-            )
-            ->orderBy('pn.tanggal_masuk_naskah', 'asc')
-            ->get();
         if ($request->ajax()) {
             switch ($request->input('request_')) {
                 case 'getCountNaskah':
-                    return $naskah->count();
+                    $data = DB::table('penerbitan_naskah as pn')
+                        ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+                        ->whereNull('pn.deleted_at');
+                        if ((Gate::allows('do_update','naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
+                            $data->where('pic_prodev',auth()->user()->id);
+                        }
+                        $data->select(
+                            'pn.id',
+                            'pn.kode',
+                            'pn.judul_asli',
+                            'pn.pic_prodev',
+                            'pn.created_by',
+                            'pn.jalur_buku',
+                            'pn.tanggal_masuk_naskah',
+                            'pn.selesai_penilaian',
+                            'pn.bukti_email_penulis',
+                            'pn.urgent',
+                            'pns.tgl_pn_prodev',
+                            'pns.tgl_pn_m_penerbitan',
+                            'pns.tgl_pn_m_pemasaran',
+                            'pns.tgl_pn_d_pemasaran',
+                            'pns.tgl_pn_direksi',
+                            'pns.tgl_pn_editor',
+                            'pns.tgl_pn_setter',
+                            'pns.tgl_pn_selesai'
+                        )
+                        ->orderBy('pn.tanggal_masuk_naskah', 'asc')
+                        ->get();
+                    return $data->count();
                     break;
                 case 'selectPenulis':
                     $data = DB::table('penerbitan_penulis')

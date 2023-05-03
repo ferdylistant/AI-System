@@ -78,12 +78,18 @@ $(function() {
     $("#tb_Setter").on("click", ".btn-history", function (e) {
         var id = $(this).data("id");
         var judul = $(this).data("judulfinal");
-        $.post(
-            window.location.origin + "/penerbitan/pracetak/setter/lihat-history",
-            {
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin + "/penerbitan/pracetak/setter/lihat-history",
+            type: "POST",
+            data: {
                 id: id,
             },
-            function (data) {
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
                 // console.log(data);
                 $("#titleModalSetter").html(
                     '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
@@ -93,8 +99,11 @@ $(function() {
                 $("#load_more").data("id", id);
                 $("#dataHistorySetter").html(data);
                 $("#md_SetterHistory").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
             }
-        );
+        });
     });
 });
 function loadCountData() {

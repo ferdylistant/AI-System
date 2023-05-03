@@ -1,64 +1,73 @@
-loadDataValue();
-function loadDataValue() {
-    let id = window.location.search.split('?').pop(),
-        cardWrap = $('.section-body').find('.card');
-    $.ajax({
-        url: window.location.origin + "/jasa-cetak/order-buku/detail?" + id+"&request_=getValue",
-        beforeSend: function () {
-            cardWrap.addClass('card-progress');
-        },
-        success: function (result) {
-            let {
-                data,cs
-            } = result;
-            for (let n in data) {
-                // console.log(data[n]);
-                switch (n) {
-                    case 'id':
-                        if (data[n] != '') {
-                            $('#buttonAct').html(data[n]).change();
-                        }
-                        break;
-                    case 'proses':
-                        if (data[n] != '') {
-                            $('#buttonAct').html(data[n]).change();
-                        }
-                        break;
-                    case 'jml_order':
-                        if (cs == true) {
-                            $('.jml-order-text').text('*Pilih sebelum klik deal');
-                        }
-                        $('.'+n).html(data[n]).change();
-                        break;
-                    case 'harga_final':
-                        // console.log(data[n]);
-                        if (data[n] == null) {
-                            $('.'+n).text('Harga belum dipilih!').addClass('text-danger');
-                        } else {
-                            $('.' + n).text(data[n]).removeClass('text-danger').change();
-                        }
-
-                        break;
-                    case 'status':
-                        $('.'+n).html(data[n]).change();
-                        break;
-                    default:
-                        $('.' + n).text(data[n]).change();
-                        break;
-                }
-            }
-        },
-        error: function (err) {
-            notifToast("error", "Terjadi kesalahan!");
-        },
-        complete: function () {
-            cardWrap.removeClass('card-progress');
-        }
-
-    })
-}
 $(function () {
-    $("#buttonAct").on("click","#btn-decline", function (e) {
+    loadDataValue();
+    function loadDataValue() {
+        let id = window.location.search.split('?').pop(),
+            cardWrap = $('.section-body').find('.card');
+        $.ajax({
+            url: window.location.origin + "/jasa-cetak/order-buku/detail?" + id + "&request_=getValue",
+            beforeSend: function () {
+                cardWrap.addClass('card-progress');
+            },
+            success: function (result) {
+                let {
+                    data, cs
+                } = result;
+                for (let n in data) {
+                    // console.log(data[n]);
+                    switch (n) {
+                        case 'id':
+                            if (data[n] != '') {
+                                $('#buttonAct').html(data[n]).change();
+                            }
+                            break;
+                        case 'proses':
+                            if (data[n] != '') {
+                                $('#buttonAct').html(data[n]).change();
+                            }
+                            break;
+                        case 'jml_order':
+                            if (cs == true) {
+                                $('.jml-order-text').text('*Pilih sebelum klik deal');
+                            }
+                            $('.' + n).html(data[n]).change();
+                            break;
+                        case 'harga_final':
+                            // console.log(data[n]);
+                            if (data[n] == null) {
+                                $('.' + n).text('Harga belum dipilih!').addClass('text-danger');
+                            } else {
+                                $('.' + n).text(data[n]).removeClass('text-danger').change();
+                            }
+
+                            break;
+                        case 'status':
+                            $('.' + n).html(data[n]).change();
+                            break;
+                        case 'format':
+                            $('.' + n).text(data[n] + ' cm').change();
+                            break;
+                        case 'desain_setter':
+                            $('.' + n).html(data[n]).change();
+                            break;
+                        case 'created_by':
+                            $('.' + n).html(data[n]).change();
+                            break;
+                        default:
+                            $('.' + n).text(data[n]).change();
+                            break;
+                    }
+                }
+            },
+            error: function (err) {
+                notifToast("error", "Terjadi kesalahan!");
+            },
+            complete: function () {
+                cardWrap.removeClass('card-progress');
+            }
+
+        })
+    }
+    $("#buttonAct").on("click", "#btn-decline", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
         var no_order = $(this).data("no_order");
@@ -67,8 +76,8 @@ $(function () {
             type: 'GET',
             url: window.location.origin + "/jasa-cetak/order-buku/detail?request_=modal-decline-revisi",
             data: {
-                order : id,
-                kode : no_order,
+                order: id,
+                kode: no_order,
             },
             beforeSend: function () {
                 cardWrap.addClass('card-progress');
@@ -91,7 +100,7 @@ $(function () {
             }
         });
     });
-    function ajaxPilihHarga(no_order,id,harga_final,cardWrap) {
+    function ajaxPilihHarga(no_order, id, harga_final, cardWrap) {
         $.ajax({
             url:
                 window.location.origin + "/jasa-cetak/order-buku/detail?request_=pilih-harga",
@@ -123,13 +132,13 @@ $(function () {
             },
         });
     }
-    $(".jml_order").on("change",'input[type=radio][name=harga_final_radio]',function(){
+    $(".jml_order").on("change", 'input[type=radio][name=harga_final_radio]', function () {
 
         var no_order = $(this).data('no_order');
         var id = $(this).data('id');
         var harga_final = $(this).val();
         let cardWrap = $('.section-body').find('.card');
-        ajaxPilihHarga(no_order,id,harga_final,cardWrap);
+        ajaxPilihHarga(no_order, id, harga_final, cardWrap);
 
     });
     //! DECLINE
@@ -180,9 +189,9 @@ $(function () {
             let decline_revisi = $(this).find('[name="decline_revisi"]').val();
             var title = decline_revisi == 'approve_revisi' ? 'harus direvisi' : 'tidak deal';
             var text = decline_revisi == 'approve_revisi' ? 'Setelah order buku direvisi, proses akan kembali kepada Anda untuk pengecekkan ulang.' :
-            'Setelah order buku tidak deal, proses tidak dilanjutkan, namun data tetap tersimpan sebagai arsip order buku.';
+                'Setelah order buku tidak deal, proses tidak dilanjutkan, namun data tetap tersimpan sebagai arsip order buku.';
             swal({
-                title: 'Yakin order buku "' + kode + "-" + judul + '" '+title+'?',
+                title: 'Yakin order buku "' + kode + "-" + judul + '" ' + title + '?',
                 text: text,
                 icon: "warning",
                 buttons: true,
@@ -195,15 +204,15 @@ $(function () {
         }
     });
     //! APPROVE
-    function ajaxApproveOrderBuku(id,kode,decline_revisi) {
+    function ajaxApproveOrderBuku(id, kode, decline_revisi) {
         let cardWrap = $('.section-body').find('.card');
         $.ajax({
             type: "POST",
             url: window.location.origin + "/jasa-cetak/order-buku/detail?request_=approval-order&type=approve",
             data: {
                 id: id,
-                no_order : kode,
-                decline_revisi : decline_revisi
+                no_order: kode,
+                decline_revisi: decline_revisi
             },
             beforeSend: function () {
                 cardWrap.addClass("card-progress");
@@ -223,7 +232,7 @@ $(function () {
             },
         });
     }
-    $("#buttonAct").on("click",'#btn-approve', function (e) {
+    $("#buttonAct").on("click", '#btn-approve', function (e) {
         e.preventDefault();
         let id = $(this).data("id");
         let kode = $(this).data("no_order");
@@ -231,39 +240,39 @@ $(function () {
         let decline_revisi = $(this).data("decline_revisi");
         var title = decline_revisi == 'approve_revisi' ? 'selesai proof' : 'deal';
         var text = decline_revisi == 'approve_revisi' ? "Setelah order buku proof akan segera dikoreksi. Selanjutnya kabag akan memproses alur order buku." :
-        "Setelah order buku deal, status proses masuk 'Antrian'. Selanjutnya kabag akan memproses alur order buku.";
+            "Setelah order buku deal, status proses masuk 'Antrian'. Selanjutnya kabag akan memproses alur order buku.";
         swal({
-            title: 'Yakin order buku "' + kode + "-" + judul + '" '+title+'?',
+            title: 'Yakin order buku "' + kode + "-" + judul + '" ' + title + '?',
             text: text,
             icon: "warning",
             buttons: true,
             dangerMode: true,
         }).then((confirm_) => {
             if (confirm_) {
-                ajaxApproveOrderBuku(id,kode,decline_revisi);
+                ajaxApproveOrderBuku(id, kode, decline_revisi);
             }
         });
     });
     //! DONE DESAIN,KOREKTOR,PRACETAK
-    function ajaxDoneWork(id,no_order,autor) {
+    function ajaxDoneWork(id, no_order, autor) {
         $.ajax({
             type: "POST",
             url:
                 window.location.origin + "/jasa-cetak/order-buku/detail?request_=done-work",
             data: {
-                id : id,
-                no_order : no_order,
-                author : autor
+                id: id,
+                no_order: no_order,
+                author: autor
             },
             beforeSend: function () {
                 $("#overlay").fadeIn(300);
             },
             success: function (result) {
-                console.log(result);
-                // notifToast(result.status, result.message);
-                // if (result.status == "success") {
-                //     location.reload();
-                // }
+                // console.log(result);
+                notifToast(result.status, result.message);
+                if (result.status == "success") {
+                    location.reload();
+                }
             },
             error: function (err) {
                 notifToast("error", "Terjadi Kesalahan!");
@@ -275,12 +284,12 @@ $(function () {
             },
         });
     }
-    $("#buttonAct").on("click","#btn-done-order-buku", function (e) {
+    $("#buttonAct").on("click", "#btn-done-order-buku", function (e) {
         e.preventDefault();
         let id = $(this).data("id");
         let no_order = $(this).data("no_order");
         let autor = $(this).data("author");
-        var label = autor == "desain_setter" ? "desain/setter " : autor+" ";
+        var label = autor == "desain_setter" ? "desain/setter " : autor + " ";
         swal({
             title: "Yakin telah menyelesaikan proses " + label + no_order + "?",
             text: "Harap diperiksa kembali, supaya tidak terjadi kesalahan.",

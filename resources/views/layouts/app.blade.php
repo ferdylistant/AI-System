@@ -236,16 +236,18 @@
     </script>
     <script src="{{ url('js/main.js') }}"></script>
     {{-- <script src="js/app.js"></script> --}}
-    {{-- <script>
+    <script>
         // Reload the page when the user's internet connection is restored
-        setInterval(function() {
+        $(function() {
             if (navigator.onLine) {
                 console.log(navigator.onLine);
-                location.reload();
+                // location.reload();
+            } else {
+
+                console.log(navigator.onLine);
             }
-            console.log(navigator.onLine);
-        }, 120000);
-    </script> --}}
+        });
+    </script>
     @yield('jsNeeded')
     {{-- <script>
         const searchClient = algoliasearch('48PYOPQ4UX', '0d0db6942609a9c8667323100a037bdb');

@@ -268,24 +268,28 @@ class DeskripsiCoverController extends Controller
                     $bullet[] = $value;
                 }
                 $np = explode(",",$request->nama_pena);
+                $n_pena = is_null($request->nama_pena)?NULL:json_encode($np);
+                $fc = is_null($request->finishing_cover) ? NULL : json_encode($request->finishing_cover);
+                $bulletVariabel = is_null($request->bullet) ? NULL : json_encode(array_filter($bullet));
+                $bulan = is_null($request->bulan) ? NULL : Carbon::createFromDate($request->bulan);
                 $update = [
                     'params' => 'Edit Descov',
                     'id' => $request->id,
                     'sub_judul_final' => $request->sub_judul_final, //Deskripsi Final
-                    'nama_pena' => is_null($request->nama_pena)?NULL:json_encode($np), //Deskripsi Produk
+                    'nama_pena' => $n_pena, //Deskripsi Produk
                     'des_front_cover' => $request->des_front_cover,
                     'des_back_cover' => $request->des_back_cover,
-                    'finishing_cover' => json_encode(array_filter($request->finishing_cover)), //Array
+                    'finishing_cover' => $fc, //Array
                     'format_buku' => $request->format_buku, //Deskripsi Produk
                     'jilid' => $request->jilid,
                     'tipografi' => $request->tipografi,
                     'warna' => $request->warna,
                     'kelengkapan' => $request->kelengkapan, //Deskripsi Produk
                     'catatan' => $request->catatan,
-                    'bullet' =>  json_encode(array_filter($bullet)), //Deskripsi Final
+                    'bullet' =>  $bulletVariabel, //Deskripsi Final
                     'desainer' => $request->desainer,
                     'contoh_cover' => $request->contoh_cover,
-                    'bulan' => Carbon::createFromDate($request->bulan),
+                    'bulan' => $bulan,
                     'updated_by' => auth()->id()
                 ];
                 event(new DescovEvent($update));
@@ -294,8 +298,8 @@ class DeskripsiCoverController extends Controller
                     'params' => 'Insert History Edit Descov',
                     'deskripsi_cover_id' => $request->id,
                     'type_history' => 'Update',
-                    'nama_pena_his' => $history->nama_pena == json_encode($np) ? NULL : $history->nama_pena,
-                    'nama_pena_new' => $history->nama_pena == json_encode($np) ? NULL : json_encode($np),
+                    'nama_pena_his' => $history->nama_pena == $n_pena ? NULL : $history->nama_pena,
+                    'nama_pena_new' => $history->nama_pena == $n_pena ? NULL : $n_pena,
                     'format_buku_his' => $history->format_buku == $request->format_buku ? NULL : $history->format_buku,
                     'format_buku_new' => $history->format_buku == $request->format_buku ? NULL : $request->format_buku,
                     'sub_judul_final_his' => $history->sub_judul_final == $request->sub_judul_final ? NULL : $history->sub_judul_final,
@@ -304,16 +308,16 @@ class DeskripsiCoverController extends Controller
                     'des_front_cover_new' => $history->des_front_cover == $request->des_front_cover ? NULL : $request->des_front_cover,
                     'des_back_cover_his' => $history->des_back_cover == $request->des_back_cover ? NULL : $history->des_back_cover,
                     'des_back_cover_new' => $history->des_back_cover == $request->des_back_cover ? NULL : $request->des_back_cover,
-                    'finishing_cover_his' => $history->finishing_cover == json_encode(array_filter($request->finishing_cover)) ? NULL : $history->finishing_cover,
-                    'finishing_cover_new' => $history->finishing_cover == json_encode(array_filter($request->finishing_cover)) ? NULL : json_encode(array_filter($request->finishing_cover)),
+                    'finishing_cover_his' => $history->finishing_cover == $fc ? NULL : $history->finishing_cover,
+                    'finishing_cover_new' => $history->finishing_cover == $fc ? NULL : $fc,
                     'jilid_his' => $history->jilid == $request->jilid ? NULL : $history->jilid,
                     'jilid_new' => $history->jilid == $request->jilid ? NULL : $request->jilid,
                     'tipografi_his' => $history->tipografi == $request->tipografi ? NULL : $history->tipografi,
                     'tipografi_new' => $history->tipografi == $request->tipografi ? NULL : $request->tipografi,
                     'warna_his' => $history->warna == $request->warna ? NULL : $history->warna,
                     'warna_new' => $history->warna == $request->warna ? NULL : $request->warna,
-                    'bullet_his' => $history->bullet == json_encode(array_filter($bullet)) ? NULL : $history->bullet,
-                    'bullet_new' => $history->bullet == json_encode(array_filter($bullet)) ? NULL : json_encode(array_filter($bullet)),
+                    'bullet_his' => $history->bullet == $bulletVariabel ? NULL : $history->bullet,
+                    'bullet_new' => $history->bullet == $bulletVariabel ? NULL : $bulletVariabel,
                     'desainer_his' => $history->desainer == $request->desainer ? NULL : $history->desainer,
                     'desainer_new' => $history->desainer == $request->desainer ? NULL : $request->desainer,
                     'contoh_cover_his' => $history->contoh_cover == $request->contoh_cover ? NULL : $history->contoh_cover,
@@ -323,7 +327,7 @@ class DeskripsiCoverController extends Controller
                     'catatan_his' => $history->catatan == $request->catatan ? NULL : $history->catatan,
                     'catatan_new' => $history->catatan == $request->catatan ? NULL : $request->catatan,
                     'bulan_his' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
-                    'bulan_new' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : Carbon::createFromDate($request->bulan),
+                    'bulan_new' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $bulan,
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];

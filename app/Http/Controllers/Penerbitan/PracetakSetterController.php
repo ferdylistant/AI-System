@@ -59,10 +59,11 @@ class PracetakSetterController extends Controller
                         $dataKode = $data->kode;
                         if ($data->status == 'Proses') {
                             if ($data->proses_saat_ini == 'Siap Turcet') {
-                                $dataKode = '<span class="text-primary">' . $data->kode . '</span>';
+                                $dataKode = '<span class="text-primary" data-toggle="tooltip" data-placement="top" title="Proses '.$data->proses_saat_ini.', menunggu kabag melengkapi data-data yang dibutuhkan untuk Turun Cetak">' . $data->kode . '</span>';
                                 $tandaProses = '<span class="beep-primary d-table"></span>';
                             } else {
-                                $dataKode = $data->proses == '1'  ? '<span class="text-success">' . $data->kode . '</span>' : '<span class="text-danger">' . $data->kode . '</span>';
+                                $tooltip = $data->proses == '1' ? 'data-toggle="tooltip" data-placement="top" title="Sedang dikerjakan oleh ' . $data->proses_saat_ini . '"' : 'data-toggle="tooltip" data-placement="top" title="Proses ' . $data->proses_saat_ini . ' belum dimulai oleh kabag"';
+                                $dataKode = $data->proses == '1'  ? '<span class="text-success" '.$tooltip.'>' . $data->kode . '</span>' : '<span class="text-danger" '.$tooltip.'>' . $data->kode . '</span>';
                                 $tandaProses = $data->proses == '1' ? '<span class="beep-success d-table"></span>' : '<span class="beep-danger d-table"></span>';
                             }
                         }
@@ -1003,10 +1004,14 @@ class PracetakSetterController extends Controller
                                 $label = $item == 1 ? 'Stop' : 'Mulai';
                                 $checked = $item == 1 ? true : false;
                                 $disable = false;
+                                $disableBtn = false;
                                 $cursor = 'pointer';
+                                $cursorBtn = 'pointer';
                                 if (!is_null($useData->mulai_proof) && is_null($useData->selesai_proof)) {
                                     $disable = true;
+                                    $disableBtn = true;
                                     $cursor = 'not-allowed';
+                                    $cursorBtn = 'not-allowed';
                                     $lbl = 'Sedang proses proof prodev';
                                 } elseif (is_null($useData->selesai_setting) && is_null($useData->selesai_koreksi)) {
                                     $lbl = $label.' proses setting';
@@ -1018,13 +1023,21 @@ class PracetakSetterController extends Controller
                                     $lbl = $label.' proses revisi setting';
                                 } else {
                                     $disable = true;
+                                    $disableBtn = true;
                                     $cursor = 'not-allowed';
+                                    $cursorBtn = 'not-allowed';
+                                    if ($useData->proses_saat_ini == 'Siap Turcet') {
+                                        $disableBtn = false;
+                                        $cursorBtn = 'pointer';
+                                    }
                                     $lbl = '-';
                                 }
                             } else {
                                 $checked = $item == 1 ? true : false;
                                 $disable = true;
+                                $disableBtn = true;
                                 $cursor = 'not-allowed';
+                                $cursorBtn = 'not-allowed';
                                 $lbl = '-';
                             }
                             return [
@@ -1032,7 +1045,9 @@ class PracetakSetterController extends Controller
                                 'data' => $item,
                                 'checked' => $checked,
                                 'disabled' => $disable,
+                                'disabledBtn' => $disableBtn,
                                 'cursor' => $cursor,
+                                'cursorBtn' => $cursorBtn,
                                 'label' => $lbl
                             ];
                             break;
@@ -1133,13 +1148,14 @@ class PracetakSetterController extends Controller
                     }
                     $mulaiCopyright = $request->mulai_p_copyright == '' ? NULL : Carbon::createFromFormat('d F Y', $request->mulai_p_copyright)->format('Y-m-d H:i:s');
                     $selesaiCopyright = $request->selesai_p_copyright == '' ? NULL : Carbon::createFromFormat('d F Y', $request->selesai_p_copyright)->format('Y-m-d H:i:s');
+                    $setter = $request->has('setter') ? json_encode($request->setter) : null;
                     $update = [
                         'params' => 'Edit Pracetak Setter',
                         'id' => $request->id,
                         'jml_hal_final' => $request->jml_hal_final,
                         'catatan' => $request->catatan,
-                        'setter' => json_encode($request->setter),
-                        'korektor' => $request->has('korektor') ? json_encode($request->korektor) : null,
+                        'setter' => $setter,
+                        'korektor' => $korektor,
                         'edisi_cetak' => $request->edisi_cetak,
                         'isbn' => $request->isbn,
                         'pengajuan_harga' => $request->pengajuan_harga,
@@ -1153,8 +1169,8 @@ class PracetakSetterController extends Controller
                         'params' => 'Insert History Edit Pracetak Setter',
                         'pracetak_setter_id' => $request->id,
                         'type_history' => 'Update',
-                        'setter_his' => $history->setter == json_encode(array_filter($request->setter)) ? null : $history->setter,
-                        'setter_new' => $history->setter == json_encode(array_filter($request->setter)) ? null : json_encode(array_filter($request->setter)),
+                        'setter_his' => $history->setter == $setter ? null : $history->setter,
+                        'setter_new' => $history->setter == $setter ? null : $setter,
                         'jml_hal_final_his' => $history->jml_hal_final == $request->jml_hal_final ? null : $history->jml_hal_final,
                         'jml_hal_final_new' => $history->jml_hal_final == $request->jml_hal_final ? null : $request->jml_hal_final,
                         'edisi_cetak_his' => $history->edisi_cetak == $request->edisi_cetak ? null : $history->edisi_cetak,

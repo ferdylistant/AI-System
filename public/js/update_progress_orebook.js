@@ -34,7 +34,7 @@ $(function() {
     $('#tb_OrderEbook').on('click', '.btn-history', function(e) {
         var id = $(this).data('id');
         var judul = $(this).data('judulfinal');
-        let cardWrap = $('.section-body').find('.card');
+        let cardWrap = $(this).closest(".card");
         $.ajax({
             url: window.location.origin + "/penerbitan/order-ebook/ajax/lihat-history-order-ebook",
             type: "POST",

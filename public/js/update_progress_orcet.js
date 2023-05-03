@@ -71,7 +71,7 @@ $(function(){
     $('#tb_Orcet').on('click', '.btn-history', function(e) {
         var id = $(this).data('id');
         var judul = $(this).data('judulfinal');
-        let cardWrap = $('.section-body').find('.card');
+        let cardWrap = $(this).closest(".card");
         $.ajax({
             url: window.location.origin + "/penerbitan/order-cetak/ajax/lihat-history-order-cetak",
             type: "POST",

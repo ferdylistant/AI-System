@@ -303,11 +303,14 @@ class DeskripsiFinalController extends Controller
                     $bullet[] = $value;
                 }
                 $np = explode(",",$request->nama_pena);
+                $n_pena = is_null($request->nama_pena)?NULL:json_encode($np);
+                $bulletVariable = is_null($request->bullet)?NULL:json_encode(array_filter($bullet));
+                $bulan = is_null($request->bulan)?NULL:Carbon::createFromDate($request->bulan);
                 $update = [
                     'params' => 'Edit Desfin',
                     'id' => $request->id,
                     'judul_final' => $request->judul_final, //Di Deskripsi Produk
-                    'nama_pena' => is_null($request->nama_pena)?NULL:json_encode($np), //Di Deskripsi Produk
+                    'nama_pena' => $n_pena, //Di Deskripsi Produk
                     'kelengkapan' => $request->kelengkapan, //Deskripsi Produk
                     'format_buku' => $request->format_buku,
                     'sub_judul_final' => $request->sub_judul_final,
@@ -317,12 +320,12 @@ class DeskripsiFinalController extends Controller
                     'ukuran_asli' => $request->ukuran_asli,
                     'isi_warna' => $request->isi_warna,
                     'isi_huruf' => $request->isi_huruf,
-                    'bullet' =>  json_encode(array_filter($bullet)),
+                    'bullet' =>  $bulletVariable,
                     'setter' => $request->setter,
                     'korektor' => $request->korektor,
                     'sinopsis' => $request->sinopsis,
                     'catatan' => $request->catatan,
-                    'bulan' => Carbon::createFromDate($request->bulan),
+                    'bulan' => $bulan,
                     'updated_by' => auth()->id()
                 ];
                 event(new DesfinEvent($update));
@@ -331,8 +334,8 @@ class DeskripsiFinalController extends Controller
                     'params' => 'Insert History Desfin',
                     'deskripsi_final_id' => $request->id,
                     'type_history' => 'Update',
-                    'nama_pena_his' => $history->nama_pena == json_encode($np) ? NULL : $history->nama_pena,
-                    'nama_pena_new' => $history->nama_pena == json_encode($np) ? NULL : json_encode($np),
+                    'nama_pena_his' => $history->nama_pena == $n_pena ? NULL : $history->nama_pena,
+                    'nama_pena_new' => $history->nama_pena == $n_pena ? NULL : $n_pena,
                     'format_buku_his' => $history->format_buku == $request->format_buku ? null : $history->format_buku,
                     'format_buku_new' => $history->format_buku == $request->format_buku ? null : $request->format_buku,
                     'judul_final_his' => $history->judul_final == $request->judul_final ? null : $history->judul_final,
@@ -351,8 +354,8 @@ class DeskripsiFinalController extends Controller
                     'isi_warna_new' => $history->isi_warna == $request->isi_warna ? null : $request->isi_warna,
                     'isi_huruf_his' => $history->isi_huruf == $request->isi_huruf ? null : $history->isi_huruf,
                     'isi_huruf_new' => $history->isi_huruf == $request->isi_huruf ? null : $request->isi_huruf,
-                    'bullet_his' => $history->bullet == json_encode(array_filter($bullet)) ? null : $history->bullet,
-                    'bullet_new' => $history->bullet == json_encode(array_filter($bullet)) ? null : json_encode(array_filter($bullet)),
+                    'bullet_his' => $history->bullet == $bulletVariable ? null : $history->bullet,
+                    'bullet_new' => $history->bullet == $bulletVariable ? null : $bulletVariable,
                     'setter_his' => $history->setter == $request->setter ? null : $history->setter,
                     'setter_new' => $history->setter == $request->setter ? null : $request->setter,
                     'korektor_his' => $history->korektor == $request->korektor ? null : $history->korektor,
@@ -364,7 +367,7 @@ class DeskripsiFinalController extends Controller
                     'catatan_his' => $history->catatan == $request->catatan ? null : $history->catatan,
                     'catatan_new' => $history->catatan == $request->catatan ? null : $request->catatan,
                     'bulan_his' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $history->bulan,
-                    'bulan_new' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : Carbon::createFromDate($request->bulan),
+                    'bulan_new' => date('Y-m',strtotime($history->bulan)) == date('Y-m', strtotime($request->bulan)) ? null : $bulan,
                     'author_id' => auth()->id(),
                     'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ];

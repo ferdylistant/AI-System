@@ -302,7 +302,7 @@ class OrderCetakController extends Controller
                             'message' => 'Terjadi kesalahan!'
                         ]);
                     }
-
+                    $fc = $request->up_finishing_cover ? json_encode(array_filter($request->up_finishing_cover)) : null;
                     $update = [
                         'params' => 'Update Order Cetak',
                         'id' => $request->id,
@@ -321,7 +321,7 @@ class OrderCetakController extends Controller
                         'jenis_cover' => $request->up_jenis_cover,
                         'kertas_cover' => $request->up_kertas_cover,
                         'warna' => $request->up_warna_cover, //Deskripsi Cover
-                        'finishing_cover' => json_encode(array_filter($request->up_finishing_cover)), //Deskripsi Cover
+                        'finishing_cover' => $fc, //Deskripsi Cover
                         'buku_jadi' => $request->up_buku_jadi,
                         'jumlah_cetak' => $request->up_jumlah_cetak,
                         'tahun_terbit' => Carbon::createFromFormat('Y', $request->up_tahun_terbit)->format('Y'),
@@ -366,8 +366,8 @@ class OrderCetakController extends Controller
                         'kertas_cover_new' => $request->up_kertas_cover == $history->kertas_cover ? NULL : $request->up_kertas_cover,
                         'warna_cover_his' => $request->up_warna_cover == $history->warna_cover ? NULL : $history->warna_cover,
                         'warna_cover_new' => $request->up_warna_cover == $history->warna_cover ? NULL : $request->up_warna_cover,
-                        'finishing_cover_his' => $history->finishing_cover == json_encode(array_filter($request->up_finishing_cover)) ? NULL : $history->finishing_cover,
-                        'finishing_cover_new' => $history->finishing_cover == json_encode(array_filter($request->up_finishing_cover)) ? NULL : json_encode(array_filter($request->up_finishing_cover)),
+                        'finishing_cover_his' => $history->finishing_cover == $fc ? NULL : $history->finishing_cover,
+                        'finishing_cover_new' => $history->finishing_cover == $fc ? NULL : $fc,
                         'buku_jadi_his' => $request->up_buku_jadi == $history->buku_jadi ? NULL : $history->buku_jadi,
                         'buku_jadi_new' => $request->up_buku_jadi == $history->buku_jadi ? NULL : $request->up_buku_jadi,
                         'jumlah_cetak_his' => $request->up_jumlah_cetak == $history->jumlah_cetak ? NULL : $history->jumlah_cetak,

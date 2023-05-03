@@ -282,6 +282,8 @@ class DeskripsiProdukController extends Controller
                 foreach ($request->alt_judul as $value) {
                     $altJudul[] = $value;
                 }
+                $n_pena = is_null($request->nama_pena)?NULL:json_encode($np);
+                $a_judul = is_null($request->alt_judul)?NULL:json_encode($altJudul);
                 $history = DB::table('deskripsi_produk')
                     ->where('id', $request->id)
                     ->whereNull('deleted_at')
@@ -289,8 +291,8 @@ class DeskripsiProdukController extends Controller
                 $update = [
                     'params' => 'Edit Despro',
                     'id' => $request->id,
-                    'nama_pena' => is_null($request->nama_pena)?NULL:json_encode($np),
-                    'alt_judul' => json_encode($altJudul),
+                    'nama_pena' => $n_pena,
+                    'alt_judul' => $a_judul,
                     'format_buku' => $request->format_buku,
                     'jml_hal_perkiraan' => $request->jml_hal_perkiraan,
                     'imprint' => $request->imprint,
@@ -307,10 +309,10 @@ class DeskripsiProdukController extends Controller
                     'params' => 'Insert History Despro',
                     'deskripsi_produk_id' => $request->id,
                     'type_history' => 'Update',
-                    'nama_pena_his' => $history->nama_pena == json_encode($np) ? NULL : $history->nama_pena,
-                    'nama_pena_new' => $history->nama_pena == json_encode($np) ? NULL : json_encode($np),
-                    'alt_judul_his' => $history->alt_judul == json_encode($altJudul) ? NULL : $history->alt_judul,
-                    'alt_judul_new' => $history->alt_judul == json_encode($altJudul) ? NULL : json_encode($altJudul),
+                    'nama_pena_his' => $history->nama_pena == $n_pena ? NULL : $history->nama_pena,
+                    'nama_pena_new' => $history->nama_pena == $n_pena ? NULL : $n_pena,
+                    'alt_judul_his' => $history->alt_judul == $a_judul ? NULL : $history->alt_judul,
+                    'alt_judul_new' => $history->alt_judul == $a_judul ? NULL : $a_judul,
                     'format_buku_his' => $history->format_buku == $request->format_buku ? NULL : $history->format_buku,
                     'format_buku_new' => $history->format_buku == $request->format_buku ? NULL : $request->format_buku,
                     'jml_hal_his' => $history->jml_hal_perkiraan == $request->jml_hal_perkiraan ? NULL : $history->jml_hal_perkiraan,

@@ -96,7 +96,7 @@ $(function () {
             notifToast("error", "Periksa kembali form Anda!");
         }
     });
-    $("#done-revision").on("click", function (e) {
+    $("#proses_saat_ini").on("click",'#done-revision', function (e) {
         e.preventDefault();
         let id = $(this).data("id");
         let kode = $(this).data("kode");
@@ -407,8 +407,8 @@ function loadData() {
                         $('#fup_pracetakSetter [name="'+n+'"]').css('cursor',result[n]['cursor']).change();
                         $('#fup_pracetakSetter #labelProses').text(result[n]['label']).change();
                         $('#fup_pracetakSetter #labelProses').css('cursor',result[n]['cursor']).change();
-                        $('#fup_pracetakSetter button').attr('disabled', result[n]['disabled']).change();
-                        $('#fup_pracetakSetter button').css('cursor',result[n]['cursor']).change();
+                        $('#fup_pracetakSetter button').attr('disabled', result[n]['disabledBtn']).change();
+                        $('#fup_pracetakSetter button').css('cursor',result[n]['cursorBtn']).change();
                         break;
                     default:
                         $("#" + n).text(result[n]['data']).addClass(result[n]['textColor']);

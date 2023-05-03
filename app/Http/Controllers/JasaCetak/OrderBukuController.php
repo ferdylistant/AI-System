@@ -644,7 +644,19 @@ class OrderBukuController extends Controller
                                 return !is_null($item) ? Carbon::createFromFormat('Y-m-d H:i:s', $item)->translatedFormat('d F Y, H:i:s') : '-';
                                 break;
                             case 'created_by':
-                                return !is_null($item) ? DB::table('users')->where('id', $item)->first()->nama : '-';
+                                return !is_null($item) ? '<a href="'.url('/manajemen-web/user/'.$item).'" target="_blank"><span class="bullet"></span>' . DB::table('users')->where('id', $item)->first()->nama . '</a>' : '-';
+                                break;
+                            case 'desain_setter':
+                                if (is_null($item)) {
+                                    return '-';
+                                } else {
+                                    $json = json_decode($item);
+                                    $res = '';
+                                    foreach ($json as $i => $val) {
+                                        $res .= '<a href="'.url('/manajemen-web/user/'.$val).'" target="_blank"><span class="bullet"></span>' . DB::table('users')->where('id', $val)->first()->nama . '</a><br>';
+                                    }
+                                    return $res;
+                                }
                                 break;
                             default:
                                 return $item;
@@ -695,8 +707,26 @@ class OrderBukuController extends Controller
                     break;
             }
         }
+        $id = $request->order;
+        $no_order = $request->kode;
+        $data = DB::table('jasa_cetak_order_buku')
+            ->where('id', $id)
+            ->where('no_order', $no_order)
+            ->first();
+        if (is_null($data)) {
+            return abort(404);
+        }
+        $desain_setter = FALSE;
+        if (is_null($data->jalur_proses) || $data->jalur_proses == 'Jalur Pendek') {
+            $desain_setter = FALSE;
+        } elseif ($data->jalur_proses == 'Jalur Pendek') {
+            $desain_setter = FALSE;
+        } elseif ($data->jalur_proses == 'Jalur Reguler') {
+            $desain_setter = TRUE;
+        }
         return view('jasa_cetak.order_buku.detail', [
-            'title' => 'Detail Order Buku Jasa Cetak'
+            'title' => 'Detail Order Buku Jasa Cetak',
+            'desain_setter' => $desain_setter
         ]);
     }
     public function otorisasiKabag(Request $request)
@@ -1091,7 +1121,7 @@ class OrderBukuController extends Controller
                                 $desSet = DB::table('users as u')
                                 ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
                                 ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-                                ->where('j.nama', 'LIKE', '%Design & Setter%')
+                                ->where('j.nama', 'LIKE', '%Design & Setter Jasa Cetak%')
                                 ->where('d.nama', 'LIKE', '%Keuangan - Produksi%')
                                 ->select('u.nama', 'u.id')
                                 ->orderBy('u.nama', 'Asc')

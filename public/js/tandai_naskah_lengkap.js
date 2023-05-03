@@ -104,7 +104,7 @@ $(function() {
     $("#tb_Naskah").on("click", ".btn-history", function (e) {
         var id = $(this).data("id");
         var judul = $(this).data("judulasli");
-        let cardWrap = $(".section-body").find(".card");
+        let cardWrap = $(this).closest(".card");
         $.ajax({
             url: window.location.origin + "/penerbitan/naskah/lihat-history",
             type: "POST",

@@ -92,12 +92,18 @@ $(document).ready(function () {
     $("#tb_DesTurCet").on("click", ".btn-history", function (e) {
         var id = $(this).data("id");
         var judul = $(this).data("judulfinal");
+        let cardWrap = $(this).closest(".card");
         // console.log(judul);
-        $.post(
-            window.location.origin +
+        $.ajax({
+            url: window.location.origin +
                 "/penerbitan/deskripsi/turun-cetak/lihat-history",
-            { id: id },
-            function (data) {
+            type: "post",
+            data:{ id: id },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
                 $("#titleModalDesturcet").html(
                     '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
                         judul +
@@ -106,8 +112,11 @@ $(document).ready(function () {
                 $("#load_more").data("id", id);
                 $("#dataHistoryDesturcet").html(data);
                 $("#md_DesturcetHistory").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
             }
-        );
+        });
     });
     $(".load-more").click(function (e) {
         e.preventDefault();

@@ -93,7 +93,7 @@ $(function () {
             notifToast("error", "Periksa kembali form Anda!");
         }
     });
-    $("#done-revision").on("click", function (e) {
+    $("#proses_saat_ini").on("click",'#done-revision', function (e) {
         e.preventDefault();
         let id = $(this).data("id");
         let kode = $(this).data("kode");

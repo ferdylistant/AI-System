@@ -84,15 +84,28 @@ $(function() {
     $('#tb_Editing').on('click', '.btn-history', function(e) {
         var id = $(this).data('id');
         var judul = $(this).data('judulfinal');
-        $.post(window.location.origin + "/penerbitan/editing/lihat-history", {
-            id: id
-        }, function(data) {
-            // console.log(data);
-            $('#titleModalEditing').html(
-                '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
-            $('#load_more').data('id', id);
-            $('#dataHistoryEditing').html(data);
-            $('#md_EditingHistory').modal('show');
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin + "/penerbitan/editing/lihat-history",
+            type: "POST",
+            data: {
+                id: id
+            },
+            cache: false,
+            beforeSend: function() {
+                cardWrap.addClass("card-progress");
+            },
+            success: function(data) {
+               // console.log(data);
+               $('#titleModalEditing').html(
+                   '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
+               $('#load_more').data('id', id);
+               $('#dataHistoryEditing').html(data);
+               $('#md_EditingHistory').modal('show');
+            },
+            complete: function() {
+                cardWrap.removeClass("card-progress");
+            },
         });
     });
 });

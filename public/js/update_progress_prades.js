@@ -77,12 +77,18 @@ $(function() {
     $("#tb_PraDes").on("click", ".btn-history", function (e) {
         var id = $(this).data("id");
         var judul = $(this).data("judulfinal");
-        $.post(
-            window.location.origin + "/penerbitan/pracetak/designer/lihat-history",
-            {
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin + "/penerbitan/pracetak/designer/lihat-history",
+            type: "post",
+            data: {
                 id: id,
             },
-            function (data) {
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
                 $("#titleModalPraDes").html(
                     '<i class="fas fa-history"></i>&nbsp;History Progress Pracetak Desainer "' +
                         judul +
@@ -91,8 +97,11 @@ $(function() {
                 $("#load_more").data("id", id);
                 $("#dataHistoryPraDes").html(data);
                 $("#md_PraDesHistory").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
             }
-        );
+        });
     });
 });
 function loadCountData() {

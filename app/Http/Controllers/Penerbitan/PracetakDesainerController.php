@@ -60,10 +60,11 @@ class PracetakDesainerController extends Controller
                         if ($data->status == 'Proses') {
                             if ($data->proses_saat_ini == 'Siap Turcet') {
                                 $tandaProses = '<span class="beep-primary"></span>';
-                                $dataKode = '<span class="text-primary">' . $data->kode . '</span>';
+                                $dataKode = '<span class="text-primary"  data-toggle="tooltip" data-placement="top" title="Proses '.$data->proses_saat_ini.', menunggu kabag melengkapi data-data yang dibutuhkan untuk Turun Cetak">' . $data->kode . '</span>';
                             } else {
+                                $tooltip = $data->proses == '1' ? 'data-toggle="tooltip" data-placement="top" title="Sedang dikerjakan oleh ' . $data->proses_saat_ini . '"' : 'data-toggle="tooltip" data-placement="top" title="Proses ' . $data->proses_saat_ini . ' belum dimulai oleh kabag"';
                                 $tandaProses = $data->proses == '1' ? '<span class="beep-success"></span>' : '<span class="beep-danger"></span>';
-                                $dataKode = $data->proses == '1'  ? '<span class="text-success">' . $data->kode . '</span>' : '<span class="text-danger">' . $data->kode . '</span>';
+                                $dataKode = $data->proses == '1'  ? '<span class="text-success" '.$tooltip.'>' . $data->kode . '</span>' : '<span class="text-danger" '.$tooltip.'>' . $data->kode . '</span>';
                             }
                         }
                         return $tandaProses . $dataKode;
@@ -1001,12 +1002,13 @@ class PracetakDesainerController extends Controller
                             ]);
                         }
                     }
+                    $desainer = $request->has('desainer') ? json_encode($request->desainer) : NULL;
                     $update = [
                         'params' => 'Edit Pracetak Desainer',
                         'id' => $request->id,
                         'catatan' => $request->catatan,
-                        'desainer' => json_encode($request->desainer),
-                        'korektor' => $request->has('korektor') ? json_encode($request->korektor) : null,
+                        'desainer' => $desainer,
+                        'korektor' => $korektor,
                         'proses_saat_ini' => $request->proses_saat_ini,
                         'bulan' => Carbon::createFromDate($request->bulan)
                     ];
@@ -1015,8 +1017,8 @@ class PracetakDesainerController extends Controller
                         'params' => 'Insert History Edit Pracetak Desainer',
                         'pracetak_cover_id' => $request->id,
                         'type_history' => 'Update',
-                        'desainer_his' => $history->desainer == json_encode(array_filter($request->desainer)) ? null : $history->desainer,
-                        'desainer_new' => $history->desainer == json_encode(array_filter($request->desainer)) ? null : json_encode(array_filter($request->desainer)),
+                        'desainer_his' => $history->desainer == $desainer ? null : $history->desainer,
+                        'desainer_new' => $history->desainer == $desainer ? null : $desainer,
                         'korektor_his' => $history->korektor == $korektor ? null : $history->korektor,
                         'korektor_new' => $history->korektor == $korektor ? null : $korektor,
                         'catatan_his' => $history->catatan == $request->catatan ? null : $history->catatan,

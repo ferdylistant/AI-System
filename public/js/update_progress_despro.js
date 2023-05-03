@@ -77,11 +77,17 @@ $(function() {
         e.preventDefault();
         var id = $(this).data("id");
         var judul = $(this).data("judulasli");
-        $.post(
-            window.location.origin +
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin +
                 "/penerbitan/deskripsi/produk/ajax/lihat-history",
-            { id: id },
-            function (data) {
+            type: "post",
+            data: { id: id },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
                 $("#titleModalDespro").html(
                     '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
                         judul +
@@ -90,8 +96,11 @@ $(function() {
                 $("#load_more").data("id", id);
                 $("#dataHistory").html(data);
                 $("#md_DesproHistory").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
             }
-        );
+        });
     });
     $(".load-more").click(function (e) {
         e.preventDefault();

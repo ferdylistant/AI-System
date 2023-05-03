@@ -59,10 +59,16 @@ function loadDataCount() {
 $("#tb_DesCover").on("click", ".btn-history", function (e) {
     var id = $(this).data("id");
     var judul = $(this).data("judulfinal");
-    $.post(
-        window.location.origin + "/penerbitan/deskripsi/cover/lihat-history",
-        { id: id },
-        function (data) {
+    let cardWrap = $(this).closest(".card");
+    $.ajax({
+        url: window.location.origin + "/penerbitan/deskripsi/cover/lihat-history",
+        type: "POST",
+        data: { id: id },
+        cache: false,
+        beforeSend: function () {
+            cardWrap.addClass("card-progress");
+        },
+        success: function (data) {
             $("#titleModalDescov").html(
                 '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
                     judul +
@@ -71,8 +77,11 @@ $("#tb_DesCover").on("click", ".btn-history", function (e) {
             $("#load_more").data("id", id);
             $("#dataHistoryDescov").html(data);
             $("#md_DescovHistory").modal("show");
+        },
+        complete: function () {
+            cardWrap.removeClass("card-progress");
         }
-    );
+    });
 });
 $(function () {
     $(".load-more").click(function (e) {

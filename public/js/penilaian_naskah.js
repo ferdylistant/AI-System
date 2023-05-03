@@ -2,8 +2,8 @@ $(function() {
     // Initialize
     let pn1_Prodev, pn2_EditSet, pn3_Pemasaran, pn4_Penerbitan, pn5_Direksi, pn6_DPemasaran, f_tl, f_dtl;
     // First load form penilaian
-    loadPenilaian($('#form_penilaian .nav-link.active').data('penilaian'),
-        $('#form_penilaian .nav-link.active').data('naskahid'));
+    loadPenilaian($('#detailPenilaianCollapseCard #form_penilaian .nav-link.active').data('penilaian'),
+        $('#detailPenilaianCollapseCard #form_penilaian .nav-link.active').data('naskahid'));
     loadTimeline($('#timeline').data('id'));
 
     // Each change tab form penilaian
@@ -41,7 +41,7 @@ $(function() {
                     naskah_id: naskahid
                 },
                 beforeSend: function() {
-                    $('#form_penilaian').parent().addClass('card-progress')
+                    $('#detailPenilaianCollapseCard #form_penilaian').parent().addClass('card-progress')
                 },
                 success: function(result) {
                     // console.log(tab)
@@ -72,7 +72,7 @@ $(function() {
                     notifToast('error', 'Terjadi Kesalahan Form Penilaian Gagal Dibuka!');
                 },
                 complete: function() {
-                    $('#form_penilaian').parent().removeClass('card-progress')
+                    $('#detailPenilaianCollapseCard #form_penilaian').parent().removeClass('card-progress')
                 }
             });
         }

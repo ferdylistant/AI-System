@@ -40,12 +40,26 @@ $(function () {
     $('#tb_DesFinal').on('click', '.btn-history', function (e) {
         var id = $(this).data('id');
         var judul = $(this).data('judulfinal');
-        $.post(window.location.origin + "/penerbitan/deskripsi/final/lihat-history",
-        { id: id }, function (data) {
-            $('#titleModalDesfin').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
-            $('#load_more').data('id', id);
-            $('#dataHistoryDesfin').html(data);
-            $('#md_DesfinHistory').modal('show');
+        let cardWrap = $(this).closest('.card');
+        // console.log(id);
+        $.ajax({
+            url: window.location.origin + "/penerbitan/deskripsi/final/lihat-history",
+            type: "POST",
+            data: { id: id },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                // console.log(data);
+                $('#titleModalDesfin').html('<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' + judul + '"');
+                $('#load_more').data('id', id);
+                $('#dataHistoryDesfin').html(data);
+                $('#md_DesfinHistory').modal('show');
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
         });
     });
     $(".load-more").click(function (e) {

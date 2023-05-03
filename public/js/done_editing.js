@@ -42,7 +42,7 @@ $(function () {
         });
     }
 
-    $("#btn-done-editing").on("click", function (e) {
+    $("#proses").on("click",'#btn-done-editing', function (e) {
         e.preventDefault();
         let id = $(this).data("id");
         let kode = $(this).data("kode");
@@ -60,7 +60,7 @@ $(function () {
             }
         });
     });
-    $("#btn-revisi-editing").on("click", function (e) {
+    $("#proses").on("click", '#btn-revisi-editing',function (e) {
         e.preventDefault();
         let id = window.location.search.split('?').pop(),
         cardWrap = $('.section-body').find('.card');
@@ -145,36 +145,37 @@ $(function () {
             });
         }
     });
-});
-function loadData() {
-    let id = window.location.search.split('?').pop(),
-        cardWrap = $('.section-body').find('.card');
-    $.ajax({
-        type: 'GET',
-        url: window.location.origin + "/penerbitan/editing/detail?" + id + "&request_=load-data",
-        beforeSend: function () {
-            cardWrap.addClass('card-progress');
-        },
-        success: function (response) {
-            // console.log(response);
-            for (n in response) {
-                switch (n) {
-                    case 'status':
-                        $('#'+n).html(response[n]['status']);
-                        $('#prosesPengerjaan').html(response[n]['proses']);
-                        break;
-                    default:
-                        $('#'+n).html(response[n]);
-                        break;
+    function loadData() {
+        let id = window.location.search.split('?').pop(),
+            cardWrap = $('.section-body').find('.card');
+        $.ajax({
+            type: 'GET',
+            url: window.location.origin + "/penerbitan/editing/detail?" + id + "&request_=load-data",
+            beforeSend: function () {
+                cardWrap.addClass('card-progress');
+            },
+            success: function (response) {
+                // console.log(response);
+                for (n in response) {
+                    switch (n) {
+                        case 'status':
+                            $('#'+n).html(response[n]['status']);
+                            $('#prosesPengerjaan').html(response[n]['proses']);
+                            break;
+                        default:
+                            $('#'+n).html(response[n]);
+                            break;
+                    }
                 }
+            },
+            error: function (err) {
+                // console.log(err);
+                notifToast('error', 'Gagal memuat data!');
+            },
+            complete: function (params) {
+                cardWrap.removeClass('card-progress');
             }
-        },
-        error: function (err) {
-            // console.log(err);
-            notifToast('error', 'Gagal memuat data!');
-        },
-        complete: function (params) {
-            cardWrap.removeClass('card-progress');
-        }
-    });
-}
+        });
+    }
+});
+
