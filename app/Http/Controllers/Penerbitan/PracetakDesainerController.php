@@ -432,6 +432,30 @@ class PracetakDesainerController extends Controller
                             preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
                             $prosesSaatIni = explode("','", $matches[1]);
                             $prosesFilter = Arr::except($prosesSaatIni, ['1', '4', '6', '9']);
+                            if ($item == 'Siap Turcet') {
+                                $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
+                                    return $key >= 7;
+                                });
+                            } elseif (!is_null($useData->selesai_pengajuan_cover)) {
+                                $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
+                                    return $key >= 2;
+                                });
+                            } elseif (!is_null($useData->selesai_proof)) {
+                                $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
+                                    return $key >= 3;
+                                });
+                            } elseif (!is_null($useData->selesai_cover)) {
+                                $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
+                                    return $key >= 5;
+                                });
+                            } elseif ($item == 'Desain Revisi') {
+                                $prosesFilter = Arr::where($prosesSaatIni, function ($value, $key) {
+                                    return $key >= 7;
+                                });
+                                $prosesFilter = Arr::sort($prosesFilter, function ($value) {
+                                    return $value;
+                                });
+                            }
                             if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
                             ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
                                 $text = 'text-dark';
@@ -687,9 +711,11 @@ class PracetakDesainerController extends Controller
                                     foreach ($namaDesainer as $key => $aj) {
                                     $html .= '<span class="bullet"></span>'. $aj .'<br>';
                                     }
-                                    $html .= '<p class="text-small">
-                                        <a href="javascript:void(0)" id="desainerButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
-                                    </p>';
+                                    if ($useData->proses_saat_ini != 'Siap Turcet') {
+                                        $html .= '<p class="text-small">
+                                            <a href="javascript:void(0)" id="desainerButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
+                                        </p>';
+                                    }
                                 $htmlHidden .='<div class="input-group">
                                 <select name="desainer[]" class="form-control select-desainer" multiple="multiple">
                                     <option label="Pilih desainer"></option>';
@@ -767,7 +793,7 @@ class PracetakDesainerController extends Controller
                                     foreach ($namakorektor as $key => $aj) {
                                     $html .= '<span class="bullet"></span>'. $aj .'<br>';
                                     }
-                                    if (is_null($useData->selesai_koreksi)) {
+                                    if ($useData->proses_saat_ini != 'Siap Turcet') {
                                         $html .= '<p class="text-small">
                                         <a href="javascript:void(0)" id="korektorButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
                                         </p>';
@@ -795,7 +821,7 @@ class PracetakDesainerController extends Controller
                                     if (is_null($useData->selesai_cover)) {
                                         $html .='<span class="text-danger"><i class="fas fa-exclamation-circle"></i>
                                             Belum bisa melanjutkan proses koreksi,
-                                            proses desain belum selesai.</span>';
+                                            proses '.$useData->proses_saat_ini.' belum selesai.</span>';
                                         $dis = 'disabled';
                                     }
                                     $html .='<select name="korektor[]" class="form-control select-korektor" multiple="multiple" '. $dis .' required>
@@ -884,9 +910,13 @@ class PracetakDesainerController extends Controller
                                 $checked = $item == 1 ? true : false;
                                 $disable = false;
                                 $cursor = 'pointer';
+                                $disableBtn = false;
+                                $cursorBtn = 'pointer';
                                 if (!is_null($useData->mulai_proof) && is_null($useData->selesai_proof)) {
                                     $disable = true;
+                                    $disableBtn = true;
                                     $cursor = 'not-allowed';
+                                    $cursorBtn = 'not-allowed';
                                     $lbl = 'Sedang proses proof prodev';
                                 } elseif (is_null($useData->selesai_pengajuan_cover) && is_null($useData->mulai_proof)) {
                                     $lbl = $label.' proses pengajuan cover';
@@ -900,13 +930,21 @@ class PracetakDesainerController extends Controller
                                     $lbl = $label . ' proses revisi desain cover';
                                 } else {
                                     $disable = true;
+                                    $disableBtn = true;
                                     $cursor = 'not-allowed';
+                                    $cursorBtn = 'not-allowed';
+                                    if ($useData->proses_saat_ini == 'Siap Turcet') {
+                                        $disableBtn = false;
+                                        $cursorBtn = 'pointer';
+                                    }
                                     $lbl = '-';
                                 }
                             } else {
                                 $checked = $item == 1 ? true : false;
                                 $disable = true;
+                                $disableBtn = true;
                                 $cursor = 'not-allowed';
+                                $cursorBtn = 'not-allowed';
                                 $lbl = '-';
                             }
                             return [
@@ -914,7 +952,9 @@ class PracetakDesainerController extends Controller
                                 'data' => $item,
                                 'checked' => $checked,
                                 'disabled' => $disable,
+                                'disabledBtn' => $disableBtn,
                                 'cursor' => $cursor,
+                                'cursorBtn' => $cursorBtn,
                                 'label' => $lbl
                             ];
                             break;

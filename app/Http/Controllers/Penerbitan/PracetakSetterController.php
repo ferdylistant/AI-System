@@ -350,6 +350,27 @@ class PracetakSetterController extends Controller
                             preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
                             $prosesSaatIni = explode("','", $matches[1]);
                             $prosesFilter = Arr::except($prosesSaatIni, ['1', '4', '7']);
+                            if ($item == 'Siap Turcet') {
+                                $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
+                                    return $key >= 5;
+                                });
+                            } elseif (!is_null($useData->selesai_proof)){
+                                $prosesFilter = Arr::except($prosesSaatIni, ['1','2','4','7']);
+                                $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
+                                    return $key >= 0;
+                                });
+                            } elseif (!is_null($useData->selesai_setting)) {
+                                $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
+                                    return $key >= 2;
+                                });
+                            } elseif ($item == 'Setting Revisi') {
+                                $prosesFilter = Arr::where($prosesSaatIni, function ($value, $key) {
+                                    return $key >= 5;
+                                });
+                                $prosesFilter = Arr::sort($prosesFilter, function ($value) {
+                                    return $value;
+                                });
+                            }
                             if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
                             ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
                                 $text = 'text-dark';
@@ -619,9 +640,11 @@ class PracetakSetterController extends Controller
                                     foreach ($namaSetter as $key => $aj) {
                                     $html .= '<span class="bullet"></span>'. $aj .'<br>';
                                     }
-                                    $html .= '<p class="text-small">
-                                        <a href="javascript:void(0)" id="setterButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
-                                    </p>';
+                                    if ($useData->proses_saat_ini != 'Siap Turcet') {
+                                        $html .= '<p class="text-small">
+                                            <a href="javascript:void(0)" id="setterButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
+                                        </p>';
+                                    }
                                 $htmlHidden .='<div class="input-group">
                                 <select name="setter[]" class="form-control select-setter" multiple="multiple">
                                     <option label="Pilih setter"></option>';
@@ -699,7 +722,7 @@ class PracetakSetterController extends Controller
                                     foreach ($namakorektor as $key => $aj) {
                                     $html .= '<span class="bullet"></span>'. $aj .'<br>';
                                     }
-                                    if (is_null($useData->selesai_koreksi)) {
+                                    if ($useData->proses_saat_ini != 'Siap Turcet') {
                                         $html .= '<p class="text-small">
                                         <a href="javascript:void(0)" id="korektorButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
                                         </p>';
@@ -727,7 +750,7 @@ class PracetakSetterController extends Controller
                                     if (is_null($useData->selesai_proof)) {
                                         $html .='<span class="text-danger"><i class="fas fa-exclamation-circle"></i>
                                             Belum bisa melanjutkan proses koreksi,
-                                            proses setting belum selesai.</span>';
+                                            proses '.$useData->proses_saat_ini.' belum selesai.</span>';
                                         $dis = 'disabled';
                                     }
                                     $html .='<select name="korektor[]" class="form-control select-korektor" multiple="multiple" '. $dis .' required>

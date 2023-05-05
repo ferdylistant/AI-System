@@ -278,8 +278,8 @@ function loadData() {
                         $('#fup_pracetakDesainer [name="'+n+'"]').css('cursor',result[n]['cursor']).change();
                         $('#fup_pracetakDesainer #labelProses').text(result[n]['label']).change();
                         $('#fup_pracetakDesainer #labelProses').css('cursor',result[n]['cursor']).change();
-                        $('#fup_pracetakDesainer button').attr('disabled', result[n]['disabled']).change();
-                        $('#fup_pracetakDesainer button').css('cursor',result[n]['cursor']).change();
+                        $('#fup_pracetakDesainer button').attr('disabled', result[n]['disabledBtn']).change();
+                        $('#fup_pracetakDesainer button').css('cursor',result[n]['cursorBtn']).change();
                         break;
                     default:
                         $("#" + n).text(result[n]['data']).addClass(result[n]['textColor']);

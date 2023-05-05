@@ -25,8 +25,8 @@
                         <tr>
                             <th class="table-secondary" style="width: 25%">Nama Pena:</th>
                             <td class="table-active text-right">
-                                @if (!is_null($data->nama_penulis))
-                                    {{ $data->nama_penulis }}
+                                @if (!is_null($data->nama_pena))
+                                {{ $nama_pena }}
                                 @else
                                     <span class="text-danger text-small">Belum diinput</span>
                                 @endif

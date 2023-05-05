@@ -567,7 +567,7 @@ class DeskripsiProdukController extends Controller
                         foreach (json_decode($d->nama_pena_new, true) as $namaPenanew) {
                             $loopNamaPenaNEW .= '<span class="bullet"></span>' . $namaPenanew;
                         }
-                        $html .= ' Nama pena <b class="text-dark">' . $loopNamaPenaHIS . '</b> diubah menjadi <b class="text-dark">' . $loopNamaPenaNEW . '</b>.<br>';
+                        $html .= ' Nama pena <br>' . $loopNamaPenaHIS . '<br> diubah menjadi <br><b class="text-dark">' . $loopNamaPenaNEW . '</b>.';
                         $html .= '</span></div>';
                     } elseif ((!is_null($d->nama_pena_new)) && ($d->nama_pena_new != '[""]')) {
                         $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
@@ -575,7 +575,28 @@ class DeskripsiProdukController extends Controller
                         foreach (json_decode($d->nama_pena_new, true) as $namaPenanew) {
                             $loopNamaPenaNEW .= '<b class="text-dark">' . $namaPenanew . '</b>, ';
                         }
-                        $html .= ' Nama pena <b class="text-dark">' . $loopNamaPenaNEW . '</b> ditambahkan.<br>';
+                        $html .= ' Nama pena <br>' . $loopNamaPenaNEW . '<br> ditambahkan.';
+                        $html .= '</span></div>';
+                    }
+                    if ((!is_null($d->alt_judul_his)) && ($d->alt_judul_his != '[""]')) {
+                        $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
+                        $loopAltJudulHis = '';
+                        $loopAltJudulNew = '';
+                        foreach (json_decode($d->alt_judul_his, true) as $altJudul) {
+                            $loopAltJudulHis .= '<b class="text-dark">-' . $altJudul . '</b><br> ';
+                        }
+                        foreach (json_decode($d->alt_judul_new, true) as $altJudul) {
+                            $loopAltJudulNew .= '<b class="text-dark">-' . $altJudul . '</b><br> ';
+                        }
+                        $html .= ' Nama pena <br>' . $loopAltJudulHis . 'diubah menjadi <br>' . $loopAltJudulNew ;
+                        $html .= '</span></div>';
+                    } elseif ((!is_null($d->alt_judul_new)) && ($d->alt_judul_new != '[""]')) {
+                        $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
+                        $loopAltJudulNew = '';
+                        foreach (json_decode($d->alt_judul_new, true) as $altJudul) {
+                            $loopAltJudulNew .= '<b class="text-dark">-' . $altJudul . '</b><br> ';
+                        }
+                        $html .= ' Nama pena <br>' . $loopAltJudulNew . 'ditambahkan.';
                         $html .= '</span></div>';
                     }
                     if (!is_null($d->format_buku_his)) {

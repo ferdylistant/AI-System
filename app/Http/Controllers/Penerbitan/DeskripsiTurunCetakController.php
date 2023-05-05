@@ -426,6 +426,7 @@ class DeskripsiTurunCetakController extends Controller
             ->where('pnp.naskah_id', '=', $data->naskah_id)
             ->select('pp.nama')
             ->get();
+        $nama_pena = json_decode($data->nama_pena);
         $format_buku_list = DB::table('format_buku')->whereNull('deleted_at')->get();
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_turun_cetak WHERE Field = 'tipe_order'"))[0]->Type;
         preg_match("/^set\(\'(.*)\'\)$/", $type, $matches);
@@ -441,7 +442,8 @@ class DeskripsiTurunCetakController extends Controller
             'format_buku_list' => $format_buku_list,
             'format_buku' => $format_buku,
             'sasaran_pasar' => $sasaran_pasar,
-            'tipe_order' => $tipeOrder
+            'tipe_order' => $tipeOrder,
+            'nama_pena' => is_null($data->nama_pena)?NULL:implode(",",$nama_pena)
         ]);
     }
     public function actionAjax(Request $request)
