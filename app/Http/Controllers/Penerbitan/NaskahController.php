@@ -21,6 +21,34 @@ class NaskahController extends Controller
     {
         if ($request->ajax()) {
             switch ($request->input('request_')) {
+                case 'getCountNaskahReguler':
+                    $html = '';
+                    $data = DB::table('penerbitan_naskah as pn')
+                        ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+                        ->whereNull('pn.deleted_at')
+                        ->where('pn.jalur_buku', 'Reguler');
+
+                    //Prodev
+                    $html .= '<span class="badge badge-danger"><i class="fas fa-star-half-alt"></i> Penilaian Prodev: <b id="animate-count-prodev">0</b></span>&nbsp;';
+                    //M Penerbitan
+                    $html .= '<span class="badge badge-success"><i class="fas fa-star-half-alt"></i> Penilaian M Penerbitan: <b id="animate-count-mpenerbitan">0</b></span>&nbsp;';
+                    //M Pemasaran
+                    $html .= '<span class="badge badge-info"><i class="fas fa-star-half-alt"></i> Penilaian M Pemasaran: <b id="animate-count-mpemasaran">0</b></span>&nbsp;';
+                    //D Pemasaran
+                    $html .= '<span class="badge badge-secondary"><i class="fas fa-star-half-alt"></i> Penilaian D Pemasaran: <b id="animate-count-dpemasaran">0</b></span>&nbsp;';
+                    //Direksi
+                    $html .= '<span class="badge badge-primary"><i class="fas fa-star-half-alt"></i> Penilaian Direksi: <b id="animate-count-direksi">0</b></span>';
+                    return response()->json([
+                        'html'=>$html,
+                        'countProdev'=> $data->whereNotNull('pns.tgl_pn_prodev')
+                        ->get()->count(),
+                        'countMPenerbitan'=> $data->whereNotNull('pns.tgl_pn_m_penerbitan')->get()->count(),
+                        'countMPemasaran'=> $data->whereNotNull('pns.tgl_pn_m_pemasaran')->get()->count(),
+                        'countDPemasaran'=> $data->whereNotNull('pns.tgl_pn_d_pemasaran')->get()->count(),
+                        'countDireksi'=> $data->whereNotNull('pns.tgl_pn_direksi')->get()->count(),
+                    ]);
+
+                    break;
                 case 'getCountNaskah':
                     $data = DB::table('penerbitan_naskah as pn')
                         ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
@@ -110,7 +138,8 @@ class NaskahController extends Controller
                         ->addColumn('kode', function ($data) {
                             $html = '';
                             $danger = $data->urgent == '0' ? '' : 'class="text-danger"';
-                            $html .='<span '.$danger.'>'.$data->kode.'</span>';
+                            $tooltip =  $data->urgent == '0' ? '' : 'data-toggle="tooltip" data-placement="top" title="Naskah Urgent"';
+                            $html .='<span '.$danger.' '.$tooltip.'>'.$data->kode.'</span>';
                             return $html;
                         })
                         ->addColumn('judul_asli', function ($data) {

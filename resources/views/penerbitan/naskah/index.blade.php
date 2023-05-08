@@ -114,6 +114,8 @@
                                     <span class="badge badge-warning"><i class="fas fa-database"></i> Total data naskah
                                         masuk: <b id="totalNaskah">0</b></span>
                                 </div>
+                                <div class="col-auto mb-3" id="countPenilaian" hidden>
+                                </div>
                             </div>
                             <div class="col-12 table-responsive">
                                 <table id="tb_Naskah" class="table table-striped  dt-responsive" style="width: 100%">

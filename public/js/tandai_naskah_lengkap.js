@@ -94,6 +94,77 @@ $(function() {
         tableNaskah.column($(this).data('column'))
             .search(val ? val : '', true, false)
             .draw();
+        cardWrap = $(this).closest(".card");
+        if (val == "Reguler") {
+            $.ajax({
+                url: window.location.origin + "/penerbitan/naskah?request_=getCountNaskahReguler",
+                type: "GET",
+                dataType: "JSON",
+                beforeSend: function () {
+                    cardWrap.addClass("card-progress");
+                },
+                success: function(data) {
+                    // console.log(data);
+                    $("#countPenilaian").attr("hidden", false);
+                    $("#countPenilaian").html(data.html);
+                    $("#animate-count-prodev").prop('Counter',0).animate({
+                        Counter: data.countProdev
+                    }, {
+                        duration: 4000,
+                        easing: 'swing',
+                        step: function (now) {
+                            $(this).text(Math.ceil(now));
+                        }
+                    });
+                    $("#animate-count-mpenerbitan").prop('Counter',0).animate({
+                        Counter: data.countMPenerbitan
+                    }, {
+                        duration: 4000,
+                        easing: 'swing',
+                        step: function (now) {
+                            $(this).text(Math.ceil(now));
+                        }
+                    });
+                    $("#animate-count-mpemasaran").prop('Counter',0).animate({
+                        Counter: data.countMPemasaran
+                    }, {
+                        duration: 4000,
+                        easing: 'swing',
+                        step: function (now) {
+                            $(this).text(Math.ceil(now));
+                        }
+                    });
+                    $("#animate-count-dpemasaran").prop('Counter',0).animate({
+                        Counter: data.countDPemasaran
+                    }, {
+                        duration: 4000,
+                        easing: 'swing',
+                        step: function (now) {
+                            $(this).text(Math.ceil(now));
+                        }
+                    });
+                    $("#animate-count-direksi").prop('Counter',0).animate({
+                        Counter: data.countDireksi
+                    }, {
+                        duration: 4000,
+                        easing: 'swing',
+                        step: function (now) {
+                            $(this).text(Math.ceil(now));
+                        }
+                    });
+                    //!BELUM SELESAI
+                },
+                complete: function () {
+                    cardWrap.removeClass("card-progress");
+                }
+            });
+        } else {
+            cardWrap.addClass("card-progress");
+            setTimeout(function() {
+                cardWrap.removeClass("card-progress");
+            }, 100);
+            $("#countPenilaian").attr("hidden", true);
+        }
     });
     $('[name="status_filter"]').on('change', function() {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());
