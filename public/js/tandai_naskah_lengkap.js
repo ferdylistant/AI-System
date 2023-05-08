@@ -94,6 +94,29 @@ $(function() {
         tableNaskah.column($(this).data('column'))
             .search(val ? val : '', true, false)
             .draw();
+        if (val == "Reguler") {
+            let cardWrap = $(this).closest('.card');
+            $.ajax({
+                url: window.location.origin + "/penerbitan/naskah?request_=getCountPenilaianNaskahReguler",
+                type: "GET",
+                dataType: "JSON",
+                beforeSend: function () {
+                    cardWrap.addClass("card-progress");
+                },
+                success: function(data) {
+                    // console.log(data);
+                    $("#totalNaskah").prop('Counter',0).animate({
+                        Counter: data
+                    }, {
+                        duration: 4000,
+                        easing: 'swing',
+                        step: function (now) {
+                            $(this).text(Math.ceil(now));
+                        }
+                    });
+                },
+            });
+        }
     });
     $('[name="status_filter"]').on('change', function() {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());

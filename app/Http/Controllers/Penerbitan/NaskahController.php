@@ -21,6 +21,15 @@ class NaskahController extends Controller
     {
         if ($request->ajax()) {
             switch ($request->input('request_')) {
+                case 'getCountPenilaianNaskahReguler':
+                    $data = DB::table('penerbitan_naskah as pn')
+                        ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+                        ->whereNull('pn.deleted_at')
+                        ->where('pn.jalur_buku', 'Reguler')
+                        ->where('pn.selesai_penilaian', '0')
+                        ->orderBy('pn.tanggal_masuk_naskah', 'asc')
+                        ->get();
+                    break;
                 case 'getCountNaskah':
                     $data = DB::table('penerbitan_naskah as pn')
                         ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
