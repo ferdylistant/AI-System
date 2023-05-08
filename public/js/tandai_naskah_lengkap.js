@@ -107,6 +107,15 @@ $(function() {
                     // console.log(data);
                     $("#countPenilaian").attr("hidden", false);
                     $("#countPenilaian").html(data.html);
+                    $("#naskahBelumDinilai").prop('Counter',0).animate({
+                        Counter: data.belumDinilai
+                    }, {
+                        duration: 4000,
+                        easing: 'swing',
+                        step: function (now) {
+                            $(this).text(Math.ceil(now) + ' Naskah');
+                        }
+                    });
                     $("#animate-count-prodev").prop('Counter',0).animate({
                         Counter: data.countProdev
                     }, {
@@ -162,7 +171,7 @@ $(function() {
             cardWrap.addClass("card-progress");
             setTimeout(function() {
                 cardWrap.removeClass("card-progress");
-            }, 100);
+            }, 1000);
             $("#countPenilaian").attr("hidden", true);
         }
     });
