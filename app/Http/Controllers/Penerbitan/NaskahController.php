@@ -38,6 +38,10 @@ class NaskahController extends Controller
                         $data->where('pn.pic_prodev',auth()->user()->id);
                     }
                     $html .='<h4 class="section-title">Total naskah reguler yang belum dinilai: <b id="naskahBelumDinilai">0</b></h4>';
+                    $html .='<hr style="border: 0;
+                    height: 1px;
+                    background: #333;
+                    background-image: linear-gradient(to right, #ccc, #333, #ccc);">';
                     //Prodev
                     $html .= '<span class="badge badge-danger" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian Prodev: <b id="animate-count-prodev">0</b></span>&nbsp;';
                     //M Penerbitan
