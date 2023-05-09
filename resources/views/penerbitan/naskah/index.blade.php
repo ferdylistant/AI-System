@@ -111,7 +111,9 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    <span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-database"></i> Total data naskah
+                                    <span class="badge badge-warning"
+                                        style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i
+                                            class="fas fa-database"></i> Total data naskah
                                         masuk: <b id="totalNaskah">0</b></span>
                                 </div>
                             </div>
@@ -127,6 +129,32 @@
             </div>
         </div>
     </section>
+    <div class="modal fade" id="modalPenilaian" tabindex="-1" role="dialog" aria-labelledby="titleModalPenilaian"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titleModalPenilaian"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="summary">
+                        <div class="summary-item">
+                            <h6>Total penilaian <span class="text-muted" id="totalNaskahDinilai"></span></h6>
+                            <ul class="list-unstyled list-unstyled-border example-1 scrollbar-deep-purple bordered-deep-purple thin">
+                                <div id="contentModal"></div>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="md_NaskahHistory" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="titleModalNaskah"
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -160,7 +188,8 @@
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
-    <script type="text/javascript" charset="utf8" src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
+    <script type="text/javascript" charset="utf8"
+        src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"

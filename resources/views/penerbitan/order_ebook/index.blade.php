@@ -77,7 +77,7 @@
                 <div class="col-12">
                     <div class="card card-primary">
                         <div class="card-body">
-                            <div class="row justify-content-between">
+                            <div class="row justify-content-between mb-3">
                                 <div class="form-group col-auto col-md-3">
                                     <div class="input-group">
                                         <select data-column="7" name="status_filter" id="status_filter"

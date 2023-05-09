@@ -1,7 +1,31 @@
 $(function() {
     $('[name="status_filter"]').val('').trigger('change');
+    $(".select-filter")
+        .select2({
+            placeholder: "Filter Status\xa0\xa0",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(".clear_field").removeAttr("hidden");
+                // $(this).valid();
+            }
+        });
+    $(".clear_field").click(function () {
+        $(".select-filter").val("").trigger("change");
+        $(".clear_field").attr("hidden", "hidden");
+    });
+    $(".select-status")
+        .select2({
+            placeholder: "Pilih Status",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(this).valid();
+            }
+        });
     let tableOrderEbook = $('#tb_OrderEbook').DataTable({
-        responsive: true,
+        "responsive": true,
+        "autoWidth": true,
         pagingType: 'input',
         processing: true,
         serverSide: false,
@@ -10,9 +34,7 @@ $(function() {
             sSearch: '',
             lengthMenu: '_MENU_ /halaman',
         },
-        ajax: {
-            url: window.location.origin + "/penerbitan/order-ebook",
-        },
+        ajax: window.location.origin + "/penerbitan/order-ebook",
         columns: [
             { data: 'no_order', name: 'no_order', title: 'Kode Order' },
             { data: 'kode', name: 'kode', title: 'Kode Naskah' },
@@ -58,21 +80,6 @@ $(function() {
             }
         })
     });
-});
-function loadCountData() {
-    $.get(window.location.origin + "/penerbitan/order-ebook", function (response) {
-        $("#countData").prop('Counter',0).animate({
-            Counter: response
-        }, {
-            duration: 1000,
-            easing: 'swing',
-            step: function (now) {
-                $(this).text(Math.ceil(now));
-            }
-        });
-    });
-}
-$(document).ready(function () {
     $("#tb_OrderEbook").on("click", ".btn-status-orebook", function (e) {
         e.preventDefault();
         let id = $(this).data("id"),
@@ -82,31 +89,6 @@ $(document).ready(function () {
         $("#kode").val(kode);
         $("#judulFinal").val(judul);
     });
-});
-$(function () {
-    $(".select-filter")
-        .select2({
-            placeholder: "Filter Status\xa0\xa0",
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(".clear_field").removeAttr("hidden");
-                // $(this).valid();
-            }
-        });
-    $(".clear_field").click(function () {
-        $(".select-filter").val("").trigger("change");
-        $(".clear_field").attr("hidden", "hidden");
-    });
-    $(".select-status")
-        .select2({
-            placeholder: "Pilih Status",
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(this).valid();
-            }
-        });
     function ajaxUpdateStatusOrderCetak(data) {
         let el = data.get(0);
         // console.log(el);
@@ -173,8 +155,6 @@ $(function () {
             });
         }
     });
-});
-$(function () {
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
@@ -208,4 +188,17 @@ $(function () {
         $('.load-more').data("paginate", 2);
         $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
+    function loadCountData() {
+        $.get(window.location.origin + "/penerbitan/order-ebook?count_data=true", function (response) {
+            $("#countData").prop('Counter',0).animate({
+                Counter: response
+            }, {
+                duration: 1000,
+                easing: 'swing',
+                step: function (now) {
+                    $(this).text(Math.ceil(now));
+                }
+            });
+        });
+    }
 });

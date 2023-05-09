@@ -21,6 +21,9 @@ class NaskahController extends Controller
     {
         if ($request->ajax()) {
             switch ($request->input('request_')) {
+                case 'getModalDetailJumlahPenilaian':
+                    return $this->showModalJumlahPenilaian($request);
+                    break;
                 case 'getCountNaskahReguler':
                     $html = '';
                     $newData = DB::table('penerbitan_naskah as pn')
@@ -42,16 +45,39 @@ class NaskahController extends Controller
                     height: 1px;
                     background: #333;
                     background-image: linear-gradient(to right, #ccc, #333, #ccc);">';
-                    //Prodev
-                    $html .= '<span class="badge badge-danger" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian Prodev: <b id="animate-count-prodev">0</b></span>&nbsp;';
-                    //M Penerbitan
-                    $html .= '<span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian M Penerbitan: <b id="animate-count-mpenerbitan">0</b></span>&nbsp;';
-                    //M Pemasaran
-                    $html .= '<span class="badge badge-info" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian M Pemasaran: <b id="animate-count-mpemasaran">0</b></span>&nbsp;';
-                    //D Pemasaran
-                    $html .= '<span class="badge badge-light" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian D Pemasaran: <b id="animate-count-dpemasaran">0</b></span>&nbsp;';
-                    //Direksi
-                    $html .= '<span class="badge badge-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian Direksi: <b id="animate-count-direksi">0</b></span>';
+                    if (auth()->user()->id == 'be8d42fa88a14406ac201974963d9c1b'){
+                        //Prodev
+                        $html .= '<a href="javascript:void(0)" class="action-modal" data-role="prodev">
+                        <span class="badge badge-danger" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian Prodev: <b id="animate-count-prodev">0</b></span>
+                        </a>&nbsp;';
+                        //M Penerbitan
+                        $html .= '<a href="javascript:void(0)" class="action-modal" data-role="mpenerbitan">
+                        <span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian M Penerbitan: <b id="animate-count-mpenerbitan">0</b></span>
+                        </a>&nbsp;';
+                        //M Pemasaran
+                        $html .= '<a href="javascript:void(0)" class="action-modal" data-role="mpemasaran">
+                        <span class="badge badge-info" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian M Pemasaran: <b id="animate-count-mpemasaran">0</b></span>
+                        </a>&nbsp;';
+                        //D Pemasaran
+                        $html .= '<a href="javascript:void(0)" class="action-modal" data-role="dpemasaran">
+                        <span class="badge badge-light" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian D Pemasaran: <b id="animate-count-dpemasaran">0</b></span>
+                        </a>&nbsp;';
+                        //Direksi
+                        $html .= '<a href="javascript:void(0)" class="action-modal" data-role="direksi">
+                        <span class="badge badge-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian Direksi: <b id="animate-count-direksi">0</b></span>
+                        </a>';
+                    } else {
+                        //Prodev
+                        $html .= '<span class="badge badge-danger" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian Prodev: <b id="animate-count-prodev">0</b></span>&nbsp;';
+                        //M Penerbitan
+                        $html .= '<span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian M Penerbitan: <b id="animate-count-mpenerbitan">0</b></span>&nbsp;';
+                        //M Pemasaran
+                        $html .= '<span class="badge badge-info" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian M Pemasaran: <b id="animate-count-mpemasaran">0</b></span>&nbsp;';
+                        //D Pemasaran
+                        $html .= '<span class="badge badge-light" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian D Pemasaran: <b id="animate-count-dpemasaran">0</b></span>&nbsp;';
+                        //Direksi
+                        $html .= '<span class="badge badge-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian Direksi: <b id="animate-count-direksi">0</b></span>';
+                    }
                     return response()->json([
                         'html'=>$html,
                         'belumDinilai'=>$newData->whereNull('pns.tgl_pn_prodev')->get()->count(),
@@ -282,6 +308,88 @@ class NaskahController extends Controller
             'data_naskah_penulis' => $dataLengkap,
             'jalur_b' => $jalurB
         ]);
+    }
+
+    protected function showModalJumlahPenilaian($request)
+    {
+        try {
+            $title ='';
+            $data = DB::table('penerbitan_naskah as pn')
+                ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id');
+            switch ($request->role) {
+                case 'prodev':
+                    $data->join('penerbitan_pn_prodev as ppp','pn.id','=','ppp.naskah_id')
+                    ->join('users as u','ppp.created_by','=','u.id')
+                    ->whereNull('pn.deleted_at')
+                    ->where('pn.jalur_buku','LIKE','%Reguler%')
+                    ->whereNotNull('pns.tgl_pn_prodev')
+                    ->select('pn.*','pns.tgl_pn_prodev as tgl','u.id as users_id','u.avatar','u.nama');
+                    $title = 'Prodev';
+                    break;
+                case 'mpenerbitan':
+                    $data->join('penerbitan_pn_penerbitan as ppp','pn.id','=','ppp.naskah_id')
+                    ->join('users as u','ppp.created_by','=','u.id')
+                    ->whereNull('pn.deleted_at')
+                    ->where('pn.jalur_buku','LIKE','%Reguler%')
+                    ->whereNotNull('pns.tgl_pn_m_penerbitan')
+                    ->select('pn.*','pns.tgl_pn_m_penerbitan as tgl','u.id as users_id','u.avatar','u.nama');
+                    $title = 'Manajer Penerbitan';
+                    break;
+                case 'mpemasaran':
+                    $data->join('penerbitan_pn_pemasaran as ppp','pn.id','=','ppp.naskah_id')
+                    ->join('users as u','ppp.created_by','=','u.id')
+                    ->where('ppp.pic','M')
+                    ->whereNull('pn.deleted_at')
+                    ->where('pn.jalur_buku','LIKE','%Reguler%')
+                    ->whereNotNull('pns.tgl_pn_m_pemasaran')
+                    ->select('pn.*','ppp.created_at as tgl','u.id as users_id','u.avatar','u.nama');
+                    $title = 'Manajer Pemasaran';
+                    break;
+                case 'dpemasaran':
+                    $data->join('penerbitan_pn_pemasaran as ppp','pn.id','=','ppp.naskah_id')
+                    ->join('users as u','ppp.created_by','=','u.id')
+                    ->where('ppp.pic','D')
+                    ->whereNull('pn.deleted_at')
+                    ->where('pn.jalur_buku','LIKE','%Reguler%')
+                    ->whereNotNull('pns.tgl_pn_d_pemasaran')
+                    ->select('pn.*','pns.tgl_pn_d_pemasaran as tgl','u.id as users_id','u.avatar','u.nama');
+                    $title = 'Direktur Pemasaran';
+                    break;
+                default:
+                    $data->join('penerbitan_pn_direksi as ppp','pn.id','=','ppp.naskah_id')
+                    ->join('users as u','ppp.created_by','=','u.id')
+                    ->where('ppp.pic','D')
+                    ->whereNull('pn.deleted_at')
+                    ->where('pn.jalur_buku','LIKE','%Reguler%')
+                    ->whereNotNull('pns.tgl_pn_direksi')
+                    ->select('pn.*','pns.tgl_pn_direksi as tgl','u.id as users_id','u.avatar','u.nama');
+                    $title = 'Direktur Utama';
+                    break;
+            }
+            $html ="";
+                foreach ($data->get() as $d) {
+                    $html .='<li class="media">
+                    <a href="#">
+                        <img class="mr-3 rounded" src="'.url('storage/users/' . $d->users_id. '/' . $d->avatar).'" alt="Avatar"
+                            width="50">
+                    </a>
+                    <div class="media-body">
+                        <div class="media-right">$405</div>
+                        <div class="media-title"><a href="#">'.$d->judul_asli.'</a></div>
+                        <div class="text-muted text-small">by <a href="'.url('/manajemen-web/user/' . $d->users_id).'">'.$d->nama.'</a>
+                            <div class="bullet"></div> '.Carbon::createFromFormat('Y-m-d H:i:s', $d->tgl, 'Asia/Jakarta')->diffForHumans().'
+                        </div>
+                    </div>
+                </li>';
+                }
+          return [
+            'content' => $html,
+            'titleModal' => 'Penilaian '.$title,
+            'totalNaskah' => $data->get()->count()
+          ];
+        } catch (\Exception $e) {
+            return abort(500,$e);
+        }
     }
 
     public function createNaskah(Request $request)

@@ -276,6 +276,35 @@ $(function() {
             $('.clear_field').attr('hidden', 'hidden');
         });
     });
+    $(document).on("click",".action-modal",function(e){
+        e.preventDefault();
+        let role = $(this).data('role');
+        let cardWrap = $(this).closest(".card");
+        // console.log(role);
+        $.ajax({
+            url: window.location.origin + "/penerbitan/naskah?request_=getModalDetailJumlahPenilaian",
+            type: 'GET',
+            data: {
+                role : role
+            },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass('card-progress');
+            },
+            success: function (data) {
+                $("#modalPenilaian").find("#titleModalPenilaian").text(data.titleModal);
+                $("#modalPenilaian").find("#totalNaskahDinilai").text(data.totalNaskah);
+                $("#modalPenilaian").find("#contentModal").html(data.content);
+                $("#modalPenilaian").modal("show");
+            },
+            error: function (err) {
+                notifToast("error","Gagal memuat!");
+            },
+            complete: function () {
+                cardWrap.removeClass('card-progress');
+            }
+        });
+    });
     //! Tandai naskah lengkap
     function ajaxTandaDataLengkap(data) {
         let id = data.data("id");
