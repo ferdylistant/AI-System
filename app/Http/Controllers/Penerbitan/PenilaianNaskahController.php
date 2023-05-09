@@ -360,7 +360,11 @@ class PenilaianNaskahController extends Controller
                         'pn_penerbitan' => $pn_penerbitan,
                     ]);
                 } else {
-                    $pn_penerbitan = DB::table('penerbitan_pn_penerbitan')->where('naskah_id', $naskah->id)->first();
+                    $pn_penerbitan = DB::table('penerbitan_pn_penerbitan as pnp')
+                    ->join('users as u', 'pnp.created_by', '=', 'u.id')
+                    ->where('pnp.naskah_id', $naskah->id)
+                    ->select('pnp.*','u.nama')
+                    ->first();
                     return view('penerbitan.naskah.page.tab-penerbitan', [
                         'form' => 'view',
                         'naskah' => $naskah,
@@ -373,7 +377,11 @@ class PenilaianNaskahController extends Controller
                 } elseif (is_null($naskah->tgl_pn_m_penerbitan)) {
                     return '<h5>Penerbitan belum membuat penilaian.</h5>';
                 } else {
-                    $pn_penerbitan = DB::table('penerbitan_pn_penerbitan')->where('naskah_id', $naskah->id)->first();
+                    $pn_penerbitan = DB::table('penerbitan_pn_penerbitan as pnp')
+                    ->join('users as u', 'pnp.created_by', '=', 'u.id')
+                    ->where('pnp.naskah_id', $naskah->id)
+                    ->select('pnp.*','u.nama')
+                    ->first();
                     return view('penerbitan.naskah.page.tab-penerbitan', [
                         'form' => 'view',
                         'naskah' => $naskah,

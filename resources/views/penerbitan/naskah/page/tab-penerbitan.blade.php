@@ -1,5 +1,8 @@
 @if($form == 'view')
 <div class="row">
+    <div class="col-12 mb-3">
+        <h5 class="section-title">Penilaian: <b>{{$pn_penerbitan->nama}}</b></h5>
+    </div>
     <div class="form-group col-12 col-md-6 mb-4">
         <label>Saran: <span class="text-danger">*</span></label>
         <select class="form-control select2" name="pn4_saran" disabled>

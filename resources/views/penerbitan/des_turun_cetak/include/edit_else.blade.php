@@ -26,7 +26,9 @@
                             <th class="table-secondary" style="width: 25%">Nama Pena:</th>
                             <td class="table-active text-right">
                                 @if (!is_null($data->nama_pena))
-                                {{ $nama_pena }}
+                                    @foreach ($nama_pena as $np)
+                                        <span class="bullet"></span>{{$np}}<br>
+                                    @endforeach
                                 @else
                                     <span class="text-danger text-small">Belum diinput</span>
                                 @endif

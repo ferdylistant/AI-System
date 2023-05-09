@@ -443,7 +443,7 @@ class DeskripsiTurunCetakController extends Controller
             'format_buku' => $format_buku,
             'sasaran_pasar' => $sasaran_pasar,
             'tipe_order' => $tipeOrder,
-            'nama_pena' => is_null($data->nama_pena)?NULL:implode(",",$nama_pena)
+            'nama_pena' => is_null($data->nama_pena)?NULL:$nama_pena
         ]);
     }
     public function actionAjax(Request $request)

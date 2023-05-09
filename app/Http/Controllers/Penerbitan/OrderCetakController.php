@@ -245,9 +245,6 @@ class OrderCetakController extends Controller
                         case 'tgl_permintaan_jadi':
                             return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
                             break;
-                        case 'nama_pena':
-                            return !is_null($item) ? implode(",", json_decode($item,true)) : '-';
-                            break;
                         default:
                             $item;
                             break;
@@ -406,6 +403,7 @@ class OrderCetakController extends Controller
         $platformDigital = DB::table('platform_digital_ebook')->whereNull('deleted_at')->get();
         $kbuku = DB::table('penerbitan_m_kelompok_buku')
             ->get();
+        $nama_pena = json_decode($data->nama_pena);
         $format_buku_list = DB::table('format_buku')->whereNull('deleted_at')->get();
         $buku_jadi = ['Wrapping', 'Tidak Wrapping'];
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_cover WHERE Field = 'jilid'"))[0]->Type;
@@ -435,6 +433,8 @@ class OrderCetakController extends Controller
             'finishing_cover' => $finishing_cover,
             'isi_warna' => $isi_warna,
             'buku_jadi' => $buku_jadi,
+            'nama_pena' => is_null($data->nama_pena)?"-":implode(",",$nama_pena)
+
         ]);
     }
     public function detailOrderCetak(Request $request)

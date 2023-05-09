@@ -26,32 +26,45 @@
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
             <h1>Edit Order Cetak</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active">
+                    <a href="{{url('/')}}">Dashboard</a>
+                </div>
+                <div class="breadcrumb-item">
+                    <a href="{{url('/penerbitan/order-cetak')}}">Data Order Cetak</a>
+                </div>
+                <div class="breadcrumb-item">
+                    Edit Order Cetak
+                </div>
+            </div>
         </div>
 
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
-                    <div class="card card-success">
+                    <div class="card card-primary">
                         <div class="card-header justify-content-between">
                             <div class="col-auto d-flex">
-                                <h4>Form Penerbitan Order Cetak</h4>
-                                @switch($data->status)
-                                    @case('Antrian')
-                                        <span class="badge" style="background:#34395E;color:white">Antrian</span>
-                                    @break
+                                <h4 class="section-title">
+                                    Form Penerbitan Order Cetak
+                                    @switch($data->status)
+                                        @case('Antrian')
+                                            <span class="badge" style="background:#34395E;color:white">Antrian</span>
+                                        @break
 
-                                    @case('Pending')
-                                        <span class="badge badge-danger">Pending</span>
-                                    @break
+                                        @case('Pending')
+                                            <span class="badge badge-danger">Pending</span>
+                                        @break
 
-                                    @case('Proses')
-                                        <span class="badge badge-success">Proses</span>
-                                    @break
+                                        @case('Proses')
+                                            <span class="badge badge-success">Proses</span>
+                                        @break
 
-                                    @case('Selesai')
-                                        <span class="badge badge-light">Selesai</span>
-                                    @break
-                                @endswitch
+                                        @case('Selesai')
+                                            <span class="badge badge-light">Selesai</span>
+                                        @break
+                                    @endswitch
+                                </h4>
                             </div>
                             <div class="col-auto">
                                 <span class="bullet text-danger"></span> Kode order: <b>{{ $data->kode_order }}</b> (
@@ -90,9 +103,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.js"
         integrity="sha512-VvWznBcyBJK71YKEKDMpZ0pCVxjNuKwApp4zLF3ul+CiflQi6aIJR+aZCP/qWsoFBA28avL5T5HA+RE+zrGQYg=="
         crossorigin="anonymous"></script>
-@endsection
+    @endsection
 
 
-@section('jsNeeded')
+    @section('jsNeeded')
     <script src="{{ url('js/edit_order_cetak.js') }}" defer></script>
 @endsection

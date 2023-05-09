@@ -4,8 +4,8 @@
 @if($form == 'view')
     @foreach($pn_pemasaran as $p)
     <div class="row">
-        <div class="col-12">
-            <h5>#Penilaian: {{$p->nama_manager}}</h5>
+        <div class="col-12 mb-3">
+            <h5 class="section-title">Penilaian: <b>{{$p->nama_manager}}</b></h5>
         </div>
         <div class="form-group col-12">
             <label>Prospek Pasar: <span class="text-danger">*</span></label>
