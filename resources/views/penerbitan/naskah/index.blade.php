@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/SpinKit/spinkit.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
+    <link rel="stylesheet" href="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.css') }}">
     <style>
         .scrollbar-deep-purple::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
@@ -40,6 +41,151 @@
         .bordered-deep-purple::-webkit-scrollbar-thumb {
             -webkit-box-shadow: none;
         }
+        .scrollbar-deep-red::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #F5F5F5;
+            border-radius: 10px;
+        }
+
+        .scrollbar-deep-red::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
+
+        .scrollbar-deep-red::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: rgb(252, 84, 75);
+        }
+
+        .scrollbar-deep-red {
+            scrollbar-color: rgb(252, 84, 75) #F5F5F5;
+        }
+
+        .bordered-deep-red::-webkit-scrollbar-track {
+            -webkit-box-shadow: none;
+            border: 1px solid rgb(252, 84, 75);
+        }
+
+        .bordered-deep-red::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: none;
+        }
+        .scrollbar-deep-success::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #F5F5F5;
+            border-radius: 10px;
+        }
+
+        .scrollbar-deep-success::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
+
+        .scrollbar-deep-success::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: rgb(99, 237, 122);
+        }
+
+        .scrollbar-deep-success {
+            scrollbar-color: rgb(99, 237, 122) #F5F5F5;
+        }
+
+        .bordered-deep-success::-webkit-scrollbar-track {
+            -webkit-box-shadow: none;
+            border: 1px solid rgb(99, 237, 122);
+        }
+
+        .bordered-deep-success::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: none;
+        }
+        .scrollbar-deep-info::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #F5F5F5;
+            border-radius: 10px;
+        }
+
+        .scrollbar-deep-info::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
+
+        .scrollbar-deep-info::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: rgb(58, 186, 244);
+        }
+
+        .scrollbar-deep-info {
+            scrollbar-color: rgb(58, 186, 244) #F5F5F5;
+        }
+
+        .bordered-deep-info::-webkit-scrollbar-track {
+            -webkit-box-shadow: none;
+            border: 1px solid rgb(58, 186, 244);
+        }
+
+        .bordered-deep-info::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: none;
+        }
+        .scrollbar-deep-light::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #F5F5F5;
+            border-radius: 10px;
+        }
+
+        .scrollbar-deep-light::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
+
+        .scrollbar-deep-light::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: rgb(227, 234, 239);
+        }
+
+        .scrollbar-deep-light {
+            scrollbar-color: rgb(227, 234, 239) #F5F5F5;
+        }
+
+        .bordered-deep-light::-webkit-scrollbar-track {
+            -webkit-box-shadow: none;
+            border: 1px solid rgb(227, 234, 239);
+        }
+
+        .bordered-deep-light::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: none;
+        }
+        .scrollbar-deep-secondary::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #F5F5F5;
+            border-radius: 10px;
+        }
+
+        .scrollbar-deep-secondary::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
+
+        .scrollbar-deep-secondary::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: rgb(52, 57, 94);
+        }
+
+        .scrollbar-deep-secondary {
+            scrollbar-color: rgb(52, 57, 94) #F5F5F5;
+        }
+
+        .bordered-deep-secondary::-webkit-scrollbar-track {
+            -webkit-box-shadow: none;
+            border: 1px solid rgb(52, 57, 94);
+        }
+
+        .bordered-deep-secondary::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: none;
+        }
 
         .square::-webkit-scrollbar-track {
             border-radius: 0 !important;
@@ -57,6 +203,11 @@
             position: relative;
             overflow-y: scroll;
             height: 200px;
+        }
+        .example-2 {
+            position: relative;
+            overflow-y: scroll;
+            height: 400px;
         }
     </style>
 @endsection
@@ -132,20 +283,22 @@
     <div class="modal fade" id="modalPenilaian" tabindex="-1" role="dialog" aria-labelledby="titleModalPenilaian"
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
+            <div class="modal-content" id="boxContent">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="titleModalPenilaian"></h5>
+                    <h5 class="modal-title" id="titleModalPenilaian"></h5>&nbsp;&ndash;&nbsp;
+                    <sup id="badgeTotal"><span id="totalNaskahDinilai"></span></sup>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="summary">
-                        <div class="summary-item">
-                            <h6>Total penilaian <span class="text-muted" id="totalNaskahDinilai"></span></h6>
-                            <ul class="list-unstyled list-unstyled-border example-1 scrollbar-deep-purple bordered-deep-purple thin">
-                                <div id="contentModal"></div>
-                            </ul>
+                    <div id="scrollBar">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <ul class="list-unstyled list-unstyled-border">
+                                    <div id="contentModal"></div>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -194,6 +347,7 @@
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
+        <script src="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
 @endsection
 
 @section('jsNeeded')

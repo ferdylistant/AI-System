@@ -295,6 +295,9 @@ $(function() {
                 $("#modalPenilaian").find("#titleModalPenilaian").text(data.titleModal);
                 $("#modalPenilaian").find("#totalNaskahDinilai").text(data.totalNaskah);
                 $("#modalPenilaian").find("#contentModal").html(data.content);
+                $("#modalPenilaian").find("#boxContent").attr('style','box-shadow:'+data.style);
+                $("#modalPenilaian").find("#badgeTotal").addClass('badge '+data.class);
+                $("#modalPenilaian").find("#scrollBar").addClass('container-fluid p-3 example-2 '+data.scroll+' thin');
                 $("#modalPenilaian").modal("show");
             },
             error: function (err) {
@@ -304,6 +307,11 @@ $(function() {
                 cardWrap.removeClass('card-progress');
             }
         });
+    });
+    $('#modalPenilaian').on('hidden.bs.modal', function () {
+        $(this).find(".modal-content").removeAttr('style');
+        $(this).find("#badgeTotal").removeClass();
+        $(this).find("#scrollBar").removeClass();
     });
     //! Tandai naskah lengkap
     function ajaxTandaDataLengkap(data) {
