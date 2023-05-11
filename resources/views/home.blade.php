@@ -28,8 +28,8 @@
         }
 
         /* .fc-event-title {
-                                            color: #1a252f;
-                                        } */
+                                                        color: #1a252f;
+                                                    } */
 
         .tb-detail-naskah {
             font-size: 12px;
@@ -49,120 +49,59 @@
             text-align: right;
         }
 
-        /* @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
+        .scrollbar-deep-purple::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #F5F5F5;
+            border-radius: 10px;
+        }
 
-                            :root {
-                                --timeline-colour: #bb1919;
-                            }
+        .scrollbar-deep-purple::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
 
-                            body {
-                                font-family: "Open Sans", sans-serif;
-                                color: #333;
-                            }
+        .scrollbar-deep-purple::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #6777EF;
+        }
 
-                            .timeline {
-                                margin: 1rem;
-                                padding: 1rem;
-                                background-color: #eee;
+        .scrollbar-deep-purple {
+            scrollbar-color: #6777EF #F5F5F5;
+        }
 
-                                &__header {
-                                    position: relative;
-                                    padding-bottom: 0.5rem;
+        .bordered-deep-purple::-webkit-scrollbar-track {
+            -webkit-box-shadow: none;
+            border: 1px solid #6777EF;
+        }
 
-                                    &:before {
-                                        content: "";
-                                        width: 0.125rem;
-                                        height: 100%;
-                                        position: absolute;
-                                        top: .25rem;
-                                        left: calc(0.375rem - 1px);
-                                        background-color: var(--timeline-colour);
-                                    }
-                                }
+        .bordered-deep-purple::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: none;
+        }
 
-                                &__live {
-                                    display: flex;
-                                    margin-bottom: 0.25rem;
+        .square::-webkit-scrollbar-track {
+            border-radius: 0 !important;
+        }
 
-                                    >span {
-                                        display: block;
-                                        margin-left: 0.25rem;
-                                        font-size: 1.125rem;
-                                        text-transform: uppercase;
-                                        font-weight: 700;
-                                    }
-                                }
+        .square::-webkit-scrollbar-thumb {
+            border-radius: 0 !important;
+        }
 
-                                &__title {
-                                    margin-left: 1rem;
-                                }
+        .thin::-webkit-scrollbar {
+            width: 6px;
+        }
 
-                                &__list {
-                                    >li {
-                                        display: flex;
-                                        gap: .5rem;
-                                        position: relative;
-                                        padding: 0.625rem 0;
-                                        font-size: 0.75rem;
+        .example-1 {
+            position: relative;
+            overflow-y: auto;
+            height: 360px;
+        }
 
-                                        &:before {
-                                            content: "";
-                                            width: 0.125rem;
-                                            height: 100%;
-                                            position: absolute;
-                                            top: 0;
-                                            left: calc(0.375rem - 1px);
-                                            background-color: var(--timeline-colour);
-                                        }
-
-                                        &:last-child:before {
-                                            height: .875rem;
-                                        }
-                                    }
-                                }
-
-                                &__marker {
-                                    width: .5rem;
-                                    min-width: .5rem;
-                                    height: .5rem;
-                                    margin-top: .0625rem;
-                                    margin-left: .125rem;
-                                    background-color: var(--timeline-colour);
-                                    border-radius: 50%;
-
-                                    &--live {
-                                        width: 0.75rem;
-                                        height: 0.75rem;
-                                        margin-left: 0;
-                                        animation-name: pulse;
-                                        animation-timing-function: ease-in-out;
-                                        animation-duration: 1.5s;
-                                        animation-iteration-count: infinite;
-                                    }
-                                }
-
-                                &__timestamp {
-                                    font-weight: 700;
-                                }
-
-                                &--alt {
-                                    --timeline-colour: #2866f6;
-                                }
-                            }
-
-                            @keyframes pulse {
-                                from {
-                                    transform: scale3d(1, 1, 1);
-                                }
-
-                                50% {
-                                    transform: scale3d(.85, .85, .85);
-                                }
-
-                                to {
-                                    transform: scale3d(1, 1, 1);
-                                }
-                            } */
+        .example-2 {
+            position: relative;
+            overflow-y: auto;
+            max-height: 300px;
+        }
     </style>
 @endsection
 
@@ -189,12 +128,141 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="section-title">My To-Do List</h4>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs" id="myTab" role="tablist"
+                                style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="semua-tab" data-toggle="tab" href="#semua"
+                                        role="tab" aria-controls="semua" aria-selected="true">Semua</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="belum-selesai-tab" data-toggle="tab" href="#belum-selesai"
+                                        role="tab" aria-controls="belum-selesai" aria-selected="false">Belum Selesai</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="selesai-tab" data-toggle="tab" href="#selesai" role="tab"
+                                        aria-controls="selesai" aria-selected="false">Selesai</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content example-2 scrollbar-deep-purple bordered-deep-purple square thin"
+                                id="myTabContent">
+                                <div class="tab-pane fade show active" id="semua" role="tabpanel"
+                                    aria-labelledby="semua-tab">
+                                    <ul class="list-group mb-0">
+                                        @if ($semua->isEmpty())
+                                            <div class="col-12 offset-3 mt-5">
+                                                <div class="row">
+                                                    <div class="col-4 offset-1">
+                                                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png"
+                                                            width="100%">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            @foreach ($semua as $s)
+                                                <li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2"
+                                                    style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
+                                                    <div class="d-flex align-items-center">
+                                                        <input class="form-check-input me-2" type="checkbox" value=""
+                                                            aria-label="..." />
+                                                        {{ $s->title }}
+                                                    </div>
+                                                    <div class="flex-row justify-content-end mb-1">
+                                                        <a href="{{ url($s->link) }}" class="text-primary"
+                                                            data-toggle="tooltip" title="Edit todo">
+                                                            <i class="fas fa-pencil-alt me-3"></i></a>
+                                                        <a href="#!" class="text-danger" data-toggle="tooltip"
+                                                            title="Remove item">
+                                                            <i class="fas fa-times me-3"></i>
+                                                        </a>
+                                                    </div>
+                                                </li>
+                                            @endforeach
+                                        @endif
+                                    </ul>
+                                </div>
+                                <div class="tab-pane fade" id="belum-selesai" role="tabpanel"
+                                    aria-labelledby="belum-selesai-tab">
+                                    @if ($belum->isEmpty())
+                                        <div class="col-12 offset-3 mt-5">
+                                            <div class="row">
+                                                <div class="col-4 offset-1">
+                                                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png"
+                                                        width="100%">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        @foreach ($belum as $bl)
+                                            <li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2"
+                                                style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
+                                                <div class="d-flex align-items-center">
+                                                    <input class="form-check-input me-2" type="checkbox" value=""
+                                                        aria-label="..." />
+                                                    {{ $bl->title }}
+                                                </div>
+                                                <div class="flex-row justify-content-end mb-1">
+                                                    <a href="{{ url($bl->link) }}" class="text-primary"
+                                                        data-toggle="tooltip" title="Edit todo">
+                                                        <i class="fas fa-pencil-alt me-3"></i></a>
+                                                    <a href="#!" class="text-danger" data-toggle="tooltip"
+                                                        title="Remove item">
+                                                        <i class="fas fa-times me-3"></i>
+                                                    </a>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    @endif
+                                </div>
+                                <div class="tab-pane fade" id="selesai" role="tabpanel" aria-labelledby="selesai-tab">
+                                    @if ($selesai->isEmpty())
+                                        <div class="col-12 offset-3 mt-5">
+                                            <div class="row">
+                                                <div class="col-4 offset-1">
+                                                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png"
+                                                        width="100%">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        @foreach ($selesai as $sl)
+                                            <li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2"
+                                                style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
+                                                <div class="d-flex align-items-center">
+                                                    <input class="form-check-input me-2" type="checkbox" value=""
+                                                        aria-label="..." />
+                                                    {{ $sl->title }}
+                                                </div>
+                                                <div class="flex-row justify-content-end mb-1">
+                                                    <a href="{{ url($sl->link) }}" class="text-primary"
+                                                        data-toggle="tooltip" title="Edit todo">
+                                                        <i class="fas fa-pencil-alt me-3"></i></a>
+                                                    <a href="#!" class="text-danger" data-toggle="tooltip"
+                                                        title="Remove item">
+                                                        <i class="fas fa-times me-3"></i>
+                                                    </a>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             @if ($timeline == true)
                 <div class="row">
                     <div class="col-lg-8 col-md-12 col-12 col-sm-12">
                         <div id="container_tb_naskah" class="card pb-5">
                             <div class="card-header">
-                                <h5>Timeline</h5>
+                                <h4 class="section-title">Timeline</h4>
                             </div>
                             <div class="card-body" style="height: 360px">
                                 <div class="col-12 offset-2">
@@ -214,7 +282,8 @@
                                     <div class="col-12 offset-3 mt-5">
                                         <div class="row">
                                             <div class="col-4 offset-1">
-                                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png" width="100%">
+                                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png"
+                                                    width="100%">
                                             </div>
                                         </div>
                                     </div>
@@ -225,10 +294,11 @@
                     <div class="col-lg-4 col-md-12 col-12 col-sm-12">
                         <div id="card_recent_activity" class="card pb-5">
                             <div class="card-header">
-                                <h4>Recent Activities</h4>
+                                <h4 class="section-title">Recent Activities</h4>
                             </div>
-                            <div class="card-body" id="loadScroll" style="height:410px;max-height:360px;overflow:auto">
-                                <ul class="list-unstyled list-unstyled-border" id="recentActivity" >
+                            <div class="card-body example-1 scrollbar-deep-purple bordered-deep-purple square thin"
+                                id="loadScroll">
+                                <ul class="list-unstyled list-unstyled-border" id="recentActivity">
 
                                 </ul>
                             </div>
@@ -240,6 +310,14 @@
         </div>
         @endif
         <div class="row">
+            <div class="col-lg-12">
+                <div class="card-header bg-white">
+                    <h4 class="section-title">
+                        Total Data
+                        <small><samp class="text-danger">(*Data sesuai akses role)</samp></small>
+                    </h4>
+                </div>
+            </div>
             @if (Gate::allows('do_update', 'ubah-data-user'))
                 <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                     <div class="card card-statistic-1">
@@ -676,6 +754,7 @@
                 loadRecentData(page);
             }
         });
+
         function loadRecentData(page) {
             cardWrap = $(".section-body").find('#card_recent_activity').closest(".card");
             $.ajax({

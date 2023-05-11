@@ -109,6 +109,7 @@ class HomeController extends Controller
         $or_eb = DB::table('order_ebook as poe')->join('order_ebook_action as ppoe', 'ppoe.order_ebook_id', '=', 'poe.id')->get();
         $proses_cetak = DB::table('proses_produksi_cetak')->whereNull('kirim_gudang')->get();
         $upload_ebook = DB::table('proses_ebook_multimedia')->get();
+        $todolist = DB::table('todo_list')->where('users_id',auth()->id());
         return view('home', [
             'title' => 'Home',
             'id' => Str::uuid()->getHex(),
@@ -130,7 +131,10 @@ class HomeController extends Controller
             'proses_cetak' => $proses_cetak,
             'upload_ebook' => $upload_ebook,
             'timeline' => $timeline,
-            'naskah_kode_timeline'=>$naskahSelectTimeline
+            'naskah_kode_timeline'=>$naskahSelectTimeline,
+            'semua' => $todolist->get(),
+            'belum' => $todolist->where('status','0')->get(),
+            'selesai' => $todolist->where('status','1')->get()
         ]);
     }
 

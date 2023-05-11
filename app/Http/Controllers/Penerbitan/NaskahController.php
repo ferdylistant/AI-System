@@ -465,7 +465,8 @@ class NaskahController extends Controller
                     $penilaian = $this->alurPenilaian($request->input('add_jalur_buku'), 'create-notif-from-naskah', [
                         'id_prodev' => $request->input('add_pic_prodev'),
                         'form_id' => $idN
-                    ]);
+                    ],$request->input('add_judul_asli'));
+
                     $addNaskah = [
                         'params' => 'Add Naskah',
                         'id' => $idN,
@@ -637,7 +638,7 @@ class NaskahController extends Controller
                         $this->alurPenilaian($request->input('edit_jalur_buku'), 'update-notif-from-naskah', [
                             'id_prodev' => $request->input('edit_pic_prodev'),
                             'form_id' => $naskah->id
-                        ]);
+                        ],$request->input('add_judul_asli'));
                     }
                     $editNaskah = [
                         'params' => 'Edit Naskah',
@@ -1009,7 +1010,7 @@ class NaskahController extends Controller
         return $id;
     }
 
-    protected function alurPenilaian($jalbuk, $action = null, $data = null)
+    protected function alurPenilaian($jalbuk, $action = null, $data = null,$judul)
     {
         /*
             Reguler :: Prodev -> Pemasaran -> Penerbitan -> Direksi
@@ -1065,7 +1066,12 @@ class NaskahController extends Controller
                     'notif_id' => $id_notif,
                     'user_id' => $data['id_prodev']
                 ]);
-
+                DB::table('todo_list')->insert([
+                    'users_id' => $data['id_prodev'],
+                    'title' => 'Penilaian naskah berjudul "'.$judul.'".',
+                    'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                    'status' => '0',
+                ]);
                 return ['selesai_penilaian' => 0, 'penilaian_naskah' => 1];
             } elseif ($action == 'update-notif-from-naskah') {
                 $notif = DB::table('notif')->whereNull('expired')->where('permission_id', 'ebca07da8aad42c4aee304e3a6b81001') // Hanya untuk prodev
