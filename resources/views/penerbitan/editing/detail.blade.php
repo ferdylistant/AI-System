@@ -15,18 +15,29 @@
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
             <h1>Detail Editing Proses</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active">
+                    <a href="{{url('/')}}">Dashboard</a>
+                </div>
+                <div class="breadcrumb-item">
+                    <a href="{{url('/penerbitan/editing')}}">Data Penerbitan Editing Proses</a>
+                </div>
+                <div class="breadcrumb-item">
+                    Detail Editing Proses
+                </div>
+            </div>
         </div>
 
         <div class="section-body">
             <div class="row">
                 <div class="col-12 col-md-12">
-                    <div class="card card-warning">
+                    <div class="card card-primary">
                         <div class="card-header justify-content-between">
                             <div class="col-auto d-flex">
-                                <h4>Data Detail Editing Proses&nbsp;
+                                <h4 class="section-title">Data Detail Editing Proses&nbsp;
                                     -
+                                    <span id="status"></span>
                                 </h4>
-                                <span id="status"></span>
                             </div>
                             <div class="col-auto" id="prosesPengerjaan"></div>
                         </div>

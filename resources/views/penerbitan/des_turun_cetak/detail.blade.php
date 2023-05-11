@@ -14,6 +14,17 @@
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
             <h1>Detail Deskripsi Turun Cetak</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active">
+                    <a href="{{url('/')}}">Dashboard</a>
+                </div>
+                <div class="breadcrumb-item">
+                    <a href="{{url('/penerbitan/pracetak/designer')}}">Data Penerbitan Deskripsi Turun Cetak</a>
+                </div>
+                <div class="breadcrumb-item">
+                    Detail Deskripsi Turun Cetak
+                </div>
+            </div>
         </div>
 
         <div class="section-body">
@@ -21,18 +32,18 @@
                 <div class="col-12 col-md-12">
                     <div class="card card-primary">
                         <div class="card-header">
-                            <h4>Data Deskripsi Turun Cetak&nbsp;
+                            <h4 class="section-title">Data Deskripsi Turun Cetak&nbsp;
                                 -
+                                @if ($data->status == 'Antrian')
+                                    <span class="badge" style="background:#34395E;color:white">{{ $data->status }}</span>
+                                @elseif ($data->status == 'Pending')
+                                    <span class="badge badge-danger">{{ $data->status }}</span>
+                                @elseif ($data->status == 'Proses')
+                                    <span class="badge badge-success">{{ $data->status }}</span>
+                                @elseif ($data->status == 'Selesai')
+                                    <span class="badge badge-light">{{ $data->status }}</span>
+                                @endif
                             </h4>
-                            @if ($data->status == 'Antrian')
-                                <span class="badge" style="background:#34395E;color:white">{{ $data->status }}</span>
-                            @elseif ($data->status == 'Pending')
-                                <span class="badge badge-danger">{{ $data->status }}</span>
-                            @elseif ($data->status == 'Proses')
-                                <span class="badge badge-success">{{ $data->status }}</span>
-                            @elseif ($data->status == 'Selesai')
-                                <span class="badge badge-light">{{ $data->status }}</span>
-                            @endif
                         </div>
                         <div class="card-body">
                             <?php $gate = Gate::allows('do_approval', 'pilih-penerbitan-turcet'); ?>
@@ -261,7 +272,7 @@
                                             @if (is_null($data->url_file))
                                                 -
                                             @else
-                                                <a href="{{ $data->url_file }}" target="blank">{{ $data->url_file }}</a>
+                                                <a href="{{ $data->url_file }}" class="text-warning" target="_blank"><i class="fas fa-link"></i>&nbsp;{{ $data->url_file }}</a>
                                             @endif
                                         </p>
                                     </div>

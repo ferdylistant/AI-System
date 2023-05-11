@@ -63,39 +63,50 @@
             <div class="section-header-back">
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
-            <h1>Detail Pracetak Cover</h1>
+            <h1>Detail Pracetak Desainer</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active">
+                    <a href="{{url('/')}}">Dashboard</a>
+                </div>
+                <div class="breadcrumb-item">
+                    <a href="{{url('/penerbitan/pracetak/designer')}}">Data Penerbitan Pracetak Desainer</a>
+                </div>
+                <div class="breadcrumb-item">
+                    Detail Pracetak Desainer
+                </div>
+            </div>
         </div>
 
         <div class="section-body">
             <div class="row">
                 <div class="col-12 col-md-12">
-                    <div class="card card-warning">
+                    <div class="card card-primary">
                         <div class="card-header justify-content-between">
                             <div class="col-auto d-flex">
-                                <h4>Data Detail Pracetak Cover&nbsp;
+                                <h4 class="section-title">Data Detail Pracetak Desainer&nbsp;
                                     -
+                                    @switch($data->status)
+                                        @case('Antrian')
+                                            <span class="badge" style="background:#34395E;color:white">{{ $data->status }}</span>
+                                        @break
+
+                                        @case('Pending')
+                                            <span class="badge badge-danger">{{ $data->status }}</span>
+                                        @break
+
+                                        @case('Proses')
+                                            <span class="badge badge-success">{{ $data->status }}</span>
+                                        @break
+
+                                        @case('Selesai')
+                                            <span class="badge badge-light">{{ $data->status }}</span>
+                                        @break
+
+                                        @case('Revisi')
+                                            <span class="badge badge-info">{{ $data->status }}</span>
+                                        @break
+                                    @endswitch
                                 </h4>
-                                @switch($data->status)
-                                    @case('Antrian')
-                                        <span class="badge" style="background:#34395E;color:white">{{ $data->status }}</span>
-                                    @break
-
-                                    @case('Pending')
-                                        <span class="badge badge-danger">{{ $data->status }}</span>
-                                    @break
-
-                                    @case('Proses')
-                                        <span class="badge badge-success">{{ $data->status }}</span>
-                                    @break
-
-                                    @case('Selesai')
-                                        <span class="badge badge-light">{{ $data->status }}</span>
-                                    @break
-
-                                    @case('Revisi')
-                                        <span class="badge badge-info">{{ $data->status }}</span>
-                                    @break
-                                @endswitch
                             </div>
                             @if (!$proof_revisi->isEmpty())
                                 <?php $gate = Gate::allows('do_approval', 'approval-deskripsi-produk'); ?>

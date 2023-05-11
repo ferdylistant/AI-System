@@ -18,16 +18,28 @@
         <div class="section-header-back">
             <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
         </div>
-        <h1>Edit/Buat Penerbitan Pracetak Desainer Proses</h1>
+        <h1>Edit/Buat Pracetak Desainer Proses</h1>
+        <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active">
+                <a href="{{url('/')}}">Dashboard</a>
+            </div>
+            <div class="breadcrumb-item">
+                <a href="{{url('/penerbitan/pracetak/designer')}}">Data Penerbitan Pracetak Desainer</a>
+            </div>
+            <div class="breadcrumb-item">
+                Edit/Buat Pracetak Desainer Proses
+            </div>
+        </div>
     </div>
 
     <div class="section-body">
         <div class="row">
             <div class="col-12">
-                <div class="card card-warning">
+                <h4 class="section-title">Data Edit/Buat Pracetak Desainer Proses</h4>
+                <div class="card card-primary">
                     <div class="row card-header justify-content-between">
-                        <div class="col-auto" id="status"></div>
-                        <div class="col-auto" id="proses_saat_ini"></div>
+                            <div class="col-auto" id="status"></div>
+                            <div class="col-auto" id="proses_saat_ini"></div>
                     </div>
                     @include('penerbitan.pracetak_desainer.include.edit_if')
                 </div>
