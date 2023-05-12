@@ -173,7 +173,7 @@
                                                             aria-label="..." />
                                                         {{ $s->title }}
                                                     </div>
-                                                    <div class="flex-row justify-content-end mb-1">
+                                                    <div class="justify-content-end mb-1">
                                                         <a href="{{ url($s->link) }}" class="text-primary"
                                                             data-toggle="tooltip" title="Edit todo">
                                                             <i class="fas fa-pencil-alt me-3"></i></a>
@@ -207,7 +207,7 @@
                                                         aria-label="..." />
                                                     {{ $bl->title }}
                                                 </div>
-                                                <div class="flex-row justify-content-end mb-1">
+                                                <div class="justify-content-end mb-1">
                                                     <a href="{{ url($bl->link) }}" class="text-primary"
                                                         data-toggle="tooltip" title="Edit todo">
                                                         <i class="fas fa-pencil-alt me-3"></i></a>
@@ -239,7 +239,7 @@
                                                         aria-label="..." />
                                                     {{ $sl->title }}
                                                 </div>
-                                                <div class="flex-row justify-content-end mb-1">
+                                                <div class="justify-content-end mb-1">
                                                     <a href="{{ url($sl->link) }}" class="text-primary"
                                                         data-toggle="tooltip" title="Edit todo">
                                                         <i class="fas fa-pencil-alt me-3"></i></a>

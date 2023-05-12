@@ -1067,11 +1067,55 @@ class NaskahController extends Controller
                     'user_id' => $data['id_prodev']
                 ]);
                 DB::table('todo_list')->insert([
+                    'form_id' => $data['form_id'],
                     'users_id' => $data['id_prodev'],
                     'title' => 'Penilaian naskah berjudul "'.$judul.'".',
                     'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
                     'status' => '0',
                 ]);
+                $data = collect($data)->put('judul',$judul);
+                $penerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                ->where('p.id','12b852d92d284ab5a654c26e8856fffd')
+                ->select('up.user_id')
+                ->get();
+
+                $penerbitan = (object)collect($penerbitan)->map(function($item) use ($data) {
+                    return DB::table('todo_list')->insert([
+                        'form_id' => $data['form_id'],
+                        'users_id' => $item->user_id,
+                        'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".',
+                        'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                        'status' => '0',
+                    ]);
+                })->all();
+                $mpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                ->where('p.id','a213b689b8274f4dbe19b3fb24d66840')
+                ->select('up.user_id')
+                ->get();
+
+                $mpemasaran = (object)collect($mpemasaran)->map(function($item) use ($data) {
+                    return DB::table('todo_list')->insert([
+                        'form_id' => $data['form_id'],
+                        'users_id' => $item->user_id,
+                        'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".',
+                        'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                        'status' => '0',
+                    ]);
+                })->all();
+                $dpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                ->where('p.id','9beba245308543ce821efe8a3ba965e3')
+                ->select('up.user_id')
+                ->get();
+
+                $dpemasaran = (object)collect($dpemasaran)->map(function($item) use ($data) {
+                    return DB::table('todo_list')->insert([
+                        'form_id' => $data['form_id'],
+                        'users_id' => $item->user_id,
+                        'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".',
+                        'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                        'status' => '0',
+                    ]);
+                })->all();
                 return ['selesai_penilaian' => 0, 'penilaian_naskah' => 1];
             } elseif ($action == 'update-notif-from-naskah') {
                 $notif = DB::table('notif')->whereNull('expired')->where('permission_id', 'ebca07da8aad42c4aee304e3a6b81001') // Hanya untuk prodev
@@ -1081,6 +1125,13 @@ class NaskahController extends Controller
                 DB::table('notif_detail')->insert([
                     'notif_id' => $notif->id,
                     'user_id' => $data['id_prodev']
+                ]);
+                DB::table('todo_list')->insert([
+                    'form_id' => $data['form_id'],
+                    'users_id' => $data['id_prodev'],
+                    'title' => 'Penilaian naskah berjudul "'.$judul.'".',
+                    'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                    'status' => '0',
                 ]);
             }
         } elseif ($jalbuk == 'Pro Literasi') {

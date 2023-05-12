@@ -42,7 +42,8 @@ class TimelineController extends Controller
         <div class="events-content">
            <ol>';
         foreach ($data as $key => $val) {
-                $select = $key == 0 ? "class='selected'":"";
+                $count = $data->count() - 1;
+                $select = $key == $count ? "class='selected'":"";
                 $json = [
                     "date" => date('Y-m-d H:i:s',strtotime($val->tgl_mulai)),
                     "customDisplay" => $val->progress

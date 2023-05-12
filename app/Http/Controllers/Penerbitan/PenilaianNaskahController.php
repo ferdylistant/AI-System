@@ -504,6 +504,9 @@ class PenilaianNaskahController extends Controller
                             DB::table('notif_detail')->where('notif_id', $notif->id)->where('user_id', auth()->id())
                                 ->update(['seen' => '1', 'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
                         }
+                        DB::table('todo_list')->where('form_id',$request->input('pn1_naskah_id'))->where('users_id',auth()->user()->id)->update([
+                            'status' => '1'
+                        ]);
                         $msg = 'Penilaian selesai!';
                         break;
                     case 'draf':
@@ -565,9 +568,12 @@ class PenilaianNaskahController extends Controller
                             DB::table('notif_detail')->where('notif_id', $notif->id)->where('user_id', auth()->id())
                                 ->update(['seen' => '1', 'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
                         }
+                        DB::table('todo_list')->where('form_id',$request->input('pn1_naskah_id'))->where('users_id',auth()->user()->id)->update([
+                            'status' => '1'
+                        ]);
+                        $msg = 'Penilaian selesai!';
                         break;
 
-                        $msg = 'Penilaian selesai!';
                     case 'draf':
                         DB::table('penerbitan_naskah')->where('id',$request->input('pn1_naskah_id'))->update([
                             'selesai_penilaian' => '0'
