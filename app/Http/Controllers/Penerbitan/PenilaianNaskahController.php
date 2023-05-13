@@ -633,6 +633,20 @@ class PenilaianNaskahController extends Controller
 
                 DB::table('notif')->whereNull('expired')->where('permission_id', '5d793b19c75046b9a4d75d067e8e33b2')
                     ->where('form_id', $request->input('pn2_naskah_id'))->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
+                $naskahId = $request->input('pn2_naskah_id');
+                $editorTodo = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                ->where('p.id','5d793b19c75046b9a4d75d067e8e33b2')
+                ->select('up.user_id')
+                ->get();
+                $editorTodo = (object)collect($editorTodo)->map(function($item) use ($naskahId) {
+                    return DB::table('todo_list')
+                    ->where('form_id',$naskahId)
+                    ->where('users_id',$item->user_id)
+                    ->update([
+                        'status' => '1',
+                    ]);
+                })->all();
+
             } else {
                 DB::table('penerbitan_pn_editor_setter')->where('id', $request->input('pn2_id'))->update([
                     'penilaian_editor_umum' => $request->input('pn2_penilaian_editor_umum'),
@@ -675,7 +689,19 @@ class PenilaianNaskahController extends Controller
 
                 DB::table('notif')->whereNull('expired')->where('permission_id', '33c3711d787d416082c0519356547b0c')
                     ->where('form_id', $request->input('pn2_naskah_id'))->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
-
+                $naskahId = $request->input('pn2_naskah_id');
+                $setterTodo = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                ->where('p.id','33c3711d787d416082c0519356547b0c')
+                ->select('up.user_id')
+                ->get();
+                $setterTodo = (object)collect($setterTodo)->map(function($item) use ($naskahId) {
+                    return DB::table('todo_list')
+                    ->where('form_id',$naskahId)
+                    ->where('users_id',$item->user_id)
+                    ->update([
+                        'status' => '1',
+                    ]);
+                })->all();
                 DB::commit();
                 return;
             } catch (\Exception $e) {
@@ -719,6 +745,19 @@ class PenilaianNaskahController extends Controller
                     ]);
                     DB::table('notif')->whereNull('expired')->where('permission_id', 'a213b689b8274f4dbe19b3fb24d66840')
                         ->where('form_id', $request->input('pn3_naskah_id'))->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
+                    $naskahId = $request->input('pn3_naskah_id');
+                    $mpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','a213b689b8274f4dbe19b3fb24d66840')
+                    ->select('up.user_id')
+                    ->get();
+                    $mpemasaran = (object)collect($mpemasaran)->map(function($item) use ($naskahId) {
+                        return DB::table('todo_list')
+                        ->where('form_id',$naskahId)
+                        ->where('users_id',$item->user_id)
+                        ->update([
+                            'status' => '1',
+                        ]);
+                    })->all();
                 }
 
                 // $pn = DB::table('penerbitan_pn_penerbitan')->where('naskah_id', $request->input('pn3_naskah_id'))->first();
@@ -779,9 +818,23 @@ class PenilaianNaskahController extends Controller
                 DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn6_naskah_id'))->update([
                     'tgl_pn_d_pemasaran' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ]);
+                $naskahId = $request->input('pn6_naskah_id');
+                $dpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                ->where('p.id','9beba245308543ce821efe8a3ba965e3')
+                ->select('up.user_id')
+                ->get();
+                $dpemasaran = (object)collect($dpemasaran)->map(function($item) use ($naskahId) {
+                    return DB::table('todo_list')
+                    ->where('form_id',$naskahId)
+                    ->where('users_id',$item->user_id)
+                    ->update([
+                        'status' => '1',
+                    ]);
+                })->all();
 
                 $pn = DB::table('penerbitan_pn_penerbitan')->where('naskah_id', $request->input('pn6_naskah_id'))->first();
                 if (!is_null($pn)) {
+                    $data = DB::table('penerbitan_naskah')->where('id',$request->input('pn6_naskah_id'))->first();
                     DB::table('notif')->insert([
                         'id' => Str::uuid()->getHex(),
                         'section' => 'Penerbitan',
@@ -789,6 +842,19 @@ class PenilaianNaskahController extends Controller
                         'permission_id' => '8791f143a90e42e2a4d1d0d6b1254bad', // Direksi
                         'form_id' => $request->input('pn6_naskah_id'),
                     ]);
+                    $direksi = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                        ->where('p.id','8791f143a90e42e2a4d1d0d6b1254bad')
+                        ->select('up.user_id')
+                        ->get();
+                    $direksi = (object)collect($direksi)->map(function($item) use ($data) {
+                        return DB::table('todo_list')->insert([
+                            'form_id' => $data->id,
+                            'users_id' => $item->user_id,
+                            'title' => 'Penilaian naskah berjudul "'.$data->judul_asli.'".',
+                            'link' => '/penerbitan/naskah/melihat-naskah/'.$data->id,
+                            'status' => '0',
+                        ]);
+                    })->all();
                 }
             } else {
                 DB::table('penerbitan_pn_pemasaran')->where('id', $request->input('pn6_id'))
@@ -854,6 +920,19 @@ class PenilaianNaskahController extends Controller
                     ->where('form_id', $request->input('pn4_naskah_id'))->update([
                         'expired' => $tgl
                     ]);
+                $naskahId = $request->input('pn4_naskah_id');
+                $penerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                ->where('p.id','12b852d92d284ab5a654c26e8856fffd')
+                ->select('up.user_id')
+                ->get();
+                $penerbitan = (object)collect($penerbitan)->map(function($item) use ($naskahId) {
+                    return DB::table('todo_list')
+                    ->where('form_id',$naskahId)
+                    ->where('users_id',$item->user_id)
+                    ->update([
+                        'status' => '1',
+                    ]);
+                })->all();
             } else {
                 DB::table('penerbitan_pn_penerbitan')->where('id', $request->input('pn4_id'))
                     ->update([
@@ -886,6 +965,7 @@ class PenilaianNaskahController extends Controller
             $pn = DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn4_naskah_id'))
                 ->whereNotNull('tgl_pn_m_pemasaran',)->first();
             if (!is_null($pn)) {
+                $data = DB::table('penerbitan_naskah')->where('id',$request->input('pn4_naskah_id'))->first();
                 DB::table('notif')->insert([
                     'id' => Str::uuid()->getHex(),
                     'section' => 'Penerbitan',
@@ -893,6 +973,19 @@ class PenilaianNaskahController extends Controller
                     'permission_id' => '8791f143a90e42e2a4d1d0d6b1254bad', // Direksi
                     'form_id' => $request->input('pn4_naskah_id'),
                 ]);
+                $direksi = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                ->where('p.id','8791f143a90e42e2a4d1d0d6b1254bad')
+                ->select('up.user_id')
+                ->get();
+                $direksi = (object)collect($direksi)->map(function($item) use ($data) {
+                    return DB::table('todo_list')->insert([
+                        'form_id' => $data->id,
+                        'users_id' => $item->user_id,
+                        'title' => 'Penilaian naskah berjudul "'.$data->judul_asli.'".',
+                        'link' => '/penerbitan/naskah/melihat-naskah/'.$data->id,
+                        'status' => '0',
+                    ]);
+                })->all();
             }
 
             DB::commit();

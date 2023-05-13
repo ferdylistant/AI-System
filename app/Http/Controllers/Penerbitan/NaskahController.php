@@ -1152,7 +1152,21 @@ class NaskahController extends Controller
                         'form_id' => $data['form_id'],
                     ],
                 ]);
+                $editSet = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                ->where('p.id','5d793b19c75046b9a4d75d067e8e33b2')
+                ->where('p.id','33c3711d787d416082c0519356547b0c')
+                ->select('up.user_id')
+                ->get();
 
+                $editSet = (object)collect($editSet)->map(function($item) use ($data) {
+                    return DB::table('todo_list')->insert([
+                        'form_id' => $data['form_id'],
+                        'users_id' => $item->user_id,
+                        'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".',
+                        'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                        'status' => '0',
+                    ]);
+                })->all();
                 return ['selesai_penilaian' => 0, 'penilaian_naskah' => 1];
             } elseif ($action == 'update-notif-from-naskah') {
             }
