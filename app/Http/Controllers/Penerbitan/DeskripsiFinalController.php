@@ -491,7 +491,7 @@ class DeskripsiFinalController extends Controller
             DB::beginTransaction();
             $data = DB::table('deskripsi_final as df')->join('deskripsi_produk as dp','df.deskripsi_produk_id','=','dp.id')
             ->where('df.id', $id)
-            ->select('df.*','dp.naskah_id')
+            ->select('df.*','dp.naskah_id','dp.judul_final')
             ->first();
             if (is_null($data)) {
                 return response()->json([
@@ -521,6 +521,7 @@ class DeskripsiFinalController extends Controller
                 'author_id' => auth()->user()->id,
                 'modified_at' => $tgl
             ];
+            $dataNas = DB::table('penerbitan_naskah')->where('id',$data->naskah_id)->select('pic_prodev')->first();
             if ($data->status == 'Selesai') {
                 event(new DesfinEvent($update));
                 event(new DesfinEvent($insert));
@@ -547,6 +548,13 @@ class DeskripsiFinalController extends Controller
                     'status' => 'Terkunci'
                 ];
                 event(new TimelineEvent($updateTimelineDescov));
+                DB::table('todo_list')
+                ->where('form_id',$data->id)
+                ->where('users_id',$dataNas->pic_prodev)
+                ->where('title','Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.')
+                ->update([
+                    'status' => '0'
+                ]);
                 $msg = 'Status progress deskripsi final berhasil diupdate';
             } elseif ($request->status == 'Selesai') {
                 event(new DesfinEvent($update));
@@ -574,6 +582,14 @@ class DeskripsiFinalController extends Controller
                     'status' => 'Antrian'
                 ];
                 event(new TimelineEvent($updateTimelineDescov));
+
+                DB::table('todo_list')
+                ->where('form_id',$data->id)
+                ->where('users_id',$dataNas->pic_prodev)
+                ->where('title','Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.')
+                ->update([
+                    'status' => '1'
+                ]);
                 $msg = 'Deskripsi final selesai, silahkan lanjut ke proses Deskripsi Cover..';
             } else {
                 event(new DesfinEvent($update));

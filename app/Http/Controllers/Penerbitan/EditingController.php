@@ -772,6 +772,40 @@ class EditingController extends Controller
                 DB::table('pracetak_setter')->where('deskripsi_final_id', $data->deskripsi_final_id)->update([
                     'jml_hal_final' => $data->jml_hal_perkiraan
                 ]);
+                //? Update Todo List Kabag Editing
+                switch ($data->jalur_buku) {
+                    case 'Reguler':
+                        $editorPermission = '88f281e83aff47d08f555a2961420bf5';
+                        break;
+                    case 'MoU':
+                        $editorPermission = 'ce3589b822a14011ba581c803ef50f5b';
+                        break;
+                    case 'SMK/NonSmk':
+                        $editorPermission = 'a9354dd060524bce8278e2cd75ce349a';
+                        break;
+                    default:
+                        //permission jalur buku lainnya belum ditentukan di database
+                        $editorPermission = '';
+                        break;
+                }
+                $kabagEditing = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id',$editorPermission)
+                    ->select('up.user_id')
+                    ->get();
+                $dataEditing = [
+                    'id' => $data->id,
+                    'kode' => $data->kode,
+                    'judul' => $data->judul_final
+                ];
+                $kabagEditing = (object)collect($kabagEditing)->map(function($item) use ($dataEditing) {
+                    return DB::table('todo_list')
+                    ->where('form_id',$dataEditing['id'])
+                    ->where('users_id',$item->user_id)
+                    ->where('title','Proses delegasi tahap editing naskah "'.$dataEditing['judul'].'".')
+                    ->update([
+                        'status' => '1',
+                    ]);
+                })->all();
                 $updateTimelineEditing = [
                     'params' => 'Update Timeline',
                     'naskah_id' => $data->naskah_id,
@@ -1036,7 +1070,33 @@ class EditingController extends Controller
             try {
                 $id = $request->id;
                 $value = $request->proses;
-                $data = DB::table('editing_proses')->where('id', $id)->first();
+                $data = DB::table('editing_proses as ep')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                        ->whereNull('kb.deleted_at');
+                })
+                ->where('ep.id', $id)
+                ->select(
+                    'ep.*',
+                    'df.id as deskripsi_final_id',
+                    'dp.naskah_id',
+                    'dp.format_buku',
+                    'dp.judul_final',
+                    'dp.editor',
+                    'dp.imprint',
+                    'dp.jml_hal_perkiraan',
+                    'dp.kelengkapan',
+                    'dp.catatan',
+                    'pn.kode',
+                    'pn.judul_asli',
+                    'pn.pic_prodev',
+                    'pn.jalur_buku',
+                    'kb.nama'
+                )
+                ->first();
                 if (is_null($data)) {
                     return response()->json([
                         'status' => 'error',
@@ -1067,7 +1127,18 @@ class EditingController extends Controller
                     //         'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     //     ];
                     // }
-
+                    //? Delete Todo List Ke Editor sebagai pengingat delegasi
+                    $dataEditing = [
+                        'id' => $id,
+                        'judul' => $data->judul_final,
+                    ];
+                    (object)collect(json_decode($data->editor))->map(function($item) use ($dataEditing) {
+                        return DB::table('todo_list')
+                        ->where('form_id',$dataEditing['id'])
+                        ->where('users_id',$item)
+                        ->where('title','Selesaikan proses editing naskah yang berjudul "'.$dataEditing['judul'].'".')
+                        ->delete();
+                    })->all();
                     $msg = 'Proses diberhentikan!';
                 } else {
                     if (is_null($data->tgl_selesai_edit)) {
@@ -1096,6 +1167,21 @@ class EditingController extends Controller
                                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                             ];
                             event(new EditingEvent($dataEditor));
+                            //? Insert Todo List Ke Editor sebagai pengingat delegasi
+                            $dataEditing = [
+                                'id' => $id,
+                                'judul' => $data->judul_final,
+                                'kode' => $data->kode
+                            ];
+                            (object)collect(json_decode($data->editor))->map(function($item) use ($dataEditing) {
+                                return DB::table('todo_list')->insert([
+                                    'form_id' => $dataEditing['id'],
+                                    'users_id' => $item,
+                                    'title' => 'Selesaikan proses editing naskah yang berjudul "'.$dataEditing['judul'].'".',
+                                    'link' => '/penerbitan/editing/detail?editing='.$dataEditing['id'].'&kode='.$dataEditing['kode'],
+                                    'status' => '0',
+                                ]);
+                            })->all();
                         }
                     }
                     // else {
@@ -1228,6 +1314,41 @@ class EditingController extends Controller
                     'tgl_mulai_edit' => NULL,
                     'tgl_selesai_edit' => NULL
                 ]);
+
+            //? Insert Todo List Revisi ke Kabag
+            switch ($data->jalur_buku) {
+                case 'Reguler':
+                    $editorPermission = '88f281e83aff47d08f555a2961420bf5';
+                    break;
+                case 'MoU':
+                    $editorPermission = 'ce3589b822a14011ba581c803ef50f5b';
+                    break;
+                case 'SMK/NonSmk':
+                    $editorPermission = 'a9354dd060524bce8278e2cd75ce349a';
+                    break;
+                default:
+                    //permission jalur buku lainnya belum ditentukan di database
+                    $editorPermission = '';
+                    break;
+            }
+            $kabagEditing = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                ->where('p.id',$editorPermission)
+                ->select('up.user_id')
+                ->get();
+            $dataEditing = [
+                'id' => $data->id,
+                'kode' => $data->kode,
+                'judul' => $data->judul_final
+            ];
+            $kabagEditing = (object)collect($kabagEditing)->map(function($item) use ($dataEditing) {
+                return DB::table('todo_list')->insert([
+                    'form_id' => $dataEditing['id'],
+                    'users_id' => $item->user_id,
+                    'title' => 'Revisi data editing naskah "'.$dataEditing['judul'].'".',
+                    'link' => '/penerbitan/editing/edit?editing='.$dataEditing['id'].'&kode='.$dataEditing['kode'],
+                    'status' => '0',
+                ]);
+            })->all();
             DB::commit();
             return response()->json([
                 'status' => 'success',
@@ -1260,6 +1381,43 @@ class EditingController extends Controller
                 'status' => 'Proses',
                 'proses' => '1'
             ]);
+            switch ($data->jalur_buku) {
+                case 'Reguler':
+                    $editorPermission = '88f281e83aff47d08f555a2961420bf5';
+                    break;
+                case 'MoU':
+                    $editorPermission = 'ce3589b822a14011ba581c803ef50f5b';
+                    break;
+                case 'SMK/NonSmk':
+                    $editorPermission = 'a9354dd060524bce8278e2cd75ce349a';
+                    break;
+                default:
+                    //permission jalur buku lainnya belum ditentukan di database
+                    $editorPermission = '';
+                    break;
+            }
+            $kabagEditing = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id',$editorPermission)
+                    ->select('up.user_id')
+                    ->get();
+            $kabagEditing = (object)collect($kabagEditing)->map(function($item) use ($data) {
+                return DB::table('todo_list')
+                ->where('form_id',$data->id)
+                ->where('users_id',$item->user_id)
+                ->where('title','Revisi data editing naskah "'.$data->judul_final.'".')
+                ->update([
+                    'status' => '1',
+                ]);
+            })->all();
+            (object)collect(json_decode($data->editor))->map(function($item) use ($data) {
+                return DB::table('todo_list')
+                ->where('form_id',$data->id)
+                ->where('users_id',$item)
+                ->where('title','Selesaikan proses editing naskah yang berjudul "'.$data->judul_final.'".')
+                ->update([
+                    'status' => '0',
+                ]);
+            })->all();
             DB::commit();
             return response()->json([
                 'status' => 'success',
@@ -1276,7 +1434,33 @@ class EditingController extends Controller
     protected function selesaiEditor($id)
     {
         try {
-            $data = DB::table('editing_proses')->where('id', $id)->first();
+            $data = DB::table('editing_proses as ep')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                        ->whereNull('kb.deleted_at');
+                })
+                ->where('ep.id', $id)
+                ->select(
+                    'ep.*',
+                    'df.id as deskripsi_final_id',
+                    'dp.naskah_id',
+                    'dp.format_buku',
+                    'dp.judul_final',
+                    'dp.editor',
+                    'dp.imprint',
+                    'dp.jml_hal_perkiraan',
+                    'dp.kelengkapan',
+                    'dp.catatan',
+                    'pn.kode',
+                    'pn.judul_asli',
+                    'pn.pic_prodev',
+                    'pn.jalur_buku',
+                    'kb.nama'
+                )
+                ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
@@ -1360,10 +1544,17 @@ class EditingController extends Controller
                     event(new EditingEvent($pros));
                 }
             }
-
+            //? Update Todo list Editor
+            DB::table('todo_list')
+            ->where('form_id',$id)
+            ->where('users_id',auth()->user()->id)
+            ->where('title','Selesaikan proses editing naskah yang berjudul "'.$data->judul_final.'".')
+            ->update([
+                'status' => '1'
+            ]);
             return response()->json([
                 'status' => 'success',
-                'message' => 'Pengerjaan selesai'
+                'message' => 'Pengerjaan selesai',
             ]);
         } catch (\Exception $e) {
             return response()->json([

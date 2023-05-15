@@ -21,8 +21,11 @@ class DeskripsiProdukController extends Controller
     {
         if ($request->ajax()) {
             $data = DB::table('deskripsi_produk as dp')
-                ->leftJoin('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->select(
+                ->leftJoin('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id');
+                if ((Gate::allows('do_update','naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
+                    $data->where('pn.pic_prodev', auth()->id());
+                }
+                $data->select(
                     'dp.*',
                     'pn.kode',
                     'pn.judul_asli',
@@ -30,9 +33,6 @@ class DeskripsiProdukController extends Controller
                     'pn.jalur_buku'
                 )
                 ->orderBy('dp.tgl_deskripsi', 'ASC');
-            if (in_array(auth()->id(),$data->pluck('pic_prodev')->toArray())) {
-                $data->where('pn.pic_prodev', auth()->id());
-            }
             $data->get();
             $update = Gate::allows('do_create', 'ubah-atau-buat-des-produk');
             if ($request->has('count_data')) {
@@ -436,7 +436,7 @@ class DeskripsiProdukController extends Controller
             $data = DB::table('deskripsi_produk as dp')
             ->join('penerbitan_naskah as pn','dp.naskah_id','=','pn.id')
             ->where('dp.id', $id)
-            ->select('dp.*','pn.kode')
+            ->select('dp.*','pn.kode','pn.pic_prodev','pn.judul_asli')
             ->first();
             if (is_null($data)) {
                 return response()->json([
@@ -477,6 +477,40 @@ class DeskripsiProdukController extends Controller
                         'status' => 'Proses'
                     ];
                     event(new TimelineEvent($insertTimeline));
+                    if ($data->status == 'Revisi') {
+                        //? Update Todo Prodev Selesai Revisi
+                        DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$data->pic_prodev)
+                        ->where('title','Deskripsi produk dengan judul asli "' . $data->judul_asli . '" perlu direvisi.')
+                        ->update([
+                            'status' => '1'
+                        ]);
+                    } else {
+                        //? Update Todo Prodev
+                        DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$data->pic_prodev)
+                        ->where('title','Proses deskripsi produk naskah berjudul "'.$data->judul_asli.'" perlu dilengkapi data kelengkapan penentuan judul.')
+                        ->update([
+                            'status' => '1'
+                        ]);
+                    }
+                    //? Todo List penerbitan untuk pilih judul final
+                    $penerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','99a7a50e866749879f55b92df2b5449c')
+                    ->select('up.user_id')
+                    ->get();
+
+                    $penerbitan = (object)collect($penerbitan)->map(function($item) use ($data) {
+                        return DB::table('todo_list')->insert([
+                            'form_id' => $data->id,
+                            'users_id' => $item->user_id,
+                            'title' => 'Menentukan dan menyetujui judul final.',
+                            'link' => '/penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$data->kode,
+                            'status' => '0',
+                        ]);
+                    })->all();
                     break;
                 default:
                     $updateTimeline = [
@@ -706,21 +740,24 @@ class DeskripsiProdukController extends Controller
     protected function revisiDespro($request)
     {
         try {
+            $idProduk = $request->input('id');
             $kode = $request->input('kode');
             $judul_asli = $request->input('judul_asli');
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             DB::beginTransaction();
-            $data = DB::table('deskripsi_produk')->where('id', $request->input('id'))->where('status', 'Selesai')->whereNull('deadline_revisi')->first();
+            $data = DB::table('deskripsi_produk')->where('id', $idProduk)->where('status', 'Selesai')->whereNull('deadline_revisi')->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Deskripsi produk "' . $judul_asli . '" sedang direvisi'
                 ]);
             }
-            DB::table('deskripsi_produk')->where('id', $request->input('id'))->update([
+            $dataNas = DB::table('penerbitan_naskah')->where('id',$data->naskah_id)->select('pic_prodev')->first();
+            DB::table('deskripsi_produk')->where('id', $idProduk)->update([
                 'status' => "Revisi",
                 'deadline_revisi' => Carbon::createFromFormat('d F Y', $request->input('deadline_revisi'))->format('Y-m-d H:i:s'),
                 'alasan_revisi' => $request->input('alasan'),
-                'action_gm' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'action_gm' => $tgl,
                 'updated_by' => auth()->id()
             ]);
             $updateTimeline = [
@@ -733,17 +770,25 @@ class DeskripsiProdukController extends Controller
             event(new TimelineEvent($updateTimeline));
             $insert = [
                 'params' => 'Insert History Revisi Despro',
-                'deskripsi_produk_id' => $request->input('id'),
+                'deskripsi_produk_id' => $idProduk,
                 'type_history' => 'Revisi',
                 'status_his' => $data->status,
                 'deadline_revisi_his' => Carbon::createFromFormat('d F Y', $request->input('deadline_revisi'))->format('Y-m-d H:i:s'),
                 'alasan_revisi_his' => $request->input('alasan'),
                 'status_new' => 'Revisi',
                 'author_id' => auth()->id(),
-                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                'modified_at' => $tgl
             ];
             //EVENT
             event(new DesproEvent($insert));
+            //Insert Todo List Revisi ke Prodev
+            DB::table('todo_list')->insert([
+                'form_id' => $idProduk,
+                'users_id' => $dataNas->pic_prodev,
+                'title' => 'Deskripsi produk dengan judul asli "' . $judul_asli . '" perlu direvisi.',
+                'link' => '/penerbtian/deskripsi/produk',
+                'status' => '0'
+            ]);
             DB::commit();
             return response()->json([
                 'status' => 'success',
@@ -765,7 +810,7 @@ class DeskripsiProdukController extends Controller
             $data = DB::table('deskripsi_produk as dp')->join('penerbitan_naskah as pn','dp.naskah_id','=','pn.id')
             ->where('dp.id', $id)
             ->whereNotNull('dp.judul_final')
-            ->select('dp.*','pn.kode')
+            ->select('dp.*','pn.kode','pn.pic_prodev')
             ->first();
             if (is_null($data)) {
                 return response()->json([
@@ -840,6 +885,22 @@ class DeskripsiProdukController extends Controller
             event(new DesproEvent($history));
             event(new DesfinEvent($desFin));
             event(new DescovEvent($desCov));
+            //? Todo List Desfin
+            DB::table('todo_list')->insert([
+                'form_id' => $idDesfin,
+                'users_id' => $data->pic_prodev,
+                'title' => 'Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                'link' => '/penerbtian/deskripsi/final/edit?desc='.$idDesfin.'&kode='.$data->kode,
+                'status' => '0'
+            ]);
+            //? Todo List Descov
+            DB::table('todo_list')->insert([
+                'form_id' => $idDescov,
+                'users_id' => $data->pic_prodev,
+                'title' => 'Proses deskripsi cover naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                'link' => '/penerbtian/deskripsi/cover/edit?desc='.$idDescov.'&kode='.$data->kode,
+                'status' => '0'
+            ]);
             DB::commit();
             return response()->json([
                 'status' => 'success',

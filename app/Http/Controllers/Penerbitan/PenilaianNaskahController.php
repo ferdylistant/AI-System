@@ -1006,7 +1006,9 @@ class PenilaianNaskahController extends Controller
 
         DB::beginTransaction();
         try {
-            DB::table('penerbitan_naskah')->where('id', $request->input('pn5_naskah_id'))
+            $naskahId = $request->input('pn5_naskah_id');
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            DB::table('penerbitan_naskah')->where('id', $naskahId)
                 ->update([
                     'penilaian_direksi' => '1',
                     'selesai_penilaian' => '1'
@@ -1014,21 +1016,45 @@ class PenilaianNaskahController extends Controller
 
             DB::table('penerbitan_pn_direksi')->insert([
                 'id' => Str::uuid()->getHex(),
-                'naskah_id' => $request->input('pn5_naskah_id'),
+                'naskah_id' => $naskahId,
                 'judul_final' => $request->input('pn5_judul_final'),
                 'sub_judul_final' => $request->input('pn5_sub_judul_final'),
                 'keputusan_final' => $request->input('pn5_keputusan'),
                 'catatan' => $request->input('pn5_catatan'),
                 'created_by' => auth()->id()
             ]);
-            DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn5_naskah_id'))
+            DB::table('penerbitan_pn_stts')->where('naskah_id', $naskahId)
                 ->update([
-                    'tgl_pn_direksi' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
-                    'tgl_pn_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    'tgl_pn_direksi' => $tgl,
+                    'tgl_pn_selesai' => $tgl
                 ]);
             DB::table('notif')->whereNull('expired')->where('permission_id', '8791f143a90e42e2a4d1d0d6b1254bad')
-                ->where('form_id', $request->input('pn5_naskah_id'))->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
+                ->where('form_id', $naskahId)->update(['expired' => $tgl]);
 
+            $dataNaskah = DB::table('penerbitan_naskah')->where('id',$naskahId)
+            ->select('pic_prodev','judul_asli')->first();
+            $direksi = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                ->where('p.id','8791f143a90e42e2a4d1d0d6b1254bad')
+                ->select('up.user_id')
+                ->get();
+            $direksi = (object)collect($direksi)->map(function($item) use ($naskahId) {
+                return DB::table('todo_list')
+                ->where('form_id',$naskahId)
+                ->where('users_id',$item->user_id)
+                ->update([
+                    'status' => '1',
+                ]);
+            })->all();
+            if (!is_null($dataNaskah)) {
+                //Update Todo-list Prodev (Pelengkapan Data Naskah dan Penulis)
+                DB::table('todo_list')->insert([
+                    'form_id' => $naskahId,
+                    'users_id' => $dataNaskah->pic_prodev,
+                    'title' => 'Tandai data naskah berjudul ('.$dataNaskah->judul_asli.') telah dilengkapi.',
+                    'link' => '/penerbitan/naskah',
+                    'status' => '0'
+                ]);
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();

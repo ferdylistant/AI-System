@@ -1920,11 +1920,41 @@ class PracetakSetterController extends Controller
                     'status' => $request->status
                 ];
                 event(new TimelineEvent($updateTimelinePracetakSetter));
-                $dataPraset = DB::table('pracetak_cover')
+                //Update Todo List Kabag
+                switch ($data->jalur_buku) {
+                    case 'Reguler':
+                        $prasetPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
+                        break;
+                    case 'MoU':
+                        $prasetPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
+                        break;
+                    case 'SMK/NonSmk':
+                        $prasetPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
+                        break;
+                    default:
+                        //permission jalur buku lainnya belum ditentukan di database
+                        $prasetPermission = '';
+                        break;
+                }
+                $kabagPraset = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id',$prasetPermission)
+                    ->select('up.user_id')
+                    ->get();
+                $kabagPraset = (object)collect($kabagPraset)->map(function($item) use ($data) {
+                    return DB::table('todo_list')
+                    ->where('form_id',$data->id)
+                    ->where('users_id',$item->user_id)
+                    ->where('title','Proses delegasi tahap pracetak setter naskah "'.$data->judul_final.'".')
+                    ->update([
+                        'status' => '1'
+                    ]);
+                })->all();
+                //Cek Pracetak Cover
+                $dataPracov = DB::table('pracetak_cover')
                     ->where('id', $data->pracov_id)
                     ->where('status', 'Selesai')
                     ->first();
-                if (!is_null($dataPraset)) {
+                if (!is_null($dataPracov)) {
                     DB::table('pracetak_setter')->where('id', $data->id)->update([
                         'proses_saat_ini' => 'Turun Cetak'
                     ]);
@@ -1938,6 +1968,13 @@ class PracetakSetterController extends Controller
                         'tgl_masuk' => $tgl,
                     ];
                     event(new DesturcetEvent($in));
+                    DB::table('todo_list')->insert([
+                            'form_id' => $id_turcet,
+                            'users_id' => $data->pic_prodev,
+                            'title' => 'Proses deskripsi turun cetak naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                            'link' => '/penerbitan/deskripsi/turun-cetak?desc='.$id_turcet.'&kode='.$data->kode,
+                            'status' => '0',
+                        ]);
                     //INSERT TIMELINE TURUN CETAK
                     $insertTimelinePraset = [
                         'params' => 'Insert Timeline',

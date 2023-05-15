@@ -496,6 +496,14 @@ class DeskripsiCoverController extends Controller
             if ($request->status == 'Selesai') {
                 event(new DescovEvent($update));
                 event(new DescovEvent($insert));
+                //? Todo list Prodev
+                DB::table('todo_list')
+                ->where('form_id',$data->id)
+                ->where('users_id',$data->pic_prodev)
+                ->where('title','Proses deskripsi cover naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.')
+                ->update([
+                    'status' => '1'
+                ]);
                 $updateTimelineDescov = [
                     'params' => 'Update Timeline',
                     'naskah_id' => $data->naskah_id,
@@ -510,10 +518,44 @@ class DeskripsiCoverController extends Controller
                     'params' => 'Insert Editing',
                     'id' => $idEditing,
                     'deskripsi_final_id' => $data->deskripsi_final_id,
-                    'editor' => json_encode([$data->editor]),
+                    'editor' => json_encode($data->editor),
                     'tgl_masuk_editing' => $tgl
                 ];
                 event(new EditingEvent($insertEditingProses));
+                //? Insert Todo List Kabag Editing
+                switch ($data->jalur_buku) {
+                    case 'Reguler':
+                        $editorPermission = '88f281e83aff47d08f555a2961420bf5';
+                        break;
+                    case 'MoU':
+                        $editorPermission = 'ce3589b822a14011ba581c803ef50f5b';
+                        break;
+                    case 'SMK/NonSmk':
+                        $editorPermission = 'a9354dd060524bce8278e2cd75ce349a';
+                        break;
+                    default:
+                        //permission jalur buku lainnya belum ditentukan di database
+                        $editorPermission = '';
+                        break;
+                }
+                $kabagEditing = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id',$editorPermission)
+                    ->select('up.user_id')
+                    ->get();
+                $dataEditing = [
+                    'id' => $idEditing,
+                    'kode' => $data->kode,
+                    'judul' => $data->judul_final
+                ];
+                $kabagEditing = (object)collect($kabagEditing)->map(function($item) use ($dataEditing) {
+                    return DB::table('todo_list')->insert([
+                        'form_id' => $dataEditing['id'],
+                        'users_id' => $item->user_id,
+                        'title' => 'Proses delegasi tahap editing naskah "'.$dataEditing['judul'].'".',
+                        'link' => '/penerbitan/editing/edit?editing='.$dataEditing['id'].'&kode='.$dataEditing['kode'],
+                        'status' => '0',
+                    ]);
+                })->all();
                 $insertTimelineEditing = [
                     'params' => 'Insert Timeline',
                     'id' => Uuid::uuid4()->toString(),
@@ -536,6 +578,40 @@ class DeskripsiCoverController extends Controller
                     'tgl_masuk_pracetak' => $tgl,
                 ];
                 event(new PracetakSetterEvent($insertPracetakSetter));
+                //? Insert Todo List Kabag Pracetak Setter
+                switch ($data->jalur_buku) {
+                    case 'Reguler':
+                        $prasetPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
+                        break;
+                    case 'MoU':
+                        $prasetPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
+                        break;
+                    case 'SMK/NonSmk':
+                        $prasetPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
+                        break;
+                    default:
+                        //permission jalur buku lainnya belum ditentukan di database
+                        $prasetPermission = '';
+                        break;
+                }
+                $kabagPraset = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id',$prasetPermission)
+                    ->select('up.user_id')
+                    ->get();
+                $dataPraset = [
+                    'id' => $idPraset,
+                    'kode' => $data->kode,
+                    'judul' => $data->judul_final
+                ];
+                $kabagPraset = (object)collect($kabagPraset)->map(function($item) use ($dataPraset) {
+                    return DB::table('todo_list')->insert([
+                        'form_id' => $dataPraset['id'],
+                        'users_id' => $item->user_id,
+                        'title' => 'Proses delegasi tahap pracetak setter naskah "'.$dataPraset['judul'].'".',
+                        'link' => '/penerbitan/pracetak/setter/edit?setter='.$dataPraset['id'].'&kode='.$dataPraset['kode'],
+                        'status' => '0',
+                    ]);
+                })->all();
                 $insertTimelinePraset = [
                     'params' => 'Insert Timeline',
                     'id' => Uuid::uuid4()->toString(),
@@ -556,6 +632,40 @@ class DeskripsiCoverController extends Controller
                     'tgl_masuk_cover' => $tgl,
                 ];
                 event(new PracetakCoverEvent($insertPracetakCover));
+                //? Insert Todo List Kabag Pracetak Cover
+                switch ($data->jalur_buku) {
+                    case 'Reguler':
+                        $pracovPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
+                        break;
+                    case 'MoU':
+                        $pracovPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
+                        break;
+                    case 'SMK/NonSmk':
+                        $pracovPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
+                        break;
+                    default:
+                        //permission jalur buku lainnya belum ditentukan di database
+                        $pracovPermission = '';
+                        break;
+                }
+                $kabagPracov = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id',$pracovPermission)
+                    ->select('up.user_id')
+                    ->get();
+                $dataPracov = [
+                    'id' => $idPracov,
+                    'kode' => $data->kode,
+                    'judul' => $data->judul_final
+                ];
+                $kabagPracov = (object)collect($kabagPracov)->map(function($item) use ($dataPracov) {
+                    return DB::table('todo_list')->insert([
+                        'form_id' => $dataPracov['id'],
+                        'users_id' => $item->user_id,
+                        'title' => 'Proses delegasi tahap pracetak cover naskah "'.$dataPracov['judul'].'".',
+                        'link' => '/penerbitan/pracetak/designer/edit?cover='.$dataPracov['id'].'&kode='.$dataPracov['kode'],
+                        'status' => '0',
+                    ]);
+                })->all();
                 $insertTimelinePracov = [
                     'params' => 'Insert Timeline',
                     'id' => Uuid::uuid4()->toString(),
@@ -566,6 +676,7 @@ class DeskripsiCoverController extends Controller
                     'status' => 'Antrian'
                 ];
                 event(new TimelineEvent($insertTimelinePracov));
+
                 $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
             } else {
                 event(new DescovEvent($update));

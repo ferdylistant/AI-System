@@ -818,6 +818,20 @@ class NaskahController extends Controller
                 'status' => 'Antrian'
             ];
             event(new DesproEvent($createDespro));
+            DB::table('todo_list')
+            ->where('form_id',$id)
+            ->where('users_id',auth()->id())
+            ->where('title','Tandai data naskah berjudul ('.$data->judul_asli.') telah dilengkapi.')
+            ->update([
+                'status' => '1'
+            ]);
+            DB::table('todo_list')->insert([
+                'form_id' => $idProduk,
+                'users_id' => auth()->id(),
+                'title' => 'Proses deskripsi produk naskah berjudul "'.$data->judul_asli.'" perlu dilengkapi data kelengkapan penentuan judul.',
+                'link' => '/penerbtian/deskripsi/produk/edit?desc='.$idProduk.'&kode='.$data->kode,
+                'status' => '0'
+            ]);
             $buktiEmail = [
                 'params' => 'Bukti Email',
                 'id' => $id,
