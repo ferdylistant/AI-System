@@ -49,7 +49,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('import-db', [HomeController::class, 'importDB']);
 
     /* Home */
-    Route::get('/api/home/recent-activity', [HomeController::class, 'recentActivity']);
+    Route::match(['get', 'post'],'/api/home/{cat}', [HomeController::class, 'apiAjax']);
     Route::post('home/test', [HomeController::class, 'ajaxTest']);
     Route::post('home/penerbitan/{cat}', [HomeController::class, 'ajaxPenerbitan']);
     Route::post('public/penerbitan/fullcalendar/{cat}', [NaskahController::class, 'ajaxFromCalendar']);

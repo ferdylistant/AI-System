@@ -207,7 +207,21 @@ class HomeController extends Controller
                             <div><i class="fas fa-envelope-open-text"></i></div></a>';
             })->make(true);
     }
-    public function recentActivity(Request $request)
+    public function apiAjax(Request $request)
+    {
+        switch ($request->cat) {
+            case 'recent-activity':
+                return $this->recentActivity($request);
+                break;
+            case 'delete-todo':
+                return $this->deleteTodo($request);
+                break;
+            default:
+                return abort(500);
+                break;
+        }
+    }
+    protected function recentActivity($request)
     {
         try {
             $html ='';
@@ -242,6 +256,15 @@ class HomeController extends Controller
                 'status' => 'error',
                 'message' => $e->getMessage()
             ]);
+        }
+    }
+    protected function deleteTodo($request)
+    {
+        try {
+            DB::table('todo_list')->where('id',$request->id)->delete();
+            return;
+        } catch (\Exception $e) {
+            return abort(500);
         }
     }
 }

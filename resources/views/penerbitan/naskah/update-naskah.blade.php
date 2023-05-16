@@ -35,15 +35,26 @@
             <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
         </div>
         <h1>Ubah Data Naskah</h1>
+        <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active">
+                <a href="{{url('/')}}">Dashboard</a>
+            </div>
+            <div class="breadcrumb-item">
+                <a href="{{url('/penerbitan/naskah')}}">Data Naskah</a>
+            </div>
+            <div class="breadcrumb-item">
+                Ubah Data Naskah
+            </div>
+        </div>
     </div>
 
     <div class="section-body">
         <div class="row">
             <div class="col-12">
-                <div class="card card-warning">
+                <div class="card card-primary">
                     <form id="fedit_Naskah">
                         <div class="card-header">
-                            <h4>Form Naskah</h4>
+                            <h4 class="section-title">Form Naskah</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -286,7 +297,7 @@
                     } else {
                         $('[name="edit_' + n + '"]').val(naskah[n]).change();
                         $('[name="edit_' + n + '"]').attr('disabled',disabled).change();
-                        $('#btnSimpan').attr('disabled',disabled).change();
+                        // $('#btnSimpan').attr('disabled',disabled).change();
                     }
                 }
             },

@@ -166,21 +166,30 @@
                                             </div>
                                         @else
                                             @foreach ($semua as $s)
-                                                <li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2"
+                                                <li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2 delete_list_{{$s->id}}"
                                                     style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
                                                     <div class="d-flex align-items-center">
-                                                        <input class="form-check-input me-2" type="checkbox" value=""
-                                                            aria-label="..." />
-                                                        {{ $s->title }}
+                                                        @if ($s->status == '0')
+                                                        <div class="beep-danger mb-2 ml-3"></div>
+                                                        @else
+                                                        <div class="bullet"></div>
+                                                        @endif
+                                                        <a href="{{ url($s->link) }}" class="text-dark text-decoration-none">{{ $s->title }}</a>
                                                     </div>
                                                     <div class="justify-content-end mb-1">
-                                                        <a href="{{ url($s->link) }}" class="text-primary"
-                                                            data-toggle="tooltip" title="Edit todo">
-                                                            <i class="fas fa-pencil-alt me-3"></i></a>
-                                                        <a href="#!" class="text-danger" data-toggle="tooltip"
-                                                            title="Remove item">
-                                                            <i class="fas fa-times me-3"></i>
+                                                        @if ($s->status == '0')
+                                                        <a href="#!" class="text-primary" tabindex="0" role="button"
+                                                        data-toggle="popover" data-trigger="focus" title="{{ $s->title }}"
+                                                        data-content="Fitur ini akan tetap menjadi pengingat untuk selalu memperhatikan tugas dan kegiatan yang akan Anda lakukan.">
+                                                            <i class="fas fa-question-circle me-3"></i>
                                                         </a>
+                                                        @else
+                                                        <a href="javascript:void(0)" class="text-danger delete-todo" data-toggle="tooltip"
+                                                        title="Hapus pengingat" data-id="{{$s->id}}">
+                                                        <i class="fas fa-times me-3"></i>
+                                                        </a>
+                                                        @endif
+
                                                     </div>
                                                 </li>
                                             @endforeach
@@ -203,18 +212,15 @@
                                             <li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2"
                                                 style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
                                                 <div class="d-flex align-items-center">
-                                                    <input class="form-check-input me-2" type="checkbox" value=""
-                                                        aria-label="..." />
-                                                    {{ $bl->title }}
+                                                    <div class="beep-danger mb-2 ml-3"></div>
+                                                    <a href="{{ url($bl->link) }}" class="text-dark text-decoration-none">{{ $bl->title }}</a>
                                                 </div>
                                                 <div class="justify-content-end mb-1">
-                                                    <a href="{{ url($bl->link) }}" class="text-primary"
-                                                        data-toggle="tooltip" title="Edit todo">
-                                                        <i class="fas fa-pencil-alt me-3"></i></a>
-                                                    <a href="#!" class="text-danger" data-toggle="tooltip"
-                                                        title="Remove item">
-                                                        <i class="fas fa-times me-3"></i>
-                                                    </a>
+                                                    <a href="#" class="text-primary" tabindex="0" role="button"
+                                                        data-toggle="popover" data-trigger="focus" title="{{ $s->title }}"
+                                                        data-content="Fitur ini akan tetap menjadi pengingat untuk selalu memperhatikan tugas dan kegiatan yang akan Anda lakukan.">
+                                                            <i class="fas fa-question-circle me-3"></i>
+                                                        </a>
                                                 </div>
                                             </li>
                                         @endforeach
@@ -232,19 +238,15 @@
                                         </div>
                                     @else
                                         @foreach ($selesai as $sl)
-                                            <li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2"
+                                            <li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2 delete_list_{{$sl->id}}"
                                                 style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
                                                 <div class="d-flex align-items-center">
-                                                    <input class="form-check-input me-2" type="checkbox" value=""
-                                                        aria-label="..." />
-                                                    {{ $sl->title }}
+                                                    <div class="bullet"></div>
+                                                    <a href="{{ url($sl->link) }}" class="text-dark text-decoration-none">{{ $sl->title }}</a>
                                                 </div>
                                                 <div class="justify-content-end mb-1">
-                                                    <a href="{{ url($sl->link) }}" class="text-primary"
-                                                        data-toggle="tooltip" title="Edit todo">
-                                                        <i class="fas fa-pencil-alt me-3"></i></a>
-                                                    <a href="#!" class="text-danger" data-toggle="tooltip"
-                                                        title="Remove item">
+                                                    <a href="javascript:void(0)" class="text-danger delete-todo" data-toggle="tooltip"
+                                                        title="Hapus pengingat" data-id="{{$sl->id}}">
                                                         <i class="fas fa-times me-3"></i>
                                                     </a>
                                                 </div>
@@ -776,6 +778,27 @@
                 notifToast('error', 'Terjadi kesalahan!')
             });
         }
+        $(document).ready(function() {
+        $('.delete-todo').click(function() {
+            var id = $(this).data("id");
+            $.ajax({
+                type: "POST",
+                url: window.location.origin + "/api/home/delete-todo",
+                data: ({
+                    id: id
+                }),
+                success: function(html) {
+                    // console.log(html);
+                    $(".delete_list_" + id).fadeOut(300,function() {
+                        $(".delete_list_" + id).remove();
+                    });
+                },
+                error: function (err) {
+                    notifToast('error', 'Terjadi kesalahan!')
+                }
+            });
+        });
+    });
     </script>
     {{-- <script>
     document.addEventListener("DOMContentLoaded", function(event) {

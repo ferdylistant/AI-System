@@ -26,39 +26,63 @@ width: 100%;
             <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
         </div>
         <h1>Edit/Buat Penerbitan Deskripsi Final</h1>
+        <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active">
+                <a href="{{url('/')}}">Dashboard</a>
+            </div>
+            <div class="breadcrumb-item">
+                <a href="{{url('/penerbitan/naskah')}}">Data Naskah</a>
+            </div>
+            <div class="breadcrumb-item">
+                Edit/Buat Penerbitan Deskripsi Final
+            </div>
+        </div>
     </div>
 
     <div class="section-body">
         <div class="row">
             <div class="col-12">
-                <div class="card card-warning">
+                <div class="card card-primary">
                     <div class="card-header">
+                        <h4 class="section-title">Form Deskripsi Cover</h4>
                         <div class="card-header-action">
-                            @if ($data->status == 'Antrian')
+                            @switch($data->status)
+                                @case('Antrian')
                                 <i class="far fa-circle" style="color:#34395E;"></i>
                                 Status Progress:
                                 <span class="badge" style="background:#34395E;color:white">{{$data->status}}</span>
-                            @elseif ($data->status == 'Pending')
+                                    @break
+                                @case('Pending')
                                 <i class="far fa-circle text-danger"></i>
                                 Status Progress:
                                 <span class="badge badge-danger">{{$data->status}}</span>
-                            @elseif ($data->status == 'Proses')
+                                    @break
+                                @case('Proses')
                                 <i class="far fa-circle text-success"></i>
                                 Status Progress:
                                 <span class="badge badge-success">{{$data->status}}</span>
-                            @elseif ($data->status == 'Selesai')
+                                    @break
+                                @case('Selesai')
                                 <i class="far fa-circle text-dark"></i>
                                 Status Progress:
                                 <span class="badge badge-light">{{$data->status}}</span>
-                            @elseif ($data->status == 'Revisi')
+                                    @break
+                                @case('Revisi')
                                 <i class="far fa-circle text-info"></i>
                                 Status Progress:
                                 <span class="badge badge-info">{{$data->status}}</span>
-                            @elseif ($data->status == 'Acc')
+                                    @break
+                                @case('Acc')
                                 <i class="far fa-circle text-dark"></i>
                                 Status Progress:
                                 <span class="badge badge-light">{{$data->status}}</span>
-                            @endif
+                                    @break
+
+                                @default
+                                <i class="fas fa-lock text-dark"></i>
+                                Status Progress:
+                                <span class="badge badge-secondary">{{$data->status}}</span>
+                            @endswitch
                         </div>
                     </div>
                 @if ($data->status == 'Proses'  || ($data->status == 'Selesai' && Gate::allows('do_approval','approval-deskripsi-produk')))
@@ -641,8 +665,8 @@ width: 100%;
                                                         class="text-danger">*Kosongkan jika sama dengan nama asli
                                                         penulis</span></th>
                                                 <td class="table-active text-right">
-                                                    @if (!is_null($data->nama_penulis))
-                                                        {{ $data->nama_penulis }}
+                                                    @if (!is_null($data->nama_pena))
+                                                    {{ $nama_pena }}
                                                     @else
                                                         <span class="text-danger text-small">Belum diinput</span>
                                                     @endif

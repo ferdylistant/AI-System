@@ -563,63 +563,73 @@ class NaskahController extends Controller
                 return ['naskah' => $naskah, 'penulis' => $penulis, 'disabled' => $disabled];
             } elseif ($request->isMethod('POST')) {
                 // return response()->json($request->edit_urgent);
-                $request->validate([
-                    'edit_judul_asli' => 'required',
-                    'edit_kode' => 'required|unique:penerbitan_naskah,kode,' . $request->id,
-                    'edit_kelompok_buku' => 'required',
-                    'edit_jalur_buku' => 'required',
-                    'edit_tanggal_masuk_naskah' => 'required',
-                    'edit_sumber_naskah' => 'required',
-                    'edit_cdqr_code' => 'required',
-                    'edit_pic_prodev' => 'required',
-                    'edit_penulis' => 'required'
-                ], [
-                    'required' => 'This field is requried'
-                ]);
-                foreach ($request->input('edit_sumber_naskah') as $sn) {
-                    if ($sn == 'SC') {
-                        $request->validate([
-                            'edit_url_file' => 'required|url',
-                        ], [
-                            'required' => 'This field is requried'
+                $disabled = is_null($naskah->tgl_pn_m_penerbitan) ? false:true;
+                if ($disabled == true) {
+                    $request->validate([
+                        'edit_kelompok_buku' => 'required',
+                        'edit_penulis' => 'required'
+                    ], [
+                        'required' => 'This field is requried'
+                    ]);
+                } else {
+                    $request->validate([
+                        'edit_judul_asli' => 'required',
+                        'edit_kode' => 'required|unique:penerbitan_naskah,kode,' . $request->id,
+                        'edit_kelompok_buku' => 'required',
+                        'edit_jalur_buku' => 'required',
+                        'edit_tanggal_masuk_naskah' => 'required',
+                        'edit_sumber_naskah' => 'required',
+                        'edit_cdqr_code' => 'required',
+                        'edit_pic_prodev' => 'required',
+                        'edit_penulis' => 'required'
+                    ], [
+                        'required' => 'This field is requried'
+                    ]);
+                    foreach ($request->input('edit_sumber_naskah') as $sn) {
+                        if ($sn == 'SC') {
+                            $request->validate([
+                                'edit_url_file' => 'required|url',
+                            ], [
+                                'required' => 'This field is requried'
+                            ]);
+                        }
+                    }
+                    if ((count($request->input('edit_sumber_naskah')) == 1) && ($request->input('edit_sumber_naskah')[0] != 'SC')) {
+                        $url_file = NULL;
+                    } elseif ((count($request->input('edit_sumber_naskah')) == 2) && ($request->input('edit_sumber_naskah')[1] != 'SC')) {
+                        $url_file = NULL;
+                    } else {
+                        $url_file = $request->input('edit_url_file');
+                    }
+                    if ($request->input('edit_jalur_buku') != $naskah->jalur_buku) {
+                        switch ($naskah->jalur_buku) {
+                            case 'MoU':
+                                $prog = 'Pelengkapan Data Penulis';
+                                break;
+                            case 'SMK/NonSMK':
+                                $prog = 'Pelengkapan Data Penulis';
+                                break;
+                            default:
+                                $prog = 'Penilaian Naskah';
+                                break;
+                        }
+                        switch ($request->input('edit_jalur_buku')) {
+                            case 'MoU':
+                                $progNew = 'Pelengkapan Data Penulis';
+                                break;
+                            case 'SMK/NonSMK':
+                                $progNew = 'Pelengkapan Data Penulis';
+                                break;
+                            default:
+                                $progNew = 'Penilaian Naskah';
+                                break;
+                        }
+                        DB::table('timeline')->where('naskah_id',$naskah->id)->where('progress',$prog)->update([
+                            'progress' => $progNew
                         ]);
                     }
                 }
-                if ((count($request->input('edit_sumber_naskah')) == 1) && ($request->input('edit_sumber_naskah')[0] != 'SC')) {
-                    $url_file = NULL;
-                } elseif ((count($request->input('edit_sumber_naskah')) == 2) && ($request->input('edit_sumber_naskah')[1] != 'SC')) {
-                    $url_file = NULL;
-                } else {
-                    $url_file = $request->input('edit_url_file');
-                }
                 DB::beginTransaction();
-                if ($request->input('edit_jalur_buku') != $naskah->jalur_buku) {
-                    switch ($naskah->jalur_buku) {
-                        case 'MoU':
-                            $prog = 'Pelengkapan Data Penulis';
-                            break;
-                        case 'SMK/NonSMK':
-                            $prog = 'Pelengkapan Data Penulis';
-                            break;
-                        default:
-                            $prog = 'Penilaian Naskah';
-                            break;
-                    }
-                    switch ($request->input('edit_jalur_buku')) {
-                        case 'MoU':
-                            $progNew = 'Pelengkapan Data Penulis';
-                            break;
-                        case 'SMK/NonSMK':
-                            $progNew = 'Pelengkapan Data Penulis';
-                            break;
-                        default:
-                            $progNew = 'Penilaian Naskah';
-                            break;
-                    }
-                    DB::table('timeline')->where('naskah_id',$naskah->id)->where('progress',$prog)->update([
-                        'progress' => $progNew
-                    ]);
-                }
                 try {
 
                     foreach ($request->input('edit_penulis') as $p) {
@@ -633,60 +643,71 @@ class NaskahController extends Controller
                         ->where('naskah_id', $naskah->id)->delete();
                     DB::table('penerbitan_naskah_penulis')
                         ->insert($daftarPenulis);
-
-                    if ($request->input('edit_pic_prodev') != $naskah->pic_prodev) { // Update Notifikasi jika naskah diubah. (Hanya prodev)
-                        $this->alurPenilaian($request->input('edit_jalur_buku'), 'update-notif-from-naskah', [
-                            'id_prodev' => $request->input('edit_pic_prodev'),
-                            'form_id' => $naskah->id
-                        ],$request->input('add_judul_asli'));
+                    if ($disabled == true) {
+                        DB::table('penerbitan_naskah')->where('id',$naskah->id)->update([
+                            'kelompok_buku_id' => $request->input('edit_kelompok_buku'),
+                        ]);
+                        DB::table('penerbitan_naskah_history')->insert([
+                            'kelompok_buku_his' => $naskah->kelompok_buku_id == $request->input('edit_kelompok_buku') ? NULL : $naskah->kelompok_buku_id,
+                            'kelompok_buku_new' => $naskah->kelompok_buku_id == $request->input('edit_kelompok_buku') ? NULL : $request->input('edit_kelompok_buku'),
+                            'penulis_new' => json_encode($daftarPenulis),
+                        ]);
+                    } else {
+                        if ($request->input('edit_pic_prodev') != $naskah->pic_prodev) { // Update Notifikasi jika naskah diubah. (Hanya prodev)
+                            $this->alurPenilaian($request->input('edit_jalur_buku'), 'update-notif-from-naskah', [
+                                'id_prodev' => $request->input('edit_pic_prodev'),
+                                'form_id' => $naskah->id
+                            ],$request->input('add_judul_asli'));
+                        }
+                        $editNaskah = [
+                            'params' => 'Edit Naskah',
+                            'id' => $naskah->id,
+                            'judul_asli' => $request->input('edit_judul_asli'),
+                            'tanggal_masuk_naskah' => Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
+                                ->format('Y-m-d'),
+                            'kelompok_buku_id' => $request->input('edit_kelompok_buku'),
+                            'jalur_buku' => $request->input('edit_jalur_buku'),
+                            'sumber_naskah' => $request->input('edit_sumber_naskah'),
+                            'cdqr_code' => $request->input('edit_cdqr_code'),
+                            'keterangan' => $request->input('edit_keterangan'),
+                            'pic_prodev' => $request->input('edit_pic_prodev'),
+                            'url_file' => $url_file,
+                            'urgent' => $request->edit_urgent == 'on' ? '1':'0',
+                            'updated_by' => auth()->id(),
+                            'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                        ];
+                        event(new NaskahEvent($editNaskah));
+                        $urgent = $request->edit_urgent == 'on' ? '1':'0';
+                        $insertHistoryEdit = [
+                            'params' => 'Insert Edit Naskah History',
+                            'type_history' => 'Update',
+                            'naskah_id' => $naskah->id,
+                            'judul_asli_his' => $naskah->judul_asli == $request->input('edit_judul_asli') ? NULL : $naskah->judul_asli,
+                            'judul_asli_new' => $naskah->judul_asli == $request->input('edit_judul_asli') ? NULL : $request->input('edit_judul_asli'),
+                            'kelompok_buku_his' => $naskah->kelompok_buku_id == $request->input('edit_kelompok_buku') ? NULL : $naskah->kelompok_buku_id,
+                            'kelompok_buku_new' => $naskah->kelompok_buku_id == $request->input('edit_kelompok_buku') ? NULL : $request->input('edit_kelompok_buku'),
+                            'tgl_masuk_nas_his' => Carbon::createFromFormat('d F Y', $naskah->tanggal_masuk_naskah)
+                                ->format('Y-m-d') == Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
+                                ->format('Y-m-d') ? NULL : Carbon::createFromFormat('d F Y', $naskah->tanggal_masuk_naskah)
+                                ->format('Y-m-d'),
+                            'tgl_masuk_nas_new' => Carbon::createFromFormat('d F Y', $naskah->tanggal_masuk_naskah)
+                                ->format('Y-m-d') == Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
+                                ->format('Y-m-d') ? NULL : Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
+                                ->format('Y-m-d'),
+                            'sumber_naskah_his' => $naskah->sumber_naskah == json_encode($request->input('edit_sumber_naskah')) ? NULL : $naskah->sumber_naskah,
+                            'sumber_naskah_new' => $naskah->sumber_naskah == json_encode($request->input('edit_sumber_naskah')) ? NULL : json_encode($request->input('edit_sumber_naskah')),
+                            'cdqr_code_his' => $naskah->cdqr_code == $request->input('edit_cdqr_code') ? NULL : $naskah->cdqr_code,
+                            'cdqr_code_new' => $naskah->cdqr_code == $request->input('edit_cdqr_code') ? NULL : $request->input('edit_cdqr_code'),
+                            'pic_prodev_his' => $naskah->pic_prodev == $request->input('edit_pic_prodev') ? NULL : $naskah->pic_prodev,
+                            'pic_prodev_new' => $naskah->pic_prodev == $request->input('edit_pic_prodev') ? NULL : $request->input('edit_pic_prodev'),
+                            'penulis_new' => json_encode($daftarPenulis),
+                            'urgent' => $naskah->urgent == $urgent ? NULL : $urgent,
+                            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                            'author_id' => auth()->id()
+                        ];
+                        event(new NaskahEvent($insertHistoryEdit));
                     }
-                    $editNaskah = [
-                        'params' => 'Edit Naskah',
-                        'id' => $naskah->id,
-                        'judul_asli' => $request->input('edit_judul_asli'),
-                        'tanggal_masuk_naskah' => Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
-                            ->format('Y-m-d'),
-                        'kelompok_buku_id' => $request->input('edit_kelompok_buku'),
-                        'jalur_buku' => $request->input('edit_jalur_buku'),
-                        'sumber_naskah' => $request->input('edit_sumber_naskah'),
-                        'cdqr_code' => $request->input('edit_cdqr_code'),
-                        'keterangan' => $request->input('edit_keterangan'),
-                        'pic_prodev' => $request->input('edit_pic_prodev'),
-                        'url_file' => $url_file,
-                        'urgent' => $request->edit_urgent == 'on' ? '1':'0',
-                        'updated_by' => auth()->id(),
-                        'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                    ];
-                    event(new NaskahEvent($editNaskah));
-                    $urgent = $request->edit_urgent == 'on' ? '1':'0';
-                    $insertHistoryEdit = [
-                        'params' => 'Insert Edit Naskah History',
-                        'type_history' => 'Update',
-                        'naskah_id' => $naskah->id,
-                        'judul_asli_his' => $naskah->judul_asli == $request->input('edit_judul_asli') ? NULL : $naskah->judul_asli,
-                        'judul_asli_new' => $naskah->judul_asli == $request->input('edit_judul_asli') ? NULL : $request->input('edit_judul_asli'),
-                        'kelompok_buku_his' => $naskah->kelompok_buku_id == $request->input('edit_kelompok_buku') ? NULL : $naskah->kelompok_buku_id,
-                        'kelompok_buku_new' => $naskah->kelompok_buku_id == $request->input('edit_kelompok_buku') ? NULL : $request->input('edit_kelompok_buku'),
-                        'tgl_masuk_nas_his' => Carbon::createFromFormat('d F Y', $naskah->tanggal_masuk_naskah)
-                            ->format('Y-m-d') == Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
-                            ->format('Y-m-d') ? NULL : Carbon::createFromFormat('d F Y', $naskah->tanggal_masuk_naskah)
-                            ->format('Y-m-d'),
-                        'tgl_masuk_nas_new' => Carbon::createFromFormat('d F Y', $naskah->tanggal_masuk_naskah)
-                            ->format('Y-m-d') == Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
-                            ->format('Y-m-d') ? NULL : Carbon::createFromFormat('d F Y', $request->input('edit_tanggal_masuk_naskah'))
-                            ->format('Y-m-d'),
-                        'sumber_naskah_his' => $naskah->sumber_naskah == json_encode($request->input('edit_sumber_naskah')) ? NULL : $naskah->sumber_naskah,
-                        'sumber_naskah_new' => $naskah->sumber_naskah == json_encode($request->input('edit_sumber_naskah')) ? NULL : json_encode($request->input('edit_sumber_naskah')),
-                        'cdqr_code_his' => $naskah->cdqr_code == $request->input('edit_cdqr_code') ? NULL : $naskah->cdqr_code,
-                        'cdqr_code_new' => $naskah->cdqr_code == $request->input('edit_cdqr_code') ? NULL : $request->input('edit_cdqr_code'),
-                        'pic_prodev_his' => $naskah->pic_prodev == $request->input('edit_pic_prodev') ? NULL : $naskah->pic_prodev,
-                        'pic_prodev_new' => $naskah->pic_prodev == $request->input('edit_pic_prodev') ? NULL : $request->input('edit_pic_prodev'),
-                        'penulis_new' => json_encode($daftarPenulis),
-                        'urgent' => $naskah->urgent == $urgent ? NULL : $urgent,
-                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
-                        'author_id' => auth()->id()
-                    ];
-                    event(new NaskahEvent($insertHistoryEdit));
+
                     DB::commit();
                     return;
                 } catch (\Exception $e) {
@@ -829,7 +850,7 @@ class NaskahController extends Controller
                 'form_id' => $idProduk,
                 'users_id' => auth()->id(),
                 'title' => 'Proses deskripsi produk naskah berjudul "'.$data->judul_asli.'" perlu dilengkapi data kelengkapan penentuan judul.',
-                'link' => '/penerbtian/deskripsi/produk/edit?desc='.$idProduk.'&kode='.$data->kode,
+                'link' => '/penerbitan/deskripsi/produk/edit?desc='.$idProduk.'&kode='.$data->kode,
                 'status' => '0'
             ]);
             $buktiEmail = [

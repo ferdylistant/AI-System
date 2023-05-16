@@ -736,16 +736,22 @@ class PenilaianNaskahController extends Controller
                     'created_by' => auth()->id(),
                     'created_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ]);
-
-                $pemasaran = DB::table('penerbitan_pn_pemasaran')->where('naskah_id', $request->input('pn3_naskah_id'))
+                $naskahId = $request->input('pn3_naskah_id');
+                $pemasaran = DB::table('penerbitan_pn_pemasaran')->where('naskah_id', $naskahId)
                     ->where('pic', 'M')->get();
+                DB::table('todo_list')
+                ->where('form_id',$naskahId)
+                ->where('users_id',auth()->id())
+                ->update([
+                    'status' => '1',
+                ]);
                 if (count($pemasaran) > 1) {
                     DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn3_naskah_id'))->update([
                         'tgl_pn_m_pemasaran' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ]);
                     DB::table('notif')->whereNull('expired')->where('permission_id', 'a213b689b8274f4dbe19b3fb24d66840')
                         ->where('form_id', $request->input('pn3_naskah_id'))->update(['expired' => Carbon::now('Asia/Jakarta')->toDateTimeString()]);
-                    $naskahId = $request->input('pn3_naskah_id');
+
                     $mpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
                     ->where('p.id','a213b689b8274f4dbe19b3fb24d66840')
                     ->select('up.user_id')

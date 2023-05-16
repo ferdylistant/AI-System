@@ -474,7 +474,7 @@ class DeskripsiProdukController extends Controller
                         'naskah_id' => $id,
                         'tgl_mulai' => $tgl,
                         'url_action' => urlencode(URL::to('/penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$data->kode)),
-                        'status' => 'Proses'
+                        'status' => 'Selesai'
                     ];
                     event(new TimelineEvent($insertTimeline));
                     if ($data->status == 'Revisi') {
@@ -786,9 +786,22 @@ class DeskripsiProdukController extends Controller
                 'form_id' => $idProduk,
                 'users_id' => $dataNas->pic_prodev,
                 'title' => 'Deskripsi produk dengan judul asli "' . $judul_asli . '" perlu direvisi.',
-                'link' => '/penerbtian/deskripsi/produk',
+                'link' => '/penerbitan/deskripsi/produk',
                 'status' => '0'
             ]);
+            //Delete todo List GM Penerbitan
+            $penerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','99a7a50e866749879f55b92df2b5449c')
+                    ->select('up.user_id')
+                    ->get();
+
+            $penerbitan = (object)collect($penerbitan)->map(function($item) use ($data) {
+                return DB::table('todo_list')
+                ->where('form_id',$data->id)
+                ->where('users_id',$item->user_id)
+                ->where('title', 'Menentukan dan menyetujui judul final.')
+                ->delete();
+            })->all();
             DB::commit();
             return response()->json([
                 'status' => 'success',
@@ -890,7 +903,7 @@ class DeskripsiProdukController extends Controller
                 'form_id' => $idDesfin,
                 'users_id' => $data->pic_prodev,
                 'title' => 'Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
-                'link' => '/penerbtian/deskripsi/final/edit?desc='.$idDesfin.'&kode='.$data->kode,
+                'link' => '/penerbitan/deskripsi/final/edit?desc='.$idDesfin.'&kode='.$data->kode,
                 'status' => '0'
             ]);
             //? Todo List Descov
@@ -898,7 +911,7 @@ class DeskripsiProdukController extends Controller
                 'form_id' => $idDescov,
                 'users_id' => $data->pic_prodev,
                 'title' => 'Proses deskripsi cover naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
-                'link' => '/penerbtian/deskripsi/cover/edit?desc='.$idDescov.'&kode='.$data->kode,
+                'link' => '/penerbitan/deskripsi/cover/edit?desc='.$idDescov.'&kode='.$data->kode,
                 'status' => '0'
             ]);
             DB::commit();
