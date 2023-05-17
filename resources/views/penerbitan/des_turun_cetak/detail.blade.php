@@ -19,7 +19,7 @@
                     <a href="{{url('/')}}">Dashboard</a>
                 </div>
                 <div class="breadcrumb-item">
-                    <a href="{{url('/penerbitan/pracetak/designer')}}">Data Penerbitan Deskripsi Turun Cetak</a>
+                    <a href="{{url('/penerbitan/deskripsi/turun-cetak')}}">Data Penerbitan Deskripsi Turun Cetak</a>
                 </div>
                 <div class="breadcrumb-item">
                     Detail Deskripsi Turun Cetak

@@ -1050,7 +1050,7 @@ class UsersController extends Controller
                     case 'Delete':
                         $html .= '<span class="ticket-item" id="newAppend">
                             <div class="ticket-title">
-                                <span><span class="bullet"></span> Data user dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                <span><span class="bullet"></span> Data user dihapus pada <b class="text-dark">' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
                             </div>
                             <div class="ticket-info">
                                 <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -1062,7 +1062,7 @@ class UsersController extends Controller
                     case 'Restore':
                         $html .= '<span class="ticket-item" id="newAppend">
                                 <div class="ticket-title">
-                                    <span><span class="bullet"></span> Data user direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                    <span><span class="bullet"></span> Data user direstore pada <b class="text-dark">' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
                                 </div>
                                 <div class="ticket-info">
                                     <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -1091,22 +1091,31 @@ class UsersController extends Controller
 
     public function restoreUser(Request $request)
     {
-        $id = $request->id;
-        $restored = DB::table('users')
-            ->where('id', $id)
-            ->update(['deleted_at' => null, 'deleted_by' => null]);
-        $insert = [
-            'params' => 'History Restored User',
-            'user_id' => $id,
-            'type_history' => 'Restore',
-            'restored_at' => now(),
-            'author_id' => auth()->user()->id,
-            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-        ];
-        event(new UserEvent($insert));
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Berhasil mengembalikan user!'
-        ]);
+        try {
+            $id = $request->id;
+            DB::beginTransaction();
+            $restored = DB::table('users')
+                ->where('id', $id)
+                ->update(['deleted_at' => null, 'deleted_by' => null]);
+            $insert = [
+                'params' => 'History Restored User',
+                'user_id' => $id,
+                'type_history' => 'Restore',
+                'author_id' => auth()->user()->id,
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new UserEvent($insert));
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil mengembalikan user!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }

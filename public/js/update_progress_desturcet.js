@@ -142,8 +142,10 @@ $(document).ready(function () {
                 if (response.length == 0) {
                     $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
+                } else {
+                    $("#dataHistoryDesturcet").append(response);
+                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
                 }
-                $("#dataHistoryDesturcet").append(response);
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
                 //     // appending posts after last post with class="post"
@@ -151,7 +153,7 @@ $(document).ready(function () {
                 // }, 2000);
             },
             complete: function (params) {
-                form.addClass("modal-progress");
+                form.removeClass("modal-progress");
             },
         });
     });

@@ -31,7 +31,7 @@ width: 100%;
                 <a href="{{url('/')}}">Dashboard</a>
             </div>
             <div class="breadcrumb-item">
-                <a href="{{url('/penerbitan/naskah')}}">Data Naskah</a>
+                <a href="{{url('/penerbitan/deskripsi/final')}}">Data Penerbitan Deskripsi Final</a>
             </div>
             <div class="breadcrumb-item">
                 Edit/Buat Penerbitan Deskripsi Final

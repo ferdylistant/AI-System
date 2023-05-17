@@ -176,8 +176,10 @@ $(function() {
                 if (response.length == 0) {
                     $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
+                } else {
+                    $("#dataHistoryOrderEbook").append(response);
+                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
                 }
-                $("#dataHistoryOrderEbook").append(response);
             },
             complete: function (params) {
                 form.removeClass("modal-progress");

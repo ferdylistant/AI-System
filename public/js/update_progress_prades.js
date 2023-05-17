@@ -141,8 +141,10 @@ $(function () {
                 if (response.length == 0) {
                     $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
+                } else {
+                    $("#dataHistoryPraDes").append(response);
+                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
                 }
-                $("#dataHistoryPraDes").append(response);
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
                 //     // appending posts after last post with class="post"

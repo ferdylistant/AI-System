@@ -229,8 +229,10 @@ $(function() {
                 if (response.length == 0) {
                     $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
+                } else {
+                    $("#dataHistoryNaskah").append(response);
+                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
                 }
-                $("#dataHistoryNaskah").append(response);
             },
             complete: function (params) {
                 // console.log();

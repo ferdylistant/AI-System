@@ -105,7 +105,6 @@ class UserListener
                 DB::table('user_history')->insert([
                     'user_id' => $data['user_id'],
                     'type_history' => $data['type_history'],
-                    'deleted_at' => $data['deleted_at'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
@@ -115,7 +114,6 @@ class UserListener
                 $res = DB::table('user_history')->insert([
                     'user_id' => $data['user_id'],
                     'type_history' => $data['type_history'],
-                    'restored_at' => $data['restored_at'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);

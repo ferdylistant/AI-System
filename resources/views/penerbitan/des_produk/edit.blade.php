@@ -28,13 +28,25 @@
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
             <h1>Edit/Buat Penerbitan Deskripsi Produk</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active">
+                    <a href="{{url('/')}}">Dashboard</a>
+                </div>
+                <div class="breadcrumb-item">
+                    <a href="{{url('/penerbitan/deskripsi/produk')}}">Data Deskripsi Produk</a>
+                </div>
+                <div class="breadcrumb-item">
+                    Edit/Buat Penerbitan Deskripsi Produk
+                </div>
+            </div>
         </div>
 
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
-                    <div class="card card-warning">
+                    <div class="card card-primary">
                         <div class="card-header">
+                            <h4 class="section-title">Form Deskripsi Produk</h4>
                             <div class="card-header-action">
                                 @if ($data->status == 'Antrian')
                                     <i class="far fa-circle" style="color:#34395E;"></i>

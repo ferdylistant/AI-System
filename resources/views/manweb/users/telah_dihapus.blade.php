@@ -19,12 +19,23 @@
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
             <h1>Data User Yang Telah Dihapus</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active">
+                    <a href="{{url('/')}}">Dashboard</a>
+                </div>
+                <div class="breadcrumb-item">
+                    <a href="{{url('/manajemen-web/users')}}">Data Users</a>
+                </div>
+                <div class="breadcrumb-item">
+                    Data User Yang Telah Dihapus
+                </div>
+            </div>
         </div>
 
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
-                    <div class="card card-danger">
+                    <div class="card card-primary">
                         <div class="card-body">
                             <div class="col-12 table-responsive">
                                 <table class="table table-striped" id="tb_User" style="width:100%">
@@ -128,7 +139,9 @@
                                 tableDelUser.ajax.reload();
                             }
                         },
-                        error: function(err) {},
+                        error: function(err) {
+                            notifToast('error', 'Terjadi kesalahan!');
+                        },
                         complete: function() {
                             $(".btn_ResUser")
                                 .prop("disabled", true)
