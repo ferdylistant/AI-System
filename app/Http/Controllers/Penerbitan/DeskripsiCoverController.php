@@ -518,7 +518,7 @@ class DeskripsiCoverController extends Controller
                     'params' => 'Insert Editing',
                     'id' => $idEditing,
                     'deskripsi_final_id' => $data->deskripsi_final_id,
-                    'editor' => json_encode($data->editor),
+                    'editor' => json_encode([$data->editor]),
                     'tgl_masuk_editing' => $tgl
                 ];
                 event(new EditingEvent($insertEditingProses));

@@ -506,7 +506,7 @@ class DeskripsiProdukController extends Controller
                         return DB::table('todo_list')->insert([
                             'form_id' => $data->id,
                             'users_id' => $item->user_id,
-                            'title' => 'Menentukan dan menyetujui judul final.',
+                            'title' => 'Menentukan dan menyetujui judul final dengan judul asli, "'.$data->judul_asli.'".',
                             'link' => '/penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$data->kode,
                             'status' => '0',
                         ]);
@@ -823,7 +823,7 @@ class DeskripsiProdukController extends Controller
             $data = DB::table('deskripsi_produk as dp')->join('penerbitan_naskah as pn','dp.naskah_id','=','pn.id')
             ->where('dp.id', $id)
             ->whereNotNull('dp.judul_final')
-            ->select('dp.*','pn.kode','pn.pic_prodev')
+            ->select('dp.*','pn.kode','pn.pic_prodev','pn.judul_asli','pn.jalur_buku')
             ->first();
             if (is_null($data)) {
                 return response()->json([
@@ -914,6 +914,21 @@ class DeskripsiProdukController extends Controller
                 'link' => '/penerbitan/deskripsi/cover/edit?desc='.$idDescov.'&kode='.$data->kode,
                 'status' => '0'
             ]);
+            //? Todo List penerbitan setelah pilih judul final
+            $penerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+            ->where('p.id','99a7a50e866749879f55b92df2b5449c')
+            ->select('up.user_id')
+            ->get();
+
+            $penerbitan = (object)collect($penerbitan)->map(function($item) use ($data) {
+                return DB::table('todo_list')
+                ->where('form_id',$data->id)
+                ->where('users_id', $item->user_id)
+                ->where('title', 'Menentukan dan menyetujui judul final dengan judul asli, "'.$data->judul_asli.'".')
+                ->update([
+                    'status' => '1',
+                ]);
+            })->all();
             DB::commit();
             return response()->json([
                 'status' => 'success',

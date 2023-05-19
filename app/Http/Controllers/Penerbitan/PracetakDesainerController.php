@@ -1853,6 +1853,7 @@ class PracetakDesainerController extends Controller
                 }
                 event(new PracetakCoverEvent($update));
                 event(new PracetakCoverEvent($insert));
+
                 //UPDATE TIMELINE PRACETAK COVER
                 $updateTimelinePracetakCover = [
                     'params' => 'Update Timeline',
@@ -1862,6 +1863,34 @@ class PracetakDesainerController extends Controller
                     'status' => $request->status
                 ];
                 event(new TimelineEvent($updateTimelinePracetakCover));
+                switch ($data->jalur_buku) {
+                    case 'Reguler':
+                        $pracovPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
+                        break;
+                    case 'MoU':
+                        $pracovPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
+                        break;
+                    case 'SMK/NonSmk':
+                        $pracovPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
+                        break;
+                    default:
+                        //permission jalur buku lainnya belum ditentukan di database
+                        $pracovPermission = '';
+                        break;
+                }
+                $kabagPracov = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id',$pracovPermission)
+                    ->select('up.user_id')
+                    ->get();
+                $kabagPracov = (object)collect($kabagPracov)->map(function($item) use ($data) {
+                    return DB::table('todo_list')
+                    ->where('form_id',$data->id)
+                    ->where('users_id',$item->user_id)
+                    ->where('title','Proses delegasi tahap pracetak cover naskah "'.$data->judul_final.'".')
+                    ->update([
+                        'status' => '1'
+                    ]);
+                })->all();
                 $dataPraset = DB::table('pracetak_setter')
                     ->where('id', $data->praset_id)
                     ->where('status', 'Selesai')
@@ -1880,6 +1909,14 @@ class PracetakDesainerController extends Controller
                         'tgl_masuk' => $tgl,
                     ];
                     event(new DesturcetEvent($in));
+                    //? Insert Todo List Deskripsi Turun Cetak
+                    DB::table('todo_list')->insert([
+                        'form_id' => $id_turcet,
+                        'users_id' => $data->pic_prodev,
+                        'title' => 'Proses deskripsi turun cetak naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                        'link' => '/penerbitan/deskripsi/turun-cetak?desc='.$id_turcet.'&kode='.$data->kode,
+                        'status' => '0',
+                    ]);
                     //INSERT TIMELINE TURUN CETAK
                     $insertTimelinePracov = [
                         'params' => 'Insert Timeline',

@@ -657,7 +657,58 @@ class NaskahController extends Controller
                             $this->alurPenilaian($request->input('edit_jalur_buku'), 'update-notif-from-naskah', [
                                 'id_prodev' => $request->input('edit_pic_prodev'),
                                 'form_id' => $naskah->id
-                            ],$request->input('add_judul_asli'));
+                            ],$request->input('edit_judul_asli'));
+                        }
+                        if ($request->input('edit_judul_asli') != $naskah->judul_asli) {
+                            DB::table('todo_list')
+                            ->where('form_id', $naskah->id)
+                            ->where('users_id', $naskah->pic_prodev)
+                            ->update([
+                                'title' => 'Penilaian naskah berjudul "'.$request->input('edit_judul_asli').'".'
+                            ]);
+                            $data = [
+                        'id' => $naskah->id,
+                                'judul' => $request->input('edit_judul_asli')
+                            ];
+                            $penerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                            ->where('p.id','12b852d92d284ab5a654c26e8856fffd')
+                            ->select('up.user_id')
+                            ->get();
+
+                            $penerbitan = (object)collect($penerbitan)->map(function($item) use ($data) {
+                                return DB::table('todo_list')
+                                ->where('form_id', $data['id'])
+                                ->where('users_id', $item->user_id)
+                                ->update([
+                                    'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".'
+                                ]);
+                            })->all();
+                            $mpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                            ->where('p.id','a213b689b8274f4dbe19b3fb24d66840')
+                            ->select('up.user_id')
+                            ->get();
+
+                            $mpemasaran = (object)collect($mpemasaran)->map(function($item) use ($data) {
+                                return DB::table('todo_list')
+                                ->where('form_id', $data['id'])
+                                ->where('users_id', $item->user_id)
+                                ->update([
+                                    'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".',
+                                ]);
+                            })->all();
+                            $dpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                            ->where('p.id','9beba245308543ce821efe8a3ba965e3')
+                            ->select('up.user_id')
+                            ->get();
+
+                            $dpemasaran = (object)collect($dpemasaran)->map(function($item) use ($data) {
+                                return DB::table('todo_list')
+                                ->where('form_id', $data['id'])
+                                ->where('users_id', $item->user_id)
+                                ->update([
+                                    'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".'
+                                ]);
+                            })->all();
                         }
                         $editNaskah = [
                             'params' => 'Edit Naskah',

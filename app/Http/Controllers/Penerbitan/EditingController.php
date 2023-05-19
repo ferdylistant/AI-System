@@ -224,11 +224,26 @@ class EditingController extends Controller
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $history = DB::table('editing_proses as ep')
-                    ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
-                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
-                    ->where('ep.id', $request->id)
-                    ->select('ep.*', 'dp.judul_final', 'df.bullet', 'dp.jml_hal_perkiraan')
-                    ->first();
+                ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->where('ep.id', $request->id)
+                ->select(
+                    'ep.*',
+                    'df.sub_judul_final',
+                    'df.bullet',
+                    'df.sinopsis',
+                    'df.isi_warna',
+                    'df.isi_huruf',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'dp.nama_pena',
+                    'dp.jml_hal_perkiraan',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                )
+                ->first();
                 if ($request->has('request_revision')) {
                     return $this->donerevisionActKabag($history);
                 } else {
@@ -1085,7 +1100,6 @@ class EditingController extends Controller
                     'dp.naskah_id',
                     'dp.format_buku',
                     'dp.judul_final',
-                    'dp.editor',
                     'dp.imprint',
                     'dp.jml_hal_perkiraan',
                     'dp.kelengkapan',
@@ -1449,7 +1463,6 @@ class EditingController extends Controller
                     'dp.naskah_id',
                     'dp.format_buku',
                     'dp.judul_final',
-                    'dp.editor',
                     'dp.imprint',
                     'dp.jml_hal_perkiraan',
                     'dp.kelengkapan',
@@ -1557,6 +1570,7 @@ class EditingController extends Controller
                 'message' => 'Pengerjaan selesai',
             ]);
         } catch (\Exception $e) {
+            // return abort(500);
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

@@ -28,8 +28,8 @@
         }
 
         /* .fc-event-title {
-                                                        color: #1a252f;
-                                                    } */
+                                                            color: #1a252f;
+                                                        } */
 
         .tb-detail-naskah {
             font-size: 12px;
@@ -134,125 +134,31 @@
                         <div class="card-header">
                             <h4 class="section-title">My To-Do List</h4>
                         </div>
-                        <div class="card-body">
+                        <div id="todoList_data" class="card-body">
                             <ul class="nav nav-tabs" id="myTab" role="tablist"
                                 style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="semua-tab" data-toggle="tab" href="#semua"
-                                        role="tab" aria-controls="semua" aria-selected="true">Semua</a>
+                                        role="tab" aria-controls="semua" data-typeget="semua"
+                                        aria-selected="true">Semua</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="belum-selesai-tab" data-toggle="tab" href="#belum-selesai"
-                                        role="tab" aria-controls="belum-selesai" aria-selected="false">Belum Selesai</a>
+                                        role="tab" aria-controls="belum-selesai" data-typeget="belum-selesai"
+                                        aria-selected="false">Belum Selesai</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="selesai-tab" data-toggle="tab" href="#selesai" role="tab"
-                                        aria-controls="selesai" aria-selected="false">Selesai</a>
+                                        aria-controls="selesai" data-typeget="selesai" aria-selected="false">Selesai</a>
                                 </li>
                             </ul>
                             <div class="tab-content example-2 scrollbar-deep-purple bordered-deep-purple square thin"
                                 id="myTabContent">
                                 <div class="tab-pane fade show active" id="semua" role="tabpanel"
-                                    aria-labelledby="semua-tab">
-                                    <ul class="list-group mb-0">
-                                        @if ($semua->isEmpty())
-                                            <div class="col-12 offset-3 mt-5">
-                                                <div class="row">
-                                                    <div class="col-4 offset-1">
-                                                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png"
-                                                            width="100%">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @else
-                                            @foreach ($semua as $s)
-                                                <li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2 delete_list_{{$s->id}}"
-                                                    style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
-                                                    <div class="d-flex align-items-center">
-                                                        @if ($s->status == '0')
-                                                        <div class="beep-danger mb-2 ml-3"></div>
-                                                        @else
-                                                        <div class="bullet"></div>
-                                                        @endif
-                                                        <a href="{{ url($s->link) }}" class="text-dark text-decoration-none">{{ $s->title }}</a>
-                                                    </div>
-                                                    <div class="justify-content-end mb-1">
-                                                        @if ($s->status == '0')
-                                                        <a href="#!" class="text-primary" tabindex="0" role="button"
-                                                        data-toggle="popover" data-trigger="focus" title="{{ $s->title }}"
-                                                        data-content="Fitur ini akan tetap menjadi pengingat untuk selalu memperhatikan tugas dan kegiatan yang akan Anda lakukan.">
-                                                            <i class="fas fa-question-circle me-3"></i>
-                                                        </a>
-                                                        @else
-                                                        <a href="javascript:void(0)" class="text-danger delete-todo" data-toggle="tooltip"
-                                                        title="Hapus pengingat" data-id="{{$s->id}}">
-                                                        <i class="fas fa-times me-3"></i>
-                                                        </a>
-                                                        @endif
-
-                                                    </div>
-                                                </li>
-                                            @endforeach
-                                        @endif
-                                    </ul>
-                                </div>
+                                    aria-labelledby="semua-tab"></div>
                                 <div class="tab-pane fade" id="belum-selesai" role="tabpanel"
-                                    aria-labelledby="belum-selesai-tab">
-                                    @if ($belum->isEmpty())
-                                        <div class="col-12 offset-3 mt-5">
-                                            <div class="row">
-                                                <div class="col-4 offset-1">
-                                                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png"
-                                                        width="100%">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        @foreach ($belum as $bl)
-                                            <li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2"
-                                                style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="beep-danger mb-2 ml-3"></div>
-                                                    <a href="{{ url($bl->link) }}" class="text-dark text-decoration-none">{{ $bl->title }}</a>
-                                                </div>
-                                                <div class="justify-content-end mb-1">
-                                                    <a href="#" class="text-primary" tabindex="0" role="button"
-                                                        data-toggle="popover" data-trigger="focus" title="{{ $s->title }}"
-                                                        data-content="Fitur ini akan tetap menjadi pengingat untuk selalu memperhatikan tugas dan kegiatan yang akan Anda lakukan.">
-                                                            <i class="fas fa-question-circle me-3"></i>
-                                                        </a>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    @endif
-                                </div>
+                                    aria-labelledby="belum-selesai-tab"></div>
                                 <div class="tab-pane fade" id="selesai" role="tabpanel" aria-labelledby="selesai-tab">
-                                    @if ($selesai->isEmpty())
-                                        <div class="col-12 offset-3 mt-5">
-                                            <div class="row">
-                                                <div class="col-4 offset-1">
-                                                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png"
-                                                        width="100%">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        @foreach ($selesai as $sl)
-                                            <li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2 delete_list_{{$sl->id}}"
-                                                style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="bullet"></div>
-                                                    <a href="{{ url($sl->link) }}" class="text-dark text-decoration-none">{{ $sl->title }}</a>
-                                                </div>
-                                                <div class="justify-content-end mb-1">
-                                                    <a href="javascript:void(0)" class="text-danger delete-todo" data-toggle="tooltip"
-                                                        title="Hapus pengingat" data-id="{{$sl->id}}">
-                                                        <i class="fas fa-times me-3"></i>
-                                                    </a>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -610,7 +516,7 @@
 
 @section('jsNeeded')
     <script>
-        $(document).ready(function() {
+        $(function() {
             $('.counter').each(function() {
                 $(this).prop('Counter', 0).animate({
                     Counter: $(this).text()
@@ -670,135 +576,165 @@
                     }
                 });
             });
-        });
 
-        function timelineFunction() {
-            $('#timelineNaskah').horizontalTimeline({
-                // ! Deprecated in favour of the object options. //
-                desktopDateIntervals: 200, //************\\
-                tabletDateIntervals: 150, // Minimum: 120 \\
-                mobileDateIntervals: 120, //****************\\
-                minimalFirstDateInterval: true,
-                dateIntervals: {
-                    "desktop": 200, //************\\
-                    "tablet": 150, // Minimum: 120 \\
-                    "mobile": 120, //****************\\
-                    "minimal": true
-                },
+            function timelineFunction() {
+                $('#timelineNaskah').horizontalTimeline({
+                    // ! Deprecated in favour of the object options. //
+                    desktopDateIntervals: 200, //************\\
+                    tabletDateIntervals: 150, // Minimum: 120 \\
+                    mobileDateIntervals: 120, //****************\\
+                    minimalFirstDateInterval: true,
+                    dateIntervals: {
+                        "desktop": 200, //************\\
+                        "tablet": 150, // Minimum: 120 \\
+                        "mobile": 120, //****************\\
+                        "minimal": true
+                    },
 
-                /* End new object options */
+                    /* End new object options */
 
-                dateDisplay: "dateTime", // dateTime, date, time, dayMonth, monthYear, year
-                dateOrder: "normal", // normal, reverse
+                    dateDisplay: "dateTime", // dateTime, date, time, dayMonth, monthYear, year
+                    dateOrder: "normal", // normal, reverse
 
-                autoplay: false,
-                autoplaySpeed: 8, // Sec
-                autoplayPause_onHover: false,
+                    autoplay: false,
+                    autoplaySpeed: 8, // Sec
+                    autoplayPause_onHover: false,
 
-                useScrollWheel: false,
-                useTouchSwipe: true,
-                useKeyboardKeys: true,
-                addRequiredFile: true,
-                useFontAwesomeIcons: true,
-                useNavBtns: true,
-                useScrollBtns: true,
+                    useScrollWheel: false,
+                    useTouchSwipe: true,
+                    useKeyboardKeys: true,
+                    addRequiredFile: true,
+                    useFontAwesomeIcons: true,
+                    useNavBtns: true,
+                    useScrollBtns: true,
 
-                // ! Deprecated in favour of the object options. //
-                iconBaseClass: "fas fa-3x", // Space separated class names
-                scrollLeft_iconClass: "fa-chevron-circle-left",
-                scrollRight_iconClass: "fa-chevron-circle-right",
-                prev_iconClass: "fa-arrow-circle-left",
-                next_iconClass: "fa-arrow-circle-right",
-                pause_iconClass: "fa-pause-circle",
-                play_iconClass: "fa-play-circle",
+                    // ! Deprecated in favour of the object options. //
+                    iconBaseClass: "fas fa-3x", // Space separated class names
+                    scrollLeft_iconClass: "fa-chevron-circle-left",
+                    scrollRight_iconClass: "fa-chevron-circle-right",
+                    prev_iconClass: "fa-arrow-circle-left",
+                    next_iconClass: "fa-arrow-circle-right",
+                    pause_iconClass: "fa-pause-circle",
+                    play_iconClass: "fa-play-circle",
 
-                animation_baseClass: "animationSpeed", // Space separated class names
-                enter_animationClass: {
-                    "left": "enter-left",
-                    "right": "enter-right"
-                },
-                exit_animationClass: {
-                    "left": "exit-left",
-                    "right": "exit-right"
-                },
-                iconClass: {
-                    "base": "fas fa-3x", // Space separated class names
-                    "scrollLeft": "fa-chevron-circle-left",
-                    "scrollRight": "fa-chevron-circle-right",
-                    "prev": "fa-arrow-circle-left",
-                    "next": "fa-arrow-circle-right",
-                    "pause": "fa-pause-circle",
-                    "play": "fa-play-circle"
-                },
-                animationClass: {
-                    "base": "animationSpeed", // Space separated class names,
-                    "enter": {
+                    animation_baseClass: "animationSpeed", // Space separated class names
+                    enter_animationClass: {
                         "left": "enter-left",
                         "right": "enter-right"
                     },
-                    "exit": {
+                    exit_animationClass: {
                         "left": "exit-left",
                         "right": "exit-right"
+                    },
+                    iconClass: {
+                        "base": "fas fa-3x", // Space separated class names
+                        "scrollLeft": "fa-chevron-circle-left",
+                        "scrollRight": "fa-chevron-circle-right",
+                        "prev": "fa-arrow-circle-left",
+                        "next": "fa-arrow-circle-right",
+                        "pause": "fa-pause-circle",
+                        "play": "fa-play-circle"
+                    },
+                    animationClass: {
+                        "base": "animationSpeed", // Space separated class names,
+                        "enter": {
+                            "left": "enter-left",
+                            "right": "enter-right"
+                        },
+                        "exit": {
+                            "left": "exit-left",
+                            "right": "exit-right"
+                        }
                     }
-                }
 
-                /* End new object options */
+                    /* End new object options */
+                });
+            }
+            loadTodoList($('#todoList_data .nav-link.active').data('typeget'));
+            // Each change tab form penilaian
+            $(document).on('show.bs.tab', function(e) {
+                let tab = $(e.delegateTarget.activeElement).data('typeget');
+                loadTodoList(tab);
             });
-        }
-        var page = 1;
-        let timeline = "{{ $timeline }}";
-        if (timeline == true) {
-            loadRecentData(page);
-        }
-        $("#loadScroll").scroll(function() {
-            if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
-                page++;
+            var page = 1;
+            let timeline = "{{ $timeline }}";
+            if (timeline == true) {
                 loadRecentData(page);
             }
-        });
+            $("#loadScroll").scroll(function() {
+                if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
+                    page++;
+                    loadRecentData(page);
+                }
+            });
 
-        function loadRecentData(page) {
-            cardWrap = $(".section-body").find('#card_recent_activity').closest(".card");
-            $.ajax({
-                url: window.location.origin + "/api/home/recent-activity?page=" + page,
-                type: "get",
-                datatype: "html",
-                beforeSend: function() {
-                    cardWrap.addClass('card-progress');
-                }
-            }).done(function(data) {
-                // console.log(data);
-                if (data == "") {
-                    notifToast('error', 'Tidak ada data lagi!');
-                    return;
-                }
-                cardWrap.removeClass('card-progress');
-                $("#recentActivity").append(data);
-            }).fail(function(jqXHR, ajaxOptions, thrownError) {
-                notifToast('error', 'Terjadi kesalahan!')
-            });
-        }
-        $(document).ready(function() {
-        $('.delete-todo').click(function() {
-            var id = $(this).data("id");
-            $.ajax({
-                type: "POST",
-                url: window.location.origin + "/api/home/delete-todo",
-                data: ({
-                    id: id
-                }),
-                success: function(html) {
-                    // console.log(html);
-                    $(".delete_list_" + id).fadeOut(300,function() {
-                        $(".delete_list_" + id).remove();
+            function loadTodoList(tab) {
+                if (tab) {
+                    // console.log(tab);
+                    $.ajax({
+                        type: "POST",
+                        url: window.location.origin + "/api/home/" + tab,
+                        beforeSend: function() {
+                            $('#todoList_data').parent().addClass('card-progress')
+                        },
+                        success: function(result) {
+                            // console.log(tab)
+                            $('#' + tab).html(result);
+                            $('[data-toggle="popover"]').popover();
+                        },
+                        error: function(err) {
+                            // console.log(err)
+                            notifToast('error', 'Gagal memuat todo-list!');
+                        },
+                        complete: function() {
+                            $('#todoList_data').parent().removeClass('card-progress')
+                        }
                     });
-                },
-                error: function (err) {
-                    notifToast('error', 'Terjadi kesalahan!')
                 }
+
+            }
+
+            function loadRecentData(page) {
+                cardWrap = $(".section-body").find('#card_recent_activity').closest(".card");
+                $.ajax({
+                    url: window.location.origin + "/api/home/recent-activity?page=" + page,
+                    type: "get",
+                    datatype: "html",
+                    beforeSend: function() {
+                        cardWrap.addClass('card-progress');
+                    }
+                }).done(function(data) {
+                    // console.log(data);
+                    if (data == "") {
+                        notifToast('error', 'Tidak ada data lagi!');
+                        return;
+                    }
+                    cardWrap.removeClass('card-progress');
+                    $("#recentActivity").append(data);
+                }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                    notifToast('error', 'Terjadi kesalahan!')
+                });
+            }
+            $('#todoList_data').on('click','.delete-todo',function() {
+                var id = $(this).data("id");
+                $.ajax({
+                    type: "POST",
+                    url: window.location.origin + "/api/home/delete-todo",
+                    data: ({
+                        id: id
+                    }),
+                    success: function(html) {
+                        // console.log(html);
+                        $(".delete_list_" + id).fadeOut(300, function() {
+                            $(".delete_list_" + id).remove();
+                        });
+                    },
+                    error: function(err) {
+                        notifToast('error', 'Terjadi kesalahan!')
+                    }
+                });
             });
         });
-    });
     </script>
     {{-- <script>
     document.addEventListener("DOMContentLoaded", function(event) {

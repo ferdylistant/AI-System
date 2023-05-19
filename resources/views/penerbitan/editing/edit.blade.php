@@ -36,44 +36,54 @@
         <div class="row">
             <div class="col-12">
                 <div class="card card-primary">
-                    <div class="row card-header justify-content-between">
-                        <h4 class="section-title">Data Detail Editing Proses&nbsp;
-                            -
-                            @switch($data->status)
-                                @case('Antrian')
-                                <span class="badge" style="background:#34395E;color:white">{{ $data->status }}</span>
-                                @break
-
-                                @case('Pending')
-                                <span class="badge badge-danger">{{ $data->status }}</span>
-                                @break
-
-                                @case('Proses')
-                                <span class="badge badge-success">{{ $data->status }}</span>
-                                @break
-
-                                @case('Selesai')
-                                <span class="badge badge-light">{{ $data->status }}</span>
-                                @break
-                                @case('Revisi')
-                                <span class="badge badge-info">{{ $data->status }}</span>
-                                @break
-                                @endswitch
+                    <div class="card-header justify-content-between">
+                        <h4 class="section-title">Data Detail Pracetak Setter
                         </h4>
-                        <div class="card-header-action">
+                        <div class="col-auto card-header-action">
+                            @switch($data->status)
+                            @case('Antrian')
+                            <i class="far fa-circle" style="color:#34395E;"></i>
+                            Status Progress:
+                            <span class="badge" style="background:#34395E;color:white">{{ $data->status }}</span>
+                            @break
 
-                            @if ($data->proses == '1')
-                                @if ($data->status == 'Revisi')
-                                    @php
-                                        $tag = 'revisi';
-                                    @endphp
-                                @else
-                                    @php
-                                        $tag = is_null($data->tgl_selesai_edit) ? 'editor' : 'copy editor'
-                                    @endphp
-                                @endif
-                                <span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Sedang proses
-                                    pengerjaan {{ $tag }}</span>
+                            @case('Pending')
+                            <i class="far fa-circle text-danger"></i>
+                            Status Progress:
+                            <span class="badge badge-danger">{{ $data->status }}</span>
+                            @break
+
+                            @case('Proses')
+                            <i class="far fa-circle text-success"></i>
+                            Status Progress:
+                            <span class="badge badge-success">{{ $data->status }}</span>
+                            @break
+
+                            @case('Selesai')
+                            <i class="far fa-circle text-dark"></i>
+                            Status Progress:
+                            <span class="badge badge-light">{{ $data->status }}</span>
+                            @break
+                            @case('Revisi')
+                            <i class="far fa-circle text-info"></i>
+                            Status Progress:
+                            <span class="badge badge-info">{{ $data->status }}</span>
+                            @break
+                            @endswitch
+                        </div>
+                        @if ($data->proses == '1')
+                            @if ($data->status == 'Revisi')
+                                @php
+                                    $tag = 'revisi';
+                                @endphp
+                            @else
+                                @php
+                                    $tag = is_null($data->tgl_selesai_edit) ? 'editor' : 'copy editor'
+                                @endphp
+                            @endif
+                        <div class="col-auto">
+                            <span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;Sedang proses
+                                pengerjaan {{ $tag }}</span>
                         </div>
                         @endif
 

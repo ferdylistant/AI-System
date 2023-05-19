@@ -1101,7 +1101,7 @@ class PracetakSetterController extends Controller
                         ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
                         ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                         ->where('ps.id', $request->id)
-                        ->select('ps.*', 'dp.naskah_id', 'dp.judul_final', 'pn.kode')
+                        ->select('ps.*', 'dp.naskah_id', 'dp.judul_final', 'pn.kode','pn.pic_prodev','pn.jalur_buku')
                         ->first();
                     if ($request->has('korektor')) {
                         foreach ($request->korektor as $ce) {
@@ -1151,6 +1151,43 @@ class PracetakSetterController extends Controller
                                     'tgl_masuk' => $tgl
                                 ];
                                 event(new DesturcetEvent($turcet));
+                                //Update Todo List Kabag
+                                switch ($history->jalur_buku) {
+                                    case 'Reguler':
+                                        $prasetPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
+                                        break;
+                                    case 'MoU':
+                                        $prasetPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
+                                        break;
+                                    case 'SMK/NonSmk':
+                                        $prasetPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
+                                        break;
+                                    default:
+                                        //permission jalur buku lainnya belum ditentukan di database
+                                        $prasetPermission = '';
+                                        break;
+                                }
+                                $kabagPraset = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                                    ->where('p.id',$prasetPermission)
+                                    ->select('up.user_id')
+                                    ->get();
+                                $kabagPraset = (object)collect($kabagPraset)->map(function($item) use ($history) {
+                                    return DB::table('todo_list')
+                                    ->where('form_id',$history->id)
+                                    ->where('users_id',$item->user_id)
+                                    ->where('title','Proses delegasi tahap pracetak setter naskah "'.$history->judul_final.'".')
+                                    ->update([
+                                        'status' => '1'
+                                    ]);
+                                })->all();
+                                //? Insert Todo List Deskripsi Turun Cetak
+                                DB::table('todo_list')->insert([
+                                    'form_id' => $id_turcet,
+                                    'users_id' => $history->pic_prodev,
+                                    'title' => 'Proses deskripsi turun cetak naskah berjudul "'.$history->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                                    'link' => '/penerbitan/deskripsi/turun-cetak?desc='.$id_turcet.'&kode='.$history->kode,
+                                    'status' => '0',
+                                ]);
                                 //INSERT TIMELINE TURUN CETAK
                                 $insertTimelinePraset = [
                                     'params' => 'Insert Timeline',
@@ -1273,10 +1310,10 @@ class PracetakSetterController extends Controller
         //     $format_buku = DB::table('format_buku')->where('id', $data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
         // }
         //Status
-        $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_setter WHERE Field = 'proses_saat_ini'"))[0]->Type;
-        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-        $prosesSaatIni = explode("','", $matches[1]);
-        $prosesFilter = Arr::except($prosesSaatIni, ['1', '4', '7']);
+        // $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_setter WHERE Field = 'proses_saat_ini'"))[0]->Type;
+        // preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        // $prosesSaatIni = explode("','", $matches[1]);
+        // $prosesFilter = Arr::except($prosesSaatIni, ['1', '4', '7']);
         return view('penerbitan.pracetak_setter.edit', [
             'title' => 'Pracetak Setter Proses',
             // 'setter' => $setter,
@@ -1778,6 +1815,16 @@ class PracetakSetterController extends Controller
                                         ]);
                                     }
                                 })->all();
+                            } else {
+                                (object)collect(json_decode($data->setter))->map(function($item) use($data) {
+                                    return DB::table('todo_list')->insert([
+                                        'form_id' => $data->id,
+                                        'users_id' => $item,
+                                        'title' => 'Selesaikan proses setting revisi naskah yang berjudul "'.$data->judul_final.'".',
+                                        'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                                        'status' => '0'
+                                    ]);
+                                })->all();
                             }
                         }
                     } elseif (is_null($data->selesai_setting)) {
@@ -1893,6 +1940,16 @@ class PracetakSetterController extends Controller
                                             'status' => '0'
                                         ]);
                                     }
+                                })->all();
+                            } else {
+                                (object)collect(json_decode($data->korektor))->map(function($item) use($data) {
+                                    return DB::table('todo_list')->insert([
+                                        'form_id' => $data->id,
+                                        'users_id' => $item,
+                                        'title' => 'Selesaikan proses koreksi naskah yang berjudul "'.$data->judul_final.'".',
+                                        'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                                        'status' => '0'
+                                    ]);
                                 })->all();
                             }
                         }
@@ -2459,11 +2516,42 @@ class PracetakSetterController extends Controller
     protected function revisionActProdev($request)
     {
         try {
-            $data = DB::table('pracetak_setter')->where('id', $request->id)->first();
+            $data = DB::table('pracetak_setter as ps')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->where('ps.id', $request->id)
+                ->select(
+                    'ps.*',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                )
+                ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Terjadi kesalahan!'
+                ]);
+            }
+            $dataTodo = DB::table('todo_list')
+            ->where('form_id',$request->id)
+            ->where('users_id',$data->pic_prodev)
+            ->where('title', 'Proof setting pengajuan naskah yang berjudul "'.$data->judul_final.'".');
+            if (is_null($dataTodo->first())) {
+                //? Insert Todo Prodev
+                DB::table('todo_list')->insert([
+                    'form_id' => $data->id,
+                    'users_id' => $data->pic_prodev,
+                    'title' => 'Proof setting pengajuan naskah yang berjudul "'.$data->judul_final.'".',
+                    'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                    'status' => '1'
+                ]);
+            } else {
+                $dataTodo->update([
+                    'status' => '1'
                 ]);
             }
             $rev = [
@@ -2497,13 +2585,33 @@ class PracetakSetterController extends Controller
     protected function approveActProdev($request)
     {
         try {
-            $data = DB::table('pracetak_setter')->where('id', $request->id)->first();
+            $data = DB::table('pracetak_setter as ps')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->where('ps.id', $request->id)
+                ->select(
+                    'ps.*',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                )
+                ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Terjadi kesalahan!'
                 ]);
             }
+            //? Update Todo list prodev
+            DB::table('todo_list')
+            ->where('form_id',$request->id)
+            ->where('users_id',$data->pic_prodev)
+            ->where('title', 'Proof setting pengajuan naskah yang berjudul "'.$data->judul_final.'".')->update([
+                    'status' => '1'
+                ]);
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             $done = [
                 'params' => 'Act Prodev',
@@ -2532,11 +2640,42 @@ class PracetakSetterController extends Controller
     protected function donerevisionActKabag($request)
     {
         try {
-            $data = DB::table('pracetak_setter')->where('id', $request->id)->first();
+            $data = DB::table('pracetak_setter as ps')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->where('ps.id', $request->id)
+                ->select(
+                    'ps.*',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                )
+                ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Terjadi kesalahan!'
+                ]);
+            }
+            $dataTodo = DB::table('todo_list')
+            ->where('form_id',$request->id)
+            ->where('users_id',$data->pic_prodev)
+            ->where('title', 'Proof setting pengajuan naskah yang berjudul "'.$data->judul_final.'".');
+            if (is_null($dataTodo->first())) {
+                //? Insert Todo Prodev
+                DB::table('todo_list')->insert([
+                    'form_id' => $data->id,
+                    'users_id' => $data->pic_prodev,
+                    'title' => 'Proof setting pengajuan naskah yang berjudul "'.$data->judul_final.'".',
+                    'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                    'status' => '0'
+                ]);
+            } else {
+                $dataTodo->update([
+                    'status' => '0'
                 ]);
             }
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
@@ -2803,6 +2942,23 @@ class PracetakSetterController extends Controller
                         event(new PracetakSetterEvent($pros));
                     }
                 }
+                $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
+                ->where('users_id',auth()->id())
+                ->where('title','Selesaikan proses setting revisi naskah yang berjudul "'.$data->judul_final.'".');
+                if (is_null($dataTodo->first())) {
+                    //? Insert Todo List Setter
+                    DB::table('todo_list')->insert([
+                        'form_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'title' => 'Selesaikan proses setting revisi naskah yang berjudul "'.$data->judul_final.'".',
+                        'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                        'status' => '1'
+                    ]);
+                } else {
+                    $dataTodo->update([
+                        'status' => '1'
+                    ]);
+                }
             } else {
                 $dataProses = DB::table('pracetak_setter_selesai')
                     ->where('type', 'Setter')
@@ -2847,6 +3003,20 @@ class PracetakSetterController extends Controller
                     ];
                     event(new PracetakSetterEvent($pros));
                 }
+                $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('users_id',auth()->id())->where('title','Selesaikan proses setting pengajuan naskah yang berjudul "'.$data->judul_final.'".');
+                if (is_null($dataTodo->first())) {
+                    DB::table('todo_list')->insert([
+                        'form_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'title' => 'Selesaikan proses setting pengajuan naskah yang berjudul "'.$data->judul_final.'".',
+                        'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                        'status' => '1'
+                    ]);
+                } else {
+                    $dataTodo->update([
+                        'status' => '1'
+                    ]);
+                }
             }
 
             return response()->json([
@@ -2864,7 +3034,20 @@ class PracetakSetterController extends Controller
     protected function selesaiKorektor($id)
     {
         try {
-            $data = DB::table('pracetak_setter')->where('id', $id)->first();
+            $data = DB::table('pracetak_setter as ps')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->where('ps.id', $id)
+                ->select(
+                    'ps.*',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                )
+                ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
@@ -2969,7 +3152,23 @@ class PracetakSetterController extends Controller
                     event(new PracetakSetterEvent($pros));
                 }
             }
-
+            $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
+            ->where('users_id',auth()->id())
+            ->where('title','Selesaikan proses koreksi naskah yang berjudul "'.$data->judul_final.'".');
+            if (is_null($dataTodo->first())) {
+                //? Insert Todo List Korektor
+                DB::table('todo_list')->insert([
+                    'form_id' => $data->id,
+                    'users_id' => auth()->id(),
+                    'title' => 'Selesaikan proses koreksi naskah yang berjudul "'.$data->judul_final.'".',
+                    'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                    'status' => '1'
+                ]);
+            } else {
+                $dataTodo->update([
+                    'status' => '1'
+                ]);
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => 'Pengerjaan selesai'
