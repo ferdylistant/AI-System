@@ -806,7 +806,7 @@ class DeskripsiProdukController extends Controller
                 return DB::table('todo_list')
                 ->where('form_id',$data->id)
                 ->where('users_id',$item->user_id)
-                ->where('title', 'Menentukan dan menyetujui judul final.')
+                ->where('title', 'Menentukan dan menyetujui judul final dengan judul asli, "'.$data->judul_asli.'".')
                 ->delete();
             })->all();
             DB::commit();
