@@ -985,7 +985,7 @@ class PracetakDesainerController extends Controller
                         ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                         ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                         ->where('pc.id', $request->id)
-                        ->select('pc.*', 'dp.naskah_id','dp.judul_final','pn.kode')
+                        ->select('pc.*', 'dp.naskah_id','dp.judul_final','pn.kode','pn.pic_prodev')
                         ->first();
                     if ($request->has('korektor')) {
                         foreach ($request->korektor as $ce) {
@@ -1024,6 +1024,43 @@ class PracetakDesainerController extends Controller
                                     'tgl_masuk' => $tgl,
                                 ];
                                 event(new DesturcetEvent($turcet));
+                                //Update Todo List Kabag
+                                switch ($history->jalur_buku) {
+                                    case 'Reguler':
+                                        $pracovPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
+                                        break;
+                                    case 'MoU':
+                                        $pracovPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
+                                        break;
+                                    case 'SMK/NonSmk':
+                                        $pracovPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
+                                        break;
+                                    default:
+                                        //permission jalur buku lainnya belum ditentukan di database
+                                        $pracovPermission = '';
+                                        break;
+                                }
+                                $kabagPracov = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                                    ->where('p.id',$pracovPermission)
+                                    ->select('up.user_id')
+                                    ->get();
+                                $kabagPracov = (object)collect($kabagPracov)->map(function($item) use ($history) {
+                                    return DB::table('todo_list')
+                                    ->where('form_id',$history->id)
+                                    ->where('users_id',$item->user_id)
+                                    ->where('title','Proses delegasi tahap pracetak cover naskah "'.$history->judul_final.'".')
+                                    ->update([
+                                        'status' => '1'
+                                    ]);
+                                })->all();
+                                //? Insert Todo List Deskripsi Turun Cetak
+                                DB::table('todo_list')->insert([
+                                    'form_id' => $id_turcet,
+                                    'users_id' => $history->pic_prodev,
+                                    'title' => 'Proses deskripsi turun cetak naskah berjudul "'.$history->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                                    'link' => '/penerbitan/deskripsi/turun-cetak?desc='.$id_turcet.'&kode='.$history->kode,
+                                    'status' => '0',
+                                ]);
                                 //INSERT TIMELINE TURUN CETAK
                                 $insertTimelinePracov = [
                                     'params' => 'Insert Timeline',
@@ -1035,6 +1072,7 @@ class PracetakDesainerController extends Controller
                                     'status' => 'Antrian'
                                 ];
                                 event(new TimelineEvent($insertTimelinePracov));
+
                             }
                             DB::table('pracetak_cover')->where('id', $history->id)->update([
                                 'turun_cetak' => $tgl,
@@ -1484,7 +1522,37 @@ class PracetakDesainerController extends Controller
             try {
                 $id = $request->id;
                 $value = $request->proses;
-                $data = DB::table('pracetak_cover')->where('id', $id)->first();
+                $data = DB::table('pracetak_cover as pc')
+                ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->where('pc.id', $id)
+                ->select(
+                    'pc.*',
+                    'df.sub_judul_final',
+                    'df.bullet',
+                    'df.sinopsis',
+                    'dc.des_front_cover',
+                    'dc.des_back_cover',
+                    'dc.finishing_cover',
+                    'dc.jilid',
+                    'dc.tipografi',
+                    'dc.warna',
+                    'dc.contoh_cover',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'dp.nama_pena',
+                    'dp.imprint',
+                    'dp.format_buku',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                    'ps.id as id_praset'
+
+                )
+                ->first();
                 if (is_null($data)) {
                     return response()->json([
                         'status' => 'error',
@@ -1506,6 +1574,34 @@ class PracetakDesainerController extends Controller
                             'author_id' => auth()->id(),
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
+                        if ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Desain Revisi')) {
+                            //? Delete Todo List desainer
+                            (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                                return DB::table('todo_list')
+                                ->where('form_id',$data->id)
+                                ->where('users_id',$item)
+                                ->where('title','Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".')
+                                ->delete();
+                            })->all();
+                        } elseif (is_null($data->selesai_cover)) {
+                            //? Delete Todo List desainer
+                            (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                                return DB::table('todo_list')
+                                ->where('form_id',$data->id)
+                                ->where('users_id',$item)
+                                ->where('title','Selesaikan proses desain back cover naskah yang berjudul "'.$data->judul_final.'".')
+                                ->delete();
+                            })->all();
+                        } else {
+                            //? Delete Todo List desainer
+                            (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                                return DB::table('todo_list')
+                                ->where('form_id',$data->id)
+                                ->where('users_id',$item)
+                                ->where('title','Selesaikan proses desain pengajuan naskah yang berjudul "'.$data->judul_final.'".')
+                                ->delete();
+                            })->all();
+                        }
                     } else {
                         $dataProgress = [
                             'params' => 'Progress Designer-Korektor',
@@ -1518,6 +1614,14 @@ class PracetakDesainerController extends Controller
                             'author_id' => auth()->id(),
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
+                        //? Delete Todo List Korektor
+                        (object)collect(json_decode($data->korektor))->map(function($item) use($data) {
+                            return DB::table('todo_list')
+                            ->where('form_id',$data->id)
+                            ->where('users_id',$item)
+                            ->where('title','Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".')
+                            ->delete();
+                        })->all();
                     }
                     event(new PracetakCoverEvent($dataProgress));
                     $msg = 'Proses diberhentikan!';
@@ -1639,6 +1743,40 @@ class PracetakDesainerController extends Controller
                                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                             ];
                             event(new PracetakCoverEvent($dataCover));
+                            $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('title','Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".')->select('users_id')->get();
+                            if (!$dataTodo->isEmpty()) {
+                                $data = collect($data)->put('users_id',$dataTodo->users_id);
+                                //? Insert Todo List Desainer
+                                (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                                    if (in_array($item,$data->users_id)) {
+                                        return DB::table('todo_list')
+                                        ->where('form_id', $data->id)
+                                        ->where('users_id', $item)
+                                        ->where('title', 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".')
+                                        ->update([
+                                            'status' => '0'
+                                        ]);
+                                    } else {
+                                        return DB::table('todo_list')->insert([
+                                            'form_id' => $data->id,
+                                            'users_id' => $item,
+                                            'title' => 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".',
+                                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                            'status' => '0'
+                                        ]);
+                                    }
+                                })->all();
+                            } else {
+                                (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                                    return DB::table('todo_list')->insert([
+                                        'form_id' => $data->id,
+                                        'users_id' => $item,
+                                        'title' => 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".',
+                                        'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                        'status' => '0'
+                                    ]);
+                                })->all();
+                            }
                         }
                     } elseif (is_null($data->selesai_pengajuan_cover)) {
                         if (!$request->has('desainer')) {
@@ -1668,6 +1806,16 @@ class PracetakDesainerController extends Controller
                                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                             ];
                             event(new PracetakCoverEvent($dataPengajuan));
+                            //? Insert Todo List Desainer Pengajuan
+                            (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                                return DB::table('todo_list')->insert([
+                                    'form_id' => $data->id,
+                                    'users_id' => $item,
+                                    'title' => 'Selesaikan proses desain pengajuan naskah yang berjudul "'.$data->judul_final.'".',
+                                    'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                    'status' => '0'
+                                ]);
+                            })->all();
                         }
                     } elseif (is_null($data->selesai_proof)) {
                         if (is_null($data->mulai_proof)) {
@@ -1685,6 +1833,14 @@ class PracetakDesainerController extends Controller
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
                         event(new PracetakCoverEvent($dataProof));
+                        //? Insert Todo Prodev
+                        DB::table('todo_list')->insert([
+                            'form_id' => $data->id,
+                            'users_id' => $data->pic_prodev,
+                            'title' => 'Proof desain pengajuan naskah yang berjudul "'.$data->judul_final.'".',
+                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                            'status' => '0'
+                        ]);
                     } elseif (is_null($data->selesai_cover)) {
                         if (!$request->has('desainer')) {
                             return response()->json([
@@ -1713,6 +1869,16 @@ class PracetakDesainerController extends Controller
                                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                             ];
                             event(new PracetakCoverEvent($dataPengajuan));
+                            //? Insert Todo List Desainer Back Cover
+                            (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                                return DB::table('todo_list')->insert([
+                                    'form_id' => $data->id,
+                                    'users_id' => $item,
+                                    'title' => 'Selesaikan proses desain back cover naskah yang berjudul "'.$data->judul_final.'".',
+                                    'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                    'status' => '0'
+                                ]);
+                            })->all();
                         }
                     } else {
                         if (!$request->has('korektor')) {
@@ -1742,6 +1908,40 @@ class PracetakDesainerController extends Controller
                                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                             ];
                             event(new PracetakCoverEvent($dataKorektor));
+                            $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('title','Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".')->select('users_id')->get();
+                            if (!$dataTodo->isEmpty()) {
+                                $data = collect($data)->put('users_id',$dataTodo->users_id);
+                                //? Insert Todo List Korektor
+                                (object)collect(json_decode($data->korektor))->map(function($item) use($data) {
+                                    if (in_array($item,$data->users_id)) {
+                                        return DB::table('todo_list')
+                                        ->where('form_id', $data->id)
+                                        ->where('users_id', $item)
+                                        ->where('title', 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".')
+                                        ->update([
+                                            'status' => '0'
+                                        ]);
+                                    } else {
+                                        return DB::table('todo_list')->insert([
+                                            'form_id' => $data->id,
+                                            'users_id' => $item,
+                                            'title' => 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".',
+                                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                            'status' => '0'
+                                        ]);
+                                    }
+                                })->all();
+                            } else {
+                                (object)collect(json_decode($data->korektor))->map(function($item) use($data) {
+                                    return DB::table('todo_list')->insert([
+                                        'form_id' => $data->id,
+                                        'users_id' => $item,
+                                        'title' => 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".',
+                                        'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                        'status' => '0'
+                                    ]);
+                                })->all();
+                            }
                         }
                     }
                     $msg = 'Proses dimulai!';
@@ -2259,13 +2459,37 @@ class PracetakDesainerController extends Controller
     protected function revisionActProdev($request)
     {
         try {
-            $data = DB::table('pracetak_cover')->where('id', $request->id)->first();
+            $data = DB::table('pracetak_cover as pc')
+                ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->where('pc.id', $request->id)
+                ->select(
+                    'pc.*',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                    'ps.id as id_praset'
+
+                )
+                ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Terjadi kesalahan!'
                 ]);
             }
+            //? Update Todo list prodev
+            DB::table('todo_list')
+            ->where('form_id',$request->id)
+            ->where('users_id',$data->pic_prodev)
+            ->where('title', 'Proof desain pengajuan naskah yang berjudul "'.$data->judul_final.'".')->update([
+                    'status' => '1'
+                ]);
             $rev = [
                 'params' => 'Act Prodev',
                 'type_user' => 'Desainer',
@@ -2297,13 +2521,37 @@ class PracetakDesainerController extends Controller
     protected function approveActProdev($request)
     {
         try {
-            $data = DB::table('pracetak_cover')->where('id', $request->id)->first();
+            $data = DB::table('pracetak_cover as pc')
+                ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->where('pc.id', $request->id)
+                ->select(
+                    'pc.*',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                    'ps.id as id_praset'
+
+                )
+                ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Terjadi kesalahan!'
                 ]);
             }
+            //? Update Todo list prodev
+            DB::table('todo_list')
+            ->where('form_id',$request->id)
+            ->where('users_id',$data->pic_prodev)
+            ->where('title', 'Proof desain pengajuan naskah yang berjudul "'.$data->judul_final.'".')->update([
+                    'status' => '1'
+                ]);
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             $done = [
                 'params' => 'Act Prodev',
@@ -2332,11 +2580,46 @@ class PracetakDesainerController extends Controller
     protected function donerevisionActKabag($request)
     {
         try {
-            $data = DB::table('pracetak_cover')->where('id', $request->id)->first();
+            $data = DB::table('pracetak_cover as pc')
+                ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->where('pc.id', $request->id)
+                ->select(
+                    'pc.*',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                    'ps.id as id_praset'
+
+                )
+                ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Terjadi kesalahan!'
+                ]);
+            }
+            $dataTodo = DB::table('todo_list')
+            ->where('form_id',$request->id)
+            ->where('users_id',$data->pic_prodev)
+            ->where('title', 'Proof desain pengajuan naskah yang berjudul "'.$data->judul_final.'".');
+            if (is_null($dataTodo->first())) {
+                //? Insert Todo Prodev
+                DB::table('todo_list')->insert([
+                    'form_id' => $data->id,
+                    'users_id' => $data->pic_prodev,
+                    'title' => 'Proof desain pengajuan naskah yang berjudul "'.$data->judul_final.'".',
+                    'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                    'status' => '0'
+                ]);
+            } else {
+                $dataTodo->update([
+                    'status' => '0'
                 ]);
             }
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
@@ -2388,7 +2671,23 @@ class PracetakDesainerController extends Controller
     protected function selesaiDesainer($id)
     {
         try {
-            $data = DB::table('pracetak_cover')->where('id', $id)->first();
+            $data = DB::table('pracetak_cover as pc')
+                ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->where('pc.id', $id)
+                ->select(
+                    'pc.*',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                    'ps.id as id_praset'
+                )
+                ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
@@ -2513,6 +2812,24 @@ class PracetakDesainerController extends Controller
                             event(new PracetakCoverEvent($pros));
                         }
                     }
+                    //? Todo list desain Revisi
+                    $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
+                    ->where('users_id',auth()->id())
+                    ->where('title','Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".');
+                    if (is_null($dataTodo->first())) {
+                        //? Insert Todo List Desain Revisi
+                        DB::table('todo_list')->insert([
+                            'form_id' => $data->id,
+                            'users_id' => auth()->id(),
+                            'title' => 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".',
+                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                            'status' => '1'
+                        ]);
+                    } else {
+                        $dataTodo->update([
+                            'status' => '1'
+                        ]);
+                    }
                 } else {
                     $dataProses = DB::table('pracetak_cover_selesai')
                         ->where('type', 'Desainer')
@@ -2560,6 +2877,24 @@ class PracetakDesainerController extends Controller
                         ];
                         event(new PracetakCoverEvent($pros));
                     }
+                    //? Todo list desain backcover
+                    $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
+                    ->where('users_id',auth()->id())
+                    ->where('title','Selesaikan proses desain back cover naskah yang berjudul "'.$data->judul_final.'".');
+                    if (is_null($dataTodo->first())) {
+                        //? Insert Todo List Desain BackCover
+                        DB::table('todo_list')->insert([
+                            'form_id' => $data->id,
+                            'users_id' => auth()->id(),
+                            'title' => 'Selesaikan proses desain back cover naskah yang berjudul "'.$data->judul_final.'".',
+                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                            'status' => '1'
+                        ]);
+                    } else {
+                        $dataTodo->update([
+                            'status' => '1'
+                        ]);
+                    }
                 }
             } else {
                 $dataProses = DB::table('pracetak_cover_selesai')
@@ -2605,6 +2940,20 @@ class PracetakDesainerController extends Controller
                     ];
                     event(new PracetakCoverEvent($pros));
                 }
+                $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('users_id',auth()->id())->where('title','Selesaikan proses desain pengajuan naskah yang berjudul "'.$data->judul_final.'".');
+                if (is_null($dataTodo->first())) {
+                    DB::table('todo_list')->insert([
+                        'form_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'title' => 'Selesaikan proses desain pengajuan naskah yang berjudul "'.$data->judul_final.'".',
+                        'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                        'status' => '1'
+                    ]);
+                } else {
+                    $dataTodo->update([
+                        'status' => '1'
+                    ]);
+                }
             }
 
             return response()->json([
@@ -2622,7 +2971,23 @@ class PracetakDesainerController extends Controller
     protected function selesaiKorektor($id)
     {
         try {
-            $data = DB::table('pracetak_cover')->where('id', $id)->first();
+            $data = DB::table('pracetak_cover as pc')
+                ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->where('pc.id', $id)
+                ->select(
+                    'pc.*',
+                    'dp.naskah_id',
+                    'dp.judul_final',
+                    'pn.kode',
+                    'pn.jalur_buku',
+                    'pn.pic_prodev',
+                    'ps.id as id_praset'
+                )
+                ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
@@ -2727,7 +3092,23 @@ class PracetakDesainerController extends Controller
                     event(new PracetakCoverEvent($pros));
                 }
             }
-
+            $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
+            ->where('users_id',auth()->id())
+            ->where('title','Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".');
+            if (is_null($dataTodo->first())) {
+                //? Insert Todo List Korektor
+                DB::table('todo_list')->insert([
+                    'form_id' => $data->id,
+                    'users_id' => auth()->id(),
+                    'title' => 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".',
+                    'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                    'status' => '1'
+                ]);
+            } else {
+                $dataTodo->update([
+                    'status' => '1'
+                ]);
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => 'Pengerjaan selesai'

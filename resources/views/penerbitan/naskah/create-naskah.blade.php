@@ -252,7 +252,9 @@
         });
 
         $('.datepicker').datepicker({
-            format: 'dd MM yyyy'
+            format: 'dd MM yyyy',
+            autoclose: true,
+            clearBtn: true,
         });
 
         $('.custom-file-input').on('change', function(e) {

@@ -781,14 +781,21 @@ class DeskripsiProdukController extends Controller
             ];
             //EVENT
             event(new DesproEvent($insert));
-            //Insert Todo List Revisi ke Prodev
-            DB::table('todo_list')->insert([
-                'form_id' => $idProduk,
-                'users_id' => $dataNas->pic_prodev,
-                'title' => 'Deskripsi produk dengan judul asli "' . $judul_asli . '" perlu direvisi.',
-                'link' => '/penerbitan/deskripsi/produk',
-                'status' => '0'
-            ]);
+            $cekTodoProdev = DB::table('todo_list')->where('form_id',$idProduk)->where('users_id',$dataNas->pic_prodev)->where('title','Deskripsi produk dengan judul asli "' . $judul_asli . '" perlu direvisi.');
+            if (is_null($cekTodoProdev->first())) {
+                //Insert Todo List Revisi ke Prodev
+                DB::table('todo_list')->insert([
+                    'form_id' => $idProduk,
+                    'users_id' => $dataNas->pic_prodev,
+                    'title' => 'Deskripsi produk dengan judul asli "' . $judul_asli . '" perlu direvisi.',
+                    'link' => '/penerbitan/deskripsi/produk',
+                    'status' => '0'
+                ]);
+            } else {
+                $cekTodoProdev->update([
+                    'status' => '0'
+                ]);
+            }
             //Delete todo List GM Penerbitan
             $penerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
                     ->where('p.id','99a7a50e866749879f55b92df2b5449c')
