@@ -195,10 +195,12 @@ class DeskripsiTurunCetakController extends Controller
                         ->select(
                             'dtc.*',
                             'dp.naskah_id',
-                            'pn.id',
+                            'dp.judul_final',
+                            'pn.pic_prodev',
                             'pn.kode'
                         )
                         ->first();
+
                     //UPDATE TIMELINE PILIHAN TERBIT
                     $updateTimelinePilihanTerbit = [
                         'params' => 'Update Timeline',
@@ -303,7 +305,9 @@ class DeskripsiTurunCetakController extends Controller
             ->select('pp.nama')
             ->get();
 
-        is_null($data) ? abort(404) :
+        if (is_null($data)) {
+            return abort(404);
+        }
             $sasaranPasar = DB::table('penerbitan_pn_prodev')
             ->where('naskah_id', $data->naskah_id)
             ->first();
@@ -485,7 +489,9 @@ class DeskripsiTurunCetakController extends Controller
                 ->select(
                     'dtc.*',
                     'dp.naskah_id',
-                    'pn.kode'
+                    'dp.judul_final',
+                    'pn.kode',
+                    'pn.pic_prodev',
                 )
                 ->first();
             if (is_null($data)) {
@@ -527,6 +533,48 @@ class DeskripsiTurunCetakController extends Controller
                 }
                 event(new DesturcetEvent($update));
                 event(new DesturcetEvent($insert));
+                //Update or Insert Todo Prodev
+                $todoProdev = DB::table('todo_list')
+                ->where('form_id',$data->id)
+                ->where('users_id',$data->pic_prodev)
+                ->where('title','Proses deskripsi turun cetak naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.');
+                if (is_null($todoProdev->first())) {
+                    DB::table('todo_list')->insert([
+                        'form_id' => $data->id,
+                        'users_id' => $data->pic_prodev,
+                        'title','Proses deskripsi turun cetak naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                        'link' => '/penerbitan/deskripsi/turun-cetak?desc='.$data->id.'&kode='.$data->kode,
+                        'status' => '1'
+                    ]);
+                } else {
+                    $todoProdev->update([
+                        'status' => '1'
+                    ]);
+                }
+                //Insert Pilih Terbit Todo List
+                $permissionPilTer = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','6effe04d-8fd9-11ed-a315-4cedfb61fb39')
+                    ->select('up.user_id')
+                    ->get();
+                $permissionPilTer = (object)collect($permissionPilTer)->map(function($item) use ($data) {
+                    $cekEksis = DB::table('todo_list')
+                    ->where('form_id',$data->id)
+                    ->where('users_id',$item->user_id)
+                    ->where('title','Pilih jenis terbit untuk naskah "'.$data->judul_final.'".');
+                    if (is_null($cekEksis->first())){
+                        return DB::table('todo_list')->insert([
+                            'form_id' => $data->id,
+                            'users_id' => $item->user_id,
+                            'title' => 'Pilih jenis terbit untuk naskah "'.$data->judul_final.'".',
+                            'link' => '/penerbitan/deskripsi/turun-cetak/detail?desc='.$data->id.'&kode='.$data->kode,
+                            'status' => '0'
+                        ]);
+                    } else {
+                        $cekEksis->update([
+                            'status' => '0'
+                        ]);
+                    }
+                })->all();
                 //UPDATE TIMELINE DESKRIPSI TURUN CETAK
                 $updateTimelineDesturcet = [
                     'params' => 'Update Timeline',
