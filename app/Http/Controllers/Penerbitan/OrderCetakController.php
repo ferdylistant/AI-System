@@ -653,6 +653,7 @@ class OrderCetakController extends Controller
                 ->select(
                     'oc.*',
                     'dp.naskah_id',
+                    'dp.judul_final',
                     )
                 ->first();
             if (is_null($data)) {
@@ -694,18 +695,6 @@ class OrderCetakController extends Controller
                         'message' => 'Approval belum selesai!'
                     ]);
                 }
-                if (is_null($data->eisbn)) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'E-ISBN belum diinput!'
-                    ]);
-                }
-                if (is_null($data->tgl_upload)) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Tanggal upload belum diinput!'
-                    ]);
-                }
                 if (is_null($data->spp)) {
                     return response()->json([
                         'status' => 'error',
@@ -714,6 +703,37 @@ class OrderCetakController extends Controller
                 }
                 event(new OrderCetakEvent($update));
                 event(new OrderCetakEvent($insert));
+                //Update Todo List Admin
+                $permissionAdmin = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                        ->join('users as u','u.id','=','up.user_id')
+                        ->join('jabatan as j','j.id','=','u.jabatan_id')
+                        ->where('p.id','=','e0860766d564483e870b5974a601649c')
+                        ->where('j.nama','LIKE','%Administrasi%')
+                        ->select('up.user_id')
+                        ->get();
+                $permissionAdmin = (object)collect($permissionAdmin)->map(function($item) use ($data) {
+                    $cekTodo = DB::table('todo_list')
+                    ->where('form_id',$data->id)
+                    ->where('users_id',$item->user_id)
+                    ->where('title','Lengkapi data order cetak untuk naskah "'.$data->judul_final.'".');
+                    if (is_null($cekTodo->first())) {
+                        return DB::table('todo_list')->insert([
+                            'form_id' => $data->id,
+                            'users_id' => $item->user_id,
+                            'title' => 'Lengkapi data order cetak untuk naskah "'.$data->judul_final.'".',
+                            'link' => '/penerbitan/order-cetak/edit?order='.$data->id.'&naskah='.$data->kode,
+                            'status' => '1'
+                        ]);
+                    } else {
+                        $cekTodo->update([
+                            'status' => '1'
+                        ]);
+                    }
+                })->all();
+                //INSERT TODO LIST PRODUKSI CETAK
+                    //? BELUM
+
+                //INSERT TIMELINE
                 $updateTimelineOrderCetak = [
                     'params' => 'Update Timeline',
                     'naskah_id' => $data->naskah_id,
@@ -722,8 +742,73 @@ class OrderCetakController extends Controller
                     'status' => $request->status
                 ];
                 event(new TimelineEvent($updateTimelineOrderCetak));
-                $msg = 'Order Cetak selesai, silahkan lanjut ke proses produksi upload ke platform..';
+                $msg = 'Order Cetak selesai, silahkan lanjut ke proses produksi cetak..';
             } else {
+                if ($data->status == 'Selesai') {
+
+                } elseif ($request->status == 'Proses') {
+                    //Delete TODO LIST
+                    //?Dep Penerbitan
+                    $depPenerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','09179170e6e643eca66b282e2ffae1f8')
+                    ->select('up.user_id')
+                    ->get();
+                    $depPenerbitan = (object)collect($depPenerbitan)->map(function($item) use ($data) {
+                        $cekEksisPenerbitan = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order cetak sebagai perwakilan Departemen Penerbitan untuk naskah "'.$data->judul_final.'".');
+                        $cekAction = DB::table('order_cetak_action')
+                        ->where('order_cetak_id',$data->id)
+                        ->where('users_id',$item->user_id)->first();
+                        $status = is_null($cekAction) ? '0':'1';
+                        if (!is_null($cekEksisPenerbitan->first())){
+                            $cekEksisPenerbitan->update([
+                                'status' => $status
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order cetak sebagai perwakilan Departemen Penerbitan untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-cetak/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => $status
+                            ]);
+                        }
+                    })->all();
+                    //?Dep Pemasaran
+                    $depPemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','4d64a842e08344b9aeec88ed9eb2eb72')
+                    ->select('up.user_id')
+                    ->get();
+                    $depPemasaran = (object)collect($depPemasaran)->map(function($item) use ($data) {
+                        $cekEksisPemasaran = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order cetak sebagai perwakilan Departemen Operasional dan Pemasaran untuk naskah "'.$data->judul_final.'".');
+                        $cekAction = DB::table('order_cetak_action')
+                        ->where('order_cetak_id',$data->id)
+                        ->where('users_id',$item->user_id)->first();
+                        $status = is_null($cekAction) ? '0':'1';
+                        if (!is_null($cekEksisPemasaran->first())){
+                            $cekEksisPemasaran->update([
+                                'status' => $status
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order cetak sebagai perwakilan Departemen Operasional dan Pemasaran untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-cetak/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => $status
+                            ]);
+                        }
+                    })->all();
+
+                    //?Dep Keuangan
+
+                    //?Dir Utama
+                }
                 event(new OrderCetakEvent($update));
                 event(new OrderCetakEvent($insert));
                 $updateTimelineOrderCetak = [

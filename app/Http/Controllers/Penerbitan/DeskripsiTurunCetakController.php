@@ -200,7 +200,30 @@ class DeskripsiTurunCetakController extends Controller
                             'pn.kode'
                         )
                         ->first();
-
+                    //Insert Pilih Terbit Todo List
+                    $permissionPilTer = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                        ->where('p.id','6effe04d-8fd9-11ed-a315-4cedfb61fb39')
+                        ->select('up.user_id')
+                        ->get();
+                    $permissionPilTer = (object)collect($permissionPilTer)->map(function($item) use ($data) {
+                        $cekEksis = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Pilih jenis terbit untuk naskah "'.$data->judul_final.'".');
+                        if (is_null($cekEksis->first())){
+                            return DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Pilih jenis terbit untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/deskripsi/turun-cetak/detail?desc='.$data->id.'&kode='.$data->kode,
+                                'status' => '1'
+                            ]);
+                        } else {
+                            $cekEksis->update([
+                                'status' => '1'
+                            ]);
+                        }
+                    })->all();
                     //UPDATE TIMELINE PILIHAN TERBIT
                     $updateTimelinePilihanTerbit = [
                         'params' => 'Update Timeline',
@@ -231,6 +254,24 @@ class DeskripsiTurunCetakController extends Controller
                             'tgl_masuk' => $tgl
                         ];
                         event(new DesturcetEvent($order));
+                        //INSERT TODO LIST ADMIN
+                        $permissionAdmin = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                        ->join('users as u','u.id','=','up.user_id')
+                        ->join('jabatan as j','j.id','=','u.jabatan_id')
+                        ->where('p.id','=','e0860766d564483e870b5974a601649c')
+                        ->where('j.nama','LIKE','%Administrasi%')
+                        ->select('up.user_id')
+                        ->get();
+                        $data = collect($data)->put('id_order',$idOrder);
+                        $permissionAdmin = (object)collect($permissionAdmin)->map(function($item) use ($data) {
+                            return DB::table('todo_list')->insert([
+                                'form_id' => $data->id_order,
+                                'users_id' => $item->user_id,
+                                'title' => 'Lengkapi data order cetak untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-cetak/edit?order='.$data->id_order.'&naskah='.$data->kode,
+                                'status' => '0'
+                            ]);
+                        })->all();
                         //INSERT TIMELINE ORDER CETAK / ORDER EBOOK
                         $insertTimelineOrder = [
                             'params' => 'Insert Timeline',
