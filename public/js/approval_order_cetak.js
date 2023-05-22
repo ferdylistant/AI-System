@@ -11,34 +11,40 @@ $(function () {
         $("#modalApproval").modal("show");
         // console.log(jabatan);
     });
-});
-$(function () {
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
     $("body").on("click","#btn-approve-detail", function (e) {
         e.preventDefault();
         var id = $(this).data('id');
-        $.post(window.location.origin + "/penerbitan/order-cetak/ajax/approve-detail?id=" + id, function (data) {
-
-            // console.log(data);
-            $("#namaUserApprove").text(data.users);
-            $("#tglActionApprove").text(data.tgl);
-            if (data.catatan == null) {
-                catatan = 'Tidak ada catatan';
-            } else {
-                catatan = data.catatan;
+        $.ajax({
+            url: window.location.origin + "/penerbitan/order-cetak/ajax/approve-detail?id=" + id,
+            type: 'POST',
+            cache: false,
+            beforeSend: function () {
+                $("#overlay").fadeIn(300);
+            },
+            success: function (data) {
+                $('#modalApprovalDetail').find("#avatarHref").attr('href',window.location.origin + '/storage/users/' + data.users['id'] + '/' + data.users['avatar']);
+                $('#modalApprovalDetail').find("#imgAvatar").attr('src',window.location.origin + '/storage/users/' + data.users['id'] + '/' + data.users['avatar']);
+                $('#modalApprovalDetail').find("#namaUser").text(data.users['nama']);
+                $('#modalApprovalDetail').find("#jabatanTitle").text(data.users['jabatan_id']);
+                $('#modalApprovalDetail').find("#tglActionApprove").text(data.tgl);
+                if (data.catatan == null) {
+                    catatan = 'Tidak ada catatan';
+                } else {
+                    catatan = data.catatan;
+                }
+                $('#modalApprovalDetail').find("#catatanApprove").text(catatan);
+                $("#modalApprovalDetail").modal("show");
+            },
+            error: function (err) {
+                notifToast("error","Gagal memuat!");
+            },
+            complete: function () {
+                setTimeout(function () {
+                    $("#overlay").fadeOut(300);
+                }, 500);
             }
-            $("#catatanApprove").text(catatan);
-            $("#modalApprovalDetail").modal("show");
-        })
-
+        });
     });
-});
-
-$(function () {
     function resetFrom(form) {
         form.trigger("reset");
         $('[name="catatan_action"]').val("").trigger("change");
@@ -62,13 +68,11 @@ $(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                console.log(result);
+                // console.log(result);
                 resetFrom(data);
+                notifToast(result.status, result.message);
                 if (result.status == "success") {
-                    notifToast(result.status, result.message);
                     location.reload();
-                } else {
-                    notifToast(result.status, result.message);
                 }
                 // $('#modalDecline').modal('hide');
                 // ajax.reload();

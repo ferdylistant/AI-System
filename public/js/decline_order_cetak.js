@@ -10,33 +10,41 @@ $(function () {
         $("#type_Departemen").val(departemen);
         $("#modalDecline").modal("show");
     });
-});
-$(function () {
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
     $("body").on("click","#btn-decline-detail", function (e) {
         e.preventDefault();
         var id = $(this).data('id');
-        $.post(window.location.origin + "/penerbitan/order-cetak/ajax/decline-detail?id=" + id, function (data) {
-
-            $("#namaUser").text(data.users);
-            $("#tglAction").text(data.tgl);
-            if (data.catatan == null) {
-                catatan = 'Tidak ada catatan';
-            } else {
-                catatan = data.catatan;
+        $.ajax({
+            url: window.location.origin + "/penerbitan/order-cetak/ajax/decline-detail?id=" + id,
+            type: 'POST',
+            cache: false,
+            beforeSend: function () {
+                $("#overlay").fadeIn(300);
+            },
+            success: function(data) {
+                $('#modalDeclineDetail').find("#avatarHref").attr('href',window.location.origin + '/storage/users/' + data.users['id'] + '/' + data.users['avatar']);
+                $('#modalDeclineDetail').find("#imgAvatar").attr('src',window.location.origin + '/storage/users/' + data.users['id'] + '/' + data.users['avatar']);
+                $('#modalDeclineDetail').find("#namaUser").text(data.users['nama']);
+                $('#modalDeclineDetail').find("#jabatanTitle").text(data.users['jabatan_id']);
+                $('#modalDeclineDetail').find("#tglAction").text(data.tgl);
+                if (data.catatan == null) {
+                    catatan = 'Tidak ada catatan';
+                } else {
+                    catatan = data.catatan;
+                }
+                $('#modalDeclineDetail').find("#catatan").text(catatan);
+                $("#modalDeclineDetail").modal("show");
+            },
+            error: function (err) {
+                notifToast("error","Gagal memuat!");
+            },
+            complete: function () {
+                setTimeout(function () {
+                    $("#overlay").fadeOut(300);
+                }, 500);
             }
-            $("#catatan").text(catatan);
-            $("#modalDeclineDetail").modal("show");
-        })
+        });
 
     });
-});
-
-$(function () {
     function resetFrom(form) {
         form.trigger("reset");
         $('[name="catatan_action"]').val("").trigger("change");
@@ -62,11 +70,9 @@ $(function () {
             success: function (result) {
                 // console.log(result);
                 resetFrom(data);
+                notifToast(result.status, result.message);
                 if (result.status == "success") {
-                    notifToast(result.status, result.message);
                     location.reload();
-                } else {
-                    notifToast(result.status, result.message);
                 }
                 // $('#modalDecline').modal('hide');
                 // ajax.reload();

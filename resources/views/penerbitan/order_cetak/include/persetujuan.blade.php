@@ -139,7 +139,7 @@
                                         @foreach ($act as $i => $a)
                                             @if ($i == $jb)
                                                 @if (in_array($j, $act_j))
-                                                    {{ \DB::table('users')->where('id', $a->users_id)->first()->nama }}
+                                                    {{ ucfirst(\DB::table('users')->where('id', $a->users_id)->first()->nama) }}
                                                 @else
                                                     (nama {{ $j }})
                                                 @endif

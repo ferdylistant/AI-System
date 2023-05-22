@@ -9,7 +9,17 @@
                 </button>
             </div>
             <div class="modal-body">
-                <h5 class="text-dark" id="namaUser"></h5>
+                <ul class="list-unstyled list-unstyled-border">
+                    <li class="media">
+                        <a href="" data-magnify="gallery" id="avatarHref">
+                            <img class="mr-3 rounded-circle" src="" alt="Image" width="50" id="imgAvatar">
+                        </a>
+                        <div class="media-body">
+                            <div class="media-title font-weight-bold" id="namaUser"></div>
+                            &mdash; <span class="text-small font-italic" id="jabatanTitle"></span>
+                        </div>
+                    </li>
+                </ul>
                 <hr>
                 <div class='form-group mb-4'>
                     <label for='tglAction'>Tanggal Penolakan:</label>

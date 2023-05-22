@@ -524,12 +524,27 @@ class OrderEbookController extends Controller
     }
     public function ajaxRequest(Request $request, $cat)
     {
+        $id = $request->id;
+        $data = DB::table('order_ebook as ob')
+            ->join('deskripsi_turun_cetak as dtc','dtc.id','=','ob.deskripsi_turun_cetak_id')
+            ->join('pracetak_cover as pc','pc.id','=','dtc.pracetak_cover_id')
+            ->join('deskripsi_cover as dc','dc.id','=','pc.deskripsi_cover_id')
+            ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
+            ->join('penerbitan_naskah as pn','pn.id','=','dp.naskah_id')
+            ->where('ob.id', $id)
+            ->select(
+                'ob.*',
+                'dp.naskah_id',
+                'dp.judul_final',
+                'pn.kode'
+                )
+            ->first();
         switch ($cat) {
             case 'approve':
-                return $this->approvalOrderEbook($request);
+                return $this->approvalOrderEbook($request,$data);
                 break;
             case 'decline':
-                return $this->declineOrderEbook($request);
+                return $this->declineOrderEbook($request,$data);
                 break;
             case 'approve-detail':
                 return $this->approvalDetailOrderEbook($request);
@@ -538,7 +553,7 @@ class OrderEbookController extends Controller
                 return $this->declineDetailOrderEbook($request);
                 break;
             case 'update-status-progress':
-                return $this->updateStatusProgress($request);
+                return $this->updateStatusProgress($request,$data);
                 break;
             case 'lihat-history-order-ebook':
                 return $this->lihatHistoryOrderEbook($request);
@@ -547,21 +562,9 @@ class OrderEbookController extends Controller
                 abort(500);
         }
     }
-    protected function updateStatusProgress($request)
+    protected function updateStatusProgress($request,$data)
     {
         try {
-            $id = $request->id;
-            $data = DB::table('order_ebook as ob')
-                ->join('deskripsi_turun_cetak as dtc','dtc.id','=','ob.deskripsi_turun_cetak_id')
-                ->join('pracetak_cover as pc','pc.id','=','dtc.pracetak_cover_id')
-                ->join('deskripsi_cover as dc','dc.id','=','pc.deskripsi_cover_id')
-                ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
-                ->where('ob.id', $id)
-                ->select(
-                    'ob.*',
-                    'dp.naskah_id',
-                    )
-                ->first();
             if (is_null($data)) {
                 return response()->json([
                     'status' => 'error',
@@ -621,6 +624,37 @@ class OrderEbookController extends Controller
                 }
                 event(new OrderEbookEvent($update));
                 event(new OrderEbookEvent($insert));
+                //Update Todo List Admin
+                $permissionAdmin = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                        ->join('users as u','u.id','=','up.user_id')
+                        ->join('jabatan as j','j.id','=','u.jabatan_id')
+                        ->where('p.id','=','c21495eca0d44776aeacf431dc9fb0e1')
+                        ->where('j.nama','LIKE','%Administrasi%')
+                        ->select('up.user_id')
+                        ->get();
+                $permissionAdmin = (object)collect($permissionAdmin)->map(function($item) use ($data) {
+                    $cekTodo = DB::table('todo_list')
+                    ->where('form_id',$data->id)
+                    ->where('users_id',$item->user_id)
+                    ->where('title','Lengkapi data order ebook untuk naskah "'.$data->judul_final.'".');
+                    if (is_null($cekTodo->first())) {
+                        return DB::table('todo_list')->insert([
+                            'form_id' => $data->id,
+                            'users_id' => $item->user_id,
+                            'title' => 'Lengkapi data order ebook untuk naskah "'.$data->judul_final.'".',
+                            'link' => '/penerbitan/order-ebook/edit?order='.$data->id.'&naskah='.$data->kode,
+                            'status' => '1'
+                        ]);
+                    } else {
+                        $cekTodo->update([
+                            'status' => '1'
+                        ]);
+                    }
+                })->all();
+                //INSERT TODO LIST PRODUKSI UPLOAD E-BOOK
+                    //? BELUM
+
+                //INSERT TIMELINE
                 $updateTimelineOrderEbook = [
                     'params' => 'Update Timeline',
                     'naskah_id' => $data->naskah_id,
@@ -631,6 +665,121 @@ class OrderEbookController extends Controller
                 event(new TimelineEvent($updateTimelineOrderEbook));
                 $msg = 'Order E-book selesai, silahkan lanjut ke proses produksi upload ke platform..';
             } else {
+                if ($request->status == 'Proses') {
+                    //TODO LIST
+                    //?Dep Penerbitan
+                    $depPenerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','171e6210418440a8bf4d689841d0f32c')
+                    ->select('up.user_id')
+                    ->get();
+                    $depPenerbitan = (object)collect($depPenerbitan)->map(function($item) use ($data) {
+                        $cekEksisPenerbitan = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Departemen Penerbitan untuk naskah "'.$data->judul_final.'".');
+                        $cekAction = DB::table('order_ebook_action')
+                        ->where('order_ebook_id',$data->id)
+                        ->where('users_id',$item->user_id)->first();
+                        $status = is_null($cekAction) ? '0':'1';
+                        if (!is_null($cekEksisPenerbitan->first())){
+                            $cekEksisPenerbitan->update([
+                                'status' => $status
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Departemen Penerbitan untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => $status
+                            ]);
+                        }
+                    })->all();
+                    //?Dep Pemasaran
+                    $depPemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','4cea10b3a4434bc3b342407a78a9ab2a')
+                    ->select('up.user_id')
+                    ->get();
+                    $depPemasaran = (object)collect($depPemasaran)->map(function($item) use ($data) {
+                        $cekEksisPemasaran = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Departemen Operasional dan Pemasaran untuk naskah "'.$data->judul_final.'".');
+                        $cekAction = DB::table('order_ebook_action')
+                        ->where('order_ebook_id',$data->id)
+                        ->where('users_id',$item->user_id)->first();
+                        $status = is_null($cekAction) ? '0':'1';
+                        if (!is_null($cekEksisPemasaran->first())){
+                            $cekEksisPemasaran->update([
+                                'status' => $status
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Departemen Operasional dan Pemasaran untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => $status
+                            ]);
+                        }
+                    })->all();
+                    //?Dep Keuangan
+                    $depKeuangan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','78712deb909d4d88af7f098c0fcf6857')
+                    ->select('up.user_id')
+                    ->get();
+                    $depKeuangan = (object)collect($depKeuangan)->map(function($item) use ($data) {
+                        $cekEksisKeuangan = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Departemen Keuangan untuk naskah "'.$data->judul_final.'".');
+                        $cekAction = DB::table('order_ebook_action')
+                        ->where('order_ebook_id',$data->id)
+                        ->where('users_id',$item->user_id)->first();
+                        $status = is_null($cekAction) ? '0':'1';
+                        if (!is_null($cekEksisKeuangan->first())){
+                            $cekEksisKeuangan->update([
+                                'status' => $status
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Departemen Keuangan untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => $status
+                            ]);
+                        }
+                    })->all();
+                    //?Dir Utama
+                    $dirUtama = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','8f53727c763849aab80c1513505decf8')
+                    ->select('up.user_id')
+                    ->get();
+                    $dirUtama = (object)collect($dirUtama)->map(function($item) use ($data) {
+                        $cekEksisDirUtama = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Direktur Utama untuk naskah "'.$data->judul_final.'".');
+                        $cekAction = DB::table('order_ebook_action')
+                        ->where('order_ebook_id',$data->id)
+                        ->where('users_id',$item->user_id)->first();
+                        $status = is_null($cekAction) ? '0':'1';
+                        if (!is_null($cekEksisDirUtama->first())){
+                            $cekEksisDirUtama->update([
+                                'status' => $status
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Direktur Utama untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => $status
+                            ]);
+                        }
+                    })->all();
+                }
                 event(new OrderEbookEvent($update));
                 event(new OrderEbookEvent($insert));
                 $updateTimelineOrderEbook = [
@@ -655,9 +804,15 @@ class OrderEbookController extends Controller
             ]);
         }
     }
-    protected function approvalOrderEbook($request)
+    protected function approvalOrderEbook($request,$data)
     {
         try {
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data corrupt...'
+                ], 404);
+            }
             $permission = DB::table('permissions')
                 ->where('raw', $request->type_departemen)
                 ->first();
@@ -675,18 +830,114 @@ class OrderEbookController extends Controller
                 case 'Penerbitan':
                     $id_notif = Str::uuid()->getHex();
                     $raw = ['Marketing & Ops'];
+                    //?Dep Penerbitan
+                    $depPenerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','171e6210418440a8bf4d689841d0f32c')
+                    ->select('up.user_id')
+                    ->get();
+                    $depPenerbitan = (object)collect($depPenerbitan)->map(function($item) use ($data) {
+                        $cekEksisPenerbitan = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Departemen Penerbitan untuk naskah "'.$data->judul_final.'".');
+                        if (!is_null($cekEksisPenerbitan->first())){
+                            $cekEksisPenerbitan->update([
+                                'status' => '1'
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Departemen Penerbitan untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => '1'
+                            ]);
+                        }
+                    })->all();
                     break;
                 case 'Marketing & Ops':
                     $id_notif = Str::uuid()->getHex();
                     $raw = ['Keuangan'];
+                    //?Dep Pemasaran
+                    $depPemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','4cea10b3a4434bc3b342407a78a9ab2a')
+                    ->select('up.user_id')
+                    ->get();
+                    $depPemasaran = (object)collect($depPemasaran)->map(function($item) use ($data) {
+                        $cekEksisPemasaran = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Departemen Operasional dan Pemasaran untuk naskah "'.$data->judul_final.'".');
+                        if (!is_null($cekEksisPemasaran->first())){
+                            $cekEksisPemasaran->update([
+                                'status' => '1'
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Departemen Operasional dan Pemasaran untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => '1'
+                            ]);
+                        }
+                    })->all();
                     break;
                 case 'Keuangan':
                     $id_notif = Str::uuid()->getHex();
                     $raw = ['Direktur Utama'];
+                    //?Dep Keuangan
+                    $depKeuangan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','78712deb909d4d88af7f098c0fcf6857')
+                    ->select('up.user_id')
+                    ->get();
+                    $depKeuangan = (object)collect($depKeuangan)->map(function($item) use ($data) {
+                        $cekEksisKeuangan = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Departemen Keuangan untuk naskah "'.$data->judul_final.'".');
+                        if (!is_null($cekEksisKeuangan->first())){
+                            $cekEksisKeuangan->update([
+                                'status' => '1'
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Departemen Keuangan untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => '1'
+                            ]);
+                        }
+                    })->all();
                     break;
                 case 'Direktur Utama':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Penerbitan', 'Marketing & Ops', 'Keuangan'];
+                    $raw = ['Penerbitan', 'Marketing & Ops', 'Direktur Keuangan'];
+                    //?Update Todo List
+                    $dirUtama = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','8f53727c763849aab80c1513505decf8')
+                    ->select('up.user_id')
+                    ->get();
+                    $dirUtama = (object)collect($dirUtama)->map(function($item) use ($data) {
+                        $cekEksisDirUtama = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Direktur Utama untuk naskah "'.$data->judul_final.'".');
+                        if (!is_null($cekEksisDirUtama->first())){
+                            $cekEksisDirUtama->update([
+                                'status' => '1'
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Direktur Utama untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => '1'
+                            ]);
+                        }
+                    })->all();
                     break;
             }
             $userPermission = DB::table('permissions as p', 'p.id', '=', 'up.permission_id')
@@ -719,9 +970,15 @@ class OrderEbookController extends Controller
             ]);
         }
     }
-    protected function declineOrderEbook($request)
+    protected function declineOrderEbook($request,$data)
     {
         try {
+            if (is_null($data)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data corrupt...'
+                ], 404);
+            }
             $permission = DB::table('permissions')
                 ->where('raw', $request->type_departemen)
                 ->first();
@@ -739,18 +996,114 @@ class OrderEbookController extends Controller
                 case 'Penerbitan':
                     $id_notif = Str::uuid()->getHex();
                     $raw = ['Marketing & Ops'];
+                    //?Dep Penerbitan
+                    $depPenerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','171e6210418440a8bf4d689841d0f32c')
+                    ->select('up.user_id')
+                    ->get();
+                    $depPenerbitan = (object)collect($depPenerbitan)->map(function($item) use ($data) {
+                        $cekEksisPenerbitan = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Departemen Penerbitan untuk naskah "'.$data->judul_final.'".');
+                        if (!is_null($cekEksisPenerbitan->first())){
+                            $cekEksisPenerbitan->update([
+                                'status' => '1'
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Departemen Penerbitan untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => '1'
+                            ]);
+                        }
+                    })->all();
                     break;
                 case 'Marketing & Ops':
                     $id_notif = Str::uuid()->getHex();
                     $raw = ['Keuangan'];
+                    //?Dep Pemasaran
+                    $depPemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','4cea10b3a4434bc3b342407a78a9ab2a')
+                    ->select('up.user_id')
+                    ->get();
+                    $depPemasaran = (object)collect($depPemasaran)->map(function($item) use ($data) {
+                        $cekEksisPemasaran = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Departemen Operasional dan Pemasaran untuk naskah "'.$data->judul_final.'".');
+                        if (!is_null($cekEksisPemasaran->first())){
+                            $cekEksisPemasaran->update([
+                                'status' => '1'
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Departemen Operasional dan Pemasaran untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => '1'
+                            ]);
+                        }
+                    })->all();
                     break;
                 case 'Keuangan':
                     $id_notif = Str::uuid()->getHex();
                     $raw = ['Direktur Utama'];
+                    //?Dep Keuangan
+                    $depKeuangan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','78712deb909d4d88af7f098c0fcf6857')
+                    ->select('up.user_id')
+                    ->get();
+                    $depKeuangan = (object)collect($depKeuangan)->map(function($item) use ($data) {
+                        $cekEksisKeuangan = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Departemen Keuangan untuk naskah "'.$data->judul_final.'".');
+                        if (!is_null($cekEksisKeuangan->first())){
+                            $cekEksisKeuangan->update([
+                                'status' => '1'
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Departemen Keuangan untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => '1'
+                            ]);
+                        }
+                    })->all();
                     break;
                 case 'Direktur Utama':
                     $id_notif = Str::uuid()->getHex();
-                    $raw = ['Penerbitan', 'Marketing & Ops', 'Keuangan'];
+                    $raw = ['Penerbitan', 'Marketing & Ops', 'Direktur Keuangan'];
+                    //?Update Todo List
+                    $dirUtama = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                    ->where('p.id','8f53727c763849aab80c1513505decf8')
+                    ->select('up.user_id')
+                    ->get();
+                    $dirUtama = (object)collect($dirUtama)->map(function($item) use ($data) {
+                        $cekEksisDirUtama = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Persetujuan order ebook sebagai perwakilan Direktur Utama untuk naskah "'.$data->judul_final.'".');
+                        if (!is_null($cekEksisDirUtama->first())){
+                            $cekEksisDirUtama->update([
+                                'status' => '1'
+                            ]);
+                        } else {
+                            DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Persetujuan order ebook sebagai perwakilan Direktur Utama untuk naskah "'.$data->judul_final.'".',
+                                'link' => '/penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode,
+                                'status' => '1'
+                            ]);
+                        }
+                    })->all();
                     break;
             }
             $userPermission = DB::table('permissions as p', 'p.id', '=', 'up.permission_id')
@@ -789,9 +1142,19 @@ class OrderEbookController extends Controller
         $data = DB::table('order_ebook_action')
             ->where('id', $id)
             ->first();
+        $users = DB::table('users')->where('id', $data->users_id)->first();
+        $users = (object)collect($users)->map(function($item,$key) {
+            if ($key == 'nama') {
+                return strtoupper($item);
+            }  elseif ($key == 'jabatan_id') {
+                return DB::table('jabatan')->where('id',$item)->first()->nama;
+            } else {
+                return $item;
+            }
+        })->all();
         $fetch = [
             // 'jabatan' => $data->type_departemen,
-            'users' => DB::table('users')->where('id', $data->users_id)->first()->nama,
+            'users' => $users,
             'catatan' => $data->catatan_action,
             'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')
         ];
@@ -803,9 +1166,19 @@ class OrderEbookController extends Controller
         $data = DB::table('order_ebook_action')
             ->where('id', $id)
             ->first();
+        $users = DB::table('users')->where('id', $data->users_id)->first();
+        $users = (object)collect($users)->map(function($item,$key) {
+            if ($key == 'nama') {
+                return strtoupper($item);
+            } elseif ($key == 'jabatan_id') {
+                return DB::table('jabatan')->where('id',$item)->first()->nama;
+            } else {
+                return $item;
+            }
+        })->all();
         $fetch = [
-            'departemen' => $data->type_departemen,
-            'users' => DB::table('users')->where('id', $data->users_id)->first()->nama,
+            'jabatan' => $data->type_departemen,
+            'users' => $users,
             'catatan' => $data->catatan_action,
             'tgl' => Carbon::parse($data->tgl_action)->translatedFormat('l d F Y, H:i')
         ];

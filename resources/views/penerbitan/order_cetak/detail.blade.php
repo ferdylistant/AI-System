@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/flipbook/min_version/ipages.min.css') }}">
+    <link rel="stylesheet" href="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.css') }}">
 @endsection
 
 @section('cssNeeded')
@@ -484,6 +485,7 @@
     <script src="{{ url('vendors/flipbook/min_version/pdf.min.js') }}"></script>
     <script src="{{ url('vendors/flipbook/min_version/jquery.ipages.min.js') }}"></script>
     <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
+    <script src="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
 @endsection
 
 @section('jsNeeded')
