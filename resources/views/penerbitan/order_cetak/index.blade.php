@@ -67,7 +67,7 @@
             <h1>Data Penerbitan Order Cetak</h1>
             @if (Gate::allows('do_create', 'buat-cetak-ulang'))
                 <div class="section-header-button">
-                    <a href="" class="btn btn-success">Tambah Cetak Ulang</a>
+                    <button class="btn btn-success" id="btnTambahCetul">Tambah Data Cetak Ulang</button>
                 </div>
             @endif
         </div>

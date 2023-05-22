@@ -252,4 +252,8 @@ $(function () {
         $('.load-more').data("paginate", 2);
         $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
+    $('#btnTambahCetul').on('click',function (e) {
+        e.preventDefault();
+        // console.log(e);
+    })
 });
