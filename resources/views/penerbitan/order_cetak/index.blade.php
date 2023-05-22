@@ -65,11 +65,11 @@
     <section class="section">
         <div class="section-header">
             <h1>Data Penerbitan Order Cetak</h1>
-            {{-- @if (Gate::allows('do_create', 'tambah-produksi-cetak'))
+            @if (Gate::allows('do_create', 'buat-cetak-ulang'))
                 <div class="section-header-button">
-                    <a href="{{ route('cetak.create') }}" class="btn btn-success">Tambah</a>
+                    <a href="" class="btn btn-success">Tambah Cetak Ulang</a>
                 </div>
-            @endif --}}
+            @endif
         </div>
         <div class="section-body">
             <div class="row">

@@ -61,28 +61,12 @@
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
-                <label>Status Cetak: <span class="text-danger">*</span></label>
+                <label>Status Cetak:</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-file"></i></div>
                     </div>
-                    <select class="form-control select2" name="up_status_cetak" required>
-                        @foreach ($status_cetak as $st)
-                            @switch($st)
-                                @case(1)
-                                    {{$res = 'Buku Baru'}}
-                                    @break
-                                @case(2)
-                                    {{$res = 'Cetak Ulang Revisi'}}
-                                    @break
-                                @case(3)
-                                    {{$res = 'Cetak Ulang'}}
-                                    @break
-                            @endswitch
-                            <option value="{{$st}}">{{$res}}</option>
-                        @endforeach
-                    </select>
-                    <div id="err_up_status_cetak"></div>
+                    <input type="text" class="form-control" name="up_status_cetak" disabled readonly>
                 </div>
             </div>
             <div class="form-group col-12 col-md-3 mb-4">

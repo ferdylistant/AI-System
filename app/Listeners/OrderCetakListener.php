@@ -62,7 +62,6 @@ class OrderCetakListener
                     ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                     ->where('oc.id', $data['id'])
                     ->update([
-                        'oc.status_cetak' => $data['status_cetak'],
                         'oc.posisi_layout' => $data['posisi_layout'],
                         'oc.dami' => $data['dami'],
                         'oc.ukuran_jilid_binding' => $data['ukuran_jilid_binding'],
@@ -94,8 +93,6 @@ class OrderCetakListener
                 $res = DB::table('order_cetak_history')->insert([
                     'type_history' => $data['type_history'],
                     'order_cetak_id' => $data['order_cetak_id'],
-                    'status_cetak_his' => $data['status_cetak_his'],
-                    'status_cetak_new' => $data['status_cetak_new'],
                     'edisi_cetak_his' => $data['edisi_cetak_his'],
                     'edisi_cetak_new' => $data['edisi_cetak_new'],
                     'jml_hal_perkiraan_his' => $data['jml_hal_perkiraan_his'],

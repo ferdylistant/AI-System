@@ -245,6 +245,23 @@ class OrderCetakController extends Controller
                         case 'tgl_permintaan_jadi':
                             return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
                             break;
+                        case 'status_cetak':
+                            switch ($item) {
+                                case '1':
+                                    $item = 'Buku Baru';
+                                    break;
+                                case '2':
+                                    $item = 'Cetak Ulang Revisi';
+                                    break;
+                                case '3':
+                                    $item = 'Cetak Ulang';
+                                    break;
+                                default:
+                                    $item = NULL;
+                                    break;
+                            }
+                            return $item;
+                            break;
                         default:
                             $item;
                             break;
@@ -303,7 +320,6 @@ class OrderCetakController extends Controller
                     $update = [
                         'params' => 'Update Order Cetak',
                         'id' => $request->id,
-                        'status_cetak' => $request->up_status_cetak,
                         'edisi_cetak' => $request->up_edisi_cetak, //Pracetak Setter
                         'jml_hal_perkiraan' => $request->up_jml_hal_perkiraan, //Deskripsi Produk
                         'kelompok_buku_id' => $request->up_kelompok_buku, //Penerbitan Naskah
@@ -333,8 +349,6 @@ class OrderCetakController extends Controller
                         'params' => 'Insert History Update Order Cetak',
                         'type_history' => 'Update',
                         'order_cetak_id' => $request->id,
-                        'status_cetak_his' => $request->up_status_cetak == $history->status_cetak ? NULL : $history->status_cetak,
-                        'status_cetak_new' => $request->up_status_cetak == $history->status_cetak ? NULL : $request->up_status_cetak,
                         'edisi_cetak_his' => $request->up_edisi_cetak == $history->edisi_cetak ? NULL : $history->edisi_cetak,
                         'edisi_cetak_new' => $request->up_edisi_cetak == $history->edisi_cetak ? NULL : $request->up_edisi_cetak,
                         'jml_hal_perkiraan_his' => $request->up_jml_hal_perkiraan == $history->jml_hal_perkiraan ? NULL : $history->jml_hal_perkiraan,
@@ -409,9 +423,6 @@ class OrderCetakController extends Controller
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_cover WHERE Field = 'jilid'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $jilid = explode("','", $matches[1]);
-        $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak WHERE Field = 'status_cetak'"))[0]->Type;
-        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-        $status_cetak = explode("','", $matches[1]);
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_final WHERE Field = 'kertas_isi'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $kertas_isi = explode("','", $matches[1]);
@@ -427,7 +438,6 @@ class OrderCetakController extends Controller
             'kbuku' => $kbuku,
             'data' => $data,
             'jilid' => $jilid,
-            'status_cetak' => $status_cetak,
             'format_buku_list' => $format_buku_list,
             'kertas_isi' => $kertas_isi,
             'finishing_cover' => $finishing_cover,
