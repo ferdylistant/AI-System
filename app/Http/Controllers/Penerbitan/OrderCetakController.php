@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
+use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Events\TimelineEvent;
@@ -104,6 +105,23 @@ class OrderCetakController extends Controller
                     ->addColumn('jalur_buku', function ($data) {
                         return $data->jalur_buku;
                     })
+                    ->addColumn('status_cetak', function ($data) {
+                        switch ($data->status_cetak) {
+                            case '1':
+                                $res = 'Buku Baru';
+                                break;
+                            case '2':
+                                $res = 'Cetak Ulang Revisi';
+                                break;
+                            case '3':
+                                $res = 'Cetak Ulang';
+                                break;
+                            default:
+                                $res = '-';
+                                break;
+                        }
+                        return $res;
+                    })
                     ->addColumn('status_penyetujuan', function ($data) {
                         $res = DB::table('order_cetak_action')
                             ->where('order_cetak_id', $data->id)
@@ -164,6 +182,7 @@ class OrderCetakController extends Controller
                         'tipe_order',
                         'judul_final',
                         'jalur_buku',
+                        'status_cetak',
                         'status_penyetujuan',
                         'history',
                         'action'
@@ -268,7 +287,14 @@ class OrderCetakController extends Controller
                     }
                     return $item;
                 })->all();
-                return ['data' => $data, 'penulis' => $penulis];
+                if ($data->status == 'Proses' || ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                    $disableBtn = false;
+                    $cursorBtn = 'pointer';
+                } else {
+                    $disableBtn = true;
+                    $cursorBtn = 'not-allowed';
+                }
+                return ['data' => $data, 'penulis' => $penulis,'disable' => $disableBtn,'cursor' => $cursorBtn];
             }
             if ($request->isMethod('POST')) {
                 try {
@@ -642,7 +668,6 @@ class OrderCetakController extends Controller
                 'pn.kode'
                 )
             ->first();
-
         switch ($cat) {
             case 'approve':
                 return $this->approvalOrderCetak($request,$data);
@@ -661,6 +686,12 @@ class OrderCetakController extends Controller
                 break;
             case 'lihat-history-order-cetak':
                 return $this->lihatHistoryOrderCetak($request);
+                break;
+            case 'modal-cetak-ulang':
+                return $this->showModalTambahCetakUlang();
+                break;
+            case 'submit-cetul':
+                return $this->submitCetakUlang($request);
                 break;
             default:
                 abort(500);
@@ -717,6 +748,21 @@ class OrderCetakController extends Controller
                 event(new OrderCetakEvent($update));
                 event(new OrderCetakEvent($insert));
                 //Update Todo List Admin
+                switch ($data->status_cetak) {
+                    case '1':
+                        $titleTodo = 'Lengkapi data order cetak untuk naskah "'.$data->judul_final.'".';
+                        break;
+                    case '2':
+                        $titleTodo = 'Lengkapi data order cetak untuk naskah "'.$data->judul_final.'".';
+                        break;
+                    case '3':
+                        $titleTodo = '(Cetak Ulang) Lengkapi data order cetak untuk naskah "'.$data->judul_final.'".';
+                        break;
+                    default:
+                        $titleTodo = '';
+                        break;
+                }
+                $data = collect($data)->put('title_todo',$titleTodo);
                 $permissionAdmin = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
                         ->join('users as u','u.id','=','up.user_id')
                         ->join('jabatan as j','j.id','=','u.jabatan_id')
@@ -728,12 +774,12 @@ class OrderCetakController extends Controller
                     $cekTodo = DB::table('todo_list')
                     ->where('form_id',$data->id)
                     ->where('users_id',$item->user_id)
-                    ->where('title','Lengkapi data order cetak untuk naskah "'.$data->judul_final.'".');
+                    ->where('title',$data->title_todo);
                     if (is_null($cekTodo->first())) {
                         return DB::table('todo_list')->insert([
                             'form_id' => $data->id,
                             'users_id' => $item->user_id,
-                            'title' => 'Lengkapi data order cetak untuk naskah "'.$data->judul_final.'".',
+                            'title' => $data->title_todo,
                             'link' => '/penerbitan/order-cetak/edit?order='.$data->id.'&naskah='.$data->kode,
                             'status' => '1'
                         ]);
@@ -1589,6 +1635,197 @@ class OrderCetakController extends Controller
                 }
             }
             return $html;
+        }
+    }
+    protected function showModalTambahCetakUlang()
+    {
+        try {
+            $data = DB::table('order_cetak as oc')
+            ->join('deskripsi_turun_cetak as dtc','dtc.id','=','oc.deskripsi_turun_cetak_id')
+            ->join('pracetak_cover as pc','pc.id','=','dtc.pracetak_cover_id')
+            ->join('deskripsi_cover as dc','dc.id','=','pc.deskripsi_cover_id')
+            ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
+            ->join('penerbitan_naskah as pn','pn.id','=','dp.naskah_id')
+            ->groupBy('pn.kode')
+            ->select(
+                'oc.*',
+                'dp.naskah_id',
+                'dp.judul_final',
+                'pn.kode'
+                )
+            ->get();
+            $html = '';
+            $btn = '';
+            if ($data->isEmpty()) {
+                $html .= '<div class="col-12 offset-3 mt-5">
+                <div class="row">
+                    <div class="col-4 offset-1">
+                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png" width="100%">
+                        <p class="pt-2 font-weight-bold">Naskah order cetak belum ada</p>
+                    </div>
+                </div>
+            </div>';
+            $btn .= '<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>';
+            } else {
+                $html .= '<div class="form-group">
+                  <label for="naskahOrderCetak" class="col-form-label">Naskah:<span class="text-danger">*</span></label>
+                  <select class="form-control select-naskah-cetul" name="naskah_baru" id="naskahOrderCetak" required>
+                  <option label="Pilih naskah"></option> ';
+                foreach($data as $d) {
+                    $html .= '<option value="naskah='.$d->kode.'&orcet_id='.$d->id.'">'.$d->kode.' &mdash; '.$d->judul_final.'</option>';
+                }
+                $html .= '</select>
+                </div>';
+            $btn .= '<button type="submit" class="d-block btn btn-sm btn-outline-primary btn-block btn-cetak-ulang" id="btnRedirectCetul">Submit</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>';
+            }
+            return [
+                'data' => $html,
+                'btn' => $btn
+            ];
+        } catch (\Exception $e) {
+            return abort(500);
+        }
+    }
+    protected function submitCetakUlang($request)
+    {
+        try {
+            DB::beginTransaction();
+            $id = $request->orcet_id;
+            $naskah = $request->naskah;
+            $data = DB::table('order_cetak as oc')
+            ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
+            ->join('pilihan_penerbitan as pp', 'pp.deskripsi_turun_cetak_id', '=', 'dtc.id')
+            ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+            ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+            ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+            ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
+            })
+            ->where('oc.id', $id)
+            ->where('pn.kode', $naskah)
+            ->select(
+                'oc.*',
+                'dtc.tipe_order',
+                'pp.platform_digital_ebook_id',
+                'pp.pilihan_terbit',
+                'dc.jilid',
+                'dc.warna as warna_cover',
+                'dc.finishing_cover',
+                'df.sub_judul_final',
+                'df.isi_warna',
+                'df.kertas_isi',
+                'dp.judul_final',
+                'dp.format_buku',
+                'dp.nama_pena',
+                'dp.imprint',
+                'dp.jml_hal_perkiraan',
+                'kb.nama',
+                'pn.id as naskah_id',
+                'pn.kelompok_buku_id',
+                'pn.jalur_buku',
+                'pn.kode',
+                'ps.isbn',
+                'ps.jml_hal_final',
+                'ps.edisi_cetak'
+            )
+            ->first();
+            if (is_null($data)) {
+                return abort(404);
+            }
+            $idOrder = Uuid::uuid4()->toString();
+            $order = [
+                'id' => $idOrder,
+                'deskripsi_turun_cetak_id' => $data->deskripsi_turun_cetak_id,
+                'kode_order' => self::getOrderCetakId($data->tipe_order),
+                'status_cetak' => '3',
+                'posisi_layout' => $data->posisi_layout,
+                'dami' => $data->dami,
+                'jenis_cover' => $data->jenis_cover,
+                'kertas_cover' => $data->kertas_cover,
+                'ukuran_jilid_binding' => $data->ukuran_jilid_binding,
+                'tahun_terbit' => $data->tahun_terbit,
+                'buku_jadi' => $data->buku_jadi,
+                'jumlah_cetak' => $data->jumlah_cetak,
+                'buku_contoh' => $data->buku_contoh,
+                'spp' => $data->spp,
+                'keterangan' => $data->keterangan,
+                'perlengkapan' => $data->perlengkapan,
+                'tgl_permintaan_jadi' => $data->tgl_permintaan_jadi,
+                'tgl_masuk' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+            ];
+            DB::table('order_cetak')->insert($order);
+            //INSERT TODO LIST ADMIN
+            $permissionAdmin = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+            ->join('users as u','u.id','=','up.user_id')
+            ->join('jabatan as j','j.id','=','u.jabatan_id')
+            ->where('p.id','=','e0860766d564483e870b5974a601649c')
+            ->where('j.nama','LIKE','%Administrasi%')
+            ->select('up.user_id')
+            ->get();
+            $data = collect($data)->put('id_order',$idOrder);
+            $permissionAdmin = (object)collect($permissionAdmin)->map(function($item) use ($data) {
+                return DB::table('todo_list')->insert([
+                    'form_id' => $data['id_order'],
+                    'users_id' => $item->user_id,
+                    'title' => '(Cetak Ulang) Lengkapi data order cetak untuk naskah "'.$data['judul_final'].'".',
+                    'link' => '/penerbitan/order-cetak/edit?order='.$data['id_order'].'&naskah='.$data['kode'],
+                    'status' => '0'
+                ]);
+            })->all();
+            DB::commit();
+            return;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return abort(500,$e->getMessage());
+        }
+    }
+    protected function getOrderCetakId($tipeOrder)
+    {
+        $year = date('y');
+        switch ($tipeOrder) {
+            case 1:
+                $lastId = DB::table('order_cetak')
+                    ->where('kode_order', 'like', $year . '-%')
+                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 1000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 2999")
+                    ->orderBy('kode_order', 'desc')->first();
+
+                $firstId = '1000';
+                break;
+            case 2:
+                $lastId = DB::table('order_cetak')
+                    ->where('kode_order', 'like', $year . '-%')
+                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 3000 and SUBSTRING_INDEX(kode_order, '-', -1) <= 3999")
+                    ->orderBy('kode_order', 'desc')->first();
+                $firstId = '3000';
+                break;
+            case 3:
+                $lastId = DB::table('order_cetak')
+                    ->where('kode_order', 'like', $year . '-%')
+                    ->whereRaw("SUBSTRING_INDEX(kode_order, '-', -1) >= 4000")
+                    ->orderBy('kode_order', 'desc')->first();
+                $firstId = '4000';
+                break;
+            default:
+                abort(500);
+        }
+
+        if (is_null($lastId)) {
+            return $year . '-' . $firstId;
+        } else {
+            $lastId_ = (int)substr($lastId->kode_order, 3);
+            if ($lastId_ == 2999) {
+                abort(500);
+            } elseif ($lastId_ == 3999) {
+                abort(500);
+            } else {
+
+                return $year . '-' . strval($lastId_ + 1);
+            }
         }
     }
 }

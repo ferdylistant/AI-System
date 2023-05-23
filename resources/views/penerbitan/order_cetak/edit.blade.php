@@ -81,12 +81,7 @@
                                 @endforeach)
                             </div>
                         </div>
-                        @if ($data->status == 'Proses' ||
-                            ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
                             @include('penerbitan.order_cetak.include.edit_if')
-                        @else
-                            @include('penerbitan.order_cetak.include.edit_else')
-                        @endif
                     </div>
                 </div>
             </div>

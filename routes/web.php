@@ -187,7 +187,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/order-cetak', [OrderCetakController::class, 'index'])->name('cetak.view');
         Route::get('/order-cetak/detail', [OrderCetakController::class, 'detailOrderCetak'])->name('cetak.detail');
         Route::match(['get', 'post'], '/order-cetak/edit', [OrderCetakController::class, 'updateOrderCetak'])->name('cetak.update');
-        Route::post('/order-cetak/ajax/{cat}', [OrderCetakController::class, 'ajaxRequest']);
+        Route::match(['get','post'],'/order-cetak/ajax/{cat}', [OrderCetakController::class, 'ajaxRequest']);
         //Order Ebook
         Route::get('/order-ebook', [OrderEbookController::class, 'index'])->name('ebook.view');
         Route::get('/order-ebook/detail', [OrderEbookController::class, 'detailOrderEbook'])->name('ebook.detail');

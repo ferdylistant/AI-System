@@ -41,6 +41,11 @@ $(function(){
                 title: "Jalur Buku",
             },
             {
+                data: "status_cetak",
+                name: "status_cetak",
+                title: "Status Cetak",
+            },
+            {
                 data: "status_penyetujuan",
                 name: "status_penyetujuan",
                 title: "Penyetujuan",
@@ -95,21 +100,19 @@ $(function(){
             }
         })
     });
-});
-function loadCountData() {
-    $.get(window.location.origin + "/penerbitan/order-cetak?count_data=true", function (data) {
-        $("#countData").prop('Counter',0).animate({
-            Counter: data
-        }, {
-            duration: 1000,
-            easing: 'swing',
-            step: function (now) {
-                $(this).text(Math.ceil(now));
-            }
+    function loadCountData() {
+        $.get(window.location.origin + "/penerbitan/order-cetak?count_data=true", function (data) {
+            $("#countData").prop('Counter',0).animate({
+                Counter: data
+            }, {
+                duration: 1000,
+                easing: 'swing',
+                step: function (now) {
+                    $(this).text(Math.ceil(now));
+                }
+            });
         });
-    });
-}
-$(document).ready(function () {
+    }
     $("#tb_Orcet").on("click", ".btn-status-orcetak", function (e) {
         e.preventDefault();
         let id = $(this).data("id"),
@@ -119,8 +122,6 @@ $(document).ready(function () {
         $("#kode").val(kode);
         $("#judulFinal").val(judul);
     });
-});
-$(function () {
     $(".select-filter")
         .select2({
             placeholder: "Filter Status\xa0\xa0",
@@ -213,8 +214,6 @@ $(function () {
             });
         }
     });
-});
-$(function () {
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
@@ -255,5 +254,60 @@ $(function () {
     $('#btnTambahCetul').on('click',function (e) {
         e.preventDefault();
         // console.log(e);
+        $.ajax({
+            url: window.location.origin + '/penerbitan/order-cetak/ajax/modal-cetak-ulang',
+            type: 'GET',
+            cache: false,
+            beforeSend: function () {
+                $('#overlay').fadeIn(300);
+            },
+            success: function (result) {
+                $('#dataModalCetakUlang').html(result.data);
+                $('#btnModalCetul').html(result.btn);
+                $(".select-naskah-cetul")
+                .select2({
+                    placeholder: "Pilih Status",
+                })
+                .on("change", function (e) {
+                    if (this.value) {
+                        $(this).valid();
+                    }
+                });
+                $('#modalTambahCetakUlang').modal('show');
+            },
+            error: function (err) {
+                notifToast('error','Gagal memuat modal!')
+            },
+            complete: function () {
+                setTimeout(function () {
+                    $("#overlay").fadeOut(300);
+                }, 500);
+            },
+        });
+    });
+    $('#formTambahCetakUlang').on('submit',function (e) {
+        e.preventDefault();
+        let id = $(this).find('[name="naskah_baru"]').val();
+        $.ajax({
+            url: window.location.origin + '/penerbitan/order-cetak/ajax/submit-cetul?' + id,
+            beforeSend: function () {
+                $('#modalTambahCetakUlang').addClass("modal-progress");
+            },
+            success: function (result) {
+                console.log(result);
+                // window.location.href = "/penerbitan/order-cetak/add/cetak-ulang?naskah="+result.naskah+"&orcet_id="+result.orcet_id;
+                $('#formTambahCetakUlang').trigger('reset');
+                $("#modalTambahCetakUlang").modal("hide");
+                tableOrderCetak.ajax.reload();
+                notifToast('success', 'Data cetak ulang berhasil ditambahkan!');
+            },
+            error: function (err) {
+                console.log(err);
+                notifToast("error", "Terjadi kesalahan!");
+            },
+            complete: function () {
+                $('#modalTambahCetakUlang').removeClass("modal-progress");
+            },
+        });
     })
 });

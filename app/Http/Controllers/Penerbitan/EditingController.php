@@ -224,26 +224,26 @@ class EditingController extends Controller
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $history = DB::table('editing_proses as ep')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->where('ep.id', $request->id)
-                ->select(
-                    'ep.*',
-                    'df.sub_judul_final',
-                    'df.bullet',
-                    'df.sinopsis',
-                    'df.isi_warna',
-                    'df.isi_huruf',
-                    'dp.naskah_id',
-                    'dp.judul_final',
-                    'dp.nama_pena',
-                    'dp.jml_hal_perkiraan',
-                    'pn.kode',
-                    'pn.jalur_buku',
-                    'pn.pic_prodev',
-                )
-                ->first();
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->where('ep.id', $request->id)
+                    ->select(
+                        'ep.*',
+                        'df.sub_judul_final',
+                        'df.bullet',
+                        'df.sinopsis',
+                        'df.isi_warna',
+                        'df.isi_huruf',
+                        'dp.naskah_id',
+                        'dp.judul_final',
+                        'dp.nama_pena',
+                        'dp.jml_hal_perkiraan',
+                        'pn.kode',
+                        'pn.jalur_buku',
+                        'pn.pic_prodev',
+                    )
+                    ->first();
                 if ($request->has('request_revision')) {
                     return $this->donerevisionActKabag($history);
                 } else {
@@ -634,7 +634,7 @@ class EditingController extends Controller
                         $html = '';
                         if (!is_null($item)) {
                             foreach (json_decode($item, true) as $key => $value) {
-                                $html .= '<span class="bullet"></span>' . $value ;
+                                $html .= '<span class="bullet"></span>' . $value;
                             }
                         } else {
                             $html .= '-';
@@ -803,8 +803,8 @@ class EditingController extends Controller
                         $editorPermission = '';
                         break;
                 }
-                $kabagEditing = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                    ->where('p.id',$editorPermission)
+                $kabagEditing = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                    ->where('p.id', $editorPermission)
                     ->select('up.user_id')
                     ->get();
                 $dataEditing = [
@@ -812,14 +812,14 @@ class EditingController extends Controller
                     'kode' => $data->kode,
                     'judul' => $data->judul_final
                 ];
-                $kabagEditing = (object)collect($kabagEditing)->map(function($item) use ($dataEditing) {
+                $kabagEditing = (object)collect($kabagEditing)->map(function ($item) use ($dataEditing) {
                     return DB::table('todo_list')
-                    ->where('form_id',$dataEditing['id'])
-                    ->where('users_id',$item->user_id)
-                    ->where('title','Proses delegasi tahap editing naskah "'.$dataEditing['judul'].'".')
-                    ->update([
-                        'status' => '1',
-                    ]);
+                        ->where('form_id', $dataEditing['id'])
+                        ->where('users_id', $item->user_id)
+                        ->where('title', 'Proses delegasi tahap editing naskah "' . $dataEditing['judul'] . '".')
+                        ->update([
+                            'status' => '1',
+                        ]);
                 })->all();
                 $updateTimelineEditing = [
                     'params' => 'Update Timeline',
@@ -1086,31 +1086,31 @@ class EditingController extends Controller
                 $id = $request->id;
                 $value = $request->proses;
                 $data = DB::table('editing_proses as ep')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                        ->whereNull('kb.deleted_at');
-                })
-                ->where('ep.id', $id)
-                ->select(
-                    'ep.*',
-                    'df.id as deskripsi_final_id',
-                    'dp.naskah_id',
-                    'dp.format_buku',
-                    'dp.judul_final',
-                    'dp.imprint',
-                    'dp.jml_hal_perkiraan',
-                    'dp.kelengkapan',
-                    'dp.catatan',
-                    'pn.kode',
-                    'pn.judul_asli',
-                    'pn.pic_prodev',
-                    'pn.jalur_buku',
-                    'kb.nama'
-                )
-                ->first();
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                        $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                            ->whereNull('kb.deleted_at');
+                    })
+                    ->where('ep.id', $id)
+                    ->select(
+                        'ep.*',
+                        'df.id as deskripsi_final_id',
+                        'dp.naskah_id',
+                        'dp.format_buku',
+                        'dp.judul_final',
+                        'dp.imprint',
+                        'dp.jml_hal_perkiraan',
+                        'dp.kelengkapan',
+                        'dp.catatan',
+                        'pn.kode',
+                        'pn.judul_asli',
+                        'pn.pic_prodev',
+                        'pn.jalur_buku',
+                        'kb.nama'
+                    )
+                    ->first();
                 if (is_null($data)) {
                     return response()->json([
                         'status' => 'error',
@@ -1146,12 +1146,12 @@ class EditingController extends Controller
                         'id' => $id,
                         'judul' => $data->judul_final,
                     ];
-                    (object)collect(json_decode($data->editor))->map(function($item) use ($dataEditing) {
+                    (object)collect(json_decode($data->editor))->map(function ($item) use ($dataEditing) {
                         return DB::table('todo_list')
-                        ->where('form_id',$dataEditing['id'])
-                        ->where('users_id',$item)
-                        ->where('title','Selesaikan proses editing naskah yang berjudul "'.$dataEditing['judul'].'".')
-                        ->delete();
+                            ->where('form_id', $dataEditing['id'])
+                            ->where('users_id', $item)
+                            ->where('title', 'Selesaikan proses editing naskah yang berjudul "' . $dataEditing['judul'] . '".')
+                            ->delete();
                     })->all();
                     $msg = 'Proses diberhentikan!';
                 } else {
@@ -1187,12 +1187,12 @@ class EditingController extends Controller
                                 'judul' => $data->judul_final,
                                 'kode' => $data->kode
                             ];
-                            (object)collect(json_decode($data->editor))->map(function($item) use ($dataEditing) {
+                            (object)collect(json_decode($data->editor))->map(function ($item) use ($dataEditing) {
                                 return DB::table('todo_list')->insert([
                                     'form_id' => $dataEditing['id'],
                                     'users_id' => $item,
-                                    'title' => 'Selesaikan proses editing naskah yang berjudul "'.$dataEditing['judul'].'".',
-                                    'link' => '/penerbitan/editing/detail?editing='.$dataEditing['id'].'&kode='.$dataEditing['kode'],
+                                    'title' => 'Selesaikan proses editing naskah yang berjudul "' . $dataEditing['judul'] . '".',
+                                    'link' => '/penerbitan/editing/detail?editing=' . $dataEditing['id'] . '&kode=' . $dataEditing['kode'],
                                     'status' => '0',
                                 ]);
                             })->all();
@@ -1345,8 +1345,8 @@ class EditingController extends Controller
                     $editorPermission = '';
                     break;
             }
-            $kabagEditing = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                ->where('p.id',$editorPermission)
+            $kabagEditing = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                ->where('p.id', $editorPermission)
                 ->select('up.user_id')
                 ->get();
             $dataEditing = [
@@ -1354,12 +1354,12 @@ class EditingController extends Controller
                 'kode' => $data->kode,
                 'judul' => $data->judul_final
             ];
-            $kabagEditing = (object)collect($kabagEditing)->map(function($item) use ($dataEditing) {
+            $kabagEditing = (object)collect($kabagEditing)->map(function ($item) use ($dataEditing) {
                 return DB::table('todo_list')->insert([
                     'form_id' => $dataEditing['id'],
                     'users_id' => $item->user_id,
-                    'title' => 'Revisi data editing naskah "'.$dataEditing['judul'].'".',
-                    'link' => '/penerbitan/editing/edit?editing='.$dataEditing['id'].'&kode='.$dataEditing['kode'],
+                    'title' => 'Revisi data editing naskah "' . $dataEditing['judul'] . '".',
+                    'link' => '/penerbitan/editing/edit?editing=' . $dataEditing['id'] . '&kode=' . $dataEditing['kode'],
                     'status' => '0',
                 ]);
             })->all();
@@ -1410,27 +1410,27 @@ class EditingController extends Controller
                     $editorPermission = '';
                     break;
             }
-            $kabagEditing = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                    ->where('p.id',$editorPermission)
-                    ->select('up.user_id')
-                    ->get();
-            $kabagEditing = (object)collect($kabagEditing)->map(function($item) use ($data) {
+            $kabagEditing = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                ->where('p.id', $editorPermission)
+                ->select('up.user_id')
+                ->get();
+            $kabagEditing = (object)collect($kabagEditing)->map(function ($item) use ($data) {
                 return DB::table('todo_list')
-                ->where('form_id',$data->id)
-                ->where('users_id',$item->user_id)
-                ->where('title','Revisi data editing naskah "'.$data->judul_final.'".')
-                ->update([
-                    'status' => '1',
-                ]);
+                    ->where('form_id', $data->id)
+                    ->where('users_id', $item->user_id)
+                    ->where('title', 'Revisi data editing naskah "' . $data->judul_final . '".')
+                    ->update([
+                        'status' => '1',
+                    ]);
             })->all();
-            (object)collect(json_decode($data->editor))->map(function($item) use ($data) {
+            (object)collect(json_decode($data->editor))->map(function ($item) use ($data) {
                 return DB::table('todo_list')
-                ->where('form_id',$data->id)
-                ->where('users_id',$item)
-                ->where('title','Selesaikan proses editing naskah yang berjudul "'.$data->judul_final.'".')
-                ->update([
-                    'status' => '0',
-                ]);
+                    ->where('form_id', $data->id)
+                    ->where('users_id', $item)
+                    ->where('title', 'Selesaikan proses editing naskah yang berjudul "' . $data->judul_final . '".')
+                    ->update([
+                        'status' => '0',
+                    ]);
             })->all();
             DB::commit();
             return response()->json([
@@ -1482,9 +1482,43 @@ class EditingController extends Controller
             }
             $dataProsesSelf = DB::table('editing_proses_selesai')
                 ->where('editing_proses_id', $data->id)
-                ->orderBy('id', 'desc');
-            if ($dataProsesSelf->first()->type != 'Kabag') {
-                if ($dataProsesSelf->first()->users_id == auth()->id()) {
+                ->orderBy('id', 'desc')
+                ->first();
+            if (is_null($dataProsesSelf)) {
+                $dataProses = DB::table('editing_proses_selesai')
+                    ->where('type', 'Editor')
+                    ->where('editing_proses_id', $data->id)
+                    ->get();
+                $edPros = count($dataProses) + 1;
+                if ($edPros == count(json_decode($data->editor, true))) {
+                    $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                    $pros = [
+                        'params' => 'Proses Selesai',
+                        'type' => 'Editor',
+                        'editing_proses_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => $tgl
+                    ];
+                    event(new EditingEvent($pros));
+                    $done = [
+                        'params' => 'Editing Selesai',
+                        'id' => $data->id,
+                        'tgl_selesai_edit' => $tgl,
+                        'proses' => '0'
+                    ];
+                    event(new EditingEvent($done));
+                } else {
+                    $pros = [
+                        'params' => 'Proses Selesai',
+                        'type' => 'Editor',
+                        'editing_proses_id' => $data->id,
+                        'users_id' => auth()->id(),
+                        'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new EditingEvent($pros));
+                }
+            } elseif ($dataProsesSelf->type != 'Kabag') {
+                if ($dataProsesSelf->users_id == auth()->id()) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Anda sudah selesai melakukan editing'
@@ -1524,7 +1558,7 @@ class EditingController extends Controller
                 }
             } else {
                 $dataProses = DB::table('editing_proses_selesai')
-                    ->where('id', '>', $dataProsesSelf->first()->id)
+                    ->where('id', '>', $dataProsesSelf->id)
                     ->where('type', 'Editor')
                     ->where('editing_proses_id', $data->id)
                     ->get();
@@ -1559,12 +1593,12 @@ class EditingController extends Controller
             }
             //? Update Todo list Editor
             DB::table('todo_list')
-            ->where('form_id',$id)
-            ->where('users_id',auth()->user()->id)
-            ->where('title','Selesaikan proses editing naskah yang berjudul "'.$data->judul_final.'".')
-            ->update([
-                'status' => '1'
-            ]);
+                ->where('form_id', $id)
+                ->where('users_id', auth()->user()->id)
+                ->where('title', 'Selesaikan proses editing naskah yang berjudul "' . $data->judul_final . '".')
+                ->update([
+                    'status' => '1'
+                ]);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Pengerjaan selesai',
