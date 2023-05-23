@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Events\TimelineEvent;
@@ -47,16 +48,35 @@ class OrderCetakController extends Controller
                             ->orderBy('id', 'desc')
                             ->first();
                         if (is_null($act)) {
-                            if ((Gate::allows('do_approval', 'Persetujuan Penerbitan')) && ($data->status == 'Proses')) {
-                                $tandaProses = '<span class="beep-danger"></span>';
-                                $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                            if ($data->status_cetak == '3') {
+                                if ((Gate::allows('do_approval', 'Persetujuan Penjualan & Stok')) && ($data->status == 'Proses')) {
+                                    $tandaProses = '<span class="beep-danger"></span>';
+                                    $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                                } else {
+                                    $tandaProses = '';
+                                    $dataKode = $data->kode_order;
+                                }
                             } else {
-                                $tandaProses = '';
-                                $dataKode = $data->kode_order;
+                                if ((Gate::allows('do_approval', 'Persetujuan Penerbitan')) && ($data->status == 'Proses')) {
+                                    $tandaProses = '<span class="beep-danger"></span>';
+                                    $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                                } else {
+                                    $tandaProses = '';
+                                    $dataKode = $data->kode_order;
+                                }
                             }
                         } else {
                             switch ($act->type_departemen) {
                                 case 'Penerbitan':
+                                    if ((Gate::allows('do_approval', 'Persetujuan Marketing & Ops')) && ($data->status == 'Proses')) {
+                                        $tandaProses = '<span class="beep-danger"></span>';
+                                        $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
+                                    } else {
+                                        $tandaProses = '';
+                                        $dataKode = $data->kode_order;
+                                    }
+                                    break;
+                                case 'Penjualan & Stok':
                                     if ((Gate::allows('do_approval', 'Persetujuan Marketing & Ops')) && ($data->status == 'Proses')) {
                                         $tandaProses = '<span class="beep-danger"></span>';
                                         $dataKode = '<span class="text-danger">' . $data->kode_order . '</span>';
@@ -130,29 +150,29 @@ class OrderCetakController extends Controller
                             foreach ($res as $r) {
                                 $collect[] = $r->type_departemen;
                             }
+                        } else {
+                            $collect = [];
                         }
-                        $badge = '';
                         $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_departemen'"))[0]->Type;
                         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
                         $jabatan = explode("','", $matches[1]);
+                        $statCetak = $data->status_cetak == '3' ? '0':'1'; //Except
+                        $jabatan = Arr::except($jabatan,[$statCetak]);
+                        $badge = '';
                         foreach ($jabatan as $jb => $j) {
-                            if (!$res->isEmpty()) {
-                                if (in_array($j, $collect)) {
-                                    foreach ($res as $i => $action) {
-                                        if ($i == $jb) {
-                                            switch ($action->type_action) {
-                                                case 'Approval':
-                                                    $lbl = 'success';
-                                                    break;
-                                                case 'Decline':
-                                                    $lbl = 'danger';
-                                                    break;
-                                            }
-                                            $badge .= '<div class="text-' . $lbl . ' text-small font-600-bold"><span class="bullet"></span> ' . $j . '</div>';
+                            if (in_array($j, $collect)) {
+                                foreach ($res as $i => $action) {
+                                    if ($j == $action->type_departemen) {
+                                        switch ($action->type_action) {
+                                            case 'Approval':
+                                                $lbl = 'success';
+                                                break;
+                                            case 'Decline':
+                                                $lbl = 'danger';
+                                                break;
                                         }
+                                        $badge .= '<div class="text-' . $lbl . ' text-small font-600-bold"><span class="bullet"></span> ' . $j . '</div>';
                                     }
-                                } else {
-                                    $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> ' . $j . '</div>';
                                 }
                             } else {
                                 $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> ' . $j . '</div>';
@@ -540,6 +560,8 @@ class OrderCetakController extends Controller
         $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_departemen'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $departemen = explode("','", $matches[1]);
+        $statCetak = $data->status_cetak == '3' ? '0':'1'; //Except
+        $departemen = Arr::except($departemen,[$statCetak]);
         $imprint = NULL;
         if (!is_null($data->imprint)) {
             $imprint = DB::table('imprint')->where('id', $data->imprint)->whereNull('deleted_at')->first()->nama;

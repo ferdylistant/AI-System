@@ -68,19 +68,36 @@
                                 @endif
                             @endforeach
                         @else
-                            @if ($j == 'Penerbitan')
-                                {{-- APPROVE --}}
-                                <button type="button" class="btn btn-success" id="btn-approve"
-                                    data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                    data-departemen="{{ $j }}" data-toggle="modal"
-                                    data-target="#modalApproval">
-                                    <i class="fas fa-check"></i>&nbsp;Setujui</button>
-                                {{-- DECLINE --}}
-                                <button type="button" class="btn btn-danger" id="btn-decline"
-                                    data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
-                                    data-departemen="{{ $j }}">
-                                    <i class="fas fa-times" data-toggle="modal"
-                                        data-target="#modalDecline"></i>&nbsp;Tolak</button>
+                            @if ($data->status_cetak == '3') {{-- Cetak Ulang dilakukan oleh Dep Stok & Penjualan--}}
+                                @if ($j == 'Penjualan & Stok')
+                                    {{-- APPROVE --}}
+                                    <button type="button" class="btn btn-success" id="btn-approve"
+                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                        data-departemen="{{ $j }}" data-toggle="modal"
+                                        data-target="#modalApproval">
+                                        <i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                    {{-- DECLINE --}}
+                                    <button type="button" class="btn btn-danger" id="btn-decline"
+                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                        data-departemen="{{ $j }}">
+                                        <i class="fas fa-times" data-toggle="modal"
+                                            data-target="#modalDecline"></i>&nbsp;Tolak</button>
+                                @endif
+                            @else {{-- Buku Baru / Cetak Ulang Revisi dilakukan oleh Dep Penerbitan --}}
+                                @if ($j == 'Penerbitan')
+                                    {{-- APPROVE --}}
+                                    <button type="button" class="btn btn-success" id="btn-approve"
+                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                        data-departemen="{{ $j }}" data-toggle="modal"
+                                        data-target="#modalApproval">
+                                        <i class="fas fa-check"></i>&nbsp;Setujui</button>
+                                    {{-- DECLINE --}}
+                                    <button type="button" class="btn btn-danger" id="btn-decline"
+                                        data-judul="{{ $data->judul_final }}" data-id="{{ $data->id }}"
+                                        data-departemen="{{ $j }}">
+                                        <i class="fas fa-times" data-toggle="modal"
+                                            data-target="#modalDecline"></i>&nbsp;Tolak</button>
+                                @endif
                             @endif
                         @endif
                     @endif
@@ -88,15 +105,15 @@
             @endforeach
         </div>
     </div>
-    @foreach ($departemen as $jb => $j)
+    @foreach ($departemen as $j)
         <div class="col-auto mr-auto">
             <div class="mb-4">
                 <div class="user-item">
                     <div class="user-details">
                         <div class="user-name">{{ $j }}:</div>
                         @if (!$act->isEmpty())
-                            @foreach ($act as $i => $a)
-                                @if ($i == $jb)
+                            @foreach ($act as $a)
+                                @if ($j == $a->type_departemen)
                                     @if (in_array($j, $act_j))
                                         @if ($a->type_action == 'Approval')
                                             <div class="text-job text-success">
@@ -134,12 +151,12 @@
                         @endif
 
                         <div class="user-cta">
-                            <span class="text-underline"><u>
+                            <samp class="text-default">
                                     @if (!$act->isEmpty())
-                                        @foreach ($act as $i => $a)
-                                            @if ($i == $jb)
+                                        @foreach ($act as $a)
+                                            @if ($j == $a->type_departemen)
                                                 @if (in_array($j, $act_j))
-                                                    {{ ucfirst(\DB::table('users')->where('id', $a->users_id)->first()->nama) }}
+                                                    ({{ ucfirst(\DB::table('users')->where('id', $a->users_id)->first()->nama) }})
                                                 @else
                                                     (nama {{ $j }})
                                                 @endif
@@ -152,7 +169,7 @@
                                     @else
                                         (nama {{ $j }})
                                     @endif
-                                </u></span>
+                            </samp>
                         </div>
                     </div>
                 </div>

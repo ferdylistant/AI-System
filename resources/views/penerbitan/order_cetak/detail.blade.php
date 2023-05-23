@@ -127,17 +127,23 @@
                             </div>
                             <div class="col-auto">
                                 <span class="bullet text-danger"></span> Kode order: <b>{{ $data->kode_order }}</b>
-                                (@foreach (json_decode($data->pilihan_terbit) as $i => $pt)
-                                    @if (count(json_decode($data->pilihan_terbit)) == 2)
-                                        @if ($i == 0)
-                                            {{ $pt }} &
-                                        @else
-                                            {{ $pt }}
-                                        @endif
+                                (
+                                    @if ($data->status_cetak == '3')
+                                        Cetak Ulang
                                     @else
-                                        {{ $pt }}
+                                        @foreach (json_decode($data->pilihan_terbit) as $i => $pt)
+                                            @if (count(json_decode($data->pilihan_terbit)) == 2)
+                                                @if ($i == 0)
+                                                    {{ $pt }} &
+                                                @else
+                                                    {{ $pt }}
+                                                @endif
+                                            @else
+                                                {{ $pt }}
+                                            @endif
+                                        @endforeach
                                     @endif
-                                @endforeach)
+                                )
                             </div>
                         </div>
                         <div class="card-body">
