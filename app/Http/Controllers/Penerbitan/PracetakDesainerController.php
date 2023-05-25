@@ -2033,7 +2033,7 @@ class PracetakDesainerController extends Controller
                         'message' => 'Proses pengajuan cover belum selesai diajukan'
                     ]);
                 }
-                if (is_null($data->selesai_proof_cover)) {
+                if (is_null($data->selesai_proof)) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Proses proof prodev belum selesai'

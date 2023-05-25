@@ -40,12 +40,12 @@ class NotifikasiPenyetujuanListener
                     'form_id' => $data['form_id']
                 ]);
                 if (!is_null($data['users_id'])) {
-                    foreach ($data['users_id'] as $u) {
+                    (object)collect($data['users_id'])->map(function($item) use($data) {
                         DB::table('notif_detail')->insert([
                             'notif_id' => $data['id'],
-                            'user_id' => $u->user_id
+                            'user_id' => $item->user_id
                         ]);
-                    }
+                    })->all();
                 }
                 DB::commit();
                 break;

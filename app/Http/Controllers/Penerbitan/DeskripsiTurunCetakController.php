@@ -236,11 +236,11 @@ class DeskripsiTurunCetakController extends Controller
                     foreach ($request->add_pilihan_terbit as $pt) {
                         switch ($pt) {
                             case 'ebook':
-                                $kodeOrder = $this->getOrderEbookId($request->type);
+                                $kodeOrder = self::getOrderEbookId($request->type);
                                 $type = 'ebook';
                                 break;
                             case 'cetak':
-                                $kodeOrder = $this->getOrderCetakId($request->type);
+                                $kodeOrder = self::getOrderCetakId($request->type);
                                 $type = 'cetak';
                                 break;
                         }
@@ -262,13 +262,13 @@ class DeskripsiTurunCetakController extends Controller
                         ->where('j.nama','LIKE','%Administrasi%')
                         ->select('up.user_id')
                         ->get();
-                        $data = collect($data)->put('id_order',$idOrder);
+                        $data = (object)collect($data)->put('id_order',$idOrder);
                         $permissionAdmin = (object)collect($permissionAdmin)->map(function($item) use ($data) {
                             return DB::table('todo_list')->insert([
-                                'form_id' => $data->id_order,
+                                'form_id' => $data['id_order'],
                                 'users_id' => $item->user_id,
-                                'title' => 'Lengkapi data order cetak untuk naskah "'.$data->judul_final.'".',
-                                'link' => '/penerbitan/order-cetak/edit?order='.$data->id_order.'&naskah='.$data->kode,
+                                'title' => 'Lengkapi data order cetak untuk naskah "'.$data['judul_final'].'".',
+                                'link' => '/penerbitan/order-cetak/edit?order='.$data['id_order'].'&naskah='.$data['kode'],
                                 'status' => '0'
                             ]);
                         })->all();
@@ -277,9 +277,9 @@ class DeskripsiTurunCetakController extends Controller
                             'params' => 'Insert Timeline',
                             'id' => Uuid::uuid4()->toString(),
                             'progress' => 'Order '.ucfirst($type),
-                            'naskah_id' => $data->naskah_id,
+                            'naskah_id' => $data['naskah_id'],
                             'tgl_mulai' => $tgl,
-                            'url_action' => urlencode(URL::to('/penerbitan/order-'.$type.'/detail?order=' . $idOrder . '&naskah=' . $data->kode)),
+                            'url_action' => urlencode(URL::to('/penerbitan/order-'.$type.'/detail?order=' . $idOrder . '&naskah=' . $data['kode'])),
                             'status' => 'Antrian'
                         ];
                         event(new TimelineEvent($insertTimelineOrder));

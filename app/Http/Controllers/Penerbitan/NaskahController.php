@@ -323,6 +323,7 @@ class NaskahController extends Controller
                     ->whereNull('pn.deleted_at')
                     ->where('pn.jalur_buku','LIKE','%Reguler%')
                     ->whereNotNull('pns.tgl_pn_prodev')
+                    ->orderBy('pns.tgl_pn_prodev', 'desc')
                     ->select('pn.*','pns.tgl_pn_prodev as tgl','u.id as users_id','u.avatar','u.nama');
                     $title = 'Prodev';
                     $class = 'badge-danger';
@@ -335,6 +336,7 @@ class NaskahController extends Controller
                     ->whereNull('pn.deleted_at')
                     ->where('pn.jalur_buku','LIKE','%Reguler%')
                     ->whereNotNull('pns.tgl_pn_m_penerbitan')
+                    ->orderBy('pns.tgl_pn_m_penerbitan', 'desc')
                     ->select('pn.*','pns.tgl_pn_m_penerbitan as tgl','u.id as users_id','u.avatar','u.nama');
                     $title = 'Manajer Penerbitan';
                     $class = 'badge-success';
@@ -348,6 +350,7 @@ class NaskahController extends Controller
                     ->whereNull('pn.deleted_at')
                     ->where('pn.jalur_buku','LIKE','%Reguler%')
                     ->whereNotNull('pns.tgl_pn_m_pemasaran')
+                    ->orderBy('ppp.created_at', 'desc')
                     ->select('pn.*','ppp.created_at as tgl','u.id as users_id','u.avatar','u.nama');
                     $title = 'Manajer Pemasaran';
                     $class = 'badge-info';
@@ -361,6 +364,7 @@ class NaskahController extends Controller
                     ->whereNull('pn.deleted_at')
                     ->where('pn.jalur_buku','LIKE','%Reguler%')
                     ->whereNotNull('pns.tgl_pn_d_pemasaran')
+                    ->orderBy('pns.tgl_pn_d_pemasaran', 'desc')
                     ->select('pn.*','pns.tgl_pn_d_pemasaran as tgl','u.id as users_id','u.avatar','u.nama');
                     $title = 'Direktur Pemasaran';
                     $class = 'badge-light';
@@ -373,6 +377,7 @@ class NaskahController extends Controller
                     ->whereNull('pn.deleted_at')
                     ->where('pn.jalur_buku','LIKE','%Reguler%')
                     ->whereNotNull('pns.tgl_pn_direksi')
+                    ->orderBy('pns.tgl_pn_direksi', 'desc')
                     ->select('pn.*','pns.tgl_pn_direksi as tgl','u.id as users_id','u.avatar','u.nama');
                     $title = 'Direktur Utama';
                     $class = 'badge-secondary';
@@ -380,6 +385,7 @@ class NaskahController extends Controller
                     $scroll = 'scrollbar-deep-secondary bordered-deep-secondary';
                     break;
             }
+
             $html ="";
                 foreach ($data->get() as $d) {
                     $words = explode(' ', $d->nama);

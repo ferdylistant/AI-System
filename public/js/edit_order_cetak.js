@@ -145,7 +145,7 @@ $(function () {
                         err[key] = value;
                     });
                 }
-                notifToast("error", "Data order e-book gagal disimpan!");
+                notifToast("error", "Data order cetak gagal disimpan!");
             },
             complete: function () {
                 $('button[type="submit"]')
@@ -160,7 +160,7 @@ $(function () {
         if ($(this).valid()) {
             let nama = $(this).find('[name="up_judul_final"]').val();
             swal({
-                text: "Ubah data order e-book (" + nama + ")?",
+                text: "Ubah data order cetak (" + nama + ")?",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
@@ -206,7 +206,8 @@ $(function () {
                     data,
                     penulis,
                     disable,
-                    cursor
+                    cursor,
+                    disableCetakUlang
                 } = result;
                 // console.log(result);
                 for (let p of penulis) {
@@ -226,6 +227,7 @@ $(function () {
                             break;
                         case 'kelompok_buku_id':
                             $('[name="up_kelompok_buku"]').val([data[n]]).change();
+                            $('[name="up_kelompok_buku"]').attr('disabled',disableCetakUlang).change();
                             break;
                         case 'sub_judul_final':
                             if (data[n]) {
@@ -233,11 +235,13 @@ $(function () {
                             } else {
                                 $('[name="up_' + n + '"]').val('-').change();
                             }
+                            $('[name="up_' + n + '"]').attr('disabled',disableCetakUlang).change();
                             break;
                         case 'buku_jadi':
                             $('[name="up_buku_jadi"]').val([data[n]]);
+                            $('[name="up_buku_jadi"]').attr('disabled',disableCetakUlang).change();
                             break;
-                        // case 'format_buku':
+                            // case 'format_buku':
                         //     $('[name="up_format_buku"]').val([data[n]]);
                         //     break;
                         case 'finishing_cover':
@@ -249,6 +253,10 @@ $(function () {
                                     }
                                 });
                             });
+                            $('.select-finishing-cover').attr('disabled',disableCetakUlang).change();
+                            break;
+                        case 'jumlah_cetak':
+                            $('[name="up_' + n + '"]').val(data[n]).change();
                             break;
                         case 'ukuran_jilid_binding':
                             if (data[n]) {
@@ -264,7 +272,8 @@ $(function () {
                                         <span class="input-group-text"><strong>cm</strong></span>
                                     </div>
                                     </div></div>`);
-                                $('[name="up_' + n + '"]').val([data[n]]).change()
+                                $('[name="up_' + n + '"]').val([data[n]]).change();
+                                $('[name="up_' + n + '"]').attr('disabled',disableCetakUlang).change();
                                 $('#divBinding').show('slow');
                             } else {
                                 $('#ukuranBinding').html(`<div class="form-group" style="display:none" id="divBinding"><label>Ukuran Binding: <span class="text-danger">*</span></label>
@@ -283,6 +292,7 @@ $(function () {
                         case 'posisi_layout':
                             if (data[n]) {
                                 $('[name="up_' + n + '"]').val(data[n]).change();
+                                $('[name="up_' + n + '"]').attr('disabled',disableCetakUlang).change();
                                 $.ajax({
                                     url: window.location.origin + "/list/list-dami-data",
                                     type: "GET",
@@ -293,6 +303,7 @@ $(function () {
                                     success: function (hasil) {
                                         $("#dami").empty();
                                         $("#dami").html(hasil);
+                                        // $('[name="up_dami"]').attr('disabled',disableCetakUlang).change();
                                     },
                                     error: function (hasil) {
                                         $("#dami").empty();
@@ -302,10 +313,12 @@ $(function () {
                                         cardWrap.removeClass('card-progress');
                                     }
                                 });
+
                             }
                             break;
                         default:
                             $('[name="up_' + n + '"]').val(data[n]).change();
+                            $('[name="up_' + n + '"]').attr('disabled',disableCetakUlang).change();
                             break;
                     }
                 }

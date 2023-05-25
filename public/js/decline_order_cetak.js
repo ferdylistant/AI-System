@@ -69,7 +69,7 @@ $(function () {
             },
             success: function (result) {
                 // console.log(result);
-                resetFrom(data);
+                // resetFrom(data);
                 notifToast(result.status, result.message);
                 if (result.status == "success") {
                     location.reload();
