@@ -876,7 +876,7 @@ class OrderCetakController extends Controller
                         ->get();
                         $data = collect($data)->put('title_todo',$dp['title']);
                         (object)collect($depart)->map(function($item) use ($data) {
-                            $cekEksisDirUtama = DB::table('todo_list')
+                            $cekEksisTodo = DB::table('todo_list')
                             ->where('form_id',$data['id'])
                             ->where('users_id',$item->user_id)
                             ->where('title',$data['title_todo']);
@@ -884,8 +884,8 @@ class OrderCetakController extends Controller
                             ->where('order_cetak_id',$data['id'])
                             ->where('users_id',$item->user_id)->first();
                             $status = is_null($cekAction) ? '0':'1';
-                            if (!is_null($cekEksisDirUtama->first())){
-                                $cekEksisDirUtama->update([
+                            if (!is_null($cekEksisTodo->first())){
+                                $cekEksisTodo->update([
                                     'status' => $status
                                 ]);
                             } else {

@@ -1745,23 +1745,26 @@ class PracetakDesainerController extends Controller
                             event(new PracetakCoverEvent($dataCover));
                             $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('title','Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".')->select('users_id')->get();
                             if (!$dataTodo->isEmpty()) {
-                                $data = collect($data)->put('users_id',$dataTodo->users_id);
+                                foreach($dataTodo as $dt) {
+                                    $dtUser[] = $dt->users_id;
+                                }
+                                $data = collect($data)->put('users_id',$dtUser);
                                 //? Insert Todo List Desainer
-                                (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
-                                    if (in_array($item,$data->users_id)) {
+                                (object)collect(json_decode($data['desainer']))->map(function($item) use($data) {
+                                    if (in_array($item,$data['users_id'])) {
                                         return DB::table('todo_list')
-                                        ->where('form_id', $data->id)
+                                        ->where('form_id', $data['id'])
                                         ->where('users_id', $item)
-                                        ->where('title', 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".')
+                                        ->where('title', 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data['judul_final'].'".')
                                         ->update([
                                             'status' => '0'
                                         ]);
                                     } else {
                                         return DB::table('todo_list')->insert([
-                                            'form_id' => $data->id,
+                                            'form_id' => $data['id'],
                                             'users_id' => $item,
-                                            'title' => 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".',
-                                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                            'title' => 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data['judul_final'].'".',
+                                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data['id'].'&kode='.$data['kode'],
                                             'status' => '0'
                                         ]);
                                     }
@@ -1910,23 +1913,26 @@ class PracetakDesainerController extends Controller
                             event(new PracetakCoverEvent($dataKorektor));
                             $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('title','Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".')->select('users_id')->get();
                             if (!$dataTodo->isEmpty()) {
-                                $data = collect($data)->put('users_id',$dataTodo->users_id);
+                                foreach($dataTodo as $dt) {
+                                    $dtUser[] = $dt->users_id;
+                                }
+                                $data = collect($data)->put('users_id',$dtUser);
                                 //? Insert Todo List Korektor
-                                (object)collect(json_decode($data->korektor))->map(function($item) use($data) {
-                                    if (in_array($item,$data->users_id)) {
+                                (object)collect(json_decode($data['korektor']))->map(function($item) use($data) {
+                                    if (in_array($item,$data['users_id'])) {
                                         return DB::table('todo_list')
-                                        ->where('form_id', $data->id)
+                                        ->where('form_id', $data['id'])
                                         ->where('users_id', $item)
-                                        ->where('title', 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".')
+                                        ->where('title', 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data['judul_final'].'".')
                                         ->update([
                                             'status' => '0'
                                         ]);
                                     } else {
                                         return DB::table('todo_list')->insert([
-                                            'form_id' => $data->id,
+                                            'form_id' => $data['id'],
                                             'users_id' => $item,
-                                            'title' => 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".',
-                                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                            'title' => 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data['judul_final'].'".',
+                                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data['id'].'&kode='.$data['kode'],
                                             'status' => '0'
                                         ]);
                                     }

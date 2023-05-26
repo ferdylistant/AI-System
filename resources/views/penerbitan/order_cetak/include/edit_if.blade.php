@@ -269,7 +269,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-copy"></i></div>
                     </div>
-                    <input type="number" class="form-control" name="up_jumlah_cetak" min="1" placeholder="Jumlah cetak" required>
+                    <input id="jumCetakInput" type="number" class="form-control" name="up_jumlah_cetak" min="1" placeholder="Jumlah cetak" required>
                     <div id="err_up_jumlah_cetak"></div>
                 </div>
             </div>

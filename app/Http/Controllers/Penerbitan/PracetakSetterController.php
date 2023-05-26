@@ -1794,23 +1794,26 @@ class PracetakSetterController extends Controller
                             event(new PracetakSetterEvent($dataSetter));
                             $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('title','Selesaikan proses setting revisi naskah yang berjudul "'.$data->judul_final.'".')->select('users_id')->get();
                             if (!$dataTodo->isEmpty()) {
-                                $data = collect($data)->put('users_id',$dataTodo->users_id);
+                                foreach($dataTodo as $dt) {
+                                    $dtUser[] = $dt->users_id;
+                                }
+                                $data = collect($data)->put('users_id',$dtUser);
                                 //? Insert Todo List Setter
-                                (object)collect(json_decode($data->setter))->map(function($item) use($data) {
-                                    if (in_array($item,$data->users_id)) {
+                                (object)collect(json_decode($data['setter']))->map(function($item) use($data) {
+                                    if (in_array($item,$data['users_id'])) {
                                         return DB::table('todo_list')
-                                        ->where('form_id', $data->id)
+                                        ->where('form_id', $data['id'])
                                         ->where('users_id', $item)
-                                        ->where('title', 'Selesaikan proses setting revisi naskah yang berjudul "'.$data->judul_final.'".')
+                                        ->where('title', 'Selesaikan proses setting revisi naskah yang berjudul "'.$data['judul_final'].'".')
                                         ->update([
                                             'status' => '0'
                                         ]);
                                     } else {
                                         return DB::table('todo_list')->insert([
-                                            'form_id' => $data->id,
+                                            'form_id' => $data['id'],
                                             'users_id' => $item,
-                                            'title' => 'Selesaikan proses setting revisi naskah yang berjudul "'.$data->judul_final.'".',
-                                            'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                                            'title' => 'Selesaikan proses setting revisi naskah yang berjudul "'.$data['judul_final'].'".',
+                                            'link' => '/penerbitan/pracetak/setter/detail?pra='.$data['id'].'&kode='.$data['kode'],
                                             'status' => '0'
                                         ]);
                                     }
@@ -1920,23 +1923,26 @@ class PracetakSetterController extends Controller
                             event(new PracetakSetterEvent($dataKorektor));
                             $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('title','Selesaikan proses koreksi naskah yang berjudul "'.$data->judul_final.'".')->select('users_id')->get();
                             if (!$dataTodo->isEmpty()) {
-                                $data = collect($data)->put('users_id',$dataTodo->users_id);
+                                foreach($dataTodo as $dt) {
+                                    $dtUser[] = $dt->users_id;
+                                }
+                                $data = collect($data)->put('users_id',$dtUser);
                                 //? Insert Todo List Korektor
-                                (object)collect(json_decode($data->korektor))->map(function($item) use($data) {
-                                    if (in_array($item,$data->users_id)) {
+                                (object)collect(json_decode($data['korektor']))->map(function($item) use($data) {
+                                    if (in_array($item,$data['users_id'])) {
                                         return DB::table('todo_list')
-                                        ->where('form_id', $data->id)
+                                        ->where('form_id', $data['id'])
                                         ->where('users_id', $item)
-                                        ->where('title', 'Selesaikan proses koreksi naskah yang berjudul "'.$data->judul_final.'".')
+                                        ->where('title', 'Selesaikan proses koreksi naskah yang berjudul "'.$data['judul_final'].'".')
                                         ->update([
                                             'status' => '0'
                                         ]);
                                     } else {
                                         return DB::table('todo_list')->insert([
-                                            'form_id' => $data->id,
+                                            'form_id' => $data['id'],
                                             'users_id' => $item,
-                                            'title' => 'Selesaikan proses koreksi naskah yang berjudul "'.$data->judul_final.'".',
-                                            'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                                            'title' => 'Selesaikan proses koreksi naskah yang berjudul "'.$data['judul_final'].'".',
+                                            'link' => '/penerbitan/pracetak/setter/detail?pra='.$data['id'].'&kode='.$data['kode'],
                                             'status' => '0'
                                         ]);
                                     }

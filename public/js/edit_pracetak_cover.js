@@ -336,7 +336,13 @@ $(function() {
                 } else {
                     location.reload();
                 }
-            }
+            },
+            error: function (xhr, status, error) {
+                console.log(xhr);
+                console.log(status);
+                console.log(error);
+                notifToast('error',xhr);
+            },
         }).done(function() {
             setTimeout(function() {
                 $("#overlay").fadeOut(300);

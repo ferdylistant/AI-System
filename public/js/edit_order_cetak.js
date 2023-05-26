@@ -1,53 +1,5 @@
-$(document).ready(function () {
-    $.ajax({
-        type: "GET",
-        url: window.location.origin + "/list/get-layout",
-        success: function (hasil) {
-            var list = hasil;
-            if (typeof hasil == "string") {
-                list = JSON.parse(hasil);
-            }
-            $.each(hasil, function (index, data) {
-                $("#posisiLayout").append(
-                    $("<option></option>")
-                        .attr("value", data.value)
-                        .text(data.label)
-                );
-            });
-        },
-        error: function (xhr, status, error) {
-            console.log(xhr);
-            console.log(status);
-            console.log(error);
-        },
-    });
-});
 $(function () {
-    $("#posisiLayout").on("change", function () {
-        let cardWrap = $('.section-body').find('.card');
-        var val = $(this).val();
-        $.ajax({
-            url: window.location.origin + "/list/list-dami",
-            type: "GET",
-            data: "value=" + val,
-            beforeSend: function () {
-                cardWrap.addClass('card-progress');
-            },
-            success: function (hasil) {
-                $("#dami").empty();
-                $("#dami").html(hasil);
-            },
-            error: function (hasil) {
-                $("#dami").empty();
-                $("#dami").html(hasil);
-            },
-            complete: function () {
-                cardWrap.removeClass('card-progress');
-            }
-        });
-    });
 
-    loadDataValue();
     $(".select2")
         .select2({
             placeholder: "Pilih",
@@ -107,6 +59,55 @@ $(function () {
         clearBtn: true,
         todayHighlight: true,
     });
+    $(document).ready(function () {
+        $.ajax({
+            type: "GET",
+            url: window.location.origin + "/list/get-layout",
+            success: function (hasil) {
+                var list = hasil;
+                if (typeof hasil == "string") {
+                    list = JSON.parse(hasil);
+                }
+                $.each(hasil, function (index, data) {
+                    $("#posisiLayout").append(
+                        $("<option></option>")
+                            .attr("value", data.value)
+                            .text(data.label)
+                    );
+                });
+                loadDataValue();
+            },
+            error: function (xhr, status, error) {
+                console.log(xhr);
+                console.log(status);
+                console.log(error);
+            },
+        });
+    });
+    $("#posisiLayout").on("change", function () {
+        let cardWrap = $('.section-body').find('.card');
+        var val = $(this).val();
+        $.ajax({
+            url: window.location.origin + "/list/list-dami",
+            type: "GET",
+            data: "value=" + val,
+            beforeSend: function () {
+                cardWrap.addClass('card-progress');
+            },
+            success: function (hasil) {
+                $("#dami").empty();
+                $("#dami").html(hasil);
+            },
+            error: function (hasil) {
+                $("#dami").empty();
+                $("#dami").html(hasil);
+            },
+            complete: function () {
+                cardWrap.removeClass('card-progress');
+            }
+        });
+    });
+
 
     function ajaxUpOrderCetak(data) {
         let el = data.get(0);
@@ -257,6 +258,9 @@ $(function () {
                             break;
                         case 'jumlah_cetak':
                             $('[name="up_' + n + '"]').val(data[n]).change();
+                            if (disableCetakUlang == true) {
+                                $('#fup_OrderCetak #jumCetakInput').focus();
+                            }
                             break;
                         case 'ukuran_jilid_binding':
                             if (data[n]) {
@@ -301,13 +305,12 @@ $(function () {
                                         cardWrap.addClass('card-progress');
                                     },
                                     success: function (hasil) {
-                                        $("#dami").empty();
-                                        $("#dami").html(hasil);
-                                        // $('[name="up_dami"]').attr('disabled',disableCetakUlang).change();
+                                        $("#fup_OrderCetak #dami").empty();
+                                        $("#fup_OrderCetak #dami").html(hasil);
                                     },
                                     error: function (hasil) {
-                                        $("#dami").empty();
-                                        $("#dami").html(hasil);
+                                        // $("#fup_OrderCetak #dami").empty();
+                                        $("#fup_OrderCetak #dami").html(hasil);
                                     },
                                     complete: function () {
                                         cardWrap.removeClass('card-progress');

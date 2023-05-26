@@ -802,11 +802,12 @@ class DeskripsiProdukController extends Controller
                     ->select('up.user_id')
                     ->get();
 
+            $data = collect($data)->put('judul',$judul_asli);
             $penerbitan = (object)collect($penerbitan)->map(function($item) use ($data) {
                 return DB::table('todo_list')
-                ->where('form_id',$data->id)
+                ->where('form_id',$data['id'])
                 ->where('users_id',$item->user_id)
-                ->where('title', 'Menentukan dan menyetujui judul final dengan judul asli, "'.$data->judul_asli.'".')
+                ->where('title', 'Menentukan dan menyetujui judul final dengan judul asli, "'.$data['judul'].'".')
                 ->delete();
             })->all();
             DB::commit();

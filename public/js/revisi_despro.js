@@ -72,9 +72,6 @@ $(document).ready(function () {
             });
         });
     });
-});
-
-$(function () {
     function resetFrom(form) {
         form.trigger("reset");
         $('[name="deadline_revisi"]').val("").trigger("change");
