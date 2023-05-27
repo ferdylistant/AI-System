@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="{{ url('vendors/stisla/css/style.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/stisla/css/components.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url('images/logo.png') }}">
+    {{-- <link rel="stylesheet" href="https://unpkg.com/placeholder-loading/dist/css/placeholder-loading.min.css"> --}}
+    {{-- <link href="https://unpkg.com/placeholdifier/placeholdifier.css" rel="stylesheet" /> --}}
     <!-- Specific JS File -->
     <style>
         .loadingoverlay {

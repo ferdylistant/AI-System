@@ -20,5 +20,9 @@
         "pusher-js": "^8.0.1",
         "resolve-url-loader": "^3.1.0",
         "vue-template-compiler": "^2.7.14"
+    },
+    "dependencies": {
+        "save": "^2.9.0",
+        "skeleton-screen-css": "^1.1.0"
     }
 }

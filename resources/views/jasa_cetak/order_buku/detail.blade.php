@@ -61,6 +61,17 @@
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
             <h1>Detail Jasa Cetak Order Buku</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active">
+                    <a href="{{url('/')}}">Dashboard</a>
+                </div>
+                <div class="breadcrumb-item">
+                    <a href="{{url('/jasa-cetak/order-buku')}}">Data Jasa Cetak Order Buku</a>
+                </div>
+                <div class="breadcrumb-item">
+                    Detail Jasa Cetak Order Buku
+                </div>
+            </div>
         </div>
 
         <div class="section-body">
@@ -68,12 +79,13 @@
                 <div class="col-12 col-md-12">
                     <div class="card card-primary">
                         <div class="card-header justify-content-between">
-                            <div class="col-auto d-flex">
-                                <h4>Form Jasa Cetak Order Buku</h4>
-                                <span class="status"></span>
-                            </div>
                             <div class="col-auto">
-                                <span class="bullet text-danger"></span> Nomor order: <b class="no_order"></b>
+                                <h4 class="section-title">Form Jasa Cetak Order Buku</h4>
+                                {{-- <div id="status"></div> --}}
+                                <p class="status" id="status"></p>
+                            </div>
+                            <div class="col-auto d-flex">
+                                <span class="bullet text-danger"></span> <span>Nomor order: <b class="no_order" id="no_orderTop"></b></span>
                             </div>
                         </div>
                         <div class="card-body">
@@ -84,38 +96,38 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Nomor Order</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace no_order"></p>
+                                        <p class="mb-1 text-monospace no_order" id="no_order"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Jalur Proses</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace jalur_proses"></p>
+                                        <p class="mb-1 text-monospace jalur_proses" id="jalur_proses"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Nama Pemesan</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace nama_pemesan"></p>
+                                        <p class="mb-1 text-monospace nama_pemesan" id="nama_pemesan"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Judul Buku</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace judul_buku"></p>
+                                        <p class="mb-1 text-monospace judul_buku" id="judul_buku"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Pengarang</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace pengarang"></p>
+                                        <p class="mb-1 text-monospace pengarang" id="pengarang"></p>
                                     </div>
                                     @if ($desain_setter == TRUE)
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Desain/Setter</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace desain_setter"></p>
+                                        <p class="mb-1 text-monospace desain_setter" id="desain_setter"></p>
                                     </div>
                                     @endif
                                 </div>
@@ -124,32 +136,32 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Format</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace format"></p>
+                                        <p class="mb-1 text-monospace format" id="format"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Kertas Isi</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace kertas_isi"></p>
+                                        <p class="mb-1 text-monospace kertas_isi" id="kertas_isi"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Kertas Cover</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace kertas_cover"></p>
+                                        <p class="mb-1 text-monospace kertas_cover" id="kertas_cover"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Status Cetak</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace status_cetak"></p>
+                                        <p class="mb-1 text-monospace status_cetak" id="status_cetak"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Jumlah Order</h6>
                                             <small class="text-danger jml-order-text"></small>
                                         </div>
-                                        <p class="mb-1 text-monospace jml_order"></p>
+                                        <p class="mb-1 text-monospace jml_order" id="jml_order"></p>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
@@ -157,37 +169,37 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Harga Final</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace harga_final"></p>
+                                        <p class="mb-1 text-monospace harga_final" id="harga_final"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Tanggal Order</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace tgl_order"></p>
+                                        <p class="mb-1 text-monospace tgl_order" id="tgl_order"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Tanggal Permintaan Selesai</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace tgl_permintaan_selesai"></p>
+                                        <p class="mb-1 text-monospace tgl_permintaan_selesai" id="tgl_permintaan_selesai"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Keterangan</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace keterangan"></p>
+                                        <p class="mb-1 text-monospace keterangan" id="keterangan"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Dibuat Pada Tanggal</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace created_at"></p>
+                                        <p class="mb-1 text-monospace created_at" id="created_at"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Dibuat Oleh</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace created_by"></p>
+                                        <p class="mb-1 text-monospace created_by" id="created_by"></p>
                                     </div>
                                 </div>
                             </div>
@@ -208,6 +220,7 @@
     {{-- <script src="{{ url('vendors/flipbook/min_version/pdf.min.js') }}"></script>
     <script src="{{ url('vendors/flipbook/min_version/jquery.ipages.min.js') }}"></script> --}}
     <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
+    <script src="{{ url('vendors/js-skeleton-loader-master/index.js') }}"></script>
 @endsection
 
 @section('jsNeeded')

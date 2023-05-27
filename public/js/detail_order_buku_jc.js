@@ -1,4 +1,28 @@
 $(function () {
+    var obj = [];
+    $('p').each(function(i,val){
+
+        // var obj = ['no_order','jalur_proses'];
+        obj[i] = $(this).attr('id');
+    });
+    obj.push('no_orderTop');
+    $.each(obj,function (key,val){
+        new Loader(val).render([
+            // avatar shape: round, line, drawline
+            // ['line'],
+            // number of text lines
+            ['line*1',
+            {
+                // styles
+                style: [{
+                borderRadius: "5px",
+                height: "8px",
+                // width: "100%"
+                }]
+            }]
+            ],
+        );
+    });
     loadDataValue();
     function loadDataValue() {
         let id = window.location.search.split('?').pop(),
@@ -6,7 +30,11 @@ $(function () {
         $.ajax({
             url: window.location.origin + "/jasa-cetak/order-buku/detail?" + id + "&request_=getValue",
             beforeSend: function () {
-                cardWrap.addClass('card-progress');
+                $.each(obj,function (key,val) {
+                    $('#'+val).fadeIn(300);
+                });
+                // $('.jalur_proses').fadeIn(300);
+                // $('#nama_pemesan').fadeIn(300);
             },
             success: function (result) {
                 let {
@@ -42,6 +70,7 @@ $(function () {
                             break;
                         case 'status':
                             $('.' + n).html(data[n]).change();
+
                             break;
                         case 'format':
                             $('.' + n).text(data[n] + ' cm').change();
@@ -61,11 +90,18 @@ $(function () {
             error: function (err) {
                 notifToast("error", "Terjadi kesalahan!");
             },
-            complete: function () {
-                cardWrap.removeClass('card-progress');
-            }
+            // complete: function () {
+            //     cardWrap.removeClass('card-progress');
+            // }
 
-        })
+        }).done(function () {
+            setTimeout(function () {
+                $.each(obj,function (key,val){
+
+                    $("#"+val).attr('id',false);
+                });
+            }, 500);
+        });
     }
     $("#buttonAct").on("click", "#btn-decline", function (e) {
         e.preventDefault();

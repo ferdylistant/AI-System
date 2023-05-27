@@ -88,15 +88,15 @@
             @endforeach
         </div>
     </div>
-    @foreach ($departemen as $jb => $j)
+    @foreach ($departemen as $j)
         <div class="col-auto mr-auto">
             <div class="mb-4">
                 <div class="user-item">
                     <div class="user-details">
                         <div class="user-name">{{ $j }}:</div>
                         @if (!$act->isEmpty())
-                            @foreach ($act as $i => $a)
-                                @if ($i == $jb)
+                            @foreach ($act as $a)
+                                @if ($j == $a->type_departemen)
                                     @if (in_array($j, $act_j))
                                         @if ($a->type_action == 'Approval')
                                             <div class="text-job text-success">
@@ -134,12 +134,12 @@
                         @endif
 
                         <div class="user-cta">
-                            <span class="text-underline"><u>
+                            <samp class="text-default">
                                     @if (!$act->isEmpty())
-                                        @foreach ($act as $i => $a)
-                                            @if ($i == $jb)
+                                        @foreach ($act as $a)
+                                            @if ($j == $a->type_departemen)
                                                 @if (in_array($j, $act_j))
-                                                    {{ \DB::table('users')->where('id', $a->users_id)->first()->nama }}
+                                                    ({{ \DB::table('users')->where('id', $a->users_id)->first()->nama }})
                                                 @else
                                                     (nama {{ $j }})
                                                 @endif
@@ -152,7 +152,7 @@
                                     @else
                                         (nama {{ $j }})
                                     @endif
-                                </u></span>
+                                </samp>
                         </div>
                     </div>
                 </div>
