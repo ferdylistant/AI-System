@@ -75,19 +75,19 @@
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Catatan:</th>
-                                <td class="table-active catatan"></td>
+                                <td class="table-active catatan" id="catatan"></td>
                                 <td class="table-active text-left catColInput" id="catColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Desainer: <span class="text-danger">*</span></th>
-                                <td class="table-active desainer"></td>
+                                <td class="table-active desainer" id="desainer"></td>
                                 <td class="table-active text-left desainerColInput" id="desainerColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Korektor:
                                     <span id="requiredKorektor"></span>
                                 </th>
-                                <td class="table-active korektor"></td>
+                                <td class="table-active korektor" id="korektor"></td>
                                 <td class="table-active text-left korektorColInput" id="korektorColInput" hidden></td>
                             </tr>
                             {{--<tr>
@@ -156,12 +156,12 @@
                             </tr>--}}
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Proses Saat Ini: <span class="text-danger">*</span></th>
-                                <td class="table-active proses_saat_ini"></td>
+                                <td class="table-active proses_saat_ini" id="prosSaatIni"></td>
                                 <td class="table-active text-left prosColInput" id="prosColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Bulan: <span class="text-danger">*</span></th>
-                                <td class="table-active bulan"></td>
+                                <td class="table-active bulan" id="buLan"></td>
                                 <td class="table-active text-left bulanColInput" id="bulanColInput" hidden></td>
                             </tr>
                         </tbody>

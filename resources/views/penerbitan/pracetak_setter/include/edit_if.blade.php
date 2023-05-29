@@ -68,59 +68,59 @@
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Jumlah Halaman
                                     Final: <span class="text-danger">*</span></th>
-                                <td class="table-active jml_hal_final"></td>
+                                <td class="table-active jml_hal_final" id="jmlHalaman"></td>
                                 <td class="table-active text-left jmlHalColInput" id="jmlHalColInput" hidden>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Catatan:</th>
-                                <td class="table-active catatan"></td>
+                                <td class="table-active catatan" id="caTatan"></td>
                                 <td class="table-active text-left catColInput" id="catColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Setter: <span class="text-danger">*</span></th>
-                                <td class="table-active setter"></td>
+                                <td class="table-active setter" id="seTter"></td>
                                 <td class="table-active text-left setterColInput" id="setterColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Korektor:
                                     <span id="requiredKorektor"></span>
                                 </th>
-                                <td class="table-active korektor"></td>
+                                <td class="table-active korektor" id="koRektor"></td>
                                 <td class="table-active text-left korektorColInput" id="korektorColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Edisi Cetak:</th>
-                                <td class="table-active edisi_cetak"></td>
+                                <td class="table-active edisi_cetak" id="edisiCetak"></td>
                                 <td class="table-active text-left edCetakColInput" id="edCetakColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Mulai Proses Copyright:</th>
-                                <td class="table-active mulai_p_copyright"></td>
+                                <td class="table-active mulai_p_copyright" id="mulaiCopyright"></td>
                                 <td class="table-active text-left copyrightColInput" id="copyrightColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Selesai Proses Copyright:</th>
-                                <td class="table-active selesai_p_copyright"></td>
+                                <td class="table-active selesai_p_copyright" id="selesaiCopyright"></td>
                                 <td class="table-active text-left copyrightSelColInput" id="copyrightSelColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">ISBN: <small class="text-danger">*Wajib ketika ingin menyelesaikan proses</small></th>
-                                <td class="table-active isbn"></td>
+                                <td class="table-active isbn" id="isBn"></td>
                                 <td class="table-active text-left isbnColInput" id="isbnColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Pengajuan Harga: <small class="text-danger">*Wajib ketika ingin menyelesaikan proses</small></th>
-                                <td class="table-active pengajuan_harga"></td>
+                                <td class="table-active pengajuan_harga" id="pengHarga"></td>
                                 <td class="table-active text-left hargaColInput" id="hargaColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Proses Saat Ini: <span class="text-danger">*</span></th>
-                                <td class="table-active proses_saat_ini"></td>
+                                <td class="table-active proses_saat_ini" id="prosesSaatIni"></td>
                                 <td class="table-active text-left prosColInput" id="prosColInput" hidden></td>
                             </tr>
                             <tr>
                                 <th class="table-secondary" style="width: 25%">Bulan: <span class="text-danger">*</span></th>
-                                <td class="table-active bulan"></td>
+                                <td class="table-active bulan" id="buLan"></td>
                                 <td class="table-active text-left bulanColInput" id="bulanColInput" hidden></td>
                             </tr>
                         </tbody>

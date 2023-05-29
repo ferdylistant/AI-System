@@ -261,7 +261,7 @@ class PracetakSetterController extends Controller
                                 case 'Antrian':
                                     $html .= '<i class="far fa-circle" style="color:#34395E;"></i>
                                     Status Progress:
-                                    <span class="badge" style="background:#34395E;color:white">' . $item . '</span>';
+                                    <span class="badge" style="background:#34395E;color:white" id="badgeStatProg">' . $item . '</span>';
                                     break;
 
                                 case 'Pending':

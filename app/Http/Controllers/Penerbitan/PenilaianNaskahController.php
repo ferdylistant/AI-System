@@ -224,9 +224,12 @@ class PenilaianNaskahController extends Controller
                         'pilar' => $pilar
                     ]);
                 } else {
-                    $pn_pemasaran = DB::table('penerbitan_pn_pemasaran')
-                        ->where('naskah_id', $naskah->id)
-                        ->where('pic', 'M')->get();
+                    $pn_pemasaran = DB::table('penerbitan_pn_pemasaran as pnp')
+                    ->join('users as u', 'pnp.created_by', '=', 'u.id')
+                    ->where('pnp.naskah_id', $naskah->id)
+                    ->where('pnp.pic', 'M')
+                    ->select('pnp.*', 'u.nama as nama_manager')
+                    ->get();
                     return view('penerbitan.naskah.page.tab-mpemasaran', [
                         'form' => 'view',
                         'naskah' => $naskah,
@@ -300,6 +303,7 @@ class PenilaianNaskahController extends Controller
                         'form' => 'view',
                         'naskah' => $naskah,
                         'pn_pemasaran' => $pn_dpemasaran,
+                        'nama_direktur' => DB::table('users')->where('id',$pn_dpemasaran->created_by)->first()->nama
                     ]);
                 }
             } else {
@@ -316,6 +320,7 @@ class PenilaianNaskahController extends Controller
                         'form' => 'view',
                         'naskah' => $naskah,
                         'pn_pemasaran' => $pn_dpemasaran,
+                        'nama_direktur' => $pn_dpemasaran->nama_direktur
                     ]);
                 }
             }
@@ -420,7 +425,11 @@ class PenilaianNaskahController extends Controller
                             'naskah' => $naskah,
                         ]);
                     } else {
-                        $pn_direksi = DB::table('penerbitan_pn_direksi')->where('naskah_id', $naskah->id)->first();
+                        $pn_direksi = DB::table('penerbitan_pn_direksi as pnd')
+                            ->join('users as u','u.id','=','pnd.created_by')
+                            ->where('pnd.naskah_id', $naskah->id)
+                            ->select('pnd.*','u.nama as nama_direksi')
+                            ->first();
                         return view('penerbitan.naskah.page.tab-direksi', [
                             'form' => 'view',
                             'naskah' => $naskah,
@@ -434,7 +443,11 @@ class PenilaianNaskahController extends Controller
                 if (is_null($naskah->tgl_pn_direksi)) {
                     return '<h5>Direksi belum membuat penilaian.</h5>';
                 } else {
-                    $pn_direksi = DB::table('penerbitan_pn_direksi')->where('naskah_id', $naskah->id)->first();
+                    $pn_direksi = DB::table('penerbitan_pn_direksi as pnd')
+                    ->join('users as u','u.id','=','pnd.created_by')
+                    ->where('pnd.naskah_id', $naskah->id)
+                    ->select('pnd.*','u.nama as nama_direksi')
+                    ->first();
                     return view('penerbitan.naskah.page.tab-direksi', [
                         'form' => 'view',
                         'naskah' => $naskah,

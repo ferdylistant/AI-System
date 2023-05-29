@@ -82,7 +82,7 @@
                             <div class="col-auto">
                                 <h4 class="section-title">Form Jasa Cetak Order Buku</h4>
                                 {{-- <div id="status"></div> --}}
-                                <p class="status" id="status"></p>
+                                <span class="status" id="status"></span>
                             </div>
                             <div class="col-auto d-flex">
                                 <span class="bullet text-danger"></span> <span>Nomor order: <b class="no_order" id="no_orderTop"></b></span>

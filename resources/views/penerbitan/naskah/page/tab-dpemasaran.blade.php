@@ -4,7 +4,7 @@
 @if($form == 'view')
 <div class="row">
     <div class="col-12 mb-3">
-            <h5 class="section-title">Penilaian: <b>{{$pn_pemasaran->nama_direktur}}</b></h5>
+            <h5 class="section-title">Penilaian: <b>{{$nama_direktur}}</b></h5>
         </div>
     <div class="form-group col-12 mb-4">
         <label>Prospek Pasar: <span class="text-danger">*</span></label>

@@ -1,5 +1,8 @@
 @if($form == 'view')
 <div class="row">
+    <div class="col-12 mb-3">
+        <h5 class="section-title">Penilaian: <b>{{$pn_direksi->nama_direksi}}</b></h5>
+    </div>
     <div class="form-group col-12 mb-4">
         <label>Keputusan Direksi: <span class="text-danger">*</span></label>
         <input type="text" class="form-control" value="{{$pn_direksi->keputusan_final}}" placeholder="Judul Final" readonly>

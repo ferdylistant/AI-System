@@ -68,7 +68,7 @@ $(function() {
                     }
                 },
                 error: function(err) {
-                    // console.log(err)
+                    console.log(err);
                     notifToast('error', 'Terjadi Kesalahan Form Penilaian Gagal Dibuka!');
                 },
                 complete: function() {

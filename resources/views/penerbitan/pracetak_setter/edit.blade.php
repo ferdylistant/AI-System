@@ -35,11 +35,11 @@
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
-                    <h4 class="section-title">Data Edit/Buat Pracetak Setter Proses</h4>
                     <div class="card card-primary">
+                        <h4 class="section-title">Data Edit/Buat Pracetak Setter Proses</h4>
                         <div class="row card-header justify-content-between">
-                            <div class="col-auto" id="status"></div>
-                            <div class="col-auto" id="proses_saat_ini"></div>
+                            <div class="col-6 text-left" id="status"></div>
+                            <div class="col-6 text-right" id="proses_saat_ini"></div>
                         </div>
                         @include('penerbitan.pracetak_setter.include.edit_if')
                     </div>
@@ -56,6 +56,7 @@
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script src="{{ url('vendors/js-skeleton-loader-master/index.js') }}"></script>
 @endsection
 
 
