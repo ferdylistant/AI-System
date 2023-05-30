@@ -8,8 +8,8 @@ $(function() {
 
     // Each change tab form penilaian
     $(document).on('show.bs.tab', function(e) {
-        let tab = $(e.delegateTarget.activeElement).data('penilaian'),
-            naskahid = $(e.delegateTarget.activeElement).data('naskahid');
+        let tab = $(e.delegateTarget.activeElement).data('penilaian');
+        let naskahid = $(e.delegateTarget.activeElement).data('naskahid');
         loadPenilaian(tab, naskahid);
     });
 
@@ -41,7 +41,22 @@ $(function() {
                     naskah_id: naskahid
                 },
                 beforeSend: function() {
-                    $('#detailPenilaianCollapseCard #form_penilaian').parent().addClass('card-progress')
+                    // $("#"+tab).attr('hidden',false);
+                    new Loader(tab).render([
+                        // avatar shape: round, line, drawline
+                        // ['line'],
+                        // number of text lines
+                        ['line*3',
+                        {
+                            // styles
+                            style: [{
+                            borderRadius: "5px",
+                            width: "100%"
+                            }]
+                        }]
+                        ],
+                    );
+                    // $("#detailPenilaianCollapseCard #form_penilaian #"+tab).fadeIn(300);
                 },
                 success: function(result) {
                     // console.log(tab)
@@ -68,12 +83,16 @@ $(function() {
                     }
                 },
                 error: function(err) {
-                    console.log(err);
+                    // console.log(err);
                     notifToast('error', 'Terjadi Kesalahan Form Penilaian Gagal Dibuka!');
                 },
-                complete: function() {
-                    $('#detailPenilaianCollapseCard #form_penilaian').parent().removeClass('card-progress')
-                }
+                // complete: function() {
+                //     $('#detailPenilaianCollapseCard #form_penilaian').parent().removeClass('card-progress')
+                // }
+            }).done(function () {
+                setTimeout(function () {
+                        $("#detailPenilaianCollapseCard #form_penilaian #"+tab).fadeOut(300);
+                }, 500);
             });
         }
 

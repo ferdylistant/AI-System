@@ -1,7 +1,7 @@
 @if($form == 'view')
 <div class="row">
     <div class="col-12 mb-3">
-        <h5 class="section-title">Penilaian: <b>{{$pn_penerbitan->nama}}</b></h5>
+        <h5 class="section-title">Penilaian oleh: <a class="text-primary text-decoration-none" href="{{url('manajemen-web/user/' . $pn_penerbitan->created_by)}}"><b>{{\Str::ucfirst($pn_penerbitan->nama)}}</b></a></h5>
     </div>
     <div class="form-group col-12 col-md-6 mb-4">
         <label>Saran: <span class="text-danger">*</span></label>

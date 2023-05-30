@@ -1,7 +1,7 @@
 @if($form == 'view')
 <div class="row">
     <div class="col-12 mb-3">
-        <h5 class="section-title">Penilaian: <b>{{$pn_direksi->nama_direksi}}</b></h5>
+        <h5 class="section-title">Penilaian oleh: <a class="text-primary text-decoration-none" href="{{url('manajemen-web/user/' . $pn_direksi->created_by)}}"><b>{{\Str::ucfirst($pn_direksi->nama_direksi)}}</b></a></h5>
     </div>
     <div class="form-group col-12 mb-4">
         <label>Keputusan Direksi: <span class="text-danger">*</span></label>

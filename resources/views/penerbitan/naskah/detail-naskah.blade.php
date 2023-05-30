@@ -228,17 +228,29 @@
 
                                     <div class="tab-content">
                                         <div class="tab-pane fade {{ $startPn == 'guest' ? 'show active' : ($startPn == 'prodev' ? 'show active' : '') }}"
-                                            id="pn_Prodev" role="tabpanel" aria-labelledby="prodev-tab"></div>
+                                            id="pn_Prodev" role="tabpanel" aria-labelledby="prodev-tab">
+                                            <div class="col-12" id="Prodev"></div>
+                                        </div>
                                         <div class="tab-pane fade {{ in_array($startPn, ['editor', 'setter']) ? 'show active' : '' }}"
-                                            id="pn_EditSet" role="tabpanel" aria-labelledby="editset-tab"></div>
+                                            id="pn_EditSet" role="tabpanel" aria-labelledby="editset-tab">
+                                            <div class="col-12" id="EditSet"></div>
+                                        </div>
                                         <div class="tab-pane fade {{ $startPn == 'mpenerbitan' ? 'show active' : '' }}"
-                                            id="pn_mPenerbitan" role="tabpanel" aria-labelledby="mpenerbitan-tab"></div>
+                                            id="pn_mPenerbitan" role="tabpanel" aria-labelledby="mpenerbitan-tab">
+                                            <div class="col-12" id="mPenerbitan"></div>
+                                        </div>
                                         <div class="tab-pane fade {{ $startPn == 'mpemasaran' ? 'show active' : '' }}"
-                                            id="pn_mPemasaran" role="tabpanel" aria-labelledby="mpemasaran-tab"></div>
+                                            id="pn_mPemasaran" role="tabpanel" aria-labelledby="mpemasaran-tab">
+                                            <div class="col-12" id="mPemasaran"></div>
+                                        </div>
                                         <div class="tab-pane fade {{ $startPn == 'dpemasaran' ? 'show active' : '' }}"
-                                            id="pn_dPemasaran" role="tabpanel" aria-labelledby="dpemasaran-tab"></div>
+                                            id="pn_dPemasaran" role="tabpanel" aria-labelledby="dpemasaran-tab">
+                                            <div class="col-12" id="dPemasaran"></div>
+                                        </div>
                                         <div class="tab-pane fade {{ $startPn == 'direksi' ? 'show active' : '' }}"
-                                            id="pn_Direksi" role="tabpanel" aria-labelledby="direksi-tab"></div>
+                                            id="pn_Direksi" role="tabpanel" aria-labelledby="direksi-tab">
+                                            <div class="col-12" id="Direksi"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -270,6 +282,7 @@
     {{-- <script src="{{ url('vendors/flipbook/min_version/jquery.ipages.min.js') }}"></script> --}}
     <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
     <script src="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <script src="{{ url('vendors/js-skeleton-loader-master/index.js') }}"></script>
 @endsection
 
 @section('jsNeeded')

@@ -80,7 +80,11 @@ class PenilaianNaskahController extends Controller
                         'title' => $title
                     ]);
                 } else {
-                    $pn_prodev = DB::table('penerbitan_pn_prodev')->where('naskah_id', $naskah->id)->first();
+                    $pn_prodev = DB::table('penerbitan_pn_prodev as pnp')
+                        ->join('users as u','u.id','=','pnp.created_by')
+                        ->where('pnp.naskah_id', $naskah->id)
+                        ->select('pnp.*','u.nama as nama_prodev')
+                        ->first();
                     // $fileProdev = DB::table('penerbitan_naskah_files')->where('naskah_id', $naskah->id)
                     //     ->where('kategori', 'File Tambahan Naskah Prodev')->first();
                     $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
@@ -99,7 +103,11 @@ class PenilaianNaskahController extends Controller
                         $title = 'Edit Penilaian Prodev';
                         $form = 'view';
                         $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
-                        $pn_prodev = DB::table('penerbitan_pn_prodev')->where('naskah_id', $naskah->id)->first();
+                        $pn_prodev = DB::table('penerbitan_pn_prodev as pnp')
+                        ->join('users as u','u.id','=','pnp.created_by')
+                        ->where('pnp.naskah_id', $naskah->id)
+                        ->select('pnp.*','u.nama as nama_prodev')
+                        ->first();
                         return view('penerbitan.naskah.page.tab-prodev', [
                             'form' => $form,
                             'naskah' => $naskah,
@@ -111,7 +119,11 @@ class PenilaianNaskahController extends Controller
                         return '<h5>Prodev belum membuat penilaian.</h5>';
                     }
                 } else {
-                    $pn_prodev = DB::table('penerbitan_pn_prodev')->where('naskah_id', $naskah->id)->first();
+                    $pn_prodev = DB::table('penerbitan_pn_prodev as pnp')
+                        ->join('users as u','u.id','=','pnp.created_by')
+                        ->where('pnp.naskah_id', $naskah->id)
+                        ->select('pnp.*','u.nama as nama_prodev')
+                        ->first();
                     // $fileProdev = DB::table('penerbitan_naskah_files')->where('naskah_id', $naskah->id)
                     //     ->where('kategori', 'File Tambahan Naskah Prodev')->first();
                     $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();

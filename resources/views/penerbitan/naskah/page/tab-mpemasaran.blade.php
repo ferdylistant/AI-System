@@ -5,7 +5,7 @@
     @foreach($pn_pemasaran as $p)
     <div class="row">
         <div class="col-12 mb-3">
-            <h5 class="section-title">Penilaian: <b>{{$p->nama_manager}}</b></h5>
+            <h5 class="section-title">Penilaian oleh: <a class="text-primary text-decoration-none" href="{{url('manajemen-web/user/' . $p->created_by)}}"><b>{{\Str::ucfirst($p->nama_manager)}}</b></a></h5>
         </div>
         <div class="form-group col-12">
             <label>Prospek Pasar: <span class="text-danger">*</span></label>

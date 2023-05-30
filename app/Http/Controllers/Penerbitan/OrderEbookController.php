@@ -696,8 +696,8 @@ class OrderEbookController extends Controller
                             ->where('form_id',$data['id'])
                             ->where('users_id',$item->user_id)
                             ->where('title',$data['title_todo']);
-                            $cekAction = DB::table('order_cetak_action')
-                            ->where('order_cetak_id',$data['id'])
+                            $cekAction = DB::table('order_ebook_action')
+                            ->where('order_ebook_id',$data['id'])
                             ->where('users_id',$item->user_id)->first();
                             $status = is_null($cekAction) ? '0':'1';
                             if (!is_null($cekEksisTodo->first())){
