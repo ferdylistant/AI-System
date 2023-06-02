@@ -563,6 +563,101 @@ class OrderCetakController extends Controller
             })
             ->where('pnp.naskah_id', '=', $data->naskah_id)
             ->get();
+        if ($request->ajax()) {
+            try {
+                $useData = $data;
+                $data = (object) collect($data)->put('penulis',$penulis);
+                $data = (object) collect($data)->map(function($item,$key) use($useData) {
+                    switch ($key) {
+                        case 'status_cetak':
+                            if ($item == '1') {
+                                $item = 'Buku Baru';
+                            } elseif ($item == '2') {
+                                $item = 'Cetak Ulang Revisi';
+                            } elseif ($item == '3') {
+                                $item = 'Cetak Ulang';
+                            } else {
+                                $item = '-';
+                            }
+                            break;
+                        case 'tipe_order':
+                            $item = $item == '1' ? 'Buku Umum' : 'Buku Rohani';
+                            break;
+                        case 'pilihan_terbit':
+                            $html = '';
+                            foreach (json_decode($item) as $pt) {
+                                $html .= '<span class="bullet"></span>'.ucfirst($pt).'<br>';
+                            }
+                            $item = $html;
+                            break;
+                        case 'penulis':
+                            $html = '';
+                            foreach ($item as $p) {
+                                $html .= '<span class="bullet"></span><a href="'.url('/penerbitan/penulis/detail-penulis/' . $p->id) .'">'. $p->nama .'</a>';
+                            }
+                            $item = $html;
+                            break;
+                        case 'nama_pena':
+                            if (is_null($item)) {
+                                $item = '-';
+                            } else {
+                                $html = '';
+                                foreach (json_decode($item) as $np) {
+                                    $html .= '<span class="bullet"></span>'.$np;
+                                }
+                                $item = $html;
+                            }
+                            break;
+                        case 'imprint':
+                            $item = is_null($item) ? '-' : DB::table('imprint')->where('id', $item)->whereNull('deleted_at')->first()->nama;
+                            break;
+                        case 'format_buku':
+                            if (is_null($item)) {
+                                $item = '-';
+                            } else {
+                                $item = DB::table('format_buku')->where('id',$item)->whereNull('deleted_at')->first()->jenis_format . ' cm';
+                            }
+                            break;
+                        case 'jilid':
+                            if (is_null($item)) {
+                                $item = [
+                                    'data' => '-',
+                                    'hidden' => true
+                                ];
+                            } else {
+                                $hidden = $item == 'Binding' ? false : true;
+                                $item = [
+                                    'data' => $item,
+                                    'hidden' => $hidden
+                                ];
+                            }
+                            break;
+                        case 'ukuran_jilid_binding':
+                            $item = is_null($item) ? '-': $item.' cm';
+                            break;
+                        case 'finishing_cover':
+                            if (is_null($item)) {
+                                $item = '-';
+                            } else {
+                                $html = '';
+                                foreach (json_decode($item) as $i => $fc) {
+                                    $html .= '-'.$fc;
+                                };
+                                $item = $html;
+                            }
+                            break;
+                        default:
+                            is_null($item) ? '-':$item;
+                            break;
+                    }
+                    return $item;
+                })->all();
+                return response()->json($data);
+            } catch (\Exception $e) {
+                return abort(500,$e->getMessage());
+            }
+        }
+
 
         //Data Action
         $act = DB::table('order_cetak_action')->where('order_cetak_id', $data->id)->get();
@@ -579,14 +674,6 @@ class OrderCetakController extends Controller
         $departemen = explode("','", $matches[1]);
         $statCetak = $data->status_cetak == '3' ? '0':'1'; //Except
         $departemen = Arr::except($departemen,[$statCetak]);
-        $imprint = NULL;
-        if (!is_null($data->imprint)) {
-            $imprint = DB::table('imprint')->where('id', $data->imprint)->whereNull('deleted_at')->first()->nama;
-        }
-        $format_buku = NULL;
-        if (!is_null($data->format_buku)) {
-            $format_buku = DB::table('format_buku')->where('id',$data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
-        }
         return view('penerbitan.order_cetak.detail', [
             'title' => 'Detail Order Cetak Buku',
             'data' => $data,
@@ -594,8 +681,6 @@ class OrderCetakController extends Controller
             'act' => $act,
             'act_j' => $act_j,
             'departemen' => $departemen,
-            'imprint' => $imprint,
-            'format_buku' => $format_buku,
         ]);
     }
     protected function logicPermissionAction($update, $status = null, $id, $kode, $judul_final, $btn)

@@ -40,7 +40,6 @@ $(function () {
                 name: "action",
                 title: "Action",
                 orderable: false,
-                searchable: false,
             },
         ],
     });

@@ -106,24 +106,24 @@
                             <div class="col-auto">
                                 <h4 class="section-title">
                                     Form Penerbitan Order Cetak
-                                    @switch($data->status)
-                                        @case('Antrian')
-                                            <span class="badge" style="background:#34395E;color:white">Antrian</span>
-                                        @break
-
-                                        @case('Pending')
-                                            <span class="badge badge-danger">Pending</span>
-                                        @break
-
-                                        @case('Proses')
-                                            <span class="badge badge-success">Proses</span>
-                                        @break
-
-                                        @case('Selesai')
-                                            <span class="badge badge-light">Selesai</span>
-                                        @break
-                                    @endswitch
                                 </h4>
+                                @switch($data->status)
+                                    @case('Antrian')
+                                        <span class="badge" style="background:#34395E;color:white">Antrian</span>
+                                    @break
+
+                                    @case('Pending')
+                                        <span class="badge badge-danger">Pending</span>
+                                    @break
+
+                                    @case('Proses')
+                                        <span class="badge badge-success">Proses</span>
+                                    @break
+
+                                    @case('Selesai')
+                                        <span class="badge badge-light">Selesai</span>
+                                    @break
+                                @endswitch
                             </div>
                             <div class="col-auto">
                                 <span class="bullet text-danger"></span> Kode order: <b>{{ $data->kode_order }}</b>
@@ -147,7 +147,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <form method="POST" id="fadd_Approval">
+                            <form class="mb-3" method="POST" id="fadd_Approval">
                                 {{-- ! PERSETUJUAN --}}
                                 @include('penerbitan.order_cetak.include.persetujuan')
                                 {{-- ! PERSETUJUAN BATAS --}}
@@ -158,123 +158,61 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Kode Order</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">{{ $data->kode_order }}</p>
+                                        <p class="mb-1 text-monospace kode_order" id="kode_order"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Status Cetak</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            @if (!is_null($data->status_cetak))
-                                                @switch($data->status_cetak)
-                                                    @case(1)
-                                                        Buku Baru
-                                                    @break
-
-                                                    @case(2)
-                                                        Cetak Ulang Revisi
-                                                    @break
-
-                                                    @case(3)
-                                                        Cetak Ulang
-                                                    @break
-
-                                                    @default
-                                                        <span class="text-danger">Data Error</span>
-                                                @endswitch
-
-                                            @else
-                                            -
-                                            @endif
-                                        </p>
+                                        <p class="mb-1 text-monospace status_cetak" id="status_cetak"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Tipe Order</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ $data->tipe_order == 1 ? 'Buku Umum' : 'Buku Rohani' }}
-                                        </p>
+                                        <p class="mb-1 text-monospace tipe_order" id="tipe_order"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Pilihan Terbit</h6>
                                         </div>
-                                        @foreach (json_decode($data->pilihan_terbit) as $pt)
-                                            <p class="mb-1 text-monospace">
-                                                <span class="bullet"></span>
-                                                <span>{{ $pt }}</span>
-                                            </p>
-                                        @endforeach
+                                        <p class="mb-1 text-monospace pilihan_terbit" id="pilihan_terbit"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Judul Final</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->judul_final) ? '-' : $data->judul_final }}
-                                        </p>
+                                        <p class="mb-1 text-monospace judul_final" id="judul_final"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Sub Judul</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->sub_judul_final) ? '-' : $data->sub_judul_final }}
-                                        </p>
+                                        <p class="mb-1 text-monospace sub_judul_final" id="sub_judul_final"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Penulis</h6>
                                         </div>
-                                        <ul class="list-unstyled list-inline">
-                                            <li class="list-inline-item">
-                                                @foreach ($penulis as $pen)
-                                                    <p class="mb-1 text-monospace">
-                                                        <span class="bullet"></span>
-                                                        <a href="{{ url('/penerbitan/penulis/detail-penulis/' . $pen->id) }}">{{ $pen->nama }}</a>
-                                                    </p>
-                                                @endforeach
-                                            </li>
-                                        </ul>
+                                        <p class="mb-1 text-monospace penulis" id="penulis"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Nama Pena</h6>
                                         </div>
-                                        @if ((is_null($data->nama_pena)))
-                                        <p class="mb-1 text-monospace">
-                                                -
-                                        </p>
-                                        @else
-                                        <ul class="list-unstyled list-inline">
-                                            @foreach (json_decode($data->nama_pena) as $pen)
-                                                <li class="list-inline-item">
-                                                <p class="mb-1 text-monospace">
-                                                    <span class="bullet"></span>
-                                                    <span>{{ $pen }}</span>
-                                                </p>
-                                                </li>
-                                            @endforeach
-
-                                        </ul>
-                                        @endif
+                                        <p class="mb-1 text-monospace nama_pena" id="nama_pena"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">ISBN</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->isbn) ? '-' : $data->isbn }}
-                                        </p>
+                                        <p class="mb-1 text-monospace isbn" id="isbn"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Imprint</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->imprint) ? '-' : $imprint }}
-                                        </p>
+                                        <p class="mb-1 text-monospace imprint" id="imprint"></p>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
@@ -282,99 +220,62 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Kelompok Buku</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->nama) ? '-' : $data->nama }}
-                                        </p>
+                                        <p class="mb-1 text-monospace nama" id="nama"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Edisi Cetak</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->edisi_cetak) ? '-' : $data->edisi_cetak }}
-                                        </p>
+                                        <p class="mb-1 text-monospace edisi_cetak" id="edisi_cetak"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Format Buku</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->format_buku) ? '-' : $format_buku . ' cm' }}
-                                        </p>
+                                        <p class="mb-1 text-monospace format_buku" id="format_buku"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Jumlah Halaman Final</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->jml_hal_final) ? '-' : $data->jml_hal_final . ' Halaman' }}
-                                        </p>
+                                        <p class="mb-1 text-monospace jml_hal_final" id="jml_hal_final"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Jilid</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{is_null($data->jilid)?'-':$data->jilid}}
-                                        </p>
+                                        <p class="mb-1 text-monospace jilid" id="jilid"></p>
                                     </div>
-                                    @if(!is_null($data->jilid))
-                                        @if ($data->jilid == 'Binding')
-                                        <div class="list-group-item flex-column align-items-start">
-                                            <div class="d-flex w-100 justify-content-between">
-                                                <h6 class="mb-1">Ukuran Binding</h6>
-                                            </div>
-                                            <p class="mb-1 text-monospace">
-                                                {{is_null($data->ukuran_jilid_binding)?'-':$data->ukuran_jilid_binding . ' cm'}}
-                                            </p>
+
+                                    <div class="list-group-item flex-column align-items-start" id="divBinding">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">Ukuran Binding</h6>
                                         </div>
-                                        @endif
-                                    @endif
+                                        <p class="mb-1 text-monospace ukuran_jilid_binding" id="ukuran_jilid_binding"></p>
+                                    </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Kertas Isi</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->kertas_isi) ? '-' : $data->kertas_isi }}
-                                        </p>
+                                        <p class="mb-1 text-monospace kertas_isi" id="kertas_isi"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Kertas Cover</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->kertas_cover) ? '-' : $data->kertas_cover }}
-                                        </p>
+                                        <p class="mb-1 text-monospace kertas_cover" id="kertas_cover"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Finishing Cover</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                        @if ((is_null($data->finishing_cover)) || ($data->finishing_cover == []))
-                                            -
-                                        @else
-                                            @foreach (json_decode($data->finishing_cover,true) as $fc)
-                                                <span class="bullet"></span>{{ $fc }}<br>
-                                            @endforeach
-                                        @endif
-                                        </p>
+                                        <p class="mb-1 text-monospace finishing_cover" id="finishing_cover"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Jenis Cover</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->jenis_cover) ? '-' : $data->jenis_cover }}
-                                        </p>
-                                    </div>
-                                    <div class="list-group-item flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Tanggal Terbit</h6>
-                                        </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->tahun_terbit) ? '-' : $data->tahun_terbit }}
-                                        </p>
+                                        <p class="mb-1 text-monospace jenis_cover" id="jenis_cover"></p>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
@@ -382,81 +283,61 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Jalur Buku</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{$data->jalur_buku}}
-                                        </p>
+                                        <p class="mb-1 text-monospace jalur_buku" id="jalur_buku"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Jumlah Cetak</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->jumlah_cetak) ? '-' : $data->jumlah_cetak }}
-                                        </p>
+                                        <p class="mb-1 text-monospace jumlah_cetak" id="jumlah_cetak"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Buku Jadi</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->buku_jadi) ? '-' : $data->buku_jadi }}
-                                        </p>
+                                        <p class="mb-1 text-monospace buku_jadi" id="buku_jadi"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Buku Contoh</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->buku_contoh) ? '-' : $data->buku_contoh }}
-                                        </p>
+                                        <p class="mb-1 text-monospace buku_contoh" id="buku_contoh"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Keterangan</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->keterangan) ? '-' : $data->keterangan }}
-                                        </p>
+                                        <p class="mb-1 text-monospace keterangan" id="keterangan"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Perlengkapan</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->perlengkapan) ? '-' : $data->perlengkapan }}
-                                        </p>
+                                        <p class="mb-1 text-monospace perlengkapan" id="perlengkapan"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Warna Isi</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->isi_warna) ? '-' : $data->isi_warna }}
-                                        </p>
+                                        <p class="mb-1 text-monospace isi_warna" id="isi_warna"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Warna Cover</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->warna) ? '-' : $data->warna }}
-                                        </p>
+                                        <p class="mb-1 text-monospace warna" id="warna"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">Tahun Terbit</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->tahun_terbit) ? '-' : $data->tahun_terbit }}
-                                        </p>
+                                        <p class="mb-1 text-monospace tahun_terbit" id="tahun_terbit"></p>
                                     </div>
                                     <div class="list-group-item flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">SPP</h6>
                                         </div>
-                                        <p class="mb-1 text-monospace">
-                                            {{ is_null($data->spp) ? '-' : $data->spp }}
-                                        </p>
+                                        <p class="mb-1 text-monospace spp" id="spp"></p>
                                     </div>
                                 </div>
                             </div>
@@ -468,15 +349,6 @@
         </div>
 
     </section>
-    <style>
-        #md_updateSubtimeline table {
-            width: 100%;
-        }
-
-        #md_updateSubtimeline table tr th {
-            text-align: center;
-        }
-    </style>
 
 @include('penerbitan.order_cetak.include.modal_decline')
 @include('penerbitan.order_cetak.include.modal_approve')
@@ -492,9 +364,11 @@
     <script src="{{ url('vendors/flipbook/min_version/jquery.ipages.min.js') }}"></script>
     <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
     <script src="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
+    <script src="{{ url('vendors/js-skeleton-loader-master/index.js') }}"></script>
 @endsection
 
 @section('jsNeeded')
+    <script src="{{ url('js/detail_order_cetak.js') }}"></script>
     <script src="{{ url('js/approval_order_cetak.js') }}"></script>
     <script src="{{ url('js/decline_order_cetak.js') }}"></script>
 @endsection
