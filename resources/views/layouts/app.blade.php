@@ -265,7 +265,7 @@
 
             });
             $(window).on('beforeUnload', function () {
-                updateStatus('away');
+                updateStatus('offline');
             });
             $(window).on('online offline',function () {
                 var status = navigator.onLine ? 'online':'offline';
@@ -288,6 +288,7 @@
                     url: window.location.origin + '/update-status-activity',
                     method: 'POST',
                     data: { status: status },
+                    async: false,
                     // success: function (response) {
                     //     console.log(response);
                     // },
