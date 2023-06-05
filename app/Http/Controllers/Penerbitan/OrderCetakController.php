@@ -661,13 +661,17 @@ class OrderCetakController extends Controller
 
         //Data Action
         $act = DB::table('order_cetak_action')->where('order_cetak_id', $data->id)->get();
-        if (!$act->isEmpty()) {
-            foreach ($act as $a) {
-                $act_j[] = $a->type_departemen;
-            }
-        } else {
-            $act_j = NULL;
-        }
+        $act_j = (array)collect($act)->map(function($item) {
+            return $item->type_departemen;
+        })->all();
+        // dd($act_j);
+        // if (!$act->isEmpty()) {
+        //     foreach ($act as $a) {
+        //         $act_j[] = $a->type_departemen;
+        //     }
+        // } else {
+        //     $act_j = NULL;
+        // }
         //List Jabatan Approval
         $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_departemen'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);

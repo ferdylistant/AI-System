@@ -9,6 +9,38 @@ use Illuminate\Support\Facades\{Auth, DB};
 
 class ApiController extends Controller
 {
+    public function checkAuth()
+    {
+        try {
+            DB::beginTransaction();
+            $activity = Auth::check() ? 'online':'offline';
+            DB::table('users')->where('id',auth()->id())->update([
+                'status_activity' => $activity
+            ]);
+            DB::commit();
+            return;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return abort(500,$e->getMessage());
+        }
+    }
+    public function updateStatusActivity(Request $request)
+    {
+        try {
+            $status = $request->status;
+            if ($status != auth()->user()->status_activity) {
+                DB::beginTransaction();
+                DB::table('users')->where('id',auth()->id())->update([
+                    'status_activity' => $status
+                ]);
+                DB::commit();
+            }
+            return;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return abort(500,$e->getMessage());
+        }
+    }
     public function requestAjax(Request $request)
     {
         if ($request->ajax()) {

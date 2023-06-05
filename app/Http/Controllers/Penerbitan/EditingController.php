@@ -113,7 +113,7 @@ class EditingController extends Controller
                         return $result;
                     })
                     ->addColumn('editor', function ($data) {
-                        if (!is_null($data->editor)) {
+                        if ((!is_null($data->editor)) && ($data->editor != '[null]')) {
                             $res = '';
                             $tgl = '';
                             $edpros = DB::table('editing_proses_selesai')
@@ -127,7 +127,10 @@ class EditingController extends Controller
                                     }
                                 }
                             }
-                            foreach (json_decode($data->editor, true) as $q) {
+                            $dataEditor = collect(json_decode($data->editor, true))->reject(function ($val) {
+                                return empty($val);
+                            })->all();
+                            foreach ($dataEditor as $q) {
                                 $res .= '<span class="d-block">-&nbsp;' . ucwords(DB::table('users')->where('id', $q)->whereNull('deleted_at')->first()->nama) . ' <span class="text-success">' . $tgl . '</span></span>';
                             }
                         } else {

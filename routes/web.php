@@ -16,6 +16,7 @@ use App\Models\Naskah;
 |
 */
 $path = "App\Http\Controllers";
+Route::get('/check-authentication', $path.'\ApiController@checkAuth');
 Route::get('login', $path.'\AuthController@login')->name('login');
 Route::post('do-login', $path.'\AuthController@doLogin');
 Route::post('/forgot-password', $path.'\AuthController@submitForgetPasswordForm')->name('password.email');
@@ -29,6 +30,7 @@ Route::get('tes-socket', function () {
 });
 Route::middleware(['auth'])->group(function () use ($path) {
     //API
+    Route::post('/update-status-activity',$path.'\ApiController@updateStatusActivity');
     Route::get('/get-layout', $path.'\ApiController@getPosisiLayout');
     Route::get('/list/{list}', $path.'\ApiController@requestAjax');
     Route::post('/update-tanggal-upload-ebook',$path.'\ApiController@updateTanggalUploadEbook');

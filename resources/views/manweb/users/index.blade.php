@@ -234,6 +234,11 @@
                         title: 'Bagian'
                     },
                     {
+                        data: 'status_activity',
+                        name: 'status_activity',
+                        title: 'Aktivitas'
+                    },
+                    {
                         data: 'status',
                         name: 'status',
                         title: 'Status'

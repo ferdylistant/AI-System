@@ -108,21 +108,19 @@ $(function() {
             },
         });
     });
-});
-function loadCountData() {
-    $.get(window.location.origin + "/penerbitan/editing?count_data=true", function(data) {
-        $('#countData').prop('Counter',0).animate({
-            Counter: data
-        }, {
-            duration: 1000,
-            easing: 'swing',
-            step: function (now) {
-                $(this).text(Math.ceil(now));
-            }
+    function loadCountData() {
+        $.get(window.location.origin + "/penerbitan/editing?count_data=true", function(data) {
+            $('#countData').prop('Counter',0).animate({
+                Counter: data
+            }, {
+                duration: 1000,
+                easing: 'swing',
+                step: function (now) {
+                    $(this).text(Math.ceil(now));
+                }
+            });
         });
-    });
-}
-$(function () {
+    }
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
@@ -159,8 +157,6 @@ $(function () {
         $(".load-more").data("paginate", 2);
         $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
-});
-$(document).ready(function () {
     $(".select-status")
         .select2({
             placeholder: "Pilih Status",
@@ -175,8 +171,6 @@ $(document).ready(function () {
                 $(this).valid();
             }
         });
-});
-$(document).ready(function () {
     $(".select-filter")
         .select2({
             placeholder: "Filter Status\xa0\xa0",
@@ -187,14 +181,10 @@ $(document).ready(function () {
                 // $(this).valid();
             }
         });
-});
-$(document).ready(function () {
     $(".clear_field").click(function () {
         $(".select-filter").val("").trigger("change");
         $(".clear_field").attr("hidden", "hidden");
     });
-});
-$(document).ready(function () {
     $("#tb_Editing").on("click", ".btn-status-editing", function (e) {
         e.preventDefault();
         let id = $(this).data("id"),
@@ -204,8 +194,6 @@ $(document).ready(function () {
         $("#kode").val(kode);
         $("#judulFinal").val(judul);
     });
-});
-$(document).ready(function () {
     function ajaxUpdateStatusEditing(data) {
         let el = data.get(0);
         // console.log(el);

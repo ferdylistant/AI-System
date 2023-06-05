@@ -1,11 +1,12 @@
 $(function () {
     loadDataValue();
     function loadDataValue() {
-        let id = window.location.search.split('?').pop()
+        let id = window.location.search.split('?').pop();
         $.ajax({
             url: window.location.origin + "/penerbitan/order-cetak/detail?" + id,
             beforeSend: function () {
                 var obj = [];
+
                 $('p').each(function(i,val){
 
                     // var obj = ['no_order','jalur_proses'];
@@ -34,11 +35,6 @@ $(function () {
                 for (let n in data) {
                     // console.log([n]);
                     switch (n) {
-                        case 'id':
-                            if (data[n] != '') {
-                                $('#buttonAct').html(data[n]).change();
-                            }
-                            break;
                         case 'proses':
                             if (data[n] != '') {
                                 $('#buttonAct').html(data[n]).change();
@@ -70,6 +66,7 @@ $(function () {
             // }
 
         }).done(function () {
+            var obj = [];
             setTimeout(function () {
                 $.each(obj,function (key,val){
 

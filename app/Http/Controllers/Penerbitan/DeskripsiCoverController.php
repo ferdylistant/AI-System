@@ -512,170 +512,180 @@ class DeskripsiCoverController extends Controller
                     'status' => $request->status
                 ];
                 event(new TimelineEvent($updateTimelineDescov));
-                //INSERT EDITING
-                $idEditing = Uuid::uuid4()->toString();
-                $insertEditingProses = [
-                    'params' => 'Insert Editing',
-                    'id' => $idEditing,
-                    'deskripsi_final_id' => $data->deskripsi_final_id,
-                    'editor' => json_encode([$data->editor]),
-                    'tgl_masuk_editing' => $tgl
-                ];
-                event(new EditingEvent($insertEditingProses));
-                //? Insert Todo List Kabag Editing
-                switch ($data->jalur_buku) {
-                    case 'Reguler':
-                        $editorPermission = '88f281e83aff47d08f555a2961420bf5';
-                        break;
-                    case 'MoU':
-                        $editorPermission = 'ce3589b822a14011ba581c803ef50f5b';
-                        break;
-                    case 'SMK/NonSmk':
-                        $editorPermission = 'a9354dd060524bce8278e2cd75ce349a';
-                        break;
-                    default:
-                        //permission jalur buku lainnya belum ditentukan di database
-                        $editorPermission = '';
-                        break;
+                $cekEditing = DB::table('editing_proses')->where('deskripsi_final_id',$data->deskripsi_final_id)->first();
+                if (is_null($cekEditing)) {
+                    //INSERT EDITING
+                    $idEditing = Uuid::uuid4()->toString();
+                    $insertEditingProses = [
+                        'params' => 'Insert Editing',
+                        'id' => $idEditing,
+                        'deskripsi_final_id' => $data->deskripsi_final_id,
+                        'editor' => json_encode([$data->editor]),
+                        'tgl_masuk_editing' => $tgl
+                    ];
+                    event(new EditingEvent($insertEditingProses));
+
+                    //? Insert Todo List Kabag Editing
+                    switch ($data->jalur_buku) {
+                        case 'Reguler':
+                            $editorPermission = '88f281e83aff47d08f555a2961420bf5';
+                            break;
+                        case 'MoU':
+                            $editorPermission = 'ce3589b822a14011ba581c803ef50f5b';
+                            break;
+                        case 'SMK/NonSmk':
+                            $editorPermission = 'a9354dd060524bce8278e2cd75ce349a';
+                            break;
+                        default:
+                            //permission jalur buku lainnya belum ditentukan di database
+                            $editorPermission = '';
+                            break;
+                    }
+                    $kabagEditing = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                        ->where('p.id',$editorPermission)
+                        ->select('up.user_id')
+                        ->get();
+                    $dataEditing = [
+                        'id' => $idEditing,
+                        'kode' => $data->kode,
+                        'judul' => $data->judul_final
+                    ];
+                    $kabagEditing = (object)collect($kabagEditing)->map(function($item) use ($dataEditing) {
+                        return DB::table('todo_list')->insert([
+                            'form_id' => $dataEditing['id'],
+                            'users_id' => $item->user_id,
+                            'title' => 'Proses delegasi tahap editing naskah "'.$dataEditing['judul'].'".',
+                            'link' => '/penerbitan/editing/edit?editing='.$dataEditing['id'].'&kode='.$dataEditing['kode'],
+                            'status' => '0',
+                        ]);
+                    })->all();
+                    $insertTimelineEditing = [
+                        'params' => 'Insert Timeline',
+                        'id' => Uuid::uuid4()->toString(),
+                        'progress' => 'Editing',
+                        'naskah_id' => $data->naskah_id,
+                        'tgl_mulai' => $tgl,
+                        'url_action' => urlencode(URL::to('/penerbitan/editing/detail?editing='.$idEditing.'&kode='.$data->kode)),
+                        'status' => 'Antrian'
+                    ];
+                    event(new TimelineEvent($insertTimelineEditing));
                 }
-                $kabagEditing = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                    ->where('p.id',$editorPermission)
-                    ->select('up.user_id')
-                    ->get();
-                $dataEditing = [
-                    'id' => $idEditing,
-                    'kode' => $data->kode,
-                    'judul' => $data->judul_final
-                ];
-                $kabagEditing = (object)collect($kabagEditing)->map(function($item) use ($dataEditing) {
-                    return DB::table('todo_list')->insert([
-                        'form_id' => $dataEditing['id'],
-                        'users_id' => $item->user_id,
-                        'title' => 'Proses delegasi tahap editing naskah "'.$dataEditing['judul'].'".',
-                        'link' => '/penerbitan/editing/edit?editing='.$dataEditing['id'].'&kode='.$dataEditing['kode'],
-                        'status' => '0',
-                    ]);
-                })->all();
-                $insertTimelineEditing = [
-                    'params' => 'Insert Timeline',
-                    'id' => Uuid::uuid4()->toString(),
-                    'progress' => 'Editing',
-                    'naskah_id' => $data->naskah_id,
-                    'tgl_mulai' => $tgl,
-                    'url_action' => urlencode(URL::to('/penerbitan/editing/detail?editing='.$idEditing.'&kode='.$data->kode)),
-                    'status' => 'Antrian'
-                ];
-                event(new TimelineEvent($insertTimelineEditing));
-                //INSERT PRACETAK SETTER
-                $idPraset = Uuid::uuid4()->toString();
-                $insertPracetakSetter = [
-                    'params' => 'Insert Pracetak Setter',
-                    'id' => $idPraset,
-                    'deskripsi_final_id' => $data->deskripsi_final_id,
-                    'setter' => json_encode([$data->setter]),
-                    'korektor' => json_encode([$data->korektor]),
-                    'jml_hal_final' => $data->jml_hal_perkiraan,
-                    'tgl_masuk_pracetak' => $tgl,
-                ];
-                event(new PracetakSetterEvent($insertPracetakSetter));
-                //? Insert Todo List Kabag Pracetak Setter
-                switch ($data->jalur_buku) {
-                    case 'Reguler':
-                        $prasetPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
-                        break;
-                    case 'MoU':
-                        $prasetPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
-                        break;
-                    case 'SMK/NonSmk':
-                        $prasetPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
-                        break;
-                    default:
-                        //permission jalur buku lainnya belum ditentukan di database
-                        $prasetPermission = '';
-                        break;
+                $cekPraset = DB::table('pracetak_setter')->where('deskripsi_final_id',$data->deskripsi_final_id)->first();
+                if (is_null($cekPraset)) {
+                    //INSERT PRACETAK SETTER
+                    $idPraset = Uuid::uuid4()->toString();
+                    $insertPracetakSetter = [
+                        'params' => 'Insert Pracetak Setter',
+                        'id' => $idPraset,
+                        'deskripsi_final_id' => $data->deskripsi_final_id,
+                        'setter' => json_encode([$data->setter]),
+                        'korektor' => json_encode([$data->korektor]),
+                        'jml_hal_final' => $data->jml_hal_perkiraan,
+                        'tgl_masuk_pracetak' => $tgl,
+                    ];
+                    event(new PracetakSetterEvent($insertPracetakSetter));
+                    //? Insert Todo List Kabag Pracetak Setter
+                    switch ($data->jalur_buku) {
+                        case 'Reguler':
+                            $prasetPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
+                            break;
+                        case 'MoU':
+                            $prasetPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
+                            break;
+                        case 'SMK/NonSmk':
+                            $prasetPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
+                            break;
+                        default:
+                            //permission jalur buku lainnya belum ditentukan di database
+                            $prasetPermission = '';
+                            break;
+                    }
+                    $kabagPraset = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                        ->where('p.id',$prasetPermission)
+                        ->select('up.user_id')
+                        ->get();
+                    $dataPraset = [
+                        'id' => $idPraset,
+                        'kode' => $data->kode,
+                        'judul' => $data->judul_final
+                    ];
+                    $kabagPraset = (object)collect($kabagPraset)->map(function($item) use ($dataPraset) {
+                        return DB::table('todo_list')->insert([
+                            'form_id' => $dataPraset['id'],
+                            'users_id' => $item->user_id,
+                            'title' => 'Proses delegasi tahap pracetak setter naskah "'.$dataPraset['judul'].'".',
+                            'link' => '/penerbitan/pracetak/setter/edit?setter='.$dataPraset['id'].'&kode='.$dataPraset['kode'],
+                            'status' => '0',
+                        ]);
+                    })->all();
+                    $insertTimelinePraset = [
+                        'params' => 'Insert Timeline',
+                        'id' => Uuid::uuid4()->toString(),
+                        'progress' => 'Pracetak Setter',
+                        'naskah_id' => $data->naskah_id,
+                        'tgl_mulai' => $tgl,
+                        'url_action' => urlencode(URL::to('/penerbitan/pracetak/setter/detail?pra='.$idPraset.'&kode='.$data->kode)),
+                        'status' => 'Antrian'
+                    ];
+                    event(new TimelineEvent($insertTimelinePraset));
                 }
-                $kabagPraset = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                    ->where('p.id',$prasetPermission)
-                    ->select('up.user_id')
-                    ->get();
-                $dataPraset = [
-                    'id' => $idPraset,
-                    'kode' => $data->kode,
-                    'judul' => $data->judul_final
-                ];
-                $kabagPraset = (object)collect($kabagPraset)->map(function($item) use ($dataPraset) {
-                    return DB::table('todo_list')->insert([
-                        'form_id' => $dataPraset['id'],
-                        'users_id' => $item->user_id,
-                        'title' => 'Proses delegasi tahap pracetak setter naskah "'.$dataPraset['judul'].'".',
-                        'link' => '/penerbitan/pracetak/setter/edit?setter='.$dataPraset['id'].'&kode='.$dataPraset['kode'],
-                        'status' => '0',
-                    ]);
-                })->all();
-                $insertTimelinePraset = [
-                    'params' => 'Insert Timeline',
-                    'id' => Uuid::uuid4()->toString(),
-                    'progress' => 'Pracetak Setter',
-                    'naskah_id' => $data->naskah_id,
-                    'tgl_mulai' => $tgl,
-                    'url_action' => urlencode(URL::to('/penerbitan/pracetak/setter/detail?pra='.$idPraset.'&kode='.$data->kode)),
-                    'status' => 'Antrian'
-                ];
-                event(new TimelineEvent($insertTimelinePraset));
-                //INSERT PRACETAK COVER
-                $idPracov = Uuid::uuid4()->toString();
-                $insertPracetakCover = [
-                    'params' => 'Insert Pracetak Cover',
-                    'id' => $idPracov,
-                    'deskripsi_cover_id' => $data->id,
-                    'desainer' => json_encode([$data->desainer]),
-                    'tgl_masuk_cover' => $tgl,
-                ];
-                event(new PracetakCoverEvent($insertPracetakCover));
-                //? Insert Todo List Kabag Pracetak Cover
-                switch ($data->jalur_buku) {
-                    case 'Reguler':
-                        $pracovPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
-                        break;
-                    case 'MoU':
-                        $pracovPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
-                        break;
-                    case 'SMK/NonSmk':
-                        $pracovPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
-                        break;
-                    default:
-                        //permission jalur buku lainnya belum ditentukan di database
-                        $pracovPermission = '';
-                        break;
+                $cekPracov = DB::table('pracetak_cover')->where('deskripsi_cover_id',$data->id)->first();
+                if (is_null($cekPracov)) {
+                    //INSERT PRACETAK COVER
+                    $idPracov = Uuid::uuid4()->toString();
+                    $insertPracetakCover = [
+                        'params' => 'Insert Pracetak Cover',
+                        'id' => $idPracov,
+                        'deskripsi_cover_id' => $data->id,
+                        'desainer' => json_encode([$data->desainer]),
+                        'tgl_masuk_cover' => $tgl,
+                    ];
+                    event(new PracetakCoverEvent($insertPracetakCover));
+                    //? Insert Todo List Kabag Pracetak Cover
+                    switch ($data->jalur_buku) {
+                        case 'Reguler':
+                            $pracovPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
+                            break;
+                        case 'MoU':
+                            $pracovPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
+                            break;
+                        case 'SMK/NonSmk':
+                            $pracovPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
+                            break;
+                        default:
+                            //permission jalur buku lainnya belum ditentukan di database
+                            $pracovPermission = '';
+                            break;
+                    }
+                    $kabagPracov = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                        ->where('p.id',$pracovPermission)
+                        ->select('up.user_id')
+                        ->get();
+                    $dataPracov = [
+                        'id' => $idPracov,
+                        'kode' => $data->kode,
+                        'judul' => $data->judul_final
+                    ];
+                    $kabagPracov = (object)collect($kabagPracov)->map(function($item) use ($dataPracov) {
+                        return DB::table('todo_list')->insert([
+                            'form_id' => $dataPracov['id'],
+                            'users_id' => $item->user_id,
+                            'title' => 'Proses delegasi tahap pracetak cover naskah "'.$dataPracov['judul'].'".',
+                            'link' => '/penerbitan/pracetak/designer/edit?cover='.$dataPracov['id'].'&kode='.$dataPracov['kode'],
+                            'status' => '0',
+                        ]);
+                    })->all();
+                    $insertTimelinePracov = [
+                        'params' => 'Insert Timeline',
+                        'id' => Uuid::uuid4()->toString(),
+                        'progress' => 'Pracetak Cover',
+                        'naskah_id' => $data->naskah_id,
+                        'tgl_mulai' => $tgl,
+                        'url_action' => urlencode(URL::to('/penerbitan/pracetak/designer/detail?pra='.$idPracov.'&kode='.$data->kode)),
+                        'status' => 'Antrian'
+                    ];
+                    event(new TimelineEvent($insertTimelinePracov));
                 }
-                $kabagPracov = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                    ->where('p.id',$pracovPermission)
-                    ->select('up.user_id')
-                    ->get();
-                $dataPracov = [
-                    'id' => $idPracov,
-                    'kode' => $data->kode,
-                    'judul' => $data->judul_final
-                ];
-                $kabagPracov = (object)collect($kabagPracov)->map(function($item) use ($dataPracov) {
-                    return DB::table('todo_list')->insert([
-                        'form_id' => $dataPracov['id'],
-                        'users_id' => $item->user_id,
-                        'title' => 'Proses delegasi tahap pracetak cover naskah "'.$dataPracov['judul'].'".',
-                        'link' => '/penerbitan/pracetak/designer/edit?cover='.$dataPracov['id'].'&kode='.$dataPracov['kode'],
-                        'status' => '0',
-                    ]);
-                })->all();
-                $insertTimelinePracov = [
-                    'params' => 'Insert Timeline',
-                    'id' => Uuid::uuid4()->toString(),
-                    'progress' => 'Pracetak Cover',
-                    'naskah_id' => $data->naskah_id,
-                    'tgl_mulai' => $tgl,
-                    'url_action' => urlencode(URL::to('/penerbitan/pracetak/designer/detail?pra='.$idPracov.'&kode='.$data->kode)),
-                    'status' => 'Antrian'
-                ];
-                event(new TimelineEvent($insertTimelinePracov));
 
                 $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
             } else {

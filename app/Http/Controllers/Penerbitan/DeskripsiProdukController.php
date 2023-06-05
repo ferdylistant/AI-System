@@ -379,7 +379,9 @@ class DeskripsiProdukController extends Controller
             ->where('pnp.naskah_id', '=', $data->naskah_id)
             ->select('pp.nama')
             ->get();
-        $format_buku_list = DB::table('format_buku')->whereNull('deleted_at')->get();
+        $format_buku_list = DB::table('format_buku')->whereNull('deleted_at')
+        ->orderBy('jenis_format','ASC')
+        ->get();
         //Kelengkapan Enum
         $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_produk WHERE Field = 'kelengkapan'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);

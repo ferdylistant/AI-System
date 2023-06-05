@@ -29,7 +29,7 @@ class UsersController extends Controller
                 }
                 $data = $data->orderBy('u.nama', 'asc')
                     ->select(DB::raw('
-                            u.id, u.nama, u.email, (case when status  <= 1 then "Aktif" else "Non Aktif" end) as status,
+                            u.id, u.nama, u.email, u.status_activity,(case when status  <= 1 then "Aktif" else "Non Aktif" end) as status,
                             c.nama as cabang, d.nama as divisi, j.nama as jabatan
                         '))
                     ->get();
@@ -41,6 +41,25 @@ class UsersController extends Controller
                             return null;
                         }
                         return $data->divisi . ' - ' . $data->jabatan;
+                    })
+                    ->addColumn('status_activity', function ($data) {
+                        $html = '';
+                        switch ($data->status_activity) {
+                            case 'online':
+                                $text = 'Online';
+                                $class = 'success';
+                                break;
+                            case 'away':
+                                $text = 'Away';
+                                $class = 'warning';
+                                break;
+                            default:
+                                $text = 'Offline';
+                                $class = 'secondary';
+                                break;
+                        }
+                        $html .= '<span class="bullet text-'.$class.'"></span><b class="text-'.$class.'">'.$text.'</b>';
+                        return $html;
                     })
                     ->addColumn('history', function ($data) {
                         $historyData = DB::table('user_history')->where('user_id', $data->id)->get();
@@ -66,6 +85,7 @@ class UsersController extends Controller
                         'email',
                         'cabang',
                         'bagian',
+                        'status_activity',
                         'status',
                         'history',
                         'action'

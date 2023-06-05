@@ -207,10 +207,10 @@
     <script src="{{ url('vendors/sweetalert/dist/sweetalert.min.js') }}"></script>
     <script src="{{ url('vendors/moment/moment.js') }}"></script>
     <script src="{{ url('vendors/stisla/js/stisla.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.14.3/dist/algoliasearch-lite.umd.js"
+    {{-- <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.14.3/dist/algoliasearch-lite.umd.js"
         integrity="sha256-dyJcbGuYfdzNfifkHxYVd/rzeR6SLLcDFYEidcybldM=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.50.3/dist/instantsearch.production.min.js"
-        integrity="sha256-VIZm35iFB4ETVstmsxpzZrlLm99QKqIzPuQb1T0ooOc=" crossorigin="anonymous"></script>
+        integrity="sha256-VIZm35iFB4ETVstmsxpzZrlLm99QKqIzPuQb1T0ooOc=" crossorigin="anonymous"></script> --}}
 
     <!-- JS Libraies -->
     @yield('jsRequired')
@@ -240,13 +240,61 @@
     {{-- <script src="js/app.js"></script> --}}
     <script>
         // Reload the page when the user's internet connection is restored
-        $(function() {
-            if (navigator.onLine) {
-                console.log(navigator.onLine);
-                // location.reload();
-            } else {
+        $(document).ready(function () {
+            var awayTimeout;
+            var statusDB = '{{auth()->user()->status_activity}}';
+            if (statusDB != 'online') {
+                $.ajax({
+                    url: window.location.origin + '/check-authentication',
+                    method: 'GET',
+                    error: function (xhr, status, error) {
+                        console.error('Error checking authentication: ' + error);
+                    }
+                });
+            }
+            $(window).on('mousemove keydown',function (e) {
+                if (statusDB == 'online') {
+                    clearTimeout(awayTimeout);
 
-                console.log(navigator.onLine);
+                    awayTimeout = setTimeout(function() {
+                        updateStatus('away');
+                    }, 300000);
+                } else {
+                    updateStatus('online');
+                }
+
+            });
+            $(window).on('beforeUnload', function () {
+                updateStatus('away');
+            });
+            $(window).on('online offline',function () {
+                var status = navigator.onLine ? 'online':'offline';
+                updateStatus(status);
+            });
+            $(document).on('visibilitychange',function () {
+                if (document.hidden) {
+                    clearTimeout(awayTimeout);
+                    awayTimeout = setTimeout(function() {
+                        updateStatus('away');
+                    }, 300000);
+                } else {
+                    updateStatus('online');
+                }
+            });
+            //! Function Process
+            function updateStatus(status) {
+                // console.log(status);
+                $.ajax({
+                    url: window.location.origin + '/update-status-activity',
+                    method: 'POST',
+                    data: { status: status },
+                    // success: function (response) {
+                    //     console.log(response);
+                    // },
+                    error: function(xhr, status, error) {
+                        console.error('Error updating status activity: ' + error);
+                    }
+                });
             }
         });
     </script>
