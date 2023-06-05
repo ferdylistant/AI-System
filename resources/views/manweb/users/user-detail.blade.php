@@ -13,6 +13,21 @@
     <link rel="stylesheet" href="{{ url('vendors/hummingbird-treeview/hummingbird-treeview.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.css" />
+    <style>
+        .indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #808080; /* default color for offline */
+        }
+
+        .indicator.away {
+        background-color: #DAA520; /* color for away */
+        }
+        .indicator.online {
+        background-color: #008000; /* color for online */
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -29,7 +44,7 @@
         <div class="section-body">
             <div class="row">
                 <div class="col-12 col-md-6">
-                    <div class="card card-dark profile-widget">
+                    <div class="card card-primary profile-widget mt-0">
                         @if (Auth::user()->can('do_update', 'ubah-data-user') or Auth::id() == $user->id)
                             @include('manweb.users.fedit-data-user')
                         @else
@@ -51,6 +66,29 @@
                             </div>
                             <div class="profile-widget-description">
                                 <div class="row">
+                                    <div class="col-12 d-flex justify-content-start mb-4">
+                                        @switch($user->status_activity)
+                                            @case('online')
+                                                @php
+                                                    $text = 'Online';
+                                                    $cls = 'online';
+                                                @endphp
+                                                @break
+                                            @case('away')
+                                                @php
+                                                    $text = 'Away';
+                                                    $cls = 'away';
+                                                @endphp
+                                                @break
+                                            @default
+                                                @php
+                                                    $text = 'Offline';
+                                                    $cls = '';
+                                                @endphp
+                                            @endswitch
+                                            <span class="indicator {{$cls}} mt-2 mr-1"></span>
+                                            <span><b>{{$text}}</b></span>
+                                    </div>
                                     <div class="form-group col-12 mb-4">
                                         <label>Nama Lengkap: <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" value="{{ $user->nama }}"

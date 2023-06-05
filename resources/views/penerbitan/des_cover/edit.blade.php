@@ -568,7 +568,7 @@ width: 100%;
                                                     </td>
                                                     <td class="table-active text-left" id="contohCoverColInput" hidden>
                                                         <div class="input-group">
-                                                        <input type="url" class="form-control" name="contoh_cover" pattern="/^(?:https?:\/\/)(?!$)(?:www\.)?[a-zA-Z]*(?:\.[a-zA-Z]{2,6})?(?:(?:\d{1,3}\.){3}\d{1,3})?$/gmi" value="{{$data->contoh_cover}}"  placeholder="https://example.com/">
+                                                        <input type="text" class="form-control" name="contoh_cover" pattern="^(https?://)?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,})$" value="{{$data->contoh_cover}}"  placeholder="https://example.com/">
                                                             <div class="input-group-append">
                                                                 <button type="button" class="btn btn-outline-danger batal_edit_contoh_cover text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                                             </div>
@@ -580,7 +580,7 @@ width: 100%;
                                                     </td>
                                                     <td class="table-active text-left" id="contohCoverColInput" hidden>
                                                         <div class="input-group">
-                                                        <input type="url" class="form-control" name="contoh_cover" pattern="/^(?:https?:\/\/)(?!$)(?:www\.)?[a-zA-Z]*(?:\.[a-zA-Z]{2,6})?(?:(?:\d{1,3}\.){3}\d{1,3})?$/gmi" placeholder="https://example.com/">
+                                                        <input type="text" class="form-control" name="contoh_cover" pattern="^(https?://)?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,})$" placeholder="https://example.com/">
                                                             <div class="input-group-append">
                                                                 <button type="button" class="btn btn-outline-danger batal_edit_contoh_cover text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                                             </div>

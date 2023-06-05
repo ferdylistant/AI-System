@@ -266,14 +266,15 @@ class EditingController extends Controller
                                     'message' => 'Hentikan proses untuk mengubah editor'
                                 ]);
                             }
-                        } else {
-                            if ((json_decode($history->copy_editor, true) != $request->copy_editor) && (!is_null($history->tgl_mulai_copyeditor))) {
-                                return response()->json([
-                                    'status' => 'error',
-                                    'message' => 'Hentikan proses untuk mengubah copy editor'
-                                ]);
-                            }
                         }
+                        // else {
+                        //     if ((json_decode($history->copy_editor, true) != $request->copy_editor) && (!is_null($history->tgl_mulai_copyeditor))) {
+                        //         return response()->json([
+                        //             'status' => 'error',
+                        //             'message' => 'Hentikan proses untuk mengubah copy editor'
+                        //         ]);
+                        //     }
+                        // }
                     }
                     $bullet = $request->bullet ? json_encode(array_filter($request->bullet)) : NULL;
                     $editor = $request->editor ? json_encode($request->editor) : NULL;
@@ -356,7 +357,7 @@ class EditingController extends Controller
             ->select('u.nama', 'u.id')
             ->orderBy('u.nama', 'Asc')
             ->get();
-        if (!is_null($data->editor)) {
+        if (!is_null($data->editor) && $data->editor != '[null]') {
             foreach (json_decode($data->editor) as $e) {
                 $namaEditor[] = DB::table('users')->where('id', $e)->first()->nama;
             }

@@ -57,6 +57,29 @@
     </div>
     <div class="profile-widget-description">
         <div class="row">
+            <div class="col-12 d-flex justify-content-start mb-4">
+                @switch($user->status_activity)
+                    @case('online')
+                        @php
+                            $text = 'Online';
+                            $cls = 'online';
+                        @endphp
+                        @break
+                    @case('away')
+                        @php
+                            $text = 'Away';
+                            $cls = 'away';
+                        @endphp
+                        @break
+                    @default
+                        @php
+                            $text = 'Offline';
+                            $cls = '';
+                        @endphp
+                    @endswitch
+                    <span class="indicator {{$cls}} mt-2 mr-1"></span>
+                    <span><b>{{$text}}</b></span>
+            </div>
             <div class="form-group col-12 mb-4">
                 <label>Nama Lengkap: <span class="text-danger">*</span></label>
                 <input type="hidden" name="uedit_id" value="{{ $user->id }}">

@@ -102,7 +102,7 @@
                                         </button>
                                     </div>
                                 </div>
-                            @endif
+                                @endif
                                 <div class="col-12">
                                     <div class="table-responsive">
                                         <table class="table table-bordered">
@@ -269,7 +269,7 @@
                                                         @endphp
                                                     @endif
                                                     <th class="table-secondary" style="width: 25%">Editor: <span class="text-danger">*{{$cannotEdit}}</span></th>
-                                                    @if (is_null($data->editor) || $data->editor == '[]')
+                                                    @if (is_null($data->editor) || $data->editor == '[]' || $data->editor == '[null]')
                                                     <td class="table-active text-left">
                                                         <select name="editor[]" class="form-control select-editor-editing" multiple="multiple" required>
                                                             <option label="Pilih editor"></option>
