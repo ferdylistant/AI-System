@@ -1,28 +1,28 @@
 $(function () {
-    var obj = [];
-    $('td').each(function(i,val){
+    // var obj = [];
+    // $('td').each(function(i,val){
 
-        // var obj = ['no_order','jalur_proses'];
-        obj[i] = $(this).attr('id');
-    });
-    obj.push('status','proses_saat_ini','labelProses');
-    $.each(obj,function (key,val){
-        new Loader(val).render([
-            // avatar shape: round, line, drawline
-            // ['line'],
-            // number of text lines
-            ['line*1',
-            {
-                // styles
-                style: [{
-                borderRadius: "5px",
-                height: "8px",
-                // width: "100%"
-                }]
-            }]
-            ],
-        );
-    });
+    //     // var obj = ['no_order','jalur_proses'];
+    //     obj[i] = $(this).attr('id');
+    // });
+    // obj.push('status','proses_saat_ini','labelProses');
+    // $.each(obj,function (key,val){
+    //     new Loader(val).render([
+    //         // avatar shape: round, line, drawline
+    //         // ['line'],
+    //         // number of text lines
+    //         ['line*1',
+    //         {
+    //             // styles
+    //             style: [{
+    //             borderRadius: "5px",
+    //             height: "8px",
+    //             // width: "100%"
+    //             }]
+    //         }]
+    //         ],
+    //     );
+    // });
     function loadData() {
         let path = window.location.search.split("?").pop();
         $.ajax({
@@ -31,9 +31,10 @@ $(function () {
             processData: false,
             contentType: false,
             beforeSend: function () {
-                $.each(obj,function (key,val) {
-                    $('#'+val).fadeIn(300);
-                });
+                $("#overlay").fadeIn(300);
+                // $.each(obj,function (key,val) {
+                //     $('#'+val).fadeIn(300);
+                // });
             },
             success: function (result) {
                 for (let n in result) {
@@ -203,21 +204,27 @@ $(function () {
             },
             error: function (err) {
                 // console.log(err.responseJSON);
-                setTimeout(function () {
-                    $.each(obj,function (key,val){
+                // setTimeout(function () {
+                //     $.each(obj,function (key,val){
 
-                        $("#"+val).attr('id',false);
-                    });
+                //         $("#"+val).attr('id',false);
+                //     });
+                // }, 500);
+                setTimeout(function () {
+                    $("#overlay").fadeOut(300);
                 }, 500);
                 notifToast("error", "Data gagal dimuat!");
             }
         }).done(function () {
             setTimeout(function () {
-                $.each(obj,function (key,val){
-
-                    $("#"+val).attr('id',false);
-                });
+                $("#overlay").fadeOut(300);
             }, 500);
+            // setTimeout(function () {
+            //     $.each(obj,function (key,val){
+
+            //         $("#"+val).attr('id',false);
+            //     });
+            // }, 500);
         });
     }
     loadData();

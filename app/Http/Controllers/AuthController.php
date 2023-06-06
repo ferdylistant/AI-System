@@ -101,8 +101,10 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        DB::table('users')->where('id',auth()->id())->update([
+            'status_activity' => 'offline'
+        ]);
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
