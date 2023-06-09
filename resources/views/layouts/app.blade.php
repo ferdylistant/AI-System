@@ -243,9 +243,12 @@
         $(document).ready(function () {
             var awayTimeout;
             var statusDB = '{{auth()->user()->status_activity}}';
-            if (statusDB != 'online') {
+            var id = '{{auth()->user()->id}}';
+            checkAuth(id);
+            function checkAuth(id) {
                 $.ajax({
                     url: window.location.origin + '/check-authentication',
+                    data: {id : id},
                     method: 'GET',
                     error: function (xhr, status, error) {
                         console.error('Error checking authentication: ' + error);
@@ -257,43 +260,49 @@
                     clearTimeout(awayTimeout);
 
                     awayTimeout = setTimeout(function() {
-                        updateStatus('away');
+                        updateStatus('away',id);
                     }, 300000);
                 } else {
-                    updateStatus('online');
+                    updateStatus('online',id);
                 }
 
             });
             $(window).on('beforeUnload', function () {
-                updateStatus('offline');
+                updateStatus('offline',id);
             });
             $(window).on('online offline',function () {
                 var status = navigator.onLine ? 'online':'offline';
-                updateStatus(status);
+                updateStatus(status,id);
             });
             $(document).on('visibilitychange',function () {
                 if (document.hidden) {
                     clearTimeout(awayTimeout);
                     awayTimeout = setTimeout(function() {
-                        updateStatus('away');
+                        updateStatus('away',id);
                     }, 300000);
                 } else {
-                    updateStatus('online');
+                    updateStatus('online',id);
                 }
             });
             //! Function Process
-            function updateStatus(status) {
-                // console.log(status);
+            function updateStatus(status,id) {
                 $.ajax({
                     url: window.location.origin + '/update-status-activity',
                     method: 'POST',
-                    data: { status: status },
-                    async: false,
+                    data: {
+                        status: status,
+                        id: id
+                     },
+                    // async: false,
                     // success: function (response) {
                     //     console.log(response);
                     // },
                     error: function(xhr, status, error) {
-                        console.error('Error updating status activity: ' + error);
+                        if (error == 'unknown status') {
+                            checkAuth(id);
+                        } else {
+                            console.error('Error updating status activity: ' + error);
+                        }
                     }
                 });
             }

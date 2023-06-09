@@ -9,12 +9,13 @@ use Illuminate\Support\Facades\{Auth, DB};
 
 class ApiController extends Controller
 {
-    public function checkAuth()
+    public function checkAuth(Request $request)
     {
         try {
+            $id = $request->id;
             DB::beginTransaction();
             $activity = Auth::check() ? 'online':'offline';
-            DB::table('users')->where('id',auth()->id())->update([
+            DB::table('users')->where('id',$id)->update([
                 'status_activity' => $activity
             ]);
             DB::commit();
@@ -27,14 +28,23 @@ class ApiController extends Controller
     public function updateStatusActivity(Request $request)
     {
         try {
+            $id = $request->id;
             $status = $request->status;
-            if ($status != auth()->user()->status_activity) {
-                DB::beginTransaction();
-                DB::table('users')->where('id',auth()->id())->update([
-                    'status_activity' => $status
-                ]);
-                DB::commit();
+            DB::beginTransaction();
+            if ($id == NULL) {
+                if ($status != auth()->user()->status_activity) {
+                    DB::table('users')->where('id',auth()->id())->update([
+                        'status_activity' => 'offline'
+                    ]);
+                }
+            } else {
+                if ($status != auth()->user()->status_activity) {
+                    DB::table('users')->where('id',auth()->id())->update([
+                        'status_activity' => $status
+                    ]);
+                }
             }
+            DB::commit();
             return;
         } catch (\Exception $e) {
             DB::rollBack();

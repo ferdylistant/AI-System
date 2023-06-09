@@ -25,14 +25,14 @@ $(function() {
                 title: 'Judul Final'
             },
             {
-                data: 'penulis',
-                name: 'penulis',
-                title: 'Penulis',
+                data: 'setter',
+                name: 'setter',
+                title: 'Setter',
             },
             {
-                data: 'nama_pena',
-                name: 'nama_pena',
-                title: 'Nama Pena',
+                data: 'korektor',
+                name: 'korektor',
+                title: 'Korektor',
             },
             {
                 data: 'jalur_buku',
@@ -48,6 +48,11 @@ $(function() {
                 data: 'pic_prodev',
                 name: 'pic_prodev',
                 title: 'PIC Prodev'
+            },
+            {
+                data: 'penulis',
+                name: 'penulis',
+                title: 'Penulis',
             },
             {
                 data: 'proses_saat_ini',

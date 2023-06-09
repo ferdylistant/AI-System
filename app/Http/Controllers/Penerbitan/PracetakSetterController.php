@@ -77,6 +77,36 @@ class PracetakSetterController extends Controller
                         }
                         return $res;
                     })
+                    ->addColumn('setter', function ($data) {
+                        $result = '';
+                        if (is_null($data->setter) || $data->setter == '[]' || $data->setter == '[null]') {
+                            $result .= "<span class='text-danger'>Belum ditambahkan</span>";
+                        } else {
+                            $sett = collect(json_decode($data->setter))->map(function($item) {
+                                $name = DB::table('users')->where('id',$item)->first()->nama;
+                                return $name;
+                            })->all();
+                            foreach ($sett as $q) {
+                                $result .= '<span class="bullet"></span>'.$q.'<br>';
+                            }
+                        }
+                        return $result;
+                    })
+                    ->addColumn('korektor', function ($data) {
+                        $result = '';
+                        if (is_null($data->korektor) || $data->korektor == '[]' || $data->korektor == '[null]') {
+                            $result .= "<span class='text-danger'>Belum ditambahkan</span>";
+                        } else {
+                            $kor = collect(json_decode($data->korektor))->map(function($item) {
+                                $name = DB::table('users')->where('id',$item)->first()->nama;
+                                return $name;
+                            })->all();
+                            foreach ($kor as $q) {
+                                $result .= '<span class="bullet"></span>'.$q.'<br>';
+                            }
+                        }
+                        return $result;
+                    })
                     ->addColumn('penulis', function ($data) {
                         // return $data->penulis;
                         $result = '';
@@ -94,17 +124,6 @@ class PracetakSetterController extends Controller
                         }
                         return $result;
                         //  $res;
-                    })
-                    ->addColumn('nama_pena', function ($data) {
-                        $result = '';
-                        if (is_null($data->nama_pena)) {
-                            $result .= "-";
-                        } else {
-                            foreach (json_decode($data->nama_pena) as $q) {
-                                $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
-                            }
-                        }
-                        return $result;
                     })
                     ->addColumn('jalur_buku', function ($data) {
                         if (!is_null($data->jalur_buku)) {
@@ -171,8 +190,9 @@ class PracetakSetterController extends Controller
                     ->rawColumns([
                         'kode',
                         'judul_final',
+                        'setter',
+                        'korektor',
                         'penulis',
-                        'nama_pena',
                         'jalur_buku',
                         'tgl_masuk_pracetak',
                         'pic_prodev',

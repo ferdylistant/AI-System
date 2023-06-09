@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class HomeController extends Controller
@@ -93,8 +94,8 @@ class HomeController extends Controller
             $timeline = TRUE;
         }
         $naskah = DB::table('penerbitan_naskah')->whereNull('deleted_at')->get();
-        $userdata = DB::table('users')->where('id', auth()->user()->id)->first();
-        $users = DB::table('users')->whereNotIn('id', [auth()->user()->id])->whereNull('deleted_at')->get();
+        $userdata = DB::table('users')->where('id', Auth::id())->first();
+        $users = DB::table('users')->whereNotIn('id', [Auth::id()])->whereNull('deleted_at')->get();
         $imprint = DB::table('imprint')->get();
         $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
         $divisi = DB::table('divisi')->whereNull('deleted_at')->get();
