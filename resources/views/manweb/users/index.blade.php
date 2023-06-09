@@ -310,7 +310,7 @@
                         $('.btn_DelUser').prop('disabled', true).addClass('btn-progress')
                     },
                     success: function(result) {
-                        console.log(result)
+                        // console.log(result)
                         notifToast('success', 'User (' + data.nama + ') berhasil dihapus!');
                         tableUsers.ajax.reload();
                     },
@@ -358,7 +358,47 @@
                         }
                     });
             });
+            function ajaxResetDefaultPasswordUser(id,nama) {
+                let cardWrap = $(this).closest(".card");
+                $.ajax({
+                    url: "{{url('/manajemen-web/user/ajax/reset-default-password/')}}",
+                    data: {
+                        id: id
+                    },
+                    cache: false,
+                    beforeSend: function () {
+                        cardWrap.addClass("card-progress");
+                    },
+                    success: function (result) {
+                        notifToast('success', 'Password user (' + nama + ') berhasil direset default!');
+                        tableUsers.ajax.reload();
+                    },
+                    error: function (err) {
+                        notifToast("error", "Terjadi kesalahan!");
+                    },
+                    complete: function () {
+                        cardWrap.removeClass('card-progress');
+                    }
+                })
+            }
+            tableUsers.on("click", ".btn_ResetDefault", function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                let nama = $(this).data('nama');
+                swal({
+                    title: 'Reset password '+nama+'?',
+                    text: 'Password akan direset default, yaitu "password".',
+                    icon: 'warning',
+                    buttons: true,
+                    dangerMode: true,
+                    })
+                    .then((confirm) => {
+                        if (confirm) {
+                            ajaxResetDefaultPasswordUser(id,nama);
 
+                        }
+                    });
+            });
             // History User Start
             tableUsers.on("click", ".btn-history", function(e) {
                 e.preventDefault();

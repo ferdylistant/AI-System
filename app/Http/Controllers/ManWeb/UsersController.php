@@ -77,6 +77,11 @@ class UsersController extends Controller
                         $btn .= '<a href="#" class="btn_DelUser d-block btn btn-sm btn-danger mr-1 mt-1"  data-toggle="tooltip" title="Hapus Data"
                                     data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                                     <div><i class="fa fa-trash"></i></div></a>';
+                        if (auth()->user()->super_admin == '1') {
+                            $btn .= '<a href="javascript:void(0)" class="btn_ResetDefault d-block btn btn-sm btn-dark mr-1 mt-1"  data-toggle="tooltip" title="Reset Password Default"
+                                    data-id="' . $data->id . '" data-nama="' . $data->nama . '">
+                                    <div><i class="fa fa-sync"></i> Reset password default</div></a>';
+                        }
                         return $btn;
                     })
                     ->rawColumns([
@@ -423,6 +428,9 @@ class UsersController extends Controller
                 break;
             case 'save-image':
                 return $this->storeImage($request);
+                break;
+            case 'reset-default-password':
+                return $this->resetDefaultPassword($request);
                 break;
             default:
                 return abort(404);
@@ -862,6 +870,21 @@ class UsersController extends Controller
             'ld' => $ld,
             'perm' => $perm
         ];
+    }
+
+    protected function resetDefaultPassword($request)
+    {
+        try {
+            DB::beginTransaction();
+            DB::table('users')->where('id',$request->id)->update([
+                'password' => Hash::make('password')
+            ]);
+            DB::commit();
+            return;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return abort(500,$e->getMessage());
+        }
     }
 
     public function lihatHistoryUser(Request $request)
