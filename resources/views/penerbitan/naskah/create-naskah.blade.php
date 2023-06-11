@@ -109,19 +109,19 @@
                                         <input class="form-check-input" type="radio" name="add_cdqr_code" value="0" id="add_cdqr_no">
                                         <label class="form-check-label" for="add_cdqr_no">Tidak</label>
                                     </div>
-                                    <div id="err_add_cdqr_code" style="display: block;"></div>
+                                    {{-- <div id="err_add_cdqr_code" style="display: block;"></div> --}}
                                 </div>
                                 <div class="form-group col-12 col-md-3 mb-4">
                                     <label class="d-block">Sumber Naskah: <span class="text-danger">*</span></label>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="add_sumber_naskah[]" id="hardCopy" value="HC">
+                                        <input class="form-check-input" type="checkbox" name="add_sumber_naskah[]" id="hardCopy" value="HC" required>
                                         <label class="form-check-label" for="hardCopy">Hard Copy</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="add_sumber_naskah[]" id="softCopy" value="SC">
+                                        <input class="form-check-input" type="checkbox" name="add_sumber_naskah[]" id="softCopy" value="SC" required>
                                         <label class="form-check-label" for="softCopy">Soft Copy</label>
                                     </div>
-                                    <div id="err_sumber_naskah"></div>
+                                    <div id="err_add_sumber_naskah" style="display: block;"></div>
                                 </div>
                                 <div class="form-group col-12 col-md-12 mb-4" style="display:none" id="SC">
                                     <label>URL File: <span class="text-danger">*</span></label>
@@ -313,12 +313,6 @@
             add_tentang_penulis: {
                 required: true
             },
-            add_hard_copy: {
-                required: true
-            },
-            add_soft_copy: {
-                required: true
-            },
             add_pic_prodev: {
                 required: true
             },
@@ -346,12 +340,11 @@
                     addClass('btn-progress')
                 },
                 success: function(result) {
-                    console.log(result)
                     resetFrom(data);
                     notifToast('success', 'Data naskah berhasil disimpan!');
                 },
                 error: function(err) {
-                    console.log(err.responseJSON)
+                    // console.log(err.responseJSON)
                     rs = err.responseJSON.errors;
                     if (rs != undefined) {
                         err = {};
@@ -402,10 +395,12 @@
 
     function showDetail(ele) {
         $('#' + ele).show('slow');
+        $('[name="add_url_file"]').attr('required',true);
     }
 
     function just_hide(ele) {
         $('#' + ele).hide('slow');
+        $('[name="add_url_file"]').attr('required',false);
     }
 </script>
 @endsection
