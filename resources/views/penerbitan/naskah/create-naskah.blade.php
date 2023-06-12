@@ -113,19 +113,20 @@
                                 </div>
                                 <div class="form-group col-12 col-md-3 mb-4">
                                     <label class="d-block">Sumber Naskah: <span class="text-danger">*</span></label>
+                                    @php
+                                        $hcsc = ['HC','SC'];
+                                    @endphp
+                                    @foreach ($hcsc as $v)
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="add_sumber_naskah[]" id="hardCopy" value="HC" required>
-                                        <label class="form-check-label" for="hardCopy">Hard Copy</label>
+                                        <input class="form-check-input" type="checkbox" name="add_sumber_naskah[]" id="label{{$v}}" value="{{$v}}" required>
+                                        <label class="form-check-label" for="label{{$v}}">{{$v == 'HC'? 'Hard Copy':'Soft Copy'}}</label>
                                     </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="add_sumber_naskah[]" id="softCopy" value="SC" required>
-                                        <label class="form-check-label" for="softCopy">Soft Copy</label>
-                                    </div>
+                                    @endforeach
                                     <div id="err_add_sumber_naskah" style="display: block;"></div>
                                 </div>
                                 <div class="form-group col-12 col-md-12 mb-4" style="display:none" id="SC">
                                     <label>URL File: <span class="text-danger">*</span></label>
-                                    <input type="url" class="form-control" name="add_url_file">
+                                    <input type="text" class="form-control" pattern="^(https?://)?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,})$" name="add_url_file">
                                     <div id="err_add_url_file"></div>
                                 </div>
                                 <div class="form-group col-12 col-md-6 mb-4">
@@ -385,7 +386,7 @@
 </script>
 <script>
     $(document).ready(function() {
-        $('#softCopy').change(function() {
+        $('#labelSC').change(function() {
             if (this.checked)
                 showDetail(this.value);
             else

@@ -129,11 +129,11 @@
                                     <label class="d-block">Sumber Naskah: <span class="text-danger">*</span></label>
                                     @foreach ($hcsc as $v)
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="edit_sumber_naskah[]" id="cb{{ $v }}" value="{{ $v }}">
+                                        <input class="form-check-input" type="checkbox" name="edit_sumber_naskah[]" id="cb{{ $v }}" value="{{ $v }}" required>
                                         <label class="form-check-label" for="cb{{ $v }}">{{ $v == 'SC' ? 'Soft Copy' : 'Hard Copy' }}</label>
                                     </div>
                                     @endforeach
-                                    <div id="err_edit_sumber_naskah"></div>
+                                    <div id="err_edit_sumber_naskah" style="display: block;"></div>
                                 </div>
                                 <div class="col-12 col-md-12" id="urlFile"></div>
                                 <div class="form-group col-12 col-md-6 mb-4">
@@ -281,18 +281,20 @@
                         if (naskah[n]) {
                             $('#urlFile').html(`<div class="form-group" style="display:none" id="SC">
                                     <label>URL File: <span class="text-danger">*</span></label>
-                                    <input type="url" class="form-control" name="edit_url_file">
+                                    <input type="text" class="form-control" pattern="^(https?://)?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,})$" name="edit_url_file">
                                     <div id="err_edit_url_file"></div>
                                 </div>`);
                             $('[name="edit_' + n + '"]').val(naskah[n]).change();
                             $('#SC').show('slow');
+                            $('[name="edit_' + n + '"]').attr('required',true);
                             $('[name="edit_' + n + '"]').attr('disabled',disabled).change();
                         } else {
                             $('#urlFile').html(`<div class="form-group" style="display:none" id="SC">
                                     <label>URL File: <span class="text-danger">*</span></label>
-                                    <input type="url" class="form-control" name="edit_url_file">
+                                    <input type="text" class="form-control" pattern="^(https?://)?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,})$" name="edit_url_file">
                                     <div id="err_edit_url_file"></div>
                                 </div>`);
+                            $('[name="edit_' + n + '"]').attr('required',false);
                         }
                     } else {
                         $('[name="edit_' + n + '"]').val(naskah[n]).change();
@@ -381,9 +383,6 @@
             edit_tanggal_masuk_naskah: {
                 required: true
             },
-            edit_sumber_naskah: {
-                required: true
-            },
             edit_pic_prodev: {
                 required: true
             },
@@ -460,10 +459,12 @@
 
     function showDetail(ele) {
         $('#' + ele).show('slow');
+        $('[name="edit_url_file"]').attr('required',true);
     }
 
     function just_hide(ele) {
         $('#' + ele).hide('slow');
+        $('[name="edit_url_file"]').attr('required',false);
     }
 </script>
 @endsection
