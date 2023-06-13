@@ -95,7 +95,7 @@
                                 @endif
                             </div>
                             <div class="card-body">
-                                <form method="POST" action="{{ url('do-login') }}" class="needs-validation" novalidate="">
+                                <form id="loginSubmitForm" method="POST" action="{{ url('do-login') }}" class="needs-validation" novalidate="">
                                     @CSRF
                                     <div class="form-group">
                                         <label for="email">Email</label>
@@ -198,6 +198,14 @@
         })
     </script>
     <script>
+        $('#loginSubmitForm').on('submit', function (e){
+            // e.preventDefault();
+            let email = $(this).find('[name="email"]').val();
+            let pass = $(this).find('[name="password"]').val();
+            if (email && pass) {
+                $('button[type="submit"]').prop('disabled', true).addClass('btn-progress');
+            }
+        })
         function resetFrom(form) {
             form.trigger("reset");
             $('[name="email"]').val("").trigger("change");
