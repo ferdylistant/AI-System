@@ -59,7 +59,8 @@ class PracetakSetterListener
             case 'Progress Proof Prodev':
                 $res = DB::table('pracetak_setter')->where('id',$data['id'])->update([
                     'mulai_proof' => $data['mulai_proof'],
-                    'proses' => $data['proses']
+                    'proses' => $data['proses'],
+                    'proses_saat_ini' => $data['proses_saat_ini']
                 ]);
                 DB::table('pracetak_setter_history')->insert([
                     'pracetak_setter_id' => $data['id'],

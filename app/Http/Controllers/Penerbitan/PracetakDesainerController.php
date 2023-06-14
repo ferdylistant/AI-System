@@ -77,6 +77,36 @@ class PracetakDesainerController extends Controller
                         }
                         return $res;
                     })
+                    ->addColumn('desainer', function ($data) {
+                        $result = '';
+                        if (is_null($data->desainer) || $data->desainer == '[]' || $data->desainer == '[null]') {
+                            $result .= "<span class='text-danger'>Belum ditambahkan</span>";
+                        } else {
+                            $des = collect(json_decode($data->desainer))->map(function($item) {
+                                $name = DB::table('users')->where('id',$item)->first()->nama;
+                                return $name;
+                            })->all();
+                            foreach ($des as $q) {
+                                $result .= '<span class="bullet"></span>'.$q.'<br>';
+                            }
+                        }
+                        return $result;
+                    })
+                    ->addColumn('korektor', function ($data) {
+                        $result = '';
+                        if (is_null($data->korektor) || $data->korektor == '[]' || $data->korektor == '[null]') {
+                            $result .= "<span class='text-danger'>Belum ditambahkan</span>";
+                        } else {
+                            $kor = collect(json_decode($data->korektor))->map(function($item) {
+                                $name = DB::table('users')->where('id',$item)->first()->nama;
+                                return $name;
+                            })->all();
+                            foreach ($kor as $q) {
+                                $result .= '<span class="bullet"></span>'.$q.'<br>';
+                            }
+                        }
+                        return $result;
+                    })
                     ->addColumn('penulis', function ($data) {
                         // return $data->penulis;
                         $result = '';
@@ -94,17 +124,6 @@ class PracetakDesainerController extends Controller
                         }
                         return $result;
                         //  $res;
-                    })
-                    ->addColumn('nama_pena', function ($data) {
-                        $result = '';
-                        if (is_null($data->nama_pena)) {
-                            $result .= "-";
-                        } else {
-                            foreach (json_decode($data->nama_pena) as $q) {
-                                $result .= '<span class="d-block">-&nbsp;' . $q . '</span>';
-                            }
-                        }
-                        return $result;
                     })
                     ->addColumn('jalur_buku', function ($data) {
                         if (!is_null($data->jalur_buku)) {
@@ -173,7 +192,8 @@ class PracetakDesainerController extends Controller
                         'kode',
                         'judul_final',
                         'penulis',
-                        'nama_pena',
+                        'desainer',
+                        'korektor',
                         'jalur_buku',
                         'tgl_masuk_cover',
                         'pic_prodev',
@@ -431,26 +451,26 @@ class PracetakDesainerController extends Controller
                             $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_cover WHERE Field = 'proses_saat_ini'"))[0]->Type;
                             preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
                             $prosesSaatIni = explode("','", $matches[1]);
-                            $prosesFilter = Arr::except($prosesSaatIni, ['1', '4', '6', '9']);
+                            $prosesFilter = Arr::except($prosesSaatIni, ['1', '3','5', '7', '10']);
                             if ($item == 'Siap Turcet') {
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
-                                    return $key >= 7;
+                                    return $key >= 8;
                                 });
                             } elseif (!is_null($useData->selesai_pengajuan_cover)) {
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
-                                    return $key >= 2;
+                                    return $key >= 3;
                                 });
                             } elseif (!is_null($useData->selesai_proof)) {
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
-                                    return $key >= 3;
+                                    return $key >= 4;
                                 });
                             } elseif (!is_null($useData->selesai_cover)) {
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
-                                    return $key >= 5;
+                                    return $key >= 6;
                                 });
                             } elseif ($item == 'Desain Revisi') {
                                 $prosesFilter = Arr::where($prosesSaatIni, function ($value, $key) {
-                                    return $key >= 7;
+                                    return $key >= 8;
                                 });
                                 $prosesFilter = Arr::sort($prosesFilter, function ($value) {
                                     return $value;
@@ -1562,6 +1582,7 @@ class PracetakDesainerController extends Controller
                 if ($value == '0') {
                     if (is_null($data->selesai_pengajuan_cover) || is_null($data->selesai_cover)) {
                         $part = is_null($data->selesai_pengajuan_cover) ? 'pengajuan_cover' : 'cover';
+                        $antrian = $part == 'pengajuan_cover' ? 'Antrian Pengajuan Cover':'Antrian Desain Back Cover';
                         $mulai = 'mulai_' . $part;
                         $dataProgress = [
                             'params' => 'Progress Designer-Korektor',
@@ -1569,7 +1590,7 @@ class PracetakDesainerController extends Controller
                             'id' => $id,
                             $mulai => NULL,
                             'proses' => $value,
-                            'proses_saat_ini' => NULL,
+                            'proses_saat_ini' => $antrian,
                             'type_history' => 'Progress',
                             'author_id' => auth()->id(),
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
@@ -1609,7 +1630,7 @@ class PracetakDesainerController extends Controller
                             'id' => $id,
                             'mulai_koreksi' => NULL,
                             'proses' => $value,
-                            'proses_saat_ini' => NULL,
+                            'proses_saat_ini' => 'Antrian Koreksi',
                             'type_history' => 'Progress',
                             'author_id' => auth()->id(),
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
@@ -1693,7 +1714,7 @@ class PracetakDesainerController extends Controller
                                 ]);
                             }
                             break;
-                        case 'Approval Prodev':
+                        case 'Antrian Proof':
                             if (!is_null($data->selesai_cover)) {
                                 return response()->json([
                                     'status' => 'error',
@@ -1703,7 +1724,7 @@ class PracetakDesainerController extends Controller
                             if (is_null($data->selesai_pengajuan_cover)) {
                                 return response()->json([
                                     'status' => 'error',
-                                    'message' => 'Proses pengajuan cover belum selesai. Belum bisa melakukan proses "Approval Prodev".'
+                                    'message' => 'Proses pengajuan cover belum selesai. Belum bisa melakukan proses "Antrian Proof".'
                                 ]);
                             }
                             if (!is_null($data->selesai_proof)) {
@@ -1832,6 +1853,7 @@ class PracetakDesainerController extends Controller
                             'mulai_proof' => $tglProof,
                             'proses' => $value,
                             'type_history' => 'Progress',
+                            'proses_saat_ini' => 'Approval Prodev',
                             'author_id' => auth()->id(),
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
@@ -2568,7 +2590,7 @@ class PracetakDesainerController extends Controller
                 'ket_revisi' => NULL, //?Pracetak Cover Proof, & Pracetak Cover History
                 'tgl_action' => $tgl,
                 'selesai_proof' => $tgl, //?Pracetak Cover & Pracetak Cover History
-                'proses_saat_ini' => NULL, //?Pracetak Cover
+                'proses_saat_ini' => 'Antrian Desain Back Cover', //?Pracetak Cover
                 'proses' => '0', //?Pracetak Cover
                 'type_history' => 'Update', //? Pracetak Cover History
                 'status_his' => $data->status, //? Pracetak Cover History
@@ -2928,7 +2950,7 @@ class PracetakDesainerController extends Controller
                         'id' => $data->id,
                         'selesai_pengajuan_cover' => $tgl,
                         'proses' => '0',
-                        'proses_saat_ini' => NULL,
+                        'proses_saat_ini' => 'Antrian Proof',
                         //Pracetak Desainer History
                         'type_history' => 'Update',
                         'author_id' => auth()->id()

@@ -24,14 +24,19 @@ $(function() {
                 title: 'Judul Final'
             },
             {
+                data: 'desainer',
+                name: 'desainer',
+                title: 'Desainer',
+            },
+            {
+                data: 'korektor',
+                name: 'korektor',
+                title: 'Korektor',
+            },
+            {
                 data: 'penulis',
                 name: 'penulis',
                 title: 'Penulis',
-            },
-            {
-                data: 'nama_pena',
-                name: 'nama_pena',
-                title: 'Nama Pena',
             },
             {
                 data: 'jalur_buku',
@@ -44,14 +49,14 @@ $(function() {
                 title: 'Tgl Masuk'
             },
             {
-                data: 'pic_prodev',
-                name: 'pic_prodev',
-                title: 'PIC Prodev'
-            },
-            {
                 data: 'proses_saat_ini',
                 name: 'proses_saat_ini',
                 title: 'Proses Saat Ini'
+            },
+            {
+                data: 'pic_prodev',
+                name: 'pic_prodev',
+                title: 'PIC Prodev'
             },
             {
                 data: 'history',

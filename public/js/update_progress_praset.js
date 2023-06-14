@@ -50,14 +50,14 @@ $(function() {
                 title: 'PIC Prodev'
             },
             {
-                data: 'penulis',
-                name: 'penulis',
-                title: 'Penulis',
-            },
-            {
                 data: 'proses_saat_ini',
                 name: 'proses_saat_ini',
                 title: 'Proses Saat Ini'
+            },
+            {
+                data: 'penulis',
+                name: 'penulis',
+                title: 'Penulis',
             },
             {
                 data: 'history',

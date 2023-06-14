@@ -326,6 +326,10 @@ class PracetakSetterController extends Controller
                                     $htmlHeader .= '<span class="text-dark" class="text-dark"> Setting</span>';
                                     break;
 
+                                case 'Antrian Proof':
+                                    $htmlHeader .= '<span class="text-dark"> Antrian Proof</span>';
+                                    break;
+
                                 case 'Proof Prodev':
                                     $htmlHeader .= '<span class="text-dark"> Proof Prodev</span>';
                                     break;
@@ -340,10 +344,6 @@ class PracetakSetterController extends Controller
 
                                 case 'Turun Cetak':
                                     $htmlHeader .= '<span class="text-dark"> Turun Cetak</span>';
-                                    break;
-
-                                case 'Upload E-Book':
-                                    $htmlHeader .= '<span class="text-dark"> Upload E-Book</span>';
                                     break;
 
                                 case 'Setting Revisi':
@@ -369,13 +369,13 @@ class PracetakSetterController extends Controller
                             $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_setter WHERE Field = 'proses_saat_ini'"))[0]->Type;
                             preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
                             $prosesSaatIni = explode("','", $matches[1]);
-                            $prosesFilter = Arr::except($prosesSaatIni, ['1', '4', '7']);
+                            $prosesFilter = Arr::except($prosesSaatIni, ['1','3', '5', '8']);
                             if ($item == 'Siap Turcet') {
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
-                                    return $key >= 5;
+                                    return $key >= 6;
                                 });
                             } elseif (!is_null($useData->selesai_proof)){
-                                $prosesFilter = Arr::except($prosesSaatIni, ['1','2','4','7']);
+                                $prosesFilter = Arr::except($prosesSaatIni, ['1','2','3','5','8']);
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
                                     return $key >= 0;
                                 });
@@ -385,7 +385,7 @@ class PracetakSetterController extends Controller
                                 });
                             } elseif ($item == 'Setting Revisi') {
                                 $prosesFilter = Arr::where($prosesSaatIni, function ($value, $key) {
-                                    return $key >= 5;
+                                    return $key >= 6;
                                 });
                                 $prosesFilter = Arr::sort($prosesFilter, function ($value) {
                                     return $value;
@@ -1685,7 +1685,7 @@ class PracetakSetterController extends Controller
                             'id' => $id,
                             'mulai_setting' => NULL,
                             'proses' => $value,
-                            'proses_saat_ini' => NULL,
+                            'proses_saat_ini' => 'Antrian Setting',
                             'type_history' => 'Progress',
                             'author_id' => auth()->id(),
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
@@ -1716,7 +1716,7 @@ class PracetakSetterController extends Controller
                             'id' => $id,
                             'mulai_koreksi' => NULL,
                             'proses' => $value,
-                            'proses_saat_ini' => NULL,
+                            'proses_saat_ini' => 'Antrian Koreksi',
                             'type_history' => 'Progress',
                             'author_id' => auth()->id(),
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
@@ -1768,7 +1768,8 @@ class PracetakSetterController extends Controller
                                 ]);
                             }
                             break;
-                        case 'Proof Prodev':
+
+                        case 'Antrian Proof':
                             if (is_null($data->selesai_setting)) {
                                 return response()->json([
                                     'status' => 'error',
@@ -1900,6 +1901,7 @@ class PracetakSetterController extends Controller
                             'id' => $id,
                             'mulai_proof' => $tglProof,
                             'proses' => $value,
+                            'proses_saat_ini' => 'Proof Prodev',
                             'type_history' => 'Progress',
                             'author_id' => auth()->id(),
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
@@ -2648,7 +2650,7 @@ class PracetakSetterController extends Controller
                 'ket_revisi' => NULL, //?Pracetak Setter Proof, & Pracetak Setter History
                 'tgl_action' => $tgl,
                 'selesai_proof' => $tgl, //?Pracetak Setter & Pracetak Setter History
-                'proses_saat_ini' => NULL, //?Pracetak Setter
+                'proses_saat_ini' => 'Antrian Koreksi', //?Pracetak Setter
                 'proses' => '0', //?Pracetak Setter
                 'type_history' => 'Update', //? Pracetak Setter History
                 'status_his' => $data->status, //? Pracetak Setter History
@@ -3005,13 +3007,14 @@ class PracetakSetterController extends Controller
                         'tgl_proses_selesai' => $tgl
                     ];
                     event(new PracetakSetterEvent($pros));
+                    $currentProccess = !is_null($data->selesai_proof) ? 'Antrian Proof':'Antrian Koreksi';
                     $done = [
                         'params' => 'Setting-Koreksi Selesai',
                         'label' => 'setting',
                         'id' => $data->id,
                         'selesai_setting' => $tgl,
                         'proses' => '0',
-                        'proses_saat_ini' => NULL,
+                        'proses_saat_ini' => $currentProccess,
                         //Pracetak Setter History
                         'type_history' => 'Update',
                         'author_id' => auth()->id()

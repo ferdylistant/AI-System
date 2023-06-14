@@ -93,6 +93,7 @@ class PracetakCoverListener
                 DB::beginTransaction();
                 $res = DB::table('pracetak_cover')->where('id', $data['id'])->update([
                     'mulai_proof' => $data['mulai_proof'],
+                    'proses_saat_ini' => $data['proses_saat_ini'],
                     'proses' => $data['proses']
                 ]);
                 DB::table('pracetak_cover_history')->insert([
