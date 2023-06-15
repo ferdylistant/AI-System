@@ -83,7 +83,7 @@
                     <div class="card card-primary">
                         <div class="card-header justify-content-between">
                             <div class="col-auto d-flex">
-                                <h4 class="section-title">Data Detail Pracetak Desainer&nbsp;
+                                <h4 class="section-title mb-3">Data Detail Pracetak Desainer&nbsp;
                                     -
                                     @switch($data->status)
                                         @case('Antrian')
@@ -109,26 +109,23 @@
                                 </h4>
                             </div>
                             @if (!$proof_revisi->isEmpty())
+                            <div class="col-auto">
                                 <?php $gate = Gate::allows('do_approval', 'approval-deskripsi-produk'); ?>
                                 @if (auth()->id() == $data->pic_prodev || auth()->id() == 'be8d42fa88a14406ac201974963d9c1b' || $gate)
-                                    &mdash;&mdash;
-                                    <button type="button" class="btn btn-warning" id="btn-history-revision-proof"
+                                    <button type="button" class="btn btn-outline-warning" id="btn-history-revision-proof"
                                         data-id="{{ $data->id }}" data-kode="{{ $data->kode }}"
                                         data-judul="{{ $data->judul_final }}"><i class="fas fa-history"></i>&nbsp;Riwayat
                                         Proof</button>
                                 @endif
-                            @endif
-                            @if (!$proof_revisi->isEmpty())
                                 <?php $gate = Gate::allows('do_approval', 'approval-deskripsi-produk'); ?>
-                                &mdash;&mdash;
-                                <button type="button" class="btn btn-primary" id="btn-history-deskor"
+                                <button type="button" class="btn btn-outline-primary" id="btn-history-deskor"
                                     data-id="{{ $data->id }}" data-kode="{{ $data->kode }}"
                                     data-judul="{{ $data->judul_final }}"><i class="fas fa-history"></i>&nbsp;Riwayat
                                     Desainer/Korektor</button>
-                                &mdash;&mdash;
+                                </div>
                             @endif
+                            @if ($data->proses == '1')
                             <div class="col-auto">
-                                @if ($data->proses == '1')
                                     <span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;
                                         @if (!is_null($data->mulai_proof) && is_null($data->selesai_proof))
                                             Sedang proses approval prodev
@@ -141,8 +138,8 @@
                                             @endif
                                         @endif
                                     </span>
+                                </div>
                                 @endif
-                            </div>
                         </div>
                         <div class="card-body">
                             @if (auth()->id() == $data->pic_prodev)

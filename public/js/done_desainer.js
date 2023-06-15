@@ -217,22 +217,37 @@ $(function () {
     $('#btn-history-revision-proof').click(function(e) {
         var id = $(this).data('id');
         var judul = $(this).data('judul');
+        let cardWrap = $(this).closest(".card");
         // console.log(id);
-        $.post(window.location.origin + "/penerbitan/pracetak/designer/lihat-informasi-proof", {
-            id: id
-        }, function(data) {
-            // console.log(data);
-            $('#titleModalCover').html(
-                '<i class="fas fa-history"></i>&nbsp;Riwayat Proof "' + judul + '"');
-            $('#load_more').data('id', id);
-            $('#dataInformasiProofProdevDesain').html(data);
-            $('#md_InformasiProofProd').modal('show');
+        $.ajax({
+            url: window.location.origin + "/penerbitan/pracetak/designer/lihat-informasi-proof",
+            type: 'POST',
+            data: {id:id},
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                $('#titleModalCover').html(
+                    '<i class="fas fa-history"></i>&nbsp;Riwayat Proof "' + judul + '"');
+                $('#load_more').data('id', id);
+                $('#dataInformasiProofProdevDesain').html(data);
+                $('#md_InformasiProofProd').modal('show');
+            },
+            error: function (err) {
+                cardWrap.removeClass("card-progress");
+                console.error(err);
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
         });
     });
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
+        let form = $("#md_InformasiProofProd");
         $(this).data("paginate", page + 1);
 
         $.ajax({
@@ -243,13 +258,16 @@ $(function () {
             },
             type: "post",
             beforeSend: function () {
-                $(".load-more").text("Loading...");
+                form.addClass("modal-progress");
             },
             success: function (response) {
                 if (response.length == 0) {
+                    $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
+                } else {
+                    $("#dataInformasiProofProdevDesain").append(response);
+                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
                 }
-                $("#dataInformasiProofProdevDesain").append(response);
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
                 //     // appending posts after last post with class="post"
@@ -257,30 +275,49 @@ $(function () {
                 // }, 2000);
             },
             complete: function (params) {
-                $(".load-more").text("Load more").fadeIn("slow");
+                form.removeClass("modal-progress");
             },
         });
+    });
+    $("#md_InformasiProofProd").on("hidden.bs.modal", function () {
+        $(".load-more").data("paginate", 2);
+        $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
     //* HISTORY SETTER-KOREKTOR
     $('#btn-history-deskor').click(function(e) {
         var id = $(this).data('id');
         var judul = $(this).data('judul');
+        let cardWrap = $(this).closest(".card");
         // console.log(id);
-        $.post(window.location.origin + "/penerbitan/pracetak/designer/lihat-proses-deskor", {
-            id: id
-        }, function(data) {
-            // console.log(data);
-            $('#titleModalDeskor').html(
-                '<i class="fas fa-history"></i>&nbsp;Riwayat progress Desainer & Korektor naskah"' + judul + '"');
-            $('#load_more_deskor').data('id', id);
-            $('#dataRiwayatDeskor').html(data);
-            $('#md_RiwayatDeskor').modal('show');
+        $.ajax({
+            url: window.location.origin + "/penerbitan/pracetak/designer/lihat-proses-deskor",
+            data: {id:id},
+            type: 'POST',
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                $('#titleModalDeskor').html(
+                    '<i class="fas fa-history"></i>&nbsp;Riwayat progress Desainer & Korektor naskah"' + judul + '"');
+                $('#load_more_deskor').data('id', id);
+                $('#dataRiwayatDeskor').html(data);
+                $('#md_RiwayatDeskor').modal('show');
+            },
+            error: function (err) {
+                cardWrap.removeClass("card-progress");
+                console.error(err);
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
         });
     });
     $(".load-more-deskor").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
+        let form = $("#md_RiwayatDeskor");
         $(this).data("paginate", page + 1);
 
         $.ajax({
@@ -291,13 +328,16 @@ $(function () {
             },
             type: "post",
             beforeSend: function () {
-                $(".load-more-deskor").text("Loading...");
+                form.addClass("modal-progress");
             },
             success: function (response) {
                 if (response.length == 0) {
+                    $(".load-more-deskor").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
+                } else {
+                    $("#dataRiwayatDeskor").append(response);
+                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
                 }
-                $("#dataRiwayatDeskor").append(response);
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
                 //     // appending posts after last post with class="post"
@@ -305,8 +345,12 @@ $(function () {
                 // }, 2000);
             },
             complete: function (params) {
-                $(".load-more-deskor").text("Load more").fadeIn("slow");
+                form.removeClass("modal-progress");
             },
         });
+    });
+    $("#md_RiwayatDeskor").on("hidden.bs.modal", function () {
+        $(".load-more-deskor").data("paginate", 2);
+        $(".load-more-deskor").attr("disabled", false).css("cursor", "pointer");
     });
 });

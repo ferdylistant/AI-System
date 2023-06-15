@@ -210,11 +210,17 @@ class PracetakDesainerController extends Controller
         $statusProgress = explode("','", $matches[1]);
         $statusAction = Arr::except($statusProgress, ['4']);
         $statusProgress = Arr::sort($statusProgress);
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_cover WHERE Field = 'proses_saat_ini'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $statusProsesSaatIni = explode("','", $matches[1]);
+        $statusProsesSaatIni = Arr::sort($statusProsesSaatIni);
+        $statusProsesSaatIni = Arr::prepend($statusProsesSaatIni,'Belum ada proses');
 
         return view('penerbitan.pracetak_desainer.index', [
             'title' => 'Pracetak Desainer',
             'status_action' => $statusAction,
             'status_progress' => $statusProgress,
+            'status_proses_saat_ini' => $statusProsesSaatIni,
         ]);
     }
     protected function logicPermissionAction($status = null, $jb = null, $id, $kode, $judul_final, $btn)
@@ -2368,15 +2374,27 @@ class PracetakDesainerController extends Controller
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                 ->join('users as u', 'psp.users_id', '=', 'u.id')
                 ->where('psp.pracetak_cover_id', $id)
-                ->select('psp.*', 'dp.judul_final', 'u.nama')
+                ->select('psp.*','ps.mulai_proof', 'dp.judul_final', 'u.nama')
                 ->orderBy('psp.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
                 switch ($d->type_action) {
                     case 'Proof':
+                        $diff = Carbon::parse($d->mulai_proof)->diffInDays($d->tgl_action);
+                        if ($diff == 0) {
+                            $diff = Carbon::parse($d->mulai_proof)->diffInHours($d->tgl_action);
+                            if ($diff == 0) {
+                                $diff = Carbon::parse($d->mulai_proof)->diffInMinutes($d->tgl_action);
+                                $diff = $diff.' menit';
+                            } else {
+                                $diff = $diff.' jam';
+                            }
+                        } else {
+                            $diff = $diff.' hari';
+                        }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Prodev menyetujui pengajuan desain.</span>
+                            <span><span class="bullet"></span> Prodev menyetujui pengajuan desain dengan lama waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2386,9 +2404,21 @@ class PracetakDesainerController extends Controller
                         </span>';
                         break;
                     case 'Revisi':
+                        $diff = Carbon::parse($d->mulai_proof)->diffInDays($d->tgl_action);
+                        if ($diff == 0) {
+                            $diff = Carbon::parse($d->mulai_proof)->diffInHours($d->tgl_action);
+                            if ($diff == 0) {
+                                $diff = Carbon::parse($d->mulai_proof)->diffInMinutes($d->tgl_action);
+                                $diff = $diff.' menit';
+                            } else {
+                                $diff = $diff.' jam';
+                            }
+                        } else {
+                            $diff = $diff.' hari';
+                        }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Status pracetak cover <b>Revisi</b> dengan keterangan revisi: <b>' . $d->ket_revisi . '</b>.</span>
+                            <span><span class="bullet"></span> Status pracetak cover <b>Revisi</b> dengan keterangan revisi: <b>' . $d->ket_revisi . '</b>, dengan lama waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2398,9 +2428,25 @@ class PracetakDesainerController extends Controller
                         </span>';
                         break;
                     case 'Selesai Revisi':
+                        $dataSebelumnya = DB::table('pracetak_cover_proof')
+                        ->where('pracetak_cover_id', $d->pracetak_cover_id)
+                        ->where('id','<',$d->id)
+                        ->first();
+                        $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInDays($d->tgl_action);
+                        if ($diff == 0) {
+                            $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInHours($d->tgl_action);
+                            if ($diff == 0) {
+                                $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInMinutes($d->tgl_action);
+                                $diff = $diff.' menit';
+                            } else {
+                                $diff = $diff.' jam';
+                            }
+                        } else {
+                            $diff = $diff.' hari';
+                        }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Desainer telah menyelesaikan revisi dengan persetujuan kabag.</span>
+                            <span><span class="bullet"></span> Desainer telah menyelesaikan revisi dengan persetujuan kabag dengan lama waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2425,16 +2471,28 @@ class PracetakDesainerController extends Controller
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                 ->join('users as u', 'pss.users_id', '=', 'u.id')
                 ->where('pss.pracetak_cover_id', $id)
-                ->select('pss.*', 'dp.judul_final', 'u.nama')
+                ->select('pss.*','ps.mulai_pengajuan_cover','ps.mulai_cover','ps.mulai_koreksi', 'dp.judul_final', 'u.nama')
                 ->orderBy('pss.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
                 $labelDeskor = $d->type == 'Desainer' ? 'Desain' : 'Koreksi';
                 switch ($d->section) {
                     case 'Pengajuan Cover':
+                        $diff = Carbon::parse($d->mulai_pengajuan_cover)->diffInDays($d->tgl_proses_selesai);
+                        if ($diff == 0) {
+                            $diff = Carbon::parse($d->mulai_pengajuan_cover)->diffInHours($d->tgl_proses_selesai);
+                            if ($diff == 0) {
+                                $diff = Carbon::parse($d->mulai_pengajuan_cover)->diffInMinutes($d->tgl_proses_selesai);
+                                $diff = $diff.' menit';
+                            } else {
+                                $diff = $diff.' jam';
+                            }
+                        } else {
+                            $diff = $diff.' hari';
+                        }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelDeskor . ' untuk approval oleh prodev telah diselesaikan.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' untuk approval oleh prodev telah diselesaikan dalam waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2444,9 +2502,21 @@ class PracetakDesainerController extends Controller
                         </span>';
                         break;
                     case 'Back Cover Design':
+                        $diff = Carbon::parse($d->mulai_cover)->diffInDays($d->tgl_proses_selesai);
+                        if ($diff == 0) {
+                            $diff = Carbon::parse($d->mulai_cover)->diffInHours($d->tgl_proses_selesai);
+                            if ($diff == 0) {
+                                $diff = Carbon::parse($d->mulai_cover)->diffInMinutes($d->tgl_proses_selesai);
+                                $diff = $diff.' menit';
+                            } else {
+                                $diff = $diff.' jam';
+                            }
+                        } else {
+                            $diff = $diff.' hari';
+                        }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelDeskor . ' cover selesai untuk dikoreksi.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' cover selesai untuk dikoreksi dalam waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2456,9 +2526,21 @@ class PracetakDesainerController extends Controller
                         </span>';
                         break;
                     case 'Back Cover Design Revision':
+                        $diff = Carbon::parse($d->mulai_cover)->diffInDays($d->tgl_proses_selesai);
+                        if ($diff == 0) {
+                            $diff = Carbon::parse($d->mulai_cover)->diffInHours($d->tgl_proses_selesai);
+                            if ($diff == 0) {
+                                $diff = Carbon::parse($d->mulai_cover)->diffInMinutes($d->tgl_proses_selesai);
+                                $diff = $diff.' menit';
+                            } else {
+                                $diff = $diff.' jam';
+                            }
+                        } else {
+                            $diff = $diff.' hari';
+                        }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelDeskor . ' hasil revisi tahap ' . $d->tahap . ' dari korektor telah diselesaikan setter.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' hasil revisi tahap ' . $d->tahap . ' dari korektor telah diselesaikan setter dalam waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2468,9 +2550,21 @@ class PracetakDesainerController extends Controller
                         </span>';
                         break;
                     case 'Koreksi':
+                        $diff = Carbon::parse($d->mulai_koreksi)->diffInDays($d->tgl_proses_selesai);
+                        if ($diff == 0) {
+                            $diff = Carbon::parse($d->mulai_koreksi)->diffInHours($d->tgl_proses_selesai);
+                            if ($diff == 0) {
+                                $diff = Carbon::parse($d->mulai_koreksi)->diffInMinutes($d->tgl_proses_selesai);
+                                $diff = $diff.' menit';
+                            } else {
+                                $diff = $diff.' jam';
+                            }
+                        } else {
+                            $diff = $diff.' hari';
+                        }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelDeskor . ' desain cover tahap ' . $d->tahap . ' oleh korektor telah diselesaikan.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' desain cover tahap ' . $d->tahap . ' oleh korektor telah diselesaikan dalam waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
