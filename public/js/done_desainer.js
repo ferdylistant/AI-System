@@ -251,7 +251,7 @@ $(function () {
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/setter/lihat-informasi-proof",
+            url: window.location.origin + "/penerbitan/pracetak/designer/lihat-informasi-proof",
             data: {
                 id: id,
                 page: page,
@@ -266,7 +266,7 @@ $(function () {
                     notifToast("error", "Tidak ada data lagi");
                 } else {
                     $("#dataInformasiProofProdevDesain").append(response);
-                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
+                    $("#md_InformasiProofProd").find('.thin').animate({scrollTop: $("#md_InformasiProofProd").find('.thin').prop("scrollHeight")}, 800);
                 }
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
@@ -336,7 +336,7 @@ $(function () {
                     notifToast("error", "Tidak ada data lagi");
                 } else {
                     $("#dataRiwayatDeskor").append(response);
-                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
+                    $("#md_RiwayatDeskor").find('.thin').animate({scrollTop: $("#md_RiwayatDeskor").find('.thin').prop("scrollHeight")}, 800);
                 }
                 // Setting little delay while displaying new content
                 // setTimeout(function() {

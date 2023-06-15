@@ -82,6 +82,22 @@
                                     <button type="button" class="btn btn-outline-danger clear_field text-danger align-self-center" data-toggle="tooltip" title="Reset" hidden><i class="fas fa-times"></i></button>
                                 </div>
                             </div>
+                            <div class="form-group col-auto">
+                                <div class="input-group">
+                                    <select data-column="7" name="status_proses_saat_ini" id="status_proses_saat_ini"
+                                        class="form-control select-proses-saat-ini status_proses_saat_ini" style="width: 200px">
+                                        <option label="Pilih filter proses saat ini"></option>
+                                        @foreach ($status_proses_saat_ini as $val)
+                                            <option value="{{ $val }}">{{ $val }}&nbsp;&nbsp;</option>
+                                        @endforeach
+
+                                    </select>
+                                    <button type="button"
+                                        class="btn btn-outline-danger clear_field_proses_saat_ini text-danger align-self-center"
+                                        data-toggle="tooltip" title="Reset" hidden><i
+                                            class="fas fa-times"></i></button>
+                                </div>
+                            </div>
                             <div class="col-auto">
                                 <span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-database"></i> Total data pracetak setter: <b id="countData">0</b></span>
                             </div>

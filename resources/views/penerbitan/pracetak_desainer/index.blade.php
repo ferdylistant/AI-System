@@ -88,7 +88,7 @@
                                                 class="fas fa-times"></i></button>
                                     </div>
                                 </div>
-                                <div class="form-group col-auto col-md-3">
+                                <div class="form-group col-auto">
                                     <div class="input-group">
                                         <select data-column="7" name="status_proses_saat_ini" id="status_proses_saat_ini"
                                             class="form-control select-proses-saat-ini status_proses_saat_ini" style="width: 200px">

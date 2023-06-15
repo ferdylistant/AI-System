@@ -210,10 +210,16 @@ class PracetakSetterController extends Controller
         $statusProgress = explode("','", $matches[1]);
         $statusAction = Arr::except($statusProgress, ['4']);
         $statusProgress = Arr::sort($statusProgress);
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_setter WHERE Field = 'proses_saat_ini'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $statusProsesSaatIni = explode("','", $matches[1]);
+        $statusProsesSaatIni = Arr::sort($statusProsesSaatIni);
+        $statusProsesSaatIni = Arr::prepend($statusProsesSaatIni,'Belum ada proses');
         return view('penerbitan.pracetak_setter.index', [
             'title' => 'Pracetak Setter',
             'status_action' => $statusAction,
             'status_progress' => $statusProgress,
+            'status_proses_saat_ini' => $statusProsesSaatIni,
         ]);
     }
     public function editSetter(Request $request)
@@ -2425,15 +2431,27 @@ class PracetakSetterController extends Controller
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
                 ->join('users as u', 'psp.users_id', '=', 'u.id')
                 ->where('psp.pracetak_setter_id', $id)
-                ->select('psp.*', 'dp.judul_final', 'u.nama')
+                ->select('psp.*','ps.mulai_proof', 'dp.judul_final', 'u.nama')
                 ->orderBy('psp.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
                 switch ($d->type_action) {
                     case 'Proof':
+                        $diff = Carbon::parse($d->mulai_proof)->diffInDays($d->tgl_action);
+                        if ($diff == 0) {
+                            $diff = Carbon::parse($d->mulai_proof)->diffInHours($d->tgl_action);
+                            if ($diff == 0) {
+                                $diff = Carbon::parse($d->mulai_proof)->diffInMinutes($d->tgl_action);
+                                $diff = $diff.' menit';
+                            } else {
+                                $diff = $diff.' jam';
+                            }
+                        } else {
+                            $diff = $diff.' hari';
+                        }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Prodev menyetujui hasil setting.</span>
+                            <span><span class="bullet"></span> Prodev menyetujui hasil setting dalam waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2443,9 +2461,21 @@ class PracetakSetterController extends Controller
                         </span>';
                         break;
                     case 'Revisi':
+                        $diff = Carbon::parse($d->mulai_proof)->diffInDays($d->tgl_action);
+                        if ($diff == 0) {
+                            $diff = Carbon::parse($d->mulai_proof)->diffInHours($d->tgl_action);
+                            if ($diff == 0) {
+                                $diff = Carbon::parse($d->mulai_proof)->diffInMinutes($d->tgl_action);
+                                $diff = $diff.' menit';
+                            } else {
+                                $diff = $diff.' jam';
+                            }
+                        } else {
+                            $diff = $diff.' hari';
+                        }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Status pracetak setter <b>Revisi</b> dengan keterangan revisi: <b>' . $d->ket_revisi . '</b>.</span>
+                            <span><span class="bullet"></span> Status pracetak setter <b>Revisi</b> dengan keterangan revisi: <b>' . $d->ket_revisi . '</b>, dalam waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2455,9 +2485,25 @@ class PracetakSetterController extends Controller
                         </span>';
                         break;
                     case 'Selesai Revisi':
+                        $dataSebelumnya = DB::table('pracetak_setter_proof')
+                        ->where('pracetak_setter_id', $d->pracetak_setter_id)
+                        ->where('id','<',$d->id)
+                        ->first();
+                        $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInDays($d->tgl_action);
+                        if ($diff == 0) {
+                            $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInHours($d->tgl_action);
+                            if ($diff == 0) {
+                                $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInMinutes($d->tgl_action);
+                                $diff = $diff.' menit';
+                            } else {
+                                $diff = $diff.' jam';
+                            }
+                        } else {
+                            $diff = $diff.' hari';
+                        }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Setter telah menyelesaikan revisi dengan persetujuan kabag.</span>
+                            <span><span class="bullet"></span> Setter telah menyelesaikan revisi dengan persetujuan kabag dalam waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2487,11 +2533,23 @@ class PracetakSetterController extends Controller
                 ->paginate(2);
             foreach ($data as $d) {
                 $labelSetkor = $d->type == 'Setter' ? 'Setting' : 'Koreksi';
+                $diff = Carbon::parse($d->tgl_proses_mulai)->diffInDays($d->tgl_proses_selesai);
+                if ($diff == 0) {
+                    $diff = Carbon::parse($d->tgl_proses_mulai)->diffInHours($d->tgl_proses_selesai);
+                    if ($diff == 0) {
+                        $diff = Carbon::parse($d->tgl_proses_mulai)->diffInMinutes($d->tgl_proses_selesai);
+                        $diff = $diff.' menit';
+                    } else {
+                        $diff = $diff.' jam';
+                    }
+                } else {
+                    $diff = $diff.' hari';
+                }
                 switch ($d->section) {
                     case 'Proof Setting':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelSetkor . ' untuk proof oleh prodev telah diselesaikan.</span>
+                            <span><span class="bullet"></span> ' . $labelSetkor . ' untuk proof oleh prodev telah diselesaikan dalam waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2515,7 +2573,7 @@ class PracetakSetterController extends Controller
                     case 'Setting Revision':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelSetkor . ' hasil revisi tahap ' . $d->tahap . ' dari korektor telah diselesaikan setter.</span>
+                            <span><span class="bullet"></span> ' . $labelSetkor . ' hasil revisi tahap ' . $d->tahap . ' dari korektor telah diselesaikan setter dalam waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2527,7 +2585,7 @@ class PracetakSetterController extends Controller
                     case 'Koreksi':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelSetkor . ' setting naskah tahap ' . $d->tahap . ' oleh korektor telah diselesaikan.</span>
+                            <span><span class="bullet"></span> ' . $labelSetkor . ' setting naskah tahap ' . $d->tahap . ' oleh korektor telah diselesaikan dalam waktu '.$diff.'.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2892,6 +2950,7 @@ class PracetakSetterController extends Controller
                             'tahap' => $tahapSelanjutnya,
                             'pracetak_setter_id' => $data->id,
                             'users_id' => auth()->id(),
+                            'tgl_proses_mulai' => $data->mulai_setting,
                             'tgl_proses_selesai' => $tgl
                         ];
                         event(new PracetakSetterEvent($pros));
@@ -2918,6 +2977,7 @@ class PracetakSetterController extends Controller
                             'tahap' => $tahapSelanjutnya,
                             'pracetak_setter_id' => $data->id,
                             'users_id' => auth()->id(),
+                            'tgl_proses_mulai' => $data->mulai_setting,
                             'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
                         event(new PracetakSetterEvent($pros));
@@ -2939,6 +2999,7 @@ class PracetakSetterController extends Controller
                             'tahap' => 1,
                             'pracetak_setter_id' => $data->id,
                             'users_id' => auth()->id(),
+                            'tgl_proses_mulai' => $data->mulai_setting,
                             'tgl_proses_selesai' => $tgl
                         ];
                         event(new PracetakSetterEvent($pros));
@@ -2965,6 +3026,7 @@ class PracetakSetterController extends Controller
                             'tahap' => 1,
                             'pracetak_setter_id' => $data->id,
                             'users_id' => auth()->id(),
+                            'tgl_proses_mulai' => $data->mulai_setting,
                             'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
                         event(new PracetakSetterEvent($pros));
@@ -3004,6 +3066,7 @@ class PracetakSetterController extends Controller
                         'tahap' => 1,
                         'pracetak_setter_id' => $data->id,
                         'users_id' => auth()->id(),
+                        'tgl_proses_mulai' => $data->mulai_setting,
                         'tgl_proses_selesai' => $tgl
                     ];
                     event(new PracetakSetterEvent($pros));
@@ -3028,6 +3091,7 @@ class PracetakSetterController extends Controller
                         'tahap' => 1,
                         'pracetak_setter_id' => $data->id,
                         'users_id' => auth()->id(),
+                        'tgl_proses_mulai' => $data->mulai_setting,
                         'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ];
                     event(new PracetakSetterEvent($pros));
@@ -3109,6 +3173,7 @@ class PracetakSetterController extends Controller
                         'tahap' => $tahapSelanjutnya,
                         'pracetak_setter_id' => $data->id,
                         'users_id' => auth()->id(),
+                        'tgl_proses_mulai' => $data->mulai_koreksi,
                         'tgl_proses_selesai' => $tgl
                     ];
                     event(new PracetakSetterEvent($pros));
@@ -3132,6 +3197,7 @@ class PracetakSetterController extends Controller
                         'tahap' => $tahapSelanjutnya,
                         'pracetak_setter_id' => $data->id,
                         'users_id' => auth()->id(),
+                        'tgl_proses_mulai' => $data->mulai_koreksi,
                         'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ];
                     event(new PracetakSetterEvent($pros));
@@ -3153,6 +3219,7 @@ class PracetakSetterController extends Controller
                         'tahap' => 1,
                         'pracetak_setter_id' => $data->id,
                         'users_id' => auth()->id(),
+                        'tgl_proses_mulai' => $data->mulai_koreksi,
                         'tgl_proses_selesai' => $tgl
                     ];
                     event(new PracetakSetterEvent($pros));
@@ -3176,6 +3243,7 @@ class PracetakSetterController extends Controller
                         'tahap' => 1,
                         'pracetak_setter_id' => $data->id,
                         'users_id' => auth()->id(),
+                        'tgl_proses_mulai' => $data->mulai_koreksi,
                         'tgl_proses_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                     ];
                     event(new PracetakSetterEvent($pros));

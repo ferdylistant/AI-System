@@ -1,6 +1,7 @@
 $(function() {
     $('[name="status_filter"]').val('').trigger('change');
-    let tableDesProduk = $('#tb_Setter').DataTable({
+    $('[name="status_proses_saat_ini"]').val('').trigger('change');
+    let tablePraset = $('#tb_Setter').DataTable({
         "responsive": true,
         "autoWidth": true,
         pagingType: 'input',
@@ -76,10 +77,16 @@ $(function() {
     loadCountData();
     $('[name="status_filter"]').on('change', function() {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());
-        tableDesProduk.column($(this).data('column'))
+        tablePraset.column($(this).data('column'))
             .search(val ? val : '', true, false)
             .draw();
         });
+    $('[name="status_proses_saat_ini"]').on('change', function() {
+        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+        tablePraset.column($(this).data('column'))
+            .search(val ? val : '', true, false)
+            .draw();
+    });
     $("#tb_Setter").on("click", ".btn-history", function (e) {
         var id = $(this).data("id");
         var judul = $(this).data("judulfinal");
@@ -204,6 +211,24 @@ $(document).ready(function () {
     $(".clear_field").click(function () {
         $(".select-filter").val("").trigger("change");
         $(".clear_field").attr("hidden", "hidden");
+    });
+});
+$(document).ready(function () {
+    $(".select-proses-saat-ini")
+        .select2({
+            placeholder: "Filter proses saat ini\xa0\xa0",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(".clear_field_proses_saat_ini").removeAttr("hidden");
+                // $(this).valid();
+            }
+        });
+});
+$(document).ready(function () {
+    $(".clear_field_proses_saat_ini").click(function () {
+        $(".select-proses-saat-ini").val("").trigger("change");
+        $(".clear_field_proses_saat_ini").attr("hidden", "hidden");
     });
 });
 $(document).ready(function () {

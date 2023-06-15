@@ -66,10 +66,10 @@
             <h1>Detail Pracetak Setter</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item active">
-                    <a href="{{url('/')}}">Dashboard</a>
+                    <a href="{{ url('/') }}">Dashboard</a>
                 </div>
                 <div class="breadcrumb-item">
-                    <a href="{{url('/penerbitan/pracetak/setter')}}">Data Penerbitan Pracetak Setter</a>
+                    <a href="{{ url('/penerbitan/pracetak/setter') }}">Data Penerbitan Pracetak Setter</a>
                 </div>
                 <div class="breadcrumb-item">
                     Detail Pracetak Setter
@@ -109,26 +109,24 @@
                                 </h4>
                             </div>
                             @if (!$proof_revisi->isEmpty())
-                                <?php $gate = Gate::allows('do_approval', 'approval-deskripsi-produk'); ?>
-                                @if (auth()->id() == $data->pic_prodev || auth()->id() == 'be8d42fa88a14406ac201974963d9c1b' || $gate)
-                                    &mdash;&mdash;
-                                    <button type="button" class="btn btn-warning" id="btn-history-revision"
+                                <div class="col-auto">
+                                    <?php $gate = Gate::allows('do_approval', 'approval-deskripsi-produk'); ?>
+                                    @if (auth()->id() == $data->pic_prodev || auth()->id() == 'be8d42fa88a14406ac201974963d9c1b' || $gate)
+                                        <button type="button" class="btn btn-outline-warning" id="btn-history-revision"
+                                            data-id="{{ $data->id }}" data-kode="{{ $data->kode }}"
+                                            data-judul="{{ $data->judul_final }}"><i
+                                                class="fas fa-history"></i>&nbsp;Riwayat
+                                            Proof</button>
+                                    @endif
+                                    <?php $gate = Gate::allows('do_approval', 'approval-deskripsi-produk'); ?>
+                                    <button type="button" class="btn btn-outline-primary" id="btn-history-setkor"
                                         data-id="{{ $data->id }}" data-kode="{{ $data->kode }}"
                                         data-judul="{{ $data->judul_final }}"><i class="fas fa-history"></i>&nbsp;Riwayat
-                                        Proof</button>
-                                @endif
+                                        Setter/Korektor</button>
+                                </div>
                             @endif
-                            @if (!$proof_revisi->isEmpty())
-                                <?php $gate = Gate::allows('do_approval', 'approval-deskripsi-produk'); ?>
-                                &mdash;&mdash;
-                                <button type="button" class="btn btn-primary" id="btn-history-setkor"
-                                    data-id="{{ $data->id }}" data-kode="{{ $data->kode }}"
-                                    data-judul="{{ $data->judul_final }}"><i class="fas fa-history"></i>&nbsp;Riwayat
-                                    Setter/Korektor</button>
-                                &mdash;&mdash;
-                            @endif
-                            <div class="col-auto">
-                                @if ($data->proses == '1')
+                            @if ($data->proses == '1')
+                                <div class="col-auto">
                                     <span class="text-danger"><i class="fas fa-exclamation-circle"></i>&nbsp;
                                         @if (!is_null($data->mulai_proof) && is_null($data->selesai_proof))
                                             Sedang proses proof prodev
@@ -137,8 +135,8 @@
                                             {{ is_null($data->selesai_setting) ? 'setter' : 'korektor' }}
                                         @endif
                                     </span>
-                                @endif
-                            </div>
+                                </div>
+                            @endif
                         </div>
                         <div class="card-body">
                             @if (auth()->id() == $data->pic_prodev)

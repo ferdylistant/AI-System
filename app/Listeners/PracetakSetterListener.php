@@ -138,6 +138,7 @@ class PracetakSetterListener
                     'tahap' => $data['tahap'],
                     'pracetak_setter_id' => $data['pracetak_setter_id'],
                     'users_id' => $data['users_id'],
+                    'tgl_proses_mulai' => $data['tgl_proses_mulai'],
                     'tgl_proses_selesai' => $data['tgl_proses_selesai']
                 ]);
                 DB::commit();

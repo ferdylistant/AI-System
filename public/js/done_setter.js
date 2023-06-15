@@ -68,7 +68,7 @@ $(function () {
             type: "POST",
             url:
                 window.location.origin +
-                "/penerbitan/pracetak/setter/approve?id="+id,
+                "/penerbitan/pracetak/setter/approve?id=" + id,
             processData: false,
             contentType: false,
             beforeSend: function () {
@@ -257,25 +257,40 @@ $(function () {
     });
 
     //* HISTORY REVISION
-    $('#btn-history-revision').click(function(e) {
+    $('#btn-history-revision').click(function (e) {
         var id = $(this).data('id');
         var judul = $(this).data('judul');
+        let cardWrap = $(this).closest(".card");
         // console.log(id);
-        $.post(window.location.origin + "/penerbitan/pracetak/setter/lihat-informasi-proof", {
-            id: id
-        }, function(data) {
-            // console.log(data);
-            $('#titleModalSetter').html(
-                '<i class="fas fa-history"></i>&nbsp;Riwayat Proof "' + judul + '"');
-            $('#load_more').data('id', id);
-            $('#dataInformasiProof').html(data);
-            $('#md_InformasiProof').modal('show');
+        $.ajax({
+            url: window.location.origin + "/penerbitan/pracetak/setter/lihat-informasi-proof",
+            type: 'POST',
+            data: { id: id },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                $('#titleModalSetter').html(
+                    '<i class="fas fa-history"></i>&nbsp;Riwayat Proof "' + judul + '"');
+                $('#load_more').data('id', id);
+                $('#dataInformasiProof').html(data);
+                $('#md_InformasiProof').modal('show');
+            },
+            error: function (err) {
+                cardWrap.removeClass("card-progress");
+                console.error(err);
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
         });
     });
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
+        let form = $("#md_InformasiProof");
         $(this).data("paginate", page + 1);
 
         $.ajax({
@@ -286,13 +301,17 @@ $(function () {
             },
             type: "post",
             beforeSend: function () {
-                $(".load-more").text("Loading...");
+                form.addClass("modal-progress");
             },
             success: function (response) {
                 if (response.length == 0) {
+                    $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
+                } else {
+
+                    $("#dataInformasiProof").append(response);
+                    $('#md_InformasiProof').find('.thin').animate({ scrollTop: $('#md_InformasiProof').find('.thin').prop("scrollHeight") }, 800);
                 }
-                $("#dataInformasiProof").append(response);
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
                 //     // appending posts after last post with class="post"
@@ -300,30 +319,49 @@ $(function () {
                 // }, 2000);
             },
             complete: function (params) {
-                $(".load-more").text("Load more").fadeIn("slow");
+                form.removeClass("modal-progress");
             },
         });
     });
+    $("#md_InformasiProof").on("hidden.bs.modal", function () {
+        $(".load-more").data("paginate", 2);
+        $(".load-more").attr("disabled", false).css("cursor", "pointer");
+    });
     //* HISTORY SETTER-KOREKTOR
-    $('#btn-history-setkor').click(function(e) {
+    $('#btn-history-setkor').click(function (e) {
         var id = $(this).data('id');
         var judul = $(this).data('judul');
+        let cardWrap = $(this).closest(".card");
         // console.log(id);
-        $.post(window.location.origin + "/penerbitan/pracetak/setter/lihat-proses-setkor", {
-            id: id
-        }, function(data) {
-            // console.log(data);
-            $('#titleModalSetkor').html(
-                '<i class="fas fa-history"></i>&nbsp;Riwayat progress Setter & Korektor naskah"' + judul + '"');
-            $('#load_more_setkor').data('id', id);
-            $('#dataRiwayatSetkor').html(data);
-            $('#md_RiwayatSetkor').modal('show');
+        $.ajax({
+            url: window.location.origin + "/penerbitan/pracetak/setter/lihat-proses-setkor",
+            data: { id: id },
+            type: 'POST',
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                $('#titleModalSetkor').html(
+                    '<i class="fas fa-history"></i>&nbsp;Riwayat progress Setter & Korektor naskah"' + judul + '"');
+                $('#load_more_setkor').data('id', id);
+                $('#dataRiwayatSetkor').html(data);
+                $('#md_RiwayatSetkor').modal('show');
+            },
+            error: function (err) {
+                cardWrap.removeClass("card-progress");
+                console.error(err);
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
         });
     });
     $(".load-more-setkor").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
+        let form = $("#md_RiwayatSetkor")
         $(this).data("paginate", page + 1);
 
         $.ajax({
@@ -334,13 +372,16 @@ $(function () {
             },
             type: "post",
             beforeSend: function () {
-                $(".load-more-setkor").text("Loading...");
+                form.addClass("modal-progress");
             },
             success: function (response) {
                 if (response.length == 0) {
+                    $(".load-more-setkor").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
+                } else {
+                    $("#dataRiwayatSetkor").append(response);
+                    $('#md_RiwayatSetkor').find('.thin').animate({ scrollTop: $('#md_RiwayatSetkor').find('.thin').prop("scrollHeight") }, 800);
                 }
-                $("#dataRiwayatSetkor").append(response);
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
                 //     // appending posts after last post with class="post"
@@ -348,8 +389,12 @@ $(function () {
                 // }, 2000);
             },
             complete: function (params) {
-                $(".load-more-setkor").text("Load more").fadeIn("slow");
+                form.removeClass("modal-progress");
             },
         });
+    });
+    $("#md_RiwayatSetkor").on("hidden.bs.modal", function () {
+        $(".load-more-setkor").data("paginate", 2);
+        $(".load-more-setkor").attr("disabled", false).css("cursor", "pointer");
     });
 });
