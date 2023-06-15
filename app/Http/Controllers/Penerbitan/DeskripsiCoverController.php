@@ -497,13 +497,22 @@ class DeskripsiCoverController extends Controller
                 event(new DescovEvent($update));
                 event(new DescovEvent($insert));
                 //? Todo list Prodev
-                DB::table('todo_list')
+                $cekTodo = DB::table('todo_list')
                 ->where('form_id',$data->id)
                 ->where('users_id',$data->pic_prodev)
-                ->where('title','Proses deskripsi cover naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.')
-                ->update([
-                    'status' => '1'
-                ]);
+                ->where('title','Proses deskripsi cover naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.');
+                if (!is_null($cekTodo->first())) {
+                    $cekTodo->update([
+                        'status' => '1'
+                    ]);
+                } else {
+                    DB::table('todo_list')->insert([
+                        'form_id' => $data->id,
+                        'users_id' => $data->pic_prodev,
+                        'title' => 'Proses deskripsi cover naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                        'status' => '1'
+                    ]);
+                }
                 $updateTimelineDescov = [
                     'params' => 'Update Timeline',
                     'naskah_id' => $data->naskah_id,

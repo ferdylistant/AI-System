@@ -583,13 +583,22 @@ class DeskripsiFinalController extends Controller
                 ];
                 event(new TimelineEvent($updateTimelineDescov));
 
-                DB::table('todo_list')
+                $cekTodo = DB::table('todo_list')
                 ->where('form_id',$data->id)
                 ->where('users_id',$dataNas->pic_prodev)
-                ->where('title','Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.')
-                ->update([
-                    'status' => '1'
-                ]);
+                ->where('title','Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.');
+                if (!is_null($cekTodo->first())) {
+                    $cekTodo->update([
+                        'status' => '1'
+                    ]);
+                } else {
+                    DB::table('todo_list')->insert([
+                        'form_id' => $data->id,
+                        'users_id' => $dataNas->pic_prodev,
+                        'title' => 'Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                        'status' => '1'
+                    ]);
+                }
                 $msg = 'Deskripsi final selesai, silahkan lanjut ke proses Deskripsi Cover..';
             } else {
                 event(new DesfinEvent($update));

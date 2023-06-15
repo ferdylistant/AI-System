@@ -505,13 +505,23 @@ class DeskripsiProdukController extends Controller
                     ->get();
 
                     $penerbitan = (object)collect($penerbitan)->map(function($item) use ($data) {
-                        return DB::table('todo_list')->insert([
-                            'form_id' => $data->id,
-                            'users_id' => $item->user_id,
-                            'title' => 'Menentukan dan menyetujui judul final dengan judul asli, "'.$data->judul_asli.'".',
-                            'link' => '/penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$data->kode,
-                            'status' => '0',
-                        ]);
+                        $cekTodo = DB::table('todo_list')
+                        ->where('form_id',$data->id)
+                        ->where('users_id',$item->user_id)
+                        ->where('title','Menentukan dan menyetujui judul final dengan judul asli, "'.$data->judul_asli.'".');
+                        if (is_null($cekTodo->first())) {
+                            return DB::table('todo_list')->insert([
+                                'form_id' => $data->id,
+                                'users_id' => $item->user_id,
+                                'title' => 'Menentukan dan menyetujui judul final dengan judul asli, "'.$data->judul_asli.'".',
+                                'link' => '/penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$data->kode,
+                                'status' => '0',
+                            ]);
+                        } else {
+                            $cekTodo->update([
+                                'status' => '0'
+                            ]);
+                        }
                     })->all();
                     break;
                 default:

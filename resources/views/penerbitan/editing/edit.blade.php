@@ -508,7 +508,7 @@
                                             </tr>
                                             <tr>
                                                 <th class="table-secondary" style="width: 25%">Sinopsis:</th>
-                                                <td class="table-active text-left">
+                                                <td class="table-active text-right">
                                                     @if (!is_null($data->sinopsis))
                                                     {{ $data->sinopsis }}
                                                     @else
@@ -552,12 +552,12 @@
                                             <tr>
                                                 <th class="table-secondary" style="width: 25%">Editor: <span class="text-danger">*</span></th>
                                                 <td class="table-active text-right">
-                                                    @if (!is_null($data->editor))
+                                                    @if (is_null($data->editor) || $data->editor == '[]' || $data->editor == '[null]')
+                                                    <span class="text-danger text-small">Belum diinput</span>
+                                                    @else
                                                     @foreach ($nama_editor as $ne)
                                                     <span class="bullet"></span>{{ $ne }}<br>
                                                     @endforeach
-                                                    @else
-                                                    <span class="text-danger text-small">Belum diinput</span>
                                                     @endif
                                                 </td>
                                             </tr>
