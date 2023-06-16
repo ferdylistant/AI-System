@@ -74,6 +74,11 @@ $(function() {
                 title: 'History'
             },
             {
+                data: 'tracker',
+                name: 'tracker',
+                title: 'Tracker'
+            },
+            {
                 data: 'action',
                 name: 'action',
                 title: 'Action',
@@ -181,12 +186,37 @@ $(function() {
             .search(val ? val : '', true, false)
             .draw();
     });
+    $("#tb_Naskah").on("click", ".btn-tracker", function (e) {
+        var id = $(this).data("id");
+        var judul = $(this).data("judulasli");
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin + "/penerbitan/naskah/ajax/lihat-tracker",
+            type: "POST",
+            data: {
+                id: id,
+            },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                // console.log(data);
+                $("#titleModalTracker").html('<i class="fas fa-file-signature"></i>&nbsp;Tracking Progress Naskah "' + judul + '"');
+                $("#dataShowTracking").html(data);
+                $("#md_Tracker").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            },
+        });
+    });
     $("#tb_Naskah").on("click", ".btn-history", function (e) {
         var id = $(this).data("id");
         var judul = $(this).data("judulasli");
         let cardWrap = $(this).closest(".card");
         $.ajax({
-            url: window.location.origin + "/penerbitan/naskah/lihat-history",
+            url: window.location.origin + "/penerbitan/naskah/ajax/lihat-history",
             type: "POST",
             data: {
                 id: id,
@@ -215,7 +245,7 @@ $(function() {
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/penerbitan/naskah/lihat-history",
+            url: window.location.origin + "/penerbitan/naskah/ajax/lihat-history",
             data: {
                 id: id,
                 page: page,

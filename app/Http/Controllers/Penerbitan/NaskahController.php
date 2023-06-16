@@ -7,6 +7,7 @@ use Ramsey\Uuid\Uuid;
 use App\Events\DesproEvent;
 use App\Events\NaskahEvent;
 use Illuminate\Support\Str;
+use App\Events\TrackerEvent;
 use Illuminate\Http\Request;
 use App\Events\TimelineEvent;
 use PhpParser\Node\Stmt\Catch_;
@@ -274,6 +275,15 @@ class NaskahController extends Controller
                                 return $date;
                             }
                         })
+                        ->addColumn('tracker', function ($data) {
+                            $historyData = DB::table('tracker')->where('section_id', $data->id)->get();
+                            if ($historyData->isEmpty()) {
+                                return '-';
+                            } else {
+                                $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="'.$data->id.'" data-judulasli="' . $data->judul_asli . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                                return $date;
+                            }
+                        })
                         ->addColumn('action', function ($data) use ($update) {
                             $btn = '<a href="' . url('penerbitan/naskah/melihat-naskah/' . $data->id) . '"
                                 class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Data">
@@ -287,7 +297,7 @@ class NaskahController extends Controller
                             }
                             return $btn;
                         })
-                        ->rawColumns(['kode', 'judul_asli','pic_prodev', 'jalur_buku', 'masuk_naskah','created_by', 'stts_penilaian', 'history', 'action'])
+                        ->rawColumns(['kode', 'judul_asli','pic_prodev', 'jalur_buku', 'masuk_naskah','created_by', 'stts_penilaian', 'history', 'tracker','action'])
                         ->make(true);
                     break;
             }
@@ -512,7 +522,17 @@ class NaskahController extends Controller
                         'tgl_pn_selesai' => ($penilaian['selesai_penilaian'] > 0) ? $tgl : null
                     ];
                     event(new NaskahEvent($addPnStatus));
-
+                    $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                    $desc = 'Naskah berjudul asli <a href="'.url('penerbitan/naskah/melihat-naskah/'.$idN).'">'.$request->input('add_judul_asli').'</a> telah dibuat oleh <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>.';
+                    $addTracker = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'section_id' => $idN,
+                        'section_name' => 'Naskah',
+                        'description' => $desc,
+                        'icon' => 'fas fa-folder-plus',
+                        'created_by' => auth()->id()
+                    ];
+                    event(new TrackerEvent($addTracker));
                     DB::commit();
                     return;
                 } catch (\Exception $e) {
@@ -896,6 +916,26 @@ class NaskahController extends Controller
                 'status' => 'Antrian'
             ];
             event(new DesproEvent($createDespro));
+            $desc = 'Naskah berjudul asli <a href="'.url('penerbitan/naskah/melihat-naskah/'.$id).'">'.$request->input('add_judul_asli').'</a> telah selesai dan menuju Deskripsi Produk.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $id,
+                'section_name' => 'Naskah',
+                'description' => $desc,
+                'icon' => 'fas fa-clipboard-check',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
+            $desc = 'Naskah berjudul asli <a href="'.url('penerbitan/naskah/melihat-naskah/'.$id).'">'.$request->input('add_judul_asli').'</a> telah memasuki tahap antrian Deskripsi Produk.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $idProduk,
+                'section_name' => 'Deskripsi Produk',
+                'description' => $desc,
+                'icon' => 'fas fa-folder-plus',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             DB::table('todo_list')
             ->where('form_id',$id)
             ->where('users_id',auth()->id())
@@ -967,7 +1007,47 @@ class NaskahController extends Controller
             ]);
         }
     }
-    public function lihatHistoryNaskah(Request $request)
+    public function ajaxCallModal(Request $request)
+    {
+        switch ($request->cat) {
+            case 'lihat-tracker':
+                return $this->lihatTrackingNaskah($request);
+                break;
+            case 'lihat-history':
+                return $this->lihatHistoryNaskah($request);
+                break;
+            default:
+                return abort(400);
+                break;
+        }
+    }
+    protected function lihatTrackingNaskah($request)
+    {
+        if ($request->ajax()) {
+            $html ='';
+            $id = $request->id;
+            $data = DB::table('tracker')->where('section_id',$id)
+            ->orderBy('created_at','desc')
+            ->get();
+            foreach ($data as $d) {
+                $html .= '<div class="activity">
+                <div class="activity-icon bg-primary text-white shadow-primary">
+                    <i class="'.$d->icon.'"></i>
+                </div>
+                <div class="activity-detail">
+                    <div class="mb-2">
+                        <span class="text-job">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
+                        <span class="bullet"></span>
+                        <span class="text-job">'.Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i').'</span>
+                    </div>
+                    <p>'.$d->description.'</p>
+                </div>
+            </div>';
+            }
+            return $html;
+        }
+    }
+    protected function lihatHistoryNaskah($request)
     {
         if ($request->ajax()) {
             $html = '';

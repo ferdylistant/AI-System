@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
+use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
+use App\Events\TrackerEvent;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate, Storage};
@@ -532,6 +534,17 @@ class PenilaianNaskahController extends Controller
                         DB::table('todo_list')->where('form_id',$request->input('pn1_naskah_id'))->where('users_id',auth()->user()->id)->update([
                             'status' => '1'
                         ]);
+                        $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                        $desc = 'Prodev (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) membuat penilaian naskah.';
+                        $addTracker = [
+                            'id' => Uuid::uuid4()->toString(),
+                            'section_id' => $request->input('pn1_naskah_id'),
+                            'section_name' => 'Naskah',
+                            'description' => $desc,
+                            'icon' => 'fas fa-user-check',
+                            'created_by' => auth()->id()
+                        ];
+                        event(new TrackerEvent($addTracker));
                         $msg = 'Penilaian selesai!';
                         break;
                     case 'draf':
@@ -596,6 +609,17 @@ class PenilaianNaskahController extends Controller
                         DB::table('todo_list')->where('form_id',$request->input('pn1_naskah_id'))->where('users_id',auth()->user()->id)->update([
                             'status' => '1'
                         ]);
+                        $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                        $desc = 'Prodev (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) membuat penilaian naskah.';
+                        $addTracker = [
+                            'id' => Uuid::uuid4()->toString(),
+                            'section_id' => $request->input('pn1_naskah_id'),
+                            'section_name' => 'Naskah',
+                            'description' => $desc,
+                            'icon' => 'fas fa-user-check',
+                            'created_by' => auth()->id()
+                        ];
+                        event(new TrackerEvent($addTracker));
                         $msg = 'Penilaian selesai!';
                         break;
 
@@ -671,7 +695,17 @@ class PenilaianNaskahController extends Controller
                         'status' => '1',
                     ]);
                 })->all();
-
+                $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                $desc = 'Editor (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) membuat penilaian naskah.';
+                $addTracker = [
+                    'id' => Uuid::uuid4()->toString(),
+                    'section_id' => $request->input('pn2_naskah_id'),
+                    'section_name' => 'Naskah',
+                    'description' => $desc,
+                    'icon' => 'fas fa-user-check',
+                    'created_by' => auth()->id()
+                ];
+                event(new TrackerEvent($addTracker));
             } else {
                 DB::table('penerbitan_pn_editor_setter')->where('id', $request->input('pn2_id'))->update([
                     'penilaian_editor_umum' => $request->input('pn2_penilaian_editor_umum'),
@@ -727,6 +761,17 @@ class PenilaianNaskahController extends Controller
                         'status' => '1',
                     ]);
                 })->all();
+                $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                $desc = 'Setter (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) membuat penilaian naskah.';
+                $addTracker = [
+                    'id' => Uuid::uuid4()->toString(),
+                    'section_id' => $request->input('pn2_naskah_id'),
+                    'section_name' => 'Naskah',
+                    'description' => $desc,
+                    'icon' => 'fas fa-user-check',
+                    'created_by' => auth()->id()
+                ];
+                event(new TrackerEvent($addTracker));
                 DB::commit();
                 return;
             } catch (\Exception $e) {
@@ -789,6 +834,16 @@ class PenilaianNaskahController extends Controller
                             'status' => '1',
                         ]);
                     })->all();
+                    $desc = 'Setiap Manajer Pemasaran membuat penilaian naskah.';
+                    $addTracker = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'section_id' => $request->input('pn3_naskah_id'),
+                        'section_name' => 'Naskah',
+                        'description' => $desc,
+                        'icon' => 'fas fa-user-check',
+                        'created_by' => auth()->id()
+                    ];
+                    event(new TrackerEvent($addTracker));
                 }
 
                 // $pn = DB::table('penerbitan_pn_penerbitan')->where('naskah_id', $request->input('pn3_naskah_id'))->first();
@@ -849,6 +904,17 @@ class PenilaianNaskahController extends Controller
                 DB::table('penerbitan_pn_stts')->where('naskah_id', $request->input('pn6_naskah_id'))->update([
                     'tgl_pn_d_pemasaran' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                 ]);
+                $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                $desc = 'Direktur Pemasaran (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) membuat penilaian naskah.';
+                $addTracker = [
+                    'id' => Uuid::uuid4()->toString(),
+                    'section_id' => $request->input('pn6_naskah_id'),
+                    'section_name' => 'Naskah',
+                    'description' => $desc,
+                    'icon' => 'fas fa-user-check',
+                    'created_by' => auth()->id()
+                ];
+                event(new TrackerEvent($addTracker));
                 $naskahId = $request->input('pn6_naskah_id');
                 $dpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
                 ->where('p.id','9beba245308543ce821efe8a3ba965e3')
@@ -964,6 +1030,17 @@ class PenilaianNaskahController extends Controller
                         'status' => '1',
                     ]);
                 })->all();
+                $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                $desc = 'Manajer Penerbitan (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) membuat penilaian naskah.';
+                $addTracker = [
+                    'id' => Uuid::uuid4()->toString(),
+                    'section_id' => $request->input('pn4_naskah_id'),
+                    'section_name' => 'Naskah',
+                    'description' => $desc,
+                    'icon' => 'fas fa-user-check',
+                    'created_by' => auth()->id()
+                ];
+                event(new TrackerEvent($addTracker));
             } else {
                 DB::table('penerbitan_pn_penerbitan')->where('id', $request->input('pn4_id'))
                     ->update([
@@ -1076,6 +1153,17 @@ class PenilaianNaskahController extends Controller
                     'status' => '1',
                 ]);
             })->all();
+            $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+            $desc = 'Direktur Utama (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) membuat penilaian naskah, dan naskah selesai tahap penilaian.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $naskahId,
+                'section_name' => 'Naskah',
+                'description' => $desc,
+                'icon' => 'fas fa-user-check',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             if (!is_null($dataNaskah)) {
                 //Update Todo-list Prodev (Pelengkapan Data Naskah dan Penulis)
                 DB::table('todo_list')->insert([

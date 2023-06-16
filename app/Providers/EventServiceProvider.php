@@ -5,8 +5,8 @@ namespace App\Providers;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use App\Events\{SessionExpired,NotifikasiPenyetujuan, JasaCetakEvent,TimelineEvent, DescovEvent, DesfinEvent, DesproEvent, DesturcetEvent, NaskahEvent, EditingEvent, MasterDataEvent, PracetakCoverEvent, PracetakSetterEvent, OrderCetakEvent, OrderEbookEvent, PenulisEvent, UserLogEvent, SettingEvent, UserEvent};
-use App\Listeners\{UpdateStatusToOffline,NotifikasiPenyetujuanListener, JasaCetakListener,TimelineListener, DescovListener, DesfinListener, DesproListener, DesturcetListener, NaskahListener, EditingListener, MasterDataListener, PracetakCoverListener, PracetakSetterListener, OrderCetakListener, OrderEbookListener, PenulisListener, UserLogListener, SettingListener, UserListener};
+use App\Events\{TrackerEvent,SessionExpired,NotifikasiPenyetujuan, JasaCetakEvent,TimelineEvent, DescovEvent, DesfinEvent, DesproEvent, DesturcetEvent, NaskahEvent, EditingEvent, MasterDataEvent, PracetakCoverEvent, PracetakSetterEvent, OrderCetakEvent, OrderEbookEvent, PenulisEvent, UserLogEvent, SettingEvent, UserEvent};
+use App\Listeners\{TrackerListener,UpdateStatusToOffline,NotifikasiPenyetujuanListener, JasaCetakListener,TimelineListener, DescovListener, DesfinListener, DesproListener, DesturcetListener, NaskahListener, EditingListener, MasterDataListener, PracetakCoverListener, PracetakSetterListener, OrderCetakListener, OrderEbookListener, PenulisListener, UserLogListener, SettingListener, UserListener};
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -36,7 +36,8 @@ class EventServiceProvider extends ServiceProvider
         UserEvent::class => [UserListener::class],
         UserLogEvent::class => [UserLogListener::class],
         SettingEvent::class => [SettingListener::class],
-        JasaCetakEvent::class => [JasaCetakListener::class]
+        JasaCetakEvent::class => [JasaCetakListener::class],
+        TrackerEvent::class => [TrackerListener::class]
     ];
 
     /**
