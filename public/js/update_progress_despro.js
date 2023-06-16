@@ -35,6 +35,7 @@ $(function () {
             },
             { data: "pic_prodev", name: "pic_prodev", title: "PIC Prodev" },
             { data: "history", name: "history", title: "History Progress" },
+            { data: "tracker", name: "tracker", title: "Tracker" },
             {
                 data: "action",
                 name: "action",
@@ -51,27 +52,48 @@ $(function () {
             .search(val ? val : "", true, false)
             .draw();
     });
-
-});
-function loadDataCount() {
-    $.ajax({
-        url: window.location.origin + "/penerbitan/deskripsi/produk?count_data=true",
-        type: "get",
-        dataType: "json",
-        success: function (response) {
-            $("#count_despro").prop('Counter',0).animate({
-                Counter: response
-            }, {
-                duration: 1000,
-                easing: 'swing',
-                step: function (now) {
-                    $(this).text(Math.ceil(now));
-                }
-            });
-        },
+    function loadDataCount() {
+        $.ajax({
+            url: window.location.origin + "/penerbitan/deskripsi/produk?count_data=true",
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                $("#count_despro").prop('Counter', 0).animate({
+                    Counter: response
+                }, {
+                    duration: 1000,
+                    easing: 'swing',
+                    step: function (now) {
+                        $(this).text(Math.ceil(now));
+                    }
+                });
+            },
+        });
+    }
+    $("#tb_DesProduk").on("click", ".btn-tracker", function (e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var judul = $(this).data("judulasli");
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin +
+                "/penerbitan/deskripsi/produk/ajax/lihat-tracking",
+            type: "post",
+            data: { id: id },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                $("#titleModalTracker").html('<i class="fas fa-file-signature"></i>&nbsp;Tracking Progress Naskah "' + judul + '"');
+                $("#dataShowTracking").html(data);
+                $("#md_Tracker").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
+        });
     });
-}
-$(function() {
     $("#tb_DesProduk").on("click", ".btn-history", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
@@ -89,8 +111,8 @@ $(function() {
             success: function (data) {
                 $("#titleModalDespro").html(
                     '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
-                        judul +
-                        '"'
+                    judul +
+                    '"'
                 );
                 $("#load_more").data("id", id);
                 $("#dataHistory").html(data);
@@ -127,7 +149,7 @@ $(function() {
                     notifToast("error", "Tidak ada data lagi");
                 } else {
                     $("#dataHistory").append(response);
-                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
+                    $('.thin').animate({ scrollTop: $('.thin').prop("scrollHeight") }, 800);
                 }
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
@@ -144,48 +166,46 @@ $(function() {
         $(".load-more").data("paginate", 2);
         $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
-});
-$(document).ready(function () {
-    $(".select-status")
-        .select2({
-            placeholder: "Pilih Status",
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(this).valid();
-            }
-        });
-});
-$(document).ready(function () {
-    $(".select-filter")
-        .select2({
-            placeholder: "Filter Status\xa0\xa0",
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(".clear_field").removeAttr("hidden");
-                // $(this).valid();
-            }
-        });
-});
-$(document).ready(function () {
-    $(".clear_field").click(function () {
-        $(".select-filter").val("").trigger("change");
-        $(".clear_field").attr("hidden", "hidden");
+    $(document).ready(function () {
+        $(".select-status")
+            .select2({
+                placeholder: "Pilih Status",
+            })
+            .on("change", function (e) {
+                if (this.value) {
+                    $(this).valid();
+                }
+            });
     });
-});
-$(document).ready(function () {
-    $("#tb_DesProduk").on("click", ".btn-status-despro", function (e) {
-        e.preventDefault();
-        let id = $(this).data("id"),
-            kode = $(this).data("kode"),
-            judul = $(this).data("judul");
-        $("#id").val(id);
-        $("#kode").val(kode);
-        $("#judulAsli").val(judul);
+    $(document).ready(function () {
+        $(".select-filter")
+            .select2({
+                placeholder: "Filter Status\xa0\xa0",
+            })
+            .on("change", function (e) {
+                if (this.value) {
+                    $(".clear_field").removeAttr("hidden");
+                    // $(this).valid();
+                }
+            });
     });
-});
-$(document).ready(function () {
+    $(document).ready(function () {
+        $(".clear_field").click(function () {
+            $(".select-filter").val("").trigger("change");
+            $(".clear_field").attr("hidden", "hidden");
+        });
+    });
+    $(document).ready(function () {
+        $("#tb_DesProduk").on("click", ".btn-status-despro", function (e) {
+            e.preventDefault();
+            let id = $(this).data("id"),
+                kode = $(this).data("kode"),
+                judul = $(this).data("judul");
+            $("#id").val(id);
+            $("#kode").val(kode);
+            $("#judulAsli").val(judul);
+        });
+    });
     function ajaxUpdateStatusDeskripsiProduk(data) {
         let el = data.get(0);
         // console.log(el);

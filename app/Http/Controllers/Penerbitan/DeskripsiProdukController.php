@@ -8,6 +8,7 @@ use App\Events\DescovEvent;
 use App\Events\DesfinEvent;
 use App\Events\DesproEvent;
 use Illuminate\Support\Arr;
+use App\Events\TrackerEvent;
 use Illuminate\Http\Request;
 use App\Events\TimelineEvent;
 use Yajra\DataTables\DataTables;
@@ -116,6 +117,15 @@ class DeskripsiProdukController extends Controller
                         return $date;
                     }
                 })
+                ->addColumn('tracker', function ($data) {
+                    $historyData = DB::table('tracker')->where('section_id', $data->id)->get();
+                    if ($historyData->isEmpty()) {
+                        return '-';
+                    } else {
+                        $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="'.$data->id.'" data-judulasli="' . $data->judul_asli . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                        return $date;
+                    }
+                })
                 ->addColumn('action', function ($data) use ($update) {
                     $btn = '<a href="' . url('penerbitan/deskripsi/produk/detail?desc=' . $data->id . '&kode=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
@@ -204,6 +214,7 @@ class DeskripsiProdukController extends Controller
                     'tgl_deskripsi',
                     'pic_prodev',
                     'history',
+                    'tracker',
                     'action'
                 ])
                 ->make(true);
@@ -416,6 +427,9 @@ class DeskripsiProdukController extends Controller
                 case 'lihat-history':
                     return $this->lihatHistoryDespro($request);
                     break;
+                case 'lihat-tracking':
+                    return $this->lihatTrackingDespro($request);
+                    break;
                 case 'approve':
                     return $this->approveDespro($request);
                     break;
@@ -428,6 +442,32 @@ class DeskripsiProdukController extends Controller
             }
         } catch(\Exception $e) {
             return abort(500,$e->getMessage());
+        }
+    }
+    protected function lihatTrackingDespro($request)
+    {
+        if ($request->ajax()) {
+            $html ='';
+            $id = $request->id;
+            $data = DB::table('tracker')->where('section_id',$id)
+            ->orderBy('created_at','desc')
+            ->get();
+            foreach ($data as $d) {
+                $html .= '<div class="activity">
+                <div class="activity-icon bg-primary text-white shadow-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
+                    <i class="'.$d->icon.'"></i>
+                </div>
+                <div class="activity-detail">
+                    <div class="mb-2">
+                        <span class="text-job">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
+                        <span class="bullet"></span>
+                        <span class="text-job">'.Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i').'</span>
+                    </div>
+                    <p>'.$d->description.'</p>
+                </div>
+            </div>';
+            }
+            return $html;
         }
     }
     protected function updateStatusProgress($request)
@@ -523,6 +563,17 @@ class DeskripsiProdukController extends Controller
                             ]);
                         }
                     })->all();
+                    $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                    $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Produk menjadi <b>'.$request->status.'</b>, selanjutnya menunggu approval dari Manajer Penerbitan.';
+                    $addTracker = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'section_id' => $data->id,
+                        'section_name' => 'Deskripsi Produk',
+                        'description' => $desc,
+                        'icon' => 'fas fa-info-circle',
+                        'created_by' => auth()->id()
+                    ];
+                    event(new TrackerEvent($addTracker));
                     break;
                 default:
                     $updateTimeline = [
@@ -533,6 +584,17 @@ class DeskripsiProdukController extends Controller
                         'status' => $request->status
                     ];
                     event(new TimelineEvent($updateTimeline));
+                    $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                    $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Produk menjadi <b>'.$request->status.'</b>.';
+                    $addTracker = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'section_id' => $data->id,
+                        'section_name' => 'Deskripsi Produk',
+                        'description' => $desc,
+                        'icon' => 'fas fa-info-circle',
+                        'created_by' => auth()->id()
+                    ];
+                    event(new TrackerEvent($addTracker));
                     break;
             }
             $update = [
