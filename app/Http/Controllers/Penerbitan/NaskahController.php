@@ -1034,7 +1034,7 @@ class NaskahController extends Controller
                 <div class="activity-icon bg-primary text-white shadow-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
                     <i class="'.$d->icon.'"></i>
                 </div>
-                <div class="activity-detail">
+                <div class="activity-detail col">
                     <div class="mb-2">
                         <span class="text-job">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
                         <span class="bullet"></span>

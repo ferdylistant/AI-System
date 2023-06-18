@@ -457,7 +457,7 @@ class DeskripsiProdukController extends Controller
                 <div class="activity-icon bg-primary text-white shadow-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
                     <i class="'.$d->icon.'"></i>
                 </div>
-                <div class="activity-detail">
+                <div class="activity-detail col">
                     <div class="mb-2">
                         <span class="text-job">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
                         <span class="bullet"></span>
@@ -528,6 +528,8 @@ class DeskripsiProdukController extends Controller
                         ->update([
                             'status' => '1'
                         ]);
+                        $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                        $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> menyelesaikan pengerjaan revisi Deskripsi Produk yang diberikan oleh GM Penerbitan, selanjutnya menunggu approval dari Manajer Penerbitan.';
                     } else {
                         //? Update Todo Prodev
                         DB::table('todo_list')
@@ -537,6 +539,9 @@ class DeskripsiProdukController extends Controller
                         ->update([
                             'status' => '1'
                         ]);
+                        $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                        $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Produk menjadi <b>'.$request->status.'</b>, selanjutnya menunggu approval dari Manajer Penerbitan.';
+
                     }
                     //? Todo List penerbitan untuk pilih judul final
                     $penerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
@@ -563,8 +568,6 @@ class DeskripsiProdukController extends Controller
                             ]);
                         }
                     })->all();
-                    $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
-                    $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Produk menjadi <b>'.$request->status.'</b>, selanjutnya menunggu approval dari Manajer Penerbitan.';
                     $addTracker = [
                         'id' => Uuid::uuid4()->toString(),
                         'section_id' => $data->id,
@@ -574,6 +577,7 @@ class DeskripsiProdukController extends Controller
                         'created_by' => auth()->id()
                     ];
                     event(new TrackerEvent($addTracker));
+
                     break;
                 default:
                     $updateTimeline = [
@@ -826,6 +830,18 @@ class DeskripsiProdukController extends Controller
                     'message' => 'Deskripsi produk "' . $judul_asli . '" sedang direvisi'
                 ]);
             }
+            $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+            $desc = 'Deskripsi produk dengan naskah berjudul asli <a href="'.url('penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$kode).'">'.$judul_asli.'</a> belum disetujui oleh
+            GM Penerbitan (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>), dengan alasan: <b>'.$request->input('alasan').'</b>.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Deskripsi Produk',
+                'description' => $desc,
+                'icon' => 'fas fa-file-exclamation',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             $dataNas = DB::table('penerbitan_naskah')->where('id',$data->naskah_id)->select('pic_prodev')->first();
             DB::table('deskripsi_produk')->where('id', $idProduk)->update([
                 'status' => "Revisi",
