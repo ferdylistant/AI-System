@@ -127,6 +127,15 @@ class DeskripsiCoverController extends Controller
                         return $date;
                     }
                 })
+                ->addColumn('tracker', function ($data) {
+                    $trackerData = DB::table('tracker')->where('section_id', $data->id)->get();
+                    if ($trackerData->isEmpty()) {
+                        return '-';
+                    } else {
+                        $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="'.$data->id.'" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                        return $date;
+                    }
+                })
                 ->addColumn('action', function ($data) use ($update) {
                     $btn = '<a href="' . url('penerbitan/deskripsi/cover/detail?desc=' . $data->id . '&kode=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
@@ -430,348 +439,393 @@ class DeskripsiCoverController extends Controller
             // 'imprint' => $imprint
         ]);
     }
-    public function updateStatusProgress(Request $request)
+    public function ajaxCall(Request $request)
     {
-        try {
-            DB::beginTransaction();
-            $id = $request->id;
-            $data = DB::table('deskripsi_cover as dc')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                        ->whereNull('kb.deleted_at');
-                })
-                ->where('dc.id', $id)
-                ->whereNull('dp.deleted_at')
-                ->whereNull('pn.deleted_at')
-                ->select(
-                    'dc.*',
-                    'df.id as deskripsi_final_id',
-                    'df.setter',
-                    'df.korektor',
-                    'dp.naskah_id',
-                    'dp.format_buku',
-                    'dp.judul_final',
-                    'dp.editor',
-                    'dp.imprint',
-                    'dp.jml_hal_perkiraan',
-                    'dp.kelengkapan',
-                    'dp.catatan',
-                    'pn.kode',
-                    'pn.judul_asli',
-                    'pn.pic_prodev',
-                    'pn.jalur_buku',
-                    'kb.nama'
-                )
-                ->first();
-            if (is_null($data)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data corrupt...'
-                ], 404);
-            }
-            if ($data->status == $request->status) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Pilih status yang berbeda dengan status saat ini!'
-                ]);
-            }
-            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-            $update = [
-                'params' => 'Update Status Descov',
-                'deskripsi_produk_id' => $data->deskripsi_produk_id,
-                'status' => $request->status,
-                'updated_by' => auth()->id()
-            ];
-            $insert = [
-                'params' => 'Insert History Status Descov',
-                'deskripsi_cover_id' => $data->id,
-                'type_history' => 'Status',
-                'status_his' => $data->status,
-                'status_new'  => $request->status,
-                'author_id' => auth()->user()->id,
-                'modified_at' => $tgl
-            ];
-            if ($request->status == 'Selesai') {
-                event(new DescovEvent($update));
-                event(new DescovEvent($insert));
-                //? Todo list Prodev
-                $cekTodo = DB::table('todo_list')
-                ->where('form_id',$data->id)
-                ->where('users_id',$data->pic_prodev)
-                ->where('title','Proses deskripsi cover naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.');
-                if (!is_null($cekTodo->first())) {
-                    $cekTodo->update([
-                        'status' => '1'
-                    ]);
-                } else {
-                    DB::table('todo_list')->insert([
-                        'form_id' => $data->id,
-                        'users_id' => $data->pic_prodev,
-                        'title' => 'Proses deskripsi cover naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
-                        'status' => '1'
-                    ]);
-                }
-                $updateTimelineDescov = [
-                    'params' => 'Update Timeline',
-                    'naskah_id' => $data->naskah_id,
-                    'progress' => 'Deskripsi Cover',
-                    'tgl_selesai' => $tgl,
-                    'status' => $request->status
-                ];
-                event(new TimelineEvent($updateTimelineDescov));
-
-                $cekEditing = DB::table('editing_proses')->where('deskripsi_final_id',$data->deskripsi_final_id)->first();
-                if (is_null($cekEditing)) {
-                    //INSERT EDITING
-                    $idEditing = Uuid::uuid4()->toString();
-                    $insertEditingProses = [
-                        'params' => 'Insert Editing',
-                        'id' => $idEditing,
-                        'deskripsi_final_id' => $data->deskripsi_final_id,
-                        'editor' => json_encode([$data->editor]),
-                        'tgl_masuk_editing' => $tgl
-                    ];
-                    event(new EditingEvent($insertEditingProses));
-
-                    //? Insert Todo List Kabag Editing
-                    switch ($data->jalur_buku) {
-                        case 'Reguler':
-                            $editorPermission = '88f281e83aff47d08f555a2961420bf5';
-                            break;
-                        case 'MoU':
-                            $editorPermission = 'ce3589b822a14011ba581c803ef50f5b';
-                            break;
-                        case 'SMK/NonSmk':
-                            $editorPermission = 'a9354dd060524bce8278e2cd75ce349a';
-                            break;
-                        default:
-                            //permission jalur buku lainnya belum ditentukan di database
-                            $editorPermission = '';
-                            break;
-                    }
-                    $kabagEditing = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                        ->where('p.id',$editorPermission)
-                        ->select('up.user_id')
-                        ->get();
-                    $dataEditing = [
-                        'id' => $idEditing,
-                        'kode' => $data->kode,
-                        'judul' => $data->judul_final
-                    ];
-                    $kabagEditing = (object)collect($kabagEditing)->map(function($item) use ($dataEditing) {
-                        return DB::table('todo_list')->insert([
-                            'form_id' => $dataEditing['id'],
-                            'users_id' => $item->user_id,
-                            'title' => 'Proses delegasi tahap editing naskah "'.$dataEditing['judul'].'".',
-                            'link' => '/penerbitan/editing/edit?editing='.$dataEditing['id'].'&kode='.$dataEditing['kode'],
-                            'status' => '0',
-                        ]);
-                    })->all();
-                    $insertTimelineEditing = [
-                        'params' => 'Insert Timeline',
-                        'id' => Uuid::uuid4()->toString(),
-                        'progress' => 'Editing',
-                        'naskah_id' => $data->naskah_id,
-                        'tgl_mulai' => $tgl,
-                        'url_action' => urlencode(URL::to('/penerbitan/editing/detail?editing='.$idEditing.'&kode='.$data->kode)),
-                        'status' => 'Antrian'
-                    ];
-                    event(new TimelineEvent($insertTimelineEditing));
-                    //* TRACKER EDITING
-                    $descEditing = 'Naskah berjudul <a href="'.url('penerbitan/editing/detail?editing='.$idEditing.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Editing.';
-                    $trackerEditing = [
-                        'id' => Uuid::uuid4()->toString(),
-                        'section_id' => $idEditing,
-                        'section_name' => 'Editing',
-                        'description' => $descEditing,
-                        'icon' => 'fas fa-folder-plus',
-                        'created_by' => auth()->id()
-                    ];
-                    event(new TrackerEvent($trackerEditing));
-                }
-                $cekPraset = DB::table('pracetak_setter')->where('deskripsi_final_id',$data->deskripsi_final_id)->first();
-                if (is_null($cekPraset)) {
-                    //INSERT PRACETAK SETTER
-                    $idPraset = Uuid::uuid4()->toString();
-                    $insertPracetakSetter = [
-                        'params' => 'Insert Pracetak Setter',
-                        'id' => $idPraset,
-                        'deskripsi_final_id' => $data->deskripsi_final_id,
-                        'setter' => json_encode([$data->setter]),
-                        'korektor' => json_encode([$data->korektor]),
-                        'jml_hal_final' => $data->jml_hal_perkiraan,
-                        'tgl_masuk_pracetak' => $tgl,
-                    ];
-                    event(new PracetakSetterEvent($insertPracetakSetter));
-                    //? Insert Todo List Kabag Pracetak Setter
-                    switch ($data->jalur_buku) {
-                        case 'Reguler':
-                            $prasetPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
-                            break;
-                        case 'MoU':
-                            $prasetPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
-                            break;
-                        case 'SMK/NonSmk':
-                            $prasetPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
-                            break;
-                        default:
-                            //permission jalur buku lainnya belum ditentukan di database
-                            $prasetPermission = '';
-                            break;
-                    }
-                    $kabagPraset = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                        ->where('p.id',$prasetPermission)
-                        ->select('up.user_id')
-                        ->get();
-                    $dataPraset = [
-                        'id' => $idPraset,
-                        'kode' => $data->kode,
-                        'judul' => $data->judul_final
-                    ];
-                    $kabagPraset = (object)collect($kabagPraset)->map(function($item) use ($dataPraset) {
-                        return DB::table('todo_list')->insert([
-                            'form_id' => $dataPraset['id'],
-                            'users_id' => $item->user_id,
-                            'title' => 'Proses delegasi tahap pracetak setter naskah "'.$dataPraset['judul'].'".',
-                            'link' => '/penerbitan/pracetak/setter/edit?setter='.$dataPraset['id'].'&kode='.$dataPraset['kode'],
-                            'status' => '0',
-                        ]);
-                    })->all();
-                    $insertTimelinePraset = [
-                        'params' => 'Insert Timeline',
-                        'id' => Uuid::uuid4()->toString(),
-                        'progress' => 'Pracetak Setter',
-                        'naskah_id' => $data->naskah_id,
-                        'tgl_mulai' => $tgl,
-                        'url_action' => urlencode(URL::to('/penerbitan/pracetak/setter/detail?pra='.$idPraset.'&kode='.$data->kode)),
-                        'status' => 'Antrian'
-                    ];
-                    event(new TimelineEvent($insertTimelinePraset));
-                    //* TRACKER PRACETAK SETTER
-                    $descPraset = 'Naskah berjudul <a href="'.url('penerbitan/pracetak/setter/detail?pra='.$idPraset.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Pracetak Setter.';
-                    $trackerPraset = [
-                        'id' => Uuid::uuid4()->toString(),
-                        'section_id' => $idPraset,
-                        'section_name' => 'Pracetak Setter',
-                        'description' => $descPraset,
-                        'icon' => 'fas fa-folder-plus',
-                        'created_by' => auth()->id()
-                    ];
-                    event(new TrackerEvent($trackerPraset));
-                }
-                $cekPracov = DB::table('pracetak_cover')->where('deskripsi_cover_id',$data->id)->first();
-                if (is_null($cekPracov)) {
-                    //INSERT PRACETAK COVER
-                    $idPracov = Uuid::uuid4()->toString();
-                    $insertPracetakCover = [
-                        'params' => 'Insert Pracetak Cover',
-                        'id' => $idPracov,
-                        'deskripsi_cover_id' => $data->id,
-                        'desainer' => json_encode([$data->desainer]),
-                        'tgl_masuk_cover' => $tgl,
-                    ];
-                    event(new PracetakCoverEvent($insertPracetakCover));
-                    //? Insert Todo List Kabag Pracetak Cover
-                    switch ($data->jalur_buku) {
-                        case 'Reguler':
-                            $pracovPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
-                            break;
-                        case 'MoU':
-                            $pracovPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
-                            break;
-                        case 'SMK/NonSmk':
-                            $pracovPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
-                            break;
-                        default:
-                            //permission jalur buku lainnya belum ditentukan di database
-                            $pracovPermission = '';
-                            break;
-                    }
-                    $kabagPracov = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                        ->where('p.id',$pracovPermission)
-                        ->select('up.user_id')
-                        ->get();
-                    $dataPracov = [
-                        'id' => $idPracov,
-                        'kode' => $data->kode,
-                        'judul' => $data->judul_final
-                    ];
-                    $kabagPracov = (object)collect($kabagPracov)->map(function($item) use ($dataPracov) {
-                        return DB::table('todo_list')->insert([
-                            'form_id' => $dataPracov['id'],
-                            'users_id' => $item->user_id,
-                            'title' => 'Proses delegasi tahap pracetak cover naskah "'.$dataPracov['judul'].'".',
-                            'link' => '/penerbitan/pracetak/designer/edit?cover='.$dataPracov['id'].'&kode='.$dataPracov['kode'],
-                            'status' => '0',
-                        ]);
-                    })->all();
-                    $insertTimelinePracov = [
-                        'params' => 'Insert Timeline',
-                        'id' => Uuid::uuid4()->toString(),
-                        'progress' => 'Pracetak Cover',
-                        'naskah_id' => $data->naskah_id,
-                        'tgl_mulai' => $tgl,
-                        'url_action' => urlencode(URL::to('/penerbitan/pracetak/designer/detail?pra='.$idPracov.'&kode='.$data->kode)),
-                        'status' => 'Antrian'
-                    ];
-                    event(new TimelineEvent($insertTimelinePracov));
-                    //* TRACKER PRACETAK COVER
-                    $descPracov = 'Naskah berjudul <a href="'.url('penerbitan/pracetak/designer/detail?pra='.$idPracov.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Pracetak Cover.';
-                    $trackerPracov = [
-                        'id' => Uuid::uuid4()->toString(),
-                        'section_id' => $idPracov,
-                        'section_name' => 'Pracetak Cover',
-                        'description' => $descPracov,
-                        'icon' => 'fas fa-folder-plus',
-                        'created_by' => auth()->id()
-                    ];
-                    event(new TrackerEvent($trackerPracov));
-                }
-                $desc = 'Deskripsi cover selesai, proses berlanjut ke Editing dan Pracetak.';
-                $icon = 'fas fa-clipboard-check';
-                $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
-            } else {
-                event(new DescovEvent($update));
-                event(new DescovEvent($insert));
-                $updateTimelineDescov = [
-                    'params' => 'Update Timeline',
-                    'naskah_id' => $data->naskah_id,
-                    'progress' => 'Deskripsi Cover',
-                    'tgl_selesai' => NULL,
-                    'status' => $request->status
-                ];
-                event(new TimelineEvent($updateTimelineDescov));
-                $namaUser = auth()->user()->nama;
-                $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Cover menjadi <b>'.$request->status.'</b>.';
-                $icon = 'fas fa-info-circle';
-                $msg = 'Status progress deskripsi cover berhasil diupdate';
-            }
-            $addTracker = [
-                'id' => Uuid::uuid4()->toString(),
-                'section_id' => $data->id,
-                'section_name' => 'Deskripsi Cover',
-                'description' => $desc,
-                'icon' => $icon,
-                'created_by' => auth()->id()
-            ];
-            event(new TrackerEvent($addTracker));
-            DB::commit();
-            return response()->json([
-                'status' => 'success',
-                'message' => $msg
-            ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ]);
+        switch ($request->cat) {
+            case 'lihat-tracking':
+                return $this->lihatTrackingDescov($request);
+                break;
+            case 'update-status-progress':
+                return $this->updateStatusProgress($request);
+                break;
+            case 'lihat-history':
+                return $this->lihatHistoryDescov($request);
+                break;
+            default:
+                return abort(500);
+                break;
         }
     }
-    public function lihatHistoryDescov(Request $request)
+    protected function lihatTrackingDescov($request)
+    {
+        if ($request->ajax()) {
+            $html ='';
+            $id = $request->id;
+            $data = DB::table('tracker')->where('section_id',$id)
+            ->orderBy('created_at','desc')
+            ->get();
+            foreach ($data as $d) {
+                $html .= '<div class="activity">
+                <div class="activity-icon bg-primary text-white shadow-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
+                    <i class="'.$d->icon.'"></i>
+                </div>
+                <div class="activity-detail col">
+                    <div class="mb-2">
+                        <span class="text-job">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
+                        <span class="bullet"></span>
+                        <span class="text-job">'.Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i').'</span>
+                    </div>
+                    <p>'.$d->description.'</p>
+                </div>
+            </div>';
+            }
+            return $html;
+        }
+    }
+    protected function updateStatusProgress($request)
+    {
+        if ($request->ajax()) {
+            try {
+                DB::beginTransaction();
+                $id = $request->id;
+                $data = DB::table('deskripsi_cover as dc')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                    ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                        $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                            ->whereNull('kb.deleted_at');
+                    })
+                    ->where('dc.id', $id)
+                    ->whereNull('dp.deleted_at')
+                    ->whereNull('pn.deleted_at')
+                    ->select(
+                        'dc.*',
+                        'df.id as deskripsi_final_id',
+                        'df.setter',
+                        'df.korektor',
+                        'dp.naskah_id',
+                        'dp.format_buku',
+                        'dp.judul_final',
+                        'dp.editor',
+                        'dp.imprint',
+                        'dp.jml_hal_perkiraan',
+                        'dp.kelengkapan',
+                        'dp.catatan',
+                        'pn.kode',
+                        'pn.judul_asli',
+                        'pn.pic_prodev',
+                        'pn.jalur_buku',
+                        'kb.nama'
+                    )
+                    ->first();
+                if (is_null($data)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data corrupt...'
+                    ], 404);
+                }
+                if ($data->status == $request->status) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Pilih status yang berbeda dengan status saat ini!'
+                    ]);
+                }
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                $update = [
+                    'params' => 'Update Status Descov',
+                    'deskripsi_produk_id' => $data->deskripsi_produk_id,
+                    'status' => $request->status,
+                    'updated_by' => auth()->id()
+                ];
+                $insert = [
+                    'params' => 'Insert History Status Descov',
+                    'deskripsi_cover_id' => $data->id,
+                    'type_history' => 'Status',
+                    'status_his' => $data->status,
+                    'status_new'  => $request->status,
+                    'author_id' => auth()->user()->id,
+                    'modified_at' => $tgl
+                ];
+                if ($request->status == 'Selesai') {
+                    event(new DescovEvent($update));
+                    event(new DescovEvent($insert));
+                    //? Todo list Prodev
+                    $cekTodo = DB::table('todo_list')
+                    ->where('form_id',$data->id)
+                    ->where('users_id',$data->pic_prodev)
+                    ->where('title','Proses deskripsi cover naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.');
+                    if (!is_null($cekTodo->first())) {
+                        $cekTodo->update([
+                            'status' => '1'
+                        ]);
+                    } else {
+                        DB::table('todo_list')->insert([
+                            'form_id' => $data->id,
+                            'users_id' => $data->pic_prodev,
+                            'title' => 'Proses deskripsi cover naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                            'status' => '1'
+                        ]);
+                    }
+                    $updateTimelineDescov = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Deskripsi Cover',
+                        'tgl_selesai' => $tgl,
+                        'status' => $request->status
+                    ];
+                    event(new TimelineEvent($updateTimelineDescov));
+
+                    $cekEditing = DB::table('editing_proses')->where('deskripsi_final_id',$data->deskripsi_final_id)->first();
+                    if (is_null($cekEditing)) {
+                        //INSERT EDITING
+                        $idEditing = Uuid::uuid4()->toString();
+                        $insertEditingProses = [
+                            'params' => 'Insert Editing',
+                            'id' => $idEditing,
+                            'deskripsi_final_id' => $data->deskripsi_final_id,
+                            'editor' => json_encode([$data->editor]),
+                            'tgl_masuk_editing' => $tgl
+                        ];
+                        event(new EditingEvent($insertEditingProses));
+
+                        //? Insert Todo List Kabag Editing
+                        switch ($data->jalur_buku) {
+                            case 'Reguler':
+                                $editorPermission = '88f281e83aff47d08f555a2961420bf5';
+                                break;
+                            case 'MoU':
+                                $editorPermission = 'ce3589b822a14011ba581c803ef50f5b';
+                                break;
+                            case 'SMK/NonSmk':
+                                $editorPermission = 'a9354dd060524bce8278e2cd75ce349a';
+                                break;
+                            default:
+                                //permission jalur buku lainnya belum ditentukan di database
+                                $editorPermission = '';
+                                break;
+                        }
+                        $kabagEditing = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                            ->where('p.id',$editorPermission)
+                            ->select('up.user_id')
+                            ->get();
+                        $dataEditing = [
+                            'id' => $idEditing,
+                            'kode' => $data->kode,
+                            'judul' => $data->judul_final
+                        ];
+                        $kabagEditing = (object)collect($kabagEditing)->map(function($item) use ($dataEditing) {
+                            return DB::table('todo_list')->insert([
+                                'form_id' => $dataEditing['id'],
+                                'users_id' => $item->user_id,
+                                'title' => 'Proses delegasi tahap editing naskah "'.$dataEditing['judul'].'".',
+                                'link' => '/penerbitan/editing/edit?editing='.$dataEditing['id'].'&kode='.$dataEditing['kode'],
+                                'status' => '0',
+                            ]);
+                        })->all();
+                        $insertTimelineEditing = [
+                            'params' => 'Insert Timeline',
+                            'id' => Uuid::uuid4()->toString(),
+                            'progress' => 'Editing',
+                            'naskah_id' => $data->naskah_id,
+                            'tgl_mulai' => $tgl,
+                            'url_action' => urlencode(URL::to('/penerbitan/editing/detail?editing='.$idEditing.'&kode='.$data->kode)),
+                            'status' => 'Antrian'
+                        ];
+                        event(new TimelineEvent($insertTimelineEditing));
+                        //* TRACKER EDITING
+                        $descEditing = 'Naskah berjudul <a href="'.url('penerbitan/editing/detail?editing='.$idEditing.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Editing.';
+                        $trackerEditing = [
+                            'id' => Uuid::uuid4()->toString(),
+                            'section_id' => $idEditing,
+                            'section_name' => 'Editing',
+                            'description' => $descEditing,
+                            'icon' => 'fas fa-folder-plus',
+                            'created_by' => auth()->id()
+                        ];
+                        event(new TrackerEvent($trackerEditing));
+                    }
+                    $cekPraset = DB::table('pracetak_setter')->where('deskripsi_final_id',$data->deskripsi_final_id)->first();
+                    if (is_null($cekPraset)) {
+                        //INSERT PRACETAK SETTER
+                        $idPraset = Uuid::uuid4()->toString();
+                        $insertPracetakSetter = [
+                            'params' => 'Insert Pracetak Setter',
+                            'id' => $idPraset,
+                            'deskripsi_final_id' => $data->deskripsi_final_id,
+                            'setter' => json_encode([$data->setter]),
+                            'korektor' => json_encode([$data->korektor]),
+                            'jml_hal_final' => $data->jml_hal_perkiraan,
+                            'tgl_masuk_pracetak' => $tgl,
+                        ];
+                        event(new PracetakSetterEvent($insertPracetakSetter));
+                        //? Insert Todo List Kabag Pracetak Setter
+                        switch ($data->jalur_buku) {
+                            case 'Reguler':
+                                $prasetPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
+                                break;
+                            case 'MoU':
+                                $prasetPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
+                                break;
+                            case 'SMK/NonSmk':
+                                $prasetPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
+                                break;
+                            default:
+                                //permission jalur buku lainnya belum ditentukan di database
+                                $prasetPermission = '';
+                                break;
+                        }
+                        $kabagPraset = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                            ->where('p.id',$prasetPermission)
+                            ->select('up.user_id')
+                            ->get();
+                        $dataPraset = [
+                            'id' => $idPraset,
+                            'kode' => $data->kode,
+                            'judul' => $data->judul_final
+                        ];
+                        $kabagPraset = (object)collect($kabagPraset)->map(function($item) use ($dataPraset) {
+                            return DB::table('todo_list')->insert([
+                                'form_id' => $dataPraset['id'],
+                                'users_id' => $item->user_id,
+                                'title' => 'Proses delegasi tahap pracetak setter naskah "'.$dataPraset['judul'].'".',
+                                'link' => '/penerbitan/pracetak/setter/edit?setter='.$dataPraset['id'].'&kode='.$dataPraset['kode'],
+                                'status' => '0',
+                            ]);
+                        })->all();
+                        $insertTimelinePraset = [
+                            'params' => 'Insert Timeline',
+                            'id' => Uuid::uuid4()->toString(),
+                            'progress' => 'Pracetak Setter',
+                            'naskah_id' => $data->naskah_id,
+                            'tgl_mulai' => $tgl,
+                            'url_action' => urlencode(URL::to('/penerbitan/pracetak/setter/detail?pra='.$idPraset.'&kode='.$data->kode)),
+                            'status' => 'Antrian'
+                        ];
+                        event(new TimelineEvent($insertTimelinePraset));
+                        //* TRACKER PRACETAK SETTER
+                        $descPraset = 'Naskah berjudul <a href="'.url('penerbitan/pracetak/setter/detail?pra='.$idPraset.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Pracetak Setter.';
+                        $trackerPraset = [
+                            'id' => Uuid::uuid4()->toString(),
+                            'section_id' => $idPraset,
+                            'section_name' => 'Pracetak Setter',
+                            'description' => $descPraset,
+                            'icon' => 'fas fa-folder-plus',
+                            'created_by' => auth()->id()
+                        ];
+                        event(new TrackerEvent($trackerPraset));
+                    }
+                    $cekPracov = DB::table('pracetak_cover')->where('deskripsi_cover_id',$data->id)->first();
+                    if (is_null($cekPracov)) {
+                        //INSERT PRACETAK COVER
+                        $idPracov = Uuid::uuid4()->toString();
+                        $insertPracetakCover = [
+                            'params' => 'Insert Pracetak Cover',
+                            'id' => $idPracov,
+                            'deskripsi_cover_id' => $data->id,
+                            'desainer' => json_encode([$data->desainer]),
+                            'tgl_masuk_cover' => $tgl,
+                        ];
+                        event(new PracetakCoverEvent($insertPracetakCover));
+                        //? Insert Todo List Kabag Pracetak Cover
+                        switch ($data->jalur_buku) {
+                            case 'Reguler':
+                                $pracovPermission = '2c2753d3-6951-11ed-9234-4cedfb61fb39';
+                                break;
+                            case 'MoU':
+                                $pracovPermission = '25b1853c-6952-11ed-9234-4cedfb61fb39';
+                                break;
+                            case 'SMK/NonSmk':
+                                $pracovPermission = '457aca55-6952-11ed-9234-4cedfb61fb39';
+                                break;
+                            default:
+                                //permission jalur buku lainnya belum ditentukan di database
+                                $pracovPermission = '';
+                                break;
+                        }
+                        $kabagPracov = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                            ->where('p.id',$pracovPermission)
+                            ->select('up.user_id')
+                            ->get();
+                        $dataPracov = [
+                            'id' => $idPracov,
+                            'kode' => $data->kode,
+                            'judul' => $data->judul_final
+                        ];
+                        $kabagPracov = (object)collect($kabagPracov)->map(function($item) use ($dataPracov) {
+                            return DB::table('todo_list')->insert([
+                                'form_id' => $dataPracov['id'],
+                                'users_id' => $item->user_id,
+                                'title' => 'Proses delegasi tahap pracetak cover naskah "'.$dataPracov['judul'].'".',
+                                'link' => '/penerbitan/pracetak/designer/edit?cover='.$dataPracov['id'].'&kode='.$dataPracov['kode'],
+                                'status' => '0',
+                            ]);
+                        })->all();
+                        $insertTimelinePracov = [
+                            'params' => 'Insert Timeline',
+                            'id' => Uuid::uuid4()->toString(),
+                            'progress' => 'Pracetak Cover',
+                            'naskah_id' => $data->naskah_id,
+                            'tgl_mulai' => $tgl,
+                            'url_action' => urlencode(URL::to('/penerbitan/pracetak/designer/detail?pra='.$idPracov.'&kode='.$data->kode)),
+                            'status' => 'Antrian'
+                        ];
+                        event(new TimelineEvent($insertTimelinePracov));
+                        //* TRACKER PRACETAK COVER
+                        $descPracov = 'Naskah berjudul <a href="'.url('penerbitan/pracetak/designer/detail?pra='.$idPracov.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Pracetak Cover.';
+                        $trackerPracov = [
+                            'id' => Uuid::uuid4()->toString(),
+                            'section_id' => $idPracov,
+                            'section_name' => 'Pracetak Cover',
+                            'description' => $descPracov,
+                            'icon' => 'fas fa-folder-plus',
+                            'created_by' => auth()->id()
+                        ];
+                        event(new TrackerEvent($trackerPracov));
+                    }
+                    $desc = 'Deskripsi cover selesai, proses berlanjut ke Editing dan Pracetak.';
+                    $icon = 'fas fa-clipboard-check';
+                    $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
+                } else {
+                    event(new DescovEvent($update));
+                    event(new DescovEvent($insert));
+                    $updateTimelineDescov = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Deskripsi Cover',
+                        'tgl_selesai' => NULL,
+                        'status' => $request->status
+                    ];
+                    event(new TimelineEvent($updateTimelineDescov));
+                    $namaUser = auth()->user()->nama;
+                    $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Cover menjadi <b>'.$request->status.'</b>.';
+                    $icon = 'fas fa-info-circle';
+                    $msg = 'Status progress deskripsi cover berhasil diupdate';
+                }
+                $addTracker = [
+                    'id' => Uuid::uuid4()->toString(),
+                    'section_id' => $data->id,
+                    'section_name' => 'Deskripsi Cover',
+                    'description' => $desc,
+                    'icon' => $icon,
+                    'created_by' => auth()->id()
+                ];
+                event(new TrackerEvent($addTracker));
+                DB::commit();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $msg
+                ], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+            }
+        }
+    }
+    protected function lihatHistoryDescov($request)
     {
         if ($request->ajax()) {
             $html = '';
