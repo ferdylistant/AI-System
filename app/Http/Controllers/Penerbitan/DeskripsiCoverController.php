@@ -7,6 +7,7 @@ use Ramsey\Uuid\Uuid;
 use App\Events\DescovEvent;
 use Illuminate\Support\Arr;
 use App\Events\EditingEvent;
+use App\Events\TrackerEvent;
 use Illuminate\Http\Request;
 use App\Events\TimelineEvent;
 use Yajra\DataTables\DataTables;
@@ -521,6 +522,7 @@ class DeskripsiCoverController extends Controller
                     'status' => $request->status
                 ];
                 event(new TimelineEvent($updateTimelineDescov));
+
                 $cekEditing = DB::table('editing_proses')->where('deskripsi_final_id',$data->deskripsi_final_id)->first();
                 if (is_null($cekEditing)) {
                     //INSERT EDITING
@@ -578,6 +580,17 @@ class DeskripsiCoverController extends Controller
                         'status' => 'Antrian'
                     ];
                     event(new TimelineEvent($insertTimelineEditing));
+                    //* TRACKER EDITING
+                    $descEditing = 'Naskah berjudul <a href="'.url('penerbitan/editing/detail?editing='.$idEditing.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Editing.';
+                    $trackerEditing = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'section_id' => $idEditing,
+                        'section_name' => 'Editing',
+                        'description' => $descEditing,
+                        'icon' => 'fas fa-folder-plus',
+                        'created_by' => auth()->id()
+                    ];
+                    event(new TrackerEvent($trackerEditing));
                 }
                 $cekPraset = DB::table('pracetak_setter')->where('deskripsi_final_id',$data->deskripsi_final_id)->first();
                 if (is_null($cekPraset)) {
@@ -637,6 +650,17 @@ class DeskripsiCoverController extends Controller
                         'status' => 'Antrian'
                     ];
                     event(new TimelineEvent($insertTimelinePraset));
+                    //* TRACKER PRACETAK SETTER
+                    $descPraset = 'Naskah berjudul <a href="'.url('penerbitan/pracetak/setter/detail?pra='.$idPraset.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Pracetak Setter.';
+                    $trackerPraset = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'section_id' => $idPraset,
+                        'section_name' => 'Pracetak Setter',
+                        'description' => $descPraset,
+                        'icon' => 'fas fa-folder-plus',
+                        'created_by' => auth()->id()
+                    ];
+                    event(new TrackerEvent($trackerPraset));
                 }
                 $cekPracov = DB::table('pracetak_cover')->where('deskripsi_cover_id',$data->id)->first();
                 if (is_null($cekPracov)) {
@@ -694,8 +718,20 @@ class DeskripsiCoverController extends Controller
                         'status' => 'Antrian'
                     ];
                     event(new TimelineEvent($insertTimelinePracov));
+                    //* TRACKER PRACETAK COVER
+                    $descPracov = 'Naskah berjudul <a href="'.url('penerbitan/pracetak/designer/detail?pra='.$idPracov.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Pracetak Cover.';
+                    $trackerPracov = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'section_id' => $idPracov,
+                        'section_name' => 'Pracetak Cover',
+                        'description' => $descPracov,
+                        'icon' => 'fas fa-folder-plus',
+                        'created_by' => auth()->id()
+                    ];
+                    event(new TrackerEvent($trackerPracov));
                 }
-
+                $desc = 'Deskripsi cover selesai, proses berlanjut ke Editing dan Pracetak.';
+                $icon = 'fas fa-clipboard-check';
                 $msg = 'Deskripsi cover selesai, silahkan lanjut ke proses Pracetak Cover dan Editing..';
             } else {
                 event(new DescovEvent($update));
@@ -708,8 +744,20 @@ class DeskripsiCoverController extends Controller
                     'status' => $request->status
                 ];
                 event(new TimelineEvent($updateTimelineDescov));
+                $namaUser = auth()->user()->nama;
+                $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Cover menjadi <b>'.$request->status.'</b>.';
+                $icon = 'fas fa-info-circle';
                 $msg = 'Status progress deskripsi cover berhasil diupdate';
             }
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Deskripsi Cover',
+                'description' => $desc,
+                'icon' => $icon,
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             DB::commit();
             return response()->json([
                 'status' => 'success',

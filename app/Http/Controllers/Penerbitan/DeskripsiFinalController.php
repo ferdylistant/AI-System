@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
+use Ramsey\Uuid\Uuid;
 use App\Events\DescovEvent;
 use App\Events\DesfinEvent;
 use Illuminate\Support\Arr;
+use App\Events\TrackerEvent;
 use Illuminate\Http\Request;
 use App\Events\TimelineEvent;
 use Yajra\DataTables\DataTables;
@@ -555,6 +557,8 @@ class DeskripsiFinalController extends Controller
                 ->update([
                     'status' => '0'
                 ]);
+                $namaUser = auth()->user()->nama;
+                $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Final menjadi <b>'.$request->status.'</b>.';
                 $msg = 'Status progress deskripsi final berhasil diupdate';
             } elseif ($request->status == 'Selesai') {
                 event(new DesfinEvent($update));
@@ -599,6 +603,8 @@ class DeskripsiFinalController extends Controller
                         'status' => '1'
                     ]);
                 }
+                $namaUser = auth()->user()->nama;
+                $desc = 'Deskripsi final selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Final menjadi <b>'.$request->status.'</b>.';
                 $msg = 'Deskripsi final selesai, silahkan lanjut ke proses Deskripsi Cover..';
             } else {
                 event(new DesfinEvent($update));
@@ -611,8 +617,19 @@ class DeskripsiFinalController extends Controller
                     'status' => $request->status
                 ];
                 event(new TimelineEvent($updateTimelineDesfin));
+                $namaUser = auth()->user()->nama;
+                $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Final menjadi <b>'.$request->status.'</b>.';
                 $msg = 'Status progress deskripsi final berhasil diupdate';
             }
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Deskripsi Final',
+                'description' => $desc,
+                'icon' => 'fas fa-info-circle',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             DB::commit();
             return response()->json([
                 'status' => 'success',

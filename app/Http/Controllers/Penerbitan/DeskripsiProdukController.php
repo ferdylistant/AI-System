@@ -528,7 +528,7 @@ class DeskripsiProdukController extends Controller
                         ->update([
                             'status' => '1'
                         ]);
-                        $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                        $namaUser = auth()->user()->nama;
                         $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> menyelesaikan pengerjaan revisi Deskripsi Produk yang diberikan oleh GM Penerbitan, selanjutnya menunggu approval dari Manajer Penerbitan.';
                     } else {
                         //? Update Todo Prodev
@@ -539,7 +539,7 @@ class DeskripsiProdukController extends Controller
                         ->update([
                             'status' => '1'
                         ]);
-                        $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                        $namaUser = auth()->user()->nama;
                         $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Produk menjadi <b>'.$request->status.'</b>, selanjutnya menunggu approval dari Manajer Penerbitan.';
 
                     }
@@ -563,7 +563,7 @@ class DeskripsiProdukController extends Controller
                                 'status' => '0',
                             ]);
                         } else {
-                            $cekTodo->update([
+                            return $cekTodo->update([
                                 'status' => '0'
                             ]);
                         }
@@ -588,7 +588,7 @@ class DeskripsiProdukController extends Controller
                         'status' => $request->status
                     ];
                     event(new TimelineEvent($updateTimeline));
-                    $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                    $namaUser = auth()->user()->nama;
                     $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Produk menjadi <b>'.$request->status.'</b>.';
                     $addTracker = [
                         'id' => Uuid::uuid4()->toString(),
@@ -830,7 +830,7 @@ class DeskripsiProdukController extends Controller
                     'message' => 'Deskripsi produk "' . $judul_asli . '" sedang direvisi'
                 ]);
             }
-            $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+            $namaUser = auth()->user()->nama;
             $desc = 'Deskripsi produk dengan naskah berjudul asli <a href="'.url('penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$kode).'">'.$judul_asli.'</a> belum disetujui oleh
             GM Penerbitan (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>), dengan alasan: <b>'.$request->input('alasan').'</b>.';
             $addTracker = [
@@ -959,6 +959,7 @@ class DeskripsiProdukController extends Controller
                 'author_id' => auth()->id(),
                 'modified_at' => $tgl
             ];
+            //* INSERT DESFIN
             $idDesfin = Uuid::uuid4()->toString();
             $desFin = [
                 'params' => 'Input Deskripsi',
@@ -966,6 +967,7 @@ class DeskripsiProdukController extends Controller
                 'deskripsi_produk_id' => $id,
                 'tgl_deskripsi' => $tgl
             ];
+            //* INSERT DESCOV
             $idDescov = Uuid::uuid4()->toString();
             $desCov = [
                 'params' => 'Input Deskripsi',
@@ -973,6 +975,7 @@ class DeskripsiProdukController extends Controller
                 'deskripsi_produk_id' => $id,
                 'tgl_deskripsi' => $tgl
             ];
+            //* TIMELINE DESFIN
             $insertTimelineDesfin = [
                 'params' => 'Insert Timeline',
                 'id' => Uuid::uuid4()->toString(),
@@ -982,7 +985,8 @@ class DeskripsiProdukController extends Controller
                 'url_action' => urlencode(URL::to('/penerbitan/deskripsi/final/detail?desc='.$idDesfin.'&kode='.$data->kode)),
                 'status' => 'Antrian'
             ];
-            event(new TimelineEvent($insertTimelineDesfin));
+            //* TIMELINE DESCOV
+
             $insertTimelineDescov = [
                 'params' => 'Insert Timeline',
                 'id' => Uuid::uuid4()->toString(),
@@ -992,10 +996,46 @@ class DeskripsiProdukController extends Controller
                 'url_action' => urlencode(URL::to('/penerbitan/deskripsi/cover/detail?desc='.$idDescov.'&kode='.$data->kode)),
                 'status' => 'Terkunci'
             ];
+            //* TRACKER
+            $namaUser = auth()->user()->nama;
+            $desc = 'Deskripsi produk dengan naskah berjudul asli <a href="'.url('penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$data->kode).'">'.$data->judul_asli.'</a> telah disetujui oleh
+            GM Penerbitan (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>), dengan judul final: <b>'.$data->judul_final.'</b>.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Deskripsi Produk',
+                'description' => $desc,
+                'icon' => 'fas fa-user-check',
+                'created_by' => auth()->id()
+            ];
+            //* ALL EVENT
+            event(new TimelineEvent($insertTimelineDesfin));
             event(new TimelineEvent($insertTimelineDescov));
             event(new DesproEvent($history));
             event(new DesfinEvent($desFin));
             event(new DescovEvent($desCov));
+            event(new TrackerEvent($addTracker));
+            $desc = 'Naskah berjudul <a href="'.url('penerbitan/deskripsi/final/detail?desc='.$idDesfin.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Deskripsi Final.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $idDesfin,
+                'section_name' => 'Deskripsi Final',
+                'description' => $desc,
+                'icon' => 'fas fa-folder-plus',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
+            $desc = 'Naskah berjudul <a href="'.url('penerbitan/deskripsi/cover/detail?desc='.$idDescov.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Deskripsi Cover.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $idDescov,
+                'section_name' => 'Deskripsi Cover',
+                'description' => $desc,
+                'icon' => 'fas fa-folder-plus',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
+
             //? Todo List Desfin
             DB::table('todo_list')->insert([
                 'form_id' => $idDesfin,
@@ -1019,13 +1059,22 @@ class DeskripsiProdukController extends Controller
             ->get();
 
             $penerbitan = (object)collect($penerbitan)->map(function($item) use ($data) {
-                return DB::table('todo_list')
+                $cekTodo = DB::table('todo_list')
                 ->where('form_id',$data->id)
                 ->where('users_id', $item->user_id)
-                ->where('title', 'Menentukan dan menyetujui judul final dengan judul asli, "'.$data->judul_asli.'".')
-                ->update([
-                    'status' => '1',
-                ]);
+                ->where('title', 'Menentukan dan menyetujui judul final dengan judul asli, "'.$data->judul_asli.'".');
+                if (is_null($cekTodo->first())) {
+                    return DB::table('todo_list')->insert([
+                        'form_id' => $data->id,
+                        'users_id' => $item->user_id,
+                        'title' => 'Menentukan dan menyetujui judul final dengan judul asli, "'.$data->judul_asli.'".',
+                        'status' => '1'
+                    ]);
+                } else {
+                    return $cekTodo->update([
+                        'status' => '1',
+                    ]);
+                }
             })->all();
             DB::commit();
             return response()->json([

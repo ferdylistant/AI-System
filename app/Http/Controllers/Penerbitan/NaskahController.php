@@ -522,7 +522,7 @@ class NaskahController extends Controller
                         'tgl_pn_selesai' => ($penilaian['selesai_penilaian'] > 0) ? $tgl : null
                     ];
                     event(new NaskahEvent($addPnStatus));
-                    $namaUser = DB::table('users')->where('id',auth()->id())->first()->nama;
+                    $namaUser = auth()->user()->nama;
                     $desc = 'Naskah berjudul asli <a href="'.url('penerbitan/naskah/melihat-naskah/'.$idN).'">'.$request->input('add_judul_asli').'</a> telah dibuat oleh <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>.';
                     $addTracker = [
                         'id' => Uuid::uuid4()->toString(),
@@ -916,7 +916,7 @@ class NaskahController extends Controller
                 'status' => 'Antrian'
             ];
             event(new DesproEvent($createDespro));
-            $desc = 'Naskah berjudul asli <a href="'.url('penerbitan/naskah/melihat-naskah/'.$id).'">'.$request->input('add_judul_asli').'</a> telah selesai dan menuju Deskripsi Produk.';
+            $desc = 'Naskah berjudul asli <a href="'.url('penerbitan/naskah/melihat-naskah/'.$id).'">'.$data->judul_asli.'</a> telah selesai dan menuju Deskripsi Produk.';
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
                 'section_id' => $id,
@@ -926,7 +926,7 @@ class NaskahController extends Controller
                 'created_by' => auth()->id()
             ];
             event(new TrackerEvent($addTracker));
-            $desc = 'Naskah berjudul asli <a href="'.url('penerbitan/naskah/melihat-naskah/'.$id).'">'.$request->input('add_judul_asli').'</a> telah memasuki tahap antrian Deskripsi Produk.';
+            $desc = 'Naskah berjudul asli <a href="'.url('penerbitan/deskripsi/produk/detail?desc='.$idProduk.'&kode='.$data->kode).'">'.$data->judul_asli.'</a> telah memasuki tahap antrian Deskripsi Produk.';
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
                 'section_id' => $idProduk,
