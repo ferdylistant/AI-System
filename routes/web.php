@@ -144,8 +144,7 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::get('/deskripsi/final', $path.'\Penerbitan\DeskripsiFinalController@index')->name('desfin.view');
         Route::get('/deskripsi/final/detail', $path.'\Penerbitan\DeskripsiFinalController@detailDeskripsiFinal')->name('desfin.detail');
         Route::match(['get', 'post'], '/deskripsi/final/edit', $path.'\Penerbitan\DeskripsiFinalController@editDeskripsiFinal')->name('desfin.edit');
-        Route::post('/deskripsi/final/update-status-progress', $path.'\Penerbitan\DeskripsiFinalController@updateStatusProgress');
-        Route::post('/deskripsi/final/lihat-history', $path.'\Penerbitan\DeskripsiFinalController@lihatHistoryDesfin')->name('desfin.history');
+        Route::post('/deskripsi/final/ajax/{cat}', $path.'\Penerbitan\DeskripsiFinalController@ajaxCall');
         //Deskripsi Cover
         Route::get('/deskripsi/cover', $path.'\Penerbitan\DeskripsiCoverController@index')->name('descov.view');
         Route::get('/deskripsi/cover/detail', $path.'\Penerbitan\DeskripsiCoverController@detailDeskripsiCover')->name('descov.detail');

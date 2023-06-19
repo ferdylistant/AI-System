@@ -123,6 +123,15 @@ class DeskripsiFinalController extends Controller
                         return $date;
                     }
                 })
+                ->addColumn('tracker', function ($data) {
+                    $trackerData = DB::table('tracker')->where('section_id', $data->id)->get();
+                    if ($trackerData->isEmpty()) {
+                        return '-';
+                    } else {
+                        $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="'.$data->id.'" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                        return $date;
+                    }
+                })
                 ->addColumn('action', function ($data) use ($update) {
                     $btn = '<a href="' . url('penerbitan/deskripsi/final/detail?desc=' . $data->id . '&kode=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
@@ -211,6 +220,7 @@ class DeskripsiFinalController extends Controller
                     'tgl_deskripsi',
                     'pic_prodev',
                     'history',
+                    'tracker',
                     'action'
                 ])
                 ->make(true);
@@ -486,164 +496,209 @@ class DeskripsiFinalController extends Controller
             // 'imprint' => $imprint
         ]);
     }
-    public function updateStatusProgress(Request $request)
+    public function ajaxCall(Request $request)
     {
-        try {
-            $id = $request->id;
-            DB::beginTransaction();
-            $data = DB::table('deskripsi_final as df')->join('deskripsi_produk as dp','df.deskripsi_produk_id','=','dp.id')
-            ->where('df.id', $id)
-            ->select('df.*','dp.naskah_id','dp.judul_final')
-            ->first();
-            if (is_null($data)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data corrupt...'
-                ], 404);
-            }
-            if ($data->status == $request->status) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Pilih status yang berbeda dengan status saat ini!'
-                ]);
-            }
-            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-            $update = [
-                'params' => 'Update Status Desfin',
-                'id' => $data->id,
-                'status' => $request->status,
-                'updated_by' => auth()->id()
-            ];
-            $insert = [
-                'params' => 'Insert History Status Desfin',
-                'deskripsi_final_id' => $data->id,
-                'type_history' => 'Status',
-                'status_his' => $data->status,
-                'status_new'  => $request->status,
-                'author_id' => auth()->user()->id,
-                'modified_at' => $tgl
-            ];
-            $dataNas = DB::table('penerbitan_naskah')->where('id',$data->naskah_id)->select('pic_prodev')->first();
-            if ($data->status == 'Selesai') {
-                event(new DesfinEvent($update));
-                event(new DesfinEvent($insert));
-                $updateStatusDescov = [
-                    'params' => 'Update Status Descov',
-                    'deskripsi_produk_id' => $data->deskripsi_produk_id,
-                    'status' => 'Terkunci',
-                    'updated_by' => auth()->user()->id
-                ];
-                event(new DescovEvent($updateStatusDescov));
-                $updateTimelineDesfin = [
-                    'params' => 'Update Timeline',
-                    'naskah_id' => $data->naskah_id,
-                    'progress' => 'Deskripsi Final',
-                    'tgl_selesai' => NULL,
-                    'status' => $request->status
-                ];
-                event(new TimelineEvent($updateTimelineDesfin));
-                $updateTimelineDescov = [
-                    'params' => 'Update Timeline',
-                    'naskah_id' => $data->naskah_id,
-                    'progress' => 'Deskripsi Cover',
-                    'tgl_selesai' => NULL,
-                    'status' => 'Terkunci'
-                ];
-                event(new TimelineEvent($updateTimelineDescov));
-                DB::table('todo_list')
-                ->where('form_id',$data->id)
-                ->where('users_id',$dataNas->pic_prodev)
-                ->where('title','Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.')
-                ->update([
-                    'status' => '0'
-                ]);
-                $namaUser = auth()->user()->nama;
-                $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Final menjadi <b>'.$request->status.'</b>.';
-                $msg = 'Status progress deskripsi final berhasil diupdate';
-            } elseif ($request->status == 'Selesai') {
-                event(new DesfinEvent($update));
-                event(new DesfinEvent($insert));
-                $updateStatusDescov = [
-                    'params' => 'Update Status Descov',
-                    'deskripsi_produk_id' => $data->deskripsi_produk_id,
-                    'status' => 'Antrian',
-                    'updated_by' => auth()->user()->id
-                ];
-                event(new DescovEvent($updateStatusDescov));
-                $updateTimelineDesfin = [
-                    'params' => 'Update Timeline',
-                    'naskah_id' => $data->naskah_id,
-                    'progress' => 'Deskripsi Final',
-                    'tgl_selesai' => $tgl,
-                    'status' => $request->status
-                ];
-                event(new TimelineEvent($updateTimelineDesfin));
-                $updateTimelineDescov = [
-                    'params' => 'Update Timeline',
-                    'naskah_id' => $data->naskah_id,
-                    'progress' => 'Deskripsi Cover',
-                    'tgl_selesai' => NULL,
-                    'status' => 'Antrian'
-                ];
-                event(new TimelineEvent($updateTimelineDescov));
-
-                $cekTodo = DB::table('todo_list')
-                ->where('form_id',$data->id)
-                ->where('users_id',$dataNas->pic_prodev)
-                ->where('title','Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.');
-                if (!is_null($cekTodo->first())) {
-                    $cekTodo->update([
-                        'status' => '1'
-                    ]);
-                } else {
-                    DB::table('todo_list')->insert([
-                        'form_id' => $data->id,
-                        'users_id' => $dataNas->pic_prodev,
-                        'title' => 'Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
-                        'status' => '1'
-                    ]);
-                }
-                $namaUser = auth()->user()->nama;
-                $desc = 'Deskripsi final selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Final menjadi <b>'.$request->status.'</b>.';
-                $msg = 'Deskripsi final selesai, silahkan lanjut ke proses Deskripsi Cover..';
-            } else {
-                event(new DesfinEvent($update));
-                event(new DesfinEvent($insert));
-                $updateTimelineDesfin = [
-                    'params' => 'Update Timeline',
-                    'naskah_id' => $data->naskah_id,
-                    'progress' => 'Deskripsi Final',
-                    'tgl_selesai' => NULL,
-                    'status' => $request->status
-                ];
-                event(new TimelineEvent($updateTimelineDesfin));
-                $namaUser = auth()->user()->nama;
-                $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Final menjadi <b>'.$request->status.'</b>.';
-                $msg = 'Status progress deskripsi final berhasil diupdate';
-            }
-            $addTracker = [
-                'id' => Uuid::uuid4()->toString(),
-                'section_id' => $data->id,
-                'section_name' => 'Deskripsi Final',
-                'description' => $desc,
-                'icon' => 'fas fa-info-circle',
-                'created_by' => auth()->id()
-            ];
-            event(new TrackerEvent($addTracker));
-            DB::commit();
-            return response()->json([
-                'status' => 'success',
-                'message' => $msg
-            ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ]);
+        switch ($request->cat) {
+            case 'lihat-tracking':
+                return $this->lihatTrackingDesfin($request);
+                break;
+            case 'update-status-progress':
+                return $this->updateStatusProgress($request);
+                break;
+            case 'lihat-history':
+                return $this->lihatHistoryDesfin($request);
+                break;
+            default:
+                return abort(500);
+                break;
         }
     }
-    public function lihatHistoryDesfin(Request $request)
+    protected function lihatTrackingDesfin($request)
+    {
+        if ($request->ajax()) {
+            $html ='';
+            $id = $request->id;
+            $data = DB::table('tracker')->where('section_id',$id)
+            ->orderBy('created_at','desc')
+            ->get();
+            foreach ($data as $d) {
+                $html .= '<div class="activity">
+                <div class="activity-icon bg-primary text-white shadow-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
+                    <i class="'.$d->icon.'"></i>
+                </div>
+                <div class="activity-detail col">
+                    <div class="mb-2">
+                        <span class="text-job">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
+                        <span class="bullet"></span>
+                        <span class="text-job">'.Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i').'</span>
+                    </div>
+                    <p>'.$d->description.'</p>
+                </div>
+            </div>';
+            }
+            return $html;
+        }
+    }
+    protected function updateStatusProgress($request)
+    {
+        if ($request->ajax()) {
+            try {
+                $id = $request->id;
+                DB::beginTransaction();
+                $data = DB::table('deskripsi_final as df')->join('deskripsi_produk as dp','df.deskripsi_produk_id','=','dp.id')
+                ->where('df.id', $id)
+                ->select('df.*','dp.naskah_id','dp.judul_final')
+                ->first();
+                if (is_null($data)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data corrupt...'
+                    ], 404);
+                }
+                if ($data->status == $request->status) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Pilih status yang berbeda dengan status saat ini!'
+                    ]);
+                }
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                $update = [
+                    'params' => 'Update Status Desfin',
+                    'id' => $data->id,
+                    'status' => $request->status,
+                    'updated_by' => auth()->id()
+                ];
+                $insert = [
+                    'params' => 'Insert History Status Desfin',
+                    'deskripsi_final_id' => $data->id,
+                    'type_history' => 'Status',
+                    'status_his' => $data->status,
+                    'status_new'  => $request->status,
+                    'author_id' => auth()->user()->id,
+                    'modified_at' => $tgl
+                ];
+                $dataNas = DB::table('penerbitan_naskah')->where('id',$data->naskah_id)->select('pic_prodev')->first();
+                if ($data->status == 'Selesai') {
+                    event(new DesfinEvent($update));
+                    event(new DesfinEvent($insert));
+                    $updateStatusDescov = [
+                        'params' => 'Update Status Descov',
+                        'deskripsi_produk_id' => $data->deskripsi_produk_id,
+                        'status' => 'Terkunci',
+                        'updated_by' => auth()->user()->id
+                    ];
+                    event(new DescovEvent($updateStatusDescov));
+                    $updateTimelineDesfin = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Deskripsi Final',
+                        'tgl_selesai' => NULL,
+                        'status' => $request->status
+                    ];
+                    event(new TimelineEvent($updateTimelineDesfin));
+                    $updateTimelineDescov = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Deskripsi Cover',
+                        'tgl_selesai' => NULL,
+                        'status' => 'Terkunci'
+                    ];
+                    event(new TimelineEvent($updateTimelineDescov));
+                    DB::table('todo_list')
+                    ->where('form_id',$data->id)
+                    ->where('users_id',$dataNas->pic_prodev)
+                    ->where('title','Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.')
+                    ->update([
+                        'status' => '0'
+                    ]);
+                    $namaUser = auth()->user()->nama;
+                    $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Final menjadi <b>'.$request->status.'</b>.';
+                    $msg = 'Status progress deskripsi final berhasil diupdate';
+                } elseif ($request->status == 'Selesai') {
+                    event(new DesfinEvent($update));
+                    event(new DesfinEvent($insert));
+                    $updateStatusDescov = [
+                        'params' => 'Update Status Descov',
+                        'deskripsi_produk_id' => $data->deskripsi_produk_id,
+                        'status' => 'Antrian',
+                        'updated_by' => auth()->user()->id
+                    ];
+                    event(new DescovEvent($updateStatusDescov));
+                    $updateTimelineDesfin = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Deskripsi Final',
+                        'tgl_selesai' => $tgl,
+                        'status' => $request->status
+                    ];
+                    event(new TimelineEvent($updateTimelineDesfin));
+                    $updateTimelineDescov = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Deskripsi Cover',
+                        'tgl_selesai' => NULL,
+                        'status' => 'Antrian'
+                    ];
+                    event(new TimelineEvent($updateTimelineDescov));
+
+                    $cekTodo = DB::table('todo_list')
+                    ->where('form_id',$data->id)
+                    ->where('users_id',$dataNas->pic_prodev)
+                    ->where('title','Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.');
+                    if (!is_null($cekTodo->first())) {
+                        $cekTodo->update([
+                            'status' => '1'
+                        ]);
+                    } else {
+                        DB::table('todo_list')->insert([
+                            'form_id' => $data->id,
+                            'users_id' => $dataNas->pic_prodev,
+                            'title' => 'Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                            'status' => '1'
+                        ]);
+                    }
+                    $namaUser = auth()->user()->nama;
+                    $desc = 'Deskripsi final selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Final menjadi <b>'.$request->status.'</b>.';
+                    $msg = 'Deskripsi final selesai, silahkan lanjut ke proses Deskripsi Cover..';
+                } else {
+                    event(new DesfinEvent($update));
+                    event(new DesfinEvent($insert));
+                    $updateTimelineDesfin = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Deskripsi Final',
+                        'tgl_selesai' => NULL,
+                        'status' => $request->status
+                    ];
+                    event(new TimelineEvent($updateTimelineDesfin));
+                    $namaUser = auth()->user()->nama;
+                    $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Final menjadi <b>'.$request->status.'</b>.';
+                    $msg = 'Status progress deskripsi final berhasil diupdate';
+                }
+                $addTracker = [
+                    'id' => Uuid::uuid4()->toString(),
+                    'section_id' => $data->id,
+                    'section_name' => 'Deskripsi Final',
+                    'description' => $desc,
+                    'icon' => 'fas fa-info-circle',
+                    'created_by' => auth()->id()
+                ];
+                event(new TrackerEvent($addTracker));
+                DB::commit();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $msg
+                ], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+            }
+        }
+    }
+    protected function lihatHistoryDesfin($request)
     {
         if ($request->ajax()) {
             $html = '';
