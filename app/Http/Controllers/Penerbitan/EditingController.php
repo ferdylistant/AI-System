@@ -170,6 +170,15 @@ class EditingController extends Controller
                             return $date;
                         }
                     })
+                    ->addColumn('tracker', function ($data) {
+                        $trackerData = DB::table('tracker')->where('section_id', $data->id)->get();
+                        if ($trackerData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="'.$data->id.'" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                            return $date;
+                        }
+                    })
                     ->addColumn('action', function ($data) {
                         $btn = '<a href="' . url('penerbitan/editing/detail?editing=' . $data->id . '&kode=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
@@ -205,6 +214,7 @@ class EditingController extends Controller
                         'editor',
                         // 'copy_editor',
                         'history',
+                        'tracker',
                         'action'
                     ])
                     ->make(true);
@@ -699,166 +709,214 @@ class EditingController extends Controller
             ]);
         }
     }
-    public function updateStatusProgress(Request $request)
+    public function ajaxCall(Request $request)
     {
-        try {
-            $id = $request->id;
-            $data = DB::table('editing_proses as ep')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                        ->whereNull('kb.deleted_at');
-                })
-                ->where('ep.id', $id)
-                ->select(
-                    'ep.*',
-                    'df.id as deskripsi_final_id',
-                    'dp.naskah_id',
-                    'dp.format_buku',
-                    'dp.judul_final',
-                    'dp.editor',
-                    'dp.imprint',
-                    'dp.jml_hal_perkiraan',
-                    'dp.kelengkapan',
-                    'dp.catatan',
-                    'pn.kode',
-                    'pn.judul_asli',
-                    'pn.pic_prodev',
-                    'pn.jalur_buku',
-                    'kb.nama'
-                )
-                ->first();
-            if (is_null($data)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data corrupt...'
-                ], 404);
-            }
-            if ($data->status == $request->status) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Pilih status yang berbeda dengan status saat ini!'
-                ]);
-            }
-            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-            $update = [
-                'params' => 'Update Status Editing',
-                'id' => $data->id,
-                'tgl_selesai_proses' => $request->status == 'Selesai' ? $tgl : NULL,
-                'turun_pracetak' => $request->status == 'Selesai' ? $tgl : NULL,
-                'status' => $request->status,
-            ];
-            $insert = [
-                'params' => 'Insert History Status Editing',
-                'editing_proses_id' => $data->id,
-                'type_history' => 'Status',
-                'status_his' => $data->status,
-                'status_new'  => $request->status,
-                'author_id' => auth()->user()->id,
-                'modified_at' => $tgl
-            ];
-            if ($data->proses == '1') {
-                $label = is_null($data->tgl_selesai_edit) ? 'editor' : 'copy editor';
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Tidak bisa mengubah status, karena sedang proses kerja ' . $label
-                ]);
-            }
-            if ($request->status == 'Selesai') {
-                if (is_null($data->tgl_selesai_edit)) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Editor belum selesai'
-                    ]);
-                }
-                // if (is_null($data->tgl_selesai_copyeditor)) {
-                //     return response()->json([
-                //         'status' => 'error',
-                //         'message' => 'Copy Editor belum selesai'
-                //     ]);
-                // }
-                $desfin = DB::table('deskripsi_final')->where('id', $data->deskripsi_final_id)->whereNull('sinopsis')->first();
-                if ($desfin) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Sinopsis (bagian: Deskripsi Final) belum ditambahkan!'
-                    ]);
-                }
-                event(new EditingEvent($update));
-                event(new EditingEvent($insert));
-                DB::table('pracetak_setter')->where('deskripsi_final_id', $data->deskripsi_final_id)->update([
-                    'jml_hal_final' => $data->jml_hal_perkiraan
-                ]);
-                //? Update Todo List Kabag Editing
-                switch ($data->jalur_buku) {
-                    case 'Reguler':
-                        $editorPermission = '88f281e83aff47d08f555a2961420bf5';
-                        break;
-                    case 'MoU':
-                        $editorPermission = 'ce3589b822a14011ba581c803ef50f5b';
-                        break;
-                    case 'SMK/NonSmk':
-                        $editorPermission = 'a9354dd060524bce8278e2cd75ce349a';
-                        break;
-                    default:
-                        //permission jalur buku lainnya belum ditentukan di database
-                        $editorPermission = '';
-                        break;
-                }
-                $kabagEditing = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
-                    ->where('p.id', $editorPermission)
-                    ->select('up.user_id')
-                    ->get();
-                $dataEditing = [
-                    'id' => $data->id,
-                    'kode' => $data->kode,
-                    'judul' => $data->judul_final
-                ];
-                $kabagEditing = (object)collect($kabagEditing)->map(function ($item) use ($dataEditing) {
-                    return DB::table('todo_list')
-                        ->where('form_id', $dataEditing['id'])
-                        ->where('users_id', $item->user_id)
-                        ->where('title', 'Proses delegasi tahap editing naskah "' . $dataEditing['judul'] . '".')
-                        ->update([
-                            'status' => '1',
-                        ]);
-                })->all();
-                $updateTimelineEditing = [
-                    'params' => 'Update Timeline',
-                    'naskah_id' => $data->naskah_id,
-                    'progress' => 'Editing',
-                    'tgl_selesai' => $tgl,
-                    'status' => $request->status
-                ];
-                event(new TimelineEvent($updateTimelineEditing));
-                $msg = 'Proses editing selesai, proses akan dilanjukan ke tahap pracetak..';
-            } else {
-                event(new EditingEvent($update));
-                event(new EditingEvent($insert));
-                $updateTimelineEditing = [
-                    'params' => 'Update Timeline',
-                    'naskah_id' => $data->naskah_id,
-                    'progress' => 'Editing',
-                    'tgl_selesai' => $tgl,
-                    'status' => $request->status
-                ];
-                event(new TimelineEvent($updateTimelineEditing));
-                $msg = 'Status progress editing proses berhasil diupdate';
-            }
-            return response()->json([
-                'status' => 'success',
-                'message' => $msg
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ]);
+        switch ($request->cat) {
+            case 'lihat-tracking':
+                return $this->lihatTrackingEditing($request);
+                break;
+            case 'update-status-progress':
+                return $this->updateStatusProgress($request);
+                break;
+            case 'lihat-history':
+                return $this->lihatHistoryEditing($request);
+                break;
+            case 'proses-kerja':
+                return $this->prosesKerjaEditing($request);
+                break;
+            default:
+                return abort(500);
+                break;
         }
     }
-    public function lihatHistoryEditing(Request $request)
+    protected function lihatTrackingEditing($request)
+    {
+        if ($request->ajax()) {
+            $html ='';
+            $id = $request->id;
+            $data = DB::table('tracker')->where('section_id',$id)
+            ->orderBy('created_at','desc')
+            ->get();
+            foreach ($data as $d) {
+                $html .= '<div class="activity">
+                <div class="activity-icon bg-primary text-white shadow-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
+                    <i class="'.$d->icon.'"></i>
+                </div>
+                <div class="activity-detail col">
+                    <div class="mb-2">
+                        <span class="text-job">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
+                        <span class="bullet"></span>
+                        <span class="text-job">'.Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i').'</span>
+                    </div>
+                    <p>'.$d->description.'</p>
+                </div>
+            </div>';
+            }
+            return $html;
+        }
+    }
+    protected function updateStatusProgress($request)
+    {
+        if ($request->ajax()) {
+            try {
+                $id = $request->id;
+                $data = DB::table('editing_proses as ep')
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                        $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                            ->whereNull('kb.deleted_at');
+                    })
+                    ->where('ep.id', $id)
+                    ->select(
+                        'ep.*',
+                        'df.id as deskripsi_final_id',
+                        'dp.naskah_id',
+                        'dp.format_buku',
+                        'dp.judul_final',
+                        'dp.editor',
+                        'dp.imprint',
+                        'dp.jml_hal_perkiraan',
+                        'dp.kelengkapan',
+                        'dp.catatan',
+                        'pn.kode',
+                        'pn.judul_asli',
+                        'pn.pic_prodev',
+                        'pn.jalur_buku',
+                        'kb.nama'
+                    )
+                    ->first();
+                if (is_null($data)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data corrupt...'
+                    ], 404);
+                }
+                if ($data->status == $request->status) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Pilih status yang berbeda dengan status saat ini!'
+                    ]);
+                }
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                $update = [
+                    'params' => 'Update Status Editing',
+                    'id' => $data->id,
+                    'tgl_selesai_proses' => $request->status == 'Selesai' ? $tgl : NULL,
+                    'turun_pracetak' => $request->status == 'Selesai' ? $tgl : NULL,
+                    'status' => $request->status,
+                ];
+                $insert = [
+                    'params' => 'Insert History Status Editing',
+                    'editing_proses_id' => $data->id,
+                    'type_history' => 'Status',
+                    'status_his' => $data->status,
+                    'status_new'  => $request->status,
+                    'author_id' => auth()->user()->id,
+                    'modified_at' => $tgl
+                ];
+                if ($data->proses == '1') {
+                    $label = is_null($data->tgl_selesai_edit) ? 'editor' : 'copy editor';
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Tidak bisa mengubah status, karena sedang proses kerja ' . $label
+                    ]);
+                }
+                if ($request->status == 'Selesai') {
+                    if (is_null($data->tgl_selesai_edit)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Editor belum selesai'
+                        ]);
+                    }
+                    // if (is_null($data->tgl_selesai_copyeditor)) {
+                    //     return response()->json([
+                    //         'status' => 'error',
+                    //         'message' => 'Copy Editor belum selesai'
+                    //     ]);
+                    // }
+                    $desfin = DB::table('deskripsi_final')->where('id', $data->deskripsi_final_id)->whereNull('sinopsis')->first();
+                    if ($desfin) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Sinopsis (bagian: Deskripsi Final) belum ditambahkan!'
+                        ]);
+                    }
+                    event(new EditingEvent($update));
+                    event(new EditingEvent($insert));
+                    DB::table('pracetak_setter')->where('deskripsi_final_id', $data->deskripsi_final_id)->update([
+                        'jml_hal_final' => $data->jml_hal_perkiraan
+                    ]);
+                    //? Update Todo List Kabag Editing
+                    switch ($data->jalur_buku) {
+                        case 'Reguler':
+                            $editorPermission = '88f281e83aff47d08f555a2961420bf5';
+                            break;
+                        case 'MoU':
+                            $editorPermission = 'ce3589b822a14011ba581c803ef50f5b';
+                            break;
+                        case 'SMK/NonSmk':
+                            $editorPermission = 'a9354dd060524bce8278e2cd75ce349a';
+                            break;
+                        default:
+                            //permission jalur buku lainnya belum ditentukan di database
+                            $editorPermission = '';
+                            break;
+                    }
+                    $kabagEditing = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                        ->where('p.id', $editorPermission)
+                        ->select('up.user_id')
+                        ->get();
+                    $dataEditing = [
+                        'id' => $data->id,
+                        'kode' => $data->kode,
+                        'judul' => $data->judul_final
+                    ];
+                    $kabagEditing = (object)collect($kabagEditing)->map(function ($item) use ($dataEditing) {
+                        return DB::table('todo_list')
+                            ->where('form_id', $dataEditing['id'])
+                            ->where('users_id', $item->user_id)
+                            ->where('title', 'Proses delegasi tahap editing naskah "' . $dataEditing['judul'] . '".')
+                            ->update([
+                                'status' => '1',
+                            ]);
+                    })->all();
+                    $updateTimelineEditing = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Editing',
+                        'tgl_selesai' => $tgl,
+                        'status' => $request->status
+                    ];
+                    event(new TimelineEvent($updateTimelineEditing));
+                    $msg = 'Proses editing selesai, proses akan dilanjukan ke tahap pracetak..';
+                } else {
+                    event(new EditingEvent($update));
+                    event(new EditingEvent($insert));
+                    $updateTimelineEditing = [
+                        'params' => 'Update Timeline',
+                        'naskah_id' => $data->naskah_id,
+                        'progress' => 'Editing',
+                        'tgl_selesai' => $tgl,
+                        'status' => $request->status
+                    ];
+                    event(new TimelineEvent($updateTimelineEditing));
+                    $msg = 'Status progress editing proses berhasil diupdate';
+                }
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $msg
+                ], 200);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+            }
+        }
+    }
+    protected function lihatHistoryEditing($request)
     {
         if ($request->ajax()) {
             $html = '';
@@ -996,94 +1054,7 @@ class EditingController extends Controller
             return $html;
         }
     }
-    protected function logicPermissionAction($status = null, $jb = null, $pic_prodev, $id, $kode, $judul_final, $btn)
-    {
-        switch ($jb) {
-            case 'MoU-Reguler':
-                $gate = Gate::allows('do_create', 'ubah-atau-buat-editing-reguler') || Gate::allows('do_create', 'ubah-atau-buat-editing-mou');
-                break;
-            default:
-                $gate = Gate::allows('do_create', 'ubah-atau-buat-editing-' . $jb);
-                break;
-        }
-        if ($gate) {
-            if ($status == 'Selesai') {
-                if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                    $btn = $this->buttonEdit($id, $kode, $btn);
-                }
-            } else {
-                if ((auth()->id() == $pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk')) || ($gate)) {
-                    $btn = $this->buttonEdit($id, $kode, $btn);
-                }
-            }
-        }
-
-        if ($gate) {
-            $btn = $this->panelStatusKabag($status, $id, $kode, $judul_final, $btn);
-        } else {
-            $btn = $this->panelStatusGuest($status, $btn);
-        }
-        return $btn;
-    }
-    protected function panelStatusGuest($status = null, $btn)
-    {
-        switch ($status) {
-            case 'Antrian':
-                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $status . '</span>';
-                break;
-            case 'Pending':
-                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $status . '</span>';
-                break;
-            case 'Proses':
-                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $status . '</span>';
-                break;
-            case 'Selesai':
-                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
-                break;
-            case 'Revisi':
-                $btn .= '<span class="d-block badge badge-info mr-1 mt-1">' . $status . '</span>';
-                break;
-            default:
-                return abort(410);
-                break;
-        }
-        return $btn;
-    }
-    protected function panelStatusKabag($status = null, $id, $kode, $judul_final, $btn)
-    {
-        switch ($status) {
-            case 'Antrian':
-                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-editing" style="background:#34395E;color:white" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                    <div>' . $status . '</div></a>';
-                break;
-            case 'Pending':
-                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                    <div>' . $status . '</div></a>';
-                break;
-            case 'Proses':
-                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
-                    <div>' . $status . '</div></a>';
-                break;
-            case 'Selesai':
-                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
-                break;
-            case 'Revisi':
-                $btn .= '<span class="d-block badge badge-info mr-1 mt-1">' . $status . '</span>';
-                break;
-            default:
-                return abort(410);
-                break;
-        }
-        return $btn;
-    }
-    protected function buttonEdit($id, $kode, $btn)
-    {
-        $btn .= '<a href="' . url('penerbitan/editing/edit?editing=' . $id . '&kode=' . $kode) . '"
-                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                <div><i class="fas fa-edit"></i></div></a>';
-        return $btn;
-    }
-    public function prosesKerjaEditing(Request $request)
+    protected function prosesKerjaEditing($request)
     {
         if ($request->ajax()) {
             try {
@@ -1243,6 +1214,93 @@ class EditingController extends Controller
                 ], 500);
             }
         }
+    }
+    protected function logicPermissionAction($status = null, $jb = null, $pic_prodev, $id, $kode, $judul_final, $btn)
+    {
+        switch ($jb) {
+            case 'MoU-Reguler':
+                $gate = Gate::allows('do_create', 'ubah-atau-buat-editing-reguler') || Gate::allows('do_create', 'ubah-atau-buat-editing-mou');
+                break;
+            default:
+                $gate = Gate::allows('do_create', 'ubah-atau-buat-editing-' . $jb);
+                break;
+        }
+        if ($gate) {
+            if ($status == 'Selesai') {
+                if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
+                    $btn = $this->buttonEdit($id, $kode, $btn);
+                }
+            } else {
+                if ((auth()->id() == $pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk')) || ($gate)) {
+                    $btn = $this->buttonEdit($id, $kode, $btn);
+                }
+            }
+        }
+
+        if ($gate) {
+            $btn = $this->panelStatusKabag($status, $id, $kode, $judul_final, $btn);
+        } else {
+            $btn = $this->panelStatusGuest($status, $btn);
+        }
+        return $btn;
+    }
+    protected function panelStatusGuest($status = null, $btn)
+    {
+        switch ($status) {
+            case 'Antrian':
+                $btn .= '<span class="d-block badge badge-secondary mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Pending':
+                $btn .= '<span class="d-block badge badge-danger mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Proses':
+                $btn .= '<span class="d-block badge badge-success mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Selesai':
+                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Revisi':
+                $btn .= '<span class="d-block badge badge-info mr-1 mt-1">' . $status . '</span>';
+                break;
+            default:
+                return abort(410);
+                break;
+        }
+        return $btn;
+    }
+    protected function panelStatusKabag($status = null, $id, $kode, $judul_final, $btn)
+    {
+        switch ($status) {
+            case 'Antrian':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-editing" style="background:#34395E;color:white" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Pending':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Proses':
+                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-editing" data-id="' . $id . '" data-kode="' . $kode . '" data-judul="' . $judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusEditing" title="Update Status">
+                    <div>' . $status . '</div></a>';
+                break;
+            case 'Selesai':
+                $btn .= '<span class="d-block badge badge-light mr-1 mt-1">' . $status . '</span>';
+                break;
+            case 'Revisi':
+                $btn .= '<span class="d-block badge badge-info mr-1 mt-1">' . $status . '</span>';
+                break;
+            default:
+                return abort(410);
+                break;
+        }
+        return $btn;
+    }
+    protected function buttonEdit($id, $kode, $btn)
+    {
+        $btn .= '<a href="' . url('penerbitan/editing/edit?editing=' . $id . '&kode=' . $kode) . '"
+                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                <div><i class="fas fa-edit"></i></div></a>';
+        return $btn;
     }
     public function prosesSelesaiEditing($autor, $id)
     {

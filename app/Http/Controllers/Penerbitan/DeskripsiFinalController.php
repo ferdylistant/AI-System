@@ -44,6 +44,13 @@ class DeskripsiFinalController extends Controller
 
             if ($request->has('count_data')) {
                 return $data->count();
+            } elseif ($request->has('show_status')) {
+                $showStatus = DB::table('deskripsi_final as df')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->where('df.id',$request->id)
+                ->select('df.*','dp.judul_final')
+                ->first();
+                return response()->json($showStatus);
             } else {
                 return DataTables::of($data)
                 // ->addIndexColumn()
@@ -155,23 +162,23 @@ class DeskripsiFinalController extends Controller
                         if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b')) {
                             switch ($data->status) {
                                 case 'Antrian':
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-desfin" style="background:#34395E;color:white" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesFinal" title="Update Status">
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-icon mr-1 mt-1 btn-status-desfin" style="background:#34395E;color:white" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesFinal" title="Update Status">
                                             <div>' . $data->status . '</div></a>';
                                     break;
                                 case 'Pending':
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-desfin" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesFinal" title="Update Status">
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1 btn-status-desfin" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesFinal" title="Update Status">
                                             <div>' . $data->status . '</div></a>';
                                     break;
                                 case 'Proses':
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-desfin" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesFinal" title="Update Status">
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-success btn-icon mr-1 mt-1 btn-status-desfin" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesFinal" title="Update Status">
                                             <div>' . $data->status . '</div></a>';
                                     break;
                                 case 'Selesai':
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-desfin" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesFinal" title="Update Status">
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 btn-status-desfin" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesFinal" title="Update Status">
                                             <div>' . $data->status . '</div></a>';
                                     break;
                                 case 'Revisi':
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-info btn-icon mr-1 mt-1 btn-status-desfin" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" data-toggle="modal" data-target="#md_UpdateStatusDesFinal" title="Update Status">
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-info btn-icon mr-1 mt-1 btn-status-desfin" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_final . '" data-toggle="modal" data-target="#md_UpdateStatusDesFinal" title="Update Status">
                                             <div>' . $data->status . '</div></a>';
                                     break;
                                 case 'Acc':

@@ -262,33 +262,6 @@ $(function () {
             notifToast("error", "Periksa kembali form Anda!");
         }
     });
-    function ajaxDoneRevisionOrderBuku(id,kode) {
-        let cardWrap = $('.section-body').find('.card');
-        $.ajax({
-            type: "POST",
-            url: window.location.origin + "/jasa-cetak/order-buku/otorisasi-kabag?request_=done-revision",
-            data: {
-                id: id,
-                no_order : kode
-            },
-            beforeSend: function () {
-                cardWrap.addClass("card-progress");
-            },
-            success: function (result) {
-                // console.log(result);
-                notifToast(result.status, result.message);
-                if (result.status == "success") {
-                    location.reload();
-                }
-            },
-            error: function (err) {
-                notifToast("error", err.statusText);
-            },
-            complete: function () {
-                cardWrap.removeClass("card-progress");
-            },
-        });
-    }
     function ajaxDoneRevisionEditing(id,kode) {
         let cardWrap = $('.section-body').find('.card');
         $.ajax({

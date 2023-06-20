@@ -159,9 +159,7 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::get('/editing', $path.'\Penerbitan\EditingController@index')->name('editing.view');
         Route::match(['get', 'post'],'/editing/detail', $path.'\Penerbitan\EditingController@detailEditing')->name('editing.detail');
         Route::match(['get', 'post'], '/editing/edit', $path.'\Penerbitan\EditingController@editEditing')->name('editing.edit');
-        Route::post('/editing/update-status-progress', $path.'\Penerbitan\EditingController@updateStatusProgress');
-        Route::post('/editing/lihat-history', $path.'\Penerbitan\EditingController@lihatHistoryEditing')->name('editing.history');
-        Route::post('/editing/proses-kerja', $path.'\Penerbitan\EditingController@prosesKerjaEditing')->name('editing.proses');
+        Route::post('/editing/ajax/{cat}', $path.'\Penerbitan\EditingController@ajaxCall');
         Route::post('/editing/selesai/{cat}/{id}', $path.'\Penerbitan\EditingController@prosesSelesaiEditing')->name('editing.selesai');
         //Pracetak Setter
         Route::get('/pracetak/setter', $path.'\Penerbitan\PracetakSetterController@index')->name('setter.view');

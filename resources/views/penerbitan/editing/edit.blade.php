@@ -626,7 +626,7 @@
             }
             let val = value;
             $.ajax({
-                url: "{{ route('editing.proses') }}",
+                url: window.location.origin + "/penerbitan/editing/ajax/proses-kerja",
                 type: 'POST',
                 data: {
                     id: id,

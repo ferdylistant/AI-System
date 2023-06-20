@@ -182,14 +182,33 @@ $(document).ready(function () {
     });
 });
 $(document).ready(function () {
-    $("#tb_DesCover").on("click", ".btn-status-descov", function (e) {
-        e.preventDefault();
-        let id = $(this).data("id"),
-            kode = $(this).data("kode"),
-            judul = $(this).data("judul");
-        $("#id").val(id);
-        $("#kode").val(kode);
-        $("#judulAsli").val(judul);
+    $("#md_UpdateStatusDesCover").on("shown.bs.modal", function (e) {
+        let id = $(e.relatedTarget).data("id"),
+            cardWrap = $(this);
+        $.ajax({
+            url: window.location.origin + "/penerbitan/deskripsi/cover?show_status=true",
+            type: "GET",
+            data: {
+                id: id,
+            },
+            cache: false,
+            success: function (result) {
+                Object.entries(result).forEach((entry) => {
+                    let [key, value] = entry;
+                    cardWrap.find('[name="' + key + '"]').val(value).trigger('change');
+                });
+            },
+            error: function (err) {
+                console.error(err);
+            },
+            complete: function () {
+                cardWrap.removeClass('modal-progress')
+            }
+        });
+    });
+    $("#md_UpdateStatusDesCover").on("hidden.bs.modal", function () {
+        $(this).find("form").trigger("reset");
+        $(this).addClass("modal-progress");
     });
 });
 $(document).ready(function () {
@@ -244,7 +263,7 @@ $(document).ready(function () {
         e.preventDefault();
         if ($(this).valid()) {
             let kode = $(this).find('[name="kode"]').val();
-            let judul = $(this).find('[name="judul_asli"]').val();
+            let judul = $(this).find('[name="judul_final"]').val();
             swal({
                 title:
                     "Yakin mengubah status deskripsi cover " +

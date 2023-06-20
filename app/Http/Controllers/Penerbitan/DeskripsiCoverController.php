@@ -48,6 +48,13 @@ class DeskripsiCoverController extends Controller
             $update = Gate::allows('do_create', 'ubah-atau-buat-des-cover');
             if ($request->has('count_data')) {
                 return $data->count();
+            } elseif ($request->has('show_status')) {
+                $showStatus = DB::table('deskripsi_cover as dc')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->where('dc.id',$request->id)
+                ->select('dc.*','dp.judul_final')
+                ->first();
+                return response()->json($showStatus);
             } else {
                 return DataTables::of($data)
                 // ->addIndexColumn()
@@ -175,6 +182,7 @@ class DeskripsiCoverController extends Controller
                     'tgl_deskripsi',
                     'pic_prodev',
                     'history',
+                    'tracker',
                     'action'
                 ])
                 ->make(true);

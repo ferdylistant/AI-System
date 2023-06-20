@@ -38,6 +38,9 @@ class DeskripsiProdukController extends Controller
             $update = Gate::allows('do_create', 'ubah-atau-buat-des-produk');
             if ($request->has('count_data')) {
                 return $data->count();
+            } elseif ($request->has('show_status')) {
+                $showStatus = DB::table('deskripsi_produk')->where('id',$request->id)->first();
+                return response()->json($showStatus);
             } else {
                 return DataTables::of($data)
                 // ->addIndexColumn()

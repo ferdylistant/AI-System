@@ -196,14 +196,33 @@ $(function () {
         });
     });
     $(document).ready(function () {
-        $("#tb_DesProduk").on("click", ".btn-status-despro", function (e) {
-            e.preventDefault();
-            let id = $(this).data("id"),
-                kode = $(this).data("kode"),
-                judul = $(this).data("judul");
-            $("#id").val(id);
-            $("#kode").val(kode);
-            $("#judulAsli").val(judul);
+        $("#md_UpdateStatusDesProduk").on("shown.bs.modal", function (e) {
+            let id = $(e.relatedTarget).data("id"),
+                cardWrap = $(this);
+            $.ajax({
+                url: window.location.origin + "/penerbitan/deskripsi/produk?show_status=true",
+                type: "GET",
+                data: {
+                    id: id,
+                },
+                cache: false,
+                success: function (result) {
+                    Object.entries(result).forEach((entry) => {
+                        let [key, value] = entry;
+                        cardWrap.find('[name="' + key + '"]').val(value).trigger('change');
+                    });
+                },
+                error: function (err) {
+                    console.error(err);
+                },
+                complete: function () {
+                    cardWrap.removeClass('modal-progress')
+                }
+            });
+        });
+        $("#md_UpdateStatusDesProduk").on("hidden.bs.modal", function () {
+            $(this).find("form").trigger("reset");
+            $(this).addClass("modal-progress");
         });
     });
     function ajaxUpdateStatusDeskripsiProduk(data) {
