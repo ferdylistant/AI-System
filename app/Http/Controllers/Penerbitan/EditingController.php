@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
+use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
 use App\Events\EditingEvent;
+use App\Events\TrackerEvent;
 use Illuminate\Http\Request;
 use App\Events\TimelineEvent;
 use Yajra\DataTables\DataTables;
@@ -42,6 +44,14 @@ class EditingController extends Controller
             $data->get();
             if ($request->has('count_data')) {
                 return $data->count();
+            } elseif ($request->has('show_status')) {
+                $showStatus = DB::table('editing_proses as ep')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ep.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->where('ep.id',$request->id)
+                ->select('ep.*','dp.judul_final')
+                ->first();
+                return response()->json($showStatus);
             } else {
                 return DataTables::of($data)
                     // ->addIndexColumn()
@@ -890,6 +900,9 @@ class EditingController extends Controller
                         'status' => $request->status
                     ];
                     event(new TimelineEvent($updateTimelineEditing));
+                    $namaUser = auth()->user()->nama;
+                    $desc = 'Editing selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Editing menjadi <b>'.$request->status.'</b>. Proses berlanjut ke pracetak.';
+                    $icon = 'fas fa-clipboard-check';
                     $msg = 'Proses editing selesai, proses akan dilanjukan ke tahap pracetak..';
                 } else {
                     event(new EditingEvent($update));
@@ -902,8 +915,20 @@ class EditingController extends Controller
                         'status' => $request->status
                     ];
                     event(new TimelineEvent($updateTimelineEditing));
+                    $namaUser = auth()->user()->nama;
+                    $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Editing menjadi <b>'.$request->status.'</b>.';
+                    $icon = 'fas fa-info-circle';
                     $msg = 'Status progress editing proses berhasil diupdate';
                 }
+                $addTracker = [
+                    'id' => Uuid::uuid4()->toString(),
+                    'section_id' => $data->id,
+                    'section_name' => 'Editing',
+                    'description' => $desc,
+                    'icon' => $icon,
+                    'created_by' => auth()->id()
+                ];
+                event(new TrackerEvent($addTracker));
                 return response()->json([
                     'status' => 'success',
                     'message' => $msg
@@ -1425,6 +1450,17 @@ class EditingController extends Controller
                     'status' => '0',
                 ]);
             })->all();
+            $namaUser = auth()->user()->nama;
+            $desc = 'Editor (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) meminta untuk direvisi dengan catatan: <b>'.$ket_revisi.'</b>';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Editing',
+                'description' => $desc,
+                'icon' => 'fas fa-user-edit',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             DB::commit();
             return response()->json([
                 'status' => 'success',
@@ -1494,6 +1530,17 @@ class EditingController extends Controller
                         'status' => '0',
                     ]);
             })->all();
+            $namaUser = auth()->user()->nama;
+            $desc = 'Kabag (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan naskah edit yang direvisi.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Editing',
+                'description' => $desc,
+                'icon' => 'fas fa-user-check',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             DB::commit();
             return response()->json([
                 'status' => 'success',
@@ -1661,6 +1708,17 @@ class EditingController extends Controller
                 ->update([
                     'status' => '1'
                 ]);
+            $namaUser = auth()->user()->nama;
+            $desc = 'Editor (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan editing.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Editing',
+                'description' => $desc,
+                'icon' => 'fas fa-user-check',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Pengerjaan selesai',

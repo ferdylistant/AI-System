@@ -661,6 +661,7 @@ class DeskripsiFinalController extends Controller
                             'form_id' => $data->id,
                             'users_id' => $dataNas->pic_prodev,
                             'title' => 'Proses deskripsi final naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                            'link' => '/penerbitan/deskripsi/final/edit?desc='.$data->id.'&kode='.$data->kode,
                             'status' => '1'
                         ]);
                     }

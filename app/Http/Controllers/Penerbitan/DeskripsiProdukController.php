@@ -1071,6 +1071,7 @@ class DeskripsiProdukController extends Controller
                         'form_id' => $data->id,
                         'users_id' => $item->user_id,
                         'title' => 'Menentukan dan menyetujui judul final dengan judul asli, "'.$data->judul_asli.'".',
+                        'link' => '/penerbitan/deskripsi/produk/detail?desc='.$data->id.'&kode='.$data->kode,
                         'status' => '1'
                     ]);
                 } else {

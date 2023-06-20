@@ -572,6 +572,7 @@ class DeskripsiCoverController extends Controller
                             'form_id' => $data->id,
                             'users_id' => $data->pic_prodev,
                             'title' => 'Proses deskripsi cover naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                            'link' => '/penerbitan/deskripsi/cover/edit?desc='.$data->id.'&kode='.$data->kode,
                             'status' => '1'
                         ]);
                     }

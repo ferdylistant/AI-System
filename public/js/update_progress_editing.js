@@ -214,14 +214,33 @@ $(function() {
         $(".select-filter").val("").trigger("change");
         $(".clear_field").attr("hidden", "hidden");
     });
-    $("#tb_Editing").on("click", ".btn-status-editing", function (e) {
-        e.preventDefault();
-        let id = $(this).data("id"),
-            kode = $(this).data("kode"),
-            judul = $(this).data("judul");
-        $("#id").val(id);
-        $("#kode").val(kode);
-        $("#judulFinal").val(judul);
+    $("#md_UpdateStatusEditing").on("shown.bs.modal", function (e) {
+        let id = $(e.relatedTarget).data("id"),
+            cardWrap = $(this);
+        $.ajax({
+            url: window.location.origin + "/penerbitan/editing?show_status=true",
+            type: "GET",
+            data: {
+                id: id,
+            },
+            cache: false,
+            success: function (result) {
+                Object.entries(result).forEach((entry) => {
+                    let [key, value] = entry;
+                    cardWrap.find('[name="' + key + '"]').val(value).trigger('change');
+                });
+            },
+            error: function (err) {
+                console.error(err);
+            },
+            complete: function () {
+                cardWrap.removeClass('modal-progress')
+            }
+        });
+    });
+    $("#md_UpdateStatusEditing").on("hidden.bs.modal", function () {
+        $(this).find("form").trigger("reset");
+        $(this).addClass("modal-progress");
     });
     function ajaxUpdateStatusEditing(data) {
         let el = data.get(0);
