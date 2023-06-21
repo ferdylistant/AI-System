@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Penerbitan;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
+use App\Events\TrackerEvent;
 use Illuminate\Http\Request;
 use App\Events\TimelineEvent;
 use App\Events\DesturcetEvent;
@@ -1068,6 +1069,16 @@ class PracetakDesainerController extends Controller
                                     'tgl_masuk' => $tgl,
                                 ];
                                 event(new DesturcetEvent($turcet));
+                                $descDesturcetTracker = 'Naskah berjudul <a href="'.url('penerbitan/deskripsi/turun-cetak/detail?desc='.$id_turcet.'&kode='.$history->kode).'">'.$history->judul_final.'</a> telah memasuki tahap antrian Desktipsi Turun Cetak.';
+                                $trackerDesturcet = [
+                                    'id' => Uuid::uuid4()->toString(),
+                                    'section_id' => $id_turcet,
+                                    'section_name' => 'Deskripsi Turun Cetak',
+                                    'description' => $descDesturcetTracker,
+                                    'icon' => 'fas fa-folder-plus',
+                                    'created_by' => auth()->id()
+                                ];
+                                event(new TrackerEvent($trackerDesturcet));
                                 //Update Todo List Kabag
                                 switch ($history->jalur_buku) {
                                     case 'Reguler':
@@ -2154,37 +2165,57 @@ class PracetakDesainerController extends Controller
                     DB::table('pracetak_cover')->where('id', $data->id)->update([
                         'proses_saat_ini' => 'Turun Cetak'
                     ]);
-                    //Insert Deskripsi Turun Cetak
+                    $cekDesturcet = DB::table('deskripsi_turun_cetak')->where('pracetak_cover_id',$data->id)->first();
                     $id_turcet = Uuid::uuid4()->toString();
-                    $in = [
-                        'params' => 'Insert Turun Cetak',
-                        'id' => $id_turcet,
-                        'pracetak_cover_id' => $data->id,
-                        'pracetak_setter_id' => $data->praset_id,
-                        'tgl_masuk' => $tgl,
-                    ];
-                    event(new DesturcetEvent($in));
-                    //? Insert Todo List Deskripsi Turun Cetak
-                    DB::table('todo_list')->insert([
-                        'form_id' => $id_turcet,
-                        'users_id' => $data->pic_prodev,
-                        'title' => 'Proses deskripsi turun cetak naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
-                        'link' => '/penerbitan/deskripsi/turun-cetak?desc='.$id_turcet.'&kode='.$data->kode,
-                        'status' => '0',
-                    ]);
-                    //INSERT TIMELINE TURUN CETAK
-                    $insertTimelinePracov = [
-                        'params' => 'Insert Timeline',
-                        'id' => Uuid::uuid4()->toString(),
-                        'progress' => 'Deskripsi Turun Cetak',
-                        'naskah_id' => $data->naskah_id,
-                        'tgl_mulai' => $tgl,
-                        'url_action' => urlencode(URL::to('/penerbitan/deskripsi/turun-cetak/detail?desc=' . $id_turcet . '&kode=' . $data->kode)),
-                        'status' => 'Antrian'
-                    ];
-                    event(new TimelineEvent($insertTimelinePracov));
-                    $msg = 'Pracetak Cover selesai, silahkan lanjut ke proses deskripsi turun cetak..';
+                    if (is_null($cekDesturcet)) {
+                        //Insert Deskripsi Turun Cetak
+                        $in = [
+                            'params' => 'Insert Turun Cetak',
+                            'id' => $id_turcet,
+                            'pracetak_cover_id' => $data->id,
+                            'pracetak_setter_id' => $data->praset_id,
+                            'tgl_masuk' => $tgl,
+                        ];
+                        event(new DesturcetEvent($in));
+                        $descDesturcetTracker = 'Naskah berjudul <a href="'.url('penerbitan/deskripsi/turun-cetak/detail?desc='.$id_turcet.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Desktipsi Turun Cetak.';
+                        $trackerDesturcet = [
+                            'id' => Uuid::uuid4()->toString(),
+                            'section_id' => $id_turcet,
+                            'section_name' => 'Deskripsi Turun Cetak',
+                            'description' => $descDesturcetTracker,
+                            'icon' => 'fas fa-folder-plus',
+                            'created_by' => auth()->id()
+                        ];
+                        event(new TrackerEvent($trackerDesturcet));
+                        //? Insert Todo List Deskripsi Turun Cetak
+                        DB::table('todo_list')->insert([
+                            'form_id' => $id_turcet,
+                            'users_id' => $data->pic_prodev,
+                            'title' => 'Proses deskripsi turun cetak naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
+                            'link' => '/penerbitan/deskripsi/turun-cetak?desc='.$id_turcet.'&kode='.$data->kode,
+                            'status' => '0',
+                        ]);
+                        //INSERT TIMELINE TURUN CETAK
+                        $insertTimelinePracov = [
+                            'params' => 'Insert Timeline',
+                            'id' => Uuid::uuid4()->toString(),
+                            'progress' => 'Deskripsi Turun Cetak',
+                            'naskah_id' => $data->naskah_id,
+                            'tgl_mulai' => $tgl,
+                            'url_action' => urlencode(URL::to('/penerbitan/deskripsi/turun-cetak/detail?desc=' . $id_turcet . '&kode=' . $data->kode)),
+                            'status' => 'Antrian'
+                        ];
+                        event(new TimelineEvent($insertTimelinePracov));
+
+                        $namaUser = auth()->user()->nama;
+                        $desc = 'Pracetak Desainer selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>'.$request->status.'</b>. Proses berlanjut ke pracetak.';
+                        $icon = 'fas fa-clipboard-check';
+                        $msg = 'Pracetak Cover selesai, silahkan lanjut ke proses deskripsi turun cetak..';
+                    }
                 } else {
+                    $namaUser = auth()->user()->nama;
+                    $desc = 'Pracetak Desainer selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>'.$request->status.'</b>. Proses berlanjut ke pracetak.';
+                    $icon = 'fas fa-clipboard-check';
                     $msg = 'Pracetak Cover selesai, silahkan selesaikan proses pracetak setter..';
                 }
             } else {
@@ -2199,8 +2230,20 @@ class PracetakDesainerController extends Controller
                     'status' => $request->status
                 ];
                 event(new TimelineEvent($updateTimelinePracetakCover));
+                $namaUser = auth()->user()->nama;
+                $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>'.$request->status.'</b>.';
+                $icon = 'fas fa-info-circle';
                 $msg = 'Status progress pracetak cover berhasil diupdate';
             }
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Pracetak Desainer',
+                'description' => $desc,
+                'icon' => $icon,
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             return response()->json([
                 'status' => 'success',
                 'message' => $msg
@@ -2675,6 +2718,17 @@ class PracetakDesainerController extends Controller
                 'status' => 'Revisi' //?Pracetak Cover & Pracetak Cover History
             ];
             event(new PracetakCoverEvent($rev));
+            $namaUser = auth()->user()->nama;
+            $desc = 'Prodev (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) meminta untuk hasil proof ke penulis direvisi.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Pracetak Desainer',
+                'description' => $desc,
+                'icon' => 'fas fa-user-clock',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Desain cover direvisi dengan keterangan!'
@@ -2738,6 +2792,17 @@ class PracetakDesainerController extends Controller
                 'status' => 'Proses' //?Pracetak Cover & Pracetak Cover History
             ];
             event(new PracetakCoverEvent($done));
+            $namaUser = auth()->user()->nama;
+            $desc = 'Prodev (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan proof ke penulis.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Pracetak Desainer',
+                'description' => $desc,
+                'icon' => 'fas fa-people-arrows',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json([
@@ -2808,6 +2873,17 @@ class PracetakDesainerController extends Controller
                 'status' => 'Proses' //?Pracetak Cover & Pracetak Cover History
             ];
             event(new PracetakCoverEvent($done));
+            $namaUser = auth()->user()->nama;
+            $desc = 'Kabag (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan desain cover yang direvisi.';
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Pracetak Desainer',
+                'description' => $desc,
+                'icon' => 'fas fa-user-check',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Desain cover telah selesai direvisi!'
@@ -2863,6 +2939,7 @@ class PracetakDesainerController extends Controller
                     'message' => 'Data tidak ada'
                 ]);
             }
+            $namaUser = auth()->user()->nama;
             $dataProsesSelf = DB::table('pracetak_cover_selesai')
                 ->where('type', 'Desainer')
                 ->where('section', 'Pengajuan Cover')
@@ -2933,6 +3010,7 @@ class PracetakDesainerController extends Controller
                             ];
                             event(new PracetakCoverEvent($pros));
                         }
+                        $desc = 'Desainer (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan backcover-design tahap '.$tahapSelanjutnya.'.';
                     } else {
                         $dataProses = DB::table('pracetak_cover_selesai')
                             ->where('type', 'Desainer')
@@ -2980,6 +3058,7 @@ class PracetakDesainerController extends Controller
                             ];
                             event(new PracetakCoverEvent($pros));
                         }
+                        $desc = 'Desainer (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan backcover-design tahap 1.';
                     }
                     //? Todo list desain Revisi
                     $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
@@ -3064,6 +3143,7 @@ class PracetakDesainerController extends Controller
                             'status' => '1'
                         ]);
                     }
+                    $desc = 'Desainer (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan backcover-design tahap 1.';
                 }
             } else {
                 $dataProses = DB::table('pracetak_cover_selesai')
@@ -3123,8 +3203,17 @@ class PracetakDesainerController extends Controller
                         'status' => '1'
                     ]);
                 }
+                $desc = 'Desainer (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan pengajuan desain.';
             }
-
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Pracetak Desainer',
+                'description' => $desc,
+                'icon' => 'fas fa-user-check',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Pengerjaan selesai'
@@ -3163,6 +3252,7 @@ class PracetakDesainerController extends Controller
                     'message' => 'Data tidak ada'
                 ]);
             }
+            $namaUser = auth()->user()->nama;
             $dataProsesSelf = DB::table('pracetak_cover_selesai')
                 ->where('type', 'Korektor')
                 ->where('section', 'Koreksi')
@@ -3216,6 +3306,7 @@ class PracetakDesainerController extends Controller
                     ];
                     event(new PracetakCoverEvent($pros));
                 }
+                $desc = 'Korektor (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan koreksi tahap '.$tahapSelanjutnya.'.';
             } else {
                 $dataProses = DB::table('pracetak_cover_selesai')
                     ->where('type', 'Korektor')
@@ -3260,6 +3351,7 @@ class PracetakDesainerController extends Controller
                     ];
                     event(new PracetakCoverEvent($pros));
                 }
+                $desc = 'Korektor (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan koreksi tahap 1.';
             }
             $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
             ->where('users_id',auth()->id())
@@ -3278,6 +3370,16 @@ class PracetakDesainerController extends Controller
                     'status' => '1'
                 ]);
             }
+
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Pracetak Desainer',
+                'description' => $desc,
+                'icon' => 'fas fa-user-check',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Pengerjaan selesai'
