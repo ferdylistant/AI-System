@@ -39,18 +39,26 @@ class PracetakSetterController extends Controller
             $reguler = Gate::allows('do_create', 'otorisasi-setter-praset-reguler');
             $mou = Gate::allows('do_create', 'otorisasi-setter-praset-mou');
             $smk = Gate::allows('do_create', 'otorisasi-setter-praset-smk');
-            if (in_array(auth()->id(),$data->pluck('pic_prodev')->toArray())) {
+            if (in_array(auth()->id(), $data->pluck('pic_prodev')->toArray())) {
                 $data->where('pn.pic_prodev', auth()->id());
             }
             if ($reguler || $mou || $smk) {
-                $data->where('ps.setter','like', '%"'.auth()->id().'"%');
+                $data->where('ps.setter', 'like', '%"' . auth()->id() . '"%');
             }
-            if (Gate::allows('do_create', 'otorisasi-korektor-praset-reguler')||Gate::allows('do_create', 'otorisasi-korektor-praset-mou')||Gate::allows('do_create', 'otorisasi-korektor-praset-smk')) {
-                $data->where('ps.korektor','like', '%"'.auth()->id().'"%');
+            if (Gate::allows('do_create', 'otorisasi-korektor-praset-reguler') || Gate::allows('do_create', 'otorisasi-korektor-praset-mou') || Gate::allows('do_create', 'otorisasi-korektor-praset-smk')) {
+                $data->where('ps.korektor', 'like', '%"' . auth()->id() . '"%');
             }
             $data->get();
             if ($request->has('count_data')) {
                 return $data->count();
+            } elseif ($request->has('show_status')) {
+                $showStatus = DB::table('pracetak_setter as ps')
+                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                ->where('ps.id',$request->id)
+                ->select('ps.*','dp.judul_final')
+                ->first();
+                return response()->json($showStatus);
             } else {
                 return DataTables::of($data)
                     // ->addIndexColumn()
@@ -59,11 +67,11 @@ class PracetakSetterController extends Controller
                         $dataKode = $data->kode;
                         if ($data->status == 'Proses') {
                             if ($data->proses_saat_ini == 'Siap Turcet') {
-                                $dataKode = '<span class="text-primary" data-toggle="tooltip" data-placement="top" title="Proses '.$data->proses_saat_ini.', menunggu kabag melengkapi data-data yang dibutuhkan untuk Turun Cetak">' . $data->kode . '</span>';
+                                $dataKode = '<span class="text-primary" data-toggle="tooltip" data-placement="top" title="Proses ' . $data->proses_saat_ini . ', menunggu kabag melengkapi data-data yang dibutuhkan untuk Turun Cetak">' . $data->kode . '</span>';
                                 $tandaProses = '<span class="beep-primary d-table"></span>';
                             } else {
                                 $tooltip = $data->proses == '1' ? 'data-toggle="tooltip" data-placement="top" title="Sedang dikerjakan oleh ' . $data->proses_saat_ini . '"' : 'data-toggle="tooltip" data-placement="top" title="Proses ' . $data->proses_saat_ini . ' belum dimulai oleh kabag"';
-                                $dataKode = $data->proses == '1'  ? '<span class="text-success" '.$tooltip.'>' . $data->kode . '</span>' : '<span class="text-danger" '.$tooltip.'>' . $data->kode . '</span>';
+                                $dataKode = $data->proses == '1'  ? '<span class="text-success" ' . $tooltip . '>' . $data->kode . '</span>' : '<span class="text-danger" ' . $tooltip . '>' . $data->kode . '</span>';
                                 $tandaProses = $data->proses == '1' ? '<span class="beep-success d-table"></span>' : '<span class="beep-danger d-table"></span>';
                             }
                         }
@@ -82,12 +90,12 @@ class PracetakSetterController extends Controller
                         if (is_null($data->setter) || $data->setter == '[]' || $data->setter == '[null]') {
                             $result .= "<span class='text-danger'>Belum ditambahkan</span>";
                         } else {
-                            $sett = collect(json_decode($data->setter))->map(function($item) {
-                                $name = DB::table('users')->where('id',$item)->first()->nama;
+                            $sett = collect(json_decode($data->setter))->map(function ($item) {
+                                $name = DB::table('users')->where('id', $item)->first()->nama;
                                 return $name;
                             })->all();
                             foreach ($sett as $q) {
-                                $result .= '<span class="bullet"></span>'.$q.'<br>';
+                                $result .= '<span class="bullet"></span>' . $q . '<br>';
                             }
                         }
                         return $result;
@@ -97,12 +105,12 @@ class PracetakSetterController extends Controller
                         if (is_null($data->korektor) || $data->korektor == '[]' || $data->korektor == '[null]') {
                             $result .= "<span class='text-danger'>Belum ditambahkan</span>";
                         } else {
-                            $kor = collect(json_decode($data->korektor))->map(function($item) {
-                                $name = DB::table('users')->where('id',$item)->first()->nama;
+                            $kor = collect(json_decode($data->korektor))->map(function ($item) {
+                                $name = DB::table('users')->where('id', $item)->first()->nama;
                                 return $name;
                             })->all();
                             foreach ($kor as $q) {
-                                $result .= '<span class="bullet"></span>'.$q.'<br>';
+                                $result .= '<span class="bullet"></span>' . $q . '<br>';
                             }
                         }
                         return $result;
@@ -163,6 +171,15 @@ class PracetakSetterController extends Controller
                             return $date;
                         }
                     })
+                    ->addColumn('tracker', function ($data) {
+                        $trackerData = DB::table('tracker')->where('section_id', $data->id)->get();
+                        if ($trackerData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                            return $date;
+                        }
+                    })
                     ->addColumn('action', function ($data) {
                         $btn = '<a href="' . url('penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
@@ -198,6 +215,7 @@ class PracetakSetterController extends Controller
                         'pic_prodev',
                         'proses_saat_ini',
                         'history',
+                        'tracker',
                         'action'
                     ])
                     ->make(true);
@@ -214,7 +232,7 @@ class PracetakSetterController extends Controller
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $statusProsesSaatIni = explode("','", $matches[1]);
         $statusProsesSaatIni = Arr::sort($statusProsesSaatIni);
-        $statusProsesSaatIni = Arr::prepend($statusProsesSaatIni,'Belum ada proses');
+        $statusProsesSaatIni = Arr::prepend($statusProsesSaatIni, 'Belum ada proses');
         return view('penerbitan.pracetak_setter.index', [
             'title' => 'Pracetak Setter',
             'status_action' => $statusAction,
@@ -270,14 +288,14 @@ class PracetakSetterController extends Controller
                 }
                 $useData = $data;
 
-                $data = collect($data)->put('penulis',DB::table('penerbitan_naskah_penulis as pnp')
-                ->join('penerbitan_penulis as pp', function ($q) {
-                    $q->on('pnp.penulis_id', '=', 'pp.id')
-                        ->whereNull('pp.deleted_at');
-                })
-                ->where('pnp.naskah_id', '=', $data->naskah_id)
-                ->select('pp.nama')
-                ->get());
+                $data = collect($data)->put('penulis', DB::table('penerbitan_naskah_penulis as pnp')
+                    ->join('penerbitan_penulis as pp', function ($q) {
+                        $q->on('pnp.penulis_id', '=', 'pp.id')
+                            ->whereNull('pp.deleted_at');
+                    })
+                    ->where('pnp.naskah_id', '=', $data->naskah_id)
+                    ->select('pp.nama')
+                    ->get());
                 // return response()->json($useData);
                 $data = (object)collect($data)->map(function ($item, $key) use ($useData) {
                     switch ($key) {
@@ -375,13 +393,13 @@ class PracetakSetterController extends Controller
                             $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_setter WHERE Field = 'proses_saat_ini'"))[0]->Type;
                             preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
                             $prosesSaatIni = explode("','", $matches[1]);
-                            $prosesFilter = Arr::except($prosesSaatIni, ['1','3', '5', '8']);
+                            $prosesFilter = Arr::except($prosesSaatIni, ['1', '3', '5', '8']);
                             if ($item == 'Siap Turcet') {
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
                                     return $key >= 6;
                                 });
-                            } elseif (!is_null($useData->selesai_proof)){
-                                $prosesFilter = Arr::except($prosesSaatIni, ['1','2','3','5','8']);
+                            } elseif (!is_null($useData->selesai_proof)) {
+                                $prosesFilter = Arr::except($prosesSaatIni, ['1', '2', '3', '5', '8']);
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
                                     return $key >= 0;
                                 });
@@ -397,8 +415,10 @@ class PracetakSetterController extends Controller
                                     return $value;
                                 });
                             }
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $textAlign = 'text-left';
@@ -406,25 +426,25 @@ class PracetakSetterController extends Controller
                                     <select name="proses_saat_ini" class="form-control select-proses" required>
                                         <option label="Pilih proses saat ini"></option>';
                                     foreach ($prosesFilter as $k) {
-                                        $html .= '<option value="'.$k.'">'.$k.'&nbsp;&nbsp;</option>';
+                                        $html .= '<option value="' . $k . '">' . $k . '&nbsp;&nbsp;</option>';
                                     }
-                                    $html .='</select>
+                                    $html .= '</select>
                                 </div>';
                                 } else {
                                     $idCol = "prosCol";
                                     $textAlign = 'text-right';
-                                    $html .= $item.'
+                                    $html .= $item . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="prosButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
+                                    $htmlHidden .= '<div class="input-group">
                                 <select name="proses_saat_ini" class="form-control select-proses" required>
                                     <option label="Pilih proses saat ini"></option>';
                                     foreach ($prosesFilter as $k) {
-                                        $sel = $item==$k ? 'Selected' : '';
-                                        $htmlHidden .= '<option value="'.$k.'" '.$sel.'>'.$k.'&nbsp;&nbsp;</option>';
+                                        $sel = $item == $k ? 'Selected' : '';
+                                        $htmlHidden .= '<option value="' . $k . '" ' . $sel . '>' . $k . '&nbsp;&nbsp;</option>';
                                     }
-                                $htmlHidden .= '</select>
+                                    $htmlHidden .= '</select>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_proses text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -440,7 +460,7 @@ class PracetakSetterController extends Controller
                                     $html .= $item;
                                 }
                             }
-                            return ['htmlHeader'=>$htmlHeader,'data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['htmlHeader' => $htmlHeader, 'data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'penulis':
                             $html = '';
@@ -448,21 +468,23 @@ class PracetakSetterController extends Controller
                                 $html .= '-';
                             } else {
                                 foreach ($item as $value) {
-                                    $html .= '<span class="bullet"></span>'.$value->nama . '<br>';
+                                    $html .= '<span class="bullet"></span>' . $value->nama . '<br>';
                                 }
                             }
                             return $html;
                             break;
                         case 'nama_pena':
                             $html = '';
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $html = '-';
                                 } else {
                                     foreach (json_decode($item) as $value) {
-                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
+                                        $html .= '<span class="bullet"></span>' . $value . '<br>';
                                     }
                                 }
                             } else {
@@ -472,16 +494,18 @@ class PracetakSetterController extends Controller
                                 } else {
                                     $text = 'text-dark';
                                     foreach (json_decode($item) as $value) {
-                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
+                                        $html .= '<span class="bullet"></span>' . $value . '<br>';
                                     }
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text];
+                            return ['data' => $html, 'textColor' => $text];
                             break;
                         case 'imprint':
                             $res = DB::table('imprint')->whereNull('deleted_at')->first()->nama;
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 $return = is_null($item) ? '-' : $res;
                             } else {
@@ -493,35 +517,39 @@ class PracetakSetterController extends Controller
                                     $return = $res;
                                 }
                             }
-                            return ['data' => $return,'textColor' => $text];
+                            return ['data' => $return, 'textColor' => $text];
                             break;
                         case 'format_buku':
                             $res = DB::table('format_buku')->whereNull('deleted_at')->first()->jenis_format;
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
-                                $return = is_null($item) ? '-' : $res.' cm';
+                                $return = is_null($item) ? '-' : $res . ' cm';
                             } else {
                                 if (is_null($item)) {
                                     $text = 'text-danger';
                                     $return = 'Belum diinput';
                                 } else {
                                     $text = 'text-dark';
-                                    $return = $res.' cm';
+                                    $return = $res . ' cm';
                                 }
                             }
-                            return ['data' => $return,'textColor' => $text];
+                            return ['data' => $return, 'textColor' => $text];
                             break;
                         case 'bullet':
                             $html = '';
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if ((is_null($item)) || ($item == '[]')) {
                                     $html .= '-';
                                 } else {
                                     foreach (json_decode($item) as $value) {
-                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
+                                        $html .= '<span class="bullet"></span>' . $value . '<br>';
                                     }
                                 }
                             } else {
@@ -531,18 +559,20 @@ class PracetakSetterController extends Controller
                                 } else {
                                     $text = 'text-dark';
                                     foreach (json_decode($item) as $value) {
-                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
+                                        $html .= '<span class="bullet"></span>' . $value . '<br>';
                                     }
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text];
+                            return ['data' => $html, 'textColor' => $text];
                             break;
                         case 'jml_hal_final':
                             $html = '';
                             $htmlHidden = '';
                             $idCol = "";
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $textAlign = 'text-left';
@@ -550,12 +580,12 @@ class PracetakSetterController extends Controller
                                 } else {
                                     $idCol = "jmlHalCol";
                                     $textAlign = 'text-right';
-                                    $html .= $item.'
+                                    $html .= $item . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="jmlHalButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
-                                        <input type="number" name="jml_hal_final" value="'.$item.'" class="form-control" min="1" required>
+                                    $htmlHidden .= '<div class="input-group">
+                                        <input type="number" name="jml_hal_final" value="' . $item . '" class="form-control" min="1" required>
                                         <div class="input-group-append">
                                             <button type="button" class="btn btn-outline-danger batal_edit_jml text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                         </div>
@@ -571,13 +601,15 @@ class PracetakSetterController extends Controller
                                     $html .= $item;
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'catatan':
                             $html = '';
                             $htmlHidden = '';
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $idCol = "catCol";
@@ -592,12 +624,12 @@ class PracetakSetterController extends Controller
                                 } else {
                                     $idCol = "catCol";
                                     $textAlign = 'text-right';
-                                    $html .= $item.'
+                                    $html .= $item . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="catButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
-                                <textarea name="catatan" class="form-control" cols="30" rows="10">'.$item.'</textarea>
+                                    $htmlHidden .= '<div class="input-group">
+                                <textarea name="catatan" class="form-control" cols="30" rows="10">' . $item . '</textarea>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_cat text-danger" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -614,22 +646,24 @@ class PracetakSetterController extends Controller
                                     $html .= $item;
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'setter':
                             $html = '';
                             $htmlHidden = '';
                             $idCol = "";
                             $setter = DB::table('users as u')
-                            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-                            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-                            ->where('j.nama', 'LIKE', '%Setter%')
-                            ->where('d.nama', 'LIKE', '%Penerbitan%')
-                            ->select('u.nama', 'u.id')
-                            ->orderBy('u.nama', 'Asc')
-                            ->get();
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                                ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+                                ->where('j.nama', 'LIKE', '%Setter%')
+                                ->where('d.nama', 'LIKE', '%Penerbitan%')
+                                ->select('u.nama', 'u.id')
+                                ->orderBy('u.nama', 'Asc')
+                                ->get();
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if ((is_null($item)) || ($item == '[null]')) {
 
@@ -637,11 +671,11 @@ class PracetakSetterController extends Controller
                                     $html .= '<select name="setter[]" class="form-control select-setter" multiple="multiple" required>
                                     <option label="Pilih setter"></option>';
                                     foreach ($setter as $i => $edList) {
-                                    $html .='<option value="'. $edList->id .'">
-                                        '. $edList->nama .'&nbsp;&nbsp;
+                                        $html .= '<option value="' . $edList->id . '">
+                                        ' . $edList->nama . '&nbsp;&nbsp;
                                     </option>';
                                     }
-                                    $html .='</select>';
+                                    $html .= '</select>';
                                 } else {
                                     $idCol = "setterCol";
                                     $textAlign = 'text-right';
@@ -664,26 +698,26 @@ class PracetakSetterController extends Controller
                                         $korektor = null;
                                     }
                                     foreach ($namaSetter as $key => $aj) {
-                                    $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                        $html .= '<span class="bullet"></span>' . $aj . '<br>';
                                     }
                                     if ($useData->proses_saat_ini != 'Siap Turcet') {
                                         $html .= '<p class="text-small">
                                             <a href="javascript:void(0)" id="setterButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
                                         </p>';
                                     }
-                                $htmlHidden .='<div class="input-group">
+                                    $htmlHidden .= '<div class="input-group">
                                 <select name="setter[]" class="form-control select-setter" multiple="multiple">
                                     <option label="Pilih setter"></option>';
                                     foreach ($setter as $i => $edList) {
-                                    $sel = '';
-                                    if (in_array($edList->nama, $namaSetter)) {
-                                        $sel = ' selected="selected" ';
-                                    }
-                                    $htmlHidden .='<option value="'. $edList->id .'" '. $sel .'>
-                                        '. $edList->nama .'&nbsp;&nbsp;
+                                        $sel = '';
+                                        if (in_array($edList->nama, $namaSetter)) {
+                                            $sel = ' selected="selected" ';
+                                        }
+                                        $htmlHidden .= '<option value="' . $edList->id . '" ' . $sel . '>
+                                        ' . $edList->nama . '&nbsp;&nbsp;
                                     </option>';
                                     }
-                                $htmlHidden .='</select>
+                                    $htmlHidden .= '</select>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_setter text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -700,24 +734,24 @@ class PracetakSetterController extends Controller
                                         $namaSetter[] = DB::table('users')->where('id', $e)->first()->nama;
                                     }
                                     foreach ($namaSetter as $key => $aj) {
-                                        $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                        $html .= '<span class="bullet"></span>' . $aj . '<br>';
                                     }
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'korektor':
                             $html = '';
                             $htmlHidden = '';
                             $idCol = "";
                             $setter = DB::table('users as u')
-                            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-                            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-                            ->where('j.nama', 'LIKE', '%Setter%')
-                            ->where('d.nama', 'LIKE', '%Penerbitan%')
-                            ->select('u.nama', 'u.id')
-                            ->orderBy('u.nama', 'Asc')
-                            ->get();
+                                ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                                ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+                                ->where('j.nama', 'LIKE', '%Setter%')
+                                ->where('d.nama', 'LIKE', '%Penerbitan%')
+                                ->select('u.nama', 'u.id')
+                                ->orderBy('u.nama', 'Asc')
+                                ->get();
                             if ((!is_null($useData->setter)) && ($useData->setter != '[null]')) {
                                 $korektor = DB::table('users as u')
                                     ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
@@ -732,8 +766,10 @@ class PracetakSetterController extends Controller
                             } else {
                                 $korektor = null;
                             }
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if ((!is_null($item)) && ($item != '[null]')) {
                                     $idCol = "korektorCol";
@@ -746,26 +782,26 @@ class PracetakSetterController extends Controller
                                         $namakorektor = null;
                                     }
                                     foreach ($namakorektor as $key => $aj) {
-                                    $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                        $html .= '<span class="bullet"></span>' . $aj . '<br>';
                                     }
                                     if ($useData->proses_saat_ini != 'Siap Turcet') {
                                         $html .= '<p class="text-small">
                                         <a href="javascript:void(0)" id="korektorButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
                                         </p>';
                                     }
-                                    $htmlHidden .='<div class="input-group">
+                                    $htmlHidden .= '<div class="input-group">
                                     <select name="korektor[]" class="form-control select-korektor" multiple="multiple">
                                     <option label="Pilih korektor"></option>';
                                     foreach ($korektor as $i => $edList) {
-                                    $sel = '';
-                                    if (in_array($edList->nama, $namakorektor)) {
-                                        $sel = ' selected="selected" ';
-                                    }
-                                    $htmlHidden .='<option value="'. $edList->id .'" '. $sel .'>
-                                        '. $edList->nama .'&nbsp;&nbsp;
+                                        $sel = '';
+                                        if (in_array($edList->nama, $namakorektor)) {
+                                            $sel = ' selected="selected" ';
+                                        }
+                                        $htmlHidden .= '<option value="' . $edList->id . '" ' . $sel . '>
+                                        ' . $edList->nama . '&nbsp;&nbsp;
                                     </option>';
                                     }
-                                $htmlHidden .='</select>
+                                    $htmlHidden .= '</select>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_korektor text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -774,21 +810,21 @@ class PracetakSetterController extends Controller
                                     $textAlign = 'text-left';
                                     $dis = '';
                                     if (is_null($useData->selesai_proof)) {
-                                        $html .='<span class="text-danger"><i class="fas fa-exclamation-circle"></i>
+                                        $html .= '<span class="text-danger"><i class="fas fa-exclamation-circle"></i>
                                             Belum bisa melanjutkan proses koreksi,
-                                            proses '.$useData->proses_saat_ini.' belum selesai.</span>';
+                                            proses ' . $useData->proses_saat_ini . ' belum selesai.</span>';
                                         $dis = 'disabled';
                                     }
-                                    $html .='<select name="korektor[]" class="form-control select-korektor" multiple="multiple" '. $dis .' required>
+                                    $html .= '<select name="korektor[]" class="form-control select-korektor" multiple="multiple" ' . $dis . ' required>
                                         <option label="Pilih korektor"></option>';
-                                        if (!is_null($korektor)) {
-                                            foreach ($korektor as $cpeList) {
-                                                $html .='<option value="'. $cpeList->id .'">
-                                                '.$cpeList->nama .'&nbsp;&nbsp;
+                                    if (!is_null($korektor)) {
+                                        foreach ($korektor as $cpeList) {
+                                            $html .= '<option value="' . $cpeList->id . '">
+                                                ' . $cpeList->nama . '&nbsp;&nbsp;
                                                 </option>';
-                                            }
                                         }
-                                    $html .='</select>';
+                                    }
+                                    $html .= '</select>';
                                 }
                             } else {
                                 $textAlign = 'text-right';
@@ -801,13 +837,13 @@ class PracetakSetterController extends Controller
                                         $namakorektor[] = DB::table('users')->where('id', $e)->first()->nama;
                                     }
                                     foreach ($namakorektor as $key => $aj) {
-                                        $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                        $html .= '<span class="bullet"></span>' . $aj . '<br>';
                                     }
                                 }
                             }
-                            $required ='';
-                            $requiredColor ='';
-                            if (!is_null($useData->selesai_proof)){
+                            $required = '';
+                            $requiredColor = '';
+                            if (!is_null($useData->selesai_proof)) {
                                 $required = '*';
                                 $requiredColor = 'text-danger';
                             }
@@ -825,8 +861,10 @@ class PracetakSetterController extends Controller
                             $html = '';
                             $htmlHidden = '';
                             $idCol = "";
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $textAlign = 'text-left';
@@ -834,12 +872,12 @@ class PracetakSetterController extends Controller
                                 } else {
                                     $idCol = "edCetakCol";
                                     $textAlign = 'text-right';
-                                    $html .= $item.'
+                                    $html .= $item . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="edCetakButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
-                                    <input type="text" name="edisi_cetak" value="'. $item .'" class="form-control">
+                                    $htmlHidden .= '<div class="input-group">
+                                    <input type="text" name="edisi_cetak" value="' . $item . '" class="form-control">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-outline-danger batal_edit_edisicetak text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                     </div>
@@ -855,14 +893,16 @@ class PracetakSetterController extends Controller
                                     $html .= $item;
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'mulai_p_copyright':
                             $html = '';
                             $htmlHidden = '';
                             $idCol = "";
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $textAlign = 'text-left';
@@ -870,11 +910,11 @@ class PracetakSetterController extends Controller
                                 } else {
                                     $idCol = "copyrightCol";
                                     $textAlign = 'text-right';
-                                    $html .= Carbon::parse($item)->translatedFormat('l d F Y, H:i').'
+                                    $html .= Carbon::parse($item)->translatedFormat('l d F Y, H:i') . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="copyrightButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
+                                    $htmlHidden .= '<div class="input-group">
                                 <input name="mulai_p_copyright" class="form-control datepicker-copyright" placeholder="Tanggal mulai proses copyright" readonly>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_copyright text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
@@ -891,14 +931,16 @@ class PracetakSetterController extends Controller
                                     $html .= Carbon::parse($item)->translatedFormat('l d F Y, H:i');
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'selesai_p_copyright':
                             $html = '';
                             $htmlHidden = '';
                             $idCol = "";
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $textAlign = 'text-left';
@@ -906,11 +948,11 @@ class PracetakSetterController extends Controller
                                 } else {
                                     $idCol = "copyrightSelCol";
                                     $textAlign = 'text-right';
-                                    $html .= Carbon::parse($item)->translatedFormat('l d F Y, H:i').'
+                                    $html .= Carbon::parse($item)->translatedFormat('l d F Y, H:i') . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="copyrightSelButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
+                                    $htmlHidden .= '<div class="input-group">
                                 <input name="selesai_p_copyright" class="form-control datepicker-copyright" placeholder="Tanggal selesai proses copyright" readonly>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_selesaicopyright text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
@@ -927,14 +969,16 @@ class PracetakSetterController extends Controller
                                     $html .= Carbon::parse($item)->translatedFormat('l d F Y, H:i');
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'isbn':
                             $html = '';
                             $htmlHidden = '';
                             $idCol = "";
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 $hiddenForm = false;
                                 if (is_null($item)) {
@@ -945,12 +989,12 @@ class PracetakSetterController extends Controller
                                 } else {
                                     $idCol = "isbnCol";
                                     $textAlign = 'text-right';
-                                    $html .= $item.'
+                                    $html .= $item . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="isbnButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
-                                <input type="text" name="isbn" class="form-control" value="'.$item.'"  placeholder="000000000000" id="ISBN">
+                                    $htmlHidden .= '<div class="input-group">
+                                <input type="text" name="isbn" class="form-control" value="' . $item . '"  placeholder="000000000000" id="ISBN">
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_isbn text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -967,14 +1011,16 @@ class PracetakSetterController extends Controller
                                     $html .= $item;
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign,'hiddenForm' => $hiddenForm];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign, 'hiddenForm' => $hiddenForm];
                             break;
                         case 'pengajuan_harga':
                             $html = '';
                             $htmlHidden = '';
                             $idCol = "";
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 $hiddenForm = false;
                                 if (is_null($item)) {
@@ -986,12 +1032,12 @@ class PracetakSetterController extends Controller
                                 } else {
                                     $idCol = "hargaCol";
                                     $textAlign = 'text-right';
-                                    $html .= $item.'
+                                    $html .= $item . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="hargaButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
-                                <input type="text" name="pengajuan_harga" class="form-control" value="'. $item .'"  placeholder="000000000000" id="HARGA">
+                                    $htmlHidden .= '<div class="input-group">
+                                <input type="text" name="pengajuan_harga" class="form-control" value="' . $item . '"  placeholder="000000000000" id="HARGA">
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_pengajuan_harga text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -1008,14 +1054,16 @@ class PracetakSetterController extends Controller
                                     $html .= $item;
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign,'hiddenForm' => $hiddenForm];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign, 'hiddenForm' => $hiddenForm];
                             break;
                         case 'bulan':
                             $html = '';
                             $htmlHidden = '';
                             $idCol = "";
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $idCol = "";
@@ -1024,12 +1072,12 @@ class PracetakSetterController extends Controller
                                 } else {
                                     $idCol = "bulanCol";
                                     $textAlign = 'text-right';
-                                    $html .= Carbon::parse($item)->translatedFormat('F Y').'
+                                    $html .= Carbon::parse($item)->translatedFormat('F Y') . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="bulanButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
-                                <input name="bulan" class="form-control datepicker" value="'.Carbon::createFromFormat('Y-m-d',$item,'Asia/Jakarta')->format('F Y').'" placeholder="Bulan proses" readonly required>
+                                    $htmlHidden .= '<div class="input-group">
+                                <input name="bulan" class="form-control datepicker" value="' . Carbon::createFromFormat('Y-m-d', $item, 'Asia/Jakarta')->format('F Y') . '" placeholder="Bulan proses" readonly required>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_bulan text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -1045,11 +1093,13 @@ class PracetakSetterController extends Controller
                                     $html .= Carbon::parse($item)->translatedFormat('F Y');
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'proses':
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $label = $item == 1 ? 'Stop' : 'Mulai';
                                 $checked = $item == 1 ? true : false;
                                 $disable = false;
@@ -1063,13 +1113,15 @@ class PracetakSetterController extends Controller
                                     $cursorBtn = 'not-allowed';
                                     $lbl = 'Sedang proses proof prodev';
                                 } elseif (is_null($useData->selesai_setting) && is_null($useData->selesai_koreksi)) {
-                                    $lbl = $label.' proses setting';
+                                    $lbl = $label . ' proses setting';
                                 } elseif (!is_null($useData->selesai_setting) && is_null($useData->mulai_proof)) {
-                                    $lbl = $label.' proses proof prodev';
+                                    $lbl = $label . ' proses proof prodev';
                                 } elseif (is_null($useData->selesai_koreksi) && !is_null($useData->selesai_setting)) {
-                                    $lbl = $label.' proses koreksi';
+                                    $lbl = $label . ' proses koreksi';
                                 } elseif ((!is_null($useData->selesai_koreksi)) && ($useData->proses_saat_ini == 'Setting Revisi') && ($useData->status == 'Proses')) {
-                                    $lbl = $label.' proses revisi setting';
+                                    $lbl = $label . ' proses revisi setting';
+                                } elseif (!is_null($useData->selesai_koreksi) && is_null($useData->selesai_setting)) {
+                                    $lbl = $label . ' proses revisi setting';
                                 } else {
                                     $disable = true;
                                     $disableBtn = true;
@@ -1101,8 +1153,10 @@ class PracetakSetterController extends Controller
                             ];
                             break;
                         default:
-                                if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 $return = is_null($item) ? '-' : $item;
                             } else {
@@ -1114,7 +1168,7 @@ class PracetakSetterController extends Controller
                                     $return = $item;
                                 }
                             }
-                            return ['data' => $return,'textColor' => $text];
+                            return ['data' => $return, 'textColor' => $text];
                             break;
                     }
                 })->all();
@@ -1127,7 +1181,7 @@ class PracetakSetterController extends Controller
                         ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
                         ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                         ->where('ps.id', $request->id)
-                        ->select('ps.*', 'dp.naskah_id', 'dp.judul_final', 'pn.kode','pn.pic_prodev','pn.jalur_buku')
+                        ->select('ps.*', 'dp.naskah_id', 'dp.judul_final', 'pn.kode', 'pn.pic_prodev', 'pn.jalur_buku')
                         ->first();
                     if ($request->has('korektor')) {
                         foreach ($request->korektor as $ce) {
@@ -1193,25 +1247,25 @@ class PracetakSetterController extends Controller
                                         $prasetPermission = '';
                                         break;
                                 }
-                                $kabagPraset = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                                    ->where('p.id',$prasetPermission)
+                                $kabagPraset = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                                    ->where('p.id', $prasetPermission)
                                     ->select('up.user_id')
                                     ->get();
-                                $kabagPraset = (object)collect($kabagPraset)->map(function($item) use ($history) {
+                                $kabagPraset = (object)collect($kabagPraset)->map(function ($item) use ($history) {
                                     return DB::table('todo_list')
-                                    ->where('form_id',$history->id)
-                                    ->where('users_id',$item->user_id)
-                                    ->where('title','Proses delegasi tahap pracetak setter naskah "'.$history->judul_final.'".')
-                                    ->update([
-                                        'status' => '1'
-                                    ]);
+                                        ->where('form_id', $history->id)
+                                        ->where('users_id', $item->user_id)
+                                        ->where('title', 'Proses delegasi tahap pracetak setter naskah "' . $history->judul_final . '".')
+                                        ->update([
+                                            'status' => '1'
+                                        ]);
                                 })->all();
                                 //? Insert Todo List Deskripsi Turun Cetak
                                 DB::table('todo_list')->insert([
                                     'form_id' => $id_turcet,
                                     'users_id' => $history->pic_prodev,
-                                    'title' => 'Proses deskripsi turun cetak naskah berjudul "'.$history->judul_final.'" perlu dilengkapi kelengkapan data nya.',
-                                    'link' => '/penerbitan/deskripsi/turun-cetak?desc='.$id_turcet.'&kode='.$history->kode,
+                                    'title' => 'Proses deskripsi turun cetak naskah berjudul "' . $history->judul_final . '" perlu dilengkapi kelengkapan data nya.',
+                                    'link' => '/penerbitan/deskripsi/turun-cetak?desc=' . $id_turcet . '&kode=' . $history->kode,
                                     'status' => '0',
                                 ]);
                                 //INSERT TIMELINE TURUN CETAK
@@ -1622,6 +1676,9 @@ class PracetakSetterController extends Controller
                 case 'proses-kerja':
                     return $this->prosesKerjaSetter($request);
                     break;
+                case 'lihat-tracking':
+                    return $this->lihatTrackingSetter($request);
+                    break;
                 case 'update-status-progress':
                     return $this->updateStatusProgress($request);
                     break;
@@ -1664,19 +1721,19 @@ class PracetakSetterController extends Controller
                 $id = $request->id;
                 $value = $request->proses;
                 $data = DB::table('pracetak_setter as ps')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->where('ps.id', $id)
-                ->select(
-                    'ps.*',
-                    'dp.naskah_id',
-                    'dp.judul_final',
-                    'pn.kode',
-                    'pn.jalur_buku',
-                    'pn.pic_prodev',
-                )
-                ->first();
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->where('ps.id', $id)
+                    ->select(
+                        'ps.*',
+                        'dp.naskah_id',
+                        'dp.judul_final',
+                        'pn.kode',
+                        'pn.jalur_buku',
+                        'pn.pic_prodev',
+                    )
+                    ->first();
                 if (is_null($data)) {
                     return response()->json([
                         'status' => 'error',
@@ -1698,21 +1755,21 @@ class PracetakSetterController extends Controller
                         ];
                         if ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Setting Revisi')) {
                             //? Delete Todo List Setter
-                            (object)collect(json_decode($data->setter))->map(function($item) use($data) {
+                            (object)collect(json_decode($data->setter))->map(function ($item) use ($data) {
                                 return DB::table('todo_list')
-                                ->where('form_id',$data->id)
-                                ->where('users_id',$item)
-                                ->where('title','Selesaikan proses setting revisi naskah yang berjudul "'.$data->judul_final.'".')
-                                ->delete();
+                                    ->where('form_id', $data->id)
+                                    ->where('users_id', $item)
+                                    ->where('title', 'Selesaikan proses setting revisi naskah yang berjudul "' . $data->judul_final . '".')
+                                    ->delete();
                             })->all();
                         } else {
                             //? Delete Todo List Setter
-                            (object)collect(json_decode($data->setter))->map(function($item) use($data) {
+                            (object)collect(json_decode($data->setter))->map(function ($item) use ($data) {
                                 return DB::table('todo_list')
-                                ->where('form_id',$data->id)
-                                ->where('users_id',$item)
-                                ->where('title','Selesaikan proses setting pengajuan naskah yang berjudul "'.$data->judul_final.'".')
-                                ->delete();
+                                    ->where('form_id', $data->id)
+                                    ->where('users_id', $item)
+                                    ->where('title', 'Selesaikan proses setting pengajuan naskah yang berjudul "' . $data->judul_final . '".')
+                                    ->delete();
                             })->all();
                         }
                     } else {
@@ -1728,12 +1785,12 @@ class PracetakSetterController extends Controller
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
                         //? Delete Todo List Setter
-                        (object)collect(json_decode($data->korektor))->map(function($item) use($data) {
+                        (object)collect(json_decode($data->korektor))->map(function ($item) use ($data) {
                             return DB::table('todo_list')
-                            ->where('form_id',$data->id)
-                            ->where('users_id',$item)
-                            ->where('title','Selesaikan proses koreksi naskah yang berjudul "'.$data->judul_final.'".')
-                            ->delete();
+                                ->where('form_id', $data->id)
+                                ->where('users_id', $item)
+                                ->where('title', 'Selesaikan proses koreksi naskah yang berjudul "' . $data->judul_final . '".')
+                                ->delete();
                         })->all();
                     }
                     event(new PracetakSetterEvent($dataProgress));
@@ -1819,39 +1876,39 @@ class PracetakSetterController extends Controller
                                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                             ];
                             event(new PracetakSetterEvent($dataSetter));
-                            $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('title','Selesaikan proses setting revisi naskah yang berjudul "'.$data->judul_final.'".')->select('users_id')->get();
+                            $dataTodo = DB::table('todo_list')->where('form_id', $data->id)->where('title', 'Selesaikan proses setting revisi naskah yang berjudul "' . $data->judul_final . '".')->select('users_id')->get();
                             if (!$dataTodo->isEmpty()) {
-                                foreach($dataTodo as $dt) {
+                                foreach ($dataTodo as $dt) {
                                     $dtUser[] = $dt->users_id;
                                 }
-                                $data = collect($data)->put('users_id',$dtUser);
+                                $data = collect($data)->put('users_id', $dtUser);
                                 //? Insert Todo List Setter
-                                (object)collect(json_decode($data['setter']))->map(function($item) use($data) {
-                                    if (in_array($item,$data['users_id'])) {
+                                (object)collect(json_decode($data['setter']))->map(function ($item) use ($data) {
+                                    if (in_array($item, $data['users_id'])) {
                                         return DB::table('todo_list')
-                                        ->where('form_id', $data['id'])
-                                        ->where('users_id', $item)
-                                        ->where('title', 'Selesaikan proses setting revisi naskah yang berjudul "'.$data['judul_final'].'".')
-                                        ->update([
-                                            'status' => '0'
-                                        ]);
+                                            ->where('form_id', $data['id'])
+                                            ->where('users_id', $item)
+                                            ->where('title', 'Selesaikan proses setting revisi naskah yang berjudul "' . $data['judul_final'] . '".')
+                                            ->update([
+                                                'status' => '0'
+                                            ]);
                                     } else {
                                         return DB::table('todo_list')->insert([
                                             'form_id' => $data['id'],
                                             'users_id' => $item,
-                                            'title' => 'Selesaikan proses setting revisi naskah yang berjudul "'.$data['judul_final'].'".',
-                                            'link' => '/penerbitan/pracetak/setter/detail?pra='.$data['id'].'&kode='.$data['kode'],
+                                            'title' => 'Selesaikan proses setting revisi naskah yang berjudul "' . $data['judul_final'] . '".',
+                                            'link' => '/penerbitan/pracetak/setter/detail?pra=' . $data['id'] . '&kode=' . $data['kode'],
                                             'status' => '0'
                                         ]);
                                     }
                                 })->all();
                             } else {
-                                (object)collect(json_decode($data->setter))->map(function($item) use($data) {
+                                (object)collect(json_decode($data->setter))->map(function ($item) use ($data) {
                                     return DB::table('todo_list')->insert([
                                         'form_id' => $data->id,
                                         'users_id' => $item,
-                                        'title' => 'Selesaikan proses setting revisi naskah yang berjudul "'.$data->judul_final.'".',
-                                        'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                                        'title' => 'Selesaikan proses setting revisi naskah yang berjudul "' . $data->judul_final . '".',
+                                        'link' => '/penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode,
                                         'status' => '0'
                                     ]);
                                 })->all();
@@ -1886,12 +1943,12 @@ class PracetakSetterController extends Controller
                             ];
                             event(new PracetakSetterEvent($dataSetter));
                             //? Insert Todo List Setter
-                            (object)collect(json_decode($data->setter))->map(function($item) use($data) {
+                            (object)collect(json_decode($data->setter))->map(function ($item) use ($data) {
                                 return DB::table('todo_list')->insert([
                                     'form_id' => $data->id,
                                     'users_id' => $item,
-                                    'title' => 'Selesaikan proses setting pengajuan naskah yang berjudul "'.$data->judul_final.'".',
-                                    'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                                    'title' => 'Selesaikan proses setting pengajuan naskah yang berjudul "' . $data->judul_final . '".',
+                                    'link' => '/penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode,
                                     'status' => '0'
                                 ]);
                             })->all();
@@ -1917,8 +1974,8 @@ class PracetakSetterController extends Controller
                         DB::table('todo_list')->insert([
                             'form_id' => $data->id,
                             'users_id' => $data->pic_prodev,
-                            'title' => 'Proof setting pengajuan naskah yang berjudul "'.$data->judul_final.'".',
-                            'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                            'title' => 'Proof setting pengajuan naskah yang berjudul "' . $data->judul_final . '".',
+                            'link' => '/penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode,
                             'status' => '0'
                         ]);
                     } else {
@@ -1949,39 +2006,39 @@ class PracetakSetterController extends Controller
                                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                             ];
                             event(new PracetakSetterEvent($dataKorektor));
-                            $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('title','Selesaikan proses koreksi naskah yang berjudul "'.$data->judul_final.'".')->select('users_id')->get();
+                            $dataTodo = DB::table('todo_list')->where('form_id', $data->id)->where('title', 'Selesaikan proses koreksi naskah yang berjudul "' . $data->judul_final . '".')->select('users_id')->get();
                             if (!$dataTodo->isEmpty()) {
-                                foreach($dataTodo as $dt) {
+                                foreach ($dataTodo as $dt) {
                                     $dtUser[] = $dt->users_id;
                                 }
-                                $data = collect($data)->put('users_id',$dtUser);
+                                $data = collect($data)->put('users_id', $dtUser);
                                 //? Insert Todo List Korektor
-                                (object)collect(json_decode($data['korektor']))->map(function($item) use($data) {
-                                    if (in_array($item,$data['users_id'])) {
+                                (object)collect(json_decode($data['korektor']))->map(function ($item) use ($data) {
+                                    if (in_array($item, $data['users_id'])) {
                                         return DB::table('todo_list')
-                                        ->where('form_id', $data['id'])
-                                        ->where('users_id', $item)
-                                        ->where('title', 'Selesaikan proses koreksi naskah yang berjudul "'.$data['judul_final'].'".')
-                                        ->update([
-                                            'status' => '0'
-                                        ]);
+                                            ->where('form_id', $data['id'])
+                                            ->where('users_id', $item)
+                                            ->where('title', 'Selesaikan proses koreksi naskah yang berjudul "' . $data['judul_final'] . '".')
+                                            ->update([
+                                                'status' => '0'
+                                            ]);
                                     } else {
                                         return DB::table('todo_list')->insert([
                                             'form_id' => $data['id'],
                                             'users_id' => $item,
-                                            'title' => 'Selesaikan proses koreksi naskah yang berjudul "'.$data['judul_final'].'".',
-                                            'link' => '/penerbitan/pracetak/setter/detail?pra='.$data['id'].'&kode='.$data['kode'],
+                                            'title' => 'Selesaikan proses koreksi naskah yang berjudul "' . $data['judul_final'] . '".',
+                                            'link' => '/penerbitan/pracetak/setter/detail?pra=' . $data['id'] . '&kode=' . $data['kode'],
                                             'status' => '0'
                                         ]);
                                     }
                                 })->all();
                             } else {
-                                (object)collect(json_decode($data->korektor))->map(function($item) use($data) {
+                                (object)collect(json_decode($data->korektor))->map(function ($item) use ($data) {
                                     return DB::table('todo_list')->insert([
                                         'form_id' => $data->id,
                                         'users_id' => $item,
-                                        'title' => 'Selesaikan proses koreksi naskah yang berjudul "'.$data->judul_final.'".',
-                                        'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                                        'title' => 'Selesaikan proses koreksi naskah yang berjudul "' . $data->judul_final . '".',
+                                        'link' => '/penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode,
                                         'status' => '0'
                                     ]);
                                 })->all();
@@ -2001,6 +2058,32 @@ class PracetakSetterController extends Controller
                     'message' => $e->getMessage()
                 ], 500);
             }
+        }
+    }
+    protected function lihatTrackingSetter($request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('tracker')->where('section_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            foreach ($data as $d) {
+                $html .= '<div class="activity">
+                <div class="activity-icon bg-primary text-white shadow-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
+                    <i class="' . $d->icon . '"></i>
+                </div>
+                <div class="activity-detail col">
+                    <div class="mb-2">
+                        <span class="text-job">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
+                        <span class="bullet"></span>
+                        <span class="text-job">' . Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i') . '</span>
+                    </div>
+                    <p>' . $d->description . '</p>
+                </div>
+            </div>';
+            }
+            return $html;
         }
     }
     protected function updateStatusProgress($request)
@@ -2133,18 +2216,18 @@ class PracetakSetterController extends Controller
                         $prasetPermission = '';
                         break;
                 }
-                $kabagPraset = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                    ->where('p.id',$prasetPermission)
+                $kabagPraset = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                    ->where('p.id', $prasetPermission)
                     ->select('up.user_id')
                     ->get();
-                $kabagPraset = (object)collect($kabagPraset)->map(function($item) use ($data) {
+                $kabagPraset = (object)collect($kabagPraset)->map(function ($item) use ($data) {
                     return DB::table('todo_list')
-                    ->where('form_id',$data->id)
-                    ->where('users_id',$item->user_id)
-                    ->where('title','Proses delegasi tahap pracetak setter naskah "'.$data->judul_final.'".')
-                    ->update([
-                        'status' => '1'
-                    ]);
+                        ->where('form_id', $data->id)
+                        ->where('users_id', $item->user_id)
+                        ->where('title', 'Proses delegasi tahap pracetak setter naskah "' . $data->judul_final . '".')
+                        ->update([
+                            'status' => '1'
+                        ]);
                 })->all();
                 //Cek Pracetak Cover
                 $dataPracov = DB::table('pracetak_cover')
@@ -2167,12 +2250,12 @@ class PracetakSetterController extends Controller
                     event(new DesturcetEvent($in));
                     //? Insert Todo List Deskripsi Turun Cetak
                     DB::table('todo_list')->insert([
-                            'form_id' => $id_turcet,
-                            'users_id' => $data->pic_prodev,
-                            'title' => 'Proses deskripsi turun cetak naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
-                            'link' => '/penerbitan/deskripsi/turun-cetak?desc='.$id_turcet.'&kode='.$data->kode,
-                            'status' => '0',
-                        ]);
+                        'form_id' => $id_turcet,
+                        'users_id' => $data->pic_prodev,
+                        'title' => 'Proses deskripsi turun cetak naskah berjudul "' . $data->judul_final . '" perlu dilengkapi kelengkapan data nya.',
+                        'link' => '/penerbitan/deskripsi/turun-cetak?desc=' . $id_turcet . '&kode=' . $data->kode,
+                        'status' => '0',
+                    ]);
                     //INSERT TIMELINE TURUN CETAK
                     $insertTimelinePraset = [
                         'params' => 'Insert Timeline',
@@ -2431,7 +2514,7 @@ class PracetakSetterController extends Controller
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
                 ->join('users as u', 'psp.users_id', '=', 'u.id')
                 ->where('psp.pracetak_setter_id', $id)
-                ->select('psp.*','ps.mulai_proof', 'dp.judul_final', 'u.nama')
+                ->select('psp.*', 'ps.mulai_proof', 'dp.judul_final', 'u.nama')
                 ->orderBy('psp.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
@@ -2442,16 +2525,16 @@ class PracetakSetterController extends Controller
                             $diff = Carbon::parse($d->mulai_proof)->diffInHours($d->tgl_action);
                             if ($diff == 0) {
                                 $diff = Carbon::parse($d->mulai_proof)->diffInMinutes($d->tgl_action);
-                                $diff = $diff.' menit';
+                                $diff = $diff . ' menit';
                             } else {
-                                $diff = $diff.' jam';
+                                $diff = $diff . ' jam';
                             }
                         } else {
-                            $diff = $diff.' hari';
+                            $diff = $diff . ' hari';
                         }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Prodev menyetujui hasil setting dalam waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> Prodev menyetujui hasil setting dalam waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2466,16 +2549,16 @@ class PracetakSetterController extends Controller
                             $diff = Carbon::parse($d->mulai_proof)->diffInHours($d->tgl_action);
                             if ($diff == 0) {
                                 $diff = Carbon::parse($d->mulai_proof)->diffInMinutes($d->tgl_action);
-                                $diff = $diff.' menit';
+                                $diff = $diff . ' menit';
                             } else {
-                                $diff = $diff.' jam';
+                                $diff = $diff . ' jam';
                             }
                         } else {
-                            $diff = $diff.' hari';
+                            $diff = $diff . ' hari';
                         }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Status pracetak setter <b>Revisi</b> dengan keterangan revisi: <b>' . $d->ket_revisi . '</b>, dalam waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> Status pracetak setter <b>Revisi</b> dengan keterangan revisi: <b>' . $d->ket_revisi . '</b>, dalam waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2486,24 +2569,24 @@ class PracetakSetterController extends Controller
                         break;
                     case 'Selesai Revisi':
                         $dataSebelumnya = DB::table('pracetak_setter_proof')
-                        ->where('pracetak_setter_id', $d->pracetak_setter_id)
-                        ->where('id','<',$d->id)
-                        ->first();
+                            ->where('pracetak_setter_id', $d->pracetak_setter_id)
+                            ->where('id', '<', $d->id)
+                            ->first();
                         $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInDays($d->tgl_action);
                         if ($diff == 0) {
                             $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInHours($d->tgl_action);
                             if ($diff == 0) {
                                 $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInMinutes($d->tgl_action);
-                                $diff = $diff.' menit';
+                                $diff = $diff . ' menit';
                             } else {
-                                $diff = $diff.' jam';
+                                $diff = $diff . ' jam';
                             }
                         } else {
-                            $diff = $diff.' hari';
+                            $diff = $diff . ' hari';
                         }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Setter telah menyelesaikan revisi dengan persetujuan kabag dalam waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> Setter telah menyelesaikan revisi dengan persetujuan kabag dalam waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2538,18 +2621,18 @@ class PracetakSetterController extends Controller
                     $diff = Carbon::parse($d->tgl_proses_mulai)->diffInHours($d->tgl_proses_selesai);
                     if ($diff == 0) {
                         $diff = Carbon::parse($d->tgl_proses_mulai)->diffInMinutes($d->tgl_proses_selesai);
-                        $diff = $diff.' menit';
+                        $diff = $diff . ' menit';
                     } else {
-                        $diff = $diff.' jam';
+                        $diff = $diff . ' jam';
                     }
                 } else {
-                    $diff = $diff.' hari';
+                    $diff = $diff . ' hari';
                 }
                 switch ($d->section) {
                     case 'Proof Setting':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelSetkor . ' untuk proof oleh prodev telah diselesaikan dalam waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> ' . $labelSetkor . ' untuk proof oleh prodev telah diselesaikan dalam waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2573,7 +2656,7 @@ class PracetakSetterController extends Controller
                     case 'Setting Revision':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelSetkor . ' hasil revisi tahap ' . $d->tahap . ' dari korektor telah diselesaikan setter dalam waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> ' . $labelSetkor . ' hasil revisi tahap ' . $d->tahap . ' dari korektor telah diselesaikan setter dalam waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2585,7 +2668,7 @@ class PracetakSetterController extends Controller
                     case 'Koreksi':
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelSetkor . ' setting naskah tahap ' . $d->tahap . ' oleh korektor telah diselesaikan dalam waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> ' . $labelSetkor . ' setting naskah tahap ' . $d->tahap . ' oleh korektor telah diselesaikan dalam waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2623,16 +2706,16 @@ class PracetakSetterController extends Controller
                 ]);
             }
             $dataTodo = DB::table('todo_list')
-            ->where('form_id',$request->id)
-            ->where('users_id',$data->pic_prodev)
-            ->where('title', 'Proof setting pengajuan naskah yang berjudul "'.$data->judul_final.'".');
+                ->where('form_id', $request->id)
+                ->where('users_id', $data->pic_prodev)
+                ->where('title', 'Proof setting pengajuan naskah yang berjudul "' . $data->judul_final . '".');
             if (is_null($dataTodo->first())) {
                 //? Insert Todo Prodev
                 DB::table('todo_list')->insert([
                     'form_id' => $data->id,
                     'users_id' => $data->pic_prodev,
-                    'title' => 'Proof setting pengajuan naskah yang berjudul "'.$data->judul_final.'".',
-                    'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                    'title' => 'Proof setting pengajuan naskah yang berjudul "' . $data->judul_final . '".',
+                    'link' => '/penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode,
                     'status' => '1'
                 ]);
             } else {
@@ -2693,9 +2776,9 @@ class PracetakSetterController extends Controller
             }
             //? Update Todo list prodev
             DB::table('todo_list')
-            ->where('form_id',$request->id)
-            ->where('users_id',$data->pic_prodev)
-            ->where('title', 'Proof setting pengajuan naskah yang berjudul "'.$data->judul_final.'".')->update([
+                ->where('form_id', $request->id)
+                ->where('users_id', $data->pic_prodev)
+                ->where('title', 'Proof setting pengajuan naskah yang berjudul "' . $data->judul_final . '".')->update([
                     'status' => '1'
                 ]);
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
@@ -2747,16 +2830,16 @@ class PracetakSetterController extends Controller
                 ]);
             }
             $dataTodo = DB::table('todo_list')
-            ->where('form_id',$request->id)
-            ->where('users_id',$data->pic_prodev)
-            ->where('title', 'Proof setting pengajuan naskah yang berjudul "'.$data->judul_final.'".');
+                ->where('form_id', $request->id)
+                ->where('users_id', $data->pic_prodev)
+                ->where('title', 'Proof setting pengajuan naskah yang berjudul "' . $data->judul_final . '".');
             if (is_null($dataTodo->first())) {
                 //? Insert Todo Prodev
                 DB::table('todo_list')->insert([
                     'form_id' => $data->id,
                     'users_id' => $data->pic_prodev,
-                    'title' => 'Proof setting pengajuan naskah yang berjudul "'.$data->judul_final.'".',
-                    'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                    'title' => 'Proof setting pengajuan naskah yang berjudul "' . $data->judul_final . '".',
+                    'link' => '/penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode,
                     'status' => '0'
                 ]);
             } else {
@@ -3032,16 +3115,16 @@ class PracetakSetterController extends Controller
                         event(new PracetakSetterEvent($pros));
                     }
                 }
-                $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
-                ->where('users_id',auth()->id())
-                ->where('title','Selesaikan proses setting revisi naskah yang berjudul "'.$data->judul_final.'".');
+                $dataTodo = DB::table('todo_list')->where('form_id', $data->id)
+                    ->where('users_id', auth()->id())
+                    ->where('title', 'Selesaikan proses setting revisi naskah yang berjudul "' . $data->judul_final . '".');
                 if (is_null($dataTodo->first())) {
                     //? Insert Todo List Setter
                     DB::table('todo_list')->insert([
                         'form_id' => $data->id,
                         'users_id' => auth()->id(),
-                        'title' => 'Selesaikan proses setting revisi naskah yang berjudul "'.$data->judul_final.'".',
-                        'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                        'title' => 'Selesaikan proses setting revisi naskah yang berjudul "' . $data->judul_final . '".',
+                        'link' => '/penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode,
                         'status' => '1'
                     ]);
                 } else {
@@ -3070,7 +3153,7 @@ class PracetakSetterController extends Controller
                         'tgl_proses_selesai' => $tgl
                     ];
                     event(new PracetakSetterEvent($pros));
-                    $currentProccess = !is_null($data->selesai_proof) ? 'Antrian Proof':'Antrian Koreksi';
+                    $currentProccess = is_null($data->selesai_proof) ? 'Antrian Proof' : 'Antrian Koreksi';
                     $done = [
                         'params' => 'Setting-Koreksi Selesai',
                         'label' => 'setting',
@@ -3096,13 +3179,13 @@ class PracetakSetterController extends Controller
                     ];
                     event(new PracetakSetterEvent($pros));
                 }
-                $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('users_id',auth()->id())->where('title','Selesaikan proses setting pengajuan naskah yang berjudul "'.$data->judul_final.'".');
+                $dataTodo = DB::table('todo_list')->where('form_id', $data->id)->where('users_id', auth()->id())->where('title', 'Selesaikan proses setting pengajuan naskah yang berjudul "' . $data->judul_final . '".');
                 if (is_null($dataTodo->first())) {
                     DB::table('todo_list')->insert([
                         'form_id' => $data->id,
                         'users_id' => auth()->id(),
-                        'title' => 'Selesaikan proses setting pengajuan naskah yang berjudul "'.$data->judul_final.'".',
-                        'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                        'title' => 'Selesaikan proses setting pengajuan naskah yang berjudul "' . $data->judul_final . '".',
+                        'link' => '/penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode,
                         'status' => '1'
                     ]);
                 } else {
@@ -3249,16 +3332,16 @@ class PracetakSetterController extends Controller
                     event(new PracetakSetterEvent($pros));
                 }
             }
-            $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
-            ->where('users_id',auth()->id())
-            ->where('title','Selesaikan proses koreksi naskah yang berjudul "'.$data->judul_final.'".');
+            $dataTodo = DB::table('todo_list')->where('form_id', $data->id)
+                ->where('users_id', auth()->id())
+                ->where('title', 'Selesaikan proses koreksi naskah yang berjudul "' . $data->judul_final . '".');
             if (is_null($dataTodo->first())) {
                 //? Insert Todo List Korektor
                 DB::table('todo_list')->insert([
                     'form_id' => $data->id,
                     'users_id' => auth()->id(),
-                    'title' => 'Selesaikan proses koreksi naskah yang berjudul "'.$data->judul_final.'".',
-                    'link' => '/penerbitan/pracetak/setter/detail?pra='.$data->id.'&kode='.$data->kode,
+                    'title' => 'Selesaikan proses koreksi naskah yang berjudul "' . $data->judul_final . '".',
+                    'link' => '/penerbitan/pracetak/setter/detail?pra=' . $data->id . '&kode=' . $data->kode,
                     'status' => '1'
                 ]);
             } else {

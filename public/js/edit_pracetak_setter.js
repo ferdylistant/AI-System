@@ -404,7 +404,7 @@ $(function () {
             type: "POST",
             url:
                 window.location.origin +
-                "/penerbitan/pracetak/setter/revision-done?id="+id,
+                "/penerbitan/pracetak/setter/ajax/revision-done?id="+id,
             processData: false,
             contentType: false,
             beforeSend: function () {
@@ -491,7 +491,7 @@ $(function () {
         let val = value;
         // console.log(id);
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/setter/proses-kerja",
+            url: window.location.origin + "/penerbitan/pracetak/setter/ajax/proses-kerja",
             type: 'POST',
             data: {
                 id: id,

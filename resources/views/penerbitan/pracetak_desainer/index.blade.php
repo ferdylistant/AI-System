@@ -177,6 +177,7 @@
             </div>
         </div>
     </div>
+    @include('tracker_modal')
 @endsection
 
 @section('jsRequired')

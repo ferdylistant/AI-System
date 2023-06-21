@@ -51,6 +51,14 @@ class PracetakDesainerController extends Controller
             $data->get();
             if ($request->has('count_data')) {
                 return $data->count();
+            } elseif ($request->has('show_status')) {
+                $showStatus = DB::table('pracetak_cover as pc')
+                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                ->where('pc.id',$request->id)
+                ->select('pc.*','dp.judul_final')
+                ->first();
+                return response()->json($showStatus);
             } else {
                 return DataTables::of($data)
                     // ->addIndexColumn()
@@ -163,6 +171,15 @@ class PracetakDesainerController extends Controller
                             return $date;
                         }
                     })
+                    ->addColumn('tracker', function ($data) {
+                        $trackerData = DB::table('tracker')->where('section_id', $data->id)->get();
+                        if ($trackerData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                            return $date;
+                        }
+                    })
                     ->addColumn('action', function ($data) {
                         $btn = '<a href="' . url('penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode) . '"
                             class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
@@ -199,6 +216,7 @@ class PracetakDesainerController extends Controller
                         'pic_prodev',
                         'proses_saat_ini',
                         'history',
+                        'tracker',
                         'action'
                     ])
                     ->make(true);
@@ -1510,6 +1528,9 @@ class PracetakDesainerController extends Controller
                 case 'update-status-progress':
                     return $this->updateStatusProgress($request);
                     break;
+                case 'lihat-tracking':
+                    return $this->lihatTrackingDesainer($request);
+                    break;
                 case 'revision':
                     return $this->revisionActProdev($request);
                     break;
@@ -2190,6 +2211,32 @@ class PracetakDesainerController extends Controller
                 'status' => 'error',
                 'message' => $e->getMessage()
             ]);
+        }
+    }
+    protected function lihatTrackingDesainer($request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('tracker')->where('section_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            foreach ($data as $d) {
+                $html .= '<div class="activity">
+                <div class="activity-icon bg-primary text-white shadow-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
+                    <i class="' . $d->icon . '"></i>
+                </div>
+                <div class="activity-detail col">
+                    <div class="mb-2">
+                        <span class="text-job">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
+                        <span class="bullet"></span>
+                        <span class="text-job">' . Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i') . '</span>
+                    </div>
+                    <p>' . $d->description . '</p>
+                </div>
+            </div>';
+            }
+            return $html;
         }
     }
     protected function lihatHistoryPrades($request)

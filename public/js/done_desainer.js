@@ -68,7 +68,7 @@ $(function () {
             type: "POST",
             url:
                 window.location.origin +
-                "/penerbitan/pracetak/designer/approve?id="+id,
+                "/penerbitan/pracetak/designer/ajax/approve?id="+id,
             processData: false,
             contentType: false,
             beforeSend: function () {
@@ -150,7 +150,7 @@ $(function () {
         let el = data.get(0);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/pracetak/designer/revision",
+            url: window.location.origin + "/penerbitan/pracetak/designer/ajax/revision",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -220,7 +220,7 @@ $(function () {
         let cardWrap = $(this).closest(".card");
         // console.log(id);
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/designer/lihat-informasi-proof",
+            url: window.location.origin + "/penerbitan/pracetak/designer/ajax/lihat-informasi-proof",
             type: 'POST',
             data: {id:id},
             cache: false,
@@ -251,7 +251,7 @@ $(function () {
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/designer/lihat-informasi-proof",
+            url: window.location.origin + "/penerbitan/pracetak/designer/ajax/lihat-informasi-proof",
             data: {
                 id: id,
                 page: page,
@@ -290,7 +290,7 @@ $(function () {
         let cardWrap = $(this).closest(".card");
         // console.log(id);
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/designer/lihat-proses-deskor",
+            url: window.location.origin + "/penerbitan/pracetak/designer/ajax/lihat-proses-deskor",
             data: {id:id},
             type: 'POST',
             cache: false,
@@ -321,7 +321,7 @@ $(function () {
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/designer/lihat-proses-deskor",
+            url: window.location.origin + "/penerbitan/pracetak/designer/ajax/lihat-proses-deskor",
             data: {
                 id: id,
                 page: page,

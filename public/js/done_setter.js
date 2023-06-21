@@ -68,7 +68,7 @@ $(function () {
             type: "POST",
             url:
                 window.location.origin +
-                "/penerbitan/pracetak/setter/approve?id=" + id,
+                "/penerbitan/pracetak/setter/ajax/approve?id=" + id,
             processData: false,
             contentType: false,
             beforeSend: function () {
@@ -193,7 +193,7 @@ $(function () {
         let el = data.get(0);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/pracetak/setter/revision",
+            url: window.location.origin + "/penerbitan/pracetak/setter/ajax/revision",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -263,7 +263,7 @@ $(function () {
         let cardWrap = $(this).closest(".card");
         // console.log(id);
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/setter/lihat-informasi-proof",
+            url: window.location.origin + "/penerbitan/pracetak/setter/ajax/lihat-informasi-proof",
             type: 'POST',
             data: { id: id },
             cache: false,
@@ -294,7 +294,7 @@ $(function () {
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/setter/lihat-informasi-proof",
+            url: window.location.origin + "/penerbitan/pracetak/setter/ajax/lihat-informasi-proof",
             data: {
                 id: id,
                 page: page,
@@ -334,7 +334,7 @@ $(function () {
         let cardWrap = $(this).closest(".card");
         // console.log(id);
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/setter/lihat-proses-setkor",
+            url: window.location.origin + "/penerbitan/pracetak/setter/ajax/lihat-proses-setkor",
             data: { id: id },
             type: 'POST',
             cache: false,
@@ -365,7 +365,7 @@ $(function () {
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/penerbitan/pracetak/setter/lihat-proses-setkor",
+            url: window.location.origin + "/penerbitan/pracetak/setter/ajax/lihat-proses-setkor",
             data: {
                 id: id,
                 page: page,

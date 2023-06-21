@@ -166,13 +166,13 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::get('/pracetak/setter/detail', $path.'\Penerbitan\PracetakSetterController@detailSetter')->name('setter.detail');
         Route::match(['get', 'post'], '/pracetak/setter/edit', $path.'\Penerbitan\PracetakSetterController@editSetter')->name('setter.edit');
         Route::post('/pracetak/setter/selesai/{cat}/{id}', $path.'\Penerbitan\PracetakSetterController@prosesSelesaiSetter')->name('setter.selesai');
-        Route::post('/pracetak/setter/{act}', $path.'\Penerbitan\PracetakSetterController@actionAjax');
+        Route::post('/pracetak/setter/ajax/{act}', $path.'\Penerbitan\PracetakSetterController@actionAjax');
         //Pracetak Desainer
         Route::get('/pracetak/designer', $path.'\Penerbitan\PracetakDesainerController@index')->name('prades.view');
         Route::get('/pracetak/designer/detail', $path.'\Penerbitan\PracetakDesainerController@detailPracetakDesainer')->name('prades.detail');
         Route::match(['get', 'post'], '/pracetak/designer/edit', $path.'\Penerbitan\PracetakDesainerController@editDesigner')->name('prades.edit');
         Route::post('/pracetak/designer/selesai/{cat}/{id}', $path.'\Penerbitan\PracetakDesainerController@prosesSelesaiDesigner')->name('prades.selesai');
-        Route::post('/pracetak/designer/{act}', $path.'\Penerbitan\PracetakDesainerController@actionAjax');
+        Route::post('/pracetak/designer/ajax/{act}', $path.'\Penerbitan\PracetakDesainerController@actionAjax');
         //Order Cetak
         Route::get('/order-cetak', $path.'\Penerbitan\OrderCetakController@index')->name('cetak.view');
         Route::get('/order-cetak/detail', $path.'\Penerbitan\OrderCetakController@detailOrderCetak')->name('cetak.detail');
