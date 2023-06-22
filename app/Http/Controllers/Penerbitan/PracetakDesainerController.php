@@ -2207,14 +2207,14 @@ class PracetakDesainerController extends Controller
                         ];
                         event(new TimelineEvent($insertTimelinePracov));
 
-                        $namaUser = auth()->user()->nama;
-                        $desc = 'Pracetak Desainer selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>'.$request->status.'</b>. Proses berlanjut ke pracetak.';
-                        $icon = 'fas fa-clipboard-check';
-                        $msg = 'Pracetak Cover selesai, silahkan lanjut ke proses deskripsi turun cetak..';
                     }
+                    $namaUser = auth()->user()->nama;
+                    $desc = 'Pracetak Desainer selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>'.$request->status.'</b>. Proses berlanjut ke Deskripsi Turun Cetak.';
+                    $icon = 'fas fa-clipboard-check';
+                    $msg = 'Pracetak Cover selesai, silahkan lanjut ke proses deskripsi turun cetak..';
                 } else {
                     $namaUser = auth()->user()->nama;
-                    $desc = 'Pracetak Desainer selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>'.$request->status.'</b>. Proses berlanjut ke pracetak.';
+                    $desc = 'Pracetak Desainer selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>'.$request->status.'</b>. Proses berlanjut ke pracetak setter.';
                     $icon = 'fas fa-clipboard-check';
                     $msg = 'Pracetak Cover selesai, silahkan selesaikan proses pracetak setter..';
                 }
