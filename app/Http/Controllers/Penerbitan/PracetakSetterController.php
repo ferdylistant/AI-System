@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Penerbitan;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
+use App\Events\TrackerEvent;
 use Illuminate\Http\Request;
 use App\Events\TimelineEvent;
 use App\Events\DesturcetEvent;
@@ -1231,6 +1232,16 @@ class PracetakSetterController extends Controller
                                     'tgl_masuk' => $tgl
                                 ];
                                 event(new DesturcetEvent($turcet));
+                                $descDesturcetTracker = 'Naskah berjudul <a href="'.url('penerbitan/deskripsi/turun-cetak/detail?desc='.$id_turcet.'&kode='.$history->kode).'">'.$history->judul_final.'</a> telah memasuki tahap antrian Desktipsi Turun Cetak.';
+                                $trackerDesturcet = [
+                                    'id' => Uuid::uuid4()->toString(),
+                                    'section_id' => $id_turcet,
+                                    'section_name' => 'Deskripsi Turun Cetak',
+                                    'description' => $descDesturcetTracker,
+                                    'icon' => 'fas fa-folder-plus',
+                                    'created_by' => auth()->id()
+                                ];
+                                event(new TrackerEvent($trackerDesturcet));
                                 //Update Todo List Kabag
                                 switch ($history->jalur_buku) {
                                     case 'Reguler':
