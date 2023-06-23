@@ -669,7 +669,7 @@ class DeskripsiFinalController extends Controller
                     }
                     $namaUser = auth()->user()->nama;
                     $desc = 'Deskripsi final selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Final menjadi <b>'.$request->status.'</b>.';
-                    $msg = 'Deskripsi final selesai, silahkan lanjut ke proses Deskripsi Cover..';
+                    $msg = 'Deskripsi final selesai, silahkan lanjut ke proses Deskripsi Cover.';
                 } else {
                     event(new DesfinEvent($update));
                     event(new DesfinEvent($insert));
