@@ -301,7 +301,7 @@
                         if (error == 'unknown status') {
                             checkAuth(id);
                         } else {
-                            console.error('Error updating status activity: ' + error);
+                            console.error('Error updating status activity: ' + status);
                         }
                     }
                 });
