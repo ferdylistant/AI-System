@@ -9,7 +9,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v1
     - name: executing remote ssh commands using password
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
