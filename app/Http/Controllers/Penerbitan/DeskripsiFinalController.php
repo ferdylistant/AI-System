@@ -552,9 +552,11 @@ class DeskripsiFinalController extends Controller
             try {
                 $id = $request->id;
                 DB::beginTransaction();
-                $data = DB::table('deskripsi_final as df')->join('deskripsi_produk as dp','df.deskripsi_produk_id','=','dp.id')
+                $data = DB::table('deskripsi_final as df')
+                ->join('deskripsi_produk as dp','df.deskripsi_produk_id','=','dp.id')
+                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                 ->where('df.id', $id)
-                ->select('df.*','dp.naskah_id','dp.judul_final')
+                ->select('df.*','dp.naskah_id','dp.judul_final','pn.kode')
                 ->first();
                 if (is_null($data)) {
                     return response()->json([
