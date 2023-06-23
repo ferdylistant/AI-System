@@ -300,8 +300,6 @@
                     error: function(xhr, status, error) {
                         if (error == 'unknown status') {
                             checkAuth(id);
-                        } else {
-                            console.error('Error updating status activity: ' + status);
                         }
                     }
                 });
