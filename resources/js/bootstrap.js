@@ -28,5 +28,5 @@ window.Echo = new Echo({
     wsPort: 6001,
     wssPort: 6001,
     disableStats: true,
-    forceTLS: true,
+    // forceTLS: true,
 });
