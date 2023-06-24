@@ -1200,6 +1200,18 @@ class PracetakSetterController extends Controller
                     }
                     $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
                     if ($request->proses_saat_ini == 'Turun Cetak') {
+                        $cekTotalKoreksi = DB::table('pracetak_setter_selesai')
+                        ->where('pracetak_setter_id',$history->id)
+                        ->where('section','Koreksi')->get()->count();
+                        $cekTotalSettingRevisi = DB::table('pracetak_setter_selesai')
+                        ->where('pracetak_setter_id',$history->id)
+                        ->where('section','Setting Revision')->get()->count();
+                        if ($cekTotalSettingRevisi < $cekTotalKoreksi) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Proses setting belum selesai'
+                            ]);
+                        }
                         if (is_null($history->selesai_setting) || is_null($history->selesai_koreksi)) {
                             return response()->json([
                                 'status' => 'error',
@@ -2169,6 +2181,19 @@ class PracetakSetterController extends Controller
                         'status' => 'error',
                         'message' => 'Proses setting belum selesai'
                     ]);
+                } else {
+                    $cekTotalKoreksi = DB::table('pracetak_setter_selesai')
+                    ->where('pracetak_setter_id',$data->id)
+                    ->where('section','Koreksi')->get()->count();
+                    $cekTotalSettingRevisi = DB::table('pracetak_setter_selesai')
+                    ->where('pracetak_setter_id',$data->id)
+                    ->where('section','Setting Revision')->get()->count();
+                    if ($cekTotalSettingRevisi < $cekTotalKoreksi) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Proses setting belum selesai'
+                        ]);
+                    }
                 }
                 if (is_null($data->selesai_proof)) {
                     return response()->json([
@@ -2188,18 +2213,19 @@ class PracetakSetterController extends Controller
                         'message' => 'Proses copyright belum selesai'
                     ]);
                 }
-                if (is_null($data->pengajuan_harga)) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Proses pengajuan harga belum selesai'
-                    ]);
-                }
-                if (is_null($data->isbn)) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'ISBN belum ditambahkan.'
-                    ]);
-                }
+
+                // if (is_null($data->pengajuan_harga)) {
+                //     return response()->json([
+                //         'status' => 'error',
+                //         'message' => 'Proses pengajuan harga belum selesai'
+                //     ]);
+                // }
+                // if (is_null($data->isbn)) {
+                //     return response()->json([
+                //         'status' => 'error',
+                //         'message' => 'ISBN belum ditambahkan.'
+                //     ]);
+                // }
                 event(new PracetakSetterEvent($update));
                 event(new PracetakSetterEvent($insert));
                 //UPDATE TIMELINE PRACETAK SETTER
@@ -3125,9 +3151,9 @@ class PracetakSetterController extends Controller
                             'author_id' => auth()->id()
                         ];
                         event(new PracetakSetterEvent($done));
-                        DB::table('pracetak_setter')->where('id', $data->id)->update([
-                            'selesai_koreksi' => NULL
-                        ]);
+                        // DB::table('pracetak_setter')->where('id', $data->id)->update([
+                        //     'selesai_koreksi' => NULL
+                        // ]);
                     } else {
                         $pros = [
                             'params' => 'Proses Setting-Koreksi Selesai',
