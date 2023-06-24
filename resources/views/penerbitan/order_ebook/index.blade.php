@@ -58,6 +58,12 @@
             overflow-y: scroll;
             height: 200px;
         }
+
+        .example-2 {
+            position: relative;
+            overflow-y: scroll;
+            height: 400px;
+        }
     </style>
 @endsection
 
@@ -95,7 +101,9 @@
                                     </div>
                                 </div>
                                 <div class="col-auto pb-3">
-                                    <span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-database"></i> Total data order
+                                    <span class="badge badge-warning"
+                                        style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i
+                                            class="fas fa-database"></i> Total data order
                                         e-book: <b id="countData">0</b></span>
                                 </div>
                             </div>
@@ -175,7 +183,8 @@
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
-    <script type="text/javascript" charset="utf8" src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
+    <script type="text/javascript" charset="utf8"
+        src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
