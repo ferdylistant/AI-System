@@ -237,7 +237,7 @@
         });
     </script>
     <script src="{{ url('js/main.js') }}"></script>
-    <script src="js/app.js"></script>
+    <script src="{{url('js/app.js')}}"></script>
     <script>
         // Reload the page when the user's internet connection is restored
         $(document).ready(function () {
