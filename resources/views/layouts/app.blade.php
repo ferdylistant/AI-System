@@ -244,17 +244,19 @@
             var awayTimeout;
             var statusDB = '{{auth()->user()->status_activity}}';
             var id = '{{auth()->user()->id}}';
-            // checkAuth(id);
-            // function checkAuth(id) {
-            //     $.ajax({
-            //         url: window.location.origin + '/check-authentication',
-            //         data: {id : id},
-            //         method: 'GET',
-            //         error: function (xhr, status, error) {
-            //             console.error('Error checking authentication: ' + error);
-            //         }
-            //     });
-            // }
+            checkAuth(id);
+            function checkAuth(id) {
+                $.ajax({
+                    url: window.location.origin + '/check-authentication',
+                    data: {id : id},
+                    method: 'GET',
+                    error: function (xhr, status, error) {
+                        console.error('Error checking authentication: ' + xhr);
+                        console.error('Error checking authentication: ' + status);
+                        console.error('Error checking authentication: ' + error);
+                    }
+                });
+            }
             $(window).on('mousemove keydown',function (e) {
                 if (statusDB == 'online') {
                     clearTimeout(awayTimeout);
@@ -298,9 +300,9 @@
                     //     console.log(response);
                     // },
                     error: function(xhr, status, error) {
-                        // if (error == 'unknown status') {
-                        //     checkAuth(id);
-                        // }
+                        if (error == 'unknown status') {
+                            checkAuth(id);
+                        }
                         console.log(xhr);
                         console.log(status);
                         console.log(error);
