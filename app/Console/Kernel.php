@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -33,6 +34,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('queue:flush')->weekdays();
         $schedule->command('backup:clean')->daily();
         $schedule->command('backup:run')->daily();
+        $schedule->call(function () {
+            $id = auth()->user()->id;
+            $activity = auth()->check() ? 'online':'offline';
+            DB::table('users')->where('id',$id)->update([
+                'status_activity' => $activity
+            ]);
+        })->everyMinute();
 
     }
 
