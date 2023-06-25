@@ -28,8 +28,8 @@
         }
 
         /* .fc-event-title {
-                                                            color: #1a252f;
-                                                        } */
+                                                                color: #1a252f;
+                                                            } */
 
         .tb-detail-naskah {
             font-size: 12px;
@@ -715,7 +715,7 @@
                     notifToast('error', 'Terjadi kesalahan!')
                 });
             }
-            $('#todoList_data').on('click','.delete-todo',function() {
+            $('#todoList_data').on('click', '.delete-todo', function() {
                 var id = $(this).data("id");
                 $.ajax({
                     type: "POST",
@@ -736,13 +736,13 @@
             });
         });
     </script>
-    <script>
-    document.addEventListener("DOMContentLoaded", function(event) {
-        Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (e) => {
-            console.log(e);
+    {{-- <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (e) => {
+                console.log(e);
             });
-    });
-</script>
+        });
+    </script> --}}
     {{-- <script>
     $(document).ready(function() {
         const url = window.location.href;

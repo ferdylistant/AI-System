@@ -40,25 +40,25 @@ class PracetakDesainerController extends Controller
             $reguler = Gate::allows('do_create', 'otorisasi-desainer-prades-reguler');
             $mou = Gate::allows('do_create', 'otorisasi-desainer-prades-mou');
             $smk = Gate::allows('do_create', 'otorisasi-desainer-prades-smk');
-            if (in_array(auth()->id(),$data->pluck('pic_prodev')->toArray())) {
+            if (in_array(auth()->id(), $data->pluck('pic_prodev')->toArray())) {
                 $data->where('pn.pic_prodev', auth()->id());
             }
             if ($reguler || $mou || $smk) {
-                $data->where('pc.desainer','like', '%"'.auth()->id().'"%');
+                $data->where('pc.desainer', 'like', '%"' . auth()->id() . '"%');
             }
-            if (Gate::allows('do_create', 'otorisasi-korektor-prades-reguler')||Gate::allows('do_create', 'otorisasi-korektor-prades-mou')||Gate::allows('do_create', 'otorisasi-korektor-prades-smk')) {
-                $data->where('pc.korektor','like', '%"'.auth()->id().'"%');
+            if (Gate::allows('do_create', 'otorisasi-korektor-prades-reguler') || Gate::allows('do_create', 'otorisasi-korektor-prades-mou') || Gate::allows('do_create', 'otorisasi-korektor-prades-smk')) {
+                $data->where('pc.korektor', 'like', '%"' . auth()->id() . '"%');
             }
             $data->get();
             if ($request->has('count_data')) {
                 return $data->count();
             } elseif ($request->has('show_status')) {
                 $showStatus = DB::table('pracetak_cover as pc')
-                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->where('pc.id',$request->id)
-                ->select('pc.*','dp.judul_final')
-                ->first();
+                    ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                    ->where('pc.id', $request->id)
+                    ->select('pc.*', 'dp.judul_final')
+                    ->first();
                 return response()->json($showStatus);
             } else {
                 return DataTables::of($data)
@@ -69,11 +69,11 @@ class PracetakDesainerController extends Controller
                         if ($data->status == 'Proses') {
                             if ($data->proses_saat_ini == 'Siap Turcet') {
                                 $tandaProses = '<span class="beep-primary"></span>';
-                                $dataKode = '<span class="text-primary"  data-toggle="tooltip" data-placement="top" title="Proses '.$data->proses_saat_ini.', menunggu kabag melengkapi data-data yang dibutuhkan untuk Turun Cetak">' . $data->kode . '</span>';
+                                $dataKode = '<span class="text-primary"  data-toggle="tooltip" data-placement="top" title="Proses ' . $data->proses_saat_ini . ', menunggu kabag melengkapi data-data yang dibutuhkan untuk Turun Cetak">' . $data->kode . '</span>';
                             } else {
                                 $tooltip = $data->proses == '1' ? 'data-toggle="tooltip" data-placement="top" title="Sedang dikerjakan oleh ' . $data->proses_saat_ini . '"' : 'data-toggle="tooltip" data-placement="top" title="Proses ' . $data->proses_saat_ini . ' belum dimulai oleh kabag"';
                                 $tandaProses = $data->proses == '1' ? '<span class="beep-success"></span>' : '<span class="beep-danger"></span>';
-                                $dataKode = $data->proses == '1'  ? '<span class="text-success" '.$tooltip.'>' . $data->kode . '</span>' : '<span class="text-danger" '.$tooltip.'>' . $data->kode . '</span>';
+                                $dataKode = $data->proses == '1'  ? '<span class="text-success" ' . $tooltip . '>' . $data->kode . '</span>' : '<span class="text-danger" ' . $tooltip . '>' . $data->kode . '</span>';
                             }
                         }
                         return $tandaProses . $dataKode;
@@ -91,12 +91,12 @@ class PracetakDesainerController extends Controller
                         if (is_null($data->desainer) || $data->desainer == '[]' || $data->desainer == '[null]') {
                             $result .= "<span class='text-danger'>Belum ditambahkan</span>";
                         } else {
-                            $des = collect(json_decode($data->desainer))->map(function($item) {
-                                $name = DB::table('users')->where('id',$item)->first()->nama;
+                            $des = collect(json_decode($data->desainer))->map(function ($item) {
+                                $name = DB::table('users')->where('id', $item)->first()->nama;
                                 return $name;
                             })->all();
                             foreach ($des as $q) {
-                                $result .= '<span class="bullet"></span>'.$q.'<br>';
+                                $result .= '<span class="bullet"></span>' . $q . '<br>';
                             }
                         }
                         return $result;
@@ -106,12 +106,12 @@ class PracetakDesainerController extends Controller
                         if (is_null($data->korektor) || $data->korektor == '[]' || $data->korektor == '[null]') {
                             $result .= "<span class='text-danger'>Belum ditambahkan</span>";
                         } else {
-                            $kor = collect(json_decode($data->korektor))->map(function($item) {
-                                $name = DB::table('users')->where('id',$item)->first()->nama;
+                            $kor = collect(json_decode($data->korektor))->map(function ($item) {
+                                $name = DB::table('users')->where('id', $item)->first()->nama;
                                 return $name;
                             })->all();
                             foreach ($kor as $q) {
-                                $result .= '<span class="bullet"></span>'.$q.'<br>';
+                                $result .= '<span class="bullet"></span>' . $q . '<br>';
                             }
                         }
                         return $result;
@@ -233,7 +233,7 @@ class PracetakDesainerController extends Controller
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $statusProsesSaatIni = explode("','", $matches[1]);
         $statusProsesSaatIni = Arr::sort($statusProsesSaatIni);
-        $statusProsesSaatIni = Arr::prepend($statusProsesSaatIni,'Belum ada proses');
+        $statusProsesSaatIni = Arr::prepend($statusProsesSaatIni, 'Belum ada proses');
 
         return view('penerbitan.pracetak_desainer.index', [
             'title' => 'Pracetak Desainer',
@@ -334,42 +334,42 @@ class PracetakDesainerController extends Controller
                 $id = $request->get('cover');
                 $kodenaskah = $request->get('kode');
                 $data = DB::table('pracetak_cover as pc')
-                ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
-                ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                        ->whereNull('kb.deleted_at');
-                })
-                ->where('pc.id', $id)
-                ->where('pn.kode', $kodenaskah)
-                ->select(
-                    'pc.*',
-                    'df.sub_judul_final',
-                    'df.bullet',
-                    'df.sinopsis',
-                    'dc.des_front_cover',
-                    'dc.des_back_cover',
-                    'dc.finishing_cover',
-                    'dc.jilid',
-                    'dc.tipografi',
-                    'dc.warna',
-                    'dc.contoh_cover',
-                    'dp.naskah_id',
-                    'dp.judul_final',
-                    'dp.nama_pena',
-                    'dp.imprint',
-                    'dp.format_buku',
-                    'pn.kode',
-                    'pn.jalur_buku',
-                    'pn.pic_prodev',
-                    'kb.nama',
-                    'ps.id as id_praset'
+                    ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                    ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                        $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                            ->whereNull('kb.deleted_at');
+                    })
+                    ->where('pc.id', $id)
+                    ->where('pn.kode', $kodenaskah)
+                    ->select(
+                        'pc.*',
+                        'df.sub_judul_final',
+                        'df.bullet',
+                        'df.sinopsis',
+                        'dc.des_front_cover',
+                        'dc.des_back_cover',
+                        'dc.finishing_cover',
+                        'dc.jilid',
+                        'dc.tipografi',
+                        'dc.warna',
+                        'dc.contoh_cover',
+                        'dp.naskah_id',
+                        'dp.judul_final',
+                        'dp.nama_pena',
+                        'dp.imprint',
+                        'dp.format_buku',
+                        'pn.kode',
+                        'pn.jalur_buku',
+                        'pn.pic_prodev',
+                        'kb.nama',
+                        'ps.id as id_praset'
 
-                )
-                ->first();
+                    )
+                    ->first();
                 if (is_null($data)) {
                     return response()->json([
                         'status' => 'error',
@@ -377,7 +377,7 @@ class PracetakDesainerController extends Controller
                     ]);
                 }
                 $useData = $data;
-                $data = collect($data)->put('penulis',DB::table('penerbitan_naskah_penulis as pnp')
+                $data = collect($data)->put('penulis', DB::table('penerbitan_naskah_penulis as pnp')
                     ->join('penerbitan_penulis as pp', function ($q) {
                         $q->on('pnp.penulis_id', '=', 'pp.id')
                             ->whereNull('pp.deleted_at');
@@ -426,7 +426,7 @@ class PracetakDesainerController extends Controller
                         case 'proses_saat_ini':
                             $htmlHeader = '';
                             $htmlHeader .= '<i class="fas fa-exclamation-circle"></i>&nbsp;Proses Saat Ini:';
-                            switch($item) {
+                            switch ($item) {
                                 case 'Antrian Pengajuan Desain':
                                     $htmlHeader .= '<span class="text-dark"> Antri Pengajuan Desain</span>';
                                     break;
@@ -476,7 +476,7 @@ class PracetakDesainerController extends Controller
                             $type = DB::select(DB::raw("SHOW COLUMNS FROM pracetak_cover WHERE Field = 'proses_saat_ini'"))[0]->Type;
                             preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
                             $prosesSaatIni = explode("','", $matches[1]);
-                            $prosesFilter = Arr::except($prosesSaatIni, ['1', '3','5', '7', '10']);
+                            $prosesFilter = Arr::except($prosesSaatIni, ['1', '3', '5', '7', '10']);
                             if ($item == 'Siap Turcet') {
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
                                     return $key >= 8;
@@ -501,8 +501,10 @@ class PracetakDesainerController extends Controller
                                     return $value;
                                 });
                             }
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $textAlign = 'text-left';
@@ -510,25 +512,25 @@ class PracetakDesainerController extends Controller
                                     <select name="proses_saat_ini" class="form-control select-proses" required>
                                         <option label="Pilih proses saat ini"></option>';
                                     foreach ($prosesFilter as $k) {
-                                        $html .= '<option value="'.$k.'">'.$k.'&nbsp;&nbsp;</option>';
+                                        $html .= '<option value="' . $k . '">' . $k . '&nbsp;&nbsp;</option>';
                                     }
-                                    $html .='</select>
+                                    $html .= '</select>
                                 </div>';
                                 } else {
                                     $idCol = "prosCol";
                                     $textAlign = 'text-right';
-                                    $html .= $item.'
+                                    $html .= $item . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="prosButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
+                                    $htmlHidden .= '<div class="input-group">
                                 <select name="proses_saat_ini" class="form-control select-proses" required>
                                     <option label="Pilih proses saat ini"></option>';
                                     foreach ($prosesFilter as $k) {
-                                        $sel = $item==$k ? 'Selected' : '';
-                                        $htmlHidden .= '<option value="'.$k.'" '.$sel.'>'.$k.'&nbsp;&nbsp;</option>';
+                                        $sel = $item == $k ? 'Selected' : '';
+                                        $htmlHidden .= '<option value="' . $k . '" ' . $sel . '>' . $k . '&nbsp;&nbsp;</option>';
                                     }
-                                $htmlHidden .= '</select>
+                                    $htmlHidden .= '</select>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_proses text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -544,7 +546,7 @@ class PracetakDesainerController extends Controller
                                     $html .= $item;
                                 }
                             }
-                            return ['htmlHeader'=>$htmlHeader,'data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['htmlHeader' => $htmlHeader, 'data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'penulis':
                             $html = '';
@@ -552,15 +554,17 @@ class PracetakDesainerController extends Controller
                                 $html .= '-';
                             } else {
                                 foreach ($item as $value) {
-                                    $html .= '<span class="bullet"></span>'.$value->nama . '<br>';
+                                    $html .= '<span class="bullet"></span>' . $value->nama . '<br>';
                                 }
                             }
                             return $html;
                             break;
                         case 'imprint':
                             $res = DB::table('imprint')->whereNull('deleted_at')->first()->nama;
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 $return = is_null($item) ? '-' : $res;
                             } else {
@@ -572,32 +576,34 @@ class PracetakDesainerController extends Controller
                                     $return = $res;
                                 }
                             }
-                            return ['data' => $return,'textColor' => $text];
+                            return ['data' => $return, 'textColor' => $text];
                             break;
                         case 'format_buku':
                             $res = DB::table('format_buku')->whereNull('deleted_at')->first()->jenis_format;
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
-                                $return = is_null($item) ? '-' : $res.' cm';
+                                $return = is_null($item) ? '-' : $res . ' cm';
                             } else {
                                 if (is_null($item)) {
                                     $text = 'text-danger';
                                     $return = 'Belum diinput';
                                 } else {
                                     $text = 'text-dark';
-                                    $return = $res.' cm';
+                                    $return = $res . ' cm';
                                 }
                             }
-                            return ['data' => $return,'textColor' => $text];
+                            return ['data' => $return, 'textColor' => $text];
                             break;
                         case 'finishing_cover':
-                            $return ='';
+                            $return = '';
                             if ($useData->status == 'Proses' || $useData->status == 'Revisi' || ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
                                 $text = 'text-dark';
                                 if (!is_null($item)) {
                                     foreach (json_decode($item, true) as $key => $aj) {
-                                        $return .= '<span class="bullet"></span>'.$aj .'<br>';
+                                        $return .= '<span class="bullet"></span>' . $aj . '<br>';
                                     }
                                 } else {
                                     $return .= '-';
@@ -609,22 +615,24 @@ class PracetakDesainerController extends Controller
                                 } else {
                                     $text = 'text-dark';
                                     foreach (json_decode($item, true) as $key => $aj) {
-                                        $return .= '<span class="bullet"></span>'.$aj .'<br>';
+                                        $return .= '<span class="bullet"></span>' . $aj . '<br>';
                                     }
                                 }
                             }
-                            return ['data' => $return,'textColor' => $text];
+                            return ['data' => $return, 'textColor' => $text];
                             break;
                         case 'bullet':
                             $html = '';
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if ((is_null($item)) || ($item == '[]')) {
                                     $html .= '-';
                                 } else {
                                     foreach (json_decode($item) as $value) {
-                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
+                                        $html .= '<span class="bullet"></span>' . $value . '<br>';
                                     }
                                 }
                             } else {
@@ -634,20 +642,20 @@ class PracetakDesainerController extends Controller
                                 } else {
                                     $text = 'text-dark';
                                     foreach (json_decode($item) as $value) {
-                                        $html .= '<span class="bullet"></span>'.$value . '<br>';
+                                        $html .= '<span class="bullet"></span>' . $value . '<br>';
                                     }
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text];
+                            return ['data' => $html, 'textColor' => $text];
                             break;
                         case 'contoh_cover':
-                            $return ='';
+                            $return = '';
                             if ($useData->status == 'Proses' || $useData->status == 'Revisi' || ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
                                 $text = 'text-dark';
                                 if (!is_null($item)) {
                                     $text = 'text-warning';
-                                    $return .='<a href="'.$item .'" class="text-warning" target="_blank"><i
-                                    class="fas fa-link"></i>&nbsp;'.$item .'</a>';
+                                    $return .= '<a href="' . $item . '" class="text-warning" target="_blank"><i
+                                    class="fas fa-link"></i>&nbsp;' . $item . '</a>';
                                 } else {
                                     $return .= '-';
                                 }
@@ -657,17 +665,19 @@ class PracetakDesainerController extends Controller
                                     $return .= 'Belum diinput';
                                 } else {
                                     $text = 'text-warning';
-                                    $return .='<a href="'.$item .'" class="text-warning" target="_blank"><i
-                                    class="fas fa-link"></i>&nbsp;'.$item .'</a>';
+                                    $return .= '<a href="' . $item . '" class="text-warning" target="_blank"><i
+                                    class="fas fa-link"></i>&nbsp;' . $item . '</a>';
                                 }
                             }
-                            return ['data' => $return,'textColor' => $text];
+                            return ['data' => $return, 'textColor' => $text];
                             break;
                         case 'catatan':
                             $html = '';
                             $htmlHidden = '';
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $idCol = "catCol";
@@ -682,12 +692,12 @@ class PracetakDesainerController extends Controller
                                 } else {
                                     $idCol = "catCol";
                                     $textAlign = 'text-right';
-                                    $html .= $item.'
+                                    $html .= $item . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="catButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
-                                <textarea name="catatan" class="form-control" cols="30" rows="10">'.$item.'</textarea>
+                                    $htmlHidden .= '<div class="input-group">
+                                <textarea name="catatan" class="form-control" cols="30" rows="10">' . $item . '</textarea>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_cat text-danger" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -704,7 +714,7 @@ class PracetakDesainerController extends Controller
                                     $html .= $item;
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'desainer':
                             $html = '';
@@ -718,8 +728,10 @@ class PracetakDesainerController extends Controller
                                 ->select('u.nama', 'u.id')
                                 ->orderBy('u.nama', 'Asc')
                                 ->get();
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if ((is_null($item)) || ($item == '[null]')) {
 
@@ -727,11 +739,11 @@ class PracetakDesainerController extends Controller
                                     $html .= '<select name="desainer[]" class="form-control select-desainer" multiple="multiple" required>
                                     <option label="Pilih desainer"></option>';
                                     foreach ($desainer as $i => $edList) {
-                                    $html .='<option value="'. $edList->id .'">
-                                        '. $edList->nama .'&nbsp;&nbsp;
+                                        $html .= '<option value="' . $edList->id . '">
+                                        ' . $edList->nama . '&nbsp;&nbsp;
                                     </option>';
                                     }
-                                    $html .='</select>';
+                                    $html .= '</select>';
                                 } else {
                                     $idCol = "desainerCol";
                                     $textAlign = 'text-right';
@@ -740,40 +752,40 @@ class PracetakDesainerController extends Controller
                                             $namaDesainer[] = DB::table('users')->where('id', $e)->first()->nama;
                                         }
                                         $korektor = DB::table('users as u')
-                                        ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-                                        ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
-                                        ->where('j.nama', 'LIKE', '%Design%')
-                                        ->where('d.nama', 'LIKE', '%Penerbitan%')
-                                        ->whereNotIn('u.id', json_decode($item))
-                                        ->orWhere('j.nama', 'LIKE', '%Korektor%')
-                                        ->select('u.nama', 'u.id')
-                                        ->orderBy('u.nama', 'Asc')
-                                        ->get();
+                                            ->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
+                                            ->join('divisi as d', 'u.divisi_id', '=', 'd.id')
+                                            ->where('j.nama', 'LIKE', '%Design%')
+                                            ->where('d.nama', 'LIKE', '%Penerbitan%')
+                                            ->whereNotIn('u.id', json_decode($item))
+                                            ->orWhere('j.nama', 'LIKE', '%Korektor%')
+                                            ->select('u.nama', 'u.id')
+                                            ->orderBy('u.nama', 'Asc')
+                                            ->get();
                                     } else {
                                         $namaDesainer = null;
                                         $korektor = null;
                                     }
                                     foreach ($namaDesainer as $key => $aj) {
-                                    $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                        $html .= '<span class="bullet"></span>' . $aj . '<br>';
                                     }
                                     if ($useData->proses_saat_ini != 'Siap Turcet') {
                                         $html .= '<p class="text-small">
                                             <a href="javascript:void(0)" id="desainerButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
                                         </p>';
                                     }
-                                $htmlHidden .='<div class="input-group">
+                                    $htmlHidden .= '<div class="input-group">
                                 <select name="desainer[]" class="form-control select-desainer" multiple="multiple">
                                     <option label="Pilih desainer"></option>';
                                     foreach ($desainer as $i => $edList) {
-                                    $sel = '';
-                                    if (in_array($edList->nama, $namaDesainer)) {
-                                        $sel = ' selected="selected" ';
-                                    }
-                                    $htmlHidden .='<option value="'. $edList->id .'" '. $sel .'>
-                                        '. $edList->nama .'&nbsp;&nbsp;
+                                        $sel = '';
+                                        if (in_array($edList->nama, $namaDesainer)) {
+                                            $sel = ' selected="selected" ';
+                                        }
+                                        $htmlHidden .= '<option value="' . $edList->id . '" ' . $sel . '>
+                                        ' . $edList->nama . '&nbsp;&nbsp;
                                     </option>';
                                     }
-                                $htmlHidden .='</select>
+                                    $htmlHidden .= '</select>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_desainer text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -790,11 +802,11 @@ class PracetakDesainerController extends Controller
                                         $namaDesainer[] = DB::table('users')->where('id', $e)->first()->nama;
                                     }
                                     foreach ($namaDesainer as $key => $aj) {
-                                        $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                        $html .= '<span class="bullet"></span>' . $aj . '<br>';
                                     }
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'korektor':
                             $html = '';
@@ -822,8 +834,10 @@ class PracetakDesainerController extends Controller
                             } else {
                                 $korektor = null;
                             }
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if ((!is_null($item)) && ($item != '[null]')) {
                                     $idCol = "korektorCol";
@@ -836,26 +850,26 @@ class PracetakDesainerController extends Controller
                                         $namakorektor = null;
                                     }
                                     foreach ($namakorektor as $key => $aj) {
-                                    $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                        $html .= '<span class="bullet"></span>' . $aj . '<br>';
                                     }
                                     if ($useData->proses_saat_ini != 'Siap Turcet') {
                                         $html .= '<p class="text-small">
                                         <a href="javascript:void(0)" id="korektorButton"><i class="fa fa-pen"></i>&nbsp;Add / Edit</a>
                                         </p>';
                                     }
-                                    $htmlHidden .='<div class="input-group">
+                                    $htmlHidden .= '<div class="input-group">
                                     <select name="korektor[]" class="form-control select-korektor" multiple="multiple">
                                     <option label="Pilih korektor"></option>';
                                     foreach ($korektor as $i => $edList) {
-                                    $sel = '';
-                                    if (in_array($edList->nama, $namakorektor)) {
-                                        $sel = ' selected="selected" ';
-                                    }
-                                    $htmlHidden .='<option value="'. $edList->id .'" '. $sel .'>
-                                        '. $edList->nama .'&nbsp;&nbsp;
+                                        $sel = '';
+                                        if (in_array($edList->nama, $namakorektor)) {
+                                            $sel = ' selected="selected" ';
+                                        }
+                                        $htmlHidden .= '<option value="' . $edList->id . '" ' . $sel . '>
+                                        ' . $edList->nama . '&nbsp;&nbsp;
                                     </option>';
                                     }
-                                $htmlHidden .='</select>
+                                    $htmlHidden .= '</select>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_korektor text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -864,21 +878,21 @@ class PracetakDesainerController extends Controller
                                     $textAlign = 'text-left';
                                     $dis = '';
                                     if (is_null($useData->selesai_cover)) {
-                                        $html .='<span class="text-danger"><i class="fas fa-exclamation-circle"></i>
+                                        $html .= '<span class="text-danger"><i class="fas fa-exclamation-circle"></i>
                                             Belum bisa melanjutkan proses koreksi,
-                                            proses '.$useData->proses_saat_ini.' belum selesai.</span>';
+                                            proses ' . $useData->proses_saat_ini . ' belum selesai.</span>';
                                         $dis = 'disabled';
                                     }
-                                    $html .='<select name="korektor[]" class="form-control select-korektor" multiple="multiple" '. $dis .' required>
+                                    $html .= '<select name="korektor[]" class="form-control select-korektor" multiple="multiple" ' . $dis . ' required>
                                         <option label="Pilih korektor"></option>';
-                                        if (!is_null($korektor)) {
-                                            foreach ($korektor as $cpeList) {
-                                                $html .='<option value="'. $cpeList->id .'">
-                                                '.$cpeList->nama .'&nbsp;&nbsp;
+                                    if (!is_null($korektor)) {
+                                        foreach ($korektor as $cpeList) {
+                                            $html .= '<option value="' . $cpeList->id . '">
+                                                ' . $cpeList->nama . '&nbsp;&nbsp;
                                                 </option>';
-                                            }
                                         }
-                                    $html .='</select>';
+                                    }
+                                    $html .= '</select>';
                                 }
                             } else {
                                 $textAlign = 'text-right';
@@ -891,13 +905,13 @@ class PracetakDesainerController extends Controller
                                         $namakorektor[] = DB::table('users')->where('id', $e)->first()->nama;
                                     }
                                     foreach ($namakorektor as $key => $aj) {
-                                        $html .= '<span class="bullet"></span>'. $aj .'<br>';
+                                        $html .= '<span class="bullet"></span>' . $aj . '<br>';
                                     }
                                 }
                             }
-                            $required ='';
-                            $requiredColor ='';
-                            if (!is_null($useData->selesai_proof)){
+                            $required = '';
+                            $requiredColor = '';
+                            if (!is_null($useData->selesai_proof)) {
                                 $required = '*';
                                 $requiredColor = 'text-danger';
                             }
@@ -915,8 +929,10 @@ class PracetakDesainerController extends Controller
                             $html = '';
                             $htmlHidden = '';
                             $idCol = "";
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $idCol = "";
@@ -925,12 +941,12 @@ class PracetakDesainerController extends Controller
                                 } else {
                                     $idCol = "bulanCol";
                                     $textAlign = 'text-right';
-                                    $html .= Carbon::parse($item)->translatedFormat('F Y').'
+                                    $html .= Carbon::parse($item)->translatedFormat('F Y') . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="bulanButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
-                                $htmlHidden .='<div class="input-group">
-                                <input name="bulan" class="form-control datepicker" value="'.Carbon::createFromFormat('Y-m-d',$item,'Asia/Jakarta')->format('F Y').'" placeholder="Bulan proses" readonly required>
+                                    $htmlHidden .= '<div class="input-group">
+                                <input name="bulan" class="form-control datepicker" value="' . Carbon::createFromFormat('Y-m-d', $item, 'Asia/Jakarta')->format('F Y') . '" placeholder="Bulan proses" readonly required>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-danger batal_edit_bulan text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                 </div>
@@ -946,11 +962,13 @@ class PracetakDesainerController extends Controller
                                     $html .= Carbon::parse($item)->translatedFormat('F Y');
                                 }
                             }
-                            return ['data' => $html,'textColor' => $text,'htmlHidden' => $htmlHidden,'idCol' => $idCol,'textAlign' => $textAlign];
+                            return ['data' => $html, 'textColor' => $text, 'htmlHidden' => $htmlHidden, 'idCol' => $idCol, 'textAlign' => $textAlign];
                             break;
                         case 'proses':
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $label = $item == 1 ? 'Stop' : 'Mulai';
                                 $checked = $item == 1 ? true : false;
                                 $disable = false;
@@ -964,13 +982,13 @@ class PracetakDesainerController extends Controller
                                     $cursorBtn = 'not-allowed';
                                     $lbl = 'Sedang proses proof prodev';
                                 } elseif (is_null($useData->selesai_pengajuan_cover) && is_null($useData->mulai_proof)) {
-                                    $lbl = $label.' proses pengajuan cover';
+                                    $lbl = $label . ' proses pengajuan cover';
                                 } elseif (!is_null($useData->selesai_pengajuan_cover) && is_null($useData->selesai_proof)) {
-                                    $lbl = $label.' proses proof prodev';
+                                    $lbl = $label . ' proses proof prodev';
                                 } elseif (is_null($useData->selesai_cover) && is_null($useData->selesai_koreksi)) {
-                                    $lbl = $label.' proses cover';
+                                    $lbl = $label . ' proses cover';
                                 } elseif (is_null($useData->selesai_koreksi) && !is_null($useData->selesai_cover)) {
-                                    $lbl = $label.' proses koreksi';
+                                    $lbl = $label . ' proses koreksi';
                                 } elseif (!is_null($useData->selesai_koreksi) && $useData->proses_saat_ini == 'Desain Revisi' && $useData->status == 'Proses') {
                                     $lbl = $label . ' proses revisi desain cover';
                                 } else {
@@ -1004,8 +1022,10 @@ class PracetakDesainerController extends Controller
                             ];
                             break;
                         default:
-                            if ($useData->status == 'Proses' || $useData->status == 'Revisi' ||
-                            ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                            if (
+                                $useData->status == 'Proses' || $useData->status == 'Revisi' ||
+                                ($useData->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))
+                            ) {
                                 $text = 'text-dark';
                                 $return = is_null($item) ? '-' : $item;
                             } else {
@@ -1017,7 +1037,7 @@ class PracetakDesainerController extends Controller
                                     $return = $item;
                                 }
                             }
-                            return ['data' => $return,'textColor' => $text];
+                            return ['data' => $return, 'textColor' => $text];
                             break;
                     }
                 })->all();
@@ -1030,7 +1050,7 @@ class PracetakDesainerController extends Controller
                         ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                         ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                         ->where('pc.id', $request->id)
-                        ->select('pc.*', 'dp.naskah_id','dp.judul_final','pn.kode','pn.pic_prodev')
+                        ->select('pc.*', 'dp.naskah_id', 'dp.judul_final', 'pn.kode', 'pn.pic_prodev')
                         ->first();
                     if ($request->has('korektor')) {
                         foreach ($request->korektor as $ce) {
@@ -1054,6 +1074,20 @@ class PracetakDesainerController extends Controller
                                 'message' => 'Belum melakukan proses pengajuan cover/desain back cover/koreksi!'
                             ]);
                         }
+                        $cekTotalKoreksi = DB::table('pracetak_cover_selesai')
+                            ->where('pracetak_cover_id', $history->id)
+                            ->where('section', 'Koreksi')->get()->count();
+                        $cekTotalBackCover = DB::table('pracetak_cover_selesai')
+                            ->where('pracetak_cover_id', $history->id)
+                            ->where('section', 'Back Cover Design')
+                            ->orWhere('section', 'Back Cover Design Revision')
+                            ->get()->count();
+                        if ($cekTotalBackCover < $cekTotalKoreksi) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Proses back cover belum selesai'
+                            ]);
+                        }
                         if ($history->status == 'Proses') {
                             $cekTidakKosong = DB::table('pracetak_setter')
                                 ->where('id', $request->id_praset)
@@ -1069,7 +1103,7 @@ class PracetakDesainerController extends Controller
                                     'tgl_masuk' => $tgl,
                                 ];
                                 event(new DesturcetEvent($turcet));
-                                $descDesturcetTracker = 'Naskah berjudul <a href="'.url('penerbitan/deskripsi/turun-cetak/detail?desc='.$id_turcet.'&kode='.$history->kode).'">'.$history->judul_final.'</a> telah memasuki tahap antrian Desktipsi Turun Cetak.';
+                                $descDesturcetTracker = 'Naskah berjudul <a href="' . url('penerbitan/deskripsi/turun-cetak/detail?desc=' . $id_turcet . '&kode=' . $history->kode) . '">' . $history->judul_final . '</a> telah memasuki tahap antrian Desktipsi Turun Cetak.';
                                 $trackerDesturcet = [
                                     'id' => Uuid::uuid4()->toString(),
                                     'section_id' => $id_turcet,
@@ -1095,25 +1129,25 @@ class PracetakDesainerController extends Controller
                                         $pracovPermission = '';
                                         break;
                                 }
-                                $kabagPracov = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                                    ->where('p.id',$pracovPermission)
+                                $kabagPracov = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                                    ->where('p.id', $pracovPermission)
                                     ->select('up.user_id')
                                     ->get();
-                                $kabagPracov = (object)collect($kabagPracov)->map(function($item) use ($history) {
+                                $kabagPracov = (object)collect($kabagPracov)->map(function ($item) use ($history) {
                                     return DB::table('todo_list')
-                                    ->where('form_id',$history->id)
-                                    ->where('users_id',$item->user_id)
-                                    ->where('title','Proses delegasi tahap pracetak cover naskah "'.$history->judul_final.'".')
-                                    ->update([
-                                        'status' => '1'
-                                    ]);
+                                        ->where('form_id', $history->id)
+                                        ->where('users_id', $item->user_id)
+                                        ->where('title', 'Proses delegasi tahap pracetak cover naskah "' . $history->judul_final . '".')
+                                        ->update([
+                                            'status' => '1'
+                                        ]);
                                 })->all();
                                 //? Insert Todo List Deskripsi Turun Cetak
                                 DB::table('todo_list')->insert([
                                     'form_id' => $id_turcet,
                                     'users_id' => $history->pic_prodev,
-                                    'title' => 'Proses deskripsi turun cetak naskah berjudul "'.$history->judul_final.'" perlu dilengkapi kelengkapan data nya.',
-                                    'link' => '/penerbitan/deskripsi/turun-cetak?desc='.$id_turcet.'&kode='.$history->kode,
+                                    'title' => 'Proses deskripsi turun cetak naskah berjudul "' . $history->judul_final . '" perlu dilengkapi kelengkapan data nya.',
+                                    'link' => '/penerbitan/deskripsi/turun-cetak?desc=' . $id_turcet . '&kode=' . $history->kode,
                                     'status' => '0',
                                 ]);
                                 //INSERT TIMELINE TURUN CETAK
@@ -1127,7 +1161,6 @@ class PracetakDesainerController extends Controller
                                     'status' => 'Antrian'
                                 ];
                                 event(new TimelineEvent($insertTimelinePracov));
-
                             }
                             DB::table('pracetak_cover')->where('id', $history->id)->update([
                                 'turun_cetak' => $tgl,
@@ -1508,11 +1541,11 @@ class PracetakDesainerController extends Controller
         }
         $imprint = NULL;
         if (!is_null($data->imprint)) {
-            $imprint = DB::table('imprint')->where('id',$data->imprint)->whereNull('deleted_at')->first()->nama;
+            $imprint = DB::table('imprint')->where('id', $data->imprint)->whereNull('deleted_at')->first()->nama;
         }
         $format_buku = NULL;
         if (!is_null($data->format_buku)) {
-            $format_buku = DB::table('format_buku')->where('id',$data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
+            $format_buku = DB::table('format_buku')->where('id', $data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
         }
         return view('penerbitan.pracetak_desainer.detail', [
             'title' => 'Detail Pracetak Cover',
@@ -1581,36 +1614,36 @@ class PracetakDesainerController extends Controller
                 $id = $request->id;
                 $value = $request->proses;
                 $data = DB::table('pracetak_cover as pc')
-                ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
-                ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->where('pc.id', $id)
-                ->select(
-                    'pc.*',
-                    'df.sub_judul_final',
-                    'df.bullet',
-                    'df.sinopsis',
-                    'dc.des_front_cover',
-                    'dc.des_back_cover',
-                    'dc.finishing_cover',
-                    'dc.jilid',
-                    'dc.tipografi',
-                    'dc.warna',
-                    'dc.contoh_cover',
-                    'dp.naskah_id',
-                    'dp.judul_final',
-                    'dp.nama_pena',
-                    'dp.imprint',
-                    'dp.format_buku',
-                    'pn.kode',
-                    'pn.jalur_buku',
-                    'pn.pic_prodev',
-                    'ps.id as id_praset'
+                    ->join('deskripsi_cover as dc', 'pc.deskripsi_cover_id', '=', 'dc.id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                    ->join('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->join('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->where('pc.id', $id)
+                    ->select(
+                        'pc.*',
+                        'df.sub_judul_final',
+                        'df.bullet',
+                        'df.sinopsis',
+                        'dc.des_front_cover',
+                        'dc.des_back_cover',
+                        'dc.finishing_cover',
+                        'dc.jilid',
+                        'dc.tipografi',
+                        'dc.warna',
+                        'dc.contoh_cover',
+                        'dp.naskah_id',
+                        'dp.judul_final',
+                        'dp.nama_pena',
+                        'dp.imprint',
+                        'dp.format_buku',
+                        'pn.kode',
+                        'pn.jalur_buku',
+                        'pn.pic_prodev',
+                        'ps.id as id_praset'
 
-                )
-                ->first();
+                    )
+                    ->first();
                 if (is_null($data)) {
                     return response()->json([
                         'status' => 'error',
@@ -1620,7 +1653,7 @@ class PracetakDesainerController extends Controller
                 if ($value == '0') {
                     if (is_null($data->selesai_pengajuan_cover) || is_null($data->selesai_cover)) {
                         $part = is_null($data->selesai_pengajuan_cover) ? 'pengajuan_cover' : 'cover';
-                        $antrian = $part == 'pengajuan_cover' ? 'Antrian Pengajuan Cover':'Antrian Desain Back Cover';
+                        $antrian = $part == 'pengajuan_cover' ? 'Antrian Pengajuan Cover' : 'Antrian Desain Back Cover';
                         $mulai = 'mulai_' . $part;
                         $dataProgress = [
                             'params' => 'Progress Designer-Korektor',
@@ -1635,30 +1668,30 @@ class PracetakDesainerController extends Controller
                         ];
                         if ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Desain Revisi')) {
                             //? Delete Todo List desainer
-                            (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                            (object)collect(json_decode($data->desainer))->map(function ($item) use ($data) {
                                 return DB::table('todo_list')
-                                ->where('form_id',$data->id)
-                                ->where('users_id',$item)
-                                ->where('title','Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".')
-                                ->delete();
+                                    ->where('form_id', $data->id)
+                                    ->where('users_id', $item)
+                                    ->where('title', 'Selesaikan proses revisi desain dengan naskah yang berjudul "' . $data->judul_final . '".')
+                                    ->delete();
                             })->all();
                         } elseif (is_null($data->selesai_cover)) {
                             //? Delete Todo List desainer
-                            (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                            (object)collect(json_decode($data->desainer))->map(function ($item) use ($data) {
                                 return DB::table('todo_list')
-                                ->where('form_id',$data->id)
-                                ->where('users_id',$item)
-                                ->where('title','Selesaikan proses desain back cover naskah yang berjudul "'.$data->judul_final.'".')
-                                ->delete();
+                                    ->where('form_id', $data->id)
+                                    ->where('users_id', $item)
+                                    ->where('title', 'Selesaikan proses desain back cover naskah yang berjudul "' . $data->judul_final . '".')
+                                    ->delete();
                             })->all();
                         } else {
                             //? Delete Todo List desainer
-                            (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                            (object)collect(json_decode($data->desainer))->map(function ($item) use ($data) {
                                 return DB::table('todo_list')
-                                ->where('form_id',$data->id)
-                                ->where('users_id',$item)
-                                ->where('title','Selesaikan proses desain pengajuan naskah yang berjudul "'.$data->judul_final.'".')
-                                ->delete();
+                                    ->where('form_id', $data->id)
+                                    ->where('users_id', $item)
+                                    ->where('title', 'Selesaikan proses desain pengajuan naskah yang berjudul "' . $data->judul_final . '".')
+                                    ->delete();
                             })->all();
                         }
                     } else {
@@ -1674,12 +1707,12 @@ class PracetakDesainerController extends Controller
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
                         //? Delete Todo List Korektor
-                        (object)collect(json_decode($data->korektor))->map(function($item) use($data) {
+                        (object)collect(json_decode($data->korektor))->map(function ($item) use ($data) {
                             return DB::table('todo_list')
-                            ->where('form_id',$data->id)
-                            ->where('users_id',$item)
-                            ->where('title','Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".')
-                            ->delete();
+                                ->where('form_id', $data->id)
+                                ->where('users_id', $item)
+                                ->where('title', 'Selesaikan proses koreksi desain cover naskah yang berjudul "' . $data->judul_final . '".')
+                                ->delete();
                         })->all();
                     }
                     event(new PracetakCoverEvent($dataProgress));
@@ -1702,29 +1735,39 @@ class PracetakDesainerController extends Controller
                             break;
                         case 'Antrian Desain Back Cover':
                             if (!is_null($data->selesai_cover)) {
-                                return response()->json([
-                                    'status' => 'error',
-                                    'message' => 'Proses back cover selesai, silahkan ubah proses saat ini menjadi "Antrian Koreksi".'
-                                ]);
+                                $cekTotalKoreksi = DB::table('pracetak_cover_selesai')
+                                ->where('pracetak_cover_id', $data->id)
+                                ->where('section', 'Koreksi')->get()->count();
+                                $cekTotalBackCover = DB::table('pracetak_cover_selesai')
+                                    ->where('pracetak_cover_id', $data->id)
+                                    ->where('section', 'Back Cover Design')
+                                    ->orWhere('section', 'Back Cover Design Revision')
+                                    ->get()->count();
+                                if ($cekTotalBackCover >= $cekTotalKoreksi) {
+                                    return response()->json([
+                                        'status' => 'error',
+                                        'message' => 'Proses back cover selesai, silahkan ubah proses saat ini menjadi "Antrian Koreksi" atau jika sudah selesai, ubah menjadi "Turun Cetak".'
+                                    ]);
+                                }
                             }
-                            $coll = DB::table('pracetak_setter as ps')->join('deskripsi_final as df','df.id','=','ps.deskripsi_final_id')
-                            ->join('deskripsi_produk as dp','dp.id','=','df.deskripsi_produk_id')
-                            ->join('deskripsi_cover as dc','dc.deskripsi_produk_id','=','dp.id')
-                            ->where('dc.id',$data->deskripsi_cover_id)
-                            ->select('ps.pengajuan_harga','ps.isbn')
-                            ->first();
-                            if (is_null($coll->pengajuan_harga)) {
-                                return response()->json([
-                                    'status' => 'error',
-                                    'message' => 'Proses back cover belum dapat dilakukan karena pengajuan harga belum ditambahkan.'
-                                ]);
-                            }
-                            if (is_null($coll->isbn)) {
-                                return response()->json([
-                                    'status' => 'error',
-                                    'message' => 'Proses back cover belum dapat dilakukan karena ISBN belum ditambahkan.'
-                                ]);
-                            }
+                            // $coll = DB::table('pracetak_setter as ps')->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                            //     ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                            //     ->join('deskripsi_cover as dc', 'dc.deskripsi_produk_id', '=', 'dp.id')
+                            //     ->where('dc.id', $data->deskripsi_cover_id)
+                            //     ->select('ps.pengajuan_harga', 'ps.isbn')
+                            //     ->first();
+                            // if (is_null($coll->pengajuan_harga)) {
+                            //     return response()->json([
+                            //         'status' => 'error',
+                            //         'message' => 'Proses back cover belum dapat dilakukan karena pengajuan harga belum ditambahkan.'
+                            //     ]);
+                            // }
+                            // if (is_null($coll->isbn)) {
+                            //     return response()->json([
+                            //         'status' => 'error',
+                            //         'message' => 'Proses back cover belum dapat dilakukan karena ISBN belum ditambahkan.'
+                            //     ]);
+                            // }
                             break;
                         case 'Antrian Koreksi':
                             if (is_null($data->selesai_pengajuan_cover)) {
@@ -1802,39 +1845,39 @@ class PracetakDesainerController extends Controller
                                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                             ];
                             event(new PracetakCoverEvent($dataCover));
-                            $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('title','Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".')->select('users_id')->get();
+                            $dataTodo = DB::table('todo_list')->where('form_id', $data->id)->where('title', 'Selesaikan proses revisi desain dengan naskah yang berjudul "' . $data->judul_final . '".')->select('users_id')->get();
                             if (!$dataTodo->isEmpty()) {
-                                foreach($dataTodo as $dt) {
+                                foreach ($dataTodo as $dt) {
                                     $dtUser[] = $dt->users_id;
                                 }
-                                $data = collect($data)->put('users_id',$dtUser);
+                                $data = collect($data)->put('users_id', $dtUser);
                                 //? Insert Todo List Desainer
-                                (object)collect(json_decode($data['desainer']))->map(function($item) use($data) {
-                                    if (in_array($item,$data['users_id'])) {
+                                (object)collect(json_decode($data['desainer']))->map(function ($item) use ($data) {
+                                    if (in_array($item, $data['users_id'])) {
                                         return DB::table('todo_list')
-                                        ->where('form_id', $data['id'])
-                                        ->where('users_id', $item)
-                                        ->where('title', 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data['judul_final'].'".')
-                                        ->update([
-                                            'status' => '0'
-                                        ]);
+                                            ->where('form_id', $data['id'])
+                                            ->where('users_id', $item)
+                                            ->where('title', 'Selesaikan proses revisi desain dengan naskah yang berjudul "' . $data['judul_final'] . '".')
+                                            ->update([
+                                                'status' => '0'
+                                            ]);
                                     } else {
                                         return DB::table('todo_list')->insert([
                                             'form_id' => $data['id'],
                                             'users_id' => $item,
-                                            'title' => 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data['judul_final'].'".',
-                                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data['id'].'&kode='.$data['kode'],
+                                            'title' => 'Selesaikan proses revisi desain dengan naskah yang berjudul "' . $data['judul_final'] . '".',
+                                            'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data['id'] . '&kode=' . $data['kode'],
                                             'status' => '0'
                                         ]);
                                     }
                                 })->all();
                             } else {
-                                (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                                (object)collect(json_decode($data->desainer))->map(function ($item) use ($data) {
                                     return DB::table('todo_list')->insert([
                                         'form_id' => $data->id,
                                         'users_id' => $item,
-                                        'title' => 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".',
-                                        'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                        'title' => 'Selesaikan proses revisi desain dengan naskah yang berjudul "' . $data->judul_final . '".',
+                                        'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode,
                                         'status' => '0'
                                     ]);
                                 })->all();
@@ -1869,12 +1912,12 @@ class PracetakDesainerController extends Controller
                             ];
                             event(new PracetakCoverEvent($dataPengajuan));
                             //? Insert Todo List Desainer Pengajuan
-                            (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                            (object)collect(json_decode($data->desainer))->map(function ($item) use ($data) {
                                 return DB::table('todo_list')->insert([
                                     'form_id' => $data->id,
                                     'users_id' => $item,
-                                    'title' => 'Selesaikan proses desain pengajuan naskah yang berjudul "'.$data->judul_final.'".',
-                                    'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                    'title' => 'Selesaikan proses desain pengajuan naskah yang berjudul "' . $data->judul_final . '".',
+                                    'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode,
                                     'status' => '0'
                                 ]);
                             })->all();
@@ -1900,8 +1943,8 @@ class PracetakDesainerController extends Controller
                         DB::table('todo_list')->insert([
                             'form_id' => $data->id,
                             'users_id' => $data->pic_prodev,
-                            'title' => 'Proof desain pengajuan naskah yang berjudul "'.$data->judul_final.'".',
-                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                            'title' => 'Proof desain pengajuan naskah yang berjudul "' . $data->judul_final . '".',
+                            'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode,
                             'status' => '0'
                         ]);
                     } elseif (is_null($data->selesai_cover)) {
@@ -1933,12 +1976,12 @@ class PracetakDesainerController extends Controller
                             ];
                             event(new PracetakCoverEvent($dataPengajuan));
                             //? Insert Todo List Desainer Back Cover
-                            (object)collect(json_decode($data->desainer))->map(function($item) use($data) {
+                            (object)collect(json_decode($data->desainer))->map(function ($item) use ($data) {
                                 return DB::table('todo_list')->insert([
                                     'form_id' => $data->id,
                                     'users_id' => $item,
-                                    'title' => 'Selesaikan proses desain back cover naskah yang berjudul "'.$data->judul_final.'".',
-                                    'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                    'title' => 'Selesaikan proses desain back cover naskah yang berjudul "' . $data->judul_final . '".',
+                                    'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode,
                                     'status' => '0'
                                 ]);
                             })->all();
@@ -1971,39 +2014,39 @@ class PracetakDesainerController extends Controller
                                 'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                             ];
                             event(new PracetakCoverEvent($dataKorektor));
-                            $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('title','Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".')->select('users_id')->get();
+                            $dataTodo = DB::table('todo_list')->where('form_id', $data->id)->where('title', 'Selesaikan proses koreksi desain cover naskah yang berjudul "' . $data->judul_final . '".')->select('users_id')->get();
                             if (!$dataTodo->isEmpty()) {
-                                foreach($dataTodo as $dt) {
+                                foreach ($dataTodo as $dt) {
                                     $dtUser[] = $dt->users_id;
                                 }
-                                $data = collect($data)->put('users_id',$dtUser);
+                                $data = collect($data)->put('users_id', $dtUser);
                                 //? Insert Todo List Korektor
-                                (object)collect(json_decode($data['korektor']))->map(function($item) use($data) {
-                                    if (in_array($item,$data['users_id'])) {
+                                (object)collect(json_decode($data['korektor']))->map(function ($item) use ($data) {
+                                    if (in_array($item, $data['users_id'])) {
                                         return DB::table('todo_list')
-                                        ->where('form_id', $data['id'])
-                                        ->where('users_id', $item)
-                                        ->where('title', 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data['judul_final'].'".')
-                                        ->update([
-                                            'status' => '0'
-                                        ]);
+                                            ->where('form_id', $data['id'])
+                                            ->where('users_id', $item)
+                                            ->where('title', 'Selesaikan proses koreksi desain cover naskah yang berjudul "' . $data['judul_final'] . '".')
+                                            ->update([
+                                                'status' => '0'
+                                            ]);
                                     } else {
                                         return DB::table('todo_list')->insert([
                                             'form_id' => $data['id'],
                                             'users_id' => $item,
-                                            'title' => 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data['judul_final'].'".',
-                                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data['id'].'&kode='.$data['kode'],
+                                            'title' => 'Selesaikan proses koreksi desain cover naskah yang berjudul "' . $data['judul_final'] . '".',
+                                            'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data['id'] . '&kode=' . $data['kode'],
                                             'status' => '0'
                                         ]);
                                     }
                                 })->all();
                             } else {
-                                (object)collect(json_decode($data->korektor))->map(function($item) use($data) {
+                                (object)collect(json_decode($data->korektor))->map(function ($item) use ($data) {
                                     return DB::table('todo_list')->insert([
                                         'form_id' => $data->id,
                                         'users_id' => $item,
-                                        'title' => 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".',
-                                        'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                                        'title' => 'Selesaikan proses koreksi desain cover naskah yang berjudul "' . $data->judul_final . '".',
+                                        'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode,
                                         'status' => '0'
                                     ]);
                                 })->all();
@@ -2110,6 +2153,21 @@ class PracetakDesainerController extends Controller
                         'status' => 'error',
                         'message' => 'Proses back cover belum selesai'
                     ]);
+                } else {
+                    $cekTotalKoreksi = DB::table('pracetak_cover_selesai')
+                        ->where('pracetak_cover_id', $data->id)
+                        ->where('section', 'Koreksi')->get()->count();
+                    $cekTotalBackCover = DB::table('pracetak_cover_selesai')
+                        ->where('pracetak_cover_id', $data->id)
+                        ->where('section', 'Back Cover Design')
+                        ->orWhere('section', 'Back Cover Design Revision')
+                        ->get()->count();
+                    if ($cekTotalBackCover < $cekTotalKoreksi) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Proses back cover belum selesai'
+                        ]);
+                    }
                 }
                 if (is_null($data->selesai_koreksi)) {
                     return response()->json([
@@ -2144,18 +2202,18 @@ class PracetakDesainerController extends Controller
                         $pracovPermission = '';
                         break;
                 }
-                $kabagPracov = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                    ->where('p.id',$pracovPermission)
+                $kabagPracov = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                    ->where('p.id', $pracovPermission)
                     ->select('up.user_id')
                     ->get();
-                $kabagPracov = (object)collect($kabagPracov)->map(function($item) use ($data) {
+                $kabagPracov = (object)collect($kabagPracov)->map(function ($item) use ($data) {
                     return DB::table('todo_list')
-                    ->where('form_id',$data->id)
-                    ->where('users_id',$item->user_id)
-                    ->where('title','Proses delegasi tahap pracetak cover naskah "'.$data->judul_final.'".')
-                    ->update([
-                        'status' => '1'
-                    ]);
+                        ->where('form_id', $data->id)
+                        ->where('users_id', $item->user_id)
+                        ->where('title', 'Proses delegasi tahap pracetak cover naskah "' . $data->judul_final . '".')
+                        ->update([
+                            'status' => '1'
+                        ]);
                 })->all();
                 $dataPraset = DB::table('pracetak_setter')
                     ->where('id', $data->praset_id)
@@ -2165,7 +2223,7 @@ class PracetakDesainerController extends Controller
                     DB::table('pracetak_cover')->where('id', $data->id)->update([
                         'proses_saat_ini' => 'Turun Cetak'
                     ]);
-                    $cekDesturcet = DB::table('deskripsi_turun_cetak')->where('pracetak_cover_id',$data->id)->first();
+                    $cekDesturcet = DB::table('deskripsi_turun_cetak')->where('pracetak_cover_id', $data->id)->first();
                     $id_turcet = Uuid::uuid4()->toString();
                     if (is_null($cekDesturcet)) {
                         //Insert Deskripsi Turun Cetak
@@ -2177,7 +2235,7 @@ class PracetakDesainerController extends Controller
                             'tgl_masuk' => $tgl,
                         ];
                         event(new DesturcetEvent($in));
-                        $descDesturcetTracker = 'Naskah berjudul <a href="'.url('penerbitan/deskripsi/turun-cetak/detail?desc='.$id_turcet.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Desktipsi Turun Cetak.';
+                        $descDesturcetTracker = 'Naskah berjudul <a href="' . url('penerbitan/deskripsi/turun-cetak/detail?desc=' . $id_turcet . '&kode=' . $data->kode) . '">' . $data->judul_final . '</a> telah memasuki tahap antrian Desktipsi Turun Cetak.';
                         $trackerDesturcet = [
                             'id' => Uuid::uuid4()->toString(),
                             'section_id' => $id_turcet,
@@ -2191,8 +2249,8 @@ class PracetakDesainerController extends Controller
                         DB::table('todo_list')->insert([
                             'form_id' => $id_turcet,
                             'users_id' => $data->pic_prodev,
-                            'title' => 'Proses deskripsi turun cetak naskah berjudul "'.$data->judul_final.'" perlu dilengkapi kelengkapan data nya.',
-                            'link' => '/penerbitan/deskripsi/turun-cetak?desc='.$id_turcet.'&kode='.$data->kode,
+                            'title' => 'Proses deskripsi turun cetak naskah berjudul "' . $data->judul_final . '" perlu dilengkapi kelengkapan data nya.',
+                            'link' => '/penerbitan/deskripsi/turun-cetak?desc=' . $id_turcet . '&kode=' . $data->kode,
                             'status' => '0',
                         ]);
                         //INSERT TIMELINE TURUN CETAK
@@ -2206,15 +2264,14 @@ class PracetakDesainerController extends Controller
                             'status' => 'Antrian'
                         ];
                         event(new TimelineEvent($insertTimelinePracov));
-
                     }
                     $namaUser = auth()->user()->nama;
-                    $desc = 'Pracetak Desainer selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>'.$request->status.'</b>. Proses berlanjut ke Deskripsi Turun Cetak.';
+                    $desc = 'Pracetak Desainer selesai, <a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>' . $request->status . '</b>. Proses berlanjut ke Deskripsi Turun Cetak.';
                     $icon = 'fas fa-clipboard-check';
                     $msg = 'Pracetak Cover selesai, silahkan lanjut ke proses deskripsi turun cetak..';
                 } else {
                     $namaUser = auth()->user()->nama;
-                    $desc = 'Pracetak Desainer selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>'.$request->status.'</b>. Proses berlanjut ke pracetak setter.';
+                    $desc = 'Pracetak Desainer selesai, <a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>' . $request->status . '</b>. Proses berlanjut ke pracetak setter.';
                     $icon = 'fas fa-clipboard-check';
                     $msg = 'Pracetak Cover selesai, silahkan selesaikan proses pracetak setter..';
                 }
@@ -2231,7 +2288,7 @@ class PracetakDesainerController extends Controller
                 ];
                 event(new TimelineEvent($updateTimelinePracetakCover));
                 $namaUser = auth()->user()->nama;
-                $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>'.$request->status.'</b>.';
+                $desc = '<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a> mengubah status pengerjaan Pracetak Desainer menjadi <b>' . $request->status . '</b>.';
                 $icon = 'fas fa-info-circle';
                 $msg = 'Status progress pracetak cover berhasil diupdate';
             }
@@ -2464,7 +2521,7 @@ class PracetakDesainerController extends Controller
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                 ->join('users as u', 'psp.users_id', '=', 'u.id')
                 ->where('psp.pracetak_cover_id', $id)
-                ->select('psp.*','ps.mulai_proof', 'dp.judul_final', 'u.nama')
+                ->select('psp.*', 'ps.mulai_proof', 'dp.judul_final', 'u.nama')
                 ->orderBy('psp.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
@@ -2475,16 +2532,16 @@ class PracetakDesainerController extends Controller
                             $diff = Carbon::parse($d->mulai_proof)->diffInHours($d->tgl_action);
                             if ($diff == 0) {
                                 $diff = Carbon::parse($d->mulai_proof)->diffInMinutes($d->tgl_action);
-                                $diff = $diff.' menit';
+                                $diff = $diff . ' menit';
                             } else {
-                                $diff = $diff.' jam';
+                                $diff = $diff . ' jam';
                             }
                         } else {
-                            $diff = $diff.' hari';
+                            $diff = $diff . ' hari';
                         }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Prodev menyetujui pengajuan desain dengan lama waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> Prodev menyetujui pengajuan desain dengan lama waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2499,16 +2556,16 @@ class PracetakDesainerController extends Controller
                             $diff = Carbon::parse($d->mulai_proof)->diffInHours($d->tgl_action);
                             if ($diff == 0) {
                                 $diff = Carbon::parse($d->mulai_proof)->diffInMinutes($d->tgl_action);
-                                $diff = $diff.' menit';
+                                $diff = $diff . ' menit';
                             } else {
-                                $diff = $diff.' jam';
+                                $diff = $diff . ' jam';
                             }
                         } else {
-                            $diff = $diff.' hari';
+                            $diff = $diff . ' hari';
                         }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Status pracetak cover <b>Revisi</b> dengan keterangan revisi: <b>' . $d->ket_revisi . '</b>, dengan lama waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> Status pracetak cover <b>Revisi</b> dengan keterangan revisi: <b>' . $d->ket_revisi . '</b>, dengan lama waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2519,24 +2576,24 @@ class PracetakDesainerController extends Controller
                         break;
                     case 'Selesai Revisi':
                         $dataSebelumnya = DB::table('pracetak_cover_proof')
-                        ->where('pracetak_cover_id', $d->pracetak_cover_id)
-                        ->where('id','<',$d->id)
-                        ->first();
+                            ->where('pracetak_cover_id', $d->pracetak_cover_id)
+                            ->where('id', '<', $d->id)
+                            ->first();
                         $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInDays($d->tgl_action);
                         if ($diff == 0) {
                             $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInHours($d->tgl_action);
                             if ($diff == 0) {
                                 $diff = Carbon::parse($dataSebelumnya->tgl_action)->diffInMinutes($d->tgl_action);
-                                $diff = $diff.' menit';
+                                $diff = $diff . ' menit';
                             } else {
-                                $diff = $diff.' jam';
+                                $diff = $diff . ' jam';
                             }
                         } else {
-                            $diff = $diff.' hari';
+                            $diff = $diff . ' hari';
                         }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Desainer telah menyelesaikan revisi dengan persetujuan kabag dengan lama waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> Desainer telah menyelesaikan revisi dengan persetujuan kabag dengan lama waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2561,7 +2618,7 @@ class PracetakDesainerController extends Controller
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                 ->join('users as u', 'pss.users_id', '=', 'u.id')
                 ->where('pss.pracetak_cover_id', $id)
-                ->select('pss.*','ps.mulai_pengajuan_cover','ps.mulai_cover','ps.mulai_koreksi', 'dp.judul_final', 'u.nama')
+                ->select('pss.*', 'ps.mulai_pengajuan_cover', 'ps.mulai_cover', 'ps.mulai_koreksi', 'dp.judul_final', 'u.nama')
                 ->orderBy('pss.id', 'desc')
                 ->paginate(2);
             foreach ($data as $d) {
@@ -2573,16 +2630,16 @@ class PracetakDesainerController extends Controller
                             $diff = Carbon::parse($d->mulai_pengajuan_cover)->diffInHours($d->tgl_proses_selesai);
                             if ($diff == 0) {
                                 $diff = Carbon::parse($d->mulai_pengajuan_cover)->diffInMinutes($d->tgl_proses_selesai);
-                                $diff = $diff.' menit';
+                                $diff = $diff . ' menit';
                             } else {
-                                $diff = $diff.' jam';
+                                $diff = $diff . ' jam';
                             }
                         } else {
-                            $diff = $diff.' hari';
+                            $diff = $diff . ' hari';
                         }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelDeskor . ' untuk approval oleh prodev telah diselesaikan dalam waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' untuk approval oleh prodev telah diselesaikan dalam waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2597,16 +2654,16 @@ class PracetakDesainerController extends Controller
                             $diff = Carbon::parse($d->mulai_cover)->diffInHours($d->tgl_proses_selesai);
                             if ($diff == 0) {
                                 $diff = Carbon::parse($d->mulai_cover)->diffInMinutes($d->tgl_proses_selesai);
-                                $diff = $diff.' menit';
+                                $diff = $diff . ' menit';
                             } else {
-                                $diff = $diff.' jam';
+                                $diff = $diff . ' jam';
                             }
                         } else {
-                            $diff = $diff.' hari';
+                            $diff = $diff . ' hari';
                         }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelDeskor . ' cover selesai untuk dikoreksi dalam waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' cover selesai untuk dikoreksi dalam waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2621,16 +2678,16 @@ class PracetakDesainerController extends Controller
                             $diff = Carbon::parse($d->mulai_cover)->diffInHours($d->tgl_proses_selesai);
                             if ($diff == 0) {
                                 $diff = Carbon::parse($d->mulai_cover)->diffInMinutes($d->tgl_proses_selesai);
-                                $diff = $diff.' menit';
+                                $diff = $diff . ' menit';
                             } else {
-                                $diff = $diff.' jam';
+                                $diff = $diff . ' jam';
                             }
                         } else {
-                            $diff = $diff.' hari';
+                            $diff = $diff . ' hari';
                         }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelDeskor . ' hasil revisi tahap ' . $d->tahap . ' dari korektor telah diselesaikan setter dalam waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' hasil revisi tahap ' . $d->tahap . ' dari korektor telah diselesaikan setter dalam waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2645,16 +2702,16 @@ class PracetakDesainerController extends Controller
                             $diff = Carbon::parse($d->mulai_koreksi)->diffInHours($d->tgl_proses_selesai);
                             if ($diff == 0) {
                                 $diff = Carbon::parse($d->mulai_koreksi)->diffInMinutes($d->tgl_proses_selesai);
-                                $diff = $diff.' menit';
+                                $diff = $diff . ' menit';
                             } else {
-                                $diff = $diff.' jam';
+                                $diff = $diff . ' jam';
                             }
                         } else {
-                            $diff = $diff.' hari';
+                            $diff = $diff . ' hari';
                         }
                         $html .= '<span class="ticket-item">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> ' . $labelDeskor . ' desain cover tahap ' . $d->tahap . ' oleh korektor telah diselesaikan dalam waktu '.$diff.'.</span>
+                            <span><span class="bullet"></span> ' . $labelDeskor . ' desain cover tahap ' . $d->tahap . ' oleh korektor telah diselesaikan dalam waktu ' . $diff . '.</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a></div>
@@ -2697,9 +2754,9 @@ class PracetakDesainerController extends Controller
             }
             //? Update Todo list prodev
             DB::table('todo_list')
-            ->where('form_id',$request->id)
-            ->where('users_id',$data->pic_prodev)
-            ->where('title', 'Proof desain pengajuan naskah yang berjudul "'.$data->judul_final.'".')->update([
+                ->where('form_id', $request->id)
+                ->where('users_id', $data->pic_prodev)
+                ->where('title', 'Proof desain pengajuan naskah yang berjudul "' . $data->judul_final . '".')->update([
                     'status' => '1'
                 ]);
             $rev = [
@@ -2719,7 +2776,7 @@ class PracetakDesainerController extends Controller
             ];
             event(new PracetakCoverEvent($rev));
             $namaUser = auth()->user()->nama;
-            $desc = 'Prodev (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) meminta untuk hasil proof ke penulis direvisi.';
+            $desc = 'Prodev (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) meminta untuk hasil proof ke penulis direvisi.';
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
                 'section_id' => $data->id,
@@ -2770,9 +2827,9 @@ class PracetakDesainerController extends Controller
             }
             //? Update Todo list prodev
             DB::table('todo_list')
-            ->where('form_id',$request->id)
-            ->where('users_id',$data->pic_prodev)
-            ->where('title', 'Proof desain pengajuan naskah yang berjudul "'.$data->judul_final.'".')->update([
+                ->where('form_id', $request->id)
+                ->where('users_id', $data->pic_prodev)
+                ->where('title', 'Proof desain pengajuan naskah yang berjudul "' . $data->judul_final . '".')->update([
                     'status' => '1'
                 ]);
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
@@ -2793,7 +2850,7 @@ class PracetakDesainerController extends Controller
             ];
             event(new PracetakCoverEvent($done));
             $namaUser = auth()->user()->nama;
-            $desc = 'Prodev (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan proof ke penulis.';
+            $desc = 'Prodev (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan proof ke penulis.';
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
                 'section_id' => $data->id,
@@ -2839,16 +2896,16 @@ class PracetakDesainerController extends Controller
                 ]);
             }
             $dataTodo = DB::table('todo_list')
-            ->where('form_id',$request->id)
-            ->where('users_id',$data->pic_prodev)
-            ->where('title', 'Proof desain pengajuan naskah yang berjudul "'.$data->judul_final.'".');
+                ->where('form_id', $request->id)
+                ->where('users_id', $data->pic_prodev)
+                ->where('title', 'Proof desain pengajuan naskah yang berjudul "' . $data->judul_final . '".');
             if (is_null($dataTodo->first())) {
                 //? Insert Todo Prodev
                 DB::table('todo_list')->insert([
                     'form_id' => $data->id,
                     'users_id' => $data->pic_prodev,
-                    'title' => 'Proof desain pengajuan naskah yang berjudul "'.$data->judul_final.'".',
-                    'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                    'title' => 'Proof desain pengajuan naskah yang berjudul "' . $data->judul_final . '".',
+                    'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode,
                     'status' => '0'
                 ]);
             } else {
@@ -2874,7 +2931,7 @@ class PracetakDesainerController extends Controller
             ];
             event(new PracetakCoverEvent($done));
             $namaUser = auth()->user()->nama;
-            $desc = 'Kabag (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan desain cover yang direvisi.';
+            $desc = 'Kabag (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan desain cover yang direvisi.';
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
                 'section_id' => $data->id,
@@ -2995,9 +3052,9 @@ class PracetakDesainerController extends Controller
                                 'author_id' => auth()->id()
                             ];
                             event(new PracetakCoverEvent($done));
-                            DB::table('pracetak_cover')->where('id', $data->id)->update([
-                                'selesai_koreksi' => NULL
-                            ]);
+                            // DB::table('pracetak_cover')->where('id', $data->id)->update([
+                            //     'selesai_koreksi' => NULL
+                            // ]);
                         } else {
                             $pros = [
                                 'params' => 'Proses Desain-Koreksi Selesai',
@@ -3010,7 +3067,7 @@ class PracetakDesainerController extends Controller
                             ];
                             event(new PracetakCoverEvent($pros));
                         }
-                        $desc = 'Desainer (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan backcover-design tahap '.$tahapSelanjutnya.'.';
+                        $desc = 'Desainer (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan backcover-design tahap ' . $tahapSelanjutnya . '.';
                     } else {
                         $dataProses = DB::table('pracetak_cover_selesai')
                             ->where('type', 'Desainer')
@@ -3058,19 +3115,19 @@ class PracetakDesainerController extends Controller
                             ];
                             event(new PracetakCoverEvent($pros));
                         }
-                        $desc = 'Desainer (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan backcover-design tahap 1.';
+                        $desc = 'Desainer (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan backcover-design tahap 1.';
                     }
                     //? Todo list desain Revisi
-                    $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
-                    ->where('users_id',auth()->id())
-                    ->where('title','Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".');
+                    $dataTodo = DB::table('todo_list')->where('form_id', $data->id)
+                        ->where('users_id', auth()->id())
+                        ->where('title', 'Selesaikan proses revisi desain dengan naskah yang berjudul "' . $data->judul_final . '".');
                     if (is_null($dataTodo->first())) {
                         //? Insert Todo List Desain Revisi
                         DB::table('todo_list')->insert([
                             'form_id' => $data->id,
                             'users_id' => auth()->id(),
-                            'title' => 'Selesaikan proses revisi desain dengan naskah yang berjudul "'.$data->judul_final.'".',
-                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                            'title' => 'Selesaikan proses revisi desain dengan naskah yang berjudul "' . $data->judul_final . '".',
+                            'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode,
                             'status' => '1'
                         ]);
                     } else {
@@ -3110,9 +3167,9 @@ class PracetakDesainerController extends Controller
                             'author_id' => auth()->id()
                         ];
                         event(new PracetakCoverEvent($done));
-                        DB::table('pracetak_cover')->where('id', $data->id)->update([
-                            'selesai_koreksi' => NULL
-                        ]);
+                        // DB::table('pracetak_cover')->where('id', $data->id)->update([
+                        //     'selesai_koreksi' => NULL
+                        // ]);
                     } else {
                         $pros = [
                             'params' => 'Proses Desain-Koreksi Selesai',
@@ -3126,16 +3183,16 @@ class PracetakDesainerController extends Controller
                         event(new PracetakCoverEvent($pros));
                     }
                     //? Todo list desain backcover
-                    $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
-                    ->where('users_id',auth()->id())
-                    ->where('title','Selesaikan proses desain back cover naskah yang berjudul "'.$data->judul_final.'".');
+                    $dataTodo = DB::table('todo_list')->where('form_id', $data->id)
+                        ->where('users_id', auth()->id())
+                        ->where('title', 'Selesaikan proses desain back cover naskah yang berjudul "' . $data->judul_final . '".');
                     if (is_null($dataTodo->first())) {
                         //? Insert Todo List Desain BackCover
                         DB::table('todo_list')->insert([
                             'form_id' => $data->id,
                             'users_id' => auth()->id(),
-                            'title' => 'Selesaikan proses desain back cover naskah yang berjudul "'.$data->judul_final.'".',
-                            'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                            'title' => 'Selesaikan proses desain back cover naskah yang berjudul "' . $data->judul_final . '".',
+                            'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode,
                             'status' => '1'
                         ]);
                     } else {
@@ -3143,7 +3200,7 @@ class PracetakDesainerController extends Controller
                             'status' => '1'
                         ]);
                     }
-                    $desc = 'Desainer (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan backcover-design tahap 1.';
+                    $desc = 'Desainer (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan backcover-design tahap 1.';
                 }
             } else {
                 $dataProses = DB::table('pracetak_cover_selesai')
@@ -3189,13 +3246,13 @@ class PracetakDesainerController extends Controller
                     ];
                     event(new PracetakCoverEvent($pros));
                 }
-                $dataTodo = DB::table('todo_list')->where('form_id',$data->id)->where('users_id',auth()->id())->where('title','Selesaikan proses desain pengajuan naskah yang berjudul "'.$data->judul_final.'".');
+                $dataTodo = DB::table('todo_list')->where('form_id', $data->id)->where('users_id', auth()->id())->where('title', 'Selesaikan proses desain pengajuan naskah yang berjudul "' . $data->judul_final . '".');
                 if (is_null($dataTodo->first())) {
                     DB::table('todo_list')->insert([
                         'form_id' => $data->id,
                         'users_id' => auth()->id(),
-                        'title' => 'Selesaikan proses desain pengajuan naskah yang berjudul "'.$data->judul_final.'".',
-                        'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                        'title' => 'Selesaikan proses desain pengajuan naskah yang berjudul "' . $data->judul_final . '".',
+                        'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode,
                         'status' => '1'
                     ]);
                 } else {
@@ -3203,7 +3260,7 @@ class PracetakDesainerController extends Controller
                         'status' => '1'
                     ]);
                 }
-                $desc = 'Desainer (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan pengajuan desain.';
+                $desc = 'Desainer (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan pengajuan desain.';
             }
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
@@ -3306,7 +3363,7 @@ class PracetakDesainerController extends Controller
                     ];
                     event(new PracetakCoverEvent($pros));
                 }
-                $desc = 'Korektor (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan koreksi tahap '.$tahapSelanjutnya.'.';
+                $desc = 'Korektor (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan koreksi tahap ' . $tahapSelanjutnya . '.';
             } else {
                 $dataProses = DB::table('pracetak_cover_selesai')
                     ->where('type', 'Korektor')
@@ -3351,18 +3408,18 @@ class PracetakDesainerController extends Controller
                     ];
                     event(new PracetakCoverEvent($pros));
                 }
-                $desc = 'Korektor (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan koreksi tahap 1.';
+                $desc = 'Korektor (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan koreksi tahap 1.';
             }
-            $dataTodo = DB::table('todo_list')->where('form_id',$data->id)
-            ->where('users_id',auth()->id())
-            ->where('title','Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".');
+            $dataTodo = DB::table('todo_list')->where('form_id', $data->id)
+                ->where('users_id', auth()->id())
+                ->where('title', 'Selesaikan proses koreksi desain cover naskah yang berjudul "' . $data->judul_final . '".');
             if (is_null($dataTodo->first())) {
                 //? Insert Todo List Korektor
                 DB::table('todo_list')->insert([
                     'form_id' => $data->id,
                     'users_id' => auth()->id(),
-                    'title' => 'Selesaikan proses koreksi desain cover naskah yang berjudul "'.$data->judul_final.'".',
-                    'link' => '/penerbitan/pracetak/designer/detail?pra='.$data->id.'&kode='.$data->kode,
+                    'title' => 'Selesaikan proses koreksi desain cover naskah yang berjudul "' . $data->judul_final . '".',
+                    'link' => '/penerbitan/pracetak/designer/detail?pra=' . $data->id . '&kode=' . $data->kode,
                     'status' => '1'
                 ]);
             } else {

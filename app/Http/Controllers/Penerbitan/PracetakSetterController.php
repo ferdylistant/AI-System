@@ -54,11 +54,11 @@ class PracetakSetterController extends Controller
                 return $data->count();
             } elseif ($request->has('show_status')) {
                 $showStatus = DB::table('pracetak_setter as ps')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
-                ->where('ps.id',$request->id)
-                ->select('ps.*','dp.judul_final')
-                ->first();
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'df.deskripsi_produk_id')
+                    ->where('ps.id', $request->id)
+                    ->select('ps.*', 'dp.judul_final')
+                    ->first();
                 return response()->json($showStatus);
             } else {
                 return DataTables::of($data)
@@ -1200,22 +1200,22 @@ class PracetakSetterController extends Controller
                     }
                     $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
                     if ($request->proses_saat_ini == 'Turun Cetak') {
-                        $cekTotalKoreksi = DB::table('pracetak_setter_selesai')
-                        ->where('pracetak_setter_id',$history->id)
-                        ->where('section','Koreksi')->get()->count();
-                        $cekTotalSettingRevisi = DB::table('pracetak_setter_selesai')
-                        ->where('pracetak_setter_id',$history->id)
-                        ->where('section','Setting Revision')->get()->count();
-                        if ($cekTotalSettingRevisi < $cekTotalKoreksi) {
-                            return response()->json([
-                                'status' => 'error',
-                                'message' => 'Proses setting belum selesai'
-                            ]);
-                        }
                         if (is_null($history->selesai_setting) || is_null($history->selesai_koreksi)) {
                             return response()->json([
                                 'status' => 'error',
                                 'message' => 'Belum melakukan proses setting/koreksi!'
+                            ]);
+                        }
+                        $cekTotalKoreksi = DB::table('pracetak_setter_selesai')
+                            ->where('pracetak_setter_id', $history->id)
+                            ->where('section', 'Koreksi')->get()->count();
+                        $cekTotalSettingRevisi = DB::table('pracetak_setter_selesai')
+                            ->where('pracetak_setter_id', $history->id)
+                            ->where('section', 'Setting Revision')->get()->count();
+                        if ($cekTotalSettingRevisi < $cekTotalKoreksi) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Proses setting belum selesai'
                             ]);
                         }
                         if ($history->status == 'Proses') {
@@ -1244,7 +1244,7 @@ class PracetakSetterController extends Controller
                                     'tgl_masuk' => $tgl
                                 ];
                                 event(new DesturcetEvent($turcet));
-                                $descDesturcetTracker = 'Naskah berjudul <a href="'.url('penerbitan/deskripsi/turun-cetak/detail?desc='.$id_turcet.'&kode='.$history->kode).'">'.$history->judul_final.'</a> telah memasuki tahap antrian Desktipsi Turun Cetak.';
+                                $descDesturcetTracker = 'Naskah berjudul <a href="' . url('penerbitan/deskripsi/turun-cetak/detail?desc=' . $id_turcet . '&kode=' . $history->kode) . '">' . $history->judul_final . '</a> telah memasuki tahap antrian Desktipsi Turun Cetak.';
                                 $trackerDesturcet = [
                                     'id' => Uuid::uuid4()->toString(),
                                     'section_id' => $id_turcet,
@@ -1828,9 +1828,22 @@ class PracetakSetterController extends Controller
                     switch ($data->proses_saat_ini) {
                         case 'Antrian Setting':
                             if (!is_null($data->selesai_setting)) {
+                                if (is_null($data->selesai_proof)) {
+                                    $msg = 'Proses setting selesai, silahkan ubah proses saat ini menjadi "Proof Prodev".';
+                                } else {
+                                    $cekTotalKoreksi = DB::table('pracetak_setter_selesai')
+                                    ->where('pracetak_setter_id', $data->id)
+                                    ->where('section', 'Koreksi')->get()->count();
+                                    $cekTotalSettingRevisi = DB::table('pracetak_setter_selesai')
+                                    ->where('pracetak_setter_id', $data->id)
+                                    ->where('section', 'Setting Revision')->get()->count();
+                                    if ($cekTotalSettingRevisi >= $cekTotalKoreksi) {
+                                        $msg = 'Proses setting selesai, silahkan ubah proses saat ini menjadi "Antrian Koreksi" atau jika sudah selesai, ubah menjadi "Turun Cetak".';
+                                    }
+                                }
                                 return response()->json([
                                     'status' => 'error',
-                                    'message' => 'Proses setting selesai, silahkan ubah proses saat ini menjadi "Proof Prodev".'
+                                    'message' => $msg
                                 ]);
                             }
                             break;
@@ -2183,11 +2196,11 @@ class PracetakSetterController extends Controller
                     ]);
                 } else {
                     $cekTotalKoreksi = DB::table('pracetak_setter_selesai')
-                    ->where('pracetak_setter_id',$data->id)
-                    ->where('section','Koreksi')->get()->count();
+                        ->where('pracetak_setter_id', $data->id)
+                        ->where('section', 'Koreksi')->get()->count();
                     $cekTotalSettingRevisi = DB::table('pracetak_setter_selesai')
-                    ->where('pracetak_setter_id',$data->id)
-                    ->where('section','Setting Revision')->get()->count();
+                        ->where('pracetak_setter_id', $data->id)
+                        ->where('section', 'Setting Revision')->get()->count();
                     if ($cekTotalSettingRevisi < $cekTotalKoreksi) {
                         return response()->json([
                             'status' => 'error',
@@ -2275,7 +2288,7 @@ class PracetakSetterController extends Controller
                     DB::table('pracetak_setter')->where('id', $data->id)->update([
                         'proses_saat_ini' => 'Turun Cetak'
                     ]);
-                    $cekDesturcet = DB::table('deskripsi_turun_cetak')->where('pracetak_cover_id',$data->id)->first();
+                    $cekDesturcet = DB::table('deskripsi_turun_cetak')->where('pracetak_cover_id', $data->id)->first();
                     //Insert Deskripsi Turun Cetak
                     $id_turcet = Uuid::uuid4()->toString();
                     if (is_null($cekDesturcet)) {
@@ -2287,7 +2300,7 @@ class PracetakSetterController extends Controller
                             'tgl_masuk' => $tgl,
                         ];
                         event(new DesturcetEvent($in));
-                        $descDesturcetTracker = 'Naskah berjudul <a href="'.url('penerbitan/deskripsi/turun-cetak/detail?desc='.$id_turcet.'&kode='.$data->kode).'">'.$data->judul_final.'</a> telah memasuki tahap antrian Desktipsi Turun Cetak.';
+                        $descDesturcetTracker = 'Naskah berjudul <a href="' . url('penerbitan/deskripsi/turun-cetak/detail?desc=' . $id_turcet . '&kode=' . $data->kode) . '">' . $data->judul_final . '</a> telah memasuki tahap antrian Desktipsi Turun Cetak.';
                         $trackerDesturcet = [
                             'id' => Uuid::uuid4()->toString(),
                             'section_id' => $id_turcet,
@@ -2318,12 +2331,12 @@ class PracetakSetterController extends Controller
                         event(new TimelineEvent($insertTimelinePraset));
                     }
                     $namaUser = auth()->user()->nama;
-                    $desc = 'Pracetak Setter selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Setter menjadi <b>'.$request->status.'</b>. Proses berlanjut ke Deskripsi Turun Cetak.';
+                    $desc = 'Pracetak Setter selesai, <a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a> mengubah status pengerjaan Pracetak Setter menjadi <b>' . $request->status . '</b>. Proses berlanjut ke Deskripsi Turun Cetak.';
                     $icon = 'fas fa-clipboard-check';
                     $msg = 'Pracetak Setter selesai, silahkan lanjut ke proses deskripsi turun cetak..';
                 } else {
                     $namaUser = auth()->user()->nama;
-                    $desc = 'Pracetak Setter selesai, <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Setter menjadi <b>'.$request->status.'</b>. Proses berlanjut ke pracetak cover.';
+                    $desc = 'Pracetak Setter selesai, <a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a> mengubah status pengerjaan Pracetak Setter menjadi <b>' . $request->status . '</b>. Proses berlanjut ke pracetak cover.';
                     $icon = 'fas fa-clipboard-check';
                     $msg = 'Pracetak Setter selesai, silahkan selesaikan proses pracetak cover..';
                 }
@@ -2339,7 +2352,7 @@ class PracetakSetterController extends Controller
                 ];
                 event(new TimelineEvent($updateTimelinePracetakSetter));
                 $namaUser = auth()->user()->nama;
-                $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Pracetak Setter menjadi <b>'.$request->status.'</b>.';
+                $desc = '<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a> mengubah status pengerjaan Pracetak Setter menjadi <b>' . $request->status . '</b>.';
                 $icon = 'fas fa-info-circle';
                 $msg = 'Status progress pracetak setter berhasil diupdate';
             }
@@ -2808,7 +2821,7 @@ class PracetakSetterController extends Controller
             ];
             event(new PracetakSetterEvent($rev));
             $namaUser = auth()->user()->nama;
-            $desc = 'Prodev (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) meminta untuk hasil proof ke penulis direvisi.';
+            $desc = 'Prodev (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) meminta untuk hasil proof ke penulis direvisi.';
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
                 'section_id' => $data->id,
@@ -2878,7 +2891,7 @@ class PracetakSetterController extends Controller
             ];
             event(new PracetakSetterEvent($done));
             $namaUser = auth()->user()->nama;
-            $desc = 'Prodev (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan proof ke penulis.';
+            $desc = 'Prodev (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan proof ke penulis.';
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
                 'section_id' => $data->id,
@@ -2955,7 +2968,7 @@ class PracetakSetterController extends Controller
             ];
             event(new PracetakSetterEvent($done));
             $namaUser = auth()->user()->nama;
-            $desc = 'Kabag (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan setting yang direvisi.';
+            $desc = 'Kabag (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan setting yang direvisi.';
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
                 'section_id' => $data->id,
@@ -3167,7 +3180,7 @@ class PracetakSetterController extends Controller
                         ];
                         event(new PracetakSetterEvent($pros));
                     }
-                    $desc = 'Setter (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan setting revisi tahap '.$tahapSelanjutnya.'.';
+                    $desc = 'Setter (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan setting revisi tahap ' . $tahapSelanjutnya . '.';
                 } else {
                     $dataProses = DB::table('pracetak_setter_selesai')
                         ->where('type', 'Setter')
@@ -3218,8 +3231,8 @@ class PracetakSetterController extends Controller
                         event(new PracetakSetterEvent($pros));
                     }
                     $dataTodo = DB::table('todo_list')->where('form_id', $data->id)
-                    ->where('users_id', auth()->id())
-                    ->where('title', 'Selesaikan proses setting revisi naskah yang berjudul "' . $data->judul_final . '".');
+                        ->where('users_id', auth()->id())
+                        ->where('title', 'Selesaikan proses setting revisi naskah yang berjudul "' . $data->judul_final . '".');
                     if (is_null($dataTodo->first())) {
                         //? Insert Todo List Setter
                         DB::table('todo_list')->insert([
@@ -3234,9 +3247,8 @@ class PracetakSetterController extends Controller
                             'status' => '1'
                         ]);
                     }
-                    $desc = 'Setter (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan setting revisi tahap 1.';
+                    $desc = 'Setter (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan setting revisi tahap 1.';
                 }
-
             } else {
                 $dataProses = DB::table('pracetak_setter_selesai')
                     ->where('type', 'Setter')
@@ -3298,8 +3310,7 @@ class PracetakSetterController extends Controller
                         'status' => '1'
                     ]);
                 }
-                $desc = 'Setter (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan sample setting.';
-
+                $desc = 'Setter (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan sample setting.';
             }
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
@@ -3401,7 +3412,7 @@ class PracetakSetterController extends Controller
                     ];
                     event(new PracetakSetterEvent($pros));
                 }
-                $desc = 'Korektor (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan koreksi tahap '.$tahapSelanjutnya.'.';
+                $desc = 'Korektor (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan koreksi tahap ' . $tahapSelanjutnya . '.';
             } else {
                 $dataProses = DB::table('pracetak_setter_selesai')
                     ->where('type', 'Korektor')
@@ -3448,7 +3459,7 @@ class PracetakSetterController extends Controller
                     ];
                     event(new PracetakSetterEvent($pros));
                 }
-                $desc = 'Korektor (<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>) menyelesaikan koreksi tahap 1.';
+                $desc = 'Korektor (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>) menyelesaikan koreksi tahap 1.';
             }
             $dataTodo = DB::table('todo_list')->where('form_id', $data->id)
                 ->where('users_id', auth()->id())
