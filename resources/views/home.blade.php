@@ -114,7 +114,7 @@
             <div class="row mb-3">
                 <div class="col-12 mb-4">
                     <div class="hero text-white hero-bg-image hero-bg-parallax"
-                        style="background-image: image-set(url('images/background-home.avif') 1x,url('images/background-home-2x.avif') 2x;)">
+                        style="background-image: image-set(url('images/background-home.avif') 1x)">
                         <div class="hero-inner">
                             <h2>Selamat datang, {{ $userdata->nama }}!</h2>
                             <p class="lead">You almost arrived, complete the information about your account to complete
