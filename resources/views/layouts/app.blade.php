@@ -251,9 +251,9 @@
                     data: {id : id},
                     method: 'GET',
                     error: function (xhr, status, error) {
-                        console.error('Error checking authentication: ' + xhr);
-                        console.error('Error checking authentication: ' + status);
-                        console.error('Error checking authentication: ' + error);
+                        // console.error('Error checking authentication: ' + xhr);
+                        // console.error('Error checking authentication: ' + status);
+                        // console.error('Error checking authentication: ' + error);
                     }
                 });
             }
@@ -303,9 +303,9 @@
                         if (error == 'unknown status') {
                             checkAuth(id);
                         }
-                        console.log(xhr);
-                        console.log(status);
-                        console.log(error);
+                        // console.log(xhr);
+                        // console.log(status);
+                        // console.log(error);
                     }
                 });
             }
