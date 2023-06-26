@@ -991,6 +991,8 @@ class PracetakDesainerController extends Controller
                                     $lbl = $label . ' proses koreksi';
                                 } elseif (!is_null($useData->selesai_koreksi) && $useData->proses_saat_ini == 'Desain Revisi' && $useData->status == 'Proses') {
                                     $lbl = $label . ' proses revisi desain cover';
+                                } elseif (!is_null($useData->selesai_koreksi) && $useData->proses_saat_ini == 'Antrian Koreksi') {
+                                    $lbl = $label. ' proses koreksi';
                                 } else {
                                     $disable = true;
                                     $disableBtn = true;

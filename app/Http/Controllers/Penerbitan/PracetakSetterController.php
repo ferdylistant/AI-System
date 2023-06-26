@@ -1123,6 +1123,8 @@ class PracetakSetterController extends Controller
                                     $lbl = $label . ' proses revisi setting';
                                 } elseif (!is_null($useData->selesai_koreksi) && is_null($useData->selesai_setting)) {
                                     $lbl = $label . ' proses revisi setting';
+                                } elseif (!is_null($useData->selesai_koreksi) && $useData->proses_saat_ini == 'Antrian Koreksi') {
+                                    $lbl = $label. ' proses koreksi';
                                 } else {
                                     $disable = true;
                                     $disableBtn = true;
