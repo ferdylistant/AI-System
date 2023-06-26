@@ -439,6 +439,9 @@ class PracetakDesainerController extends Controller
                                 case 'Desain Back Cover':
                                     $htmlHeader .= '<span class="text-dark" class="text-dark"> Desain Back Cover</span>';
                                     break;
+                                case 'Antrian Proof':
+                                    $htmlHeader .= '<span class="text-dark"> Antrian Proof</span>';
+                                    break;
                                 case 'Approval Prodev':
                                     $htmlHeader .= '<span class="text-dark"> Approval Prodev</span>';
                                     break;
@@ -479,7 +482,7 @@ class PracetakDesainerController extends Controller
                             $prosesFilter = Arr::except($prosesSaatIni, ['1', '3', '5', '7', '10']);
                             if ($item == 'Siap Turcet') {
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
-                                    return $key >= 8;
+                                    return $key >= 6;
                                 });
                             } elseif (!is_null($useData->selesai_pengajuan_cover)) {
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
@@ -1167,6 +1170,27 @@ class PracetakDesainerController extends Controller
                             DB::table('pracetak_cover')->where('id', $history->id)->update([
                                 'turun_cetak' => $tgl,
                                 'status' => 'Selesai',
+                            ]);
+                        }
+                    } elseif ($request->proses_saat_ini == 'Siap Turcet') {
+                        if (is_null($history->selesai_pengajuan_cover) || is_null($history->selesai_cover) || is_null($history->selesai_koreksi)) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Belum melakukan proses pengajuan cover/desain back cover/koreksi!'
+                            ]);
+                        }
+                        $cekTotalKoreksi = DB::table('pracetak_cover_selesai')
+                            ->where('pracetak_cover_id', $history->id)
+                            ->where('section', 'Koreksi')->get()->count();
+                        $cekTotalBackCover = DB::table('pracetak_cover_selesai')
+                            ->where('pracetak_cover_id', $history->id)
+                            ->where('section', 'Back Cover Design')
+                            ->orWhere('section', 'Back Cover Design Revision')
+                            ->get()->count();
+                        if ($cekTotalBackCover < $cekTotalKoreksi) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Proses back cover belum selesai'
                             ]);
                         }
                     }

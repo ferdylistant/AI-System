@@ -397,7 +397,7 @@ class PracetakSetterController extends Controller
                             $prosesFilter = Arr::except($prosesSaatIni, ['1', '3', '5', '8']);
                             if ($item == 'Siap Turcet') {
                                 $prosesFilter = Arr::where($prosesFilter, function ($value, $key) {
-                                    return $key >= 6;
+                                    return $key >= 4;
                                 });
                             } elseif (!is_null($useData->selesai_proof)) {
                                 $prosesFilter = Arr::except($prosesSaatIni, ['1', '2', '3', '5', '8']);
@@ -1308,6 +1308,25 @@ class PracetakSetterController extends Controller
                             DB::table('pracetak_setter')->where('id', $request->id)->update([
                                 'turun_cetak' => $tgl,
                                 'status' => 'Selesai'
+                            ]);
+                        }
+                    } elseif ($request->proses_saat_ini == 'Siap Turcet') {
+                        if (is_null($history->selesai_setting) || is_null($history->selesai_koreksi)) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Belum melakukan proses setting/koreksi!'
+                            ]);
+                        }
+                        $cekTotalKoreksi = DB::table('pracetak_setter_selesai')
+                            ->where('pracetak_setter_id', $history->id)
+                            ->where('section', 'Koreksi')->get()->count();
+                        $cekTotalSettingRevisi = DB::table('pracetak_setter_selesai')
+                            ->where('pracetak_setter_id', $history->id)
+                            ->where('section', 'Setting Revision')->get()->count();
+                        if ($cekTotalSettingRevisi < $cekTotalKoreksi) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Proses setting belum selesai'
                             ]);
                         }
                     }
