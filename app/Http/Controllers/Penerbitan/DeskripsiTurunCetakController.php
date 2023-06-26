@@ -142,16 +142,14 @@ class DeskripsiTurunCetakController extends Controller
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
 
-                        if ($data->status != 'Terkunci') {
-                            if ($update) {
-                                if ($data->status == 'Selesai') {
-                                    if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
-                                        $btn = $this->buttonEdit($data->id, $data->kode, $btn);
-                                    }
-                                } else {
-                                    if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                        $btn = $this->buttonEdit($data->id, $data->kode, $btn);
-                                    }
+                        if ($update) {
+                            if ($data->status == 'Selesai') {
+                                if (Gate::allows('do_approval', 'approval-deskripsi-produk')) {
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
+                                }
+                            } else {
+                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                    $btn = $this->buttonEdit($data->id, $data->kode, $btn);
                                 }
                             }
                         }
@@ -181,15 +179,13 @@ class DeskripsiTurunCetakController extends Controller
             }
         }
         //Isi Warna Enum
-        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_cover WHERE Field = 'status'"))[0]->Type;
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM deskripsi_turun_cetak WHERE Field = 'status'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $statusProgress = explode("','", $matches[1]);
         $statusFilter = Arr::sort($statusProgress);
-        $statusAction = Arr::except($statusFilter, ['4']);
         return view('penerbitan.des_turun_cetak.index', [
             'title' => 'Deskripsi Turun Cetak',
             'status_progress' => $statusFilter,
-            'status_action' => $statusAction,
         ]);
     }
     public function detailDeskripsiTurunCetak(Request $request)

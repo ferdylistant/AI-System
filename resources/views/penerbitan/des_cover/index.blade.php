@@ -80,7 +80,7 @@
                             <div class="row justify-content-between">
                                 <div class="form-group col-auto col-md-3">
                                     <div class="input-group">
-                                        <select data-column="10" name="status_filter" id="status_filter"
+                                        <select data-column="11" name="status_filter" id="status_filter"
                                             class="form-control select-filter status_filter" style="width: 200px">
                                             <option label="Pilih Filter Status"></option>
                                             @foreach ($status_progress as $val)
