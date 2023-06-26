@@ -295,7 +295,7 @@
                         status: status,
                         id: id
                      },
-                    // async: false,
+                    async: false,
                     // success: function (response) {
                     //     console.log(response);
                     // },
