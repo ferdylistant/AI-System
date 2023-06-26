@@ -1084,8 +1084,7 @@ class PracetakDesainerController extends Controller
                             ->where('section', 'Koreksi')->get()->count();
                         $cekTotalBackCover = DB::table('pracetak_cover_selesai')
                             ->where('pracetak_cover_id', $history->id)
-                            ->where('section', 'Back Cover Design')
-                            ->orWhere('section', 'Back Cover Design Revision')
+                            ->where('section', 'Back Cover Design Revision')
                             ->get()->count();
                         if ($cekTotalBackCover < $cekTotalKoreksi) {
                             return response()->json([
@@ -1184,8 +1183,7 @@ class PracetakDesainerController extends Controller
                             ->where('section', 'Koreksi')->get()->count();
                         $cekTotalBackCover = DB::table('pracetak_cover_selesai')
                             ->where('pracetak_cover_id', $history->id)
-                            ->where('section', 'Back Cover Design')
-                            ->orWhere('section', 'Back Cover Design Revision')
+                            ->where('section', 'Back Cover Design Revision')
                             ->get()->count();
                         if ($cekTotalBackCover < $cekTotalKoreksi) {
                             return response()->json([
@@ -2185,8 +2183,7 @@ class PracetakDesainerController extends Controller
                         ->where('section', 'Koreksi')->get()->count();
                     $cekTotalBackCover = DB::table('pracetak_cover_selesai')
                         ->where('pracetak_cover_id', $data->id)
-                        ->where('section', 'Back Cover Design')
-                        ->orWhere('section', 'Back Cover Design Revision')
+                        ->where('section', 'Back Cover Design Revision')
                         ->get()->count();
                     if ($cekTotalBackCover < $cekTotalKoreksi) {
                         return response()->json([

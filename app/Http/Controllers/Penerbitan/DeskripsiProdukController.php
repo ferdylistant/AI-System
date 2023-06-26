@@ -571,16 +571,6 @@ class DeskripsiProdukController extends Controller
                             ]);
                         }
                     })->all();
-                    $addTracker = [
-                        'id' => Uuid::uuid4()->toString(),
-                        'section_id' => $data->id,
-                        'section_name' => 'Deskripsi Produk',
-                        'description' => $desc,
-                        'icon' => 'fas fa-info-circle',
-                        'created_by' => auth()->id()
-                    ];
-                    event(new TrackerEvent($addTracker));
-
                     break;
                 default:
                     $updateTimeline = [
@@ -593,17 +583,17 @@ class DeskripsiProdukController extends Controller
                     event(new TimelineEvent($updateTimeline));
                     $namaUser = auth()->user()->nama;
                     $desc = '<a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a> mengubah status pengerjaan Deskripsi Produk menjadi <b>'.$request->status.'</b>.';
-                    $addTracker = [
-                        'id' => Uuid::uuid4()->toString(),
-                        'section_id' => $data->id,
-                        'section_name' => 'Deskripsi Produk',
-                        'description' => $desc,
-                        'icon' => 'fas fa-info-circle',
-                        'created_by' => auth()->id()
-                    ];
-                    event(new TrackerEvent($addTracker));
                     break;
             }
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Deskripsi Produk',
+                'description' => $desc,
+                'icon' => 'fas fa-info-circle',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             $update = [
                 'params' => 'Update Status Despro',
                 'id' => $data->id,

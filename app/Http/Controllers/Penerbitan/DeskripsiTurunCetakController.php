@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Penerbitan;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
+use App\Events\TrackerEvent;
 use Illuminate\Http\Request;
 use App\Events\TimelineEvent;
 use App\Events\DesturcetEvent;
@@ -254,6 +255,30 @@ class DeskripsiTurunCetakController extends Controller
                         'status' => 'Selesai'
                     ];
                     event(new TimelineEvent($updateTimelinePilihanTerbit));
+                    if (count($request->add_pilihan_terbit) < 2) {
+                        $txt = implode('', $request->add_pilihan_terbit);
+                        $res = '<b>' . ucfirst($txt) . '</b>';
+                    } else {
+                        $res = '';
+                        foreach ($request->add_pilihan_terbit as $i => $pt) {
+                            if ($i == 0) {
+                                $first = $pt;
+                            }
+                            if ($i == 1) {
+                                $res .= '<b>' . ucfirst($first) . '</b> dan <b>' . ucfirst($pt) . '</b>';
+                            }
+                        }
+                    }
+                    $addTracker = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'section_id' => $data->id,
+                        'section_name' => 'Deskripsi Turun Cetak',
+                        'description' => 'Deskripsi turun cetak dengan naskah berjudul <a href="' . url('penerbitan/deskripsi/turun-cetak/detail?desc=' . $data->id . '&kode=' . $data->kode) . '">' . $data->judul_final . '</a> telah dipilih oleh
+                        Direktur Operasional (<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst(auth()->user()->nama) . '</a>), dengan pilihan terbit: ' . $res . '.',
+                        'icon' => 'fas fa-user-check',
+                        'created_by' => auth()->id()
+                    ];
+                    event(new TrackerEvent($addTracker));
                     foreach ($request->add_pilihan_terbit as $pt) {
                         switch ($pt) {
                             case 'ebook':
@@ -275,6 +300,15 @@ class DeskripsiTurunCetakController extends Controller
                             'tgl_masuk' => $tgl
                         ];
                         event(new DesturcetEvent($order));
+                        $addTracker = [
+                            'id' => Uuid::uuid4()->toString(),
+                            'section_id' => $data->id,
+                            'section_name' => 'Order ' . ucfirst($type),
+                            'description' => 'Naskah berjudul <a href="' . url('/penerbitan/order-' . $type . '/detail?order=' . $idOrder . '&naskah=' . $data->kode) . '">' . $data->judul_final . '</a> telah memasuki tahap antrian Order ' . ucfirst($type) . '.',
+                            'icon' => 'fas fa-folder-plus',
+                            'created_by' => auth()->id()
+                        ];
+                        event(new TrackerEvent($addTracker));
                         //INSERT TODO LIST ADMIN
                         $permissionAdmin = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
                             ->join('users as u', 'u.id', '=', 'up.user_id')
@@ -284,12 +318,13 @@ class DeskripsiTurunCetakController extends Controller
                             ->select('up.user_id')
                             ->get();
                         $data = (object)collect($data)->put('id_order', $idOrder);
+                        $data = (object)collect($data)->put('type', $type);
                         $permissionAdmin = (object)collect($permissionAdmin)->map(function ($item) use ($data) {
                             return DB::table('todo_list')->insert([
                                 'form_id' => $data['id_order'],
                                 'users_id' => $item->user_id,
-                                'title' => 'Lengkapi data order cetak untuk naskah "' . $data['judul_final'] . '".',
-                                'link' => '/penerbitan/order-cetak/edit?order=' . $data['id_order'] . '&naskah=' . $data['kode'],
+                                'title' => 'Lengkapi data order ' . $data['type'] . ' untuk naskah "' . $data['judul_final'] . '".',
+                                'link' => '/penerbitan/order-' . $data['type'] . '/edit?order=' . $data['id_order'] . '&naskah=' . $data['kode'],
                                 'status' => '0'
                             ]);
                         })->all();
@@ -660,6 +695,8 @@ class DeskripsiTurunCetakController extends Controller
                     'status' => 'Proses'
                 ];
                 event(new TimelineEvent($insertTimelinePilTerbit));
+                $namaUser = auth()->user()->nama;
+                $desc = 'Deskripsi turun cetak selesai, <a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a> mengubah status pengerjaan deskripsi turun cetak menjadi <b>' . $request->status . '</b> lalu menunggu keputusan tipe order oleh Direktur Operasional.';
                 $msg = 'Deskripsi turun cetak selesai';
             } else {
                 event(new DesturcetEvent($update));
@@ -673,8 +710,19 @@ class DeskripsiTurunCetakController extends Controller
                     'status' => $request->status
                 ];
                 event(new TimelineEvent($updateTimelineDesturcet));
+                $namaUser = auth()->user()->nama;
+                $desc = '<a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a> mengubah status pengerjaan Deskripsi Turun Cetak menjadi <b>' . $request->status . '</b>.';
                 $msg = 'Status progress deskripsi turun cetak berhasil diupdate';
             }
+            $addTracker = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $data->id,
+                'section_name' => 'Deskripsi Turun Cetak',
+                'description' => $desc,
+                'icon' => 'fas fa-info-circle',
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($addTracker));
             DB::commit();
             return response()->json([
                 'status' => 'success',
