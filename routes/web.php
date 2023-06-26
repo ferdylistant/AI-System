@@ -154,7 +154,7 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::get('/deskripsi/turun-cetak', $path.'\Penerbitan\DeskripsiTurunCetakController@index')->name('desturcet.view');
         Route::match(['get', 'post'], '/deskripsi/turun-cetak/detail', $path.'\Penerbitan\DeskripsiTurunCetakController@detailDeskripsiTurunCetak')->name('desturcet.detail');
         Route::match(['get', 'post'], '/deskripsi/turun-cetak/edit', $path.'\Penerbitan\DeskripsiTurunCetakController@editDeskripsiTurunCetak')->name('desturcet.edit');
-        Route::post('/deskripsi/turun-cetak/{act}', $path.'\Penerbitan\DeskripsiTurunCetakController@actionAjax');
+        Route::post('/deskripsi/turun-cetak/ajax/{act}', $path.'\Penerbitan\DeskripsiTurunCetakController@actionAjax');
         //Editing
         Route::get('/editing', $path.'\Penerbitan\EditingController@index')->name('editing.view');
         Route::match(['get', 'post'],'/editing/detail', $path.'\Penerbitan\EditingController@detailEditing')->name('editing.detail');

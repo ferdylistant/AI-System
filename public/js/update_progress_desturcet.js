@@ -54,6 +54,11 @@ $(function() {
                 title: 'History Progress'
             },
             {
+                data: 'tracker',
+                name: 'tracker',
+                title: 'Tracker'
+            },
+            {
                 data: 'action',
                 name: 'action',
                 title: 'Action',
@@ -89,6 +94,30 @@ function loadDataCount() {
     });
 }
 $(document).ready(function () {
+    $("#tb_DesTurCet").on("click", ".btn-tracker", function (e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var judul = $(this).data("judulfinal");
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin +
+                "/penerbitan/deskripsi/turun-cetak/ajax/lihat-tracking",
+            type: "post",
+            data: { id: id },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                $("#titleModalTracker").html('<i class="fas fa-file-signature"></i>&nbsp;Tracking Progress Naskah "' + judul + '"');
+                $("#dataShowTracking").html(data);
+                $("#md_Tracker").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
+        });
+    });
     $("#tb_DesTurCet").on("click", ".btn-history", function (e) {
         var id = $(this).data("id");
         var judul = $(this).data("judulfinal");
@@ -96,7 +125,7 @@ $(document).ready(function () {
         // console.log(judul);
         $.ajax({
             url: window.location.origin +
-                "/penerbitan/deskripsi/turun-cetak/lihat-history",
+                "/penerbitan/deskripsi/turun-cetak/ajax/lihat-history",
             type: "post",
             data:{ id: id },
             cache: false,
@@ -128,7 +157,7 @@ $(document).ready(function () {
         $.ajax({
             url:
                 window.location.origin +
-                "/penerbitan/deskripsi/turun-cetak/lihat-history",
+                "/penerbitan/deskripsi/turun-cetak/ajax/lihat-history",
             data: {
                 id: id,
                 page: page,
@@ -192,14 +221,33 @@ $(document).ready(function () {
     });
 });
 $(document).ready(function () {
-    $("#tb_DesTurCet").on("click", ".btn-status-desturcet", function (e) {
-        e.preventDefault();
-        let id = $(this).data("id"),
-            kode = $(this).data("kode"),
-            judul = $(this).data("judul");
-        $("#id").val(id);
-        $("#kode").val(kode);
-        $("#judulFinal").val(judul);
+    $("#md_UpdateStatusDesTurCet").on("shown.bs.modal", function (e) {
+        let id = $(e.relatedTarget).data("id"),
+            cardWrap = $(this);
+        $.ajax({
+            url: window.location.origin + "/penerbitan/deskripsi/turun-cetak?show_status=true",
+            type: "GET",
+            data: {
+                id: id,
+            },
+            cache: false,
+            success: function (result) {
+                Object.entries(result).forEach((entry) => {
+                    let [key, value] = entry;
+                    cardWrap.find('[name="' + key + '"]').val(value).trigger('change');
+                });
+            },
+            error: function (err) {
+                console.error(err);
+            },
+            complete: function () {
+                cardWrap.removeClass('modal-progress')
+            }
+        });
+    });
+    $("#md_UpdateStatusDesTurCet").on("hidden.bs.modal", function () {
+        $(this).find("form").trigger("reset");
+        $(this).addClass("modal-progress");
     });
 });
 $(document).ready(function () {
@@ -210,7 +258,7 @@ $(document).ready(function () {
             type: "POST",
             url:
                 window.location.origin +
-                "/penerbitan/deskripsi/turun-cetak/update-status-progress",
+                "/penerbitan/deskripsi/turun-cetak/ajax/update-status-progress",
             data: new FormData(el),
             processData: false,
             contentType: false,
