@@ -377,14 +377,13 @@
                     addClass('btn-progress')
                 },
                 success: function(result) {
-                    console.log(result)
-                    // if (result.status == 'error') {
-                    //     resetForm(data);
-                    //     notifToast(result.status, result.message);
-                    // } else {
-                    //     notifToast(result.status, result.message);
-                    //     location.href = result.route;
-                    // }
+                    // console.log(result)
+                    notifToast(result.status, result.message);
+                    if (result.status == 'error') {
+                        resetForm(data);
+                    } else {
+                        location.href = result.route;
+                    }
                 },
                 error: function(err) {
                     // console.log(err.responseJSON)
