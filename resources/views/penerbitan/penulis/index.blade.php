@@ -84,6 +84,9 @@
                             <div class="col-auto pb-3">
                                 <span class="badge badge-warning"><i class="fas fa-database"></i> Total penulis: <b id="countData">0</b></span>
                             </div>
+                            <div class="col-auto pb-3">
+                                <a class="btn btn-success" href="{{url('penerbitan/penulis/export')}}"><i class="fas fa-file-csv"></i> Export</a>
+                            </div>
                             <div class="col-12 table-responsive">
                                 <table id="tb_Penulis" class="table table-striped dt-responsive" style="width: 100%">
                                 </table>

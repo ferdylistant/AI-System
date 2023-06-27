@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
-use App\Events\PenulisEvent;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{DB, Storage, Gate};
-use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
+use App\Events\PenulisEvent;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PenulisExport;
 use Yajra\DataTables\DataTables;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\{DB, Storage, Gate};
 
 class PenulisController extends Controller
 {
@@ -930,5 +932,10 @@ class PenulisController extends Controller
             }
             return $html;
         }
+    }
+
+    public function exportData()
+    {
+        return Excel::download(new PenulisExport, 'penulis.xlsx');
     }
 }

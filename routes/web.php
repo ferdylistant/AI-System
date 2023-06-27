@@ -115,6 +115,7 @@ Route::middleware(['auth'])->group(function () use ($path) {
     //Penerbitan
     Route::prefix('penerbitan')->group(function () use ($path) {
         //Penulis
+        Route::get('/penulis/export', $path.'\Penerbitan\PenulisController@exportData');
         Route::get('/penulis', $path.'\Penerbitan\PenulisController@index');
         Route::get('/penulis/penulis-telah-dihapus', $path.'\Penerbitan\PenulisController@penulisTelahDihapus')->name('penulis.telah_dihapus');
         Route::match(['get', 'post'], '/penulis/membuat-penulis', $path.'\Penerbitan\PenulisController@createPenulis');
