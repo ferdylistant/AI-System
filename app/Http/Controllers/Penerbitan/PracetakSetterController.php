@@ -1202,10 +1202,15 @@ class PracetakSetterController extends Controller
                     }
                     $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
                     if ($request->proses_saat_ini == 'Turun Cetak') {
-                        if (is_null($history->selesai_setting) || is_null($history->selesai_koreksi)) {
+                        if (is_null($history->selesai_setting)) {
                             return response()->json([
                                 'status' => 'error',
-                                'message' => 'Belum melakukan proses setting/koreksi!'
+                                'message' => 'Selesaikan proses setting!'
+                            ]);
+                        } elseif (is_null($history->selesai_koreksi)) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Selesaikan proses koreksi!'
                             ]);
                         }
                         $cekTotalKoreksi = DB::table('pracetak_setter_selesai')
@@ -1217,7 +1222,7 @@ class PracetakSetterController extends Controller
                         if ($cekTotalSettingRevisi < $cekTotalKoreksi) {
                             return response()->json([
                                 'status' => 'error',
-                                'message' => 'Proses setting belum selesai'
+                                'message' => 'Selesaikan proses setting!'
                             ]);
                         }
                         if ($history->status == 'Proses') {
@@ -1311,10 +1316,15 @@ class PracetakSetterController extends Controller
                             ]);
                         }
                     } elseif ($request->proses_saat_ini == 'Siap Turcet') {
-                        if (is_null($history->selesai_setting) || is_null($history->selesai_koreksi)) {
+                        if (is_null($history->selesai_setting)) {
                             return response()->json([
                                 'status' => 'error',
-                                'message' => 'Belum melakukan proses setting/koreksi!'
+                                'message' => 'Selesaikan proses setting!'
+                            ]);
+                        } elseif (is_null($history->selesai_koreksi)) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'Selesaikan proses koreksi!'
                             ]);
                         }
                         $cekTotalKoreksi = DB::table('pracetak_setter_selesai')
@@ -1326,7 +1336,7 @@ class PracetakSetterController extends Controller
                         if ($cekTotalSettingRevisi < $cekTotalKoreksi) {
                             return response()->json([
                                 'status' => 'error',
-                                'message' => 'Proses setting belum selesai'
+                                'message' => 'Selesaikan proses setting!'
                             ]);
                         }
                     }
@@ -1532,7 +1542,7 @@ class PracetakSetterController extends Controller
                                     case 'Setting Revisi':
                                         $result = FALSE;
                                         break;
-                                    case 'Antrian Setting':
+                                    case 'Setting':
                                         $result = FALSE;
                                         break;
                                     default:
@@ -1807,7 +1817,7 @@ class PracetakSetterController extends Controller
                             'author_id' => auth()->id(),
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
-                        if ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Setting Revisi')) {
+                        if ((!is_null($data->selesai_koreksi)) && (($data->proses_saat_ini == 'Setting Revisi') || ($data->proses_saat_ini == 'Setting'))) {
                             //? Delete Todo List Setter
                             (object)collect(json_decode($data->setter))->map(function ($item) use ($data) {
                                 return DB::table('todo_list')
@@ -1892,10 +1902,23 @@ class PracetakSetterController extends Controller
                                 ]);
                             }
                             if (!is_null($data->selesai_koreksi)) {
-                                return response()->json([
-                                    'status' => 'error',
-                                    'message' => 'Proses koreksi selesai, silahkan ubah proses saat ini!.'
-                                ]);
+                                $cekTotalKoreksi = DB::table('pracetak_setter_selesai')
+                                    ->where('pracetak_setter_id', $data->id)
+                                    ->where('section', 'Koreksi')->get()->count();
+                                $cekTotalSettingRevisi = DB::table('pracetak_setter_selesai')
+                                    ->where('pracetak_setter_id', $data->id)
+                                    ->where('section', 'Setting Revision')->get()->count();
+                                if ($cekTotalSettingRevisi < $cekTotalKoreksi) {
+                                    return response()->json([
+                                        'status' => 'error',
+                                        'message' => 'Proses koreksi selesai, silahkan ubah proses saat ini!.'
+                                    ]);
+                                } else {
+                                    DB::table('pracetak_setter')->where('id',$data->id)->update([
+                                        'mulai_koreksi' => NULL,
+                                        'selesai_koreksi' => NULL
+                                    ]);
+                                }
                             }
                             break;
 
@@ -2223,7 +2246,7 @@ class PracetakSetterController extends Controller
                 if (is_null($data->selesai_setting)) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Proses setting belum selesai'
+                        'message' => 'Selesaikan proses setting!'
                     ]);
                 } else {
                     $cekTotalKoreksi = DB::table('pracetak_setter_selesai')
@@ -2235,7 +2258,7 @@ class PracetakSetterController extends Controller
                     if ($cekTotalSettingRevisi < $cekTotalKoreksi) {
                         return response()->json([
                             'status' => 'error',
-                            'message' => 'Proses setting belum selesai'
+                            'message' => 'Selesaikan proses setting!'
                         ]);
                     }
                 }

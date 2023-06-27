@@ -1055,7 +1055,7 @@ class PracetakDesainerController extends Controller
                         ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                         ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
                         ->where('pc.id', $request->id)
-                        ->select('pc.*', 'dp.naskah_id', 'dp.judul_final', 'pn.kode', 'pn.pic_prodev')
+                        ->select('pc.*', 'dp.naskah_id', 'dp.judul_final', 'pn.kode', 'pn.jalur_buku','pn.pic_prodev')
                         ->first();
                     if ($request->has('korektor')) {
                         foreach ($request->korektor as $ce) {
@@ -1397,7 +1397,17 @@ class PracetakDesainerController extends Controller
                     if (is_null($data->selesai_pengajuan_cover) || is_null($data->selesai_cover)) {
                         switch ($doneProses->section) {
                             case 'Pengajuan Cover':
-                                $result = $data->proses_saat_ini == 'Desain Revisi' ? TRUE : FALSE;
+                                switch ($data->proses_saat_ini) {
+                                    case 'Desain Revisi':
+                                        $result = TRUE;
+                                        break;
+                                    case 'Desain Back Cover':
+                                        $result = TRUE;
+                                        break;
+                                    default:
+                                        $result = FALSE;
+                                        break;
+                                }
                                 break;
                             case 'Back Cover Design Revision':
                                 $lastKoreksi = DB::table('pracetak_cover_selesai')
@@ -1690,7 +1700,7 @@ class PracetakDesainerController extends Controller
                             'author_id' => auth()->id(),
                             'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
-                        if ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Desain Revisi')) {
+                        if ((!is_null($data->selesai_koreksi)) && (($data->proses_saat_ini == 'Desain Revisi') || ($data->proses_saat_ini == 'Desain Back Cover'))) {
                             //? Delete Todo List desainer
                             (object)collect(json_decode($data->desainer))->map(function ($item) use ($data) {
                                 return DB::table('todo_list')
@@ -1764,8 +1774,7 @@ class PracetakDesainerController extends Controller
                                 ->where('section', 'Koreksi')->get()->count();
                                 $cekTotalBackCover = DB::table('pracetak_cover_selesai')
                                     ->where('pracetak_cover_id', $data->id)
-                                    ->where('section', 'Back Cover Design')
-                                    ->orWhere('section', 'Back Cover Design Revision')
+                                    ->where('section', 'Back Cover Design Revision')
                                     ->get()->count();
                                 if ($cekTotalBackCover >= $cekTotalKoreksi) {
                                     return response()->json([
@@ -1813,6 +1822,24 @@ class PracetakDesainerController extends Controller
                                 ]);
                             }
                             if (!is_null($data->selesai_koreksi)) {
+                                $cekTotalKoreksi = DB::table('pracetak_cover_selesai')
+                                ->where('pracetak_cover_id', $data->id)
+                                ->where('section', 'Koreksi')->get()->count();
+                                $cekTotalBackCover = DB::table('pracetak_cover_selesai')
+                                    ->where('pracetak_cover_id', $data->id)
+                                    ->where('section', 'Back Cover Design Revision')
+                                    ->get()->count();
+                                if ($cekTotalBackCover < $cekTotalKoreksi) {
+                                    return response()->json([
+                                        'status' => 'error',
+                                        'message' => 'Proses koreksi selesai, silahkan ubah proses saat ini!.'
+                                    ]);
+                                } else {
+                                    DB::table('pracetak_cover')->where('id',$data->id)->update([
+                                        'mulai_koreksi' => NULL,
+                                        'selesai_koreksi' => NULL
+                                    ]);
+                                }
                                 return response()->json([
                                     'status' => 'error',
                                     'message' => 'Proses koreksi selesai, silahkan ubah proses saat ini!.'
@@ -1846,7 +1873,7 @@ class PracetakDesainerController extends Controller
                             }
                             break;
                     }
-                    if ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Desain Revisi')) {
+                    if ((!is_null($data->selesai_koreksi)) && (($data->proses_saat_ini == 'Desain Revisi') || ($data->proses_saat_ini == 'Antrian Desain Back Cover'))) {
                         DB::table('pracetak_cover')->where('id', $id)->update([
                             'selesai_cover' => NULL
                         ]);
