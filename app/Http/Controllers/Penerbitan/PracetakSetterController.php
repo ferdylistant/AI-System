@@ -1528,7 +1528,17 @@ class PracetakSetterController extends Controller
                     if (!is_null($data->selesai_koreksi) && is_null($data->selesai_setting)) {
                         switch ($doneProses->section) {
                             case 'Proof Setting':
-                                $result = $data->proses_saat_ini == 'Setting Revisi' ? FALSE : TRUE;
+                                switch ($data->proses_saat_ini) {
+                                    case 'Setting Revisi':
+                                        $result = FALSE;
+                                        break;
+                                    case 'Antrian Setting':
+                                        $result = FALSE;
+                                        break;
+                                    default:
+                                        $result = TRUE;
+                                        break;
+                                }
                                 break;
                             case 'Setting Revision':
                                 $lastKoreksi = DB::table('pracetak_setter_selesai')
@@ -1910,7 +1920,7 @@ class PracetakSetterController extends Controller
                             }
                             break;
                     }
-                    if ((!is_null($data->selesai_koreksi)) && ($data->proses_saat_ini == 'Setting Revisi')) {
+                    if ((!is_null($data->selesai_koreksi)) && (($data->proses_saat_ini == 'Setting Revisi') || ($data->proses_saat_ini == 'Antrian Setting'))) {
                         DB::table('pracetak_setter')->where('id', $id)->update([
                             'selesai_setting' => NULL
                         ]);
