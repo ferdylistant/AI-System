@@ -69,8 +69,6 @@
             @if (Gate::allows('do_create', 'tambah-data-penulis'))
                 <div class="section-header-button">
                     <a href="{{ url('penerbitan/penulis/membuat-penulis') }}" class="btn btn-success">Tambah</a>
-                </div>
-                <div class="section-header-button">
                     <a href="{{ route('penulis.telah_dihapus') }}" class="btn btn-danger">Penulis Telah Dihapus</a>
                 </div>
             @endif
@@ -81,11 +79,22 @@
                 <div class="col-12">
                     <div class="card card-primary">
                         <div class="card-body">
-                            <div class="col-auto pb-3">
-                                <span class="badge badge-warning"><i class="fas fa-database"></i> Total penulis: <b id="countData">0</b></span>
-                            </div>
-                            <div class="col-auto pb-3">
-                                <a class="btn btn-success" href="{{url('penerbitan/penulis/export')}}"><i class="fas fa-file-csv"></i> Export</a>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="col-auto mb-3">
+                                        <span class="badge badge-warning"><i class="fas fa-database"></i> Total penulis: <b id="countData">0</b></span>
+                                    </div>
+                                    <div class="col-auto d-flex mb-3">
+                                        <a class="btn btn-light mr-1" href="{{url('penerbitan/penulis/export')}}"
+                                        style="box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;"><i class="fas fa-file-excel"></i> Excel</a>
+                                        <a class="btn btn-light mr-1" href="{{url('penerbitan/penulis/export')}}"
+                                        style="box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;"><i class="fas fa-file-pdf"></i> PDF</a>
+                                        <a class="btn btn-light mr-1" href="{{url('penerbitan/penulis/export')}}"
+                                        style="box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;"><i class="fas fa-file-csv"></i> CSV</a>
+                                        <a class="btn btn-light mr-1" href="{{url('penerbitan/penulis/export')}}"
+                                        style="box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;"><i class="fas fa-file-word"></i> Word</a>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-12 table-responsive">
                                 <table id="tb_Penulis" class="table table-striped dt-responsive" style="width: 100%">
