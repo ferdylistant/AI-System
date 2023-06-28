@@ -65,7 +65,6 @@ $(function(){
                 data: "action",
                 name: "action",
                 title: "Action",
-                searchable: false,
                 orderable: false,
             },
         ],
