@@ -226,6 +226,7 @@ class OrderCetakController extends Controller
                         'status_cetak',
                         'status_penyetujuan',
                         'history',
+                        'tracker',
                         'action'
                     ])
                     ->make(true);
