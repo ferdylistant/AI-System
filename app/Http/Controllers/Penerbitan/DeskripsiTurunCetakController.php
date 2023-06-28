@@ -302,7 +302,7 @@ class DeskripsiTurunCetakController extends Controller
                         event(new DesturcetEvent($order));
                         $addTracker = [
                             'id' => Uuid::uuid4()->toString(),
-                            'section_id' => $id,
+                            'section_id' => $idOrder,
                             'section_name' => 'Order ' . ucfirst($type),
                             'description' => 'Naskah berjudul <a href="' . url('/penerbitan/order-' . $type . '/detail?order=' . $idOrder . '&naskah=' . $kode) . '">' . $judul_final . '</a> telah memasuki tahap antrian Order ' . ucfirst($type) . '.',
                             'icon' => 'fas fa-folder-plus',
