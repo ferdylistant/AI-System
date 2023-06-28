@@ -955,6 +955,7 @@ class OrderCetakController extends Controller
                 event(new TimelineEvent($updateTimelineOrderCetak));
                 $msg = 'Order Cetak selesai, silahkan lanjut ke proses produksi cetak..';
             } else {
+                $naskahId = $data->naskah_id;
                 if ($request->status == 'Proses') {
                     //TODO LIST
                     if ($data->status_cetak == '3') {
@@ -1012,12 +1013,13 @@ class OrderCetakController extends Controller
                             }
                         })->all();
                     }
+                    $naskahId = $data['naskah_id'];
                 }
                 event(new OrderCetakEvent($update));
                 event(new OrderCetakEvent($insert));
                 $updateTimelineOrderCetak = [
                     'params' => 'Update Timeline',
-                    'naskah_id' => $data['naskah_id'],
+                    'naskah_id' => $naskahId,
                     'progress' => 'Order Cetak',
                     'tgl_selesai' => $tgl,
                     'status' => $request->status
