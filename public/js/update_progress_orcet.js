@@ -78,7 +78,7 @@ $(function(){
             .search(val ? val : "", true, false)
             .draw();
     });
-    $("#tb_OrderEbook").on("click", ".btn-tracker", function (e) {
+    $("#tb_Orcet").on("click", ".btn-tracker", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
         var judul = $(this).data("judulfinal");
