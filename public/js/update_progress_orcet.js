@@ -57,6 +57,11 @@ $(function(){
                 title: "History",
             },
             {
+                data: "tracker",
+                name: "tracker",
+                title: "Tracker",
+            },
+            {
                 data: "action",
                 name: "action",
                 title: "Action",
@@ -72,6 +77,30 @@ $(function(){
             .column($(this).data("column"))
             .search(val ? val : "", true, false)
             .draw();
+    });
+    $("#tb_OrderEbook").on("click", ".btn-tracker", function (e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var judul = $(this).data("judulfinal");
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin +
+                "/penerbitan/order-cetak/ajax/lihat-tracking",
+            type: "post",
+            data: { id: id },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                $("#titleModalTracker").html('<i class="fas fa-file-signature"></i>&nbsp;Tracking Progress Naskah "' + judul + '"');
+                $("#dataShowTracking").html(data);
+                $("#md_Tracker").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
+        });
     });
     $('#tb_Orcet').on('click', '.btn-history', function(e) {
         var id = $(this).data('id');
@@ -113,14 +142,33 @@ $(function(){
             });
         });
     }
-    $("#tb_Orcet").on("click", ".btn-status-orcetak", function (e) {
-        e.preventDefault();
-        let id = $(this).data("id"),
-            kode = $(this).data("kode"),
-            judul = $(this).data("judul");
-        $("#id").val(id);
-        $("#kode").val(kode);
-        $("#judulFinal").val(judul);
+    $("#md_UpdateStatusOrderCetak").on("shown.bs.modal", function (e) {
+        let id = $(e.relatedTarget).data("id"),
+            cardWrap = $(this);
+        $.ajax({
+            url: window.location.origin + "/penerbitan/order-cetak?show_status=true",
+            type: "GET",
+            data: {
+                id: id,
+            },
+            cache: false,
+            success: function (result) {
+                Object.entries(result).forEach((entry) => {
+                    let [key, value] = entry;
+                    cardWrap.find('[name="' + key + '"]').val(value).trigger('change');
+                });
+            },
+            error: function (err) {
+                console.error(err);
+            },
+            complete: function () {
+                cardWrap.removeClass('modal-progress')
+            }
+        });
+    });
+    $("#md_UpdateStatusOrderCetak").on("hidden.bs.modal", function () {
+        $(this).find("form").trigger("reset");
+        $(this).addClass("modal-progress");
     });
     $(".select-filter")
         .select2({
