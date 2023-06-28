@@ -1,7 +1,7 @@
 $(function() {
     $('[name="status_filter"]').val('').trigger('change');
     $('[name="status_proses_saat_ini"]').val('').trigger('change');
-    let tableDesCover = $('#tb_PraDes').DataTable({
+    let tablePraDesainer = $('#tb_PraDes').DataTable({
         "responsive": true,
         "autoWidth": true,
         processing: true,
@@ -81,13 +81,13 @@ $(function() {
     loadCountData();
     $('[name="status_filter"]').on('change', function() {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());
-        tableDesCover.column($(this).data('column'))
+        tablePraDesainer.column($(this).data('column'))
             .search(val ? val : '', true, false)
             .draw();
     });
     $('[name="status_proses_saat_ini"]').on('change', function() {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());
-        tableDesCover.column($(this).data('column'))
+        tablePraDesainer.column($(this).data('column'))
             .search(val ? val : '', true, false)
             .draw();
     });
@@ -297,13 +297,11 @@ $(document).ready(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusPraDes").trigger("reset");
-                } else {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusPraDes").trigger("reset");
-                    location.reload();
+                notifToast(result.status, result.message);
+                $("#fm_UpdateStatusPraDes").trigger("reset");
+                if (result.status == "success") {
+                    tablePraDesainer.ajax.reload();
+                    $("#md_UpdateStatusPracetakDesainer").modal('hide');
                 }
             },
             error: function (err) {

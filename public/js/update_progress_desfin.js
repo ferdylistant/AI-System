@@ -226,13 +226,11 @@ $(document).ready(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusDesfin").trigger("reset");
-                } else {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusDesfin").trigger("reset");
-                    location.reload();
+                notifToast(result.status, result.message);
+                $("#fm_UpdateStatusDesfin").trigger("reset");
+                if (result.status == "success") {
+                    tableDesFinal.ajax.reload();
+                    $("#md_UpdateStatusDesFinal").modal('hide');
                 }
             },
             error: function (err) {

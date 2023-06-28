@@ -268,11 +268,11 @@ $(document).ready(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                // console.log(result);
                 notifToast(result.status, result.message);
                 $("#fm_UpdateStatusDesturcet").trigger("reset");
                 if (result.status == "success") {
-                    location.reload();
+                    tableDesTurunCetak.ajax.reload();
+                    $("#md_UpdateStatusDesTurCet").modal('hide');
                 }
             },
             error: function (err) {

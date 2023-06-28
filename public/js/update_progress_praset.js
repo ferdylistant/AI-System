@@ -308,14 +308,11 @@ $(document).ready(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                console.log(result);
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusSetter").trigger("reset");
-                    $('[name="status"]').val("").trigger("change");
-                } else {
-                    notifToast(result.status, result.message);
-                    location.reload();
+                notifToast(result.status, result.message);
+                $("#fm_UpdateStatusSetter").trigger("reset");
+                if (result.status == "success") {
+                    tablePraset.ajax.reload();
+                    $("#md_UpdateStatusSetter").modal('hide');
                 }
             },
             error: function (err) {

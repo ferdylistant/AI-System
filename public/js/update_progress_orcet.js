@@ -162,13 +162,11 @@ $(function(){
                     .addClass("btn-progress");
             },
             success: function (result) {
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusOrderCetak").trigger("reset");
-                } else {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusOrderCetak").trigger("reset");
-                    location.reload();
+                notifToast(result.status, result.message);
+                $("#fm_UpdateStatusOrderCetak").trigger("reset");
+                if (result.status == "success") {
+                    tableOrderCetak.ajax.reload();
+                    $("#md_UpdateStatusOrderCetak").modal('hide');
                 }
             },
             error: function (err) {

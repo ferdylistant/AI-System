@@ -43,6 +43,7 @@ $(function() {
             { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku' },
             { data: 'status_penyetujuan', name: 'status_penyetujuan', title: 'Penyetujuan',"width":"15%" },
             { data: 'history', name: 'history', title: 'History' },
+            { data: 'tracker', name: 'tracker', title: 'Tracker' },
             { data: 'action', name: 'action', title: 'Action', orderable: false },
         ]
     });
@@ -52,6 +53,30 @@ $(function() {
         tableOrderEbook.column($(this).data('column'))
             .search(val ? val : '', true, false)
             .draw();
+    });
+    $("#tb_OrderEbook").on("click", ".btn-tracker", function (e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var judul = $(this).data("judulfinal");
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin +
+                "/penerbitan/order-ebook/ajax/lihat-tracking",
+            type: "post",
+            data: { id: id },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                $("#titleModalTracker").html('<i class="fas fa-file-signature"></i>&nbsp;Tracking Progress Naskah "' + judul + '"');
+                $("#dataShowTracking").html(data);
+                $("#md_Tracker").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
+        });
     });
     $('#tb_OrderEbook').on('click', '.btn-history', function(e) {
         var id = $(this).data('id');
@@ -80,14 +105,33 @@ $(function() {
             }
         })
     });
-    $("#tb_OrderEbook").on("click", ".btn-status-orebook", function (e) {
-        e.preventDefault();
-        let id = $(this).data("id"),
-            kode = $(this).data("kode"),
-            judul = $(this).data("judul");
-        $("#id").val(id);
-        $("#kode").val(kode);
-        $("#judulFinal").val(judul);
+    $("#md_UpdateStatusOrderEbook").on("shown.bs.modal", function (e) {
+        let id = $(e.relatedTarget).data("id"),
+            cardWrap = $(this);
+        $.ajax({
+            url: window.location.origin + "/penerbitan/order-ebook?show_status=true",
+            type: "GET",
+            data: {
+                id: id,
+            },
+            cache: false,
+            success: function (result) {
+                Object.entries(result).forEach((entry) => {
+                    let [key, value] = entry;
+                    cardWrap.find('[name="' + key + '"]').val(value).trigger('change');
+                });
+            },
+            error: function (err) {
+                console.error(err);
+            },
+            complete: function () {
+                cardWrap.removeClass('modal-progress')
+            }
+        });
+    });
+    $("#md_UpdateStatusOrderEbook").on("hidden.bs.modal", function () {
+        $(this).find("form").trigger("reset");
+        $(this).addClass("modal-progress");
     });
     function ajaxUpdateStatusOrderCetak(data) {
         let el = data.get(0);
@@ -111,6 +155,7 @@ $(function() {
                 $("#fm_UpdateStatusOrderEbook").trigger("reset");
                 if (result.status == "success") {
                     tableOrderEbook.ajax.reload();
+                    $("#md_UpdateStatusOrderEbook").modal('hide');
                 }
             },
             error: function (err) {

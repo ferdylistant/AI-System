@@ -1,6 +1,6 @@
 $(function() {
     $('[name="status_filter"]').val("").trigger('change');
-    let tableDesProduk = $('#tb_Editing').DataTable({
+    let tableProsEditing = $('#tb_Editing').DataTable({
         // "bSort": false,
         "responsive": true,
         "autoWidth": true,
@@ -82,7 +82,7 @@ $(function() {
     loadCountData();
     $('[name="status_filter"]').on('change', function() {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());
-        tableDesProduk.column($(this).data('column'))
+        tableProsEditing.column($(this).data('column'))
             .search(val ? val : '', true, false)
             .draw();
     });
@@ -259,14 +259,11 @@ $(function() {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                // console.log(result);
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusEditing").trigger("reset");
-                    $('[name="status"]').val("").trigger("change");
-                } else {
-                    notifToast(result.status, result.message);
-                    location.reload();
+                notifToast(result.status, result.message);
+                $("#fm_UpdateStatusEditing").trigger("reset");
+                if (result.status == "success") {
+                    tableProsEditing.ajax.reload();
+                    $("#md_UpdateStatusEditing").modal('hide');
                 }
             },
             error: function (err) {

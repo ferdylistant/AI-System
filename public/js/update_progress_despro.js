@@ -242,13 +242,11 @@ $(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusDespro").trigger("reset");
-                } else {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusDespro").trigger("reset");
-                    location.reload();
+                notifToast(result.status, result.message);
+                $("#fm_UpdateStatusDespro").trigger("reset");
+                if (result.status == "success") {
+                    tableDesProduk.ajax.reload();
+                    $("#md_UpdateStatusDesProduk").modal('hide');
                 }
             },
             error: function (err) {

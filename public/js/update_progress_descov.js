@@ -229,13 +229,11 @@ $(document).ready(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusDescov").trigger("reset");
-                } else {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusDescov").trigger("reset");
-                    location.reload();
+                notifToast(result.status, result.message);
+                $("#fm_UpdateStatusDescov").trigger("reset");
+                if (result.status == "success") {
+                    tableDesCover.ajax.reload();
+                    $("#md_UpdateStatusDesCover").modal('hide');
                 }
             },
             error: function (err) {

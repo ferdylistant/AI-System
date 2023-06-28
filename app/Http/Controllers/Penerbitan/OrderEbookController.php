@@ -37,6 +37,18 @@ class OrderEbookController extends Controller
                 ->get();
             if ($request->has('count_data')) {
                 return $data->count();
+            } elseif ($request->has('show_status')) {
+                $showStatus = DB::table('order_ebook as ob')
+                    ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'ob.deskripsi_turun_cetak_id')
+                    ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                    ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                    ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                    ->where('ob.id', $request->id)
+                    ->select('ob.*', 'dp.judul_final')
+                    ->first();
+                return response()->json($showStatus);
             } else {
                 $update = Gate::allows('do_update', 'update-order-ebook');
 
@@ -152,6 +164,15 @@ class OrderEbookController extends Controller
                         return $date;
                     }
                 })
+                ->addColumn('tracker', function ($data) {
+                    $trackerData = DB::table('tracker')->where('section_id', $data->id)->get();
+                    if ($trackerData->isEmpty()) {
+                        return '-';
+                    } else {
+                        $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                        return $date;
+                    }
+                })
                 ->addColumn('action', function ($data) use ($update) {
                     $btn = '<a href="' . url('penerbitan/order-ebook/detail?order=' . $data->id . '&naskah=' . $data->kode) . '"
                                             class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
@@ -167,6 +188,7 @@ class OrderEbookController extends Controller
                     'jalur_buku',
                     'status_penyetujuan',
                     'history',
+                    'tracker',
                     'action'
                 ])
                 ->make(true);
@@ -558,6 +580,9 @@ class OrderEbookController extends Controller
             case 'lihat-history-order-ebook':
                 return $this->lihatHistoryOrderEbook($request);
                 break;
+            case 'lihat-tracking':
+                return $this->lihatTrackingEbook($request);
+                break;
             default:
                 abort(500);
         }
@@ -665,6 +690,7 @@ class OrderEbookController extends Controller
                 event(new TimelineEvent($updateTimelineOrderEbook));
                 $msg = 'Order E-book selesai, silahkan lanjut ke proses produksi upload ke platform..';
             } else {
+                $naskahId = $data->naskah_id;
                 if ($request->status == 'Proses') {
                     //TODO LIST
                     $dataPerm = [
@@ -715,12 +741,13 @@ class OrderEbookController extends Controller
                             }
                         })->all();
                     }
+                    $naskahId = $data['naskah_id'];
                 }
                 event(new OrderEbookEvent($update));
                 event(new OrderEbookEvent($insert));
                 $updateTimelineOrderEbook = [
                     'params' => 'Update Timeline',
-                    'naskah_id' => $data['naskah_id'],
+                    'naskah_id' => $naskahId,
                     'progress' => 'Order Ebook',
                     'tgl_selesai' => $tgl,
                     'status' => $request->status
@@ -1169,6 +1196,32 @@ class OrderEbookController extends Controller
                         </span>';
                         break;
                 }
+            }
+            return $html;
+        }
+    }
+    protected function lihatTrackingEbook($request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('tracker')->where('section_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            foreach ($data as $d) {
+                $html .= '<div class="activity">
+                <div class="activity-icon bg-primary text-white shadow-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
+                    <i class="' . $d->icon . '"></i>
+                </div>
+                <div class="activity-detail col">
+                    <div class="mb-2">
+                        <span class="text-job">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
+                        <span class="bullet"></span>
+                        <span class="text-job">' . Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i') . '</span>
+                    </div>
+                    <p>' . $d->description . '</p>
+                </div>
+            </div>';
             }
             return $html;
         }
