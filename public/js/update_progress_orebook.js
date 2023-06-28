@@ -107,13 +107,10 @@ $(function() {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                if (result.status == "error") {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusOrderEbook").trigger("reset");
-                } else {
-                    notifToast(result.status, result.message);
-                    $("#fm_UpdateStatusOrderEbook").trigger("reset");
-                    location.reload();
+                notifToast(result.status, result.message);
+                $("#fm_UpdateStatusOrderEbook").trigger("reset");
+                if (result.status == "success") {
+                    tableOrderEbook.ajax.reload();
                 }
             },
             error: function (err) {

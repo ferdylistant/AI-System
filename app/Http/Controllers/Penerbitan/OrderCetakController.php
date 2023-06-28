@@ -316,8 +316,7 @@ class OrderCetakController extends Controller
                     $cursorBtn = 'not-allowed';
                 }
                 return ['data' => $data, 'penulis' => $penulis,'disable' => $disableBtn,'cursor' => $cursorBtn,'disableCetakUlang' => $disableCetakUlang];
-            }
-            if ($request->isMethod('POST')) {
+            } elseif ($request->isMethod('POST')) {
                 try {
                     $history = DB::table('order_cetak as oc')
                         ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')

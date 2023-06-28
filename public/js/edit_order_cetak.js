@@ -75,7 +75,7 @@ $(function () {
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-ruler"></i></div>
                                     </div>
-                                    <input type="number" class="form-control" min="1" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
+                                    <input type="text" class="form-control" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
                                     <div id="err_up_ukuran_jilid_binding"></div>
                                     <div class="input-group-append">
                                         <span class="input-group-text"><strong>cm</strong></span>
@@ -90,7 +90,7 @@ $(function () {
                                     <div class="input-group-prepend">
                                         <div class="input-group-text"><i class="fa fa-ruler"></i></div>
                                     </div>
-                                    <input type="number" class="form-control" min="1" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
+                                    <input type="text" class="form-control" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
                                     <div id="err_up_ukuran_jilid_binding"></div>
                                     <div class="input-group-append">
                                         <span class="input-group-text"><strong>cm</strong></span>
