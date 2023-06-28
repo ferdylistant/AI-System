@@ -193,6 +193,7 @@ class DeskripsiTurunCetakController extends Controller
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 try {
+                    DB::beginTransaction();
                     $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
                     $insert = [
                         'params' => 'Insert Pilihan Terbit Desturcet',
@@ -275,6 +276,9 @@ class DeskripsiTurunCetakController extends Controller
                         'created_by' => auth()->id()
                     ];
                     event(new TrackerEvent($addTracker));
+                    $id = $data->id;
+                    $kode = $data->kode;
+                    $judul_final = $data->judul_final;
                     foreach ($request->add_pilihan_terbit as $pt) {
                         switch ($pt) {
                             case 'ebook':
@@ -298,9 +302,9 @@ class DeskripsiTurunCetakController extends Controller
                         event(new DesturcetEvent($order));
                         $addTracker = [
                             'id' => Uuid::uuid4()->toString(),
-                            'section_id' => $data->id,
+                            'section_id' => $id,
                             'section_name' => 'Order ' . ucfirst($type),
-                            'description' => 'Naskah berjudul <a href="' . url('/penerbitan/order-' . $type . '/detail?order=' . $idOrder . '&naskah=' . $data->kode) . '">' . $data->judul_final . '</a> telah memasuki tahap antrian Order ' . ucfirst($type) . '.',
+                            'description' => 'Naskah berjudul <a href="' . url('/penerbitan/order-' . $type . '/detail?order=' . $idOrder . '&naskah=' . $kode) . '">' . $judul_final . '</a> telah memasuki tahap antrian Order ' . ucfirst($type) . '.',
                             'icon' => 'fas fa-folder-plus',
                             'created_by' => auth()->id()
                         ];
@@ -337,6 +341,7 @@ class DeskripsiTurunCetakController extends Controller
                         event(new TimelineEvent($insertTimelineOrder));
                     }
                     event(new DesturcetEvent($insert));
+                    DB::commit();
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Data pilihan terbit berhasil ditambahkan',

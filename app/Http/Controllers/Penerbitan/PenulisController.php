@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Events\PenulisEvent;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PenulisExport;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
@@ -934,8 +933,9 @@ class PenulisController extends Controller
         }
     }
 
-    public function exportData()
+    public function exportData($format)
     {
-        return Excel::download(new PenulisExport, 'penulis.xlsx');
+        $tgl = Carbon::now('Asia/Jakarta')->format('hisdmY');
+        return (new PenulisExport)->download('penulis_'.$tgl.'.'.$format);
     }
 }
