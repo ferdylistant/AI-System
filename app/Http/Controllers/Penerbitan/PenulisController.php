@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
-use PDF;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Events\PenulisEvent;
 use Illuminate\Http\Request;
 use App\Exports\PenulisExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
@@ -966,7 +966,7 @@ class PenulisController extends Controller
                 'data' => $value,
 
             ];
-            $result = PDF::loadView('penerbitan.penulis.exportpdf', $data)->setPaper('a3', 'landscape')->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif','isPhpEnabled' => true,'isHtml5ParserEnabled' => true]);
+            $result = Pdf::loadView('penerbitan.penulis.exportpdf', $data)->setPaper('a3', 'landscape')->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif','isPhpEnabled' => true,'isHtml5ParserEnabled' => true]);
         } else {
             $result = (new PenulisExport);
         }
