@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Penerbitan;
 
+use PDF;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Events\PenulisEvent;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Exports\PenulisExport;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\{DB, Storage, Gate};
 
 class PenulisController extends Controller
@@ -16,10 +18,17 @@ class PenulisController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = DB::table('penerbitan_penulis')
-                ->whereNull('deleted_at')
-                ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp')
-                ->get();
+            if (Cache::has('penulisIndex')) {
+                $data = Cache::get('penulisIndex');
+
+            } else {
+                $data = Cache::remember('penulisIndex',600, function () {
+                    return DB::table('penerbitan_penulis')
+                    ->whereNull('deleted_at')
+                    ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp')
+                    ->get();
+                });
+            }
             switch ($request->input('request_')) {
                 case 'table-penulis':
                     $data = collect($data)->map(function ($val) {
@@ -936,6 +945,31 @@ class PenulisController extends Controller
     public function exportData($format)
     {
         $tgl = Carbon::now('Asia/Jakarta')->format('hisdmY');
-        return (new PenulisExport)->download('penulis_'.$tgl.'.'.$format);
+        if ($format == 'pdf') {
+            // $res = DB::table('penerbitan_penulis')
+            // ->select('nama','email','tempat_lahir','tanggal_lahir','alamat_domisili','ponsel_domisili','npwp','ktp')
+            // ->get();
+            if (Cache::has('penulis')) {
+                $value = Cache::get('penulis');
+            } else {
+                $value = Cache::remember('penulis',600, function () {
+                    return  DB::table('penerbitan_penulis')
+                    ->select('nama','email','tempat_lahir','tanggal_lahir','alamat_domisili','ponsel_domisili','npwp','ktp')
+                    ->get();
+                });
+            }
+            // dd($value);
+            $data = [
+
+                'title' => 'PDF Data Penulis',
+                'date' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'data' => $value,
+
+            ];
+            $result = PDF::loadView('penerbitan.penulis.exportpdf', $data)->setPaper('a3', 'landscape')->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif','isPhpEnabled' => true,'isHtml5ParserEnabled' => true]);
+        } else {
+            $result = (new PenulisExport);
+        }
+        return $result->download('penulis_'.$tgl.'.'.$format);
     }
 }
