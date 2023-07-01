@@ -3,13 +3,18 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use App\Models\Penulis;
 use Illuminate\Support\Str;
 use App\Events\PenulisEvent;
 use Illuminate\Http\Request;
 use App\Exports\PenulisExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\App;
 use App\Http\Controllers\Controller;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\{DB, Storage, Gate};
 
@@ -956,8 +961,13 @@ class PenulisController extends Controller
                     return  DB::table('penerbitan_penulis')
                     ->select('nama','email','tempat_lahir','tanggal_lahir','alamat_domisili','ponsel_domisili','npwp','ktp')
                     ->get();
+                    // return Penulis::all();
                 });
             }
+            // $setOption = new Options();
+            // $setOption->set('dpi', 150);
+            // $setOption->set('defaultFont','sans-serif');
+            // $result = new Dompdf($setOption);
             // dd($value);
             $data = [
 
@@ -966,10 +976,16 @@ class PenulisController extends Controller
                 'data' => $value,
 
             ];
-            $result = Pdf::loadView('penerbitan.penulis.exportpdf', $data)->setPaper('a3', 'landscape')->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif','isPhpEnabled' => true,'isHtml5ParserEnabled' => true]);
+            // $html = view('penerbitan.penulis.exportpdf', $data)->render();
+            // $result->loadHtml($html);
+            // $result->setPaper('a3', 'landscape');
+            // $result->render();
+            $result = Pdf::loadView('penerbitan.penulis.exportpdf', $data)->setPaper('a3', 'landscape')->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif']);
+            $type = "stream";
         } else {
             $result = (new PenulisExport);
+            $type = "download";
         }
-        return $result->download('penulis_'.$tgl.'.'.$format);
+        return $result->$type('penulis_'.$tgl.'.'.$format);
     }
 }
