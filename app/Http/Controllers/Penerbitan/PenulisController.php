@@ -967,7 +967,7 @@ class PenulisController extends Controller
             $setOption = new Options();
             $setOption->set('dpi', 150);
             $setOption->set('defaultFont','sans-serif');
-            $setOption->set('isRemoteEnabled',true);
+            // $setOption->set('isRemoteEnabled',true);
             $result = new Dompdf($setOption);
             // dd($value);
             $data = [
