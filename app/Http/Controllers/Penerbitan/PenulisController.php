@@ -964,10 +964,11 @@ class PenulisController extends Controller
                     // return Penulis::all();
                 });
             }
-            // $setOption = new Options();
-            // $setOption->set('dpi', 150);
-            // $setOption->set('defaultFont','sans-serif');
-            // $result = new Dompdf($setOption);
+            $setOption = new Options();
+            $setOption->set('dpi', 150);
+            $setOption->set('defaultFont','sans-serif');
+            $setOption->set('isRemoteEnabled',true);
+            $result = new Dompdf($setOption);
             // dd($value);
             $data = [
 
@@ -976,11 +977,11 @@ class PenulisController extends Controller
                 'data' => $value,
 
             ];
-            // $html = view('penerbitan.penulis.exportpdf', $data)->render();
-            // $result->loadHtml($html);
-            // $result->setPaper('a3', 'landscape');
-            // $result->render();
-            $result = Pdf::loadView('penerbitan.penulis.exportpdf', $data)->setPaper('a3', 'landscape')->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif']);
+            $html = view('penerbitan.penulis.exportpdf', $data)->render();
+            $result->loadHtml($html);
+            $result->setPaper('a3', 'landscape');
+            $result->render();
+            // $result = Pdf::loadView('penerbitan.penulis.exportpdf', $data)->setPaper('a3', 'landscape')->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif']);
             $type = "stream";
         } else {
             $result = (new PenulisExport);
