@@ -22,7 +22,6 @@ class PenulisController extends Controller
 {
     public function index(Request $request)
     {
-        dd($request->ip());
         if ($request->ajax()) {
             if (Cache::has('penulisIndex')) {
                 $data = Cache::get('penulisIndex');
