@@ -281,7 +281,7 @@
                         if (naskah[n]) {
                             $('#urlFile').html(`<div class="form-group" style="display:none" id="SC">
                                     <label>URL File: <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" pattern="^(https?://)?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,})$" name="edit_url_file">
+                                    <input type="text" class="form-control" name="edit_url_file">
                                     <div id="err_edit_url_file"></div>
                                 </div>`);
                             $('[name="edit_' + n + '"]').val(naskah[n]).change();
@@ -291,7 +291,7 @@
                         } else {
                             $('#urlFile').html(`<div class="form-group" style="display:none" id="SC">
                                     <label>URL File: <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" pattern="^(https?://)?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,})$" name="edit_url_file">
+                                    <input type="text" class="form-control" name="edit_url_file">
                                     <div id="err_edit_url_file"></div>
                                 </div>`);
                             $('[name="edit_' + n + '"]').attr('required',false);
