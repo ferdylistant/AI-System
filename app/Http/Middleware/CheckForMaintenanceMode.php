@@ -17,14 +17,17 @@ class CheckForMaintenanceMode
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     protected $app;
-
+    protected $allowedIPs = [
+        '192.168.5.47'
+        // Add more IP addresses as needed.
+    ];
     public function __construct(Application $app)
     {
         $this->app = $app;
     }
     public function handle(Request $request, Closure $next)
     {
-        if ($this->app->isDownForMaintenance() && !in_array($request->ip(), ['192.168.5.47'])) {
+        if ($this->app->isDownForMaintenance() && !in_array($request->ip(), $this->allowedIPs)) {
             throw new HttpException(503);
         }
 
