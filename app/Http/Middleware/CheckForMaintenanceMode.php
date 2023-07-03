@@ -24,17 +24,17 @@ class CheckForMaintenanceMode
     }
     public function handle(Request $request, Closure $next)
     {
-        if ($this->app->isDownForMaintenance() && ! $this->isIpWhiteListed()) {
+        if ($this->app->isDownForMaintenance() && !in_array($request->ip(), ['192.168.5.47'])) {
             throw new HttpException(503);
         }
 
         return $next($request);
     }
-    private function isIpWhiteListed()
-    {
-        $ip = Request::getClientIp();
-        $allowed = explode(',', getenv('WHEN_DOWN_WHITELIST_THIS_IPS'));
+    // private function isIpWhiteListed()
+    // {
+    //     $ip = Request::getClientIp();
+    //     $allowed = explode(',', getenv('WHEN_DOWN_WHITELIST_THIS_IPS'));
 
-        return in_array($ip, $allowed);
-    }
+    //     return in_array($ip, $allowed);
+    // }
 }
