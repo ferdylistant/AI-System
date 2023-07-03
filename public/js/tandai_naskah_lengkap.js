@@ -32,7 +32,9 @@ $(function() {
             sSearch: '',
             lengthMenu: "_MENU_ /halaman",
         },
-        ajax: window.location.origin + "/penerbitan/naskah",
+        ajax: {
+            url: window.location.origin + "/penerbitan/naskah",
+        },
         columns: [{
                 data: 'kode',
                 name: 'kode',
