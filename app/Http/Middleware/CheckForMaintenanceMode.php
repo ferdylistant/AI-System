@@ -18,7 +18,7 @@ class CheckForMaintenanceMode
      */
     protected $app;
     protected $allowedIPs = [
-        '192.168.5.47'
+        '103.137.254.46'
         // Add more IP addresses as needed.
     ];
     public function __construct(Application $app)
@@ -27,7 +27,7 @@ class CheckForMaintenanceMode
     }
     public function handle(Request $request, Closure $next)
     {
-        if ($this->app->isDownForMaintenance() && !in_array($request->ip(), $this->allowedIPs)) {
+        if ($this->app->isDownForMaintenance() && !in_array($request->getClientIp(), $this->allowedIPs)) {
             throw new HttpException(503);
         }
 
