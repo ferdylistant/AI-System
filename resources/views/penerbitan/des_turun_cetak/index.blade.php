@@ -193,5 +193,5 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/update_progress_desturcet.js') }}"></script>
+    <script src="{{ url('js/penerbitan/update_progress_desturcet.js') }}"></script>
 @endsection

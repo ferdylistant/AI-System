@@ -231,7 +231,7 @@
 @endsection
 
 @section('jsNeeded')
-<script src="{{url('js/done_editing.js')}}" defer></script>
+<script src="{{url('js/penerbitan/done_editing.js')}}" defer></script>
 @endsection
 
 @yield('jsNeededForm')

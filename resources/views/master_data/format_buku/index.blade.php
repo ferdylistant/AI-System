@@ -113,5 +113,5 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/format_buku.js') }}"></script>
+    <script src="{{ url('js/master_data/format_buku.js') }}"></script>
 @endsection

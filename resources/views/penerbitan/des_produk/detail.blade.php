@@ -388,8 +388,8 @@
 @endsection
 
 @section('jsNeeded')
-<script src="{{url('js/approval_despro.js')}}"></script>
-<script src="{{url('js/revisi_despro.js')}}"></script>
+<script src="{{url('js/penerbitan/approval_despro.js')}}"></script>
+<script src="{{url('js/penerbitan/revisi_despro.js')}}"></script>
 <script>
 $(function(){
     $(document).ajaxSend(function() {

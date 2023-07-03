@@ -379,8 +379,8 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/approval_order_ebook.js') }}"></script>
-    <script src="{{ url('js/decline_order_ebook.js') }}"></script>
+    <script src="{{ url('js/penerbitan/approval_order_ebook.js') }}"></script>
+    <script src="{{ url('js/penerbitan/decline_order_ebook.js') }}"></script>
 @endsection
 
 @yield('jsNeededForm')

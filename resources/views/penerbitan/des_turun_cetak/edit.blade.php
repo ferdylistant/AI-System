@@ -81,5 +81,5 @@
 
 
 @section('jsNeeded')
-    <script src="{{ url('js/edit_deskripsi_turun_cetak.js') }}"></script>
+    <script src="{{ url('js/penerbitan/edit_deskripsi_turun_cetak.js') }}"></script>
 @endsection

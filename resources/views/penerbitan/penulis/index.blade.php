@@ -124,5 +124,5 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/penulis.js') }}"></script>
+    <script src="{{ url('js/penerbitan/penulis.js') }}"></script>
 @endsection

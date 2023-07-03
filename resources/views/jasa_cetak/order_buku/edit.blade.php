@@ -199,5 +199,5 @@ crossorigin="anonymous"></script>
 
 
 @section('jsNeeded')
-<script defer src="{{ url('js/edit_orderbuku_jasacetak.js') }}"></script>
+<script defer src="{{ url('js/jasa_cetak/edit_orderbuku_jasacetak.js') }}"></script>
 @endsection

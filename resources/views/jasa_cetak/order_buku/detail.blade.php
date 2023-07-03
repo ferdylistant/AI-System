@@ -224,7 +224,7 @@
 @endsection
 
 @section('jsNeeded')
-    <script type="text/javascript" src="{{ url('js/detail_order_buku_jc.js') }}"></script>
+    <script type="text/javascript" src="{{ url('js/jasa_cetak/detail_order_buku_jc.js') }}"></script>
 @endsection
 
 @yield('jsNeededForm')

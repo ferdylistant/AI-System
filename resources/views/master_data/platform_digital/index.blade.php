@@ -113,5 +113,5 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/platform_digital.js') }}"></script>
+    <script src="{{ url('js/master_data/platform_digital.js') }}"></script>
 @endsection

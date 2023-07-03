@@ -103,5 +103,5 @@
 
 
     @section('jsNeeded')
-    <script type="text/javascript" src="{{ url('js/edit_order_cetak.js') }}"></script>
+    <script type="text/javascript" src="{{ url('js/penerbitan/edit_order_cetak.js') }}"></script>
 @endsection

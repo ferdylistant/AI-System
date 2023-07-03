@@ -848,5 +848,5 @@ width: 100%;
 
 
 @section('jsNeeded')
-<script src="{{ url('js/edit_deskripsi_cover.js') }}"></script>
+<script src="{{ url('js/penerbitan/edit_deskripsi_cover.js') }}"></script>
 @endsection

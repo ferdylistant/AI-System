@@ -113,5 +113,5 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/imprint.js') }}"></script>
+    <script src="{{ url('js/master_data/imprint.js') }}"></script>
 @endsection

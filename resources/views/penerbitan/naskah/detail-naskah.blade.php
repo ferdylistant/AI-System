@@ -286,7 +286,7 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/penilaian_naskah.js') }}"></script>
+    <script src="{{ url('js/penerbitan/penilaian_naskah.js') }}"></script>
 @endsection
 
 @yield('jsNeededForm')

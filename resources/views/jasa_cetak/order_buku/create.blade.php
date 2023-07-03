@@ -191,5 +191,5 @@
 
 
 @section('jsNeeded')
-<script src="{{ url('js/create_orderbuku_jasacetak.js') }}"></script>
+<script src="{{ url('js/jasa_cetak/create_orderbuku_jasacetak.js') }}"></script>
 @endsection

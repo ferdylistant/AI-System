@@ -669,5 +669,5 @@
 
 
 @section('jsNeeded')
-    <script src="{{ url('js/edit_deskripsi_produk.js') }}" defer></script>
+    <script src="{{ url('js/penerbitan/edit_deskripsi_produk.js') }}" defer></script>
 @endsection

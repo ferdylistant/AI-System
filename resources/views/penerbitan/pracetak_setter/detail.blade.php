@@ -168,7 +168,7 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/done_setter.js') }}"></script>
+    <script src="{{ url('js/penerbitan/done_setter.js') }}"></script>
 @endsection
 
 @yield('jsNeededForm')

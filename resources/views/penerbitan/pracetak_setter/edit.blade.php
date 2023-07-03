@@ -61,5 +61,5 @@
 
 
 @section('jsNeeded')
-    <script src="{{ url('js/edit_pracetak_setter.js') }}" defer></script>
+    <script src="{{ url('js/penerbitan/edit_pracetak_setter.js') }}" defer></script>
 @endsection

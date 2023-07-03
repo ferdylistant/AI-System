@@ -225,5 +225,5 @@
 
 
 @section('jsNeeded')
-    <script src="{{ url('js/otorisasi_kabag_orderbuku_jc.js') }}"></script>
+    <script src="{{ url('js/jasa_cetak/otorisasi_kabag_orderbuku_jc.js') }}"></script>
 @endsection

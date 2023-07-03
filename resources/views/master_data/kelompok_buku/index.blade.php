@@ -114,5 +114,5 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/kelompok_buku.js') }}"></script>
+    <script src="{{ url('js/master_data/kelompok_buku.js') }}"></script>
 @endsection

@@ -208,5 +208,5 @@
 @endsection
 
 @section('jsNeeded')
-<script src="{{ url('js/update_progress_jc_buku.js') }}"></script>
+<script src="{{ url('js/jasa_cetak/update_progress_jc_buku.js') }}"></script>
 @endsection

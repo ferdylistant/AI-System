@@ -144,5 +144,5 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/setting.js') }}"></script>
+    <script src="{{ url('js/manweb/setting.js') }}"></script>
 @endsection

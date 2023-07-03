@@ -368,9 +368,9 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/detail_order_cetak.js') }}"></script>
-    <script src="{{ url('js/approval_order_cetak.js') }}"></script>
-    <script src="{{ url('js/decline_order_cetak.js') }}"></script>
+    <script src="{{ url('js/penerbitan/detail_order_cetak.js') }}"></script>
+    <script src="{{ url('js/penerbitan/approval_order_cetak.js') }}"></script>
+    <script src="{{ url('js/penerbitan/decline_order_cetak.js') }}"></script>
 @endsection
 
 @yield('jsNeededForm')

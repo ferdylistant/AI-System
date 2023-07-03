@@ -96,5 +96,5 @@ width: 100%;
 
 
 @section('jsNeeded')
-    <script src="{{ url('js/edit_ebook.js') }}"></script>
+    <script src="{{ url('js/penerbitan/edit_ebook.js') }}"></script>
 @endsection

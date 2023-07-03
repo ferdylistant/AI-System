@@ -289,7 +289,7 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/user-log.js') }}" defer></script>
+    <script src="{{ url('js/manweb/user-log.js') }}" defer></script>
     <script>
         $(document).ready(function() {
 
@@ -306,6 +306,7 @@
                     $(this).valid();
                 }
             });
+
             $('#uploadimageModal').on('hidden.bs.modal', function() {
                 $('#image_demo').croppie('destroy');
             });
