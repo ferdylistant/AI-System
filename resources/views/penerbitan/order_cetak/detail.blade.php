@@ -145,7 +145,7 @@
                                 @endif
                                 )
                                 <br>
-                                <a href="{{url('/penerbitan/order-cetak/print')}}" class="btn btn-light float-right" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
+                                <a target="_blank" href="{{url('/penerbitan/order-cetak/print/'.$data->id)}}" class="btn btn-light float-right" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
                                     <i class="fas fa-print"></i> Cetak Formulir
                                 </a>
                             </div>

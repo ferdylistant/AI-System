@@ -179,7 +179,7 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::get('/order-cetak/detail', $path.'\Penerbitan\OrderCetakController@detailOrderCetak')->name('cetak.detail');
         Route::match(['get', 'post'], '/order-cetak/edit', $path.'\Penerbitan\OrderCetakController@updateOrderCetak')->name('cetak.update');
         Route::match(['get','post'],'/order-cetak/ajax/{cat}', $path.'\Penerbitan\OrderCetakController@ajaxRequest');
-        Route::get('/order-cetak/print',$path.'\Penerbitan\OrderCetakController@printPdf');
+        Route::get('/order-cetak/print/{id}',$path.'\Penerbitan\OrderCetakController@printPdf');
         //Order Ebook
         Route::get('/order-ebook', $path.'\Penerbitan\OrderEbookController@index')->name('ebook.view');
         Route::get('/order-ebook/detail', $path.'\Penerbitan\OrderEbookController@detailOrderEbook')->name('ebook.detail');

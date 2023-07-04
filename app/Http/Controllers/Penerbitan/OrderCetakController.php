@@ -1913,12 +1913,84 @@ class OrderCetakController extends Controller
             return $html;
         }
     }
-    public function printPdf()
+    public function printPdf($id)
     {
+        $data = DB::table('order_cetak as oc')
+            ->join('deskripsi_turun_cetak as dtc','dtc.id','=','oc.deskripsi_turun_cetak_id')
+            ->join('pracetak_setter as ps','ps.id','=','dtc.pracetak_setter_id')
+            ->join('deskripsi_final as df','df.id','=','ps.deskripsi_final_id')
+            ->join('pracetak_cover as pc','pc.id','=','dtc.pracetak_cover_id')
+            ->join('deskripsi_cover as dc','dc.id','=','pc.deskripsi_cover_id')
+            ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
+            ->join('penerbitan_naskah as pn','pn.id','=','dp.naskah_id')
+            ->where('oc.id', $id)
+            ->select(
+                'oc.*',
+                'df.sub_judul_final',
+                'dp.naskah_id',
+                'dp.judul_final',
+                'dtc.tipe_order',
+                'pn.kode'
+                )
+            ->first();
+        $data = collect($data)->put('penulis', DB::table('penerbitan_naskah_penulis as pnp')
+        ->join('penerbitan_penulis as pp', function ($q) {
+            $q->on('pnp.penulis_id', '=', 'pp.id')
+                ->whereNull('pp.deleted_at');
+        })
+        ->where('pnp.naskah_id', '=', $data->naskah_id)
+        ->select('pp.nama')
+        ->get());
+        $data = (object)collect($data)->map(function ($item,$key) {
+            switch($key) {
+                case 'judul_final':
+                    $item = ucfirst($item);
+                    break;
+                case 'sub_judul_final':
+                    $item = is_null($item) ? '-':ucfirst($item);
+                    break;
+                case 'status_cetak':
+                    switch ($item) {
+                        case 1:
+                            $item = 'Buku Baru';
+                            break;
+                        case 2:
+                            $item = 'Cetak Ulang Revisi';
+                            break;
+                        case 1:
+                            $item = 'Cetak Ulang';
+                            break;
+                        default:
+                            $item = '-';
+                        break;
+                    }
+                    break;
+                case 'penulis':
+                    $html = '';
+                    if (is_null($item)) {
+                        $html .= '-';
+                    } else {
+                        $count = $item->count() - 1;
+                        foreach ($item as $i => $value) {
+                            $coma = '';
+                            if ($i != $count) {
+                                $coma = ', ';
+                            }
+                            $html .=  $value->nama.$coma;
+                        }
+                    }
+                    return $html;
+                    break;
+                default:
+                    $item;
+                    break;
+            }
+            return $item;
+        })->all();
         // $pdf = Pdf::loadView('penerbitan.order_cetak.include.print_pdf');
         // $pdf->render();
         // $pdf = App::make('penerbitan.order_cetak.include.print_pdf');
-        $pdf = Pdf::loadView('penerbitan.order_cetak.include.print_pdf');
-        return $pdf->stream('Order_cetak.pdf');
+        $pdf = Pdf::loadView('penerbitan.order_cetak.include.print_pdf',compact('data'))->setPaper('a4', 'potrait')->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif']);
+        return $pdf->stream();
     }
 }
