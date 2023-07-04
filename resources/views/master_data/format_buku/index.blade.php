@@ -70,10 +70,8 @@
                     <div class="card-header-action">
                         <button id="btn_AddFBuku" class="btn btn-success" data-toggle="modal" data-target="#md_AddFBuku"
                             data-backdrop="static">Tambah</button>
+                        <a href="{{ route('fb.telah_dihapus') }}" class="btn btn-danger">Format Buku Telah Dihapus</a>
                     </div>
-                </div>
-                <div class="section-header-button">
-                    <a href="{{ route('fb.telah_dihapus') }}" class="btn btn-danger">Format Buku Telah Dihapus</a>
                 </div>
             @endif
         </div>

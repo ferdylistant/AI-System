@@ -70,10 +70,8 @@
                     <div class="card-header-action">
                         <button id="btn_AddImprint" class="btn btn-success" data-toggle="modal" data-target="#md_AddImprint"
                             data-backdrop="static">Tambah</button>
+                        <a href="{{ route('imprint.telah_dihapus') }}" class="btn btn-danger">Imprint Telah Dihapus</a>
                     </div>
-                </div>
-                <div class="section-header-button">
-                    <a href="{{ route('imprint.telah_dihapus') }}" class="btn btn-danger">Imprint Telah Dihapus</a>
                 </div>
             @endif
         </div>
