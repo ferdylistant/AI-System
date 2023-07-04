@@ -8,9 +8,9 @@ use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Ramsey\Uuid\Rfc4122\UuidV4;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Column;
+use App\Events\convertNumberToRoman;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
@@ -18,80 +18,107 @@ class ProsesProduksiController extends Controller
 {
     public function index(Request $request) {
         if($request->ajax()) {
-            if($request->input('request_') === 'table-proses-produksi-cetak') {
-                $data = DB::table('proses_produksi_cetak as ppc')
-                    ->join('produksi_order_cetak as poc', 'poc.id', '=', 'ppc.order_cetak_id')
-                    ->select(
-                        'ppc.*',
-                        'poc.id as order_cetak_id',
-                        'poc.tipe_order',
-                        'poc.kode_order',
-                        'poc.judul_buku',
-                        'poc.penulis',
-                        'poc.edisi_cetakan',
-                        'poc.buku_jadi',
-                        'poc.tahun_terbit',
-                        'poc.status_cetak',
-                        'poc.format_buku',
-                        'poc.created_at as tanggal_order',
-                        'poc.tgl_permintaan_jadi',
-                        'poc.jumlah_cetak',
-                        'poc.jumlah_halaman',
-                        'poc.jilid as jenis_jilid',
-                        'poc.ukuran_jilid_bending',
-                        'poc.kertas_isi',
-                        'poc.efek_cover',
-                        'poc.keterangan',
-                        'poc.warna_cover',
-                        )
-                    ->get();
-                $update = Gate::allows('do_update', 'ubah-lanjutan-data-produksi');
-                // $start=1;
+            $data = DB::table('proses_produksi_cetak as ppc')
+            ->join('order_cetak as oc', 'oc.id', '=', 'ppc.order_cetak_id')
+            ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
+            ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+            ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+            ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+            ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+            ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+            ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
+            })
+            ->orderBy('oc.kode_order','asc')
+            ->select(
+                'ppc.*',
+                'oc.kode_order',
+                'oc.status_cetak',
+                'oc.tahun_terbit',
+                'oc.tgl_permintaan_jadi',
+                'oc.jumlah_cetak',
+                'oc.ukuran_jilid_binding',
+                'oc.jenis_cover',
+                'oc.keterangan',
+                'oc.posisi_layout',
+                'oc.keterangan',
+                'oc.dami',
+                'oc.buku_jadi',
+                'ps.edisi_cetak',
+                'ps.pengajuan_harga',
+                'df.kertas_isi',
+                'dp.judul_final',
+                'dp.naskah_id',
+                'dp.format_buku',
+                'dp.jml_hal_perkiraan',
+                'dc.jilid as jenis_jilid',
+                'dc.finishing_cover',
+                'dc.warna',
+                'pn.kode',
+                'kb.nama'
+                )
+            ->get();
+            if ($request->isMethod('GET')) {
+                $update = Gate::allows('do_update', 'pic-data-produksi');
                 return DataTables::of($data)
-                        // ->addColumn('no', function($no) use (&$start) {
-                        //     return $start++;
-                        // })
-                        ->addColumn('no_order', function($data) {
+                        ->addColumn('kode_order', function($data) {
                             return $data->kode_order;
                         })
-                        ->addColumn('tipe_order', function($data) {
-                            if($data->tipe_order == 1) {
-                                $res = 'Umum';
-                            } elseif($data->tipe_order == 2) {
-                                $res = 'Rohani';
-                            }
-                            return $res;
+                        ->addColumn('kode', function($data) {
+                            return $data->kode;
+                        })
+                        ->addColumn('naskah_dari_divisi', function($data) {
+                            return $data->naskah_dari_divisi;
+                        })
+                        ->addColumn('judul_final', function($data) {
+                            return $data->judul_final;
                         })
                         ->addColumn('status_cetak', function($data) {
-                            if($data->status_cetak == 1) {
-                                $res = 'Buku Baru';
-                            } elseif($data->status_cetak == 2) {
-                                $res = 'Cetak Ulang Revisi';
-                            } elseif($data->status_cetak == 3) {
-                                $res = 'Cetak Ulang';
+                            switch ($data->status_cetak) {
+                                case 1:
+                                    $res = 'Buku Baru';
+                                    break;
+                                case 2:
+                                    $res = 'Cetak Ulang Revisi';
+                                    break;
+                                case 3:
+                                    $res = 'Cetak Ulang';
+                                    break;
+                                default:
+                                    $res = '-';
+                                    break;
                             }
                             return $res;
                         })
-                        ->addColumn('judul_buku', function($data) {
-                            return $data->judul_buku;
+                        ->addColumn('penulis', function($data) {
+                            $result = '';
+                            $res = DB::table('penerbitan_naskah_penulis as pnp')
+                                ->join('penerbitan_penulis as pp', function ($q) {
+                                    $q->on('pnp.penulis_id', '=', 'pp.id')
+                                        ->whereNull('pp.deleted_at');
+                                })
+                                ->where('pnp.naskah_id', '=', $data->naskah_id)
+                                ->select('pp.nama')
+                                // ->pluck('pp.nama');
+                                ->get();
+                            foreach ($res as $q) {
+                                $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
+                            }
+                            return $result;
                         })
-                        // ->addColumn('penulis', function($data) {
-                        //     return $data->penulis;
-                        // })
-                        ->addColumn('edisi_cetakan', function($data) {
-                            return $data->edisi_cetakan.'/'.$data->tahun_terbit;
+                        ->addColumn('edisi_cetak', function($data) {
+                            $roman = event(new convertNumberToRoman($data->edisi_cetak));
+                            $edisiCetak = implode('',$roman).'/'.$data->edisi_cetak;
+                            return $edisiCetak.'/'.$data->tahun_terbit;
                         })
                         ->addColumn('jenis_jilid', function($data) {
-                            if ($data->jenis_jilid == 1) {
-                                $res = 'Bending '.$data->ukuran_jilid_bending;
-                            } elseif ($data->jenis_jilid == 2) {
-                                $res = 'Jahit kawat';
-                            }
-                            elseif ($data->jenis_jilid == 3) {
-                                $res = 'Jahit Benang';
-                            }
-                            elseif ($data->jenis_jilid == 4) {
-                                $res = 'Hardcover';
+                            if($data->jenis_jilid == 'Binding') {
+                                $ukuran = $data->ukuran_jilid_binding ?? '-';
+                                $res = $data->jenis_jilid.' '.$ukuran;
+                            } else {
+                                $res = $data->jenis_jilid;
                             }
                             return $res;
                         })
@@ -102,80 +129,82 @@ class ProsesProduksiController extends Controller
                             $badge = '';
                             //Plat
                             if(is_null($data->plat)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> Plat</div>';
+                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Plat</div>';
                             } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> Plat</div>';
+                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Plat</div>';
                             }
                             //Cetak Isi
                             if(is_null($data->cetak_isi)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> Cetak Isi</div>';
+                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Cetak Isi</div>';
                             } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> Cetak Isi</div>';
+                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Cetak Isi</div>';
                             }
                             //Cover
                             if(is_null($data->cover)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> Cover</div>';
+                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Cover</div>';
                             } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> Cover</div>';
+                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Cover</div>';
                             }
                             //Lipat Isi
                             if(is_null($data->lipat_isi)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> Lipat Isi</div>';
+                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Lipat Isi</div>';
                             } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> Lipat Isi</div>';
+                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Lipat Isi</div>';
                             }
                             //Jilid
                             if(is_null($data->jilid)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> Jilid</div>';
+                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Jilid</div>';
                             } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> Jilid</div>';
+                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Jilid</div>';
                             }
                             //Potong 3 Sisi
                             if(is_null($data->potong_3_sisi)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> Potong 3 Sisi</div>';
+                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Potong 3 Sisi</div>';
                             } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> Potong 3 Sisi</div>';
+                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Potong 3 Sisi</div>';
                             }
                             if($data->buku_jadi == 'Wrapping') {
                                 //Wrapping
                                 if(is_null($data->wrapping)) {
-                                    $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> Wrapping</div>';
+                                    $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Wrapping</div>';
                                 } else {
-                                    $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> Wrapping</div>';
+                                    $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Wrapping</div>';
                                 }
                             }
                             //Kirim Gudang
                             if(is_null($data->kirim_gudang)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><i class="fas fa-circle"></i> Kirim Gudang</div>';
+                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Kirim Gudang</div>';
                             } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><i class="fas fa-circle"></i> Kirim Gudang</div>';
+                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Kirim Gudang</div>';
                             }
                             return $badge;
                         })
                         ->addColumn('action', function($data) use ($update) {
-                            $btn = '<a href="'.url('produksi/proses/cetak/detail?kode='.$data->order_cetak_id.'&track='.$data->id).'"
-                                    class="d-flex btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
+                            $btn = '<a href="'.url('produksi/proses/cetak/detail?no='.$data->kode_order.'&naskah='.$data->kode).'"
+                                    class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if($update) {
-                                $btn .= '<a href="'.url('produksi/proses/cetak/edit?kode='.$data->order_cetak_id.'&track='.$data->id).'"
-                                    class="d-flex btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                $btn .= '<a href="'.url('produksi/proses/cetak/edit?no='.$data->kode_order.'&naskah='.$data->kode).'"
+                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                             }
                             return $btn;
                         })
                         ->rawColumns([
-                            'no_order',
-                            'tipe_order',
+                            'kode_order',
+                            'kode',
+                            'naskah_dari_divisi',
+                            'judul_final',
                             'status_cetak',
-                            'judul_buku',
-                            // 'penulis',
-                            'edisi_cetakan',
+                            'penulis',
+                            'edisi_cetak',
                             'jenis_jilid',
                             'buku_jadi',
                             'tracking',
                             'action'
                             ])
                         ->make(true);
+
             }
         }
 

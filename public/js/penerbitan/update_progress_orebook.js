@@ -25,7 +25,7 @@ $(function() {
         });
     let tableOrderEbook = $('#tb_OrderEbook').DataTable({
         "responsive": true,
-        "autoWidth": true,
+        "autoWidth": false,
         pagingType: 'input',
         processing: true,
         serverSide: false,

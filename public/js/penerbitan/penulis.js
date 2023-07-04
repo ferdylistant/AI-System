@@ -1,8 +1,8 @@
 $(function () {
     let tablePenulis = $("#tb_Penulis").DataTable({
         // bSort: true,
-        responsive: true,
-        autoWidth: true,
+        "responsive": true,
+        "autoWidth": false,
         pagingType: "input",
         processing: true,
         serverSide: false,

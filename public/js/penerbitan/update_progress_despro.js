@@ -3,7 +3,7 @@ $(function () {
     let tableDesProduk = $("#tb_DesProduk").DataTable({
         // bSort: false,
         "responsive": true,
-        responsive: true,
+        "autoWidth": false,
         autoWidth: true,
         pagingType: 'input',
         processing: true,

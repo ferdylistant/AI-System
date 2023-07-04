@@ -3,7 +3,7 @@ $(function() {
     let tableDesTurunCetak = $('#tb_DesTurCet').DataTable({
         // "bSort": false,
         "responsive": true,
-        "autoWidth": true,
+        "autoWidth": false,
         pagingType: 'input',
         processing: true,
         serverSide: false,

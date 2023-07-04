@@ -3,7 +3,7 @@ $(function () {
     let tableDesFinal = $('#tb_DesFinal').DataTable({
         // "bSort": false,
         "responsive": true,
-        "autoWidth": true,
+        "autoWidth": false,
         pagingType: 'input',
         processing: true,
         serverSide: false,

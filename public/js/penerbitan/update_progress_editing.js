@@ -3,7 +3,7 @@ $(function() {
     let tableProsEditing = $('#tb_Editing').DataTable({
         // "bSort": false,
         "responsive": true,
-        "autoWidth": true,
+        "autoWidth": false,
         pagingType: 'input',
         processing: true,
         serverSide: false,

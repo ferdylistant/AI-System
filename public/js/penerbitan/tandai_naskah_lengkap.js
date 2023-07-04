@@ -23,7 +23,7 @@ $(function() {
     let tableNaskah = $('#tb_Naskah').DataTable({
         // "bSort": false,
         "responsive": true,
-        "autoWidth": true,
+        "autoWidth": false,
         pagingType: 'input',
         processing: true,
         serverSide: false,

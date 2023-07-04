@@ -3,7 +3,7 @@ $(function() {
     $('[name="status_proses_saat_ini"]').val('').trigger('change');
     let tablePraDesainer = $('#tb_PraDes').DataTable({
         "responsive": true,
-        "autoWidth": true,
+        "autoWidth": false,
         processing: true,
         serverSide: false,
         language: {

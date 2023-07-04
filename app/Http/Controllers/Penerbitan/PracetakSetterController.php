@@ -12,6 +12,7 @@ use App\Events\DesturcetEvent;
 use Yajra\DataTables\DataTables;
 use App\Events\PracetakSetterEvent;
 use Illuminate\Support\Facades\URL;
+use App\Events\convertNumberToRoman;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -869,16 +870,18 @@ class PracetakSetterController extends Controller
                                 $text = 'text-dark';
                                 if (is_null($item)) {
                                     $textAlign = 'text-left';
-                                    $html .= '<input type="text" name="edisi_cetak" class="form-control">';
+                                    $html .= '<input type="number" name="edisi_cetak" class="form-control" placeholder="nomor cetak">';
                                 } else {
                                     $idCol = "edCetakCol";
                                     $textAlign = 'text-right';
-                                    $html .= $item . '
+                                    $roman = event(new convertNumberToRoman($item));
+                                    $edisiCetak = implode('',$roman).'/'.$item;
+                                    $html .= $edisiCetak . '
                                     <p class="text-small">
                                         <a href="javascript:void(0)" id="edCetakButton"><i class="fa fa-pen"></i>&nbsp;Edit</a>
                                     </p>';
                                     $htmlHidden .= '<div class="input-group">
-                                    <input type="text" name="edisi_cetak" value="' . $item . '" class="form-control">
+                                    <input type="number" name="edisi_cetak" value="' . $item . '" class="form-control" placeholder="nomor cetak">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-outline-danger batal_edit_edisicetak text-danger align-self-center" data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                                     </div>
@@ -890,6 +893,8 @@ class PracetakSetterController extends Controller
                                     $text = 'text-danger';
                                     $html .= 'Belum diinput';
                                 } else {
+                                    $roman = event(new convertNumberToRoman($item));
+                                    $item = implode('',$roman).'/'.$item;
                                     $text = 'text-dark';
                                     $html .= $item;
                                 }
@@ -1718,6 +1723,11 @@ class PracetakSetterController extends Controller
         if (!is_null($data->format_buku)) {
             $format_buku = DB::table('format_buku')->where('id', $data->format_buku)->whereNull('deleted_at')->first()->jenis_format;
         }
+        $edisiCetak = NULL;
+        if (!is_null($data->edisi_cetak)) {
+            $roman = event(new convertNumberToRoman($data->edisi_cetak));
+            $edisiCetak = implode('',$roman).'/'.$data->edisi_cetak;
+        }
         return view('penerbitan.pracetak_setter.detail', [
             'title' => 'Detail Pracetak Setter',
             'data' => $data,
@@ -1731,6 +1741,7 @@ class PracetakSetterController extends Controller
             'proof_revisi' => $proofRevisi,
             'imprint' => $imprint,
             'format_buku' => $format_buku,
+            'edisi_cetak' => $edisiCetak
         ]);
     }
     public function actionAjax(Request $request)

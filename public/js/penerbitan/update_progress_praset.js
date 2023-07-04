@@ -3,7 +3,7 @@ $(function() {
     $('[name="status_proses_saat_ini"]').val('').trigger('change');
     let tablePraset = $('#tb_Setter').DataTable({
         "responsive": true,
-        "autoWidth": true,
+        "autoWidth": false,
         pagingType: 'input',
         processing: true,
         serverSide: false,

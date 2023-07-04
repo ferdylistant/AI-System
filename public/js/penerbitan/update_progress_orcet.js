@@ -2,7 +2,7 @@ $(function(){
     $('[name="status_filter"]').val('').trigger('change');
     let tableOrderCetak = $("#tb_Orcet").DataTable({
         "responsive": true,
-        "autoWidth": true,
+        "autoWidth": false,
         pagingType: "input",
         processing: true,
         serverSide: false,

@@ -6,10 +6,14 @@ use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use App\Events\TrackerEvent;
 use Illuminate\Http\Request;
+use App\Events\ProduksiEvent;
 use App\Events\TimelineEvent;
 use App\Events\OrderCetakEvent;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\URL;
+use App\Events\convertNumberToRoman;
 use App\Http\Controllers\Controller;
 use App\Events\NotifikasiPenyetujuan;
 use Illuminate\Support\Facades\{DB, Gate};
@@ -639,6 +643,14 @@ class OrderCetakController extends Controller
                                 $item = DB::table('format_buku')->where('id',$item)->whereNull('deleted_at')->first()->jenis_format . ' cm';
                             }
                             break;
+                        case 'edisi_cetak':
+                            if (!is_null($item)) {
+                                $roman = event(new convertNumberToRoman($item));
+                                $item = implode('',$roman).'/'.$item;
+                            } else {
+                                $item = '-';
+                            }
+                            break;
                         case 'jilid':
                             if (is_null($item)) {
                                 $item = [
@@ -814,6 +826,7 @@ class OrderCetakController extends Controller
                 'oc.*',
                 'dp.naskah_id',
                 'dp.judul_final',
+                'dtc.tipe_order',
                 'pn.kode'
                 )
             ->first();
@@ -942,7 +955,55 @@ class OrderCetakController extends Controller
                     }
                 })->all();
                 //INSERT TODO LIST PRODUKSI CETAK
-                    //? BELUM
+                $cekProduksi = DB::table('proses_produksi_cetak')->where('order_cetak_id', $data['id'])->first();
+                //Insert produksi
+                $id_produksi = Uuid::uuid4()->toString();
+                if (is_null($cekProduksi)) {
+                    $tipeOrder = $data['tipe_order'] == '1'?'PBU':'PBR';
+                    $in = [
+                        'params' => 'Insert Produksi',
+                        'id' => $id_produksi,
+                        'order_cetak_id' => $data['id'],
+                        'naskah_dari_divisi' => $tipeOrder
+                    ];
+                    event(new ProduksiEvent($in));
+                    $produksiTracker = 'Naskah berjudul <a href="' . url('produksi/proses/cetak/detail?no='.$data['kode_order'].'&naskah='.$data['kode']) . '">' . $data['judul_final'] . '</a> telah memasuki tahap antrian produksi.';
+                    $trackerDesturcet = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'section_id' => $id_produksi,
+                        'section_name' => 'Produksi',
+                        'description' => $produksiTracker,
+                        'icon' => 'fas fa-folder-plus',
+                        'created_by' => auth()->id()
+                    ];
+                    event(new TrackerEvent($trackerDesturcet));
+                    //? Insert Todo List produksi
+                    $depart = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
+                        ->where('p.id','a91ee437-1e08-11ed-87ce-1078d2a38ee5')
+                        ->select('up.user_id')
+                        ->get();
+                    $newData = collect($data)->put('id_produksi',$id_produksi);
+                    (object)collect($depart)->map(function($item) use ($newData) {
+                        DB::table('todo_list')->insert([
+                            'form_id' => $newData['id_produksi'],
+                            'users_id' => $item->user_id,
+                            'title' => 'Proses produksi untuk naskah berjudul "' . $newData['judul_final'] . '" perlu didelegasikan.',
+                            'link' => '/produksi/proses/cetak/detail?no='.$newData['kode_order'].'&naskah='.$newData['kode'],
+                            'status' => '0'
+                        ]);
+                    })->all();
+                    //INSERT TIMELINE Produksi
+                    $insertTimelinePraset = [
+                        'params' => 'Insert Timeline',
+                        'id' => Uuid::uuid4()->toString(),
+                        'progress' => 'Produksi',
+                        'naskah_id' => $data['naskah_id'],
+                        'tgl_mulai' => $tgl,
+                        'url_action' => urlencode(URL::to('/produksi/proses/cetak/detail?no='.$newData['kode_order'].'&naskah='.$newData['kode'])),
+                        'status' => 'Antrian'
+                    ];
+                    event(new TimelineEvent($insertTimelinePraset));
+                }
 
                 //INSERT TIMELINE
                 $updateTimelineOrderCetak = [

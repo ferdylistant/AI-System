@@ -121,7 +121,7 @@
                 @if (is_null($data->edisi_cetak))
                     -
                 @else
-                    {{ $data->edisi_cetak }}
+                    {{ $edisi_cetak }}
                 @endif
             </p>
         </div>

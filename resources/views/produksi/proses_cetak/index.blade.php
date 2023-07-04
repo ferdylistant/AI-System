@@ -70,15 +70,15 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1>Data Proses Produksi Order Cetak</h1>
+        <h1>Data Proses Produksi</h1>
     </div>
     <div class="section-body">
         <div class="row">
             <div class="col-12">
-                <div class="card card-warning">
+                <div class="card card-primary">
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped" id="tb_prosesProduksi" style="width:100%">
+                            <table class="table table-striped dt-responsive" id="tb_prosesProduksi" style="width:100%">
                             </table>
                         </div>
                     </div>
@@ -105,39 +105,5 @@
 @endsection
 
 @section('jsNeeded')
-<script src="{{ url('js/update_progress_produksi_cetak.js') }}"></script>
-<script>
-    $(function() {
-         $('#tb_prosesProduksi').DataTable({
-            responsive: true,
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            },
-            processing: true,
-            serverSide: true,
-            language: {
-                searchPlaceholder: 'Search...',
-                sSearch: '',
-                lengthMenu: '_MENU_ items/page',
-            },
-            ajax: {
-                url: "{{ url('produksi/proses/cetak') }}",
-                data: {"request_": "table-proses-produksi-cetak"}
-            },
-            columns: [
-                // { data: 'no', name: 'no', title: 'No' },
-                { data: 'no_order', name: 'no_order', title: 'Kode Order' },
-                { data: 'tipe_order', name: 'tipe_order', title: 'Tipe Order' },
-                { data: 'status_cetak', name: 'status_cetak', title: 'Status Cetak' },
-                { data: 'judul_buku', name: 'judul_buku', title: 'Judul Buku'},
-                // { data: 'penulis', name: 'penulis', title: 'Penulis'},
-                { data: 'edisi_cetakan', name: 'edisi_cetakan', title: 'Edisi Cetakan'},
-                { data: 'jenis_jilid', name: 'jenis_jilid', title: 'Jenis Jilid'},
-                { data: 'buku_jadi', name: 'buku_jadi', title: 'Buku Jadi'},
-                { data: 'tracking', name: 'tracking', title: 'Tracking' },
-                { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
-            ]
-        });
-    })
-</script>
+<script src="{{ url('js/produksi/update_progress_produksi_cetak.js') }}"></script>
 @endsection
