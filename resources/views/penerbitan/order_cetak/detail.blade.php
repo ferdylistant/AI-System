@@ -87,10 +87,10 @@
             <h1>Detail Penerbitan Order Cetak Buku</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item active">
-                    <a href="{{url('/')}}">Dashboard</a>
+                    <a href="{{ url('/') }}">Dashboard</a>
                 </div>
                 <div class="breadcrumb-item">
-                    <a href="{{url('/penerbitan/order-cetak')}}">Data Penerbitan Order Cetak</a>
+                    <a href="{{ url('/penerbitan/order-cetak') }}">Data Penerbitan Order Cetak</a>
                 </div>
                 <div class="breadcrumb-item">
                     Detail Penerbitan Order Cetak Buku
@@ -128,22 +128,26 @@
                             <div class="col-auto">
                                 <span class="bullet text-danger"></span> Kode order: <b>{{ $data->kode_order }}</b>
                                 (
-                                    @if ($data->status_cetak == '3')
-                                        Cetak Ulang
-                                    @else
-                                        @foreach (json_decode($data->pilihan_terbit) as $i => $pt)
-                                            @if (count(json_decode($data->pilihan_terbit)) == 2)
-                                                @if ($i == 0)
-                                                    {{ $pt }} &
-                                                @else
-                                                    {{ $pt }}
-                                                @endif
+                                @if ($data->status_cetak == '3')
+                                    Cetak Ulang
+                                @else
+                                    @foreach (json_decode($data->pilihan_terbit) as $i => $pt)
+                                        @if (count(json_decode($data->pilihan_terbit)) == 2)
+                                            @if ($i == 0)
+                                                {{ $pt }} &
                                             @else
                                                 {{ $pt }}
                                             @endif
-                                        @endforeach
-                                    @endif
+                                        @else
+                                            {{ $pt }}
+                                        @endif
+                                    @endforeach
+                                @endif
                                 )
+                                <br>
+                                <a href="{{url('/penerbitan/order-cetak/print')}}" class="btn btn-light float-right" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
+                                    <i class="fas fa-print"></i> Cetak Formulir
+                                </a>
                             </div>
                         </div>
                         <div class="card-body">
@@ -350,10 +354,10 @@
 
     </section>
 
-@include('penerbitan.order_cetak.include.modal_decline')
-@include('penerbitan.order_cetak.include.modal_approve')
-@include('penerbitan.order_cetak.include.modal_approve_detail')
-@include('penerbitan.order_cetak.include.modal_decline_detail')
+    @include('penerbitan.order_cetak.include.modal_decline')
+    @include('penerbitan.order_cetak.include.modal_approve')
+    @include('penerbitan.order_cetak.include.modal_approve_detail')
+    @include('penerbitan.order_cetak.include.modal_decline_detail')
 @endsection
 @section('jsRequired')
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Events\ProduksiEvent;
 use App\Events\TimelineEvent;
 use App\Events\OrderCetakEvent;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\URL;
 use App\Events\convertNumberToRoman;
@@ -1911,5 +1912,13 @@ class OrderCetakController extends Controller
             }
             return $html;
         }
+    }
+    public function printPdf()
+    {
+        // $pdf = Pdf::loadView('penerbitan.order_cetak.include.print_pdf');
+        // $pdf->render();
+        // $pdf = App::make('penerbitan.order_cetak.include.print_pdf');
+        $pdf = Pdf::loadView('penerbitan.order_cetak.include.print_pdf');
+        return $pdf->stream('Order_cetak.pdf');
     }
 }
