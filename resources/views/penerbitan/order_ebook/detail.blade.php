@@ -296,10 +296,10 @@
                                                 <h6 class="mb-1">Jumlah Halaman</h6>
                                             </div>
                                             <p class="mb-1 text-monospace">
-                                                @if (is_null($data->jml_hal_perkiraan))
+                                                @if (is_null($data->jml_hal_final))
                                                     -
                                                 @else
-                                                    {{ $data->jml_hal_perkiraan }}
+                                                    {{ $data->jml_hal_final }}
                                                 @endif
                                             </p>
                                         </div>

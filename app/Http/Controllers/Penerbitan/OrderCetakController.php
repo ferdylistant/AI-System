@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
+use Biblys\Isbn\Isbn;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -280,7 +281,6 @@ class OrderCetakController extends Controller
                 'dp.format_buku',
                 'dp.nama_pena',
                 'dp.imprint',
-                'dp.jml_hal_perkiraan',
                 'kb.nama',
                 'pn.id as naskah_id',
                 'pn.kelompok_buku_id',
@@ -373,7 +373,6 @@ class OrderCetakController extends Controller
                             'dp.judul_final',
                             'dp.format_buku',
                             'dp.imprint',
-                            'dp.jml_hal_perkiraan',
                             'kb.nama',
                             'pn.id as naskah_id',
                             'pn.kelompok_buku_id',
@@ -408,7 +407,7 @@ class OrderCetakController extends Controller
                             'params' => 'Update Order Cetak',
                             'id' => $request->id,
                             'edisi_cetak' => $request->up_edisi_cetak, //Pracetak Setter
-                            'jml_hal_perkiraan' => $request->up_jml_hal_perkiraan, //Deskripsi Produk
+                            'jml_hal_final' => $request->up_jml_hal_final, //Deskripsi Produk
                             'kelompok_buku_id' => $request->up_kelompok_buku, //Penerbitan Naskah
                             'tipe_order' => $request->up_tipe_order, //Deskripsi Turcet
                             'posisi_layout' => $request->up_posisi_layout,
@@ -438,8 +437,8 @@ class OrderCetakController extends Controller
                             'order_cetak_id' => $request->id,
                             'edisi_cetak_his' => $request->up_edisi_cetak == $history->edisi_cetak ? NULL : $history->edisi_cetak,
                             'edisi_cetak_new' => $request->up_edisi_cetak == $history->edisi_cetak ? NULL : $request->up_edisi_cetak,
-                            'jml_hal_perkiraan_his' => $request->up_jml_hal_perkiraan == $history->jml_hal_perkiraan ? NULL : $history->jml_hal_perkiraan,
-                            'jml_hal_perkiraan_new' => $request->up_jml_hal_perkiraan == $history->jml_hal_perkiraan ? NULL : $request->up_jml_hal_perkiraan,
+                            'jml_hal_final_his' => $request->up_jml_hal_final == $history->jml_hal_final ? NULL : $history->jml_hal_final,
+                            'jml_hal_final_new' => $request->up_jml_hal_final == $history->jml_hal_final ? NULL : $request->up_jml_hal_final,
                             'kelompok_buku_id_his' => $request->up_kelompok_buku == $history->kelompok_buku_id ? NULL : $history->kelompok_buku_id,
                             'kelompok_buku_id_new' => $request->up_kelompok_buku == $history->kelompok_buku_id ? NULL : $request->up_kelompok_buku,
                             'tipe_order_his' => $request->up_tipe_order == $history->tipe_order ? NULL : $history->tipe_order,
@@ -570,7 +569,6 @@ class OrderCetakController extends Controller
                 'dp.nama_pena',
                 'dp.format_buku',
                 'dp.imprint',
-                'dp.jml_hal_perkiraan',
                 'kb.nama',
                 'pn.id as naskah_id',
                 'pn.jalur_buku',
@@ -1482,13 +1480,13 @@ class OrderCetakController extends Controller
                             $html .= ' Status cetak <b class="text-dark">' . $scNew . '</b> ditambahkan.<br>';
                             $html .= '</span></div>';
                         }
-                        if (!is_null($d->jml_hal_perkiraan_his)) {
+                        if (!is_null($d->jml_hal_final_his)) {
                             $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
-                            $html .= ' Jumlah halaman <b class="text-dark">' . $d->jml_hal_perkiraan_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b>.<br>';
+                            $html .= ' Jumlah halaman <b class="text-dark">' . $d->jml_hal_final_his . '</b> diubah menjadi <b class="text-dark">' . $d->jml_hal_final_new . '</b>.<br>';
                             $html .= '</span></div>';
-                        } elseif (!is_null($d->jml_hal_perkiraan_new)) {
+                        } elseif (!is_null($d->jml_hal_final_new)) {
                             $html .= '<div class="ticket-title"><span><span class="bullet"></span>';
-                            $html .= ' Jumlah halaman <b class="text-dark">' . $d->jml_hal_perkiraan_new . '</b> ditambahkan.<br>';
+                            $html .= ' Jumlah halaman <b class="text-dark">' . $d->jml_hal_final_new . '</b> ditambahkan.<br>';
                             $html .= '</span></div>';
                         }
                         if (!is_null($d->kelompok_buku_id_his)) {
@@ -1782,7 +1780,6 @@ class OrderCetakController extends Controller
                 'dp.format_buku',
                 'dp.nama_pena',
                 'dp.imprint',
-                'dp.jml_hal_perkiraan',
                 'kb.nama',
                 'pn.id as naskah_id',
                 'pn.kelompok_buku_id',
@@ -1923,16 +1920,35 @@ class OrderCetakController extends Controller
             ->join('deskripsi_cover as dc','dc.id','=','pc.deskripsi_cover_id')
             ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
             ->join('penerbitan_naskah as pn','pn.id','=','dp.naskah_id')
+            ->leftJoin('pilihan_penerbitan as pp', function ($q) {
+                $q->on('dtc.id', '=', 'pp.deskripsi_turun_cetak_id');
+            })
             ->where('oc.id', $id)
             ->select(
                 'oc.*',
+                'df.kertas_isi',
+                'df.isi_warna',
                 'df.sub_judul_final',
+                'dc.jilid',
+                'dc.warna',
+                'dc.finishing_cover',
                 'dp.naskah_id',
+                'dp.format_buku',
                 'dp.judul_final',
+                'dp.imprint',
                 'dtc.tipe_order',
-                'pn.kode'
+                'pp.pilihan_terbit',
+                'pp.platform_digital_ebook_id',
+                'ps.isbn',
+                'ps.edisi_cetak',
+                'ps.jml_hal_final',
+                'pn.kode',
+                'pn.jalur_buku',
+                'pn.urgent',
+                'pn.kelompok_buku_id'
                 )
             ->first();
+        $useData = $data;
         $data = collect($data)->put('penulis', DB::table('penerbitan_naskah_penulis as pnp')
         ->join('penerbitan_penulis as pp', function ($q) {
             $q->on('pnp.penulis_id', '=', 'pp.id')
@@ -1941,13 +1957,16 @@ class OrderCetakController extends Controller
         ->where('pnp.naskah_id', '=', $data->naskah_id)
         ->select('pp.nama')
         ->get());
-        $data = (object)collect($data)->map(function ($item,$key) {
+        $data = (object)collect($data)->map(function ($item,$key) use ($useData) {
             switch($key) {
                 case 'judul_final':
                     $item = ucfirst($item);
                     break;
                 case 'sub_judul_final':
                     $item = is_null($item) ? '-':ucfirst($item);
+                    break;
+                case 'tgl_selesai_order':
+                    $item = is_null($item) ? '':Carbon::parse($item)->translatedFormat('d F Y');
                     break;
                 case 'status_cetak':
                     switch ($item) {
@@ -1981,16 +2000,108 @@ class OrderCetakController extends Controller
                     }
                     return $html;
                     break;
+                case 'pilihan_terbit':
+                    $html = '';
+                    if (is_null($item)) {
+                        $html .= '-';
+                    } else {
+                        $count = count(json_decode($item)) - 1;
+                        foreach (json_decode($item) as $i => $value) {
+                            $coma = '';
+                            if ($i != $count) {
+                                $coma = ' dan ';
+                            }
+                            $html .=  ucfirst($value).$coma;
+                        }
+                    }
+                    return $html;
+                    break;
+                case 'platform_digital_ebook_id':
+                    $html = '';
+                    if (is_null($item)) {
+                        $html .= '-';
+                    } else {
+                        $count = count(json_decode($item)) - 1;
+                        foreach (json_decode($item) as $i => $value) {
+                            $nama = DB::table('platform_digital_ebook')->whereNull('deleted_At')->where('id',$value)->first()->nama;
+                            $coma = '';
+                            if ($i != $count) {
+                                $coma = ', ';
+                            }
+                            $html .=  ucfirst($nama).$coma;
+                        }
+                    }
+                    return $html;
+                    break;
+                case 'finishing_cover':
+                    $html = '';
+                    if (is_null($item)) {
+                        $html .= '-';
+                    } else {
+                        $count = count(json_decode($item)) - 1;
+                        foreach (json_decode($item) as $i => $value) {
+                            $coma = '';
+                            if ($i != $count) {
+                                $coma = ' - ';
+                            }
+                            $html .=  ucfirst($value).$coma;
+                        }
+                    }
+                    return $html;
+                    break;
+                case 'imprint':
+                    $item = DB::table('imprint')->whereNull('deleted_at')->where('id',$item)->first()->nama;
+                    break;
+                case 'kelompok_buku_id':
+                    $item = DB::table('penerbitan_m_kelompok_buku')->whereNull('deleted_at')->where('id',$item)->first()->nama;
+                    break;
+                case 'format_buku':
+                    $item = DB::table('format_buku')->whereNull('deleted_at')->where('id',$item)->first()->jenis_format .' cm';
+                    break;
+                case 'edisi_cetak':
+                    if (is_null($item)) {
+                        $item = '-';
+                    } else {
+                        $roman = event(new convertNumberToRoman($item));
+                        $item = implode('',$roman).'/'.$item;
+                    }
+                    break;
+                case 'jilid':
+                    if($item == 'Binding') {
+                        $cm = ' '.$useData->ukuran_jilid_binding .' cm';
+                    } else {
+                        $cm = '';
+                    }
+                    $item = $item.$cm;
+                    break;
+                case 'urgent':
+                    $item = $item == 0 ? 'Reguler':'Urgent';
                 default:
-                    $item;
+                    $item = is_null($item) ? '-':$item;
                     break;
             }
             return $item;
         })->all();
+
+        $act = DB::table('order_cetak_action')->where('order_cetak_id', $data->id)->get();
+        $act_j = (array)collect($act)->map(function($item) {
+            return $item->type_departemen;
+        })->all();
+        $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_departemen'"))[0]->Type;
+        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+        $departemen = explode("','", $matches[1]);
+        $statCetak = $data->status_cetak == '3' ? '0':'1'; //Except
+        $departemen = Arr::except($departemen,[$statCetak]);
+        $collect = [
+            'data' => $data,
+            'act' => $act,
+            'act_j' => $act_j,
+            'departemen' => $departemen
+        ];
         // $pdf = Pdf::loadView('penerbitan.order_cetak.include.print_pdf');
         // $pdf->render();
         // $pdf = App::make('penerbitan.order_cetak.include.print_pdf');
-        $pdf = Pdf::loadView('penerbitan.order_cetak.include.print_pdf',compact('data'))->setPaper('a4', 'potrait')->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif']);
+        $pdf = Pdf::loadView('penerbitan.order_cetak.include.print_pdf',$collect)->setPaper('a4', 'potrait')->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif']);
         return $pdf->stream();
     }
 }

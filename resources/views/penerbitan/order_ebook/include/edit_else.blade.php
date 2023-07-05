@@ -86,8 +86,8 @@
             <label>Jumlah Halaman: <span class="text-danger">*</span></label>
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
-                    <input type="text" class="form-control" name="up_jml_hal_perkiraan" placeholder="Format Romawi"
-                        value="{{ is_null($data->jml_hal_perkiraan) ? '-' : $data->jml_hal_perkiraan }}" disabled readonly>
+                    <input type="text" class="form-control" name="up_jml_hal_final" placeholder="Format Romawi"
+                        value="{{ is_null($data->jml_hal_final) ? '-' : $data->jml_hal_final }}" disabled readonly>
                 </div>
             </div>
         </div>

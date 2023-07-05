@@ -85,9 +85,9 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-copy"></i></div>
                     </div>
-                    <input type="text" class="form-control" name="up_jml_hal_perkiraan"
+                    <input type="text" class="form-control" name="up_jml_hal_final"
                         placeholder="Jumlah halaman" required>
-                    <div id="err_up_jml_hal_perkiraan"></div>
+                    <div id="err_up_jml_hal_final"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">

@@ -67,7 +67,7 @@ class OrderEbookListener
                         'oe.eisbn' => $data['eisbn'],
                         'dtc.tipe_order' => $data['tipe_order'],
                         'ps.edisi_cetak' => $data['edisi_cetak'],
-                        'dp.jml_hal_perkiraan' => $data['jml_hal_perkiraan'],
+                        'ps.jml_hal_final' => $data['jml_hal_final'],
                         'pn.kelompok_buku_id' => $data['kelompok_buku_id'],
                     ]);
                 DB::commit();
@@ -81,8 +81,8 @@ class OrderEbookListener
                     'tipe_order_new' => $data['tipe_order_new'],
                     'edisi_cetak_his' => $data['edisi_cetak_his'],
                     'edisi_cetak_new' => $data['edisi_cetak_new'],
-                    'jml_hal_perkiraan_his' => $data['jml_hal_perkiraan_his'],
-                    'jml_hal_perkiraan_new' => $data['jml_hal_perkiraan_new'],
+                    'jml_hal_final_his' => $data['jml_hal_final_his'],
+                    'jml_hal_final_new' => $data['jml_hal_final_new'],
                     'kelompok_buku_id_his' => $data['kelompok_buku_id_his'],
                     'kelompok_buku_id_new' => $data['kelompok_buku_id_new'],
                     'tahun_terbit_his' => $data['tahun_terbit_his'],
