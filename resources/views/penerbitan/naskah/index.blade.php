@@ -216,12 +216,14 @@
     <section class="section" id="sectionDataNaskah">
         <div class="section-header">
             <h1>Data Naskah</h1>
-            @if (Gate::allows('do_create', 'tambah-data-naskah'))
-                <div class="section-header-button">
+            <div class="section-header-button">
+                    @if (Gate::allows('do_create', 'tambah-data-naskah'))
                     <a href="{{ url('penerbitan/naskah/membuat-naskah') }}" class="btn btn-success">Tambah</a>
-                    <a href="{{ route('naskah.restore') }}" class="btn btn-danger">Naskah Telah Dihapus</a>
+                    @endif
+                    @if (Gate::allows('do_delete', 'delete-data-naskah'))
+                    <a href="{{ route('naskah.restore') }}" class="btn btn-danger">Naskah Telah Dihapus</a>                        
+                    @endif
                 </div>
-            @endif
         </div>
 
         <div class="section-body">
