@@ -210,7 +210,7 @@ class PenilaianNaskahController extends Controller
             ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
             ->whereNull('pn.deleted_at')
             ->where('pn.id', $request->input('naskah_id'))
-            ->select(DB::raw('pn.id, pn.jalur_buku, pns.tgl_pn_m_pemasaran, pns.tgl_pn_direksi'))
+            ->select(DB::raw('pn.id, pn.jalur_buku, pns.tgl_pn_prodev,pns.tgl_pn_m_pemasaran, pns.tgl_pn_direksi'))
             ->first();
         $pilar = DB::table('penerbitan_pn_mm')->where('keyword', 'pilar')
             ->get();
@@ -225,6 +225,9 @@ class PenilaianNaskahController extends Controller
                     ->where('created_by', auth()->id())
                     ->first();
                 if (is_null($pn_pemasaran)) {
+                    if (is_null($naskah->tgl_pn_prodev)) {
+                        return '<h5>Prodev belum mengisi penilaian (Menunggu penilaian prodev)</h5>';
+                    }
                     return view('penerbitan.naskah.page.tab-mpemasaran', [
                         'form' => 'add',
                         'naskah' => $naskah,
