@@ -714,11 +714,10 @@ class UsersController extends Controller
     {
         DB::transaction(function () use ($request) {
             try {
-                DB::table('user_permission')
-                    ->where('user_id', $request->input('user_id'))
-                    ->delete();
-
                 if ($request->has('access')) {
+                    DB::table('user_permission')
+                        ->where('user_id', $request->input('user_id'))
+                        ->delete();
                     foreach ($request->input('access') as $a) {
                         $access[] = [
                             'user_id' => $request->input('user_id'),
@@ -726,7 +725,7 @@ class UsersController extends Controller
                         ];
                     }
 
-                    DB::table('user_permission')->insert($access);
+                   DB::table('user_permission')->insert($access);
                 }
 
                 DB::commit();

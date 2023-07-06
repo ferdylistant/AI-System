@@ -219,6 +219,7 @@
             @if (Gate::allows('do_create', 'tambah-data-naskah'))
                 <div class="section-header-button">
                     <a href="{{ url('penerbitan/naskah/membuat-naskah') }}" class="btn btn-success">Tambah</a>
+                    <a href="{{ route('naskah.restore') }}" class="btn btn-danger">Naskah Telah Dihapus</a>
                 </div>
             @endif
         </div>

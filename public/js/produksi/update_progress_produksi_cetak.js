@@ -27,8 +27,8 @@ $(function() {
            { data: 'tracking', name: 'tracking', title: 'Tracking' },
            { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false},
        ]
-   });
-   $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) {
-    notifToast("error",message)
-};
+    });
+    $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) {
+        notifToast("error",message)
+    };
 })

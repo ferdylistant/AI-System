@@ -107,6 +107,34 @@ class NaskahListener
                     'author_id' => $data['author_id']
                 ]);
                 break;
+            case 'Delete Naskah':
+                DB::beginTransaction();
+                $res = DB::table('penerbitan_naskah')->where('id',$data['id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['deleted_by']
+                ]);
+                DB::table('penerbitan_naskah_history')->insert([
+                    'type_history' => $data['type_history'],
+                    'naskah_id' => $data['id'],
+                    'modified_at' => $data['deleted_at'],
+                    'author_id' => $data['deleted_by']
+                ]);
+                DB::commit();
+                break;
+            case 'Restore Naskah':
+                DB::beginTransaction();
+                $res = DB::table('penerbitan_naskah')->where('id',$data['id'])->update([
+                    'deleted_at' => NULL,
+                    'deleted_by' => NULL
+                ]);
+                DB::table('penerbitan_naskah_history')->insert([
+                    'type_history' => $data['type_history'],
+                    'naskah_id' => $data['id'],
+                    'modified_at' => $data['modified_at'],
+                    'author_id' => $data['author_id']
+                ]);
+                DB::commit();
+                break;
             default:
                 abort(500);
                 break;

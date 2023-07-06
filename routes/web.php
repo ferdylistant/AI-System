@@ -127,12 +127,12 @@ Route::middleware(['auth'])->group(function () use ($path) {
 
         //Naskah
         Route::get('/naskah', $path.'\Penerbitan\NaskahController@index')->name('naskah.view');
+        Route::match(['get','post'],'/naskah/restore', $path.'\Penerbitan\NaskahController@restorePage')->name('naskah.restore');
         Route::get('/naskah/ajax-call-page/{page}', $path.'\Penerbitan\NaskahController@ajaxCallPage');
         Route::match(['get', 'post'], '/naskah/melihat-naskah/{id}', $path.'\Penerbitan\NaskahController@viewNaskah');
         Route::match(['get', 'post'], '/naskah/membuat-naskah', $path.'\Penerbitan\NaskahController@createNaskah');
         Route::match(['get', 'post'], '/naskah/mengubah-naskah/{id}', $path.'\Penerbitan\NaskahController@updateNaskah');
         Route::post('/naskah/penilaian/{cat}', $path.'\Penerbitan\PenilaianNaskahController@index');
-        // Route::post('/naskah/timeline/{cat}', [TimelineController::class, 'index']);
         Route::post('/naskah/tandai-data-lengkap', $path.'\Penerbitan\NaskahController@tandaDataLengkap');
         Route::post('/naskah/ajax/{cat}', $path.'\Penerbitan\NaskahController@ajaxCallModal');
         //Deskripsi Produk

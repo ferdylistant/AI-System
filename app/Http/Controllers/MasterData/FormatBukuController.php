@@ -172,7 +172,7 @@ class FormatBukuController extends Controller
         }
 
         return view('master_data.format_buku.telah_dihapus', [
-            'title' => 'Platform Digital Telah Dihapus',
+            'title' => 'Format Buku Telah Dihapus',
         ]);
     }
     public function createFbuku(Request $request)

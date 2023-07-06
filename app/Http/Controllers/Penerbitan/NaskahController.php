@@ -14,6 +14,7 @@ use PhpParser\Node\Stmt\Catch_;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
 class NaskahController extends Controller
@@ -30,23 +31,23 @@ class NaskahController extends Controller
                     $newData = DB::table('penerbitan_naskah as pn')
                         ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
                         ->whereNull('pn.deleted_at')
-                        ->where('pn.jalur_buku','LIKE','%Reguler%');
-                    if ((Gate::allows('do_update','naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
-                        $newData->where('pn.pic_prodev',auth()->user()->id);
+                        ->where('pn.jalur_buku', 'LIKE', '%Reguler%');
+                    if ((Gate::allows('do_update', 'naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
+                        $newData->where('pn.pic_prodev', auth()->user()->id);
                     }
                     $data = DB::table('penerbitan_naskah as pn')
                         ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
                         ->whereNull('pn.deleted_at')
-                        ->where('pn.jalur_buku','LIKE','%Reguler%');
-                    if ((Gate::allows('do_update','naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
-                        $data->where('pn.pic_prodev',auth()->user()->id);
+                        ->where('pn.jalur_buku', 'LIKE', '%Reguler%');
+                    if ((Gate::allows('do_update', 'naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
+                        $data->where('pn.pic_prodev', auth()->user()->id);
                     }
-                    $html .='<h4 class="section-title">Total naskah reguler yang belum dinilai: <b id="naskahBelumDinilai">0</b></h4>';
-                    $html .='<hr style="border: 0;
+                    $html .= '<h4 class="section-title">Total naskah reguler yang belum dinilai: <b id="naskahBelumDinilai">0</b></h4>';
+                    $html .= '<hr style="border: 0;
                     height: 1px;
                     background: #333;
                     background-image: linear-gradient(to right, #ccc, #333, #ccc);">';
-                    if (auth()->user()->id == 'be8d42fa88a14406ac201974963d9c1b'){
+                    if (auth()->user()->id == 'be8d42fa88a14406ac201974963d9c1b') {
                         //Prodev
                         $html .= '<a href="javascript:void(0)" class="action-modal text-decoration-none" data-role="prodev">
                         <span class="badge badge-danger" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian Prodev: <b id="animate-count-prodev">0</b></span>
@@ -80,13 +81,13 @@ class NaskahController extends Controller
                         $html .= '<span class="badge badge-secondary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-star-half-alt"></i> Penilaian Direksi: <b id="animate-count-direksi">0</b></span>';
                     }
                     return response()->json([
-                        'html'=>$html,
-                        'belumDinilai'=>$newData->whereNull('pns.tgl_pn_prodev')->get()->count(),
-                        'countProdev'=> $data->whereNotNull('pns.tgl_pn_prodev')->get()->count(),
-                        'countMPenerbitan'=> $data->whereNotNull('pns.tgl_pn_m_penerbitan')->get()->count(),
-                        'countMPemasaran'=> $data->whereNotNull('pns.tgl_pn_m_pemasaran')->get()->count(),
-                        'countDPemasaran'=> $data->whereNotNull('pns.tgl_pn_d_pemasaran')->get()->count(),
-                        'countDireksi'=> $data->whereNotNull('pns.tgl_pn_direksi')->get()->count(),
+                        'html' => $html,
+                        'belumDinilai' => $newData->whereNull('pns.tgl_pn_prodev')->get()->count(),
+                        'countProdev' => $data->whereNotNull('pns.tgl_pn_prodev')->get()->count(),
+                        'countMPenerbitan' => $data->whereNotNull('pns.tgl_pn_m_penerbitan')->get()->count(),
+                        'countMPemasaran' => $data->whereNotNull('pns.tgl_pn_m_pemasaran')->get()->count(),
+                        'countDPemasaran' => $data->whereNotNull('pns.tgl_pn_d_pemasaran')->get()->count(),
+                        'countDireksi' => $data->whereNotNull('pns.tgl_pn_direksi')->get()->count(),
                     ]);
 
                     break;
@@ -94,29 +95,29 @@ class NaskahController extends Controller
                     $data = DB::table('penerbitan_naskah as pn')
                         ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
                         ->whereNull('pn.deleted_at');
-                        if ((Gate::allows('do_update','naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
-                            $data->where('pic_prodev',auth()->user()->id);
-                        }
-                        $data->select(
-                            'pn.id',
-                            'pn.kode',
-                            'pn.judul_asli',
-                            'pn.pic_prodev',
-                            'pn.created_by',
-                            'pn.jalur_buku',
-                            'pn.tanggal_masuk_naskah',
-                            'pn.selesai_penilaian',
-                            'pn.bukti_email_penulis',
-                            'pn.urgent',
-                            'pns.tgl_pn_prodev',
-                            'pns.tgl_pn_m_penerbitan',
-                            'pns.tgl_pn_m_pemasaran',
-                            'pns.tgl_pn_d_pemasaran',
-                            'pns.tgl_pn_direksi',
-                            'pns.tgl_pn_editor',
-                            'pns.tgl_pn_setter',
-                            'pns.tgl_pn_selesai'
-                        )
+                    if ((Gate::allows('do_update', 'naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
+                        $data->where('pic_prodev', auth()->user()->id);
+                    }
+                    $data->select(
+                        'pn.id',
+                        'pn.kode',
+                        'pn.judul_asli',
+                        'pn.pic_prodev',
+                        'pn.created_by',
+                        'pn.jalur_buku',
+                        'pn.tanggal_masuk_naskah',
+                        'pn.selesai_penilaian',
+                        'pn.bukti_email_penulis',
+                        'pn.urgent',
+                        'pns.tgl_pn_prodev',
+                        'pns.tgl_pn_m_penerbitan',
+                        'pns.tgl_pn_m_pemasaran',
+                        'pns.tgl_pn_d_pemasaran',
+                        'pns.tgl_pn_direksi',
+                        'pns.tgl_pn_editor',
+                        'pns.tgl_pn_setter',
+                        'pns.tgl_pn_selesai'
+                    )
                         ->orderBy('pn.tanggal_masuk_naskah', 'asc')
                         ->get();
                     return $data->count();
@@ -145,34 +146,62 @@ class NaskahController extends Controller
                     return $data;
                     break;
                 default:
-                    $data = DB::table('penerbitan_naskah as pn')
-                        ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
-                        ->whereNull('pn.deleted_at');
-                        if ((Gate::allows('do_update','naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
-                            $data->where('pic_prodev',auth()->user()->id);
+                    if (Cache::has('naskahIndex')) {
+                        $data = Cache::get('naskahIndex');
+                    } else {
+                        if ((Gate::allows('do_update', 'naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
+                            $data = DB::table('penerbitan_naskah as pn')
+                                ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+                                ->whereNull('pn.deleted_at')->where('pic_prodev', auth()->user()->id)->select(
+                                    'pn.id',
+                                    'pn.kode',
+                                    'pn.judul_asli',
+                                    'pn.pic_prodev',
+                                    'pn.created_by',
+                                    'pn.jalur_buku',
+                                    'pn.tanggal_masuk_naskah',
+                                    'pn.selesai_penilaian',
+                                    'pn.bukti_email_penulis',
+                                    'pn.urgent',
+                                    'pns.tgl_pn_prodev',
+                                    'pns.tgl_pn_m_penerbitan',
+                                    'pns.tgl_pn_m_pemasaran',
+                                    'pns.tgl_pn_d_pemasaran',
+                                    'pns.tgl_pn_direksi',
+                                    'pns.tgl_pn_editor',
+                                    'pns.tgl_pn_setter',
+                                    'pns.tgl_pn_selesai'
+                                )
+                                ->orderBy('pn.tanggal_masuk_naskah', 'desc')
+                                ->get();
+                        } else {
+                            $data = DB::table('penerbitan_naskah as pn')
+                                ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+                                ->whereNull('pn.deleted_at')->select(
+                                    'pn.id',
+                                    'pn.kode',
+                                    'pn.judul_asli',
+                                    'pn.pic_prodev',
+                                    'pn.created_by',
+                                    'pn.jalur_buku',
+                                    'pn.tanggal_masuk_naskah',
+                                    'pn.selesai_penilaian',
+                                    'pn.bukti_email_penulis',
+                                    'pn.urgent',
+                                    'pns.tgl_pn_prodev',
+                                    'pns.tgl_pn_m_penerbitan',
+                                    'pns.tgl_pn_m_pemasaran',
+                                    'pns.tgl_pn_d_pemasaran',
+                                    'pns.tgl_pn_direksi',
+                                    'pns.tgl_pn_editor',
+                                    'pns.tgl_pn_setter',
+                                    'pns.tgl_pn_selesai'
+                                )
+                                ->orderBy('pn.tanggal_masuk_naskah', 'asc')
+                                ->get();
                         }
-                        $data->select(
-                            'pn.id',
-                            'pn.kode',
-                            'pn.judul_asli',
-                            'pn.pic_prodev',
-                            'pn.created_by',
-                            'pn.jalur_buku',
-                            'pn.tanggal_masuk_naskah',
-                            'pn.selesai_penilaian',
-                            'pn.bukti_email_penulis',
-                            'pn.urgent',
-                            'pns.tgl_pn_prodev',
-                            'pns.tgl_pn_m_penerbitan',
-                            'pns.tgl_pn_m_pemasaran',
-                            'pns.tgl_pn_d_pemasaran',
-                            'pns.tgl_pn_direksi',
-                            'pns.tgl_pn_editor',
-                            'pns.tgl_pn_setter',
-                            'pns.tgl_pn_selesai'
-                        )
-                        ->orderBy('pn.tanggal_masuk_naskah', 'asc')
-                        ->get();
+                        Cache::add('naskahIndex', $data, now()->addMinutes(5));
+                    }
                     $update = Gate::allows('do_update', 'ubah-data-naskah');
 
                     return Datatables::of($data)
@@ -180,14 +209,14 @@ class NaskahController extends Controller
                             $html = '';
                             $danger = $data->urgent == '0' ? '' : 'class="text-danger"';
                             $tooltip =  $data->urgent == '0' ? '' : 'data-toggle="tooltip" data-placement="top" title="Naskah Urgent"';
-                            $html .='<span '.$danger.' '.$tooltip.'>'.$data->kode.'</span>';
+                            $html .= '<span ' . $danger . ' ' . $tooltip . '>' . $data->kode . '</span>';
                             return $html;
                         })
                         ->addColumn('judul_asli', function ($data) {
                             return $data->judul_asli;
                         })
                         ->addColumn('pic_prodev', function ($data) {
-                            return DB::table('users')->where('id',$data->pic_prodev)->first()->nama;
+                            return DB::table('users')->where('id', $data->pic_prodev)->first()->nama;
                         })
                         ->addColumn('jalur_buku', function ($data) {
                             return $data->jalur_buku;
@@ -196,14 +225,14 @@ class NaskahController extends Controller
                             return Carbon::parse($data->tanggal_masuk_naskah)->translatedFormat('l, d F Y');
                         })
                         ->addColumn('created_by', function ($data) {
-                            return DB::table('users')->where('id',$data->created_by)->first()->nama;
+                            return DB::table('users')->where('id', $data->created_by)->first()->nama;
                         })
                         ->addColumn('stts_penilaian', function ($data) {
                             $badge = '';
                             if (in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
                                 if (!is_null($data->tgl_pn_selesai)) {
-                                    $statusPenilaianDB = DB::table('penerbitan_pn_direksi')->where('naskah_id',$data->id)->pluck('keputusan_final')->first();
-                                    $badge .= '<span class="badge badge-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Diputuskan: '.$statusPenilaianDB.'</span>';
+                                    $statusPenilaianDB = DB::table('penerbitan_pn_direksi')->where('naskah_id', $data->id)->pluck('keputusan_final')->first();
+                                    $badge .= '<span class="badge badge-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Diputuskan: ' . $statusPenilaianDB . '</span>';
                                     if ($data->pic_prodev == auth()->user()->id) {
                                         if (is_null($data->bukti_email_penulis)) {
                                             $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
@@ -280,7 +309,7 @@ class NaskahController extends Controller
                             if ($historyData->isEmpty()) {
                                 return '-';
                             } else {
-                                $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="'.$data->id.'" data-judulasli="' . $data->judul_asli . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                                $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="' . $data->id . '" data-judulasli="' . $data->judul_asli . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
                                 return $date;
                             }
                         })
@@ -295,9 +324,15 @@ class NaskahController extends Controller
                                         <div><i class="fas fa-edit"></i></div></a>';
                                 }
                             }
+                            if ((Gate::allows('do_delete', 'delete-data-naskah'))) {
+                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-delete-naskah btn-danger btn-icon mr-1 mt-1"
+                                data-toggle="tooltip" title="Hapus Data"
+                                data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '">
+                                <i class="fas fa-trash-alt"></i></a>';
+                            }
                             return $btn;
                         })
-                        ->rawColumns(['kode', 'judul_asli','pic_prodev', 'jalur_buku', 'masuk_naskah','created_by', 'stts_penilaian', 'history', 'tracker','action'])
+                        ->rawColumns(['kode', 'judul_asli', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'history', 'tracker', 'action'])
                         ->make(true);
                     break;
             }
@@ -319,76 +354,75 @@ class NaskahController extends Controller
             'jalur_b' => $jalurB
         ]);
     }
-
     protected function showModalJumlahPenilaian($request)
     {
         try {
-            $title ='';
+            $title = '';
             $data = DB::table('penerbitan_naskah as pn')
                 ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id');
             switch ($request->role) {
                 case 'prodev':
-                    $data->join('penerbitan_pn_prodev as ppp','pn.id','=','ppp.naskah_id')
-                    ->join('users as u','ppp.created_by','=','u.id')
-                    ->whereNull('pn.deleted_at')
-                    ->where('pn.jalur_buku','LIKE','%Reguler%')
-                    ->whereNotNull('pns.tgl_pn_prodev')
-                    ->orderBy('pns.tgl_pn_prodev', 'desc')
-                    ->select('pn.*','pns.tgl_pn_prodev as tgl','u.id as users_id','u.avatar','u.nama');
+                    $data->join('penerbitan_pn_prodev as ppp', 'pn.id', '=', 'ppp.naskah_id')
+                        ->join('users as u', 'ppp.created_by', '=', 'u.id')
+                        ->whereNull('pn.deleted_at')
+                        ->where('pn.jalur_buku', 'LIKE', '%Reguler%')
+                        ->whereNotNull('pns.tgl_pn_prodev')
+                        ->orderBy('pns.tgl_pn_prodev', 'desc')
+                        ->select('pn.*', 'pns.tgl_pn_prodev as tgl', 'u.id as users_id', 'u.avatar', 'u.nama');
                     $title = 'Prodev';
                     $class = 'badge-danger';
                     $styleBox = 'rgb(252, 84, 75, 0.4) 5px 5px, rgb(252, 84, 75, 0.3) 10px 10px, rgba(252, 84, 75, 0.2) 15px 15px, rgba(252, 84, 75, 0.1) 20px 20px, rgba(252, 84, 75, 0.05) 25px 25px;';
                     $scroll = 'scrollbar-deep-red bordered-deep-red';
                     break;
                 case 'mpenerbitan':
-                    $data->join('penerbitan_pn_penerbitan as ppp','pn.id','=','ppp.naskah_id')
-                    ->join('users as u','ppp.created_by','=','u.id')
-                    ->whereNull('pn.deleted_at')
-                    ->where('pn.jalur_buku','LIKE','%Reguler%')
-                    ->whereNotNull('pns.tgl_pn_m_penerbitan')
-                    ->orderBy('pns.tgl_pn_m_penerbitan', 'desc')
-                    ->select('pn.*','pns.tgl_pn_m_penerbitan as tgl','u.id as users_id','u.avatar','u.nama');
+                    $data->join('penerbitan_pn_penerbitan as ppp', 'pn.id', '=', 'ppp.naskah_id')
+                        ->join('users as u', 'ppp.created_by', '=', 'u.id')
+                        ->whereNull('pn.deleted_at')
+                        ->where('pn.jalur_buku', 'LIKE', '%Reguler%')
+                        ->whereNotNull('pns.tgl_pn_m_penerbitan')
+                        ->orderBy('pns.tgl_pn_m_penerbitan', 'desc')
+                        ->select('pn.*', 'pns.tgl_pn_m_penerbitan as tgl', 'u.id as users_id', 'u.avatar', 'u.nama');
                     $title = 'Manajer Penerbitan';
                     $class = 'badge-success';
                     $styleBox = 'rgb(99, 237, 122, 0.4) 5px 5px, rgb(99, 237, 122, 0.3) 10px 10px, rgba(99, 237, 122, 0.2) 15px 15px, rgba(99, 237, 122, 0.1) 20px 20px, rgba(99, 237, 122, 0.05) 25px 25px;';
                     $scroll = 'scrollbar-deep-success bordered-deep-success';
                     break;
                 case 'mpemasaran':
-                    $data->join('penerbitan_pn_pemasaran as ppp','pn.id','=','ppp.naskah_id')
-                    ->join('users as u','ppp.created_by','=','u.id')
-                    ->where('ppp.pic','M')
-                    ->whereNull('pn.deleted_at')
-                    ->where('pn.jalur_buku','LIKE','%Reguler%')
-                    ->whereNotNull('pns.tgl_pn_m_pemasaran')
-                    ->orderBy('ppp.created_at', 'desc')
-                    ->select('pn.*','ppp.created_at as tgl','u.id as users_id','u.avatar','u.nama');
+                    $data->join('penerbitan_pn_pemasaran as ppp', 'pn.id', '=', 'ppp.naskah_id')
+                        ->join('users as u', 'ppp.created_by', '=', 'u.id')
+                        ->where('ppp.pic', 'M')
+                        ->whereNull('pn.deleted_at')
+                        ->where('pn.jalur_buku', 'LIKE', '%Reguler%')
+                        ->whereNotNull('pns.tgl_pn_m_pemasaran')
+                        ->orderBy('ppp.created_at', 'desc')
+                        ->select('pn.*', 'ppp.created_at as tgl', 'u.id as users_id', 'u.avatar', 'u.nama');
                     $title = 'Manajer Pemasaran';
                     $class = 'badge-info';
                     $styleBox = 'rgb(58, 186, 244, 0.4) 5px 5px, rgb(58, 186, 244, 0.3) 10px 10px, rgba(58, 186, 244, 0.2) 15px 15px, rgba(58, 186, 244, 0.1) 20px 20px, rgba(58, 186, 244, 0.05) 25px 25px;';
                     $scroll = 'scrollbar-deep-info bordered-deep-info';
                     break;
                 case 'dpemasaran':
-                    $data->join('penerbitan_pn_pemasaran as ppp','pn.id','=','ppp.naskah_id')
-                    ->join('users as u','ppp.created_by','=','u.id')
-                    ->where('ppp.pic','D')
-                    ->whereNull('pn.deleted_at')
-                    ->where('pn.jalur_buku','LIKE','%Reguler%')
-                    ->whereNotNull('pns.tgl_pn_d_pemasaran')
-                    ->orderBy('pns.tgl_pn_d_pemasaran', 'desc')
-                    ->select('pn.*','pns.tgl_pn_d_pemasaran as tgl','u.id as users_id','u.avatar','u.nama');
+                    $data->join('penerbitan_pn_pemasaran as ppp', 'pn.id', '=', 'ppp.naskah_id')
+                        ->join('users as u', 'ppp.created_by', '=', 'u.id')
+                        ->where('ppp.pic', 'D')
+                        ->whereNull('pn.deleted_at')
+                        ->where('pn.jalur_buku', 'LIKE', '%Reguler%')
+                        ->whereNotNull('pns.tgl_pn_d_pemasaran')
+                        ->orderBy('pns.tgl_pn_d_pemasaran', 'desc')
+                        ->select('pn.*', 'pns.tgl_pn_d_pemasaran as tgl', 'u.id as users_id', 'u.avatar', 'u.nama');
                     $title = 'Direktur Pemasaran';
                     $class = 'badge-light';
                     $styleBox = 'rgb(227, 234, 239, 0.4) 5px 5px, rgb(227, 234, 239, 0.3) 10px 10px, rgba(227, 234, 239, 0.2) 15px 15px, rgba(227, 234, 239, 0.1) 20px 20px, rgba(227, 234, 239, 0.05) 25px 25px;';
                     $scroll = 'scrollbar-deep-light bordered-deep-light';
                     break;
                 default:
-                    $data->join('penerbitan_pn_direksi as ppp','pn.id','=','ppp.naskah_id')
-                    ->join('users as u','ppp.created_by','=','u.id')
-                    ->whereNull('pn.deleted_at')
-                    ->where('pn.jalur_buku','LIKE','%Reguler%')
-                    ->whereNotNull('pns.tgl_pn_direksi')
-                    ->orderBy('pns.tgl_pn_direksi', 'desc')
-                    ->select('pn.*','pns.tgl_pn_direksi as tgl','u.id as users_id','u.avatar','u.nama');
+                    $data->join('penerbitan_pn_direksi as ppp', 'pn.id', '=', 'ppp.naskah_id')
+                        ->join('users as u', 'ppp.created_by', '=', 'u.id')
+                        ->whereNull('pn.deleted_at')
+                        ->where('pn.jalur_buku', 'LIKE', '%Reguler%')
+                        ->whereNotNull('pns.tgl_pn_direksi')
+                        ->orderBy('pns.tgl_pn_direksi', 'desc')
+                        ->select('pn.*', 'pns.tgl_pn_direksi as tgl', 'u.id as users_id', 'u.avatar', 'u.nama');
                     $title = 'Direktur Utama';
                     $class = 'badge-secondary';
                     $styleBox = 'rgb(52, 57, 94, 0.4) 5px 5px, rgb(52, 57, 94, 0.3) 10px 10px, rgba(52, 57, 94, 0.2) 15px 15px, rgba(52, 57, 94, 0.1) 20px 20px, rgba(52, 57, 94, 0.05) 25px 25px;';
@@ -396,40 +430,39 @@ class NaskahController extends Controller
                     break;
             }
 
-            $html ="";
-                foreach ($data->get() as $d) {
-                    $words = explode(' ', $d->nama);
-                    $acronym = '';
+            $html = "";
+            foreach ($data->get() as $d) {
+                $words = explode(' ', $d->nama);
+                $acronym = '';
 
-                    foreach ($words as $w) {
-                        $acronym .= mb_substr($w, 0, 1);
-                    }
-                    $html .='<li class="media">
-                    <a href="'.url('storage/users/' . $d->users_id. '/' . $d->avatar).'" data-magnify="gallery">
-                        <img class="mr-3 rounded-circle" src="'.url('storage/users/' . $d->users_id. '/' . $d->avatar).'" alt="'.Str::upper($acronym).'"
+                foreach ($words as $w) {
+                    $acronym .= mb_substr($w, 0, 1);
+                }
+                $html .= '<li class="media">
+                    <a href="' . url('storage/users/' . $d->users_id . '/' . $d->avatar) . '" data-magnify="gallery">
+                        <img class="mr-3 rounded-circle" src="' . url('storage/users/' . $d->users_id . '/' . $d->avatar) . '" alt="' . Str::upper($acronym) . '"
                             width="50">
                     </a>
                     <div class="media-body">
-                        <div class="media-title"><a href="'.url('/penerbitan/naskah/melihat-naskah/'.$d->id).'" class="text-dark">'.$d->judul_asli.'</a></div>
-                        <div class="text-muted text-small">by <a href="'.url('/manajemen-web/user/' . $d->users_id).'">'.$d->nama.'</a>
-                            <div class="bullet"></div> '.Carbon::createFromFormat('Y-m-d H:i:s', $d->tgl, 'Asia/Jakarta')->diffForHumans().'
+                        <div class="media-title"><a href="' . url('/penerbitan/naskah/melihat-naskah/' . $d->id) . '" class="text-dark">' . $d->judul_asli . '</a></div>
+                        <div class="text-muted text-small">by <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . $d->nama . '</a>
+                            <div class="bullet"></div> ' . Carbon::createFromFormat('Y-m-d H:i:s', $d->tgl, 'Asia/Jakarta')->diffForHumans() . '
                         </div>
                     </div>
                 </li>';
-                }
-          return [
-            'content' => $html,
-            'titleModal' => 'Total Penilaian '.$title,
-            'totalNaskah' => $data->get()->count(),
-            'class' => $class,
-            'style' => $styleBox,
-            'scroll' => $scroll
-          ];
+            }
+            return [
+                'content' => $html,
+                'titleModal' => 'Total Penilaian ' . $title,
+                'totalNaskah' => $data->get()->count(),
+                'class' => $class,
+                'style' => $styleBox,
+                'scroll' => $scroll
+            ];
         } catch (\Exception $e) {
-            return abort(500,$e);
+            return abort(500, $e);
         }
     }
-
     public function createNaskah(Request $request)
     {
         if ($request->ajax()) {
@@ -449,7 +482,7 @@ class NaskahController extends Controller
                 $kodeNas = $request->input('add_kode');
                 $last = DB::table('penerbitan_naskah')
                     ->select('kode')
-                    ->where('kode',$kodeNas)
+                    ->where('kode', $kodeNas)
                     ->orderBy('created_at', 'desc')
                     ->first();
                 if (!is_null($last)) {
@@ -481,7 +514,7 @@ class NaskahController extends Controller
                     $penilaian = $this->alurPenilaian($request->input('add_jalur_buku'), 'create-notif-from-naskah', [
                         'id_prodev' => $request->input('add_pic_prodev'),
                         'form_id' => $idN
-                    ],$request->input('add_judul_asli'));
+                    ], $request->input('add_judul_asli'));
 
                     $addNaskah = [
                         'params' => 'Add Naskah',
@@ -497,7 +530,7 @@ class NaskahController extends Controller
                         'keterangan' => $request->input('add_keterangan'),
                         'pic_prodev' => $request->input('add_pic_prodev'),
                         'url_file' => $request->input('add_url_file'),
-                        'urgent' => $request->add_urgent == 'on' ? '1':'0',
+                        'urgent' => $request->add_urgent == 'on' ? '1' : '0',
                         'penilaian_naskah' => ($penilaian['penilaian_naskah'] ? '1' : '0'),
                         'created_by' => auth()->id()
                     ];
@@ -509,7 +542,7 @@ class NaskahController extends Controller
                         'progress' => ($penilaian['selesai_penilaian'] > 0) ? 'Pelengkapan Data Penulis' : 'Penilaian Naskah',
                         'naskah_id' => $idN,
                         'tgl_mulai' => $tgl,
-                        'url_action' => urlencode(URL::to('/penerbitan/naskah/melihat-naskah',$idN)),
+                        'url_action' => urlencode(URL::to('/penerbitan/naskah/melihat-naskah', $idN)),
                         'status' => 'Proses'
                     ];
                     event(new TimelineEvent($addTimeline));
@@ -523,7 +556,7 @@ class NaskahController extends Controller
                     ];
                     event(new NaskahEvent($addPnStatus));
                     $namaUser = auth()->user()->nama;
-                    $desc = 'Naskah berjudul asli <a href="'.url('penerbitan/naskah/melihat-naskah/'.$idN).'">'.$request->input('add_judul_asli').'</a> telah dibuat oleh <a href="'.url('/manajemen-web/user/' . auth()->id()).'">'.ucfirst($namaUser).'</a>.';
+                    $desc = 'Naskah berjudul asli <a href="' . url('penerbitan/naskah/melihat-naskah/' . $idN) . '">' . $request->input('add_judul_asli') . '</a> telah dibuat oleh <a href="' . url('/manajemen-web/user/' . auth()->id()) . '">' . ucfirst($namaUser) . '</a>.';
                     $addTracker = [
                         'id' => Uuid::uuid4()->toString(),
                         'section_id' => $idN,
@@ -558,7 +591,6 @@ class NaskahController extends Controller
             'title' => 'Tambah Naskah Penerbitan'
         ]);
     }
-
     public function updateNaskah(Request $request)
     {
         $naskah = DB::table('penerbitan_naskah as pn')
@@ -585,11 +617,11 @@ class NaskahController extends Controller
                     ->where('naskah_id', $naskah->id)
                     ->select('pp.id', 'pp.nama')
                     ->get();
-                $disabled = is_null($naskah->tgl_pn_m_penerbitan) ? false:true;
+                $disabled = is_null($naskah->tgl_pn_m_penerbitan) ? false : true;
                 return ['naskah' => $naskah, 'penulis' => $penulis, 'disabled' => $disabled];
             } elseif ($request->isMethod('POST')) {
                 // return response()->json($request->edit_urgent);
-                $disabled = is_null($naskah->tgl_pn_m_penerbitan) ? false:true;
+                $disabled = is_null($naskah->tgl_pn_m_penerbitan) ? false : true;
                 if ($disabled == true) {
                     $request->validate([
                         'edit_kelompok_buku' => 'required',
@@ -650,7 +682,7 @@ class NaskahController extends Controller
                                 $progNew = 'Penilaian Naskah';
                                 break;
                         }
-                        DB::table('timeline')->where('naskah_id',$naskah->id)->where('progress',$prog)->update([
+                        DB::table('timeline')->where('naskah_id', $naskah->id)->where('progress', $prog)->update([
                             'progress' => $progNew
                         ]);
                     }
@@ -670,7 +702,7 @@ class NaskahController extends Controller
                     DB::table('penerbitan_naskah_penulis')
                         ->insert($daftarPenulis);
                     if ($disabled == true) {
-                        DB::table('penerbitan_naskah')->where('id',$naskah->id)->update([
+                        DB::table('penerbitan_naskah')->where('id', $naskah->id)->update([
                             'kelompok_buku_id' => $request->input('edit_kelompok_buku'),
                         ]);
                         DB::table('penerbitan_naskah_history')->insert([
@@ -683,57 +715,57 @@ class NaskahController extends Controller
                             $this->alurPenilaian($request->input('edit_jalur_buku'), 'update-notif-from-naskah', [
                                 'id_prodev' => $request->input('edit_pic_prodev'),
                                 'form_id' => $naskah->id
-                            ],$request->input('edit_judul_asli'));
+                            ], $request->input('edit_judul_asli'));
                         }
                         if ($request->input('edit_judul_asli') != $naskah->judul_asli) {
                             DB::table('todo_list')
-                            ->where('form_id', $naskah->id)
-                            ->where('users_id', $naskah->pic_prodev)
-                            ->update([
-                                'title' => 'Penilaian naskah berjudul "'.$request->input('edit_judul_asli').'".'
-                            ]);
+                                ->where('form_id', $naskah->id)
+                                ->where('users_id', $naskah->pic_prodev)
+                                ->update([
+                                    'title' => 'Penilaian naskah berjudul "' . $request->input('edit_judul_asli') . '".'
+                                ]);
                             $data = [
-                        'id' => $naskah->id,
+                                'id' => $naskah->id,
                                 'judul' => $request->input('edit_judul_asli')
                             ];
-                            $penerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                            ->where('p.id','12b852d92d284ab5a654c26e8856fffd')
-                            ->select('up.user_id')
-                            ->get();
+                            $penerbitan = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                                ->where('p.id', '12b852d92d284ab5a654c26e8856fffd')
+                                ->select('up.user_id')
+                                ->get();
 
-                            $penerbitan = (object)collect($penerbitan)->map(function($item) use ($data) {
+                            $penerbitan = (object)collect($penerbitan)->map(function ($item) use ($data) {
                                 return DB::table('todo_list')
-                                ->where('form_id', $data['id'])
-                                ->where('users_id', $item->user_id)
-                                ->update([
-                                    'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".'
-                                ]);
+                                    ->where('form_id', $data['id'])
+                                    ->where('users_id', $item->user_id)
+                                    ->update([
+                                        'title' => 'Penilaian naskah berjudul "' . $data['judul'] . '".'
+                                    ]);
                             })->all();
-                            $mpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                            ->where('p.id','a213b689b8274f4dbe19b3fb24d66840')
-                            ->select('up.user_id')
-                            ->get();
+                            $mpemasaran = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                                ->where('p.id', 'a213b689b8274f4dbe19b3fb24d66840')
+                                ->select('up.user_id')
+                                ->get();
 
-                            $mpemasaran = (object)collect($mpemasaran)->map(function($item) use ($data) {
+                            $mpemasaran = (object)collect($mpemasaran)->map(function ($item) use ($data) {
                                 return DB::table('todo_list')
-                                ->where('form_id', $data['id'])
-                                ->where('users_id', $item->user_id)
-                                ->update([
-                                    'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".',
-                                ]);
+                                    ->where('form_id', $data['id'])
+                                    ->where('users_id', $item->user_id)
+                                    ->update([
+                                        'title' => 'Penilaian naskah berjudul "' . $data['judul'] . '".',
+                                    ]);
                             })->all();
-                            $dpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                            ->where('p.id','9beba245308543ce821efe8a3ba965e3')
-                            ->select('up.user_id')
-                            ->get();
+                            $dpemasaran = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                                ->where('p.id', '9beba245308543ce821efe8a3ba965e3')
+                                ->select('up.user_id')
+                                ->get();
 
-                            $dpemasaran = (object)collect($dpemasaran)->map(function($item) use ($data) {
+                            $dpemasaran = (object)collect($dpemasaran)->map(function ($item) use ($data) {
                                 return DB::table('todo_list')
-                                ->where('form_id', $data['id'])
-                                ->where('users_id', $item->user_id)
-                                ->update([
-                                    'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".'
-                                ]);
+                                    ->where('form_id', $data['id'])
+                                    ->where('users_id', $item->user_id)
+                                    ->update([
+                                        'title' => 'Penilaian naskah berjudul "' . $data['judul'] . '".'
+                                    ]);
                             })->all();
                         }
                         $editNaskah = [
@@ -749,12 +781,12 @@ class NaskahController extends Controller
                             'keterangan' => $request->input('edit_keterangan'),
                             'pic_prodev' => $request->input('edit_pic_prodev'),
                             'url_file' => $url_file,
-                            'urgent' => $request->edit_urgent == 'on' ? '1':'0',
+                            'urgent' => $request->edit_urgent == 'on' ? '1' : '0',
                             'updated_by' => auth()->id(),
                             'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
                         ];
                         event(new NaskahEvent($editNaskah));
-                        $urgent = $request->edit_urgent == 'on' ? '1':'0';
+                        $urgent = $request->edit_urgent == 'on' ? '1' : '0';
                         $insertHistoryEdit = [
                             'params' => 'Insert Edit Naskah History',
                             'type_history' => 'Update',
@@ -808,7 +840,6 @@ class NaskahController extends Controller
             'title' => 'Update Naskah',
         ]);
     }
-
     public function viewNaskah(Request $request)
     {
         $naskah = DB::table('penerbitan_naskah as pn')
@@ -828,7 +859,7 @@ class NaskahController extends Controller
                 case 'tanggal_masuk_naskah':
                     return $item != '' ? Carbon::parse($item)->translatedFormat('l, d F Y') : '-';
                 case 'cdqr_code':
-                    return is_null($item)? 'Tidak diinput' : ($item ? 'Ya' : 'Tidak');
+                    return is_null($item) ? 'Tidak diinput' : ($item ? 'Ya' : 'Tidak');
                 case 'urgent':
                     return $item == '1' ? 'Ya' : 'Tidak';
                     break;
@@ -860,8 +891,8 @@ class NaskahController extends Controller
         $penulis = DB::table('penerbitan_naskah_penulis as pnp')
             ->join('penerbitan_penulis as pp', 'pnp.penulis_id', '=', 'pp.id')
             ->where('pnp.naskah_id', $naskah->id)->select('pp.id', 'pp.nama')->get();
-        $drafBadge = (is_null($naskah->selesai_penilaian)? '' : ($naskah->selesai_penilaian == '0' ? 'badge badge-info' : '')); //Draf
-        $drafBadgeText = (is_null($naskah->selesai_penilaian)? '' : ($naskah->selesai_penilaian == '0' ? 'Draf' : '')); //Draf Text
+        $drafBadge = (is_null($naskah->selesai_penilaian) ? '' : ($naskah->selesai_penilaian == '0' ? 'badge badge-info' : '')); //Draf
+        $drafBadgeText = (is_null($naskah->selesai_penilaian) ? '' : ($naskah->selesai_penilaian == '0' ? 'Draf' : '')); //Draf Text
         return view('penerbitan.naskah.detail-naskah', [
             'naskah' => $naskah, 'penulis' => $penulis, 'startPn' => $startPn,
             'badgeDraf' => $drafBadge,
@@ -869,7 +900,6 @@ class NaskahController extends Controller
             'title' => 'Detail Naskah'
         ]);
     }
-
     public function tandaDataLengkap(Request $request)
     {
         try {
@@ -916,7 +946,7 @@ class NaskahController extends Controller
                 'status' => 'Antrian'
             ];
             event(new DesproEvent($createDespro));
-            $desc = 'Naskah berjudul asli <a href="'.url('penerbitan/naskah/melihat-naskah/'.$id).'">'.$data->judul_asli.'</a> telah selesai dan menuju Deskripsi Produk.';
+            $desc = 'Naskah berjudul asli <a href="' . url('penerbitan/naskah/melihat-naskah/' . $id) . '">' . $data->judul_asli . '</a> telah selesai dan menuju Deskripsi Produk.';
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
                 'section_id' => $id,
@@ -926,7 +956,7 @@ class NaskahController extends Controller
                 'created_by' => auth()->id()
             ];
             event(new TrackerEvent($addTracker));
-            $desc = 'Naskah berjudul asli <a href="'.url('penerbitan/deskripsi/produk/detail?desc='.$idProduk.'&kode='.$data->kode).'">'.$data->judul_asli.'</a> telah memasuki tahap antrian Deskripsi Produk.';
+            $desc = 'Naskah berjudul asli <a href="' . url('penerbitan/deskripsi/produk/detail?desc=' . $idProduk . '&kode=' . $data->kode) . '">' . $data->judul_asli . '</a> telah memasuki tahap antrian Deskripsi Produk.';
             $addTracker = [
                 'id' => Uuid::uuid4()->toString(),
                 'section_id' => $idProduk,
@@ -937,17 +967,17 @@ class NaskahController extends Controller
             ];
             event(new TrackerEvent($addTracker));
             DB::table('todo_list')
-            ->where('form_id',$id)
-            ->where('users_id',auth()->id())
-            ->where('title','Tandai data naskah berjudul ('.$data->judul_asli.') telah dilengkapi.')
-            ->update([
-                'status' => '1'
-            ]);
+                ->where('form_id', $id)
+                ->where('users_id', auth()->id())
+                ->where('title', 'Tandai data naskah berjudul (' . $data->judul_asli . ') telah dilengkapi.')
+                ->update([
+                    'status' => '1'
+                ]);
             DB::table('todo_list')->insert([
                 'form_id' => $idProduk,
                 'users_id' => auth()->id(),
-                'title' => 'Proses deskripsi produk naskah berjudul "'.$data->judul_asli.'" perlu dilengkapi data kelengkapan penentuan judul.',
-                'link' => '/penerbitan/deskripsi/produk/edit?desc='.$idProduk.'&kode='.$data->kode,
+                'title' => 'Proses deskripsi produk naskah berjudul "' . $data->judul_asli . '" perlu dilengkapi data kelengkapan penentuan judul.',
+                'link' => '/penerbitan/deskripsi/produk/edit?desc=' . $idProduk . '&kode=' . $data->kode,
                 'status' => '0'
             ]);
             $buktiEmail = [
@@ -990,7 +1020,7 @@ class NaskahController extends Controller
                 'progress' => 'Deskripsi Produk',
                 'naskah_id' => $id,
                 'tgl_mulai' => $buktiEmail['bukti_email_penulis'],
-                'url_action' => urlencode(URL::to('/penerbitan/deskripsi/produk/detail?desc='.$idProduk.'&kode='.$request->kode)),
+                'url_action' => urlencode(URL::to('/penerbitan/deskripsi/produk/detail?desc=' . $idProduk . '&kode=' . $request->kode)),
                 'status' => 'Antrian'
             ];
             event(new TimelineEvent($insertTimeline));
@@ -1016,6 +1046,9 @@ class NaskahController extends Controller
             case 'lihat-history':
                 return $this->lihatHistoryNaskah($request);
                 break;
+            case 'delete-naskah':
+                return $this->deleteNaskah($request);
+                break;
             default:
                 return abort(400);
                 break;
@@ -1024,23 +1057,23 @@ class NaskahController extends Controller
     protected function lihatTrackingNaskah($request)
     {
         if ($request->ajax()) {
-            $html ='';
+            $html = '';
             $id = $request->id;
-            $data = DB::table('tracker')->where('section_id',$id)
-            ->orderBy('created_at','desc')
-            ->get();
+            $data = DB::table('tracker')->where('section_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
             foreach ($data as $d) {
                 $html .= '<div class="activity">
                 <div class="activity-icon bg-primary text-white shadow-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
-                    <i class="'.$d->icon.'"></i>
+                    <i class="' . $d->icon . '"></i>
                 </div>
                 <div class="activity-detail col">
                     <div class="mb-2">
-                        <span class="text-job">'.Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
+                        <span class="text-job">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
                         <span class="bullet"></span>
-                        <span class="text-job">'.Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i').'</span>
+                        <span class="text-job">' . Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i') . '</span>
                     </div>
-                    <p>'.$d->description.'</p>
+                    <p>' . $d->description . '</p>
                 </div>
             </div>';
             }
@@ -1060,8 +1093,9 @@ class NaskahController extends Controller
                 ->orderBy('pnh.id', 'desc')
                 ->paginate(2);
             foreach ($data as $key => $d) {
-                if ($d->type_history == 'Sent Email') {
-                    $html .= '<span class="ticket-item" id="newAppend">
+                switch ($d->type_history) {
+                    case 'Sent Email':
+                        $html .= '<span class="ticket-item" id="newAppend">
                     <div class="ticket-title">
                         <span><span class="bullet"></span> Penulis telah selesai melengkapi naskah. Selanjutnya, naskah akan diproses pada tahap deskripsi produk.</span>
                     </div>
@@ -1071,99 +1105,238 @@ class NaskahController extends Controller
                         <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                     </div>
                     </span>';
-                } elseif ($d->type_history == 'Update') {
-                    $html .= '<span class="ticket-item" id="newAppend">
-                    <div class="ticket-title"><span><span class="bullet"></span>';
-                    if (!is_null($d->judul_asli_his)) {
-                        $html .= ' Judul asli <b class="text-dark">' . $d->judul_asli_his . '</b> diubah menjadi <b class="text-dark">' . $d->judul_asli_new . '</b>.<br>';
-                    }
-                    if (!is_null($d->kelompok_buku_his)) {
-                        $html .= ' Kelompok buku <b class="text-dark">' . DB::table('penerbitan_m_kelompok_buku')->where('id', $d->kelompok_buku_his)->whereNull('deleted_at')->first()->nama . '</b> diubah menjadi <b class="text-dark">' . DB::table('penerbitan_m_kelompok_buku')->where('id', $d->kelompok_buku_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
-                    }
-                    if (!is_null($d->tgl_masuk_nas_his)) {
-                        $html .= ' Tanggal masuk naskah <b class="text-dark">' . Carbon::parse($d->tgl_masuk_nas_his)->translatedFormat('l d F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->tgl_masuk_nas_new)->translatedFormat('l d F Y') . '</b>.<br>';
-                    }
-                    if (!is_null($d->sumber_naskah_his)) {
-                        $loopSN = '';
-                        $loopSNN = '';
-                        foreach (json_decode($d->sumber_naskah_his, true) as $fc) {
-                            $loopSN .= '<b class="text-dark">' . ($fc == 'SC' ? 'Soft Copy' : 'Hard Copy') . '</b>, ';
+                        break;
+                    case 'Update':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                        <div class="ticket-title"><span><span class="bullet"></span>';
+                        if (!is_null($d->judul_asli_his)) {
+                            $html .= ' Judul asli <b class="text-dark">' . $d->judul_asli_his . '</b> diubah menjadi <b class="text-dark">' . $d->judul_asli_new . '</b>.<br>';
                         }
-                        foreach (json_decode($d->sumber_naskah_new, true) as $fcn) {
-                            $loopSNN .= '<span class="bullet"></span>' . ($fcn == 'SC' ? 'Soft Copy' : 'Hard Copy');
+                        if (!is_null($d->kelompok_buku_his)) {
+                            $html .= ' Kelompok buku <b class="text-dark">' . DB::table('penerbitan_m_kelompok_buku')->where('id', $d->kelompok_buku_his)->whereNull('deleted_at')->first()->nama . '</b> diubah menjadi <b class="text-dark">' . DB::table('penerbitan_m_kelompok_buku')->where('id', $d->kelompok_buku_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
                         }
-                        $html .= ' Sumber Naskah <b class="text-dark">' . $loopSN . '</b>diubah menjadi <b class="text-dark">' . $loopSNN . '</b>.<br>';
-                    }
-                    if (!is_null($d->penulis_his)) {
-                        $loopPH = '';
-                        $loopPN = '';
-                        foreach (json_decode($d->penulis_his, true) as $ph) {
-                            $ph = (object)collect($ph)->map(function ($item, $key) {
-                                switch($key) {
-                                    case 'penulis_id':
-                                        return DB::table('penerbitan_m_penulis')->where('id', $item)->whereNull('deleted_at')->first()->nama;
-                                        break;
-                                    default:
-                                        return $item;
-                                        break;
-                                }
-                            })->all();
-                            $loopPH .= '<b class="text-dark">' . $ph->penulis_id . '</b>, ';
+                        if (!is_null($d->tgl_masuk_nas_his)) {
+                            $html .= ' Tanggal masuk naskah <b class="text-dark">' . Carbon::parse($d->tgl_masuk_nas_his)->translatedFormat('l d F Y') . '</b> diubah menjadi <b class="text-dark">' . Carbon::parse($d->tgl_masuk_nas_new)->translatedFormat('l d F Y') . '</b>.<br>';
                         }
-                        foreach (json_decode($d->penulis_new, true) as $pn) {
-                            $pn = (object)collect($pn)->map(function ($item, $key) {
-                                switch($key) {
-                                    case 'penulis_id':
-                                        return DB::table('penerbitan_penulis')->where('id', $item)->whereNull('deleted_at')->first()->nama;
-                                        break;
-                                    default:
-                                        return $item;
-                                        break;
-                                }
-                            })->all();
-                            $loopPN .= '<span class="bullet"></span>' . $pn->penulis_id;
+                        if (!is_null($d->sumber_naskah_his)) {
+                            $loopSN = '';
+                            $loopSNN = '';
+                            foreach (json_decode($d->sumber_naskah_his, true) as $fc) {
+                                $loopSN .= '<b class="text-dark">' . ($fc == 'SC' ? 'Soft Copy' : 'Hard Copy') . '</b>, ';
+                            }
+                            foreach (json_decode($d->sumber_naskah_new, true) as $fcn) {
+                                $loopSNN .= '<span class="bullet"></span>' . ($fcn == 'SC' ? 'Soft Copy' : 'Hard Copy');
+                            }
+                            $html .= ' Sumber Naskah <b class="text-dark">' . $loopSN . '</b>diubah menjadi <b class="text-dark">' . $loopSNN . '</b>.<br>';
                         }
-                        $html .= ' Penulis <b class="text-dark">' . $loopPH . '</b>diubah menjadi <b class="text-dark">' . $loopPN . '</b>.<br>';
-                    } elseif (!is_null($d->penulis_new)) {
-                        $loopPN = '';
-                        foreach (json_decode($d->penulis_new, true) as $pn) {
-                            $pn = (object)collect($pn)->map(function ($item, $key) {
-                                switch($key) {
-                                    case 'penulis_id':
-                                        return DB::table('penerbitan_penulis')->where('id', $item)->whereNull('deleted_at')->first()->nama;
-                                        break;
-                                    default:
-                                        return $item;
-                                        break;
-                                }
-                            })->all();
-                            $loopPN .= '<span class="bullet"></span>' . $pn->penulis_id;
+                        if (!is_null($d->penulis_his)) {
+                            $loopPH = '';
+                            $loopPN = '';
+                            foreach (json_decode($d->penulis_his, true) as $ph) {
+                                $ph = (object)collect($ph)->map(function ($item, $key) {
+                                    switch ($key) {
+                                        case 'penulis_id':
+                                            return DB::table('penerbitan_m_penulis')->where('id', $item)->whereNull('deleted_at')->first()->nama;
+                                            break;
+                                        default:
+                                            return $item;
+                                            break;
+                                    }
+                                })->all();
+                                $loopPH .= '<b class="text-dark">' . $ph->penulis_id . '</b>, ';
+                            }
+                            foreach (json_decode($d->penulis_new, true) as $pn) {
+                                $pn = (object)collect($pn)->map(function ($item, $key) {
+                                    switch ($key) {
+                                        case 'penulis_id':
+                                            return DB::table('penerbitan_penulis')->where('id', $item)->whereNull('deleted_at')->first()->nama;
+                                            break;
+                                        default:
+                                            return $item;
+                                            break;
+                                    }
+                                })->all();
+                                $loopPN .= '<span class="bullet"></span>' . $pn->penulis_id;
+                            }
+                            $html .= ' Penulis <b class="text-dark">' . $loopPH . '</b>diubah menjadi <b class="text-dark">' . $loopPN . '</b>.<br>';
+                        } elseif (!is_null($d->penulis_new)) {
+                            $loopPN = '';
+                            foreach (json_decode($d->penulis_new, true) as $pn) {
+                                $pn = (object)collect($pn)->map(function ($item, $key) {
+                                    switch ($key) {
+                                        case 'penulis_id':
+                                            return DB::table('penerbitan_penulis')->where('id', $item)->whereNull('deleted_at')->first()->nama;
+                                            break;
+                                        default:
+                                            return $item;
+                                            break;
+                                    }
+                                })->all();
+                                $loopPN .= '<span class="bullet"></span>' . $pn->penulis_id;
+                            }
+                            $html .= ' Penulis <b class="text-dark">' . $loopPN . '</b> ditambahkan.<br>';
                         }
-                        $html .= ' Penulis <b class="text-dark">' . $loopPN . '</b> ditambahkan.<br>';
-                    }
-                    if (!is_null($d->cdqr_code_his)) {
-                        $html .= ' Cdqr code <b class="text-dark">' . $d->cdqr_code_his . '</b> diubah menjadi <b class="text-dark">' . $d->cdqr_code_new . '</b>.<br>';
-                    }
-                    if (!is_null($d->pic_prodev_his)) {
-                        $html .= ' PIC prodev <b class="text-dark">' . DB::table('users')->where('id', $d->pic_prodev_his)->whereNull('deleted_at')->first()->nama . '</b> diubah menjadi <b class="text-dark">' . DB::table('users')->where('id', $d->pic_prodev_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
-                    }
-                    if (!is_null($d->urgent)) {
-                        $urgent = $d->urgent == '0'?'Tidak Urgent':'Urgent';
-                        $textColor = $d->urgent == '0'?'dark':'danger';
-                        $html .= ' Naskah diubah menjadi <b class="text-'.$textColor.'">"' .  $urgent. '"</b>.<br>';
-                    }
-                    $html .= '</span></div>
-                    <div class="ticket-info">
-                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                        <div class="bullet pt-2"></div>
-                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                        if (!is_null($d->cdqr_code_his)) {
+                            $html .= ' Cdqr code <b class="text-dark">' . $d->cdqr_code_his . '</b> diubah menjadi <b class="text-dark">' . $d->cdqr_code_new . '</b>.<br>';
+                        }
+                        if (!is_null($d->pic_prodev_his)) {
+                            $html .= ' PIC prodev <b class="text-dark">' . DB::table('users')->where('id', $d->pic_prodev_his)->whereNull('deleted_at')->first()->nama . '</b> diubah menjadi <b class="text-dark">' . DB::table('users')->where('id', $d->pic_prodev_new)->whereNull('deleted_at')->first()->nama . '</b>.<br>';
+                        }
+                        if (!is_null($d->urgent)) {
+                            $urgent = $d->urgent == '0' ? 'Tidak Urgent' : 'Urgent';
+                            $textColor = $d->urgent == '0' ? 'dark' : 'danger';
+                            $html .= ' Naskah diubah menjadi <b class="text-' . $textColor . '">"' .  $urgent . '"</b>.<br>';
+                        }
+                        $html .= '</span></div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
 
-                    </div>
-                    </span>';
+                        </div>
+                        </span>';
+                        break;
+                    case 'Delete':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                            <div class="ticket-title">
+                                <span><span class="bullet"></span> Data naskah dihapus pada <b class="text-dark">' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                            </div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . ')</div>
+                            </div>
+                            </span>';
+                        break;
+                    case 'Restore':
+                        $html .= '<span class="ticket-item" id="newAppend">
+                            <div class="ticket-title">
+                                <span><span class="bullet"></span> Data naskah dikembalikan pada <b class="text-dark">' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                            </div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . ')</div>
+                            </div>
+                            </span>';
+                        break;
                 }
             }
             return $html;
         }
+    }
+    protected function deleteNaskah($request)
+    {
+        try {
+            if ($request->ajax()) {
+                $id = $request->id;
+                $relation = DB::table('deskripsi_produk')->where('naskah_id', $id)->first();
+                if (!is_null($relation)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Naskah tidak bisa dihapus karena telah selesai proses penilaian!'
+                    ]);
+                }
+                $deleted = DB::table('penerbitan_naskah')->where('id', $id)->whereNotNull('deleted_at')->first();
+                if ($deleted) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Naskah sudah dihapus!'
+                    ]);
+                }
+                Cache::put('naskahIndex', $deleted);
+                $data = [
+                    'params' => 'Delete Naskah',
+                    'type_history' => 'Delete',
+                    'id' => $id,
+                    'deleted_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                    'deleted_by' => auth()->id()
+                ];
+                event(new NaskahEvent($data));
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Naskah berhasil dihapus!'
+                ]);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return abort(500, $e->getMessage());
+        }
+    }
+    public function restorePage(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->isMethod('POST')) {
+                $id = $request->id;
+                try {
+                    $insert = [
+                        'params' => 'Restore Naskah',
+                        'id' => $id,
+                        'type_history' => 'Restore',
+                        'author_id' => auth()->user()->id,
+                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new NaskahEvent($insert));
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Berhasil mengembalikan data naskah!'
+                    ]);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $e->getMessage()
+                    ], 500);
+                }
+            } else {
+                $data = DB::table('penerbitan_naskah')
+                    ->whereNotNull('deleted_at')
+                    ->orderBy('deleted_at', 'desc')
+                    ->get();
+                return Datatables::of($data)
+                    ->addColumn('kode', function ($data) {
+                        return $data->kode;
+                    })
+                    ->addColumn('judul_asli', function ($data) {
+                        return $data->judul_asli;
+                    })
+                    ->addColumn('pic_prodev', function ($data) {
+                        return DB::table('users')->where('id', $data->pic_prodev)->first()->nama;
+                    })
+                    ->addColumn('tanggal_masuk_naskah', function ($data) {
+                        return Carbon::parse($data->tanggal_masuk_naskah)->translatedFormat('l, d F Y');
+                    })
+                    ->addColumn('deleted_at', function ($data) {
+                        return Carbon::parse($data->deleted_at)->translatedFormat('l, d F Y H:i');
+                    })
+                    ->addColumn('deleted_by', function ($data) {
+                        return DB::table('users')->where('id', $data->deleted_by)->first()->nama;
+                    })
+                    ->addColumn('action', function ($data) {
+                        $btn = '<a href="javascript:void(0)"
+                            class="d-block btn btn-sm btn-restore-naskah btn-dark btn-icon""
+                            data-toggle="tooltip" title="Restore Data"
+                            data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '">
+                            <div><i class="fas fa-trash-restore-alt"></i></div></a>';
+                        return $btn;
+                    })
+                    ->rawColumns([
+                        'kode',
+                        'judul_asli',
+                        'pic_prodev',
+                        'jalur_buku',
+                        'tanggal_masuk_naskah',
+                        'deleted_at',
+                        'deleted_by',
+                        'action'
+                    ])
+                    ->make(true);
+            }
+        }
+
+        return view('penerbitan.naskah.restore-naskah', [
+            'title' => 'Naskah Telah Dihapus',
+        ]);
     }
     public static function generateId()
     {
@@ -1181,8 +1354,7 @@ class NaskahController extends Controller
         }
         return $id;
     }
-
-    protected function alurPenilaian($jalbuk, $action = null, $data = null,$judul)
+    protected function alurPenilaian($jalbuk, $action = null, $data = null, $judul)
     {
         /*
             Reguler :: Prodev -> Pemasaran -> Penerbitan -> Direksi
@@ -1241,50 +1413,50 @@ class NaskahController extends Controller
                 DB::table('todo_list')->insert([
                     'form_id' => $data['form_id'],
                     'users_id' => $data['id_prodev'],
-                    'title' => 'Penilaian naskah berjudul "'.$judul.'".',
-                    'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                    'title' => 'Penilaian naskah berjudul "' . $judul . '".',
+                    'link' => '/penerbitan/naskah/melihat-naskah/' . $data['form_id'],
                     'status' => '0',
                 ]);
-                $data = collect($data)->put('judul',$judul);
-                $penerbitan = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                ->where('p.id','12b852d92d284ab5a654c26e8856fffd')
-                ->select('up.user_id')
-                ->get();
+                $data = collect($data)->put('judul', $judul);
+                $penerbitan = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                    ->where('p.id', '12b852d92d284ab5a654c26e8856fffd')
+                    ->select('up.user_id')
+                    ->get();
 
-                $penerbitan = (object)collect($penerbitan)->map(function($item) use ($data) {
+                $penerbitan = (object)collect($penerbitan)->map(function ($item) use ($data) {
                     return DB::table('todo_list')->insert([
                         'form_id' => $data['form_id'],
                         'users_id' => $item->user_id,
-                        'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".',
-                        'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                        'title' => 'Penilaian naskah berjudul "' . $data['judul'] . '".',
+                        'link' => '/penerbitan/naskah/melihat-naskah/' . $data['form_id'],
                         'status' => '0',
                     ]);
                 })->all();
-                $mpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                ->where('p.id','a213b689b8274f4dbe19b3fb24d66840')
-                ->select('up.user_id')
-                ->get();
+                $mpemasaran = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                    ->where('p.id', 'a213b689b8274f4dbe19b3fb24d66840')
+                    ->select('up.user_id')
+                    ->get();
 
-                $mpemasaran = (object)collect($mpemasaran)->map(function($item) use ($data) {
+                $mpemasaran = (object)collect($mpemasaran)->map(function ($item) use ($data) {
                     return DB::table('todo_list')->insert([
                         'form_id' => $data['form_id'],
                         'users_id' => $item->user_id,
-                        'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".',
-                        'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                        'title' => 'Penilaian naskah berjudul "' . $data['judul'] . '".',
+                        'link' => '/penerbitan/naskah/melihat-naskah/' . $data['form_id'],
                         'status' => '0',
                     ]);
                 })->all();
-                $dpemasaran = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                ->where('p.id','9beba245308543ce821efe8a3ba965e3')
-                ->select('up.user_id')
-                ->get();
+                $dpemasaran = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                    ->where('p.id', '9beba245308543ce821efe8a3ba965e3')
+                    ->select('up.user_id')
+                    ->get();
 
-                $dpemasaran = (object)collect($dpemasaran)->map(function($item) use ($data) {
+                $dpemasaran = (object)collect($dpemasaran)->map(function ($item) use ($data) {
                     return DB::table('todo_list')->insert([
                         'form_id' => $data['form_id'],
                         'users_id' => $item->user_id,
-                        'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".',
-                        'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                        'title' => 'Penilaian naskah berjudul "' . $data['judul'] . '".',
+                        'link' => '/penerbitan/naskah/melihat-naskah/' . $data['form_id'],
                         'status' => '0',
                     ]);
                 })->all();
@@ -1301,8 +1473,8 @@ class NaskahController extends Controller
                 DB::table('todo_list')->insert([
                     'form_id' => $data['form_id'],
                     'users_id' => $data['id_prodev'],
-                    'title' => 'Penilaian naskah berjudul "'.$judul.'".',
-                    'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                    'title' => 'Penilaian naskah berjudul "' . $judul . '".',
+                    'link' => '/penerbitan/naskah/melihat-naskah/' . $data['form_id'],
                     'status' => '0',
                 ]);
             }
@@ -1324,18 +1496,18 @@ class NaskahController extends Controller
                         'form_id' => $data['form_id'],
                     ],
                 ]);
-                $editSet = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')
-                ->where('p.id','5d793b19c75046b9a4d75d067e8e33b2')
-                ->where('p.id','33c3711d787d416082c0519356547b0c')
-                ->select('up.user_id')
-                ->get();
+                $editSet = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+                    ->where('p.id', '5d793b19c75046b9a4d75d067e8e33b2')
+                    ->where('p.id', '33c3711d787d416082c0519356547b0c')
+                    ->select('up.user_id')
+                    ->get();
 
-                $editSet = (object)collect($editSet)->map(function($item) use ($data) {
+                $editSet = (object)collect($editSet)->map(function ($item) use ($data) {
                     return DB::table('todo_list')->insert([
                         'form_id' => $data['form_id'],
                         'users_id' => $item->user_id,
-                        'title' => 'Penilaian naskah berjudul "'.$data['judul'].'".',
-                        'link' => '/penerbitan/naskah/melihat-naskah/'.$data['form_id'],
+                        'title' => 'Penilaian naskah berjudul "' . $data['judul'] . '".',
+                        'link' => '/penerbitan/naskah/melihat-naskah/' . $data['form_id'],
                         'status' => '0',
                     ]);
                 })->all();
@@ -1348,218 +1520,5 @@ class NaskahController extends Controller
             } elseif ($action == 'update-notif-from-naskah') {
             }
         }
-    }
-
-    public function timelineNaskah(Request $request)
-    {
-        switch ($request->cat) {
-            case 'timeline':
-                return $this->timeline($request);
-            case 'date-timeline':
-                return $this->dateTimeline($request);
-            case 'view-timeline':
-                return $this->viewTimeline($request);
-            case 'subtimeline':
-                return $this->subTimeline($request);
-            default:
-                abort(404);
-        }
-    }
-
-    // protected function timeline($request)
-    // {
-    //     if ($request->input('request_') == 'form') { // Load modal
-    //         $naskah = DB::table('penerbitan_naskah as pn')->whereNull('deleted_at')
-    //             ->where('id', $request->input('id'))->first();
-    //         $timeline = [];
-
-    //         if ($request->input('method_') == 'add') {
-    //             $arrPic = [];
-    //         } elseif ($request->input('method_') == 'edit') {
-    //             $timeline = DB::table('timeline as t')->join('timeline_detail as td', 't.id', '=', 'td.timeline_id')
-    //                 ->where('t.naskah_id', $request->input('id'))->get();
-
-    //             foreach ($timeline as $t) {
-    //                 if ($t->proses == 'Proses Produksi') {
-    //                     $produksi = Carbon::createFromFormat('Y-m-d', $t->tanggal_mulai)->format('d M Y') . ' - ' .
-    //                         Carbon::createFromFormat('Y-m-d', $t->tanggal_selesai)->format('d M Y');
-    //                 } else {
-    //                     $penerbitan = Carbon::createFromFormat('Y-m-d', $t->tanggal_mulai)->format('d M Y') . ' - ' .
-    //                         Carbon::createFromFormat('Y-m-d', $t->tanggal_selesai)->format('d M Y');
-    //                 }
-    //                 $tgl_buku_jadi = $t->tgl_buku_jadi;
-    //             }
-
-    //             $timeline->produksi = $produksi;
-    //             $timeline->penerbitan = $penerbitan;
-    //             $timeline->tgl_buku_jadi = Carbon::createFromFormat('Y-m-d', $tgl_buku_jadi)->format('d M Y');
-    //         } else {
-    //             return abort(404);
-    //         }
-
-    //         $naskah = (object)collect($naskah)->map(function ($v, $i) {
-    //             if ($i == 'tanggal_masuk_naskah') {
-    //                 return Carbon::createFromFormat('Y-m-d', $v)->format('d M Y');
-    //             } else {
-    //                 return $v;
-    //             }
-    //         })->all();
-
-    //         return view('penerbitan.naskah.page.modal-timeline', [
-    //             'naskah' => $naskah,
-    //             'method' => $request->input('method_'),
-    //             'timeline' => $timeline,
-    //             'title' => 'Timeline Naskah',
-    //         ]);
-    //     } elseif ($request->input('request_') == 'submit') {
-    //         $tlId = Str::uuid()->getHex();
-    //         $tlDet = [];
-    //         $subtl = [];
-
-    //         try {
-    //             $master = DB::table('timeline_m_tb')->whereNull('deleted_at')->orderBy('order_tb')->get();
-    //             foreach ($master->where('kategori', 'PROSES')->all() as $v) {
-    //                 $masterSubTl = DB::table('timeline_m_subtl as ms')
-    //                     ->join('timeline_m_tb as mt', 'ms.bagian', '=', 'mt.detail')
-    //                     ->where('ms.proses', $v->detail)
-    //                     ->whereNull('ms.deleted_at')->get();
-
-    //                 if ($v->detail == 'Proses Produksi') {
-    //                     $date = explode(' - ', $request->input('add_proses_produksi'));
-    //                 } else {
-    //                     $date = explode(' - ', $request->input('add_proses_penerbitan'));
-    //                 }
-
-    //                 $tlDetId = Str::uuid()->getHex();
-    //                 $tlDet[] = [
-    //                     'id' => $tlDetId,
-    //                     'timeline_id' => $tlId,
-    //                     'proses' => $v->detail,
-    //                     'tanggal_mulai' => Carbon::createFromFormat('d M Y', $date[0])->format('Y-m-d'),
-    //                     'tanggal_selesai' => Carbon::createFromFormat('d M Y', $date[1])->format('Y-m-d'),
-    //                 ];
-    //                 foreach ($masterSubTl as $vv) {
-    //                     $subtl[] = [
-    //                         'id' => Str::uuid()->getHex(),
-    //                         'timeline_det_id' => $tlDetId,
-    //                         'deskripsi' => $vv->deskripsi,
-    //                         'pic' => $vv->user_id,
-    //                         'created_by' => auth()->id()
-    //                     ];
-    //                 }
-    //             }
-
-    //             DB::beginTransaction();
-
-    //             DB::table('timeline')->insert([
-    //                 'id' => $tlId,
-    //                 'naskah_id' => $request->input('add_tl_naskah_id'),
-    //                 'tgl_masuk_naskah' => Carbon::createFromFormat('d M Y', $request->input('add_naskah_masuk'))->format('Y-m-d'),
-    //                 'tgl_buku_jadi' => Carbon::createFromFormat('d M Y', $request->input('add_buku_jadi'))->format('Y-m-d'),
-    //                 'created_by' => auth()->id()
-    //             ]);
-    //             DB::table('timeline_detail')->insert($tlDet);
-    //             DB::table('timeline_sub')->insert($subtl);
-
-    //             DB::commit();
-    //             return;
-    //         } catch (\Exception $e) {
-    //             return $e->getMessage();
-    //         }
-
-
-    //         die();
-    //     } else {
-    //         abort(404);
-    //     }
-    // }
-
-    protected function subTimeline($request)
-    {
-        if ($request->input('category') == 'update-subtl') {
-            $id = explode('_', $request->input('id'));
-            return DB::table('timeline_sub')->where('id', $id[1])
-                ->update([
-                    'updated_at' => date('Y-m-d H:i:s'),
-                    'updated_by' => auth()->id()
-                ]);
-        } elseif ($request->input('category') == 'add-subtl') {
-            return DB::table('timeline_sub')->insert([
-                'id' => Str::uuid()->getHex(),
-                'timeline_det_id' => $request->input('id'),
-                'deskripsi' => $request->input('desc'),
-                'pic' => auth()->id(),
-                'created_by' => auth()->id()
-            ]);
-        } else {
-            abort(404);
-        }
-    }
-
-    public function ajaxFromCalendar(Request $request, $cat)
-    {
-        switch ($request->cat) {
-            case 'events':
-                return $this->fCalendarEvents($request);
-                break;
-            case 'details':
-                return $this->fCalendarDetails($request);
-                break;
-            default:
-                abort(404);
-        }
-    }
-
-    protected function fCalendarEvents($request)
-    {
-        $data = DB::table('penerbitan_naskah as pn')
-            ->leftJoin('timeline as t', 'pn.id', '=', 't.naskah_id')
-            ->select(DB::raw(' pn.id, pn.judul_asli, pn.tanggal_masuk_naskah AS tgl_naskah_masuk,
-                    DATE_FORMAT(t.tgl_buku_jadi, "%Y-%m-%d") AS tgl_buku_jadi'))
-            ->where(function ($q) use ($request) {
-                return $q->where('pn.tanggal_masuk_naskah', '>', $request->input('start'))
-                    ->where('pn.tanggal_masuk_naskah', '<', $request->input('end'));
-            })
-            ->orWhere(function ($q) use ($request) {
-                return $q->where('t.tgl_buku_jadi', '>', $request->input('start'))
-                    ->where('t.tgl_buku_jadi', '<', $request->input('end'));
-            })->get();
-        $result = [];
-
-        foreach ($data as $d) {
-            $result[] = [
-                'id' => $d->id,
-                'title' => $d->judul_asli,
-                'start' => is_null($d->tgl_buku_jadi) ? $d->tgl_naskah_masuk : $d->tgl_buku_jadi,
-                'classNames' => [is_null($d->tgl_buku_jadi) ? 'nMasuk' : 'nJadi']
-            ];
-        }
-
-        return $result;
-    }
-
-    protected function fCalendarDetails($request)
-    {
-        $naskah = DB::table('penerbitan_naskah')
-            ->where('id', $request->input('id'))
-            ->select(DB::raw('
-                        id, kode, judul_asli, DATE_FORMAT(tanggal_masuk_naskah, "%e %M %Y") AS
-                        tanggal_masuk_naskah, jalur_buku
-                    '))
-            ->first();
-        $timeline = DB::table('timeline')
-            ->where('naskah_id', $naskah->id)
-            ->select(DB::raw('
-                            DATE_FORMAT(tgl_naskah_masuk, "%e %M %Y") AS tgl_naskah_masuk,
-                            DATE_FORMAT(tgl_mulai_penerbitan, "%e %M %Y") AS tgl_mulai_penerbitan,
-                            DATE_FORMAT(tgl_mulai_produksi, "%e %M %Y") AS tgl_mulai_produksi,
-                            DATE_FORMAT(tgl_buku_jadi, "%e %M %Y") AS tgl_buku_jadi,
-                            ttl_hari_penerbitan, ttl_hari_produksi
-                        '))
-            ->first();
-
-        return [
-            'naskah' => $naskah, 'timeline' => $timeline
-        ];
     }
 }

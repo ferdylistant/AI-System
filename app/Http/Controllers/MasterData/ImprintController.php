@@ -173,7 +173,7 @@ class ImprintController extends Controller
         }
 
         return view('master_data.imprint.telah_dihapus', [
-            'title' => 'Platform Digital Telah Dihapus',
+            'title' => 'Imprint Telah Dihapus',
         ]);
     }
     public function createImprint(Request $request)

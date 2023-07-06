@@ -476,7 +476,7 @@
                                 },
                                 error: function(err) {
                                     console.log(err)
-                                    notifToast('success', 'Akses gagal diperbarui.');
+                                    notifToast('error', 'Akses gagal diperbarui.');
                                 }
                             });
                         }
