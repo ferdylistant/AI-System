@@ -133,6 +133,7 @@ class ProsesProduksiController extends Controller
                             $badge = '';
                             $res = DB::table('proses_produksi_track')
                             ->where('produksi_id', $data->id)
+                            ->orderBy('id','desc')
                             ->get();
                             if (!$res->isEmpty()) {
                                 foreach ($res as $r) {
@@ -148,24 +149,30 @@ class ProsesProduksiController extends Controller
                                 $masterProses = Arr::except($masterProses, ['5']);
                             }
                             $dataId = 'data-id="'.$data->id.'"';
+                            $tglMulai = 'data-tglmulai=""';
+                            $tglSelesai = 'data-tglselesai=""';
                             foreach ($masterProses as $m) {
                                 if (in_array($m, $collect)) {
                                     foreach ($res as $status) {
                                         if ($m == $status->proses_tahap) {
                                             switch ($status->status) {
                                                 case 'pending':
+                                                    $tglMulai = 'data-tglmulai="'.$status->tgl_mulai.'"';
                                                     $lbl = 'danger';
                                                     break;
                                                 case 'sedang dalam proses':
-                                                    $lbl = 'danger';
+                                                    $tglMulai = 'data-tglmulai="'.$status->tgl_mulai.'"';
+                                                    $lbl = 'warning';
                                                     break;
                                                 case 'selesai':
+                                                    $tglMulai = 'data-tglmulai="'.$status->tgl_mulai.'"';
+                                                    $tglSelesai = 'data-tglselesai="'.$tglSelesai.'"';
                                                     $lbl = 'success';
                                                     break;
                                             }
                                             $badge .= '<a href="javascript:void(0)"
-                                            class="text-muted text-small text-decoration-none d-block font-600-bold"
-                                            data-status="'.$status->status.'" data-type="'.$m.'" '.$dataId.' data-toggle="modal" data-target="#modalTrackProduksi">
+                                            class="text-'.$lbl.' text-small text-decoration-none d-block font-600-bold"
+                                            data-status="'.$status->status.'" data-type="'.$m.'" '.$dataId.' '.$tglMulai.' '.$tglSelesai.' data-toggle="modal" data-target="#modalTrackProduksi">
                                             <span class="bullet"></span> '.$m.'
                                             </a>';
                                         }
@@ -173,7 +180,7 @@ class ProsesProduksiController extends Controller
                                 } else {
                                     $badge .= '<a href="javascript:void(0)"
                                             class="text-muted text-small text-decoration-none d-block font-600-bold"
-                                            data-status="belum selesai" data-type="'.$m.'" '.$dataId.' data-toggle="modal" data-target="#modalTrackProduksi">
+                                            data-status="belum selesai" data-type="'.$m.'" '.$dataId.' '.$tglMulai.' '.$tglSelesai.' data-toggle="modal" data-target="#modalTrackProduksi">
                                             <span class="bullet"></span> '.$m.'
                                             </a>';
                                 }
@@ -321,6 +328,8 @@ class ProsesProduksiController extends Controller
             $id = $request->id;
             $typeProses = $request->type;
             $status = $request->status;
+            $tglmulai = $request->tglmulai;
+            $tglselesai = $request->tglselesai;
             $data = DB::table('proses_produksi_cetak as ppc')
             ->join('order_cetak as oc','oc.id','=','ppc.order_cetak_id')
             ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
@@ -337,77 +346,97 @@ class ProsesProduksiController extends Controller
             if (!$data) {
                 return abort(404);
             }
-            switch ($status) {
-                case 'belum selesai':
-                    $bg = 'bg-secondary';
-                    break;
-                case 'sedang dalam proses':
-                    $bg = 'bg-warning';
-                    break;
-                case 'pending':
-                    $bg = 'bg-danger';
-                    break;
-                case 'success':
-                    $bg = 'bg-success';
-                    break;
-            }
             $content = '';
             $footer = '';
             $type = DB::select(DB::raw("SHOW COLUMNS FROM proses_produksi_track WHERE Field = 'status'"))[0]->Type;
             preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
             $masterStatus = explode("','", $matches[1]);
-
+            $masterStatus = Arr::except($masterStatus, ['0']);
             if ($typeProses == 'Kirim Gudang') {
 
             } else {
+                $sel = '';
+                $disable = '';
+                $addContent = '';
                 switch ($status) {
                     case 'belum selesai':
-                        // $masterStatus = Arr::except($masterStatus, ['0']);
-                        $content .= '<div class="form-group">
-                          <label for="jenisMesin">Jenis Mesin</label>
-                          <select name="mesin" class="form-control select-mesin" id="jenisMesin">
-                                <option label="Pilih mesin"></option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                          <label for="operatorId">Operator</label>
-                          <select name="operator" class="form-control select-operator" id="operatorId">
-                                <option label="Pilih operator"></option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                        <label for="actionStatus">Action</label>
-                        <select name="status" class="form-control select-status" id="actionStatus">
-                            <option label="Pilih status"></option>';
-                            foreach($masterStatus as $ms) {
-                                $sel = '';
-                                    if ($status == $ms) {
-                                        $sel = ' selected="selected" ';
-                                    }
-                                    $content .= '<option value="' . $ms . '" ' . $sel . '>
-                                    ' . ucfirst($ms) . '&nbsp;&nbsp;
-                                </option>';
-                            }
-                        $content .= '</select>
-                        </div>';
-                      $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-primary">Konfirmasi</button>';
-                        $bg = 'bg-secondary';
+                        $badge = 'badge-light';
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
                         break;
                     case 'sedang dalam proses':
-                        $bg = 'bg-warning';
+                        $masterStatus = Arr::except($masterStatus, ['1']);
+                        $addContent .='<div class="form-group">
+                        <label for="tglMulai">Tanggal Mulai</label>
+                        <p id="tglMulai">'.Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i').'</p>
+                        </div>';
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                        $badge = 'badge-warning';
                         break;
                     case 'pending':
-                        $bg = 'bg-danger';
+                        $masterStatus = Arr::except($masterStatus, ['2','3']);
+                        $addContent .='<div class="form-group">
+                        <label for="tglMulai">Tanggal Mulai</label>
+                        <p id="tglMulai">'.Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i').'</p>
+                        </div>';
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                        $badge = 'badge-danger';
                         break;
                     case 'success':
-                        $bg = 'bg-success';
+                        foreach($masterStatus as $ms) {
+                            if ($status == $ms) {
+                                $sel = ' selected="selected" ';
+                            }
+                        }
+                        $addContent .='<div class="form-row">
+                        <div class="form-group col-md-6">
+                        <label for="tglMulai">Tanggal Mulai</label>
+                        <p id="tglMulai">'.Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i').'</p>
+                        </div>
+                        <div class="form-group col-md-6">
+                        <label for="tglSelesai">Tanggal Selesai</label>
+                        <p id="tglSelesai">'.Carbon::parse($tglselesai)->translatedFormat('l d F Y, H:i').'</p>
+                        </div>
+                        </div>';
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
+                        $badge = 'badge-success';
+                        $disable = 'disabled';
                         break;
                 }
+                $content .= '
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                            <label for="jenisMesin">Jenis Mesin</label>
+                            <select name="mesin" class="form-control select-mesin" id="jenisMesin" '.$disable.'>
+                                    <option label="Pilih mesin"></option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                            <label for="operatorId">Operator</label>
+                            <select name="operator" class="form-control select-operator" id="operatorId" '.$disable.'>
+                                    <option label="Pilih operator"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="actionStatus">Action</label>
+                            <select name="status" class="form-control select-status" id="actionStatus" '.$disable.'>
+                                <option label="Pilih status"></option>';
+                                foreach($masterStatus as $ms) {
+                                        $content .= '<option value="' . $ms . '" ' . $sel . '>
+                                        ' . ucfirst($ms) . '&nbsp;&nbsp;
+                                    </option>';
+                                }
+                            $content .= '</select>
+                        </div>';
+                        $content .= $addContent;
             }
             return [
-                'bg' => $bg,
-                'sectionTitle' => 'Proses Tahap "'.$typeProses.'"',
+                'badge' => $badge,
+                'status' => $status,
+                'sectionTitle' => 'Proses Tahap "<b>'.$typeProses.'</b>"',
                 'data' => $data,
                 'content' => $content,
                 'footer' => $footer

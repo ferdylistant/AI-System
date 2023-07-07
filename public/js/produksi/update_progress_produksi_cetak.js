@@ -35,6 +35,8 @@ $(function() {
         let id = $(e.relatedTarget).data('id'),
         type = $(e.relatedTarget).data('type'),
         status = $(e.relatedTarget).data('status'),
+        tglmulai = $(e.relatedTarget).data('tglmulai'),
+        tglselesai = $(e.relatedTarget).data('tglselesai'),
         cardWrap = $("#modalTrackProduksi");
         $.ajax({
             url: window.location.origin + '/produksi/proses/cetak?modal=true',
@@ -42,16 +44,18 @@ $(function() {
             data: {
                 id:id,
                 type:type,
-                status:status
+                status:status,
+                tglmulai:tglmulai,
+                tglselesai:tglselesai
             },
             cache: false,
             success: function (result) {
-                cardWrap.find('#statusJob').addClass(result.bg).trigger('change');
-                cardWrap.find('#sectionTitle').text(result.sectionTitle).trigger('change');
+                cardWrap.find('#statusJob').text(result.status).addClass(result.badge).trigger('change');
+                cardWrap.find('#sectionTitle').html(result.sectionTitle).trigger('change');
+                cardWrap.find('[name="judul_final"]').val(result.data.judul_final).trigger('change');
+                cardWrap.find('#judul_final').html('<i class="fas fa-tasks"></i> '+result.data.judul_final.charAt(0).toUpperCase() + result.data.judul_final.slice(1)).trigger('change');
                 Object.entries(result.data).forEach((entry) => {
                     let [key, value] = entry;
-                    cardWrap.find('[name="' + key + '"]').val(value).trigger('change');
-                    cardWrap.find('#' + key).html('<i class="fas fa-tasks"></i> '+value).trigger('change');
                     });
                 cardWrap.find('#contentData').html(result.content).trigger('change');
                 cardWrap.find('#footerModal').html(result.footer).trigger('change');
