@@ -345,7 +345,6 @@ class PenilaianNaskahController extends Controller
             return '<h5>Naskah (' . $naskah->jalur_buku . ') tidak dinilai Pemasaran.</h5>';
         }
     }
-
     protected function formPenilaianPenerbitan($request)
     {
         $request->validate([
@@ -415,7 +414,6 @@ class PenilaianNaskahController extends Controller
             return '<h5>Naskah (' . $naskah->jalur_buku . ') tidak dinilai Penerbitan.</h5>';
         }
     }
-
     protected function formPenilaianDireksi($request)
     {
         $request->validate([
@@ -476,7 +474,6 @@ class PenilaianNaskahController extends Controller
             return '<h5>Naskah (' . $naskah->jalur_buku . ') tidak dinilai Direksi.</h5>';
         }
     }
-
     protected function penilaianProdev($request)
     {
         $request->validate([
@@ -648,7 +645,6 @@ class PenilaianNaskahController extends Controller
             ]);
         }
     }
-
     protected function penilaianEditSet($request)
     {
         if ($request->input('pn2_pic') == 'Editor') {
@@ -785,7 +781,6 @@ class PenilaianNaskahController extends Controller
             return abort(500);
         }
     }
-
     protected function penilaianMPemasaran($request)
     {
         $request->validate([
@@ -879,7 +874,6 @@ class PenilaianNaskahController extends Controller
             return abort(500, $e->getMessage());
         }
     }
-
     protected function penilaianDPemasaran($request)
     {
         $request->validate([
@@ -976,7 +970,6 @@ class PenilaianNaskahController extends Controller
             return abort(500, $e->getMessage());
         }
     }
-
     protected function penilaianPenerbitan($request)
     {
         $request->validate([
@@ -1106,7 +1099,6 @@ class PenilaianNaskahController extends Controller
             return abort(500, $e->getMessage());
         }
     }
-
     protected function penilaianDireksi($request)
     {
         $request->validate([

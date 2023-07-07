@@ -87,6 +87,7 @@
         </div>
     </div>
 </section>
+@include('produksi.include.modal_track_produksi')
 @include('tracker_modal')
 @endsection
 

@@ -61,6 +61,10 @@ class ProsesProduksiController extends Controller
                 )
             ->get();
             if ($request->isMethod('GET')) {
+                if ($request->has('modal')) {
+                    $response = $this->modalTrackProduksi($request);
+                    return $response;
+                }
                 $update = Gate::allows('do_update', 'pic-data-produksi');
                 return DataTables::of($data)
                         ->addColumn('kode_order', function($data) {
@@ -127,55 +131,52 @@ class ProsesProduksiController extends Controller
                         })
                         ->addColumn('tracking', function($data)  {
                             $badge = '';
-                            //Plat
-                            if(is_null($data->plat)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Plat</div>';
-                            } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Plat</div>';
-                            }
-                            //Cetak Isi
-                            if(is_null($data->cetak_isi)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Cetak Isi</div>';
-                            } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Cetak Isi</div>';
-                            }
-                            //Cover
-                            if(is_null($data->cover)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Cover</div>';
-                            } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Cover</div>';
-                            }
-                            //Lipat Isi
-                            if(is_null($data->lipat_isi)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Lipat Isi</div>';
-                            } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Lipat Isi</div>';
-                            }
-                            //Jilid
-                            if(is_null($data->jilid)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Jilid</div>';
-                            } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Jilid</div>';
-                            }
-                            //Potong 3 Sisi
-                            if(is_null($data->potong_3_sisi)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Potong 3 Sisi</div>';
-                            } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Potong 3 Sisi</div>';
-                            }
-                            if($data->buku_jadi == 'Wrapping') {
-                                //Wrapping
-                                if(is_null($data->wrapping)) {
-                                    $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Wrapping</div>';
-                                } else {
-                                    $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Wrapping</div>';
+                            $res = DB::table('proses_produksi_track')
+                            ->where('produksi_id', $data->id)
+                            ->get();
+                            if (!$res->isEmpty()) {
+                                foreach ($res as $r) {
+                                    $collect[] = $r->proses_tahap;
                                 }
-                            }
-                            //Kirim Gudang
-                            if(is_null($data->kirim_gudang)) {
-                                $badge .= '<div class="text-muted text-small font-600-bold"><span class="bullet"></span> Kirim Gudang</div>';
                             } else {
-                                $badge .= '<div class="text-success text-small font-600-bold"><span class="bullet"></span> Kirim Gudang</div>';
+                                $collect = [];
+                            }
+                            $type = DB::select(DB::raw("SHOW COLUMNS FROM proses_produksi_track WHERE Field = 'proses_tahap'"))[0]->Type;
+                            preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+                            $masterProses = explode("','", $matches[1]);
+                            if($data->buku_jadi != 'Wrapping') {
+                                $masterProses = Arr::except($masterProses, ['5']);
+                            }
+                            $dataId = 'data-id="'.$data->id.'"';
+                            foreach ($masterProses as $m) {
+                                if (in_array($m, $collect)) {
+                                    foreach ($res as $status) {
+                                        if ($m == $status->proses_tahap) {
+                                            switch ($status->status) {
+                                                case 'pending':
+                                                    $lbl = 'danger';
+                                                    break;
+                                                case 'sedang dalam proses':
+                                                    $lbl = 'danger';
+                                                    break;
+                                                case 'selesai':
+                                                    $lbl = 'success';
+                                                    break;
+                                            }
+                                            $badge .= '<a href="javascript:void(0)"
+                                            class="text-muted text-small text-decoration-none d-block font-600-bold"
+                                            data-status="'.$status->status.'" data-type="'.$m.'" '.$dataId.' data-toggle="modal" data-target="#modalTrackProduksi">
+                                            <span class="bullet"></span> '.$m.'
+                                            </a>';
+                                        }
+                                    }
+                                } else {
+                                    $badge .= '<a href="javascript:void(0)"
+                                            class="text-muted text-small text-decoration-none d-block font-600-bold"
+                                            data-status="belum selesai" data-type="'.$m.'" '.$dataId.' data-toggle="modal" data-target="#modalTrackProduksi">
+                                            <span class="bullet"></span> '.$m.'
+                                            </a>';
+                                }
                             }
                             return $badge;
                         })
@@ -313,5 +314,106 @@ class ProsesProduksiController extends Controller
             'title' => 'Update Proses Produksi Order Cetak',
             'data' => $data,
         ]);
+    }
+    protected function modalTrackProduksi($request)
+    {
+        try {
+            $id = $request->id;
+            $typeProses = $request->type;
+            $status = $request->status;
+            $data = DB::table('proses_produksi_cetak as ppc')
+            ->join('order_cetak as oc','oc.id','=','ppc.order_cetak_id')
+            ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
+            ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+            ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+            ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+            ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+            ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+            ->where('ppc.id',$id)
+            ->select(
+                'ppc.*',
+                'dp.judul_final'
+            )->first();
+            if (!$data) {
+                return abort(404);
+            }
+            switch ($status) {
+                case 'belum selesai':
+                    $bg = 'bg-secondary';
+                    break;
+                case 'sedang dalam proses':
+                    $bg = 'bg-warning';
+                    break;
+                case 'pending':
+                    $bg = 'bg-danger';
+                    break;
+                case 'success':
+                    $bg = 'bg-success';
+                    break;
+            }
+            $content = '';
+            $footer = '';
+            $type = DB::select(DB::raw("SHOW COLUMNS FROM proses_produksi_track WHERE Field = 'status'"))[0]->Type;
+            preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+            $masterStatus = explode("','", $matches[1]);
+
+            if ($typeProses == 'Kirim Gudang') {
+
+            } else {
+                switch ($status) {
+                    case 'belum selesai':
+                        // $masterStatus = Arr::except($masterStatus, ['0']);
+                        $content .= '<div class="form-group">
+                          <label for="jenisMesin">Jenis Mesin</label>
+                          <select name="mesin" class="form-control select-mesin" id="jenisMesin">
+                                <option label="Pilih mesin"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                          <label for="operatorId">Operator</label>
+                          <select name="operator" class="form-control select-operator" id="operatorId">
+                                <option label="Pilih operator"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                        <label for="actionStatus">Action</label>
+                        <select name="status" class="form-control select-status" id="actionStatus">
+                            <option label="Pilih status"></option>';
+                            foreach($masterStatus as $ms) {
+                                $sel = '';
+                                    if ($status == $ms) {
+                                        $sel = ' selected="selected" ';
+                                    }
+                                    $content .= '<option value="' . $ms . '" ' . $sel . '>
+                                    ' . ucfirst($ms) . '&nbsp;&nbsp;
+                                </option>';
+                            }
+                        $content .= '</select>
+                        </div>';
+                      $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">Konfirmasi</button>';
+                        $bg = 'bg-secondary';
+                        break;
+                    case 'sedang dalam proses':
+                        $bg = 'bg-warning';
+                        break;
+                    case 'pending':
+                        $bg = 'bg-danger';
+                        break;
+                    case 'success':
+                        $bg = 'bg-success';
+                        break;
+                }
+            }
+            return [
+                'bg' => $bg,
+                'sectionTitle' => 'Proses Tahap "'.$typeProses.'"',
+                'data' => $data,
+                'content' => $content,
+                'footer' => $footer
+            ];
+        } catch (\Exception $e) {
+            return abort(500,$e->getMessage());
+        }
     }
 }
