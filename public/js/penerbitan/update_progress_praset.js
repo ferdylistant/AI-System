@@ -348,7 +348,7 @@ $(document).ready(function () {
                     "-" +
                     judul +
                     "?",
-                text: "Anda sebagai Kabag Editor tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
+                text: "Anda sebagai Kabag Pracetak tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,

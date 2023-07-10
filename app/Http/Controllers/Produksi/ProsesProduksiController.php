@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
 class ProsesProduksiController extends Controller
 {
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         if($request->ajax()) {
             $data = DB::table('proses_produksi_cetak as ppc')
             ->join('order_cetak as oc', 'oc.id', '=', 'ppc.order_cetak_id')
@@ -341,6 +342,7 @@ class ProsesProduksiController extends Controller
             ->where('ppc.id',$id)
             ->select(
                 'ppc.*',
+                'oc.jumlah_cetak',
                 'dp.judul_final'
             )->first();
             if (!$data) {
@@ -352,12 +354,75 @@ class ProsesProduksiController extends Controller
             preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
             $masterStatus = explode("','", $matches[1]);
             $masterStatus = Arr::except($masterStatus, ['0']);
+            $sel = '';
+            $disable = '';
+            $addContent = '';
             if ($typeProses == 'Kirim Gudang') {
-
+                switch ($status) {
+                    case 'belum selesai':
+                        $badge = 'badge-light';
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                        break;
+                    case 'sedang dalam proses':
+                        $masterStatus = Arr::except($masterStatus, ['1']);
+                        $addContent .='<div class="form-group">
+                        <label for="tglMulai">Tanggal Mulai</label>
+                        <p id="tglMulai">'.Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i').'</p>
+                        </div>';
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                        $badge = 'badge-warning';
+                        break;
+                    case 'pending':
+                        $masterStatus = Arr::except($masterStatus, ['2','3']);
+                        $addContent .='<div class="form-group">
+                        <label for="tglMulai">Tanggal Mulai</label>
+                        <p id="tglMulai">'.Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i').'</p>
+                        </div>';
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                        $badge = 'badge-danger';
+                        break;
+                    case 'success':
+                        foreach($masterStatus as $ms) {
+                            if ($status == $ms) {
+                                $sel = ' selected="selected" ';
+                            }
+                        }
+                        $addContent .='<div class="form-row">
+                        <div class="form-group col-md-6">
+                        <label for="tglMulai">Tanggal Mulai</label>
+                        <p id="tglMulai">'.Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i').'</p>
+                        </div>
+                        <div class="form-group col-md-6">
+                        <label for="tglSelesai">Tanggal Selesai</label>
+                        <p id="tglSelesai">'.Carbon::parse($tglselesai)->translatedFormat('l d F Y, H:i').'</p>
+                        </div>
+                        </div>';
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
+                        $badge = 'badge-success';
+                        $disable = 'disabled';
+                        break;
+                }
+                $content .= '
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                            <label for="jmlCetak">Jumlah Oplah</label>
+                            <input name="jml_cetak" class="form-control" id="jmlCetak" value="'.$data->jumlah_cetak.'" readonly>
+                            </div>
+                            <div class="form-group col-md-6">
+                            <label for="jmlDikirim">Jumlah Dikirim</label>
+                            <input name="jml_kirim" class="form-control" id="jmlDikirim" '.$disable.'>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                        <label for="historyKirim">Riwayat Kirim</label>
+                        <p class="text-danger">Belum ada riwayat pengiriman</p>';
+                        // if ()
+                $content .='</div>';
+                        $content .= $addContent;
             } else {
-                $sel = '';
-                $disable = '';
-                $addContent = '';
                 switch ($status) {
                     case 'belum selesai':
                         $badge = 'badge-light';

@@ -13,9 +13,17 @@
 
     <ul class="sidebar-menu pb-5">
         @foreach(session('menus') as $key => $menus)
-        <li class="menu-header">{{$key}}</li>
+        <li class="menu-header">
+            <a class="d-flex" data-toggle="collapse" href="#{{Str::camel($key)}}" role="button" aria-expanded="false" aria-controls="{{Str::camel($key)}}">
+                <span class="bd-highlight">{{$key}}</span>
+                <i class="fas fa-sort-down bd-highlight"></i>
+            </a>
+        </li>
+        <div class="collapse show" style="" id="{{Str::camel($key)}}">
             @foreach($menus as $menu)
                 @if($menu['detail']['url'] == '#')
+
+
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link has-dropdown">
                         <i class="{{$menu['detail']['icon']}}"></i><span>{{$menu['detail']['name']}}</span>
@@ -34,7 +42,8 @@
                     </a>
                 </li>
                 @endif
-            @endforeach
+                @endforeach
+            </div>
         @endforeach
     </ul>
 </aside>
