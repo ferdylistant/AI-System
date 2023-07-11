@@ -65,6 +65,18 @@ class SettingListener
                     'name' => $data['name']
                 ]);
                 break;
+            case 'Add Permission':
+                DB::beginTransaction();
+                $res = DB::table('permissions')->insert([
+                    'id' => $data['id'],
+                    'access_id' => $data['access_id'],
+                    'url' => $data['url'],
+                    'type' => $data['type'],
+                    'raw' => $data['raw'],
+                    'name' => $data['name']
+                ]);
+                DB::commit();
+                break;
             default:
                 return abort(500);
                 break;

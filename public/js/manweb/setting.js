@@ -238,12 +238,24 @@ $(function () {
             number: true,
         },
     });
-    let addDivJab = jqueryValidation_("#fm_AddDivJab", {
-        add_djnama: {
+    let addPermission = jqueryValidation_("#fm_AddPermission", {
+        add_name: {
+            required: true,
+        },
+        add_bagian: {
+            required: true,
+        },
+        add_menu: {
+            required: true,
+        },
+        add_type: {
+            required: true,
+        },
+        add_raw: {
             required: true,
         },
     });
-    let editDivJab = jqueryValidation_("#fm_EditDivJab", {
+    let editPermission = jqueryValidation_("#fm_EditDivJab", {
         edit_djnama: {
             required: true,
         },
@@ -375,6 +387,89 @@ $(function () {
     }
 
     function ajaxEditSectionMenu(data) {
+        let el = data.get(0);
+
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/setting/update/section-menu",
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", true)
+                    .addClass("btn-progress");
+            },
+            success: function (result) {
+                if (result.status == "success") {
+                    tableBagian.ajax.reload();
+                    notifToast(result.status, result.message);
+                } else {
+                    notifToast(result.status, result.message);
+                }
+            },
+            error: function (err) {
+                rs = err.responseJSON.errors;
+                if (rs !== undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    editSectionMenu.showErrors(err);
+                }
+                notifToast("error", "Terjadi kesalahan!");
+            },
+            complete: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+        });
+    }
+    function ajaxAddPermission(data) {
+        let el = data.get(0);
+        // console.log(data)
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/setting/create/permission",
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", true)
+                    .addClass("btn-progress");
+            },
+            success: function (result) {
+                // console.log(result);
+                notifToast(result.status, result.message);
+                if (result.status == "success") {
+                    tablePermission.ajax.reload();
+                    data.trigger("reset");
+                }
+            },
+            error: function (err) {
+                rs = err.responseJSON.errors;
+                if (rs !== undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    addPermission.showErrors(err);
+                }
+                notifToast("error", "Terjadi kesalahan!");
+            },
+            complete: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+        });
+    }
+
+    function ajaxEditPermission(data) {
         let el = data.get(0);
 
         $.ajax({
@@ -632,6 +727,39 @@ $(function () {
             });
         }
     });
+    $("#fm_AddPermission").on("submit", function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            let nama = $(this).find('[name="add_name"]').val();
+            swal({
+                text: "Tambah data (" + nama + ")?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxAddPermission($(this));
+                }
+            });
+        }
+    });
+
+    $("#fm_EditPermission").on("submit", function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            let nama = $(this).find('[name="edit_name"]').val();
+            swal({
+                text: "Ubah data (" + nama + ")?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxEditMenu($(this));
+                }
+            });
+        }
+    });
     // Proses Hapus //
     $("#tb_Menu").on("click", ".btn_DelMenu", function (e) {
         let nama = $(this).data("nama"),
@@ -673,6 +801,7 @@ $(function () {
             }
         });
     });
+    //Select Bagian (MENU)
     $(".select-bagian")
         .select2({
             placeholder: "Pilih bagian",
@@ -735,6 +864,164 @@ $(function () {
         .on("select2:select", function (e) {
             getParentVal(e.params.data.id);
         });
+    //Select Bagian (PERMISSION)
+    $(".select-bagian-permission")
+    .select2({
+        placeholder: "Pilih bagian",
+    })
+    .on("change", function (e) {
+        if (this.value) {
+            $(this).valid();
+        }
+    });
+    $("#edit_bagianPermission")
+        .select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectBagian",
+                        term: params.term,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id,
+                            };
+                        }),
+                    };
+                },
+            },
+        }).on("select2:select", function (e) {
+            getEditParentVal(e.params.data.id);
+        });
+    $("#add_bagianPermission")
+        .select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectBagian",
+                        term: params.term,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id,
+                            };
+                        }),
+                    };
+                },
+            },
+        })
+        .on("select2:select", function (e) {
+            getAccessVal(e.params.data.id);
+        });
+    //Select Menu (Permission)
+    $(".select-menu-permission")
+        .select2({
+            placeholder: "Pilih menu",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(this).valid();
+            }
+        });
+    $("#edit_menu")
+        .select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectMenuSelect",
+                        term: params.term,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id,
+                            };
+                        }),
+                    };
+                },
+            },
+        }).on("select2:select", function (e) {
+            getEditParentVal(e.params.data.id);
+        });
+    //Select Type (Permission)
+    $(".select-type")
+        .select2({
+            placeholder: "Pilih type",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(this).valid();
+            }
+        });
+    $("#edit_menu").select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectMenuSelect",
+                        term: params.term,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id,
+                            };
+                        }),
+                    };
+                },
+            },
+        }).on("select2:select", function (e) {
+            getEditParentVal(e.params.data.id);
+        });
+        $("#add_type")
+        .select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectType",
+                        term: params.term,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item,
+                                id: item,
+                            };
+                        }),
+                    };
+                },
+            },
+        });
     function getEditParentVal(id) {
         $("#edit_parent").select2({
             ajax: {
@@ -769,6 +1056,32 @@ $(function () {
                 data: function (params) {
                     var queryParameters = {
                         request_: "selectParent",
+                        term: params.term,
+                        id: id,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id,
+                            };
+                        }),
+                    };
+                },
+            },
+        });
+    }
+    function getAccessVal(id) {
+        $("#add_menuPermission").select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectMenuSelect",
                         term: params.term,
                         id: id,
                     };
@@ -914,52 +1227,6 @@ $(function () {
         });
     });
     $("#md_EditSectionMenu").on("hidden.bs.modal", function () {
-        $(this).find("form").trigger("reset");
-        $(this).addClass("modal-progress");
-    });
-
-    $("#md_AddDivJab").on("shown.bs.modal", function (e) {
-        let type = $(e.relatedTarget).data("tipe");
-        $(this)
-            .find(".modal-body h5")
-            .html("#Tambah " + type);
-        $(this).find('[name="add_type"]').val(type);
-        $(this)
-            .find('[name="add_djnama"]')
-            .attr("placeholder", "Tambah " + type);
-        $(this).removeClass("modal-progress");
-    });
-    $("#md_AddDivJab").on("hidden.bs.modal", function (e) {
-        $(this)
-            .find('[name="add_djnama"]')
-            .attr("placeholder", "")
-            .removeClass("is-invalid");
-        $(this).find("form").trigger("reset");
-        $(this).addClass("modal-progress");
-    });
-
-    $("#md_EditDivJab").on("shown.bs.modal", function (e) {
-        let type = $(e.relatedTarget).data("tipe"),
-            nama = $(e.relatedTarget).data("nama"),
-            id = $(e.relatedTarget).data("id");
-
-        $(this)
-            .find(".modal-body h5")
-            .html("#Ubah " + type);
-        $(this).find('[name="edit_type"]').val(type);
-        $(this).find('[name="edit_djid"]').val(id);
-        $(this).find('[name="edit_djoldnama"]').val(nama);
-        $(this)
-            .find('[name="edit_djnama"]')
-            .val(nama)
-            .attr("placeholder", "Tambah " + type);
-        $(this).removeClass("modal-progress");
-    });
-    $("#md_EditDivJab").on("hidden.bs.modal", function () {
-        $(this)
-            .find('[name="edit_djnama"]')
-            .attr("placeholder", "")
-            .removeClass("is-invalid");
         $(this).find("form").trigger("reset");
         $(this).addClass("modal-progress");
     });

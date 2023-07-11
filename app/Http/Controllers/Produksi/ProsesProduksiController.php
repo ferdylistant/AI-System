@@ -358,6 +358,9 @@ class ProsesProduksiController extends Controller
             $disable = '';
             $addContent = '';
             if ($typeProses == 'Kirim Gudang') {
+                $kirimGudang = DB::table('proses_produksi_track as ppt')->join('proses_produksi_kirimgudang as ppk','ppk.kirimgudang_id','=','ppt.id')
+                ->where('ppt.produksi_id',$id)
+                ->orderBy('ppk.id','desc')->get();
                 switch ($status) {
                     case 'belum selesai':
                         $badge = 'badge-light';
@@ -417,9 +420,51 @@ class ProsesProduksiController extends Controller
                             </div>
                         </div>
                         <div class="form-group">
-                        <label for="historyKirim">Riwayat Kirim</label>
-                        <p class="text-danger">Belum ada riwayat pengiriman</p>';
-                        // if ()
+                        <label for="historyKirim">Riwayat Kirim</label>';
+                        if (!$kirimGudang->isEmpty()) {
+                            $content .= '<p class="text-danger">Belum ada riwayat pengiriman</p>';
+                        } else {
+                            // $content .= '<button type="button" class="btn btn-info btn-block"><i class="fas fa-history"></i> Riwayat Kirim</button>';
+                            $content .= '
+                            <div class="scroll-riwayat thin">
+                            <table class="table table-striped" style="width:100%">
+                            <thead style="position: sticky;top:0">
+                              <tr>
+                                <th scope="col" style="background: #eee;">Tahap</th>
+                                <th scope="col" style="background: #eee;">Tanggal Kirim</th>
+                                <th scope="col" style="background: #eee;">Otorisasi Oleh</th>
+                                <th scope="col" style="background: #eee;">Jumlah Kirim</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <th scope="row">1</th>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">2</th>
+                                <td>Jacob</td>
+                                <td>Thornton</td>
+                                <td>@fat</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">3</th>
+                                <td>Larry</td>
+                                <td>the Bird</td>
+                                <td>@twitter</td>
+                              </tr>
+                            </tbody>
+                            <tfoot style="position: sticky;bottom:-1px">
+                                <tr>
+                                    <th colspan="3" style="background: #eee;">Total Kirim</th>
+                                    <th class="text-center" style="background: #5569ed;color:white">1000</th>
+                                </tr>
+                                </tfoot>
+                          </table>
+                            </div>';
+                        }
                 $content .='</div>';
                         $content .= $addContent;
             } else {

@@ -151,6 +151,12 @@ class SettingController extends Controller
                     $res = DB::table('access_bagian')->get();
                     return $res;
                     break;
+                case 'selectMenuSelect':
+                    $res = DB::table('access')
+                    ->where('bagian_id',$request->id)
+                    ->get();
+                    return $res;
+                    break;
                 case 'selectParent':
                     $res = DB::table('access')
                         ->where('bagian_id', $request->input('id'))
@@ -158,6 +164,12 @@ class SettingController extends Controller
                         ->whereNull('parent_id')
                         ->get();
                     return $res;
+                    break;
+                case 'selectType':
+                    $type = DB::select(DB::raw("SHOW COLUMNS FROM permissions WHERE Field = 'type'"))[0]->Type;
+                    preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+                    $typePermission = explode("','", $matches[1]);
+                    return $typePermission;
                     break;
                 case 'data-menu':
                     $result = DB::table('access')
@@ -392,6 +404,32 @@ class SettingController extends Controller
                 'message' => 'Data section menu berhasil diperbarui!'
             ]);
         } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    //Permission
+    protected function addPermission($request)
+    {
+        try {
+            $data = [
+                'params' => 'Add Permission',
+                'id' => Str::uuid()->getHex(),
+                'access_id' => $request->add_menu,
+                'url' => '',
+                'type' => $request->add_type,
+                'raw' => $request->add_raw,
+                'name' => $request->add_name
+            ];
+            event(new SettingEvent($data));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data permission berhasil disimpan!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

@@ -5,6 +5,74 @@
     <link rel="stylesheet" href="{{ url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
+    <style>
+        .scrollbar-deep-purple::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #F5F5F5;
+            border-radius: 10px;
+        }
+
+        .scrollbar-deep-purple::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
+
+        .scrollbar-deep-purple::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #6777EF;
+        }
+
+        .scrollbar-deep-purple {
+            scrollbar-color: #6777EF #F5F5F5;
+        }
+
+        .bordered-deep-purple::-webkit-scrollbar-track {
+            -webkit-box-shadow: none;
+            border: 1px solid #6777EF;
+        }
+
+        .bordered-deep-purple::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: none;
+        }
+
+        .square::-webkit-scrollbar-track {
+            border-radius: 0 !important;
+        }
+
+        .square::-webkit-scrollbar-thumb {
+            border-radius: 0 !important;
+        }
+
+        .thin::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scroll-riwayat {
+            position: relative;
+            overflow: auto;
+            height: 250px;
+        }
+        .example-1 {
+            position: relative;
+            overflow-y: scroll;
+            height: 200px;
+        }
+
+        .example-2 {
+            position: relative;
+            overflow-y: scroll;
+            height: 400px;
+        }
+        .scroll-riwayat thead {
+        position: sticky; /* make the table heads sticky */
+        top: 0; /* table head will be placed from the top of the table and sticks to it */
+      }
+        .scroll-riwayat tfoot {
+        position: sticky; /* make the table heads sticky */
+        bottom: 0; /* table head will be placed from the top of the table and sticks to it */
+      }
+    </style>
 @endsection
 
 @section('content')
@@ -103,8 +171,9 @@
     <!-- Modal Section Menu -->
     @include('manweb.setting.include.modal_addsectionmenu')
     @include('manweb.setting.include.modal_editsectionmenu')
-    <!-- Modal Section Menu -->
-
+    <!-- Modal Permission -->
+    @include('manweb.setting.include.modal_addpermission')
+    {{-- @include('manweb.setting.include.modal_editpermission') --}}
 
     <!-- Modal Divisi -->
     <div class="modal fade modal-progress" tabindex="-1" role="dialog" id="md_EditDivJab">
