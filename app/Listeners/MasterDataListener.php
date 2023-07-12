@@ -265,6 +265,32 @@ class MasterDataListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
+            case 'Create Jenis Mesin':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_master')->insert([
+                    'id' => $data['id'],
+                    'type' => $data['type'],
+                    'nama' => $data['nama'],
+                    'created_by' => $data['created_by']
+                ]);
+                DB::commit();
+                break;
+            case 'Update Jenis Mesin':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_master')->where('id',$data['id'])->update([
+                    'nama' => $data['nama'],
+                    'updated_by' => $data['updated_by']
+                ]);
+                DB::table('proses_produksi_master_history')->insert([
+                    'type_history' => $data['type_history'],
+                    'master_id' => $data['id'],
+                    'nama_his' => $data['nama_his'],
+                    'nama_new' => $data['nama'],
+                    'author_id' => $data['updated_by'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                DB::commit();
+                break;
             default:
                 abort(500);
                 break;

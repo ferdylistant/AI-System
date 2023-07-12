@@ -111,6 +111,15 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::post('/format-buku/hapus', $path.'\MasterData\FormatBukuController@deleteFbuku')->name('fb.delete');
         Route::post('/format-buku/restore', $path.'\MasterData\FormatBukuController@restoreFBuku')->name('fb.restore');
         Route::post('/format-buku/lihat-history', $path.'\MasterData\FormatBukuController@lihatHistoryFBuku')->name('fb.history');
+        //JENIS MESIN
+        Route::get('/jenis-mesin', $path.'\MasterData\JenisMesinController@index')->name('jm.view');
+        Route::get('/jenis-mesin/jenis-mesin-telah-dihapus', $path.'\MasterData\JenisMesinController@jMesinTelahDihapus')->name('jm.telah_dihapus');
+        Route::match(['get', 'post'], '/jenis-mesin/tambah', $path.'\MasterData\JenisMesinController@createJmesin')->name('jm.create');
+        Route::match(['get', 'post'], '/jenis-mesin/ubah', $path.'\MasterData\JenisMesinController@updateJmesin')->name('jm.update');
+        Route::post('/jenis-mesin/hapus', $path.'\MasterData\JenisMesinController@deleteJmesin')->name('jm.delete');
+        Route::post('/jenis-mesin/restore', $path.'\MasterData\JenisMesinController@restoreJmesin')->name('jm.restore');
+        Route::post('/jenis-mesin/lihat-history', $path.'\MasterData\JenisMesinController@lihatHistoryJmesin')->name('jm.history');
+
     });
     //Penerbitan
     Route::prefix('penerbitan')->group(function () use ($path) {
@@ -203,6 +212,7 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::get('/proses/cetak', $path.'\Produksi\ProsesProduksiController@index');
         Route::get('/proses/cetak/detail', $path.'\Produksi\ProsesProduksiController@detailProduksi')->name('proses.cetak.detail');
         Route::match(['get', 'post'], '/proses/cetak/edit', $path.'\Produksi\ProsesProduksiController@updateProduksi')->name('proses.cetak.update');
+        Route::match(['get', 'post'], '/proses/cetak/ajax/{cat}', $path.'\Produksi\ProsesProduksiController@ajaxCall');
 
         //Proses Produksi E-book Multimedia
         Route::get('/proses/ebook-multimedia', $path.'\Produksi\ProsesEbookController@index')->name('proses.ebook.view');

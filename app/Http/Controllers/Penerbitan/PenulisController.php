@@ -23,17 +23,11 @@ class PenulisController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            if (Cache::has('penulisIndex')) {
-                $data = Cache::get('penulisIndex');
-
-            } else {
-                $data = Cache::remember('penulisIndex',600, function () {
-                    return DB::table('penerbitan_penulis')
-                    ->whereNull('deleted_at')
-                    ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp')
-                    ->get();
-                });
-            }
+                $data = DB::table('penerbitan_penulis')
+                ->whereNull('deleted_at')
+                ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp')
+                ->orderBy('created_at','desc')
+                ->get();
             switch ($request->input('request_')) {
                 case 'table-penulis':
                     $data = collect($data)->map(function ($val) {

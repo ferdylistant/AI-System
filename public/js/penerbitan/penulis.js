@@ -3,6 +3,7 @@ $(function () {
         // bSort: true,
         "responsive": true,
         "autoWidth": false,
+        "aaSorting": [],
         pagingType: "input",
         processing: true,
         serverSide: false,

@@ -69,24 +69,26 @@ $(function() {
                         $(this).valid();
                     }
                 });
-            $(".select-operator")
-                .select2({
-                    placeholder: "Pilih operator\xa0\xa0",
-                })
-                .on("change", function (e) {
-                    if (this.value) {
-                        $(this).valid();
-                    }
-                });
-            $(".select-status")
-                .select2({
-                    placeholder: "Pilih status\xa0\xa0",
-                })
-                .on("change", function (e) {
-                    if (this.value) {
-                        $(this).valid();
-                    }
-                });
+                $(".select-operator")
+                    .select2({
+                        placeholder: "Pilih operator\xa0\xa0",
+                        multiple: true,
+                    })
+                    .on("change", function (e) {
+                        if (this.value) {
+                            $(this).valid();
+                        }
+                    });
+
+                $(".select-status")
+                    .select2({
+                        placeholder: "Pilih status\xa0\xa0",
+                    })
+                    .on("change", function (e) {
+                        if (this.value) {
+                            $(this).valid();
+                        }
+                    });
             },
             error: function (err) {
                 console.log(err);
