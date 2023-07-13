@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use App\Events\MasterDataEvent;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\{DB,Auth,Gate};
+use Illuminate\Support\Facades\{DB, Auth, Gate};
 
 class JenisMesinController extends Controller
 {
@@ -17,7 +17,7 @@ class JenisMesinController extends Controller
     {
         if ($request->ajax()) {
             $data = DB::table('proses_produksi_master')
-                ->where('type','M')
+                ->where('type', 'M')
                 ->whereNull('deleted_at')
                 ->orderBy('nama', 'asc')
                 ->get();
@@ -65,19 +65,19 @@ class JenisMesinController extends Controller
                 })
                 ->addColumn('action', function ($data) use ($update) {
                     if ($update) {
-                        $btn = '<a href="#" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1"
+                        $btn = '<a href="javascript:void(0)" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1"
                                     data-toggle="modal" data-target="#md_EditJenisMesin" data-backdrop="static"
                                     data-id="' . $data->id . '" data-nama="' . $data->nama . '"
                                     data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                     }
-                    if (Gate::allows('do_delete', 'hapus-data-imprint')) {
-                        $btn .= '<a href="#" class="d-block btn btn-sm btn_DelJenisMesin btn-danger btn-icon mr-1 mt-1"
+                    if (Gate::allows('do_delete', 'hapus-jenis-mesin')) {
+                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn_DelJenisMesin btn-danger btn-icon mr-1 mt-1"
                         data-toggle="tooltip" title="Hapus Data"
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-alt"></i></div></a>';
                     }
-                    if (Auth::user()->cannot('do_update', 'ubah-data-imprint') && Auth::user()->cannot('do_delete', 'hapus-data-imprint')) {
+                    if (Auth::user()->cannot('do_update', 'ubah-jenis-mesin') && Auth::user()->cannot('do_delete', 'hapus-jenis-mesin')) {
                         $btn = '<span class="badge badge-dark">No action</span>';
                     }
                     return $btn;
@@ -94,8 +94,80 @@ class JenisMesinController extends Controller
                 ])
                 ->make(true);
         }
-        return view('master_data.jenis_mesin.index',[
+        return view('master_data.jenis_mesin.index', [
             'title' => 'Jenis Mesin Produksi'
+        ]);
+    }
+    public function jMesinTelahDihapus(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = DB::table('proses_produksi_master')
+                ->where('type', 'M')
+                ->whereNotNull('deleted_at')
+                ->orderBy('nama', 'asc')
+                ->get();
+            $update = Gate::allows('do_delete', 'hapus-jenis-mesin');
+            // foreach ($data as $key => $value) {
+            //     $no = $key + 1;
+            // }
+            $start = 1;
+            return DataTables::of($data)
+                ->addColumn('no', function ($no) use (&$start) {
+                    return $start++;
+                })
+                ->addColumn('nama', function ($data) {
+                    return $data->nama;
+                })
+                ->addColumn('created_at', function ($data) {
+                    $date = date('d M Y, H:i', strtotime($data->created_at));
+                    return $date;
+                })
+                ->addColumn('created_by', function ($data) {
+                    $dataUser = User::where('id', $data->created_by)->first();
+                    return $dataUser->nama;
+                })
+                ->addColumn('deleted_at', function ($data) {
+                    if ($data->deleted_at == null) {
+                        return '-';
+                    } else {
+                        $date = date('d M Y, H:i', strtotime($data->deleted_at));
+                        return $date;
+                    }
+                })
+                ->addColumn('deleted_by', function ($data) {
+                    if ($data->deleted_by == null) {
+                        return '-';
+                    } else {
+                        $dataUser = User::where('id', $data->deleted_by)->first();
+                        return $dataUser->nama;
+                    }
+                })
+                ->addColumn('action', function ($data) use ($update) {
+                    if ($update) {
+                        $btn = '<a href="javascript:void(0)"
+                        class="d-block btn btn-sm btn_ResJenisMesin btn-dark btn-icon""
+                        data-toggle="tooltip" title="Restore Data"
+                        data-id="' . $data->id . '" data-nama="' . $data->nama . '">
+                        <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                    } else {
+                        $btn = '<span class="badge badge-dark">No action</span>';
+                    }
+                    return $btn;
+                })
+                ->rawColumns([
+                    'no',
+                    'nama',
+                    'created_at',
+                    'created_by',
+                    'deleted_at',
+                    'deleted_by',
+                    'action'
+                ])
+                ->make(true);
+        }
+
+        return view('master_data.jenis_mesin.telah_dihapus', [
+            'title' => 'Jenis Mesin Telah Dihapus',
         ]);
     }
     public function createJmesin(Request $request)
@@ -105,7 +177,7 @@ class JenisMesinController extends Controller
                 try {
                     $id = Uuid::uuid4()->toString();
                     $input = [
-                        'params' => 'Create Jenis Mesin',
+                        'params' => 'Create Master Produksi',
                         'id' => $id,
                         'type' => 'M',
                         'nama' => $request->nama,
@@ -116,7 +188,7 @@ class JenisMesinController extends Controller
                         'status' => 'success',
                         'message' => 'Data jenis mesin berhasil ditambahkan!',
                     ]);
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     DB::rollBack();
                     return response()->json([
                         'status' => 'error',
@@ -133,7 +205,7 @@ class JenisMesinController extends Controller
                 try {
                     $history = DB::table('proses_produksi_master')->where('id', $request->edit_id)->first();
                     $update = [
-                        'params' => 'Update Jenis Mesin',
+                        'params' => 'Update Master Produksi',
                         'id' => $request->edit_id,
                         'nama' => $request->edit_nama,
                         'updated_by' => auth()->user()->id,
@@ -163,31 +235,30 @@ class JenisMesinController extends Controller
             }
         }
     }
-    public function deleteFbuku(Request $request)
+    public function deleteJmesin(Request $request)
     {
         try {
             $id = $request->id;
             //Check Relasi
-            $relation = DB::table('deskripsi_produk')->where('format_buku',$id)->first();
+            $relation = DB::table('proses_produksi_track')->where('mesin', $id)->first();
             if (!is_null($relation)) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Format buku tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!'
+                    'message' => 'Jenis mesin tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!'
                 ]);
             }
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             $insert = [
-                'params' => 'Insert History Delete Format Buku',
-                'format_buku_id' => $id,
+                'params' => 'Insert History Delete Master Produksi',
+                'master_id' => $id,
                 'type_history' => 'Delete',
-                'deleted_at' => $tgl,
                 'author_id' => auth()->user()->id,
                 'modified_at' => $tgl
             ];
             event(new MasterDataEvent($insert));
             return response()->json([
                 'status' => 'success',
-                'message' => 'Berhasil hapus data format buku!'
+                'message' => 'Berhasil hapus data jenis mesin!'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -252,24 +323,30 @@ class JenisMesinController extends Controller
             return $html;
         }
     }
-    public function restoreFBuku(Request $request)
+    public function restoreJmesin(Request $request)
     {
-        $id = $request->id;
-        $restored = DB::table('format_buku')
-            ->where('id', $id)
-            ->update(['deleted_at' => null, 'deleted_by' => null]);
-        $insert = [
-            'params' => 'Insert History Restored Format Buku',
-            'format_buku_id' => $id,
-            'type_history' => 'Restore',
-            'restored_at' => now(),
-            'author_id' => auth()->user()->id,
-            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-        ];
-        event(new MasterDataEvent($insert));
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Berhasil mengembalikan format buku!'
-        ]);
+        try {
+            $id = $request->id;
+            $insert = [
+                'params' => 'Restore Master Produksi',
+                'master_id' => $id,
+                'deleted_at' => null,
+                'deleted_by' => null,
+                'type_history' => 'Restore',
+                'author_id' => auth()->user()->id,
+                'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new MasterDataEvent($insert));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil mengembalikan jenis mesin!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }

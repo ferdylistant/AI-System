@@ -38,6 +38,28 @@ class ProduksiListener
                 ]);
                 DB::commit();
                 break;
+            case 'Update Track Produksi':
+                DB::beginTransaction();
+                $res = $data['query']->update([
+                    'mesin' => $data['mesin'],
+                    'operator' => $data['operator'],
+                    'status' => $data['status'],
+                    'tgl_selesai' => $data['tgl_selesai']
+                ]);
+                DB::commit();
+                break;
+            case 'Insert Track Produksi':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_track')->insert([
+                    'produksi_id' => $data['produksi_id'],
+                    'proses_tahap' => $data['proses_tahap'],
+                    'mesin' => $data['mesin'],
+                    'operator' => $data['operator'],
+                    'status' => $data['status'],
+                    'tgl_selesai' => $data['tgl_selesai']
+                ]);
+                DB::commit();
+                break;
             default:
                 return abort(500);
                 break;

@@ -14,7 +14,7 @@ function jqueryValidation_(element, rules) {
     return $(element).validate({
         errorElement: 'span',
         errorPlacement: function (error, element) {
-            console.log(element)
+            // console.log(element)
             let name = element.attr('name');
             name = name.replace('[]', '');
             $('#err_' + name).addClass('invalid-feedback').append(error)

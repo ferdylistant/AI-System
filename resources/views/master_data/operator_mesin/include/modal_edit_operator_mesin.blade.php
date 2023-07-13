@@ -1,17 +1,17 @@
 <!-- Modal Edit Format Buku -->
-<div class="modal fade" tabindex="-1" role="dialog" id="md_EditJenisMesin">
+<div class="modal fade" tabindex="-1" role="dialog" id="md_EditOperatorMesin">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-success">
 
             </div>
-            <form id="fm_EditJMesin">
+            <form id="fm_EditOMesin">
                 <div class="modal-body">
-                    <h5 class="modal-title mb-3">#Ubah Jenis Mesin</h5>
+                    <h5 class="modal-title mb-3">#Ubah Operator Mesin</h5>
                     <div class="form-group row mb-4">
                         <label class="col-form-label">Nama</label>
                             <input type="text" name="edit_nama" class="form-control"
-                                placeholder="Jenis Mesin">
+                                placeholder="Operator Mesin">
                             <input type="hidden" name="edit_id" class="form-control" value="">
                             <div id="err_edit_nama"></div>
                     </div>

@@ -18,7 +18,7 @@
             <div class="section-header-back">
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
-            <h1>Data Jenis Mesin Yang Telah Dihapus</h1>
+            <h1>Data Operator Mesin Yang Telah Dihapus</h1>
         </div>
 
         <div class="section-body">
@@ -27,7 +27,7 @@
                     <div class="card card-danger">
                         <div class="card-body">
                             <div class="col-12 table-responsive">
-                                <table class="table table-striped" id="tb_JMesin" style="width:100%">
+                                <table class="table table-striped" id="tb_OMesin" style="width:100%">
                                 </table>
                             </div>
                         </div>
@@ -53,7 +53,7 @@
 @section('jsNeeded')
     <script>
         $(function() {
-            let tableDelJMesin = $('#tb_JMesin').DataTable({
+            let tableDelJMesin = $('#tb_OMesin').DataTable({
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -63,7 +63,7 @@
                     lengthMenu: '_MENU_ items/page',
                 },
                 ajax: {
-                    url: "{{ url('master/jenis-mesin/jenis-mesin-telah-dihapus') }}",
+                    url: "{{ url('master/operator-mesin/operator-mesin-telah-dihapus') }}",
                 },
                 columns: [{
                         data: 'no',
@@ -73,7 +73,7 @@
                     {
                         data: 'nama',
                         name: 'nama',
-                        title: 'Nama Mesin'
+                        title: 'Nama Operator'
                     },
                     {
                         data: 'created_at',
@@ -107,14 +107,14 @@
 
             // Restore FBuku Start
             $(document).ready(function() {
-                function ajaxRestoreJMesin(data) {
+                function ajaxRestoreOMesin(data) {
                     $.ajax({
                         type: "POST",
                         url: window.location.origin +
-                            "/master/jenis-mesin/restore",
+                            "/master/operator-mesin/restore",
                         data: data,
                         beforeSend: function() {
-                            $(".btn_ResJenisMesin")
+                            $(".btn_ResOperatorMesin")
                                 .prop("disabled", true)
                                 .addClass("btn-progress");
                         },
@@ -126,28 +126,28 @@
                         },
                         error: function(err) {
                             notifToast('error',err.statusText)
-                            $(".btn_ResJenisMesin")
+                            $(".btn_ResOperatorMesin")
                                 .prop("disabled", true)
                                 .removeClass("btn-progress");
                         },
                         complete: function() {
-                            $(".btn_ResJenisMesin")
+                            $(".btn_ResOperatorMesin")
                                 .prop("disabled", true)
                                 .removeClass("btn-progress");
                         },
                     });
                 }
-                $(document).on("click", ".btn_ResJenisMesin", function(e) {
+                $(document).on("click", ".btn_ResOperatorMesin", function(e) {
                     let nama = $(this).data("nama"),
                         id = $(this).data("id");
                     swal({
-                        text: "Kembalikan data jenis mesin (" + nama + ")?",
+                        text: "Kembalikan data operator mesin (" + nama + ")?",
                         icon: "warning",
                         buttons: true,
                         dangerMode: true,
                     }).then((confirm_) => {
                         if (confirm_) {
-                            ajaxRestoreJMesin({
+                            ajaxRestoreOMesin({
                                 id: id
                             })
                         }

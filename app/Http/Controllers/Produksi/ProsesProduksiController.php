@@ -8,6 +8,7 @@ use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Events\ProduksiEvent;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Column;
 use App\Events\convertNumberToRoman;
@@ -167,7 +168,7 @@ class ProsesProduksiController extends Controller
                                                 break;
                                             case 'selesai':
                                                 $tglMulai = 'data-tglmulai="' . $status->tgl_mulai . '"';
-                                                $tglSelesai = 'data-tglselesai="' . $tglSelesai . '"';
+                                                $tglSelesai = 'data-tglselesai="' . $status->tgl_selesai . '"';
                                                 $lbl = 'success';
                                                 break;
                                         }
@@ -327,7 +328,13 @@ class ProsesProduksiController extends Controller
     {
         switch ($request->cat) {
             case 'select':
-                // return $this->selectMaster($request);
+                return $this->selectMaster($request);
+                break;
+            case 'selected':
+                return $this->selectedMaster($request);
+                break;
+            case 'submit-track':
+                return $this->submitTrack($request);
                 break;
         }
     }
@@ -356,7 +363,7 @@ class ProsesProduksiController extends Controller
             if (!$data) {
                 return abort(404);
             }
-            $trackData = DB::table('proses_produksi_track')->where('produksi_id', $id)->first();
+            $trackData = DB::table('proses_produksi_track')->where('produksi_id', $id)->where('proses_tahap',$typeProses)->first();
             $mesin = DB::table('proses_produksi_master')->where('type', 'M')->get();
             $opr = DB::table('proses_produksi_master')->where('type', 'O')->get();
             $type = DB::select(DB::raw("SHOW COLUMNS FROM proses_produksi_track WHERE Field = 'status'"))[0]->Type;
@@ -364,30 +371,32 @@ class ProsesProduksiController extends Controller
             $masterStatus = explode("','", $matches[1]);
             $masterStatus = Arr::except($masterStatus, ['0']);
             if ($typeProses == 'Kirim Gudang') {
-                $res = $this->modalContentPrivateIf($disable ='',$id, $status, $footer='', $masterStatus, $addContent ='', $content='', $tglmulai, $tglselesai, $data);
+                $res = $this->modalContentPrivateIf($disable = '', $id, $status, $footer = '', $masterStatus, $addContent = '', $content = '', $tglmulai, $tglselesai, $data);
             } else {
-                $res = $this->modalContentPrivateElse($status, $content='', $addContent ='', $masterStatus, $footer='', $sel='', $disable='', $tglselesai, $tglmulai, $trackData, $mesin, $opr);
+                $res = $this->modalContentPrivateElse($status, $content = '', $addContent = '', $masterStatus, $footer = '', $sel = '', $disable = '', $tglselesai, $tglmulai, $trackData, $mesin, $opr);
             }
             return [
+                'proses_tahap' => $typeProses,
                 'badge' => $res['badge'],
                 'status' => $status,
                 'sectionTitle' => 'Proses Tahap "<b>' . $typeProses . '</b>"',
                 'data' => $data,
                 'content' => $res['content'],
-                'footer' => $res['footer']
+                'footer' => $res['footer'],
+                'trackData'=> $trackData
             ];
         } catch (\Exception $e) {
             return abort(500, $e->getMessage());
         }
     }
-    private function modalContentPrivateIf($disable,$id, $status, $footer, $masterStatus, $addContent, $content, $tglmulai, $tglselesai, $data)
+    private function modalContentPrivateIf($disable, $id, $status, $footer, $masterStatus, $addContent, $content, $tglmulai, $tglselesai, $data)
     {
         $kirimGudang = DB::table('proses_produksi_track as ppt')->join('proses_produksi_kirimgudang as ppk', 'ppk.kirimgudang_id', '=', 'ppt.id')
             ->where('ppt.produksi_id', $id)
             ->orderBy('ppk.id', 'desc')->get();
         switch ($status) {
             case 'belum selesai':
-                $badge = 'badge-light';
+                $badge = 'badge badge-light';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                         <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
                 break;
@@ -399,7 +408,7 @@ class ProsesProduksiController extends Controller
                         </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                         <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
-                $badge = 'badge-warning';
+                $badge = 'badge badge-warning';
                 break;
             case 'pending':
                 $masterStatus = Arr::except($masterStatus, ['2', '3']);
@@ -409,7 +418,7 @@ class ProsesProduksiController extends Controller
                         </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                         <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
-                $badge = 'badge-danger';
+                $badge = 'badge badge-danger';
                 break;
             case 'success':
                 foreach ($masterStatus as $ms) {
@@ -428,7 +437,7 @@ class ProsesProduksiController extends Controller
                         </div>
                         </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
-                $badge = 'badge-success';
+                $badge = 'badge badge-success';
                 $disable = 'disabled';
                 break;
         }
@@ -499,11 +508,10 @@ class ProsesProduksiController extends Controller
     }
     private function modalContentPrivateElse($status, $content, $addContent, $masterStatus, $footer, $sel, $disable, $tglselesai, $tglmulai, $trackData, $mesin, $opr)
     {
-        $selMesin = '';
-        $selOperator = '';
         switch ($status) {
             case 'belum selesai':
-                $badge = 'badge-light';
+                $masterStatus = Arr::except($masterStatus, ['3']);
+                $badge = 'badge badge-light';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                 <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
                 break;
@@ -515,7 +523,7 @@ class ProsesProduksiController extends Controller
                 </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                 <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
-                $badge = 'badge-warning';
+                $badge = 'badge badge-warning';
                 break;
             case 'pending':
                 $masterStatus = Arr::except($masterStatus, ['2', '3']);
@@ -525,9 +533,9 @@ class ProsesProduksiController extends Controller
                 </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                 <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
-                $badge = 'badge-danger';
+                $badge = 'badge badge-danger';
                 break;
-            case 'success':
+            case 'selesai':
                 foreach ($masterStatus as $ms) {
                     if ($status == $ms) {
                         $sel = ' selected="selected" ';
@@ -544,7 +552,7 @@ class ProsesProduksiController extends Controller
                 </div>
                 </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
-                $badge = 'badge-success';
+                $badge = 'badge badge-success';
                 $disable = 'disabled';
                 break;
         }
@@ -553,31 +561,16 @@ class ProsesProduksiController extends Controller
                     <div class="form-group col-md-6">
                     <label for="jenisMesin">Jenis Mesin</label>
                     <select name="mesin" class="form-control select-mesin" id="jenisMesin" ' . $disable . '>
-                            <option label="Pilih mesin"></option>';
-        foreach ($mesin as $m) {
-            if (is_null($trackData)) {
-                $selMesin = '';
-            } elseif ($m->id === $trackData->mesin) {
-                $selMesin = ' selected="selected" ';
-            }
-            $content .= '<option value="' . $m->id . '" ' . $selMesin . '>' . $m->nama . '</option>';
-        }
-
-        $content .= '</select>
+                            <option label="Pilih mesin"></option>
+                    </select>
+                    <span id="err_mesin"></span>
                     </div>
                     <div class="form-group col-md-6">
                     <label for="operatorId">Operator</label>
-                    <select name="operator" class="form-control select-operator" id="operatorId" multiple="multiple" ' . $disable . '>
-                            <option label="Pilih operator"></option>';
-        if ($opr) {
-            foreach ($opr as $o) {
-                if (in_array($o->operator, json_decode($trackData->operator))) {
-                    $selOperator = ' selected="selected" ';
-                }
-                $content .= '<option value="' . $m->id . '" ' . $selOperator . '>' . $m->nama . '</option>';
-            }
-        }
-        $content .= '</select>
+                    <select name="operator[]" class="form-control select-operator" id="operatorId" multiple="multiple" required ' . $disable . '>
+                            <option label="Pilih operator"></option>
+                    </select>
+                    <span id="err_operator"></span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -590,6 +583,7 @@ class ProsesProduksiController extends Controller
                             </option>';
         }
         $content .= '</select>
+        <span id="err_status"></span>
                 </div>';
         $content .= $addContent;
         return [
@@ -597,5 +591,97 @@ class ProsesProduksiController extends Controller
             'content' => $content,
             'footer' => $footer
         ];
+    }
+    protected function selectMaster($request)
+    {
+        switch ($request->request_) {
+            case 'selectMesin':
+                $type = 'M';
+                break;
+            case 'selectOperator':
+                $type = 'O';
+                break;
+        }
+        $data = DB::table('proses_produksi_master')->where('type', $type)
+            ->whereNull('deleted_at')
+            ->get();
+        return response()->json($data);
+    }
+    protected function selectedMaster($request)
+    {
+        $idM = $request->id_mesin;
+        $idO = $request->id_operator;
+        $dataMesin = DB::table('proses_produksi_master')->where('type', 'M')
+                ->where('id',$idM)
+                ->whereNull('deleted_at')
+                ->first();
+        $dataOperator = (object)collect(json_decode($idO))->map(function($id) {
+            return DB::table('proses_produksi_master')->where('type', 'O')
+            ->where('id',$id)
+            ->whereNull('deleted_at')
+            ->first();
+        })->all();
+        return response()->json([
+            'mesin' => $dataMesin,
+            'operator' => $dataOperator,
+        ]);
+    }
+    protected function submitTrack($request)
+    {
+        try {
+            $produksi_id = $request->produksi_id;
+            $proses_tahap = $request->proses_tahap;
+            if ($proses_tahap == 'Kirim Gudang') {
+                return $this->submitKirimGudang($produksi_id,$proses_tahap);
+            } else {
+                $mesin = $request->mesin;
+                $operator = is_null($request->operator) ? NULL : json_encode($request->operator);
+                $status = $request->status;
+                $checkData = DB::table('proses_produksi_track')
+                ->where('produksi_id',$produksi_id)
+                ->where('proses_tahap',$proses_tahap);
+                $tglselesai = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                $tglselesai = $status == 'selesai' ? $tglselesai : NULL;
+                if ($checkData->exists()) {
+                    //UPDATE
+                    $update = [
+                        'params' => 'Update Track Produksi',
+                        'query' => $checkData,
+                        'mesin' => $mesin,
+                        'operator' => $operator,
+                        'status' => $status,
+                        'tgl_selesai' => $tglselesai
+                    ];
+                    event(new ProduksiEvent($update));
+                } else {
+                    //INSERT
+                    $insert = [
+                        'params' => 'Insert Track Produksi',
+                        'produksi_id' => $produksi_id,
+                        'proses_tahap' => $proses_tahap,
+                        'mesin' => $mesin,
+                        'operator' => $operator,
+                        'status' => $status,
+                        'tgl_selesai' => $tglselesai
+                    ];
+                    event(new ProduksiEvent($insert));
+                }
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Tracking "'.$proses_tahap.'" diperbarui!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    private function submitKirimGudang($produksi_id,$proses_tahap)
+    {
+
     }
 }

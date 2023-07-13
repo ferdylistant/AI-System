@@ -265,7 +265,8 @@ class MasterDataListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
-            case 'Create Jenis Mesin':
+            //PRODUKSI
+            case 'Create Master Produksi':
                 DB::beginTransaction();
                 $res = DB::table('proses_produksi_master')->insert([
                     'id' => $data['id'],
@@ -275,7 +276,7 @@ class MasterDataListener
                 ]);
                 DB::commit();
                 break;
-            case 'Update Jenis Mesin':
+            case 'Update Master Produksi':
                 DB::beginTransaction();
                 $res = DB::table('proses_produksi_master')->where('id',$data['id'])->update([
                     'nama' => $data['nama'],
@@ -287,6 +288,34 @@ class MasterDataListener
                     'nama_his' => $data['nama_his'],
                     'nama_new' => $data['nama'],
                     'author_id' => $data['updated_by'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                DB::commit();
+                break;
+            case 'Insert History Delete Master Produksi':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_master')->where('id', $data['master_id'])->update([
+                    'deleted_at' => $data['modified_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                DB::table('proses_produksi_master_history')->insert([
+                    'master_id' => $data['master_id'],
+                    'type_history' => $data['type_history'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                DB::commit();
+                break;
+            case 'Restore Master Produksi':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_master')->where('id',$data['master_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['deleted_by']
+                ]);
+                DB::table('proses_produksi_master_history')->insert([
+                    'master_id' => $data['master_id'],
+                    'type_history' => $data['type_history'],
+                    'author_id'=> $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
                 DB::commit();

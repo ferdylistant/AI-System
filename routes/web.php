@@ -119,6 +119,14 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::post('/jenis-mesin/hapus', $path.'\MasterData\JenisMesinController@deleteJmesin')->name('jm.delete');
         Route::post('/jenis-mesin/restore', $path.'\MasterData\JenisMesinController@restoreJmesin')->name('jm.restore');
         Route::post('/jenis-mesin/lihat-history', $path.'\MasterData\JenisMesinController@lihatHistoryJmesin')->name('jm.history');
+        //Operator MESIN
+        Route::get('/operator-mesin', $path.'\MasterData\OperatorMesinController@index')->name('om.view');
+        Route::get('/operator-mesin/operator-mesin-telah-dihapus', $path.'\MasterData\OperatorMesinController@oMesinTelahDihapus')->name('om.telah_dihapus');
+        Route::match(['get', 'post'], '/operator-mesin/tambah', $path.'\MasterData\OperatorMesinController@createOmesin')->name('om.create');
+        Route::match(['get', 'post'], '/operator-mesin/ubah', $path.'\MasterData\OperatorMesinController@updateOmesin')->name('om.update');
+        Route::post('/operator-mesin/hapus', $path.'\MasterData\OperatorMesinController@deleteOmesin')->name('om.delete');
+        Route::post('/operator-mesin/restore', $path.'\MasterData\OperatorMesinController@restoreOmesin')->name('om.restore');
+        Route::post('/operator-mesin/lihat-history', $path.'\MasterData\OperatorMesinController@lihatHistoryOmesin')->name('om.history');
 
     });
     //Penerbitan

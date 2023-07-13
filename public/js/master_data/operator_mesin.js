@@ -1,5 +1,5 @@
 $(function () {
-    let tableJmesin = $("#tb_Jmesin").DataTable({
+    let tableOmesin = $("#tb_Omesin").DataTable({
         responsive: true,
         processing: true,
         serverSide: true,
@@ -9,7 +9,7 @@ $(function () {
             lengthMenu: "_MENU_ items/page",
         },
         ajax: {
-            url: window.location.origin + "/master/jenis-mesin",
+            url: window.location.origin + "/master/operator-mesin",
         },
         columns: [
             {
@@ -20,7 +20,7 @@ $(function () {
             {
                 data: "nama",
                 name: "nama",
-                title: "Nama Mesin",
+                title: "Nama Operator",
             },
             {
                 data: "created_at",
@@ -58,24 +58,24 @@ $(function () {
     });
 
     // History FBuku Start
-    $("#tb_Jmesin").on("click", ".btn-history", function (e) {
+    $("#tb_Omesin").on("click", ".btn-history", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
         var judul = $(this).data("nama");
         $.post(
-            window.location.origin + "/master/jenis-mesin/lihat-history",
+            window.location.origin + "/master/operator-mesin/lihat-history",
             {
                 id: id,
             },
             function (data) {
-                $("#titleModalJenisMesin").html(
-                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Jenis Mesin "' +
+                $("#titleModalOperatorMesin").html(
+                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Operator Mesin "' +
                         judul +
                         '"'
                 );
                 $("#load_more").data("id", id);
                 $("#dataHistory").html(data);
-                $("#md_JenisMesinHistory").modal("show");
+                $("#md_OperatorMesinHistory").modal("show");
             }
         );
     });
@@ -83,11 +83,11 @@ $(function () {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
-        let form = $("#md_JenisMesinHistory");
+        let form = $("#md_OperatorMesinHistory");
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/master/jenis-mesin/lihat-history",
+            url: window.location.origin + "/master/operator-mesin/lihat-history",
             data: {
                 id: id,
                 page: page,
@@ -116,12 +116,12 @@ $(function () {
             },
         });
     });
-    $("#md_JenisMesinHistory").on("hidden.bs.modal", function () {
+    $("#md_OperatorMesinHistory").on("hidden.bs.modal", function () {
         $(".load-more").data("paginate", 2);
         $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
     // History FBuku End
-    let addForm = jqueryValidation_("#fm_addJMesin", {
+    let addForm = jqueryValidation_("#fm_addOMesin", {
         nama: { required: true },
     });
     // Add FBuku Start
@@ -130,7 +130,7 @@ $(function () {
             let el = data.get(0);
             $.ajax({
                 type: "POST",
-                url: window.location.origin + "/master/jenis-mesin/tambah",
+                url: window.location.origin + "/master/operator-mesin/tambah",
                 data: new FormData(el),
                 processData: false,
                 contentType: false,
@@ -142,9 +142,9 @@ $(function () {
                 success: function (result) {
                     notifToast(result.status, result.message);
                     if (result.status == "success") {
-                        tableJmesin.ajax.reload();
+                        tableOmesin.ajax.reload();
                         data.trigger("reset");
-                        $("#md_AddJMesin").modal("hide");
+                        $("#md_AddOMesin").modal("hide");
                     }
                 },
                 error: function (err) {
@@ -157,7 +157,7 @@ $(function () {
                         });
                         addForm.showErrors(err);
                     }
-                    notifToast("error", "Data jenis mesin gagal disimpan!");
+                    notifToast("error", "Data operator mesin gagal disimpan!");
                 },
                 complete: function () {
                     $('button[type="submit"]')
@@ -167,12 +167,12 @@ $(function () {
             });
         }
 
-        $("#fm_addJMesin").on("submit", function (e) {
+        $("#fm_addOMesin").on("submit", function (e) {
             e.preventDefault();
             if ($(this).valid()) {
                 let nama = $(this).find('[name="nama"]').val();
                 swal({
-                    text: "Tambah data jenis mesin (" + nama + ")?",
+                    text: "Tambah data operator mesin (" + nama + ")?",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
@@ -184,14 +184,14 @@ $(function () {
             }
         });
     });
-    // Add Jenis Mesin End
+    // Add Operator Mesin End
 
-    // Edit Jenis Mesin Start
-    $("#md_EditJenisMesin").on("shown.bs.modal", function (e) {
+    // Edit Operator Mesin Start
+    $("#md_EditOperatorMesin").on("shown.bs.modal", function (e) {
         let id = $(e.relatedTarget).data("id"),
             form_ = $(this);
         $.ajax({
-            url: window.location.origin + "/master/jenis-mesin/ubah",
+            url: window.location.origin + "/master/operator-mesin/ubah",
             type: 'GET',
             data: {
                 id: id,
@@ -206,11 +206,11 @@ $(function () {
         });
     });
 
-    $("#md_EditJenisMesin").on("hidden.bs.modal", function () {
+    $("#md_EditOperatorMesin").on("hidden.bs.modal", function () {
         $(this).find("form").trigger("reset");
         $(this).addClass("modal-progress");
     });
-    let editForm = jqueryValidation_("#fm_EditJMesin", {
+    let editForm = jqueryValidation_("#fm_EditOMesin", {
         edit_nama: { required: true },
     });
     $(document).ready(function () {
@@ -219,7 +219,7 @@ $(function () {
 
             $.ajax({
                 type: "POST",
-                url: window.location.origin + "/master/jenis-mesin/ubah",
+                url: window.location.origin + "/master/operator-mesin/ubah",
                 data: new FormData(el),
                 processData: false,
                 contentType: false,
@@ -232,8 +232,8 @@ $(function () {
                     // console.log(result);
                     notifToast(result.status, result.message);
                     if (result.status == "success") {
-                        $("#md_EditJenisMesin").modal("hide");
-                        tableJmesin.ajax.reload();
+                        $("#md_EditOperatorMesin").modal("hide");
+                        tableOmesin.ajax.reload();
                     }
                 },
                 error: function (err) {
@@ -246,7 +246,7 @@ $(function () {
                         });
                         editForm.showErrors(err);
                     }
-                    notifToast("error", "Data jenis mesin gagal disimpan!");
+                    notifToast("error", "Data operator mesin gagal disimpan!");
                 },
                 complete: function () {
                     $('button[type="submit"]')
@@ -256,12 +256,12 @@ $(function () {
             });
         }
 
-        $("#fm_EditJMesin").on("submit", function (e) {
+        $("#fm_EditOMesin").on("submit", function (e) {
             e.preventDefault();
             if ($(this).valid()) {
                 let nama = $(this).find('[name="edit_nama"]').val();
                 swal({
-                    text: "Ubah data jenis mesin (" + nama + ")?",
+                    text: "Ubah data operator mesin (" + nama + ")?",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
@@ -274,48 +274,48 @@ $(function () {
         });
     });
 
-    // Edit Jenis Mesin End
+    // Edit Operator Mesin End
 
-    // Delete Jenis Mesin Start
+    // Delete Operator Mesin Start
     $(document).ready(function () {
-        function ajaxDeleteJenisMesin(data) {
+        function ajaxDeleteOperatorMesin(data) {
             $.ajax({
                 type: "POST",
-                url: window.location.origin + "/master/jenis-mesin/hapus",
+                url: window.location.origin + "/master/operator-mesin/hapus",
                 data: data,
                 beforeSend: function () {
-                    $(".btn_DelJenisMesin")
+                    $(".btn_DelOperatorMesin")
                         .prop("disabled", true)
                         .addClass("btn-progress");
                 },
                 success: function (result) {
                     notifToast(result.status, result.message);
-                    tableJmesin.ajax.reload();
+                    tableOmesin.ajax.reload();
                 },
                 error: function (err) {},
                 complete: function () {
-                    $(".btn_DelJenisMesin")
+                    $(".btn_DelOperatorMesin")
                         .prop("disabled", true)
                         .removeClass("btn-progress");
                 },
             });
         }
-        $(document).on("click", ".btn_DelJenisMesin", function (e) {
+        $(document).on("click", ".btn_DelOperatorMesin", function (e) {
             let nama = $(this).data("nama"),
                 id = $(this).data("id");
             swal({
-                text: "Hapus data jenis mesin (" + nama + ")?",
+                text: "Hapus data operator mesin (" + nama + ")?",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxDeleteJenisMesin({
+                    ajaxDeleteOperatorMesin({
                         id: id,
                     });
                 }
             });
         });
     });
-    // Delete Jenis Mesin End
+    // Delete Operator Mesin End
 });
