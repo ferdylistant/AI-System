@@ -30,25 +30,8 @@ $(function () {
     });
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
         notifToast("error", message)
+        window.location.reload();
     };
-    function loadSelectMesin(id) {
-        $.ajax({
-            url: window.location.origin + "/produksi/proses/cetak/ajax/selected?type=M",
-            type: 'GET',
-            data: {
-                id:id
-            },
-            cache: false,
-            success: function (result) {
-                $("#jenisMesin").select2("trigger", "select", {
-                    data: {
-                        id: result.id,
-                        text: result.nama
-                    }
-                });
-            }
-        });
-    }
     function loadSelected(idm,ido) {
         $.ajax({
             url: window.location.origin + "/produksi/proses/cetak/ajax/selected",
@@ -228,6 +211,7 @@ $(function () {
                     .addClass("btn-progress");
             },
             success: function(res) {
+                // console.log(res);
                 notifToast(res.status,res.message);
                 if (res.status == 'success') {
                     tableProduksi.ajax.reload();

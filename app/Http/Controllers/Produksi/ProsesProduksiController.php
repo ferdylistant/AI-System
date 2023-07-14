@@ -371,11 +371,12 @@ class ProsesProduksiController extends Controller
             $masterStatus = explode("','", $matches[1]);
             $masterStatus = Arr::except($masterStatus, ['0']);
             if ($typeProses == 'Kirim Gudang') {
-                $res = $this->modalContentPrivateIf($disable = '', $id, $status, $footer = '', $masterStatus, $addContent = '', $content = '', $tglmulai, $tglselesai, $data);
+                $res = $this->modalContentPrivateIf($disable = '', $id, $status, $footer = '', $masterStatus, $addContent = '', $content = '', $tglmulai, $tglselesai, $data, $trackData);
             } else {
                 $res = $this->modalContentPrivateElse($status, $content = '', $addContent = '', $masterStatus, $footer = '', $sel = '', $disable = '', $tglselesai, $tglmulai, $trackData, $mesin, $opr);
             }
             return [
+                'id' => $id,
                 'proses_tahap' => $typeProses,
                 'badge' => $res['badge'],
                 'status' => $status,
@@ -389,23 +390,120 @@ class ProsesProduksiController extends Controller
             return abort(500, $e->getMessage());
         }
     }
-    private function modalContentPrivateIf($disable, $id, $status, $footer, $masterStatus, $addContent, $content, $tglmulai, $tglselesai, $data)
+    private function modalContentPrivateIf($disable, $id, $status, $footer, $masterStatus, $addContent, $content, $tglmulai, $tglselesai, $data, $trackData)
     {
-        $kirimGudang = DB::table('proses_produksi_track as ppt')->join('proses_produksi_kirimgudang as ppk', 'ppk.kirimgudang_id', '=', 'ppt.id')
-            ->where('ppt.produksi_id', $id)
-            ->orderBy('ppk.id', 'desc')->get();
         switch ($status) {
             case 'belum selesai':
                 $badge = 'badge badge-light';
+                $addContent .='<div class="form-group">
+                        <label for="historyKirim">Riwayat Kirim</label>
+                            <div class="scroll-riwayat scrollbar-deep-purple bordered-deep-purple square">
+                            <table class="table table-striped" style="width:100%">
+                            <thead style="position: sticky;top:0">
+                              <tr>
+                                <th scope="col" style="background: #eee;">Tahap</th>
+                                <th scope="col" style="background: #eee;">Tanggal Kirim</th>
+                                <th scope="col" style="background: #eee;">Otorisasi Oleh</th>
+                                <th scope="col" style="background: #eee;">Tanggal Diterima</th>
+                                <th scope="col" style="background: #eee;">Penerima</th>
+                                <th scope="col" style="background: #eee;">Jumlah Kirim</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <th scope="row">1</th>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Ferdyawan Listanto</td>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Ferdyawan Listanto</td>
+                                <td>100</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">2</th>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Ferdyawan Listanto</td>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Sutarjo</td>
+                                <td>75</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">3</th>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Ferdyawan Listanto</td>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Ferdyawan Listanto</td>
+                                <td>500</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                            </div>
+                            </div>
+                            <div class="alert alert-dark d-flex justify-content-between" role="alert">
+                                <div class="col-auto">
+                                    <th colspan="5" style="background: #eee;">Total Kirim</th>
+                                </div>
+                                <div class="col-auto">
+                                    <th class="text-center bg-dark text-white">1000</th>
+                                </div>
+                            </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                         <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
                 break;
             case 'sedang dalam proses':
                 $masterStatus = Arr::except($masterStatus, ['1']);
-                $addContent .= '<div class="form-group">
-                        <label for="tglMulai">Tanggal Mulai</label>
-                        <p id="tglMulai">' . Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i') . '</p>
-                        </div>';
+                $kirimGudang = DB::table('proses_produksi_track_riwayat')->where('track_id',$trackData->id)->where('track',$trackData->proses_tahap)
+                ->orderBy('created_at','desc')->get();
+                $addContent .='<div class="form-group">
+                        <label for="historyKirim">Riwayat Kirim</label>
+                            <div class="scroll-riwayat scrollbar-deep-purple bordered-deep-purple square">
+                            <table class="table table-striped" style="width:100%">
+                            <thead style="position: sticky;top:0">
+                              <tr>
+                                <th scope="col" style="background: #eee;">Tahap</th>
+                                <th scope="col" style="background: #eee;">Tanggal Kirim</th>
+                                <th scope="col" style="background: #eee;">Otorisasi Oleh</th>
+                                <th scope="col" style="background: #eee;">Tanggal Diterima</th>
+                                <th scope="col" style="background: #eee;">Penerima</th>
+                                <th scope="col" style="background: #eee;">Jumlah Kirim</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <th scope="row">1</th>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Ferdyawan Listanto</td>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Ferdyawan Listanto</td>
+                                <td>100</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">2</th>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Ferdyawan Listanto</td>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Sutarjo</td>
+                                <td>75</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">3</th>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Ferdyawan Listanto</td>
+                                <td>2023-07-14 11:45:40</td>
+                                <td>Ferdyawan Listanto</td>
+                                <td>500</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                            </div>
+                            </div>
+                            <div class="alert alert-dark d-flex justify-content-between" role="alert">
+                                <div class="col-auto">
+                                    <th colspan="5" style="background: #eee;">Total Kirim</th>
+                                </div>
+                                <div class="col-auto">
+                                    <th class="text-center bg-dark text-white">1000</th>
+                                </div>
+                            </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                         <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
                 $badge = 'badge badge-warning';
@@ -451,54 +549,7 @@ class ProsesProduksiController extends Controller
                             <label for="jmlDikirim">Jumlah Dikirim</label>
                             <input name="jml_kirim" class="form-control" id="jmlDikirim" ' . $disable . '>
                             </div>
-                        </div>
-                        <div class="form-group">
-                        <label for="historyKirim">Riwayat Kirim</label>';
-        if (!$kirimGudang->isEmpty()) {
-            $content .= '<p class="text-danger">Belum ada riwayat pengiriman</p>';
-        } else {
-            // $content .= '<button type="button" class="btn btn-info btn-block"><i class="fas fa-history"></i> Riwayat Kirim</button>';
-            $content .= '
-                            <div class="scroll-riwayat thin">
-                            <table class="table table-striped" style="width:100%">
-                            <thead style="position: sticky;top:0">
-                              <tr>
-                                <th scope="col" style="background: #eee;">Tahap</th>
-                                <th scope="col" style="background: #eee;">Tanggal Kirim</th>
-                                <th scope="col" style="background: #eee;">Otorisasi Oleh</th>
-                                <th scope="col" style="background: #eee;">Jumlah Kirim</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                              </tr>
-                              <tr>
-                                <th scope="row">2</th>
-                                <td>Jacob</td>
-                                <td>Thornton</td>
-                                <td>@fat</td>
-                              </tr>
-                              <tr>
-                                <th scope="row">3</th>
-                                <td>Larry</td>
-                                <td>the Bird</td>
-                                <td>@twitter</td>
-                              </tr>
-                            </tbody>
-                            <tfoot style="position: sticky;bottom:-1px">
-                                <tr>
-                                    <th colspan="3" style="background: #eee;">Total Kirim</th>
-                                    <th class="text-center" style="background: #5569ed;color:white">1000</th>
-                                </tr>
-                                </tfoot>
-                          </table>
-                            </div>';
-        }
-        $content .= '</div>';
+                        </div>';
         $content .= $addContent;
         return [
             'badge' => $badge,
@@ -517,9 +568,62 @@ class ProsesProduksiController extends Controller
                 break;
             case 'sedang dalam proses':
                 $masterStatus = Arr::except($masterStatus, ['1']);
+                $riwayat= DB::table('proses_produksi_track_riwayat')->where('track_id',$trackData->id)->where('track',$trackData->proses_tahap)
+                ->orderBy('created_at','desc')
+                ->get();
                 $addContent .= '<div class="form-group">
-                <label for="tglMulai">Tanggal Mulai</label>
-                <p id="tglMulai">' . Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i') . '</p>
+                <label for="tglMulai">Riwayat</label>
+                <div class="tickets-list example-1 scrollbar-deep-purple bordered-deep-purple thin">';
+                foreach ($riwayat as $d) {
+                    $addContent .= '<span class="ticket-item">
+                    <div class="ticket-title"><span class="bullet"></span>';
+                    if (!is_null($d->mesin_new)) {
+                        $addContent .= ' Jenis mesin (<b class="text-dark">' .
+                        DB::table('proses_produksi_master')->where('id',$d->mesin_new)->first()->nama
+                        . '</b>) ditambahkan.<br>';
+                    }
+                    if (!is_null($d->operator_new)) {
+                        $textOpr = (array)collect(json_decode($d->operator_new))->map(function($item) {
+                            return DB::table('proses_produksi_master')->where('type','O')->where('id',$item)->first()->nama;
+                        })->all();
+                        $addContent .= ' Operator mesin (<b class="text-dark">' . implode(', ',$textOpr) . '</b>) ditambahkan.<br>';
+                    }
+                    if (!is_null($d->status_new)) {
+                        switch ($d->status_new) {
+                            case 'sedang dalam proses':
+                                $clr = 'warning';
+                                break;
+                            case 'pending':
+                                $clr = 'danger';
+                                break;
+                            case 'selesai':
+                                $clr = 'success';
+                                break;
+                        }
+                        $addContent .= ' Status (<b class="text-'.$clr.'">' . $d->status_new . '</b>) ditambahkan.<br>';
+                    }
+                    if (!is_null($d->tgl_pending)) {
+                        $addContent .= ' Tanggal dipending (<b class="text-dark">' . $d->tgl_pending . '</b>).<br>';
+                    }
+                    if (!is_null($d->tgl_pending)) {
+                        $addContent .= ' Tanggal dipending (<b class="text-dark">' . $d->tgl_pending . '</b>).<br>';
+                    }
+                    if (!is_null($d->tgl_selesai)) {
+                        $addContent .= ' Selesai pada tanggal (<b class="text-dark">' . $d->tgl_selesai . '</b>).<br>';
+                    }
+                    if (!is_null($d->tgl_mulai)) {
+                        $addContent .= ' Pengerjaan dimulai pada tanggal (<b class="text-dark">' . $d->tgl_mulai . '</b>).<br>';
+                    }
+                    $addContent .= '</div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Otorisasi oleh <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . DB::table('users')->where('id',$d->users_id)->whereNull('deleted_at')->first()->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                }
+                $addContent .='</div>
                 </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                 <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
@@ -527,9 +631,58 @@ class ProsesProduksiController extends Controller
                 break;
             case 'pending':
                 $masterStatus = Arr::except($masterStatus, ['2', '3']);
+                $riwayat= DB::table('proses_produksi_track_riwayat')->where('track_id',$trackData->id)->where('track',$trackData->proses_tahap)
+                ->orderBy('created_at','desc')->get();
                 $addContent .= '<div class="form-group">
-                <label for="tglMulai">Tanggal Mulai</label>
-                <p id="tglMulai">' . Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i') . '</p>
+                <label for="tglMulai">Riwayat</label>
+                <div class="tickets-list example-1 scrollbar-deep-purple bordered-deep-purple thin">';
+                foreach ($riwayat as $d) {
+                    $addContent .= '<span class="ticket-item">
+                    <div class="ticket-title"><span class="bullet"></span>';
+                    if (!is_null($d->mesin_new)) {
+                        $addContent .= ' Jenis mesin (<b class="text-dark">' .
+                        DB::table('proses_produksi_master')->where('id',$d->mesin_new)->first()->nama
+                        . '</b>) ditambahkan.<br>';
+                    }
+                    if (!is_null($d->operator_new)) {
+                        $textOpr = (array)collect(json_decode($d->operator_new))->map(function($item) {
+                            return DB::table('proses_produksi_master')->where('type','O')->where('id',$item)->first()->nama;
+                        })->all();
+                        $addContent .= ' Operator mesin (<b class="text-dark">' . implode(', ',$textOpr) . '</b>) ditambahkan.<br>';
+                    }
+                    if (!is_null($d->status_new)) {
+                        switch ($d->status_new) {
+                            case 'sedang dalam proses':
+                                $clr = 'warning';
+                                break;
+                            case 'pending':
+                                $clr = 'danger';
+                                break;
+                            case 'selesai':
+                                $clr = 'success';
+                                break;
+                        }
+                        $addContent .= ' Status (<b class="text-'.$clr.'">' . $d->status_new . '</b>) ditambahkan.<br>';
+                    }
+                    if (!is_null($d->tgl_pending)) {
+                        $addContent .= ' Tanggal dipending (<b class="text-dark">' . $d->tgl_pending . '</b>).<br>';
+                    }
+                    if (!is_null($d->tgl_selesai)) {
+                        $addContent .= ' Selesai pada tanggal (<b class="text-dark">' . $d->tgl_selesai . '</b>).<br>';
+                    }
+                    if (!is_null($d->tgl_mulai)) {
+                        $addContent .= ' Pengerjaan dimulai pada tanggal (<b class="text-dark">' . $d->tgl_mulai . '</b>).<br>';
+                    }
+                    $addContent .= '</div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Otorisasi oleh <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . DB::table('users')->where('id',$d->users_id)->whereNull('deleted_at')->first()->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                }
+                $addContent .='</div>
                 </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                 <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
@@ -541,15 +694,58 @@ class ProsesProduksiController extends Controller
                         $sel = ' selected="selected" ';
                     }
                 }
-                $addContent .= '<div class="form-row">
-                <div class="form-group col-md-6">
-                <label for="tglMulai">Tanggal Mulai</label>
-                <p id="tglMulai">' . Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i') . '</p>
-                </div>
-                <div class="form-group col-md-6">
-                <label for="tglSelesai">Tanggal Selesai</label>
-                <p id="tglSelesai">' . Carbon::parse($tglselesai)->translatedFormat('l d F Y, H:i') . '</p>
-                </div>
+                $riwayat= DB::table('proses_produksi_track_riwayat')->where('track_id',$trackData->id)->where('track',$trackData->proses_tahap)
+                ->orderBy('created_at','desc')->get();
+                $addContent .= '<div class="form-group">
+                <label for="tglMulai">Riwayat</label>
+                <div class="tickets-list example-1 scrollbar-deep-purple bordered-deep-purple thin">';
+                foreach ($riwayat as $d) {
+                    $addContent .= '<span class="ticket-item">
+                    <div class="ticket-title"><span class="bullet"></span>';
+                    if (!is_null($d->mesin_new)) {
+                        $addContent .= ' Jenis mesin (<b class="text-dark">' .
+                        DB::table('proses_produksi_master')->where('id',$d->mesin_new)->first()->nama
+                        . '</b>) ditambahkan.<br>';
+                    }
+                    if (!is_null($d->operator_new)) {
+                        $textOpr = (array)collect(json_decode($d->operator_new))->map(function($item) {
+                            return DB::table('proses_produksi_master')->where('type','O')->where('id',$item)->first()->nama;
+                        })->all();
+                        $addContent .= ' Operator mesin (<b class="text-dark">' . implode(', ',$textOpr) . '</b>) ditambahkan.<br>';
+                    }
+                    if (!is_null($d->status_new)) {
+                        switch ($d->status_new) {
+                            case 'sedang dalam proses':
+                                $clr = 'warning';
+                                break;
+                            case 'pending':
+                                $clr = 'danger';
+                                break;
+                            case 'selesai':
+                                $clr = 'success';
+                                break;
+                        }
+                        $addContent .= ' Status (<b class="text-'.$clr.'">' . $d->status_new . '</b>) ditambahkan.<br>';
+                    }
+                    if (!is_null($d->tgl_pending)) {
+                        $addContent .= ' Tanggal dipending (<b class="text-dark">' . $d->tgl_pending . '</b>).<br>';
+                    }
+                    if (!is_null($d->tgl_selesai)) {
+                        $addContent .= ' Selesai pada tanggal (<b class="text-dark">' . $d->tgl_selesai . '</b>).<br>';
+                    }
+                    if (!is_null($d->tgl_mulai)) {
+                        $addContent .= ' Pengerjaan dimulai pada tanggal (<b class="text-dark">' . $d->tgl_mulai . '</b>).<br>';
+                    }
+                    $addContent .= '</div>
+                        <div class="ticket-info">
+                            <div class="text-muted pt-2">Otorisasi oleh <a href="' . url('/manajemen-web/user/' . $d->users_id) . '">' . DB::table('users')->where('id',$d->users_id)->whereNull('deleted_at')->first()->nama . '</a></div>
+                            <div class="bullet pt-2"></div>
+                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i') . ')</div>
+
+                        </div>
+                        </span>';
+                }
+                $addContent .='</div>
                 </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
                 $badge = 'badge badge-success';
@@ -637,24 +833,39 @@ class ProsesProduksiController extends Controller
                 $mesin = $request->mesin;
                 $operator = is_null($request->operator) ? NULL : json_encode($request->operator);
                 $status = $request->status;
+                DB::beginTransaction();
                 $checkData = DB::table('proses_produksi_track')
                 ->where('produksi_id',$produksi_id)
-                ->where('proses_tahap',$proses_tahap);
-                $tglselesai = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                $tglselesai = $status == 'selesai' ? $tglselesai : NULL;
-                if ($checkData->exists()) {
+                ->where('proses_tahap',$proses_tahap)
+                ->first();
+                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+                $tglselesai = $status == 'selesai' ? $tgl : NULL;
+                if ($checkData) {
                     //UPDATE
                     $update = [
                         'params' => 'Update Track Produksi',
-                        'query' => $checkData,
+                        'produksi_id' => $produksi_id,
+                        'proses_tahap' => $proses_tahap,
                         'mesin' => $mesin,
                         'operator' => $operator,
                         'status' => $status,
-                        'tgl_selesai' => $tglselesai
+                        'tgl_pending' => $status == 'pending' ? $tgl:NULL,
+                        'tgl_mulai' => $status == 'sedang dalam proses' ? $tgl:NULL,
+                        'tgl_selesai' => $tglselesai,
                     ];
                     event(new ProduksiEvent($update));
+                    $mesin = $mesin == $checkData->mesin ? NULL:$mesin;
+                    $operator = $operator == $checkData->operator ? NULL:$operator;
+                    $status = $status == $checkData->status ? NULL:$status;
+                    $mesinD = $checkData->mesin;
+                    $operatorD = $checkData->operator;
+                    $statusD = $checkData->status;
+                    $track_id = $checkData->id;
                 } else {
                     //INSERT
+                    $mesinD = '';
+                    $operatorD = '';
+                    $statusD = '';
                     $insert = [
                         'params' => 'Insert Track Produksi',
                         'produksi_id' => $produksi_id,
@@ -662,10 +873,31 @@ class ProsesProduksiController extends Controller
                         'mesin' => $mesin,
                         'operator' => $operator,
                         'status' => $status,
-                        'tgl_selesai' => $tglselesai
+                        'tgl_pending' => $status == 'pending' ? $tgl:NULL,
+                        'tgl_mulai' => $status == 'sedang dalam proses' ? $tgl:NULL,
+                        'tgl_selesai' => $tglselesai,
                     ];
                     event(new ProduksiEvent($insert));
+                    $track_id = DB::getPdo()->lastInsertId();
                 }
+                if (($mesin != $mesinD) || ($request->operator != $operatorD) || ($status != $statusD)) {
+                    $insertRiwayat = [
+                        'params' => 'Insert Riwayat Track',
+                        'track_id' => $track_id,
+                        'track' => $proses_tahap,
+                        'mesin_new' => $mesin,
+                        'operator_new' => $operator,
+                        'status_new' => $status,
+                        'tahap' => NULL,
+                        'jml_dikirim' => NULL,
+                        'tgl_pending' => $status == 'pending' ? $tgl:NULL,
+                        'tgl_mulai' => $status == 'sedang dalam proses' ? $tgl:NULL,
+                        'tgl_selesai' => $tglselesai,
+                        'users_id' => auth()->user()->id
+                    ];
+                    event(new ProduksiEvent($insertRiwayat));
+                }
+                DB::commit();
             }
 
             return response()->json([
