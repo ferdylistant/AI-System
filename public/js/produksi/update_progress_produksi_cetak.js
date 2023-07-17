@@ -92,6 +92,13 @@ $(function () {
                         loadSelected(result.trackData.mesin,result.trackData.operator);
                     }
                 }
+                if (result.proses_tahap === 'Kirim Gudang') {
+                    var jmlDikirim = document.getElementById('jmlDikirim');
+                    var maskjmlDikirim = {
+                        mask: '0000000000000'
+                    };
+                    var mask = IMask(jmlDikirim, maskjmlDikirim,reverse = true);
+                }
                 $("#modalTrackProduksi").modal('show');
                 $(".select-mesin")
                     .select2({
@@ -211,7 +218,7 @@ $(function () {
                     .addClass("btn-progress");
             },
             success: function(res) {
-                // console.log(res);
+                console.log(res);
                 notifToast(res.status,res.message);
                 if (res.status == 'success') {
                     tableProduksi.ajax.reload();

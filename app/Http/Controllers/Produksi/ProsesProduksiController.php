@@ -131,7 +131,7 @@ class ProsesProduksiController extends Controller
                     ->addColumn('buku_jadi', function ($data) {
                         return $data->buku_jadi;
                     })
-                    ->addColumn('tracking', function ($data) {
+                    ->addColumn('tracking', function ($data) use ($update) {
                         $badge = '';
                         $res = DB::table('proses_produksi_track')
                             ->where('produksi_id', $data->id)
@@ -172,19 +172,31 @@ class ProsesProduksiController extends Controller
                                                 $lbl = 'success';
                                                 break;
                                         }
-                                        $badge .= '<a href="javascript:void(0)"
+                                        if ($update) {
+                                            $badge .= '<a href="javascript:void(0)"
                                             class="text-' . $lbl . ' text-small text-decoration-none d-block font-600-bold"
                                             data-status="' . $status->status . '" data-type="' . $m . '" ' . $dataId . ' ' . $tglMulai . ' ' . $tglSelesai . ' data-toggle="modal" data-target="#modalTrackProduksi" data-backdrop="static">
                                             <span class="bullet"></span> ' . $m . '
                                             </a>';
+                                        } else {
+                                            $badge .= '<span class="text-' . $lbl . ' text-small text-decoration-none d-block font-600-bold">
+                                            <span class="bullet"></span> ' . $m . '
+                                            </span>';
+                                        }
                                     }
                                 }
                             } else {
-                                $badge .= '<a href="javascript:void(0)"
-                                            class="text-muted text-small text-decoration-none d-block font-600-bold"
-                                            data-status="belum selesai" data-type="' . $m . '" ' . $dataId . ' ' . $tglMulai . ' ' . $tglSelesai . ' data-toggle="modal" data-target="#modalTrackProduksi" data-backdrop="static">
-                                            <span class="bullet"></span> ' . $m . '
-                                            </a>';
+                                if ($update) {
+                                    $badge .= '<a href="javascript:void(0)"
+                                    class="text-muted text-small text-decoration-none d-block font-600-bold"
+                                    data-status="belum selesai" data-type="' . $m . '" ' . $dataId . ' ' . $tglMulai . ' ' . $tglSelesai . ' data-toggle="modal" data-target="#modalTrackProduksi" data-backdrop="static">
+                                    <span class="bullet"></span> ' . $m . '
+                                    </a>';
+                                } else {
+                                    $badge .= '<span class="text-muted text-small text-decoration-none d-block font-600-bold">
+                                    <span class="bullet"></span> ' . $m . '
+                                    </span>';
+                                }
                             }
                         }
                         return $badge;
@@ -358,6 +370,7 @@ class ProsesProduksiController extends Controller
                 ->select(
                     'ppc.*',
                     'oc.jumlah_cetak',
+                    'oc.buku_jadi',
                     'dp.judul_final'
                 )->first();
             if (!$data) {
@@ -395,64 +408,23 @@ class ProsesProduksiController extends Controller
         switch ($status) {
             case 'belum selesai':
                 $badge = 'badge badge-light';
-                $addContent .='<div class="form-group">
-                        <label for="historyKirim">Riwayat Kirim</label>
-                            <div class="scroll-riwayat scrollbar-deep-purple bordered-deep-purple square">
-                            <table class="table table-striped" style="width:100%">
-                            <thead style="position: sticky;top:0">
-                              <tr>
-                                <th scope="col" style="background: #eee;">Tahap</th>
-                                <th scope="col" style="background: #eee;">Tanggal Kirim</th>
-                                <th scope="col" style="background: #eee;">Otorisasi Oleh</th>
-                                <th scope="col" style="background: #eee;">Tanggal Diterima</th>
-                                <th scope="col" style="background: #eee;">Penerima</th>
-                                <th scope="col" style="background: #eee;">Jumlah Kirim</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <th scope="row">1</th>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Ferdyawan Listanto</td>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Ferdyawan Listanto</td>
-                                <td>100</td>
-                              </tr>
-                              <tr>
-                                <th scope="row">2</th>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Ferdyawan Listanto</td>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Sutarjo</td>
-                                <td>75</td>
-                              </tr>
-                              <tr>
-                                <th scope="row">3</th>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Ferdyawan Listanto</td>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Ferdyawan Listanto</td>
-                                <td>500</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                            </div>
-                            </div>
-                            <div class="alert alert-dark d-flex justify-content-between" role="alert">
-                                <div class="col-auto">
-                                    <th colspan="5" style="background: #eee;">Total Kirim</th>
-                                </div>
-                                <div class="col-auto">
-                                    <th class="text-center bg-dark text-white">1000</th>
-                                </div>
-                            </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                         <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
                 break;
             case 'sedang dalam proses':
                 $masterStatus = Arr::except($masterStatus, ['1']);
                 $kirimGudang = DB::table('proses_produksi_track_riwayat')->where('track_id',$trackData->id)->where('track',$trackData->proses_tahap)
-                ->orderBy('created_at','desc')->get();
+                ->orderBy('created_at','asc')->get();
+                // $totalDiterima = DB::table('proses_produksi_track_riwayat')
+                // ->whereNotNull('tgl_diterima')
+                // ->where('track_id',$trackData->id)
+                // ->where('track',$trackData->proses_tahap)
+                // ->orderBy('created_at','asc')->get();
+                // $totalDiterima = (object)collect($totalDiterima)->map(function($item,$key) {
+                //     if ($key == 'jml_dikirim') {
+                //         $
+                //     }
+                // })->all();
                 $addContent .='<div class="form-group">
                         <label for="historyKirim">Riwayat Kirim</label>
                             <div class="scroll-riwayat scrollbar-deep-purple bordered-deep-purple square">
@@ -467,41 +439,47 @@ class ProsesProduksiController extends Controller
                                 <th scope="col" style="background: #eee;">Jumlah Kirim</th>
                               </tr>
                             </thead>
-                            <tbody>
-                              <tr>
-                                <th scope="row">1</th>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Ferdyawan Listanto</td>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Ferdyawan Listanto</td>
-                                <td>100</td>
-                              </tr>
-                              <tr>
-                                <th scope="row">2</th>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Ferdyawan Listanto</td>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Sutarjo</td>
-                                <td>75</td>
-                              </tr>
-                              <tr>
-                                <th scope="row">3</th>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Ferdyawan Listanto</td>
-                                <td>2023-07-14 11:45:40</td>
-                                <td>Ferdyawan Listanto</td>
-                                <td>500</td>
-                              </tr>
-                            </tbody>
+                            <tbody>';
+                            $totalKirim = NULL;
+                            foreach ($kirimGudang as $kg) {
+                                $kg = (object)collect($kg)->map(function($item,$key){
+                                    switch ($key) {
+                                        case 'users_id':
+                                            return DB::table('users')->where('id',$item)->first()->nama;
+                                            break;
+                                        case 'diterima_oleh':
+                                            return is_null($item) ? '-':DB::table('users')->where('id',$item)->first()->nama;
+                                            break;
+                                        case 'tgl_diterima':
+                                            return is_null($item) ? '<small class="badge badge-danger">menunggu</small>':$item;
+                                            break;
+                                        default:
+                                            return is_null($item) ? '-':$item;
+                                            break;
+                                    }
+                                })->all();
+                                $addContent .='<tr>
+                                  <th>'.$kg->tahap.'</th>
+                                  <td>'.$kg->created_at.'</td>
+                                  <td>'.$kg->users_id.'</td>
+                                  <td>'.$kg->tgl_diterima.'</td>
+                                  <td>'.$kg->diterima_oleh.'</td>
+                                  <td>'.$kg->jml_dikirim.' eks</td>
+                                </tr>';
+                                $totalKirim +=$kg->jml_dikirim;
+                            }
+                            $addContent .='</tbody>
                           </table>
                             </div>
                             </div>
                             <div class="alert alert-dark d-flex justify-content-between" role="alert">
                                 <div class="col-auto">
-                                    <th colspan="5" style="background: #eee;">Total Kirim</th>
+                                    <span>Total Kirim</span><br>
+                                    <span>Total Diterima</span>
                                 </div>
                                 <div class="col-auto">
-                                    <th class="text-center bg-dark text-white">1000</th>
+                                    <span class="text-center">'.$totalKirim.' eks</span><br>
+                                    <span class="text-center">0 eks</span>
                                 </div>
                             </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
@@ -539,7 +517,7 @@ class ProsesProduksiController extends Controller
                 $disable = 'disabled';
                 break;
         }
-        $content .= '
+        $content .= '<input type="hidden" name="buku_jadi" value="'.$data->buku_jadi.'">
                         <div class="form-row">
                             <div class="form-group col-md-6">
                             <label for="jmlCetak">Jumlah Oplah</label>
@@ -547,7 +525,7 @@ class ProsesProduksiController extends Controller
                             </div>
                             <div class="form-group col-md-6">
                             <label for="jmlDikirim">Jumlah Dikirim</label>
-                            <input name="jml_kirim" class="form-control" id="jmlDikirim" ' . $disable . '>
+                            <input name="jml_dikirim" class="form-control" id="jmlDikirim" ' . $disable . '>
                             </div>
                         </div>';
         $content .= $addContent;
@@ -827,19 +805,39 @@ class ProsesProduksiController extends Controller
         try {
             $produksi_id = $request->produksi_id;
             $proses_tahap = $request->proses_tahap;
-            if ($proses_tahap == 'Kirim Gudang') {
-                return $this->submitKirimGudang($produksi_id,$proses_tahap);
-            } else {
-                $mesin = $request->mesin;
-                $operator = is_null($request->operator) ? NULL : json_encode($request->operator);
-                $status = $request->status;
-                DB::beginTransaction();
-                $checkData = DB::table('proses_produksi_track')
+            $status = $request->status;
+            $buku_jadi = $request->buku_jadi;
+            $checkData = DB::table('proses_produksi_track')
                 ->where('produksi_id',$produksi_id)
                 ->where('proses_tahap',$proses_tahap)
                 ->first();
-                $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
-                $tglselesai = $status == 'selesai' ? $tgl : NULL;
+            $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
+            $tglselesai = $status == 'selesai' ? $tgl : NULL;
+            if ($proses_tahap == 'Kirim Gudang') {
+                $jml_dikirim = $request->jml_dikirim;
+                $type = DB::select(DB::raw("SHOW COLUMNS FROM proses_produksi_track WHERE Field = 'proses_tahap'"))[0]->Type;
+                preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+                $prosesTahap = explode("','", $matches[1]);
+                $prosesTahap = Arr::except($prosesTahap, ['7']);
+                if ($buku_jadi != 'Wrapping') {
+                    $prosesTahap = Arr::except($prosesTahap, ['5']);
+                }
+                $totData = DB::table('proses_produksi_track')
+                ->where('produksi_id',$produksi_id)
+                ->where('status','selesai')
+                ->get();
+                if (count($totData) < count($prosesTahap)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Proses produksi belum selesai!'
+                    ]);
+                }
+                return $this->submitKirimGudang($checkData,$tgl,$jml_dikirim,$produksi_id,$proses_tahap);
+            } else {
+                $mesin = $request->mesin;
+                $operator = is_null($request->operator) ? NULL : json_encode($request->operator);
+                DB::beginTransaction();
+
                 if ($checkData) {
                     //UPDATE
                     $update = [
@@ -912,8 +910,73 @@ class ProsesProduksiController extends Controller
             ]);
         }
     }
-    private function submitKirimGudang($produksi_id,$proses_tahap)
+    private function submitKirimGudang($checkData, $tgl, $jml_dikirim, $produksi_id, $proses_tahap)
     {
-
+        try {
+            DB::beginTransaction();
+            if ($checkData) {
+                $riwayat = DB::table('proses_produksi_track_riwayat')
+                ->where('track_id',$checkData->id)
+                ->where('track',$checkData->proses_tahap)
+                ->max('tahap');
+                //UPDATE
+                $update = [
+                    'params' => 'Update Track Produksi',
+                    'produksi_id' => $checkData->produksi_id,
+                    'proses_tahap' => $checkData->proses_tahap,
+                    'mesin' => NULL,
+                    'operator' => NULL,
+                    'status' => $checkData->status,
+                    'tgl_pending' => $checkData->tgl_pending,
+                    'tgl_mulai' => $tgl,
+                    'tgl_selesai' => $checkData->tgl_selesai,
+                ];
+                event(new ProduksiEvent($update));
+                $track_id = $checkData->id;
+                $tahap = $riwayat + 1;
+            } else {
+                //INSERT
+                $insert = [
+                    'params' => 'Insert Track Produksi',
+                    'produksi_id' => $produksi_id,
+                    'proses_tahap' => $proses_tahap,
+                    'mesin' => NULL,
+                    'operator' => NULL,
+                    'status' => 'sedang dalam proses',
+                    'tgl_pending' => NULL,
+                    'tgl_mulai' => $tgl,
+                    'tgl_selesai' => NULL,
+                ];
+                event(new ProduksiEvent($insert));
+                $track_id = DB::getPdo()->lastInsertId();
+                $tahap = 1;
+            }
+            $insertRiwayat = [
+                'params' => 'Insert Riwayat Track',
+                'track_id' => $track_id,
+                'track' => $proses_tahap,
+                'mesin_new' => NULL,
+                'operator_new' => NULL,
+                'status_new' => 'sedang dalam proses',
+                'tahap' => $tahap,
+                'jml_dikirim' => $jml_dikirim,
+                'tgl_pending' => NULL,
+                'tgl_mulai' => $tgl,
+                'tgl_selesai' => NULL,
+                'users_id' => auth()->user()->id
+            ];
+            event(new ProduksiEvent($insertRiwayat));
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Tracking "'.$proses_tahap.'" diperbarui!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }
