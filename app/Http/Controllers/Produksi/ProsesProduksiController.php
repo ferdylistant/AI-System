@@ -415,19 +415,16 @@ class ProsesProduksiController extends Controller
                 $masterStatus = Arr::except($masterStatus, ['1']);
                 $kirimGudang = DB::table('proses_produksi_track_riwayat')->where('track_id',$trackData->id)->where('track',$trackData->proses_tahap)
                 ->orderBy('created_at','asc')->get();
-                // $totalDiterima = DB::table('proses_produksi_track_riwayat')
-                // ->whereNotNull('tgl_diterima')
-                // ->where('track_id',$trackData->id)
-                // ->where('track',$trackData->proses_tahap)
-                // ->orderBy('created_at','asc')->get();
-                // $totalDiterima = (object)collect($totalDiterima)->map(function($item,$key) {
-                //     if ($key == 'jml_dikirim') {
-                //         $
-                //     }
-                // })->all();
+                $totalDiterima = DB::table('proses_produksi_track_riwayat')
+                ->whereNotNull('tgl_diterima')
+                ->where('track_id',$trackData->id)
+                ->where('track',$trackData->proses_tahap)
+                ->orderBy('created_at','asc')
+                ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_diterima'))
+                ->get();
                 $addContent .='<div class="form-group">
                         <label for="historyKirim">Riwayat Kirim</label>
-                            <div class="scroll-riwayat scrollbar-deep-purple bordered-deep-purple square">
+                            <div class="scroll-riwayat">
                             <table class="table table-striped" style="width:100%">
                             <thead style="position: sticky;top:0">
                               <tr>
@@ -437,6 +434,7 @@ class ProsesProduksiController extends Controller
                                 <th scope="col" style="background: #eee;">Tanggal Diterima</th>
                                 <th scope="col" style="background: #eee;">Penerima</th>
                                 <th scope="col" style="background: #eee;">Jumlah Kirim</th>
+                                <th scope="col" style="background: #eee;">Action</th>
                               </tr>
                             </thead>
                             <tbody>';
@@ -453,18 +451,27 @@ class ProsesProduksiController extends Controller
                                         case 'tgl_diterima':
                                             return is_null($item) ? '<small class="badge badge-danger">menunggu</small>':$item;
                                             break;
+                                        case 'created_at':
+                                            return Carbon::parse($item)->format('d-m-Y H:i:s');
+                                            break;
                                         default:
                                             return is_null($item) ? '-':$item;
                                             break;
                                     }
                                 })->all();
                                 $addContent .='<tr>
-                                  <th>'.$kg->tahap.'</th>
+                                  <th scope="row">'.$kg->tahap.'</th>
                                   <td>'.$kg->created_at.'</td>
                                   <td>'.$kg->users_id.'</td>
                                   <td>'.$kg->tgl_diterima.'</td>
                                   <td>'.$kg->diterima_oleh.'</td>
                                   <td>'.$kg->jml_dikirim.' eks</td>
+                                  <td><a href="#"
+                                  class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Ubah Data">
+                                  <div><i class="fas fa-edit"></i></div></a>
+                                  <a href="#"
+                                  class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1" data-toggle="tooltip" title="Hapus Data">
+                                  <div><i class="fas fa-trash"></i></div></a></td>
                                 </tr>';
                                 $totalKirim +=$kg->jml_dikirim;
                             }
@@ -472,14 +479,17 @@ class ProsesProduksiController extends Controller
                           </table>
                             </div>
                             </div>
-                            <div class="alert alert-dark d-flex justify-content-between" role="alert">
+                            <div class="alert d-flex justify-content-between" style="background: #141517;
+                            background: -webkit-linear-gradient(to right, #6777ef, #141517);
+                            background: linear-gradient(to right, #6777ef, #141517);
+                            " role="alert">
                                 <div class="col-auto">
-                                    <span>Total Kirim</span><br>
-                                    <span>Total Diterima</span>
+                                    <span class="bullet"></span><span>Total Kirim</span><br>
+                                    <span class="bullet"></span><span>Total Diterima</span>
                                 </div>
                                 <div class="col-auto">
                                     <span class="text-center">'.$totalKirim.' eks</span><br>
-                                    <span class="text-center">0 eks</span>
+                                    <span class="text-center">'.$totalDiterima[0]->total_diterima.' eks</span>
                                 </div>
                             </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
