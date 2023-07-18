@@ -348,6 +348,9 @@ class ProsesProduksiController extends Controller
             case 'submit-track':
                 return $this->submitTrack($request);
                 break;
+            case 'delete-riwayat-track':
+                return $this->deleteRiwayatTrack($request);
+                break;
         }
     }
     protected function modalTrackProduksi($request)
@@ -425,10 +428,10 @@ class ProsesProduksiController extends Controller
                 $addContent .='<div class="form-group">
                         <label for="historyKirim">Riwayat Kirim</label>
                             <div class="scroll-riwayat">
-                            <table class="table table-striped" style="width:100%">
+                            <table class="table table-striped" style="width:100%" id="tableRiwayatKirim">
                             <thead style="position: sticky;top:0">
                               <tr>
-                                <th scope="col" style="background: #eee;">Tahap</th>
+                                <th scope="col" style="background: #eee;">No</th>
                                 <th scope="col" style="background: #eee;">Tanggal Kirim</th>
                                 <th scope="col" style="background: #eee;">Otorisasi Oleh</th>
                                 <th scope="col" style="background: #eee;">Tanggal Diterima</th>
@@ -439,7 +442,8 @@ class ProsesProduksiController extends Controller
                             </thead>
                             <tbody>';
                             $totalKirim = NULL;
-                            foreach ($kirimGudang as $kg) {
+                            foreach ($kirimGudang as $i => $kg) {
+                                $i++;
                                 $kg = (object)collect($kg)->map(function($item,$key){
                                     switch ($key) {
                                         case 'users_id':
@@ -459,19 +463,19 @@ class ProsesProduksiController extends Controller
                                             break;
                                     }
                                 })->all();
-                                $addContent .='<tr>
-                                  <th scope="row">'.$kg->tahap.'</th>
+                                $addContent .='<tr id="index_'.$kg->id.'">
+                                  <td id="row_num'. $i . '">'.$i.'<input type="hidden" name="task_number[]" value=' . $i . '></td>
                                   <td>'.$kg->created_at.'</td>
                                   <td>'.$kg->users_id.'</td>
                                   <td>'.$kg->tgl_diterima.'</td>
                                   <td>'.$kg->diterima_oleh.'</td>
                                   <td>'.$kg->jml_dikirim.' eks</td>
-                                  <td><a href="#"
-                                  class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Ubah Data">
-                                  <div><i class="fas fa-edit"></i></div></a>
-                                  <a href="#"
-                                  class="d-block btn btn-sm btn-danger btn-icon mr-1 mt-1" data-toggle="tooltip" title="Hapus Data">
-                                  <div><i class="fas fa-trash"></i></div></a></td>
+                                  <td><a href="javascript:void(0)"
+                                  class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1" id="btnEditRiwayatKirim" data-jumlah="'.$kg->jml_dikirim.'" data-toggle="modal" data-target="#modalEditRiwayatKirim">
+                                  <i class="fas fa-edit"></i></a>
+                                  <a href="javascript:void(0)"
+                                  class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="'.$kg->id.'" data-toggle="tooltip" title="Hapus Data">
+                                  <i class="fas fa-trash"></i></a></td>
                                 </tr>';
                                 $totalKirim +=$kg->jml_dikirim;
                             }
@@ -530,12 +534,19 @@ class ProsesProduksiController extends Controller
         $content .= '<input type="hidden" name="buku_jadi" value="'.$data->buku_jadi.'">
                         <div class="form-row">
                             <div class="form-group col-md-6">
-                            <label for="jmlCetak">Jumlah Oplah</label>
+                            <label for="jmlCetak">Jumlah Oplah <a href="javascript:void(0)" class="text-primary" tabindex="0" role="button"
+                            data-toggle="popover" data-trigger="focus" title="Informasi"
+                            data-content="Jumlah oplah hanya dapat diinput oleh departemen penerbitan.">
+                            <abbr title="">
+                            <i class="fas fa-question-circle me-3"></i>
+                            </abbr>
+                            </a></label>
                             <input name="jml_cetak" class="form-control" id="jmlCetak" value="' . $data->jumlah_cetak . '" readonly>
                             </div>
                             <div class="form-group col-md-6">
-                            <label for="jmlDikirim">Jumlah Dikirim</label>
+                            <label for="jmlDikirim">Jumlah Dikirim (<span class="text-danger">*</span>)</label>
                             <input name="jml_dikirim" class="form-control" id="jmlDikirim" ' . $disable . '>
+                            <span id="err_jml_dikirim"></span>
                             </div>
                         </div>';
         $content .= $addContent;
@@ -743,14 +754,14 @@ class ProsesProduksiController extends Controller
         $content .= '
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                    <label for="jenisMesin">Jenis Mesin</label>
+                    <label for="jenisMesin">Jenis Mesin (<span class="text-danger">*</span>)</label>
                     <select name="mesin" class="form-control select-mesin" id="jenisMesin" ' . $disable . '>
                             <option label="Pilih mesin"></option>
                     </select>
                     <span id="err_mesin"></span>
                     </div>
                     <div class="form-group col-md-6">
-                    <label for="operatorId">Operator</label>
+                    <label for="operatorId">Operator (<span class="text-danger">*</span>)</label>
                     <select name="operator[]" class="form-control select-operator" id="operatorId" multiple="multiple" required ' . $disable . '>
                             <option label="Pilih operator"></option>
                     </select>
@@ -758,7 +769,7 @@ class ProsesProduksiController extends Controller
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="actionStatus">Action</label>
+                    <label for="actionStatus">Action (<span class="text-danger">*</span>)</label>
                     <select name="status" class="form-control select-status" id="actionStatus" ' . $disable . '>
                         <option label="Pilih status"></option>';
         foreach ($masterStatus as $ms) {
@@ -775,6 +786,27 @@ class ProsesProduksiController extends Controller
             'content' => $content,
             'footer' => $footer
         ];
+    }
+    protected function deleteRiwayatTrack($request)
+    {
+        try {
+            $id = $request->id;
+            $params = [
+                'params' => 'Delete Riwayat Track',
+                'id' => $id
+            ];
+            event(new ProduksiEvent($params));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil dihapus!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
     protected function selectMaster($request)
     {

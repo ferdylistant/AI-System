@@ -101,6 +101,7 @@
     </div>
 </section>
 @include('produksi.include.modal_track_produksi')
+@include('produksi.include.modal_edit_riwayatkirim')
 @include('tracker_modal')
 @endsection
 

@@ -9,7 +9,7 @@
                 <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body scrollbar-deep-purple"  style="max-height: 500px; overflow-y: auto;">
                 <div class="section">
                     <div class="section-body">
                         <div class="d-flex justify-content-between">

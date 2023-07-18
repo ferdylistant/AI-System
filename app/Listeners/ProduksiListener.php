@@ -78,6 +78,11 @@ class ProduksiListener
                     'users_id' => $data['users_id']
                 ]);
                 break;
+            case 'Delete Riwayat Track':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_track_riwayat')->delete($data['id']);
+                DB::commit();
+                break;
             default:
                 return abort(500);
                 break;

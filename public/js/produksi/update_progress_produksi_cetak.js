@@ -32,13 +32,13 @@ $(function () {
         notifToast("error", message)
         window.location.reload();
     };
-    function loadSelected(idm,ido) {
+    function loadSelected(idm, ido) {
         $.ajax({
             url: window.location.origin + "/produksi/proses/cetak/ajax/selected",
             type: 'GET',
             data: {
-                id_mesin:idm,
-                id_operator:ido,
+                id_mesin: idm,
+                id_operator: ido,
             },
             cache: false,
             success: function (result) {
@@ -79,7 +79,7 @@ $(function () {
             },
             cache: false,
             success: function (result) {
-                cardWrap.find('#statusJob').attr('class',result.badge).trigger('change');
+                cardWrap.find('#statusJob').attr('class', result.badge).trigger('change');
                 cardWrap.find('#statusJob').text(result.status).trigger('change');
                 cardWrap.find('#sectionTitle').html(result.sectionTitle).trigger('change');
                 cardWrap.find('[name="produksi_id"]').val(result.data.id).trigger('change');
@@ -87,9 +87,10 @@ $(function () {
                 cardWrap.find('#judul_final').html('<i class="fas fa-tasks"></i> ' + result.data.judul_final.charAt(0).toUpperCase() + result.data.judul_final.slice(1)).trigger('change');
                 cardWrap.find('#contentData').html(result.content).trigger('change');
                 cardWrap.find('#footerModal').html(result.footer).trigger('change');
-                if(result.proses_tahap !== 'Kirim Gudang') {
-                    if(result.trackData) {
-                        loadSelected(result.trackData.mesin,result.trackData.operator);
+                $('[data-toggle="popover"]').popover();
+                if (result.proses_tahap !== 'Kirim Gudang') {
+                    if (result.trackData) {
+                        loadSelected(result.trackData.mesin, result.trackData.operator);
                     }
                 }
                 if (result.proses_tahap === 'Kirim Gudang') {
@@ -97,7 +98,7 @@ $(function () {
                     var maskjmlDikirim = {
                         mask: '0000000000000'
                     };
-                    var mask = IMask(jmlDikirim, maskjmlDikirim,reverse = true);
+                    var mask = IMask(jmlDikirim, maskjmlDikirim, reverse = true);
                 }
                 $("#modalTrackProduksi").modal('show');
                 $(".select-mesin")
@@ -178,7 +179,7 @@ $(function () {
             },
             error: function (err) {
                 console.log(err);
-                notifToast('error',err.statusText);
+                notifToast('error', err.statusText);
                 cardWrap.removeClass('modal-progress')
             },
             complete: function () {
@@ -202,8 +203,17 @@ $(function () {
         },
         status: {
             required: true,
+        },
+        jml_dikirim: {
+            required: true,
         }
     });
+    let editRiwayat = jqueryValidation_("#form_EditRiwayat", {
+        edit_jml_dikirim: {
+            required: true,
+        }
+    });
+    //Submit Tracking
     function ajaxAddTrackData(data) {
         let el = data.get(0);
         $.ajax({
@@ -217,9 +227,9 @@ $(function () {
                     .prop("disabled", true)
                     .addClass("btn-progress");
             },
-            success: function(res) {
-                console.log(res);
-                notifToast(res.status,res.message);
+            success: function (res) {
+                // console.log(res);
+                notifToast(res.status, res.message);
                 if (res.status == 'success') {
                     tableProduksi.ajax.reload();
                     $("#modalTrackProduksi").modal("hide");
@@ -248,17 +258,116 @@ $(function () {
             },
         });
     }
-    $('#form_Tracking').on('submit',function(e) {
+    $('#form_Tracking').on('submit', function (e) {
         e.preventDefault();
+        let proses = $(this).find('[name="proses_tahap"]').val();
+        if (proses === 'Kirim Gudang') {
+            proses = 'jumlah kirim';
+        } else {
+            proses = 'mesin dan operator';
+        }
         if ($(this).valid()) {
             swal({
-                text: "Apakah data mesin dan operator sudah benar?",
+                text: "Apakah data " + proses + " sudah benar?",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
                     ajaxAddTrackData($(this));
+                }
+            });
+        }
+    });
+    //Delete Riwayat Kirim
+    function ajaxDeleteRiwayatKirim(element, id) {
+        $.ajax({
+            url: window.location.origin + "/produksi/proses/cetak/ajax/delete-riwayat-track",
+            type: 'POST',
+            data: {
+                id: id
+            },
+            cache: false,
+            beforeSend: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", true)
+                    .addClass("btn-progress");
+            },
+            success: function (res) {
+                // console.log(res);
+                notifToast(res.status, res.message);
+                if (res.status == 'success') {
+                    var i = 0;
+                    //remove post on table
+                    element.closest("tr").remove();
+                    // $(`#modalTrackProduksi #index_`+id).remove();
+                    $('#tableRiwayatKirim').find('tbody tr').each(function (index) {
+                        // console.log(index);
+                        //change id of first tr
+                        $(this).find("td:eq(0)").attr("id", "row_num" + (index + 1))
+                        //change hidden input value
+                        $(this).find("td:eq(0)").html((index + 1) + '<input type="hidden" name="task_number[]" value=' + (index + 1) + '>')
+                    });
+                    i--;
+                }
+            },
+            error: function (err) {
+                notifToast("error", "Terjadi kesalahan!");
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+            complete: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+        });
+    }
+    $('#form_Tracking').on('click', '#btnDeleteRiwayatKirim', function (e) {
+        e.preventDefault();
+        let id = $(this).data('id');
+        swal({
+            text: "Apakah Anda yakin ingin menghapus?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((confirm_) => {
+            if (confirm_) {
+                ajaxDeleteRiwayatKirim($(this), id);
+            }
+        });
+    });
+    //Edit Riwayat Kirim
+    $('#modalEditRiwayatKirim').on('shown.bs.modal', function (e) {
+        let jml = $(e.relatedTarget).data('jumlah'),
+            cardWrap = $("#modalEditRiwayatKirim");
+        $(this).find('[name="edit_jml_dikirim"]').val(jml).change();
+        var jmlDikirim = document.getElementById('editJmlDikirim');
+        var maskjmlDikirim = {
+            mask: '0000000000000'
+        };
+        var mask = IMask(jmlDikirim, maskjmlDikirim, reverse = true);
+        cardWrap.removeClass('modal-progress')
+    });
+    $("#modalEditRiwayatKirim").on("hidden.bs.modal", function (e) {
+        // let d = $(e.relatedTarget).attr('id','statusJob');
+        // console.log(d);
+        $(this).find("form").trigger("reset");
+        $(this).addClass("modal-progress");
+        $(this).modal('hide');
+    });
+    $('#form_EditRiwayat').on('submit', function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            swal({
+                text: "Apakah Anda yakin ingin mengubah data?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxDeleteRiwayatKirim($(this));
                 }
             });
         }
