@@ -12,6 +12,8 @@
                 <form id="form_EditRiwayat">
                     <div class="form-group">
                         @csrf
+                        <input type="hidden" name="id_" value="">
+                        <input type="hidden" name="track_id" value="">
                         <input type="text" class="form-control" name="edit_jml_dikirim" id="editJmlDikirim">
                         <span id="err_edit_jml_dikirim"></span>
                     </div>

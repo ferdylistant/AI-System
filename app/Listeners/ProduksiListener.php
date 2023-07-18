@@ -83,6 +83,13 @@ class ProduksiListener
                 $res = DB::table('proses_produksi_track_riwayat')->delete($data['id']);
                 DB::commit();
                 break;
+            case 'Edit Riwayat Jumlah Kirim':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_track_riwayat')->where('id',$data['id'])->update([
+                    'jml_dikirim' => $data['jml_dikirim']
+                ]);
+                DB::commit();
+                break;
             default:
                 return abort(500);
                 break;

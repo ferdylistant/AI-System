@@ -348,8 +348,17 @@ class ProsesProduksiController extends Controller
             case 'submit-track':
                 return $this->submitTrack($request);
                 break;
+            case 'submit-edit-riwayat':
+                return $this->submitEditRiwayat($request);
+                break;
             case 'delete-riwayat-track':
                 return $this->deleteRiwayatTrack($request);
+                break;
+            case 'show-modal-edit-riwayat':
+                return $this->showModalEditRiwayat($request);
+                break;
+            default:
+                return abort(400);
                 break;
         }
     }
@@ -444,6 +453,117 @@ class ProsesProduksiController extends Controller
                             $totalKirim = NULL;
                             foreach ($kirimGudang as $i => $kg) {
                                 $i++;
+                                if(!is_null($kg->tgl_diterima)) {
+                                    $btnAction = '<span class="badge badge-light">No action</span>';
+                                } else {
+                                    $btnAction = '<a href="javascript:void(0)"
+                                    class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1" id="btnEditRiwayatKirim" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalEditRiwayatKirim">
+                                    <i class="fas fa-edit"></i></a>
+                                    <a href="javascript:void(0)"
+                                    class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="'.$kg->id.'" data-toggle="tooltip" title="Hapus Data">
+                                    <i class="fas fa-trash"></i></a>';
+                                }
+                                $kg = (object)collect($kg)->map(function($item,$key){
+                                    switch ($key) {
+                                        case 'users_id':
+                                            return DB::table('users')->where('id',$item)->first()->nama;
+                                            break;
+                                        case 'diterima_oleh':
+                                            return is_null($item) ? '-':DB::table('users')->where('id',$item)->first()->nama;
+                                            break;
+                                        case 'tgl_diterima':
+                                            return is_null($item) ? '<small class="badge badge-danger">menunggu</small>':$item;
+                                            break;
+                                        case 'created_at':
+                                            return Carbon::parse($item)->format('d-m-Y H:i:s');
+                                            break;
+                                        default:
+                                            return is_null($item) ? '-':$item;
+                                            break;
+                                    }
+                                })->all();
+                                $addContent .='<tr id="index_'.$kg->id.'">
+                                  <td id="row_num'. $i . '">'.$i.'<input type="hidden" name="task_number[]" value=' . $i . '></td>
+                                  <td>'.$kg->created_at.'</td>
+                                  <td>'.$kg->users_id.'</td>
+                                  <td>'.$kg->tgl_diterima.'</td>
+                                  <td>'.$kg->diterima_oleh.'</td>
+                                  <td id="indexJmlKirim'.$kg->id.'">'.$kg->jml_dikirim.' eks</td>
+                                  <td>'.$btnAction.'</td>
+                                </tr>';
+                                $totalKirim +=$kg->jml_dikirim;
+                            }
+                            $addContent .='</tbody>
+                          </table>
+                            </div>
+                            </div>
+                            <div class="alert d-flex justify-content-between" style="background: #141517;
+                            background: -webkit-linear-gradient(to right, #6777ef, #141517);
+                            background: linear-gradient(to right, #6777ef, #141517);
+                            " role="alert">
+                                <div class="col-auto">
+                                    <span class="bullet"></span><span>Total Kirim</span><br>
+                                    <span class="bullet"></span><span>Total Diterima  <a href="javascript:void(0)" class="text-warning" tabindex="0" role="button"
+                                    data-toggle="popover" data-trigger="focus" title="Informasi"
+                                    data-content="Total diterima adalah total yang diterima dan diotorisasi oleh departemen Penjualan & Stok.">
+                                    <abbr title="">
+                                    <i class="fas fa-info-circle me-3"></i>
+                                    </abbr>
+                                    </a></span>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="text-center" id="totDikirim">'.$totalKirim.' eks</span><br>
+                                    <span class="text-center">'.$totalDiterima[0]->total_diterima.' eks</span>
+                                </div>
+                            </div>';
+                $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                $badge = 'badge badge-warning';
+                break;
+            case 'pending':
+                $masterStatus = Arr::except($masterStatus, ['2', '3']);
+                $addContent .= '<div class="form-group">
+                        <label for="tglMulai">Tanggal Mulai</label>
+                        <p id="tglMulai">' . Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i') . '</p>
+                        </div>';
+                $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                $badge = 'badge badge-danger';
+                break;
+            case 'selesai':
+                foreach ($masterStatus as $ms) {
+                    if ($status == $ms) {
+                        $sel = ' selected="selected" ';
+                    }
+                }
+                $kirimGudang = DB::table('proses_produksi_track_riwayat')->where('track_id',$trackData->id)->where('track',$trackData->proses_tahap)
+                ->orderBy('created_at','asc')->get();
+                $totalDiterima = DB::table('proses_produksi_track_riwayat')
+                ->whereNotNull('tgl_diterima')
+                ->where('track_id',$trackData->id)
+                ->where('track',$trackData->proses_tahap)
+                ->orderBy('created_at','asc')
+                ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_diterima'))
+                ->get();
+                $addContent .='<div class="form-group">
+                        <label for="historyKirim">Riwayat Kirim</label>
+                            <div class="scroll-riwayat">
+                            <table class="table table-striped" style="width:100%" id="tableRiwayatKirim">
+                            <thead style="position: sticky;top:0">
+                              <tr>
+                                <th scope="col" style="background: #eee;">No</th>
+                                <th scope="col" style="background: #eee;">Tanggal Kirim</th>
+                                <th scope="col" style="background: #eee;">Otorisasi Oleh</th>
+                                <th scope="col" style="background: #eee;">Tanggal Diterima</th>
+                                <th scope="col" style="background: #eee;">Penerima</th>
+                                <th scope="col" style="background: #eee;">Jumlah Kirim</th>
+                                <th scope="col" style="background: #eee;">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>';
+                            $totalKirim = NULL;
+                            foreach ($kirimGudang as $i => $kg) {
+                                $i++;
                                 $kg = (object)collect($kg)->map(function($item,$key){
                                     switch ($key) {
                                         case 'users_id':
@@ -470,12 +590,7 @@ class ProsesProduksiController extends Controller
                                   <td>'.$kg->tgl_diterima.'</td>
                                   <td>'.$kg->diterima_oleh.'</td>
                                   <td>'.$kg->jml_dikirim.' eks</td>
-                                  <td><a href="javascript:void(0)"
-                                  class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1" id="btnEditRiwayatKirim" data-jumlah="'.$kg->jml_dikirim.'" data-toggle="modal" data-target="#modalEditRiwayatKirim">
-                                  <i class="fas fa-edit"></i></a>
-                                  <a href="javascript:void(0)"
-                                  class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="'.$kg->id.'" data-toggle="tooltip" title="Hapus Data">
-                                  <i class="fas fa-trash"></i></a></td>
+                                  <td><span class="badge badge-light">No action</span></td>
                                 </tr>';
                                 $totalKirim +=$kg->jml_dikirim;
                             }
@@ -489,43 +604,19 @@ class ProsesProduksiController extends Controller
                             " role="alert">
                                 <div class="col-auto">
                                     <span class="bullet"></span><span>Total Kirim</span><br>
-                                    <span class="bullet"></span><span>Total Diterima</span>
+                                    <span class="bullet"></span><span>Total Diterima  <a href="javascript:void(0)" class="text-warning" tabindex="0" role="button"
+                                    data-toggle="popover" data-trigger="focus" title="Informasi"
+                                    data-content="Jumlah oplah hanya dapat diinput oleh departemen penerbitan.">
+                                    <abbr title="">
+                                    <i class="fas fa-info-circle me-3"></i>
+                                    </abbr>
+                                    </a></span>
                                 </div>
                                 <div class="col-auto">
                                     <span class="text-center">'.$totalKirim.' eks</span><br>
                                     <span class="text-center">'.$totalDiterima[0]->total_diterima.' eks</span>
                                 </div>
                             </div>';
-                $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
-                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
-                $badge = 'badge badge-warning';
-                break;
-            case 'pending':
-                $masterStatus = Arr::except($masterStatus, ['2', '3']);
-                $addContent .= '<div class="form-group">
-                        <label for="tglMulai">Tanggal Mulai</label>
-                        <p id="tglMulai">' . Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i') . '</p>
-                        </div>';
-                $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
-                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
-                $badge = 'badge badge-danger';
-                break;
-            case 'success':
-                foreach ($masterStatus as $ms) {
-                    if ($status == $ms) {
-                        $sel = ' selected="selected" ';
-                    }
-                }
-                $addContent .= '<div class="form-row">
-                        <div class="form-group col-md-6">
-                        <label for="tglMulai">Tanggal Mulai</label>
-                        <p id="tglMulai">' . Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i') . '</p>
-                        </div>
-                        <div class="form-group col-md-6">
-                        <label for="tglSelesai">Tanggal Selesai</label>
-                        <p id="tglSelesai">' . Carbon::parse($tglselesai)->translatedFormat('l d F Y, H:i') . '</p>
-                        </div>
-                        </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
                 $badge = 'badge badge-success';
                 $disable = 'disabled';
@@ -538,7 +629,7 @@ class ProsesProduksiController extends Controller
                             data-toggle="popover" data-trigger="focus" title="Informasi"
                             data-content="Jumlah oplah hanya dapat diinput oleh departemen penerbitan.">
                             <abbr title="">
-                            <i class="fas fa-question-circle me-3"></i>
+                            <i class="fas fa-info-circle me-3"></i>
                             </abbr>
                             </a></label>
                             <input name="jml_cetak" class="form-control" id="jmlCetak" value="' . $data->jumlah_cetak . '" readonly>
@@ -796,9 +887,12 @@ class ProsesProduksiController extends Controller
                 'id' => $id
             ];
             event(new ProduksiEvent($params));
+            $totalDikirim = DB::table('proses_produksi_track_riwayat')
+            ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_dikirim'))->get();
             return response()->json([
                 'status' => 'success',
-                'message' => 'Berhasil dihapus!'
+                'message' => 'Berhasil dihapus!',
+                'data' => $totalDikirim[0]->total_dikirim
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1019,6 +1113,45 @@ class ProsesProduksiController extends Controller
                 'status' => 'error',
                 'message' => $e->getMessage()
             ]);
+        }
+    }
+    protected function submitEditRiwayat($request)
+    {
+        try {
+            $jml_dikirim = $request->edit_jml_dikirim;
+            $id = $request->id;
+            $params = [
+                'params' => 'Edit Riwayat Jumlah Kirim',
+                'id' => $id,
+                'jml_dikirim' => $jml_dikirim
+            ];
+            event(new ProduksiEvent($params));
+            $totalDikirim = DB::table('proses_produksi_track_riwayat')
+            ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_dikirim'))->get();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil mengubah jumlah kirim!',
+                'data' => [
+                    'jml_dikirim' => $jml_dikirim,
+                    'total_dikirim' => $totalDikirim[0]->total_dikirim
+                ]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function showModalEditRiwayat($request)
+    {
+        try {
+            $id = $request->id;
+            $data = DB::table('proses_produksi_track_riwayat')->where('id',$id)->first();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return abort(500);
         }
     }
 }

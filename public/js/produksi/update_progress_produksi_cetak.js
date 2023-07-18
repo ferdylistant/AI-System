@@ -309,6 +309,7 @@ $(function () {
                         $(this).find("td:eq(0)").html((index + 1) + '<input type="hidden" name="task_number[]" value=' + (index + 1) + '>')
                     });
                     i--;
+                    $("#modalTrackProduksi #totDikirim").html(res.data+' eks').change();
                 }
             },
             error: function (err) {
@@ -340,15 +341,26 @@ $(function () {
     });
     //Edit Riwayat Kirim
     $('#modalEditRiwayatKirim').on('shown.bs.modal', function (e) {
-        let jml = $(e.relatedTarget).data('jumlah'),
+        let id = $(e.relatedTarget).data('id'),
             cardWrap = $("#modalEditRiwayatKirim");
-        $(this).find('[name="edit_jml_dikirim"]').val(jml).change();
-        var jmlDikirim = document.getElementById('editJmlDikirim');
-        var maskjmlDikirim = {
-            mask: '0000000000000'
-        };
-        var mask = IMask(jmlDikirim, maskjmlDikirim, reverse = true);
-        cardWrap.removeClass('modal-progress')
+        $.ajax({
+            url: window.location.origin + "/produksi/proses/cetak/ajax/show-modal-edit-riwayat",
+            type: 'GET',
+            data: {
+                id:id
+            },
+            success: function (res) {
+                $('#modalEditRiwayatKirim').find('[name="id_"]').val(res.id).change();
+                $('#modalEditRiwayatKirim').find('[name="track_id"]').val(res.track_id).change();
+                $('#modalEditRiwayatKirim').find('[name="edit_jml_dikirim"]').val(res.jml_dikirim).change();
+                var jmlDikirim = document.getElementById('editJmlDikirim');
+                var maskjmlDikirim = {
+                    mask: '0000000000000'
+                };
+                var mask = IMask(jmlDikirim, maskjmlDikirim, reverse = true);
+                cardWrap.removeClass('modal-progress')
+            }
+        });
     });
     $("#modalEditRiwayatKirim").on("hidden.bs.modal", function (e) {
         // let d = $(e.relatedTarget).attr('id','statusJob');
@@ -357,8 +369,54 @@ $(function () {
         $(this).addClass("modal-progress");
         $(this).modal('hide');
     });
+    function ajaxEditRiwayatKirim(data,id,track_id) {
+        let el = data.get(0);
+        $.ajax({
+            url: window.location.origin + "/produksi/proses/cetak/ajax/submit-edit-riwayat?id="+id+'&track_id='+track_id,
+            type: 'POST',
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", true)
+                    .addClass("btn-progress");
+            },
+            success: function (res) {
+                notifToast(res.status, res.message);
+                if (res.status == 'success') {
+                    $("#modalTrackProduksi #indexJmlKirim"+id).html(res.data.jml_dikirim+' eks').change();
+                    $("#modalTrackProduksi #totDikirim").html(res.data.total_dikirim+' eks').change();
+                    $("#modalEditRiwayatKirim").modal("hide");
+                }
+            },
+            error: function (err) {
+                // console.log(err.responseJSON)
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    editRiwayat.showErrors(err);
+                }
+                notifToast("error", "Terjadi kesalahan!");
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+            complete: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+        });
+    }
     $('#form_EditRiwayat').on('submit', function (e) {
         e.preventDefault();
+        let id = $(this).find('[name="id_"]').val();
+        let track_id = $(this).find('[name="track_id"]').val();
         if ($(this).valid()) {
             swal({
                 text: "Apakah Anda yakin ingin mengubah data?",
@@ -367,7 +425,7 @@ $(function () {
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxDeleteRiwayatKirim($(this));
+                    ajaxEditRiwayatKirim($(this),id,track_id);
                 }
             });
         }
