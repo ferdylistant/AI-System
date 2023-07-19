@@ -7,6 +7,7 @@ use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use App\Events\TrackerEvent;
 use Illuminate\Http\Request;
 use App\Events\ProduksiEvent;
 use Yajra\DataTables\DataTables;
@@ -201,6 +202,15 @@ class ProsesProduksiController extends Controller
                         }
                         return $badge;
                     })
+                    ->addColumn('tracking_timeline', function ($data) {
+                        $historyData = DB::table('tracker')->where('section_id', $data->id)->get();
+                        if ($historyData->isEmpty()) {
+                            return '-';
+                        } else {
+                            $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                            return $date;
+                        }
+                    })
                     ->addColumn('action', function ($data) use ($update) {
                         $btn = '<a href="' . url('produksi/proses/cetak/detail?no=' . $data->kode_order . '&naskah=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
@@ -223,6 +233,7 @@ class ProsesProduksiController extends Controller
                         'jenis_jilid',
                         'buku_jadi',
                         'tracking',
+                        'tracking_timeline',
                         'action'
                     ])
                     ->make(true);
@@ -357,9 +368,38 @@ class ProsesProduksiController extends Controller
             case 'show-modal-edit-riwayat':
                 return $this->showModalEditRiwayat($request);
                 break;
+            case 'lihat-tracking-timeline':
+                return $this->lihatTrackingProduksi($request);
+                break;
             default:
                 return abort(400);
                 break;
+        }
+    }
+    protected function lihatTrackingProduksi($request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('tracker')->where('section_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            foreach ($data as $d) {
+                $html .= '<div class="activity">
+                <div class="activity-icon bg-primary text-white shadow-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
+                    <i class="' . $d->icon . '"></i>
+                </div>
+                <div class="activity-detail col">
+                    <div class="mb-2">
+                        <span class="text-job">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at, 'Asia/Jakarta')->diffForHumans() . '</span>
+                        <span class="bullet"></span>
+                        <span class="text-job">' . Carbon::parse($d->created_at)->translatedFormat('l d M Y, H:i') . '</span>
+                    </div>
+                    <p>' . $d->description . '</p>
+                </div>
+            </div>';
+            }
+            return $html;
         }
     }
     protected function modalTrackProduksi($request)
@@ -457,7 +497,7 @@ class ProsesProduksiController extends Controller
                                     $btnAction = '<span class="badge badge-light">No action</span>';
                                 } else {
                                     $btnAction = '<a href="javascript:void(0)"
-                                    class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1" id="btnEditRiwayatKirim" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalEditRiwayatKirim">
+                                    class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1" id="btnEditRiwayatKirim" data-id="'.$kg->id.'" data-dibuat="'.Carbon::parse($kg->created_at)->translatedFormat('l, d M Y - H:i:s').'" data-toggle="modal" data-target="#modalEditRiwayatKirim">
                                     <i class="fas fa-edit"></i></a>
                                     <a href="javascript:void(0)"
                                     class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="'.$kg->id.'" data-toggle="tooltip" title="Hapus Data">
@@ -657,7 +697,7 @@ class ProsesProduksiController extends Controller
                 <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
                 break;
             case 'sedang dalam proses':
-                $masterStatus = Arr::except($masterStatus, ['1']);
+                // $masterStatus = Arr::except($masterStatus, ['1']);
                 $riwayat= DB::table('proses_produksi_track_riwayat')->where('track_id',$trackData->id)->where('track',$trackData->proses_tahap)
                 ->orderBy('created_at','desc')
                 ->get();
@@ -914,6 +954,7 @@ class ProsesProduksiController extends Controller
         }
         $data = DB::table('proses_produksi_master')->where('type', $type)
             ->whereNull('deleted_at')
+            ->where('nama', 'like', '%' . $request->input('term') . '%')
             ->get();
         return response()->json($data);
     }
@@ -949,6 +990,31 @@ class ProsesProduksiController extends Controller
                 ->first();
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             $tglselesai = $status == 'selesai' ? $tgl : NULL;
+            switch ($status) {
+                case 'sedang dalam proses':
+                    $statBadge = '<small class="badge badge-warning">'.$status.'</small>';
+                    break;
+                case 'pending':
+                    $statBadge = '<small class="badge badge-danger">'.$status.'</small>';
+                    break;
+                case 'selesai':
+                    $statBadge = '<small class="badge badge-light">'.$status.'</small>';
+                    break;
+            }
+
+            $icon = $proses_tahap == 'Kirim Gudang' ? 'fas fa-cubes' : 'fas fa-user-cog';
+            $desc = $proses_tahap == 'Kirim Gudang' ?
+            'Departemen produksi mengirimkan stok ke gudang sejumlah '.$request->jml_dikirim.' eks.':
+            'Proses produksi tahap <b>'.$proses_tahap.'</b> berstatus '.$statBadge;
+            $trackerProduksi = [
+                'id' => Uuid::uuid4()->toString(),
+                'section_id' => $produksi_id,
+                'section_name' => 'Produksi',
+                'description' => $desc,
+                'icon' => $icon,
+                'created_by' => auth()->id()
+            ];
+            event(new TrackerEvent($trackerProduksi));
             if ($proses_tahap == 'Kirim Gudang') {
                 $jml_dikirim = $request->jml_dikirim;
                 $type = DB::select(DB::raw("SHOW COLUMNS FROM proses_produksi_track WHERE Field = 'proses_tahap'"))[0]->Type;

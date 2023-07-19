@@ -25,6 +25,7 @@ $(function () {
             { data: 'jenis_jilid', name: 'jenis_jilid', title: 'Jenis Jilid' },
             { data: 'buku_jadi', name: 'buku_jadi', title: 'Buku Jadi' },
             { data: 'tracking', name: 'tracking', title: 'Tracking', width: "100%", },
+            { data: 'tracking_timeline', name: 'tracking_timeline', title: 'Tracking Timeline' },
             { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false },
         ]
     });
@@ -32,6 +33,30 @@ $(function () {
         notifToast("error", message)
         window.location.reload();
     };
+    $("#tb_prosesProduksi").on("click", ".btn-tracker", function (e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var judul = $(this).data("judulfinal");
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin +
+                "/produksi/proses/cetak/ajax/lihat-tracking-timeline",
+            type: "post",
+            data: { id: id },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                $("#titleModalTracker").html('<i class="fas fa-file-signature"></i>&nbsp;Tracking Progress Naskah "' + judul + '"');
+                $("#dataShowTracking").html(data);
+                $("#md_Tracker").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
+        });
+    });
     function loadSelected(idm, ido) {
         $.ajax({
             url: window.location.origin + "/produksi/proses/cetak/ajax/selected",
@@ -101,26 +126,6 @@ $(function () {
                     var mask = IMask(jmlDikirim, maskjmlDikirim, reverse = true);
                 }
                 $("#modalTrackProduksi").modal('show');
-                $(".select-mesin")
-                    .select2({
-                        placeholder: "Pilih mesin\xa0\xa0",
-                    })
-                    .on("change", function (e) {
-                        if (this.value) {
-                            $(this).valid();
-                        }
-                    });
-                $(".select-operator")
-                    .select2({
-                        placeholder: "Pilih operator\xa0\xa0",
-                        multiple: true,
-                    })
-                    .on("change", function (e) {
-                        if (this.value) {
-                            $(this).valid();
-                        }
-                    });
-
                 $(".select-status")
                     .select2({
                         placeholder: "Pilih status\xa0\xa0",
@@ -138,6 +143,7 @@ $(function () {
                             data: function (params) {
                                 var queryParameters = {
                                     request_: "selectMesin",
+                                    term: params.term
                                 };
                                 return queryParameters;
                             },
@@ -152,6 +158,10 @@ $(function () {
                                 };
                             },
                         },
+                    }).on("change", function (e) {
+                        if (this.value) {
+                            $(this).valid();
+                        }
                     });
                 $("#operatorId")
                     .select2({
@@ -161,6 +171,7 @@ $(function () {
                             data: function (params) {
                                 var queryParameters = {
                                     request_: "selectOperator",
+                                    term: params.term
                                 };
                                 return queryParameters;
                             },
@@ -175,6 +186,10 @@ $(function () {
                                 };
                             },
                         },
+                    }).on("change", function (e) {
+                        if (this.value) {
+                            $(this).valid();
+                        }
                     });
             },
             error: function (err) {
@@ -342,6 +357,7 @@ $(function () {
     //Edit Riwayat Kirim
     $('#modalEditRiwayatKirim').on('shown.bs.modal', function (e) {
         let id = $(e.relatedTarget).data('id'),
+            tglmulai =  $(e.relatedTarget).data('dibuat'),
             cardWrap = $("#modalEditRiwayatKirim");
         $.ajax({
             url: window.location.origin + "/produksi/proses/cetak/ajax/show-modal-edit-riwayat",
@@ -350,6 +366,7 @@ $(function () {
                 id:id
             },
             success: function (res) {
+                $('#modalEditRiwayatKirim').find('#titleEditRiwayat').text(tglmulai).change();
                 $('#modalEditRiwayatKirim').find('[name="id_"]').val(res.id).change();
                 $('#modalEditRiwayatKirim').find('[name="track_id"]').val(res.track_id).change();
                 $('#modalEditRiwayatKirim').find('[name="edit_jml_dikirim"]').val(res.jml_dikirim).change();
