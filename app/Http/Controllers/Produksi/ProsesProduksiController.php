@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Events\ProduksiEvent;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Column;
+use App\Events\PenjualanStokEvent;
 use App\Events\convertNumberToRoman;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
@@ -1137,7 +1138,25 @@ class ProsesProduksiController extends Controller
                 $track_id = $checkData->id;
                 $tahap = $riwayat + 1;
             } else {
-                //INSERT
+                //INSERT GUDANG
+                $idGudang = Uuid::uuid4()->toString();
+                $insertGudang = [
+                    'params' => 'Insert Stok Gudang',
+                    'id' => $idGudang,
+                    'produksi_id' => $produksi_id
+                ];
+                event(new PenjualanStokEvent($insertGudang));
+                //INSERT TRACKING TIMELINE STOK GUDANG
+                $trackerGudang = [
+                    'id' => Uuid::uuid4()->toString(),
+                    'section_id' => $idGudang,
+                    'section_name' => 'Penjualan & Stok',
+                    'description' => 'Produk telah memasuki stok gudang.',
+                    'icon' => 'fas fa-folder-plus',
+                    'created_by' => auth()->id()
+                ];
+                event(new TrackerEvent($trackerGudang));
+                //INSERT TRACK PRODUKSI
                 $insert = [
                     'params' => 'Insert Track Produksi',
                     'produksi_id' => $produksi_id,

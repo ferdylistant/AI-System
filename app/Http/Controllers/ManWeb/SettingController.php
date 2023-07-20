@@ -64,6 +64,9 @@ class SettingController extends Controller
                                 case 'Produksi':
                                     $res .= '<span class="badge badge-success">' . $data->nama_bagian . '</span>';
                                     break;
+                                case 'Penjualan & Stok':
+                                    $res .= '<span class="badge badge-danger">' . $data->nama_bagian . '</span>';
+                                    break;
                                 case 'Manajemen Web':
                                     $res .= '<span class="badge badge-primary">' . $data->nama_bagian . '</span>';
                                     break;

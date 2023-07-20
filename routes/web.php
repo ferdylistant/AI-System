@@ -227,6 +227,14 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::get('/proses/ebook-multimedia/detail', $path.'\Produksi\ProsesEbookController@detailProduksi')->name('proses.ebook.detail');
         Route::match(['get', 'post'], '/proses/ebook-multimedia/edit', $path.'\Produksi\ProsesEbookController@updateProduksi')->name('proses.ebook.update');
     });
+    //Penjualan Dan Stok
+    Route::prefix('penjualan-stok')->group(function () use ($path) {
+        //Proses Produksi Cetak
+        Route::get('/gudang', $path.'\PenjualanStok\GudangController@index');
+        // Route::get('/proses/cetak/detail', $path.'\Produksi\GudangController@detailProduksi')->name('proses.cetak.detail');
+        // Route::match(['get', 'post'], '/proses/cetak/edit', $path.'\Produksi\GudangController@updateProduksi')->name('proses.cetak.update');
+        // Route::match(['get', 'post'], '/proses/cetak/ajax/{cat}', $path.'\Produksi\GudangController@ajaxCall');
+    });
 
     Route::get('search', function () {
         $query = ''; // <-- Change the query for testing.
