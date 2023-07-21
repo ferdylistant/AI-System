@@ -276,7 +276,7 @@ class SettingController extends Controller
     {
         try {
             $request->validate([
-                'add_name' => 'required|min:1|max:20',
+                'add_name' => 'required|min:1|max:30',
                 'add_bagian' => 'required',
                 'add_level' => 'required',
                 'add_order_menu' => 'required|numeric',

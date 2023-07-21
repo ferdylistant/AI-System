@@ -276,7 +276,7 @@ $(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
-                // console.log(result);
+                console.log(result);
                 notifToast(result.status, result.message);
                 if (result.status == "success") {
                     tableMenu.ajax.reload();

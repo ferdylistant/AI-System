@@ -91,7 +91,7 @@
                 <div class="card card-primary">
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped dt-responsive" id="tb_stokGudang" style="width:100%">
+                            <table class="table table-striped dt-responsive" id="tb_stokGudangAndi" style="width:100%">
                             </table>
                         </div>
                     </div>
@@ -100,7 +100,7 @@
         </div>
     </div>
 </section>
-@include('penjualan_stok.gudang.include.modal_gudang_riwayat')
+@include('penjualan_stok.gudang.stok_andi.include.modal_gudang_riwayat')
 @include('tracker_modal')
 @endsection
 
@@ -120,5 +120,5 @@
 @endsection
 
 @section('jsNeeded')
-<script src="{{ url('js/penjualan_stok/update_progress_gudang.js') }}"></script>
+<script src="{{ url('js/penjualan_stok/update_progress_stok_andi.js') }}"></script>
 @endsection

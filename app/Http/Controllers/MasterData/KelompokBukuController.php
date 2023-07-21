@@ -183,11 +183,6 @@ class KelompokBukuController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
-                $request->validate([
-                    'nama_kelompok_buku' => 'required|unique:penerbitan_m_kelompok_buku,nama',
-                ], [
-                    'required' => 'This field is requried'
-                ]);
                 $last = DB::table('penerbitan_m_kelompok_buku')->whereNull('deleted_at')->orderBy('created_at', 'desc')->first();
                 if (is_null($last)) {
                     $kode = 'KB1';
@@ -230,11 +225,6 @@ class KelompokBukuController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
-                $request->validate([
-                    'edit_nama' => 'required',
-                ], [
-                    'required' => 'This field is requried'
-                ]);
                 $history = DB::table('penerbitan_m_kelompok_buku')->where('id', $request->edit_id)->first();
                 $update = [
                     'params' => 'Update Kelompok Buku',

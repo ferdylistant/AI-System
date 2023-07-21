@@ -18,6 +18,11 @@ $(function () {
                 title: "No",
             },
             {
+                data: "kode",
+                name: "kode",
+                title: "Kode",
+            },
+            {
                 data: "nama_kelompok_buku",
                 name: "nama_kelompok_buku",
                 title: "Nama Kelompok Buku",
@@ -70,8 +75,8 @@ $(function () {
             function (data) {
                 $("#titleModalKelompokBuku").html(
                     '<i class="fas fa-history"></i>&nbsp;History Perubahan Kelompok Buku "' +
-                        judul +
-                        '"'
+                    judul +
+                    '"'
                 );
                 $("#load_more").data("id", id);
                 $("#dataHistory").html(data);
@@ -103,7 +108,7 @@ $(function () {
                     notifToast("error", "Tidak ada data lagi");
                 } else {
                     $("#dataHistory").append(response);
-                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
+                    $('.thin').animate({ scrollTop: $('.thin').prop("scrollHeight") }, 800);
                 }
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
@@ -122,69 +127,73 @@ $(function () {
     });
     // History Kelompok Buku End
 
+    let addValidate = jqueryValidation_("#fm_addKBuku", {
+        nama_kelompok_buku: {
+            required: true,
+        },
+    });
     // Add Kelompok Buku Start
-    $(document).ready(function () {
-        function ajaxAddKelompokBuku(data) {
-            let el = data.get(0);
-            $.ajax({
-                type: "POST",
-                url: window.location.origin + "/master/kelompok-buku/tambah",
-                data: new FormData(el),
-                processData: false,
-                contentType: false,
-                beforeSend: function () {
-                    $('button[type="submit"]')
-                        .prop("disabled", true)
-                        .addClass("btn-progress");
-                },
-                success: function (result) {
-                    if (result.status == "success") {
-                        notifToast(result.status, result.message);
-                        tableKelompokBuku.ajax.reload();
-                        data.trigger("reset");
-                        $("#md_AddKelompokBuku").modal("hide");
-                    } else {
-                        notifToast(result.status, result.message);
-                    }
-                },
-                error: function (err) {
-                    rs = err.responseJSON.errors;
-                    if (rs != undefined) {
-                        err = {};
-                        Object.entries(rs).forEach((entry) => {
-                            let [key, value] = entry;
-                            err[key] = value;
-                        });
-                    }
-                    notifToast(
-                        "error",
-                        "Data kelompok-buku digital gagal disimpan!"
-                    );
-                },
-                complete: function () {
-                    $('button[type="submit"]')
-                        .prop("disabled", false)
-                        .removeClass("btn-progress");
-                },
+    function ajaxAddKelompokBuku(data) {
+        let el = data.get(0);
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/master/kelompok-buku/tambah",
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", true)
+                    .addClass("btn-progress");
+            },
+            success: function (result) {
+                if (result.status == "success") {
+                    notifToast(result.status, result.message);
+                    tableKelompokBuku.ajax.reload();
+                    data.trigger("reset");
+                    $("#md_AddKelompokBuku").modal("hide");
+                } else {
+                    notifToast(result.status, result.message);
+                }
+            },
+            error: function (err) {
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    addValidate.showErrors(err);
+                }
+                notifToast(
+                    "error",
+                    "Data kelompok-buku gagal disimpan!"
+                );
+            },
+            complete: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+        });
+    }
+
+    $("#fm_addKBuku").on("submit", function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            let nama = $(this).find('[name="nama_kelompok_buku"]').val();
+            swal({
+                text: "Tambah data kelompok-buku (" + nama + ")?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxAddKelompokBuku($(this));
+                }
             });
         }
-
-        $("#fm_addKBuku").on("submit", function (e) {
-            e.preventDefault();
-            if ($(this).valid()) {
-                let nama = $(this).find('[name="nama_kelompok_buku"]').val();
-                swal({
-                    text: "Tambah data kelompok-buku (" + nama + ")?",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                }).then((confirm_) => {
-                    if (confirm_) {
-                        ajaxAddKelompokBuku($(this));
-                    }
-                });
-            }
-        });
     });
     // Add KelompokBuku End
 
@@ -211,109 +220,109 @@ $(function () {
         $(this).find("form").trigger("reset");
         $(this).addClass("modal-progress");
     });
-
-    $(document).ready(function () {
-        function ajaxEditKelompokBuku(data) {
-            let el = data.get(0);
-
-            $.ajax({
-                type: "POST",
-                url: window.location.origin + "/master/kelompok-buku/ubah",
-                data: new FormData(el),
-                processData: false,
-                contentType: false,
-                beforeSend: function () {
-                    $('button[type="submit"]')
-                        .prop("disabled", true)
-                        .addClass("btn-progress");
-                },
-                success: function (result) {
-                    if (result.status == "success") {
-                        notifToast(result.status, result.message);
-                        $("#md_EditKelompokBuku").modal("hide");
-                        tableKelompokBuku.ajax.reload();
-                    } else {
-                        notifToast(result.status, result.message);
-                    }
-                },
-                error: function (err) {
-                    rs = err.responseJSON.errors;
-                    if (rs !== undefined) {
-                        err = {};
-                        Object.entries(rs).forEach((entry) => {
-                            let [key, value] = entry;
-                            err[key] = value;
-                        });
-                        // edittableKelompokBuku.showErrors(err);
-                    }
-                    notifToast("error", "Data kelompok-buku gagal disimpan!");
-                },
-                complete: function () {
-                    $('button[type="submit"]')
-                        .prop("disabled", false)
-                        .removeClass("btn-progress");
-                },
-            });
-        }
-
-        $("#fm_EditKelompokBuku").on("submit", function (e) {
-            e.preventDefault();
-            if ($(this).valid()) {
-                let nama = $(this).find('[name="edit_nama"]').val();
-                swal({
-                    text: "Ubah data Kelompok Buku (" + nama + ")?",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                }).then((confirm_) => {
-                    if (confirm_) {
-                        ajaxEditKelompokBuku($(this));
-                    }
-                });
-            }
-        });
+    let editValidate = jqueryValidation_("#fm_EditKelompokBuku", {
+        edit_nama: {
+            required: true,
+        },
     });
-    // Edit KelompokBuku End
+    function ajaxEditKelompokBuku(data) {
+        let el = data.get(0);
 
-    // Delete KelompokBuku Start
-    $(document).ready(function () {
-        function ajaxDeleteKelompokBuku(data) {
-            $.ajax({
-                type: "POST",
-                url: window.location.origin + "/master/kelompok-buku/hapus",
-                data: data,
-                beforeSend: function () {
-                    $(".btn_DelKelompokBuku")
-                        .prop("disabled", true)
-                        .addClass("btn-progress");
-                },
-                success: function (result) {
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/master/kelompok-buku/ubah",
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", true)
+                    .addClass("btn-progress");
+            },
+            success: function (result) {
+                if (result.status == "success") {
                     notifToast(result.status, result.message);
+                    $("#md_EditKelompokBuku").modal("hide");
                     tableKelompokBuku.ajax.reload();
-                },
-                error: function (err) {},
-                complete: function () {
-                    $(".btn_DelKelompokBuku")
-                        .prop("disabled", true)
-                        .removeClass("btn-progress");
-                },
-            });
-        }
-        $(document).on("click", ".btn_DelKelompokBuku", function (e) {
-            let nama = $(this).data("nama"),
-                id = $(this).data("id");
+                } else {
+                    notifToast(result.status, result.message);
+                }
+            },
+            error: function (err) {
+                rs = err.responseJSON.errors;
+                if (rs !== undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    editValidate.showErrors(err);
+                }
+                notifToast("error", "Data kelompok-buku gagal disimpan!");
+            },
+            complete: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+        });
+    }
+
+    $("#fm_EditKelompokBuku").on("submit", function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            let nama = $(this).find('[name="edit_nama"]').val();
             swal({
-                text: "Hapus data kelompok buku (" + nama + ")?",
+                text: "Ubah data Kelompok Buku (" + nama + ")?",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxDeleteKelompokBuku({
-                        id: id,
-                    });
+                    ajaxEditKelompokBuku($(this));
                 }
             });
+        }
+    });
+    // Edit KelompokBuku End
+
+    // Delete KelompokBuku Start
+    function ajaxDeleteKelompokBuku(data) {
+        $.ajax({
+            type: "POST",
+            url: window.location.origin + "/master/kelompok-buku/hapus",
+            data: data,
+            beforeSend: function () {
+                $(".btn_DelKelompokBuku")
+                    .prop("disabled", true)
+                    .addClass("btn-progress");
+            },
+            success: function (result) {
+                notifToast(result.status, result.message);
+                tableKelompokBuku.ajax.reload();
+            },
+            error: function (err) { },
+            complete: function () {
+                $(".btn_DelKelompokBuku")
+                    .prop("disabled", true)
+                    .removeClass("btn-progress");
+            },
+        });
+    }
+    $(document).on("click", ".btn_DelKelompokBuku", function (e) {
+        let nama = $(this).data("nama"),
+            id = $(this).data("id");
+        swal({
+            text: "Hapus data kelompok buku (" + nama + ")?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((confirm_) => {
+            if (confirm_) {
+                ajaxDeleteKelompokBuku({
+                    id: id,
+                });
+            }
         });
     });
     // Delete KelompokBuku End
