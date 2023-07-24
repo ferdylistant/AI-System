@@ -1,5 +1,5 @@
 $(function(){
-    let tabelGudang = $('#tb_stokGudang').DataTable({
+    let tabelGudang = $('#tb_stokGudangAndi').DataTable({
         "responsive": true,
         "autoWidth": false,
         pagingType: "input",
@@ -11,7 +11,7 @@ $(function(){
             lengthMenu: "_MENU_ /halaman",
         },
         ajax: {
-            url: window.location.origin + "/penjualan-stok/gudang?request_type=table-index",
+            url: window.location.origin + "/penjualan-stok/gudang/andi?request_type=table-index",
         },
         columns: [
             // { data: 'no', name: 'no', title: 'No' },
@@ -29,10 +29,12 @@ $(function(){
         ]
     });
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
-        notifToast("error", message)
-        // window.location.reload();
+        notifToast("error",settings.jqXHR.statusText)
+        if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
+            window.location.reload();
+        }
     };
-    $("#tb_stokGudang").on("click", ".btn-tracker", function (e) {
+    $("#tb_stokGudangAndi").on("click", ".btn-tracker", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
         var judul = $(this).data("judulfinal");
@@ -58,21 +60,21 @@ $(function(){
     });
     $('#modalRiwayatPengirimanGudang').on('shown.bs.modal', function (e) {
         let track_id = $(e.relatedTarget).data('track_id'),
+            judul_final = $(e.relatedTarget).data('judulfinal'),
             cardWrap = $("#modalRiwayatPengirimanGudang");
         $.ajax({
-            url: window.location.origin + '/penjualan-stok/gudang?request_type=show-modal-pengiriman',
+            url: window.location.origin + '/penjualan-stok/gudang/andi?request_type=show-modal-pengiriman',
             type: 'GET',
             data: {
                 track_id: track_id,
             },
             cache: false,
             success: function (result) {
-                cardWrap.find('#statusJob').attr('class', result.badge).trigger('change');
-                cardWrap.find('#statusJob').text(result.status).trigger('change');
-                cardWrap.find('#sectionTitle').html(result.sectionTitle).trigger('change');
-                cardWrap.find('[name="produksi_id"]').val(result.data.id).trigger('change');
-                cardWrap.find('[name="proses_tahap"]').val(result.proses_tahap).trigger('change');
-                cardWrap.find('#judul_final').html('<i class="fas fa-tasks"></i> ' + result.data.judul_final.charAt(0).toUpperCase() + result.data.judul_final.slice(1)).trigger('change');
+                // cardWrap.find('#statusJob').attr('class', result.badge).trigger('change');
+                // cardWrap.find('#statusJob').text(result.status).trigger('change');
+                // cardWrap.find('[name="produksi_id"]').val(result.data.id).trigger('change');
+                // cardWrap.find('[name="proses_tahap"]').val(result.proses_tahap).trigger('change');
+                cardWrap.find('#judul_final').html('<i class="fas fa-tasks"></i> ' + judul_final.charAt(0).toUpperCase() + judul_final.slice(1)).trigger('change');
                 cardWrap.find('#contentData').html(result.content).trigger('change');
             },
             error: function (err) {

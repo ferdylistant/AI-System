@@ -30,8 +30,10 @@ $(function () {
         ]
     });
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
-        notifToast("error", message)
-        window.location.reload();
+        notifToast("error",settings.jqXHR.statusText)
+        if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
+            window.location.reload();
+        }
     };
     $("#tb_prosesProduksi").on("click", ".btn-tracker", function (e) {
         e.preventDefault();

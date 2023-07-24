@@ -69,6 +69,12 @@ $(function(){
             },
         ],
     });
+    $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
+        notifToast("error",settings.jqXHR.statusText)
+        if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
+            window.location.reload();
+        }
+    };
     loadCountData();
     $('[name="status_filter"]').on("change", function () {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());

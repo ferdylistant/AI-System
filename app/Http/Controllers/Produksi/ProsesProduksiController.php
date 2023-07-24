@@ -923,6 +923,7 @@ class ProsesProduksiController extends Controller
     {
         try {
             $id = $request->id;
+
             $params = [
                 'params' => 'Delete Riwayat Track',
                 'id' => $id

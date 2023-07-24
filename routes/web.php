@@ -229,8 +229,12 @@ Route::middleware(['auth'])->group(function () use ($path) {
     });
     //Penjualan Dan Stok
     Route::prefix('penjualan-stok')->group(function () use ($path) {
-        //Proses Produksi Cetak
-        Route::get('/gudang', $path.'\PenjualanStok\GudangController@index');
+        //Stok Andi
+        Route::get('/gudang/andi', $path.'\PenjualanStok\StokAndiController@index');
+        //Stok Non-Andi (Buku)
+        Route::get('/gudang/non-andi/buku', $path.'\PenjualanStok\StokNonAndiController@index');
+        //Stok Non-Andi (Non-Buku)
+        Route::get('/gudang/non-andi/non-buku', $path.'\PenjualanStok\StokNonAndiController@index');
         // Route::get('/proses/cetak/detail', $path.'\Produksi\GudangController@detailProduksi')->name('proses.cetak.detail');
         // Route::match(['get', 'post'], '/proses/cetak/edit', $path.'\Produksi\GudangController@updateProduksi')->name('proses.cetak.update');
         // Route::match(['get', 'post'], '/proses/cetak/ajax/{cat}', $path.'\Produksi\GudangController@ajaxCall');

@@ -30,7 +30,7 @@ class PenjualanStokListener
         $data = $event->data;
         switch ($data['params']) {
             case 'Insert Stok Gudang':
-                $res = DB::table('stok_produksi')->insert([
+                $res = DB::table('st_andi')->insert([
                     'id' => $data['id'],
                     'produksi_id' => $data['produksi_id']
                 ]);

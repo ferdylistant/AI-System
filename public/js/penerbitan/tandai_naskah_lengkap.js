@@ -90,6 +90,12 @@ $(function() {
             },
         ],
     });
+    $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
+        notifToast("error",settings.jqXHR.statusText)
+        if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
+            window.location.reload();
+        }
+    };
     loadData();
     // tableNaskah.on('init.dt', function (e) {
     //     tableNaskah.page(56).draw(false);

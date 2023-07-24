@@ -9,12 +9,12 @@ use App\Events\convertNumberToRoman;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
-class GudangController extends Controller
+class StokAndiController extends Controller
 {
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = DB::table('stok_produksi as sp')
+            $data = DB::table('st_andi as sp')
                 ->join('proses_produksi_cetak as ppc', 'sp.produksi_id', '=', 'ppc.id')
                 ->join('order_cetak as oc', 'oc.id', '=', 'ppc.order_cetak_id')
                 ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
@@ -73,8 +73,8 @@ class GudangController extends Controller
             } else {
             }
         }
-        return view('penjualan_stok.gudang.index', [
-            'title' => 'Stok Gudang'
+        return view('penjualan_stok.gudang.stok_andi.index', [
+            'title' => 'Stok Gudang Andi'
         ]);
     }
     protected function datatableIndex($data)
@@ -143,7 +143,7 @@ class GudangController extends Controller
                     ->where('produksi_id', $data->produksi_id)
                     ->where('proses_tahap', 'Kirim Gudang')
                     ->first();
-                $res = '<a href="javascript:void(0)" class="btn btn-sm btn-light btn-icon" data-track_id="' . $dataTrack->id . '" data-toggle="modal" data-target="#modalRiwayatPengirimanGudang" data-backdrop="static">
+                $res = '<a href="javascript:void(0)" class="btn btn-sm btn-light btn-icon" data-track_id="' . $dataTrack->id . '" data-judulfinal="'.$data->judul_final.'" data-toggle="modal" data-target="#modalRiwayatPengirimanGudang" data-backdrop="static">
                 <i class="fas fa-truck-loading"></i> Pengiriman</a>';
                 return $res;
             })
@@ -216,7 +216,7 @@ class GudangController extends Controller
             $data = DB::table('proses_produksi_track_riwayat')->where('track_id', $track_id)->get();
             $totalDiterima = DB::table('proses_produksi_track_riwayat')
                 ->whereNotNull('tgl_diterima')
-                ->where('track_id', $data->id)
+                ->where('track_id', $track_id)
                 ->orderBy('created_at', 'asc')
                 ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_diterima'))
                 ->get();
@@ -303,7 +303,7 @@ class GudangController extends Controller
                 </div>
             </div>';
             return [
-                ''
+                'content' => $content
             ];
         } catch (\Exception $e) {
             return abort(500, $e->getMessage());
