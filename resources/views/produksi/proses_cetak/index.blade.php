@@ -77,6 +77,9 @@
         position: sticky; /* make the table heads sticky */
         bottom: 0; /* table head will be placed from the top of the table and sticks to it */
       }
+      #editCatatan.form-control {
+        height: 94px!important;
+      }
     </style>
 @endsection
 
@@ -102,6 +105,7 @@
 </section>
 @include('produksi.include.modal_track_produksi')
 @include('produksi.include.modal_edit_riwayatkirim')
+@include('produksi.include.modal_catatan')
 @include('tracker_modal')
 @endsection
 

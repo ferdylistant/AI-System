@@ -369,6 +369,9 @@ class ProsesProduksiController extends Controller
             case 'show-modal-edit-riwayat':
                 return $this->showModalEditRiwayat($request);
                 break;
+            case 'show-modal-catatan':
+                return $this->showModalCatatan($request);
+                break;
             case 'lihat-tracking-timeline':
                 return $this->lihatTrackingProduksi($request);
                 break;
@@ -495,14 +498,22 @@ class ProsesProduksiController extends Controller
                             foreach ($kirimGudang as $i => $kg) {
                                 $i++;
                                 if(!is_null($kg->tgl_diterima)) {
-                                    $btnAction = '<span class="badge badge-light">No action</span>';
+                                    $btnAction = '<button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
+                                    id="btnEditRiwayatKirim" data-toggle="tooltip" data-title="Data sudah diterima" style="cursor:not-allowed" disabled>
+                                    <i class="fas fa-edit"></i></button>
+                                    <button type="button" class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-toggle="tooltip" title="Data sudah diterima" style="cursor:not-allowed" disabled>
+                                    <i class="fas fa-trash"></i></button>
+                                    <button type="button" class="btnCatatan btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalCatatan">
+                                    <i class="fas fa-comment-alt"></i></button>';
                                 } else {
-                                    $btnAction = '<a href="javascript:void(0)"
-                                    class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1" id="btnEditRiwayatKirim" data-id="'.$kg->id.'" data-dibuat="'.Carbon::parse($kg->created_at)->translatedFormat('l, d M Y - H:i:s').'" data-toggle="modal" data-target="#modalEditRiwayatKirim">
-                                    <i class="fas fa-edit"></i></a>
-                                    <a href="javascript:void(0)"
-                                    class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="'.$kg->id.'" data-toggle="tooltip" title="Hapus Data">
-                                    <i class="fas fa-trash"></i></a>';
+                                    $btnAction = '<button type="button" class="btnEditRiwayat btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
+                                    id="btnEditRiwayatKirim" data-id="'.$kg->id.'" data-dibuat="'.Carbon::parse($kg->created_at)->translatedFormat('l, d M Y - H:i:s').'"
+                                    data-toggle="modal" data-target="#modalEditRiwayatKirim">
+                                    <i class="fas fa-edit"></i></button>
+                                    <button type="button" class="btnHapusRiwayat btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="'.$kg->id.'" data-toggle="tooltip" title="Hapus Data">
+                                    <i class="fas fa-trash"></i></button>
+                                    <button type="button" class="btnCatatan btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalCatatan">
+                                    <i class="fas fa-comment-alt"></i></button>';
                                 }
                                 $kg = (object)collect($kg)->map(function($item,$key){
                                     switch ($key) {
@@ -561,16 +572,7 @@ class ProsesProduksiController extends Controller
                         <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
                 $badge = 'badge badge-warning';
                 break;
-            case 'pending':
-                $masterStatus = Arr::except($masterStatus, ['2', '3']);
-                $addContent .= '<div class="form-group">
-                        <label for="tglMulai">Tanggal Mulai</label>
-                        <p id="tglMulai">' . Carbon::parse($tglmulai)->translatedFormat('l d F Y, H:i') . '</p>
-                        </div>';
-                $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
-                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
-                $badge = 'badge badge-danger';
-                break;
+
             case 'selesai':
                 foreach ($masterStatus as $ms) {
                     if ($status == $ms) {
@@ -631,7 +633,13 @@ class ProsesProduksiController extends Controller
                                   <td>'.$kg->tgl_diterima.'</td>
                                   <td>'.$kg->diterima_oleh.'</td>
                                   <td>'.$kg->jml_dikirim.' eks</td>
-                                  <td><span class="badge badge-light">No action</span></td>
+                                  <td><button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
+                                  data-toggle="tooltip" data-title="Data sudah diterima" style="cursor:not-allowed" disabled>
+                                  <i class="fas fa-edit"></i></button>
+                                  <button type="button" class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-toggle="tooltip" title="Data sudah diterima" style="cursor:not-allowed" disabled>
+                                  <i class="fas fa-trash"></i></button>
+                                  <button type="button" class="btnCatatan btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalCatatan">
+                                  <i class="fas fa-comment-alt"></i></button></td>
                                 </tr>';
                                 $totalKirim +=$kg->jml_dikirim;
                             }
@@ -673,7 +681,7 @@ class ProsesProduksiController extends Controller
                             <i class="fas fa-info-circle me-3"></i>
                             </abbr>
                             </a></label>
-                            <input name="jml_cetak" class="form-control" id="jmlCetak" value="' . $data->jumlah_cetak . '" readonly>
+                            <input name="jml_cetak" class="form-control" id="jmlCetak" value="' . $data->jumlah_cetak . '" style="cursor:not-allowed" readonly>
                             </div>
                             <div class="form-group col-md-6">
                             <label for="jmlDikirim">Jumlah Dikirim (<span class="text-danger">*</span>)</label>
@@ -1204,12 +1212,15 @@ class ProsesProduksiController extends Controller
     protected function submitEditRiwayat($request)
     {
         try {
-            $jml_dikirim = $request->edit_jml_dikirim;
+            $jml_dikirim = $request->jml_dikirim;
+            $catatan = $request->catatan;
             $id = $request->id;
             $params = [
                 'params' => 'Edit Riwayat Jumlah Kirim',
                 'id' => $id,
-                'jml_dikirim' => $jml_dikirim
+                'jml_dikirim' => $jml_dikirim,
+                'catatan' => $catatan ??'-',
+                'updated_at' => auth()->id()
             ];
             event(new ProduksiEvent($params));
             $totalDikirim = DB::table('proses_produksi_track_riwayat')
@@ -1219,6 +1230,7 @@ class ProsesProduksiController extends Controller
                 'message' => 'Berhasil mengubah jumlah kirim!',
                 'data' => [
                     'jml_dikirim' => $jml_dikirim,
+                    'catatan' => $catatan,
                     'total_dikirim' => $totalDikirim[0]->total_dikirim
                 ]
             ]);
@@ -1236,6 +1248,20 @@ class ProsesProduksiController extends Controller
             $id = $request->id;
             $data = DB::table('proses_produksi_track_riwayat')->where('id',$id)->first();
             return response()->json($data);
+        } catch (\Exception $e) {
+            return abort(500);
+        }
+    }
+    protected function showModalCatatan($request)
+    {
+        try {
+            $id = $request->id;
+            $data = DB::table('proses_produksi_track_riwayat')->where('id',$id)->select('catatan')->first();
+            $catatan = '<span class="bullet"></span>'.$data->catatan;
+            if (is_null($data->catatan) || $data->catatan == '-') {
+                $catatan = '<span class="bullet"></span><span class="text-danger">Tidak ada catatan</span>';
+            }
+            return response()->json($catatan);
         } catch (\Exception $e) {
             return abort(500);
         }

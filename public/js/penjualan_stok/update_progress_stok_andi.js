@@ -61,6 +61,8 @@ $(function(){
     $('#modalRiwayatPengirimanGudang').on('shown.bs.modal', function (e) {
         let track_id = $(e.relatedTarget).data('track_id'),
             judul_final = $(e.relatedTarget).data('judulfinal'),
+            status = $(e.relatedTarget).data('status'),
+            statuscolor = $(e.relatedTarget).data('statuscolor'),
             cardWrap = $("#modalRiwayatPengirimanGudang");
         $.ajax({
             url: window.location.origin + '/penjualan-stok/gudang/andi?request_type=show-modal-pengiriman',
@@ -70,12 +72,13 @@ $(function(){
             },
             cache: false,
             success: function (result) {
-                // cardWrap.find('#statusJob').attr('class', result.badge).trigger('change');
-                // cardWrap.find('#statusJob').text(result.status).trigger('change');
+                cardWrap.find('#statusJob').addClass('badge-'+statuscolor).trigger('change');
+                cardWrap.find('#statusJob').text(status).trigger('change');
                 // cardWrap.find('[name="produksi_id"]').val(result.data.id).trigger('change');
                 // cardWrap.find('[name="proses_tahap"]').val(result.proses_tahap).trigger('change');
                 cardWrap.find('#judul_final').html('<i class="fas fa-tasks"></i> ' + judul_final.charAt(0).toUpperCase() + judul_final.slice(1)).trigger('change');
                 cardWrap.find('#contentData').html(result.content).trigger('change');
+                $('[data-toggle="popover"]').popover();
             },
             error: function (err) {
                 console.log(err);

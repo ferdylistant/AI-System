@@ -86,7 +86,9 @@ class ProduksiListener
             case 'Edit Riwayat Jumlah Kirim':
                 DB::beginTransaction();
                 $res = DB::table('proses_produksi_track_riwayat')->where('id',$data['id'])->update([
-                    'jml_dikirim' => $data['jml_dikirim']
+                    'jml_dikirim' => $data['jml_dikirim'],
+                    'catatan' => $data['catatan'],
+                    'updated_at' => $data['updated_at'],
                 ]);
                 DB::commit();
                 break;

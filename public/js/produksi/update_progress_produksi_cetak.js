@@ -115,6 +115,10 @@ $(function () {
                 cardWrap.find('#contentData').html(result.content).trigger('change');
                 cardWrap.find('#footerModal').html(result.footer).trigger('change');
                 $('[data-toggle="popover"]').popover();
+                $('#jmlCetak').tooltip({'trigger':'hover', 'title': 'Tidak dapat diubah'});
+                $('.btnEditRiwayat').tooltip({'trigger':'hover', 'title': 'Edit Data','placement':'left'});
+                $('.btnHapusRiwayat').tooltip({'trigger':'hover', 'title': 'Hapus Data','placement':'left'});
+                $('.btnCatatan').tooltip({'trigger':'hover', 'title': 'Catatan','placement':'left'});
                 if (result.proses_tahap !== 'Kirim Gudang') {
                     if (result.trackData) {
                         loadSelected(result.trackData.mesin, result.trackData.operator);
@@ -369,9 +373,10 @@ $(function () {
             },
             success: function (res) {
                 $('#modalEditRiwayatKirim').find('#titleEditRiwayat').text(tglmulai).change();
-                $('#modalEditRiwayatKirim').find('[name="id_"]').val(res.id).change();
-                $('#modalEditRiwayatKirim').find('[name="track_id"]').val(res.track_id).change();
-                $('#modalEditRiwayatKirim').find('[name="edit_jml_dikirim"]').val(res.jml_dikirim).change();
+                Object.entries(res).forEach((entry) => {
+                    let [key, value] = entry;
+                    $('#modalEditRiwayatKirim').find('[name="'+key+'"]').val(value).change();
+                });
                 var jmlDikirim = document.getElementById('editJmlDikirim');
                 var maskjmlDikirim = {
                     mask: '0000000000000'
@@ -404,6 +409,7 @@ $(function () {
             success: function (res) {
                 notifToast(res.status, res.message);
                 if (res.status == 'success') {
+                    // $("#modalTrackProduksi #indexCatatan"+id).html(res.data.catatan).change();
                     $("#modalTrackProduksi #indexJmlKirim"+id).html(res.data.jml_dikirim+' eks').change();
                     $("#modalTrackProduksi #totDikirim").html(res.data.total_dikirim+' eks').change();
                     $("#modalEditRiwayatKirim").modal("hide");
@@ -434,7 +440,7 @@ $(function () {
     }
     $('#form_EditRiwayat').on('submit', function (e) {
         e.preventDefault();
-        let id = $(this).find('[name="id_"]').val();
+        let id = $(this).find('[name="id"]').val();
         let track_id = $(this).find('[name="track_id"]').val();
         if ($(this).valid()) {
             swal({
@@ -448,5 +454,27 @@ $(function () {
                 }
             });
         }
+    });
+    //Modal Catatan
+    $('#modalCatatan').on('shown.bs.modal', function (e) {
+        let id = $(e.relatedTarget).data('id'),
+            cardWrap = $("#modalCatatan");
+        $.ajax({
+            url: window.location.origin + "/produksi/proses/cetak/ajax/show-modal-catatan",
+            type: 'GET',
+            data: {
+                id:id
+            },
+            success: function (res) {
+                $('#modalCatatan #catatanModal').html(res).change();
+                cardWrap.removeClass('modal-progress')
+            }
+        });
+    });
+    $("#modalCatatan").on("hidden.bs.modal", function (e) {
+        // let d = $(e.relatedTarget).attr('id','statusJob');
+        // console.log(d);
+        $(this).addClass("modal-progress");
+        $(this).modal('hide');
     });
 })

@@ -143,8 +143,14 @@ class StokAndiController extends Controller
                     ->where('produksi_id', $data->produksi_id)
                     ->where('proses_tahap', 'Kirim Gudang')
                     ->first();
-                $res = '<a href="javascript:void(0)" class="btn btn-sm btn-light btn-icon" data-track_id="' . $dataTrack->id . '" data-judulfinal="'.$data->judul_final.'" data-toggle="modal" data-target="#modalRiwayatPengirimanGudang" data-backdrop="static">
-                <i class="fas fa-truck-loading"></i> Pengiriman</a>';
+                $statusColor = $dataTrack->status == 'sedang dalam proses'?'warning':'success';
+                $res = '<button class="btn btn-sm btn-light btn-icon position-relative" data-track_id="' . $dataTrack->id . '"
+                data-judulfinal="'.$data->judul_final.'" data-status="'.$dataTrack->status.'"
+                data-statuscolor="'.$statusColor.'" data-toggle="modal" data-target="#modalRiwayatPengirimanGudang" data-backdrop="static">
+                <i class="fas fa-truck-loading"></i> Pengiriman
+                <span class="position-absolute translate-middle p-1 bg-'.$statusColor.' border border-light rounded-circle" style="top:0;right:0">
+                </span>
+                </button>';
                 return $res;
             })
             ->addColumn('tracking_timeline', function ($data) {
