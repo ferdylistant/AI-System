@@ -13,9 +13,18 @@
 
     <ul class="sidebar-menu pb-5">
         @foreach(session('menus') as $key => $menus)
+        @php
+            $keyChar = Str::contains($key,'&');
+            $keyDisplay = $key;
+        @endphp
+        @if ($keyChar)
+            @php
+                $key = Str::remove('&',$key);
+            @endphp
+        @endif
         <li class="menu-header">
             <a class="d-flex" data-toggle="collapse" href="#{{Str::camel($key)}}" role="button" aria-expanded="false" aria-controls="{{Str::camel($key)}}">
-                <span class="bd-highlight">{{$key}}</span>
+                <span class="bd-highlight">{{$keyDisplay}}</span>
                 <i class="fas fa-sort-down bd-highlight"></i>
             </a>
         </li>

@@ -173,7 +173,7 @@
     @include('manweb.setting.include.modal_editsectionmenu')
     <!-- Modal Permission -->
     @include('manweb.setting.include.modal_addpermission')
-    {{-- @include('manweb.setting.include.modal_editpermission') --}}
+    @include('manweb.setting.include.modal_editpermission')
 
     <!-- Modal Divisi -->
     <div class="modal fade modal-progress" tabindex="-1" role="dialog" id="md_EditDivJab">

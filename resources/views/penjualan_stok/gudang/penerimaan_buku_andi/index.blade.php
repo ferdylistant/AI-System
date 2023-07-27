@@ -83,7 +83,7 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1>Data Stok Gudang</h1>
+        <h1>Penerimaan Buku Andi</h1>
     </div>
     <div class="section-body">
         <div class="row">
@@ -100,7 +100,7 @@
         </div>
     </div>
 </section>
-@include('penjualan_stok.gudang.stok_andi.include.modal_gudang_riwayat')
+@include('penjualan_stok.gudang.penerimaan_buku_andi.include.modal_gudang_riwayat')
 @include('tracker_modal')
 @endsection
 
@@ -120,5 +120,5 @@
 @endsection
 
 @section('jsNeeded')
-<script src="{{ url('js/penjualan_stok/update_progress_stok_andi.js') }}"></script>
+<script src="{{ url('js/penjualan_stok/update_progress_penerimaan_buku_andi.js') }}"></script>
 @endsection

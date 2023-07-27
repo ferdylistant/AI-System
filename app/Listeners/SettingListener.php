@@ -77,6 +77,17 @@ class SettingListener
                 ]);
                 DB::commit();
                 break;
+            case 'Edit Permission':
+                DB::beginTransaction();
+                $res = DB::table('permissions')->where('id',$data['id'])->update([
+                    'access_id' => $data['access_id'],
+                    'url' => $data['url'],
+                    'type' => $data['type'],
+                    'raw' => $data['raw'],
+                    'name' => $data['name']
+                ]);
+                DB::commit();
+                break;
             default:
                 return abort(500);
                 break;

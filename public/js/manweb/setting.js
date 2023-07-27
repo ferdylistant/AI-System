@@ -255,8 +255,20 @@ $(function () {
             required: true,
         },
     });
-    let editPermission = jqueryValidation_("#fm_EditDivJab", {
-        edit_djnama: {
+    let editPermission = jqueryValidation_("#fm_EditPermission", {
+        edit_name: {
+            required: true,
+        },
+        edit_bagian: {
+            required: true,
+        },
+        edit_menu: {
+            required: true,
+        },
+        edit_type: {
+            required: true,
+        },
+        edit_raw: {
             required: true,
         },
     });
@@ -468,13 +480,12 @@ $(function () {
             },
         });
     }
-
     function ajaxEditPermission(data) {
         let el = data.get(0);
-
+        // console.log(data)
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/setting/update/section-menu",
+            url: window.location.origin + "/setting/update/permission",
             data: new FormData(el),
             processData: false,
             contentType: false,
@@ -484,11 +495,11 @@ $(function () {
                     .addClass("btn-progress");
             },
             success: function (result) {
+                // console.log(result);
+                notifToast(result.status, result.message);
                 if (result.status == "success") {
-                    tableBagian.ajax.reload();
-                    notifToast(result.status, result.message);
-                } else {
-                    notifToast(result.status, result.message);
+                    tablePermission.ajax.reload();
+                    data.trigger("reset");
                 }
             },
             error: function (err) {
@@ -499,7 +510,7 @@ $(function () {
                         let [key, value] = entry;
                         err[key] = value;
                     });
-                    editSectionMenu.showErrors(err);
+                    editPermission.showErrors(err);
                 }
                 notifToast("error", "Terjadi kesalahan!");
             },
@@ -510,7 +521,6 @@ $(function () {
             },
         });
     }
-
     function ajaxDeleteMenu(data) {
         $.ajax({
             type: "POST",
@@ -535,103 +545,6 @@ $(function () {
             },
         });
     }
-
-    function ajaxAddDivJab(data, cat, type) {
-        let el = data.get(0);
-        type = type.toLowerCase();
-
-        $.ajax({
-            type: "POST",
-            url:
-                "{!!url('manajemen-web/struktur-ao/" +
-                cat +
-                "/" +
-                type +
-                "')!!}",
-            data: new FormData(el),
-            processData: false,
-            contentType: false,
-            beforeSend: function () {
-                $('button[type="submit"]')
-                    .prop("disabled", true)
-                    .addClass("btn-progress");
-            },
-            success: function (result) {
-                notifToast("success", "Data " + type + " berhasil disimpan!");
-                if (type == "divisi") {
-                    tableDivisi.ajax.reload();
-                } else if (type == "jabatan") {
-                    tableJabatan.ajax.reload();
-                }
-            },
-            error: function (err) {
-                rs = err.responseJSON.errors;
-                if (rs !== undefined) {
-                    err = {};
-                    Object.entries(rs).forEach((entry) => {
-                        let [key, value] = entry;
-                        err[key] = value;
-                    });
-                    addDivJab.showErrors(err);
-                }
-                notifToast("error", "Data " + type + " gagal disimpan!");
-            },
-            complete: function () {
-                $('button[type="submit"]')
-                    .prop("disabled", false)
-                    .removeClass("btn-progress");
-            },
-        });
-    }
-
-    function ajaxEditDivJab(data, cat, type) {
-        let el = data.get(0);
-        type = type.toLowerCase();
-
-        $.ajax({
-            type: "POST",
-            url:
-                "{!!url('manajemen-web/struktur-ao/" +
-                cat +
-                "/" +
-                type +
-                "')!!}",
-            data: new FormData(el),
-            processData: false,
-            contentType: false,
-            beforeSend: function () {
-                $('button[type="submit"]')
-                    .prop("disabled", true)
-                    .addClass("btn-progress");
-            },
-            success: function (result) {
-                notifToast("success", "Data " + type + " berhasil diubah!");
-                if (type == "divisi") {
-                    tableDivisi.ajax.reload();
-                } else if (type == "jabatan") {
-                    tableJabatan.ajax.reload();
-                }
-            },
-            error: function (err) {
-                rs = err.responseJSON.errors;
-                if (rs !== undefined) {
-                    err = {};
-                    Object.entries(rs).forEach((entry) => {
-                        let [key, value] = entry;
-                        err[key] = value;
-                    });
-                    editDivJab.showErrors(err);
-                }
-                notifToast("error", "Data " + type + " gagal diubah!");
-            },
-            complete: function () {
-                $('button[type="submit"]')
-                    .prop("disabled", false)
-                    .removeClass("btn-progress");
-            },
-        });
-    }
-
     function ajaxDeleteDivJab(data, type) {
         type = type.toLowerCase();
 
@@ -755,7 +668,7 @@ $(function () {
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxEditMenu($(this));
+                    ajaxEditPermission($(this));
                 }
             });
         }
@@ -898,7 +811,7 @@ $(function () {
                 },
             },
         }).on("select2:select", function (e) {
-            getEditParentVal(e.params.data.id);
+            getAccessValEdit(e.params.data.id);
         });
     $("#add_bagianPermission")
         .select2({
@@ -1022,6 +935,30 @@ $(function () {
                 },
             },
         });
+        $("#edit_type")
+        .select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectType",
+                        term: params.term,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item,
+                                id: item,
+                            };
+                        }),
+                    };
+                },
+            },
+        });
     function getEditParentVal(id) {
         $("#edit_parent").select2({
             ajax: {
@@ -1076,6 +1013,32 @@ $(function () {
     }
     function getAccessVal(id) {
         $("#add_menuPermission").select2({
+            ajax: {
+                url: window.location.origin + "/setting",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_: "selectMenuSelect",
+                        term: params.term,
+                        id: id,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id,
+                            };
+                        }),
+                    };
+                },
+            },
+        });
+    }
+    function getAccessValEdit(id) {
+        $("#edit_menuPermission").select2({
             ajax: {
                 url: window.location.origin + "/setting",
                 type: "GET",
@@ -1227,6 +1190,29 @@ $(function () {
         });
     });
     $("#md_EditSectionMenu").on("hidden.bs.modal", function () {
+        $(this).find("form").trigger("reset");
+        $(this).addClass("modal-progress");
+    });
+    $("#md_EditPermission").on("shown.bs.modal", function (e) {
+        let id = $(e.relatedTarget).data("id"),
+            form_ = $(this);
+        $.ajax({
+            url: window.location.origin + "/setting",
+            data: {
+                request_: "data-permission",
+                id: id,
+            },
+            success: function (result) {
+                console.log(result);
+                Object.entries(result).forEach((entry) => {
+                    let [key, value] = entry;
+                    form_.find('[name="edit_' + key + '"]').val(value);
+                });
+                form_.removeClass("modal-progress");
+            },
+        });
+    });
+    $("#md_EditPermission").on("hidden.bs.modal", function () {
         $(this).find("form").trigger("reset");
         $(this).addClass("modal-progress");
     });

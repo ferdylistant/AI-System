@@ -204,7 +204,7 @@
     <script src="{{ url('vendors/popper.js/dist/umd/popper.min.js') }}"></script>
     <script src="{{ url('vendors/bootstrap/dist/js/bootstrap.js') }}"></script>
     <script src="{{ url('vendors/jquery.nicescroll/jquery.nicescroll.js') }}"></script>
-    <script src="{{ url('vendors/sweetalert/dist/sweetalert.min.js') }}"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="{{ url('vendors/moment/moment.js') }}"></script>
     <script src="{{ url('vendors/stisla/js/stisla.js') }}"></script>
     {{-- <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.14.3/dist/algoliasearch-lite.umd.js"

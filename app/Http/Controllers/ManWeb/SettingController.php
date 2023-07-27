@@ -133,8 +133,8 @@ class SettingController extends Controller
                             return $res;
                         })
                         ->addColumn('action', function ($data) {
-                            $btn = '<a href="#" class="d-block btn btn-sm btn-warning btn_EditCabang btn-icon mr-1 mt-1"
-                                    data-toggle="modal" data-target="#md_EditCabang" data-backdrop="static"
+                            $btn = '<a href="#" class="d-block btn btn-sm btn-warning btn_EditPermission btn-icon mr-1 mt-1"
+                                    data-toggle="modal" data-target="#md_EditPermission" data-backdrop="static"
                                     data-id="' . $data->id . '" data-nama="' . $data->name . '"
                                     data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
@@ -203,6 +203,12 @@ class SettingController extends Controller
                     $result = DB::table('access_bagian')
                         ->where('id', $request->input('id'))
                         ->select('id', 'name', 'order_ab', 'name as oldnama')
+                        ->first();
+                    return $result;
+                    break;
+                case 'data-permission':
+                    $result = DB::table('permissions')
+                        ->where('id', $request->input('id'))
                         ->first();
                     return $result;
                     break;
@@ -430,6 +436,31 @@ class SettingController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data permission berhasil disimpan!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function editPermission($request)
+    {
+        try {
+            $data = [
+                'params' => 'Edit Permission',
+                'id' => $request->input('edit_id'),
+                'access_id' => $request->edit_menu,
+                'url' => '',
+                'type' => $request->edit_type,
+                'raw' => $request->edit_raw,
+                'name' => $request->edit_name
+            ];
+            event(new SettingEvent($data));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data permission berhasil diupdate!'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

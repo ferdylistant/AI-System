@@ -92,6 +92,15 @@ class ProduksiListener
                 ]);
                 DB::commit();
                 break;
+            case 'Update Penerimaan Buku':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_track_riwayat')->where('id',$data['id'])->update([
+                    'catatan' => $data['catatan'],
+                    'tgl_diterima' => $data['tgl_diterima'],
+                    'diterima_oleh' => $data['diterima_oleh']
+                ]);
+                DB::commit();
+                break;
             default:
                 return abort(500);
                 break;

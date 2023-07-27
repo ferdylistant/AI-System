@@ -524,7 +524,7 @@ class ProsesProduksiController extends Controller
                                             return is_null($item) ? '-':DB::table('users')->where('id',$item)->first()->nama;
                                             break;
                                         case 'tgl_diterima':
-                                            return is_null($item) ? '<small class="badge badge-danger">menunggu</small>':$item;
+                                            return is_null($item) ? '<small class="badge badge-danger">menunggu</small>':Carbon::parse($item)->format('d-m-Y H:i:s');
                                             break;
                                         case 'created_at':
                                             return Carbon::parse($item)->format('d-m-Y H:i:s');
@@ -616,7 +616,7 @@ class ProsesProduksiController extends Controller
                                             return is_null($item) ? '-':DB::table('users')->where('id',$item)->first()->nama;
                                             break;
                                         case 'tgl_diterima':
-                                            return is_null($item) ? '<small class="badge badge-danger">menunggu</small>':$item;
+                                            return is_null($item) ? '<small class="badge badge-danger">menunggu</small>':Carbon::parse($item)->format('d-m-Y H:i:s');
                                             break;
                                         case 'created_at':
                                             return Carbon::parse($item)->format('d-m-Y H:i:s');
@@ -1150,7 +1150,7 @@ class ProsesProduksiController extends Controller
                 //INSERT GUDANG
                 $idGudang = Uuid::uuid4()->toString();
                 $insertGudang = [
-                    'params' => 'Insert Stok Gudang',
+                    'params' => 'Insert Penerimaan Stok',
                     'id' => $idGudang,
                     'produksi_id' => $produksi_id
                 ];

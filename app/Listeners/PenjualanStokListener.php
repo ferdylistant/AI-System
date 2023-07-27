@@ -29,11 +29,27 @@ class PenjualanStokListener
     {
         $data = $event->data;
         switch ($data['params']) {
-            case 'Insert Stok Gudang':
-                $res = DB::table('st_andi')->insert([
+            case 'Insert Penerimaan Stok':
+                $res = DB::table('pj_st_penerimaan')->insert([
                     'id' => $data['id'],
                     'produksi_id' => $data['produksi_id']
                 ]);
+                break;
+            case 'Insert Stok Andi':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_andi')->insert([
+                    'id' => $data['id'],
+                    'naskah_id' => $data['naskah_id'],
+                    'total_stok' => $data['total_stok']
+                ]);
+                DB::commit();
+                break;
+            case 'Update Jumlah Stok Andi':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_andi')->where('id',$data['id'])->update([
+                    'total_stok' => $data['total_stok']
+                ]);
+                DB::commit();
                 break;
             default:
             return abort(500);

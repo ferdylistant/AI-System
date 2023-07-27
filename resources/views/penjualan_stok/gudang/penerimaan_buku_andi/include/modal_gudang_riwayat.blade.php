@@ -1,5 +1,5 @@
 <!-- Modal -->
-<div class="modal fade" id="modalRiwayatPengirimanGudang" tabindex="-1" role="dialog" aria-labelledby="judul_final" aria-hidden="true">
+<div class="modal fade" id="modalPenerimaanBuku" tabindex="-1" role="dialog" aria-labelledby="judul_final" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
           <form method="post" id="form_Tracking">
@@ -21,6 +21,7 @@
                               </div>
                           </div>
                           @csrf
+                          <input type="hidden" name="naskah_id" id="naskahId" value="">
                           <input type="hidden" name="produksi_id" id="id_" value="">
                           <input type="hidden" name="proses_tahap" value="">
                               <div id="contentData"></div>
