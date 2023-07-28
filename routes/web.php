@@ -103,6 +103,15 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::post('/kelompok-buku/hapus', $path.'\MasterData\KelompokBukuController@deleteKbuku')->name('kb.delete');
         Route::post('/kelompok-buku/restore', $path.'\MasterData\KelompokBukuController@restoreKBuku')->name('kb.restore');
         Route::post('/kelompok-buku/lihat-history', $path.'\MasterData\KelompokBukuController@lihatHistoryKBuku')->name('kb.history');
+        //SUB Kelompok Buku
+        Route::get('/sub-kelompok-buku', $path.'\MasterData\SubKelompokBukuController@index')->name('skb.view');
+        Route::get('/sub-kelompok-buku/sub-kelompok-buku-telah-dihapus', $path.'\MasterData\SubKelompokBukuController@skBukuTelahDihapus')->name('skb.telah_dihapus');
+        Route::match(['get', 'post'], '/sub-kelompok-buku/tambah', $path.'\MasterData\SubKelompokBukuController@createSKbuku')->name('skb.create');
+        Route::match(['get', 'post'], '/sub-kelompok-buku/ubah', $path.'\MasterData\SubKelompokBukuController@updateSKbuku')->name('skb.update');
+        Route::post('/sub-kelompok-buku/hapus', $path.'\MasterData\SubKelompokBukuController@deleteSKbuku')->name('skb.delete');
+        Route::post('/sub-kelompok-buku/restore', $path.'\MasterData\SubKelompokBukuController@restoreSKBuku')->name('skb.restore');
+        Route::post('/sub-kelompok-buku/lihat-history', $path.'\MasterData\SubKelompokBukuController@lihatHistorySKBuku')->name('skb.history');
+        Route::get('/sub-kelompok-buku/ajax-select', $path.'\MasterData\SubKelompokBukuController@ajaxSelect');
         //Format Buku
         Route::get('/format-buku', $path.'\MasterData\FormatBukuController@index')->name('fb.view');
         Route::get('/format-buku/format-buku-telah-dihapus', $path.'\MasterData\FormatBukuController@fBukuTelahDihapus')->name('fb.telah_dihapus');

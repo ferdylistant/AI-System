@@ -344,6 +344,7 @@ class PenerimaanBukuController extends Controller
                     'dtc.*',
                 )
                 ->first();
+                //Format SKU 00-000-0000-000000
                 $tipeOrder = Str::padLeft($naskah->tipe_order, 2, '0');
                 //! Insert Stok Andi
                 $insert = [

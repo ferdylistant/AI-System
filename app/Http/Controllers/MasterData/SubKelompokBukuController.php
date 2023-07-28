@@ -12,16 +12,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\{DB, Gate};
 
-class KelompokBukuController extends Controller
+class SubKelompokBukuController extends Controller
 {
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = DB::table('penerbitan_m_kelompok_buku')
-                ->whereNull('deleted_at')
-                ->orderBy('kode', 'asc')
+            $data = DB::table('penerbitan_m_s_kelompok_buku as skb')
+                ->join('penerbitan_m_kelompok_buku as kb','kb.id','=','skb.kelompok_id')
+                ->whereNull('skb.deleted_at')
+                ->select('skb.*','kb.nama as nama_kb')
+                ->orderBy('skb.kode_sub', 'asc')
                 ->get();
-            $update = Gate::allows('do_update', 'ubah-kelompok-buku');
+            $update = Gate::allows('do_update', 'ubah-sub-kelompok-buku');
             // foreach ($data as $key => $value) {
             //     $no = $key + 1;
             // }
@@ -30,13 +32,16 @@ class KelompokBukuController extends Controller
                 ->addColumn('no', function ($no) use (&$start) {
                     return $start++;
                 })
-                ->addColumn('kode', function ($data) {
-                    return $data->kode;
+                ->addColumn('kode_sub', function ($data) {
+                    return $data->kode_sub;
                 })
-                ->addColumn('nama_kelompok_buku', function ($data) {
+                ->addColumn('nama', function ($data) {
                     return $data->nama;
                 })
-                ->addColumn('tgl_dibuat', function ($data) {
+                ->addColumn('kelompok_id', function ($data) {
+                    return $data->nama_kb;
+                })
+                ->addColumn('created_at', function ($data) {
                     $date = Carbon::parse($data->created_at)->translatedFormat('d M Y, H:i');
                     // $date = date('d F Y, H:i', strtotime($data->created_at));
                     return $date;
@@ -62,7 +67,7 @@ class KelompokBukuController extends Controller
                     }
                 })
                 ->addColumn('history', function ($data) {
-                    $historyData = DB::table('penerbitan_m_kelompok_buku_history')->where('kelompok_buku_id', $data->id)->get();
+                    $historyData = DB::table('penerbitan_m_s_kelompok_buku_history')->where('sub_kelompok_id', $data->id)->get();
                     if ($historyData->isEmpty()) {
                         return '-';
                     } else {
@@ -73,26 +78,27 @@ class KelompokBukuController extends Controller
                 ->addColumn('action', function ($data) use ($update) {
                     if ($update) {
                         $btn = '<a href="#" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1"
-                                    data-toggle="modal" data-target="#md_EditKelompokBuku" data-backdrop="static"
+                                    data-toggle="modal" data-target="#md_EditSubKelompokBuku" data-backdrop="static"
                                     data-id="' . $data->id . '" data-nama="' . $data->nama . '"
                                     data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                     }
-                    if (Gate::allows('do_delete', 'hapus-kelompok-buku')) {
-                        $btn .= '<a href="#" class="d-block btn btn-sm btn_DelKelompokBuku btn-danger btn-icon mr-1 mt-1"
+                    if (Gate::allows('do_delete', 'hapus-sub-kelompok-buku')) {
+                        $btn .= '<a href="#" class="d-block btn btn-sm btn_DelSubKelompokBuku btn-danger btn-icon mr-1 mt-1"
                         data-toggle="tooltip" title="Hapus Data"
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-alt"></i></div></a>';
                     }
-                    if (Auth::user()->cannot('do_update','ubah-kelompok-buku') && Auth::user()->cannot('do_delete','hapus-kelompok-buku')) {
+                    if (Auth::user()->cannot('do_update','ubah-sub-kelompok-buku') && Auth::user()->cannot('do_delete','hapus-sub-kelompok-buku')) {
                         $btn = '<span class="badge badge-dark">No action</span>';
                     }
                     return $btn;
                 })
                 ->rawColumns([
-                    'kode',
+                    'kode_sub',
                     'nama',
-                    'tgl_dibuat',
+                    'kelompok_id',
+                    'created_at',
                     'dibuat_oleh',
                     'diubah_terakhir',
                     'diubah_oleh',
@@ -102,11 +108,11 @@ class KelompokBukuController extends Controller
                 ->make(true);
         }
 
-        return view('master_data.kelompok_buku.index', [
-            'title' => 'Kelompok Buku Penerbitan',
+        return view('master_data.sub_kelompok_buku.index', [
+            'title' => 'Sub-Kelompok Buku Penerbitan',
         ]);
     }
-    public function kBukuTelahDihapus(Request $request)
+    public function skBukuTelahDihapus(Request $request)
     {
         if ($request->ajax()) {
             $data = DB::table('penerbitan_m_kelompok_buku')
@@ -177,70 +183,69 @@ class KelompokBukuController extends Controller
             'title' => 'Kelompok Buku Telah Dihapus',
         ]);
     }
-    public function createKbuku(Request $request)
+    public function createSKbuku(Request $request)
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
-                $last = DB::table('penerbitan_m_kelompok_buku')->whereNull('deleted_at')->orderBy('created_at', 'desc')->first();
-                if (is_null($last)) {
-                    $kode = 'KB001';
-                } else {
-                    // $last = DB::table('penerbitan_m_kelompok_buku')->whereNull('deleted_at')->max('kode')->first();
-                    $lastId_ = (int)substr($last->kode, 2);
-                    // return $lastId_;
-                    $kode = 'KB' . $lastId_ += 1;
+                try {
+                    $last = DB::table('penerbitan_m_s_kelompok_buku')->orderBy('created_at', 'desc')->first();
+                    if (is_null($last)) {
+                        $kode = '0001';
+                    } else {
+                        $kode = sprintf('%04u',$last->kode_sub+1);
+                    }
+                    $id = Uuid::uuid4()->toString();
+                    $input = [
+                        'params' => 'Create Sub Kelompok Buku',
+                        'id' => $id,
+                        'kelompok_id' => $request->nama_kelompok_buku,
+                        'kode_sub' => $kode,
+                        'nama' => $request->nama_sub_kelompok_buku,
+                        'created_by' => auth()->user()->id,
+                        //History
+                        'type_history' => 'Create',
+                    ];
+                    event(new MasterDataEvent($input));
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data sub kelompok buku berhasil ditambahkan!',
+                    ]);
+                } catch(\Exception $e) {
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $e->getMessage()
+                    ]);
                 }
-                $id = Uuid::uuid4()->toString();
-                $input = [
-                    'params' => 'Create Kelompok Buku',
-                    'id' => $id,
-                    'kode' => $kode,
-                    'nama_kelompok_buku' => $request->nama_kelompok_buku,
-                    'created_by' => auth()->user()->id
-                ];
-                event(new MasterDataEvent($input));
-                $insert = [
-                    'params' => 'Insert History Create Kelompok Buku',
-                    'kelompok_buku_id' => $id,
-                    'type_history' => 'Create',
-                    'kode' => $kode,
-                    'nama_kelompok_buku' => $request->nama_kelompok_buku,
-                    'author_id' => auth()->user()->id,
-                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                ];
-                event(new MasterDataEvent($insert));
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Data kelompok buku berhasil ditambahkan!',
-                ]);
             }
         }
-        return view('master_data.kelompok_buku.create', [
-            'title' => 'Tambah Kelompok Buku'
-        ]);
     }
-    public function updateKbuku(Request $request)
+    public function updateSKbuku(Request $request)
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
-                $history = DB::table('penerbitan_m_kelompok_buku')->where('id', $request->edit_id)->first();
+                $history = DB::table('penerbitan_m_s_kelompok_buku')->where('id', $request->edit_id)->first();
                 $update = [
-                    'params' => 'Update Kelompok Buku',
+                    'params' => 'Update Sub Kelompok Buku',
                     'id' => $request->edit_id,
                     'nama' => $request->edit_nama,
+                    'kelompok_id' => $request->edit_kelompok_id,
                     'updated_by' => auth()->user()->id
                 ];
-                event(new MasterDataEvent($update));
-                $insert = [
-                    'params' => 'Insert History Update Kelompok Buku',
-                    'type_history' => 'Update',
-                    'kelompok_buku_id' => $request->edit_id,
-                    'kelompok_buku_history' => $history->nama,
-                    'kelompok_buku_new' => $request->edit_nama,
-                    'author_id' => auth()->user()->id,
-                    'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
-                ];
-                event(new MasterDataEvent($insert));
+                $updated = event(new MasterDataEvent($update));
+                if ($updated) {
+                    $insert = [
+                        'params' => 'Insert History Update Sub Kelompok Buku',
+                        'type_history' => 'Update',
+                        'sub_kelompok_id' => $request->edit_id,
+                        'sub_his' => $request->edit_nama == $history->nama ? NULL : $history->nama,
+                        'sub_new' => $request->edit_nama == $history->nama ? NULL : $request->edit_nama,
+                        'kb_his' => $request->edit_kelompok_id == $history->kelompok_id ? NULL : $history->kelompok_id,
+                        'kb_new' => $request->edit_kelompok_id == $history->kelompok_id ? NULL : $request->edit_kelompok_id,
+                        'author_id' => auth()->user()->id,
+                    ];
+                    event(new MasterDataEvent($insert));
+                }
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data kelompok buku berhasil diubah!',
@@ -249,12 +254,14 @@ class KelompokBukuController extends Controller
             }
         }
         $id = $request->id;
-        $data = DB::table('penerbitan_m_kelompok_buku')
-            ->where('id', $id)
+        $data = DB::table('penerbitan_m_s_kelompok_buku as s')
+            ->join('penerbitan_m_kelompok_buku as k','k.id','=','s.kelompok_id')
+            ->where('s.id', $id)
+            ->select('s.*','k.nama as kelompok_nama')
             ->first();
         return response()->json($data);
     }
-    public function deleteKbuku(Request $request)
+    public function deleteSKbuku(Request $request)
     {
         try {
             $id = $request->id;
@@ -287,7 +294,7 @@ class KelompokBukuController extends Controller
             ]);
         }
     }
-    public function restoreKBuku(Request $request)
+    public function restoreSKBuku(Request $request)
     {
         $id = $request->id;
         $restored = DB::table('penerbitan_m_kelompok_buku')
@@ -307,15 +314,15 @@ class KelompokBukuController extends Controller
             'message' => 'Berhasil mengembalikan kelompok buku!'
         ]);
     }
-    public function lihatHistoryKBuku(Request $request)
+    public function lihatHistorySKBuku(Request $request)
     {
         if ($request->ajax()) {
             $html = '';
             $id = $request->id;
-            $data = DB::table('penerbitan_m_kelompok_buku_history as kbh')
-                ->join('penerbitan_m_kelompok_buku as kb', 'kb.id', '=', 'kbh.kelompok_buku_id')
+            $data = DB::table('penerbitan_m_s_kelompok_buku_history as kbh')
+                ->join('penerbitan_m_s_kelompok_buku as kb', 'kb.id', '=', 'kbh.sub_kelompok_id')
                 ->join('users as u', 'u.id', '=', 'kbh.author_id')
-                ->where('kbh.kelompok_buku_id', $id)
+                ->where('kbh.sub_kelompok_id', $id)
                 ->select('kbh.*', 'u.nama')
                 ->orderBy('kbh.id', 'desc')
                 ->paginate(2);
@@ -325,7 +332,7 @@ class KelompokBukuController extends Controller
                     case 'Create':
                         $html .= '<span class="ticket-item" id="newAppend">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Kelompok Buku <b class="text-dark">' . $d->kelompok_buku_name  . '</b> dengan kode <b class="text-dark">' . $d->kode . '</b> ditambahkan .</span>
+                            <span><span class="bullet"></span> Sub-Kelompok Buku <b class="text-dark">' . $d->sub_create  . '</b> ditambahkan .</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -374,5 +381,13 @@ class KelompokBukuController extends Controller
             }
             return $html;
         }
+    }
+    public function ajaxSelect(Request $request)
+    {
+        $data = DB::table('penerbitan_m_kelompok_buku')
+            ->whereNull('deleted_at')
+            ->where('nama', 'like', '%' . $request->input('term') . '%')
+            ->get();
+        return response()->json($data);
     }
 }

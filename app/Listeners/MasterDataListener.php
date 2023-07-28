@@ -147,6 +147,43 @@ class MasterDataListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
+            case 'Create Sub Kelompok Buku':
+                DB::beginTransaction();
+                $res = DB::table('penerbitan_m_s_kelompok_buku')->insert([
+                    'id' => $data['id'],
+                    'kelompok_id' => $data['kelompok_id'],
+                    'kode_sub' => $data['kode_sub'],
+                    'nama' => $data['nama'],
+                    'created_by' => $data['created_by']
+                ]);
+                DB::table('penerbitan_m_s_kelompok_buku_history')->insert([
+                    'sub_kelompok_id' => $data['id'],
+                    'type_history' => $data['type_history'],
+                    'sub_create' => $data['nama'],
+                    'author_id' => $data['created_by'],
+                ]);
+                DB::commit();
+                break;
+            case 'Update Sub Kelompok Buku':
+                $res = DB::table('penerbitan_m_s_kelompok_buku')
+                    ->where('id', $data['id'])
+                    ->update([
+                        'nama' => $data['nama'],
+                        'kelompok_id' => $data['kelompok_id'],
+                        'updated_by' => $data['updated_by']
+                    ]);
+                break;
+            case 'Insert History Update Sub Kelompok Buku':
+                $res = DB::table('penerbitan_m_s_kelompok_buku_history')->insert([
+                    'sub_kelompok_id' => $data['sub_kelompok_id'],
+                    'type_history' => $data['type_history'],
+                    'sub_his' => $data['sub_his'],
+                    'sub_new' => $data['sub_new'],
+                    'kb_his' => $data['kb_his'],
+                    'kb_new' => $data['kb_new'],
+                    'author_id' => $data['author_id'],
+                ]);
+                break;
             case 'Create Kelompok Buku':
                 $res = DB::table('penerbitan_m_kelompok_buku')->insert([
                     'id' => $data['id'],
