@@ -339,9 +339,20 @@ class PenerimaanBukuController extends Controller
                 ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                 ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                        ->whereNull('kb.deleted_at');
+                })
+                ->join('penerbitan_m_s_kelompok_buku as skb', function ($q) {
+                    $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
+                        ->whereNull('skb.deleted_at');
+                })
                 ->where('pn.id',$naskah_id)
                 ->select(
                     'dtc.*',
+                    'pn.id as naskah_id',
+                    'kb.kode as kode_kb',
+                    'skb.kode as kode_skb'
                 )
                 ->first();
                 //Format SKU 00-000-0000-000000
@@ -351,7 +362,7 @@ class PenerimaanBukuController extends Controller
                     'params' => 'Insert Stok Andi',
                     'id' => Uuid::uuid4()->toString(),
                     'naskah_id' => $naskah_id,
-                    //!Kode SKU Belum Dibuat
+                    'kode_sku' => self::generateKodeSku($tipeOrder, $naskah->kode_kb,$naskah->kode_skb),
                     'total_stok' => $jml_diterima
                 ];
                 event(new PenjualanStokEvent($insert));
@@ -382,5 +393,20 @@ class PenerimaanBukuController extends Controller
                 'message' => $e->getMessage()
             ]);
         }
+    }
+    private function generateKodeSku($tipeOrder,$kode_kb,$kode_skb)
+    {
+        $kodeKb = (int)substr($kode_kb, -3);
+        $kodeSKB = $kode_skb ?? '0000';
+        $kodeSKU = $tipeOrder.'-'.$kodeKb.'-'.$kodeSKB;
+        $checkLast = DB::table('pj_st_andi')
+        ->whereRaw('SUBSTRING_INDEX(kode_sku, '-', 3) == '.$kodeSKU.'');
+        if ($checkLast->exists()) {
+            $sortNumber = substr($checkLast->first()->kode_sku,-6);
+            $kodeFix =  $kodeSKU.'-'.sprintf("%06d",$sortNumber+1);
+        } else {
+            $kodeFix = $kodeSKU.'-000001';
+        }
+        return $kodeFix;
     }
 }

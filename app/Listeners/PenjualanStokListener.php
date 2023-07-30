@@ -40,6 +40,7 @@ class PenjualanStokListener
                 $res = DB::table('pj_st_andi')->insert([
                     'id' => $data['id'],
                     'naskah_id' => $data['naskah_id'],
+                    'kode_sku' => $data['kode_sku'],
                     'total_stok' => $data['total_stok']
                 ]);
                 DB::commit();
