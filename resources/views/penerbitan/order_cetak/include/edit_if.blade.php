@@ -75,7 +75,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-bookmark"></i></div>
                     </div>
-                    <input type="text" class="form-control" name="up_edisi_cetak" placeholder="Edisi Cetak" required>
+                    <input type="text" class="form-control" name="up_edisi_cetak" placeholder="Edisi Cetak">
                     <div id="err_up_edisi_cetak"></div>
                 </div>
             </div>
@@ -86,24 +86,30 @@
                         <div class="input-group-text"><i class="fas fa-copy"></i></div>
                     </div>
                     <input type="text" class="form-control" name="up_jml_hal_final"
-                        placeholder="Jumlah halaman" required>
+                        placeholder="Jumlah halaman">
                     <div id="err_up_jml_hal_final"></div>
                 </div>
             </div>
-            <div class="form-group col-12 col-md-6 mb-4">
+            <div class="form-group col-12 col-md-3 mb-4">
                 <label>Kelompok Buku: <span class="text-danger">*</span></label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-table"></i></div>
                     </div>
-                    <select class="form-control select2" name="up_kelompok_buku" required>
-                        @foreach ($kbuku as $kb)
-                            <option value="{{ $kb->id }}">
-                                {{ $kb->nama }}
-                            </option>
-                        @endforeach
+                    <select id="kelBuku" class="form-control select2" name="up_kelompok_buku">
                     </select>
                     <div id="err_up_kelompok_buku"></div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-3 mb-4">
+                <label>Sub-Kelompok Buku: <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fas fa-table"></i></div>
+                    </div>
+                    <select id="sKelBuku" class="form-control select2" name="up_sub_kelompok_buku">
+                    </select>
+                    <div id="err_up_sub_kelompok_buku"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4">
@@ -112,7 +118,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-boxes"></i></div>
                     </div>
-                    <select class="form-control select2" name="up_tipe_order" required>
+                    <select class="form-control select2" name="up_tipe_order">
                         <option label="Pilih"></option>
                         @foreach ($tipeOrd as $value)
                             <option value="{{ $value['id'] }}">
@@ -128,7 +134,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-arrows-alt"></i></div>
                     </div>
-                    <select class="form-control select2" name="up_posisi_layout" id="posisiLayout" required>
+                    <select class="form-control select2" name="up_posisi_layout" id="posisiLayout">
                         <option label="Pilih"></option>
                     </select>
                     <div id="err_up_posisi_layout"></div>
@@ -140,7 +146,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-quote-left"></i></div>
                     </div>
-                    <select class="form-control select2" name="up_dami" id="dami" required>
+                    <select class="form-control select2" name="up_dami" id="dami">
                     </select>
                     <div id="err_up_dami"></div>
                 </div>
@@ -151,16 +157,16 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-ruler-combined"></i></div>
                     </div>
-                    <select class="form-control select2" name="up_format_buku" id="formatBuku" required>
+                    <select class="form-control select2" name="up_format_buku" id="formatBuku">
                         <option label="Pilih"></option>
                     @foreach ($format_buku_list as $fb)
                         <option value="{{$fb->id}}">{{$fb->jenis_format}}</option>
                     @endforeach
                     </select>
-                    <div id="err_up_format_buku"></div>
                     <div class="input-group-append">
                         <span class="input-group-text"><strong>cm</strong></span>
                     </div>
+                    <div id="err_up_format_buku"></div>
                 </div>
             </div>
             <div class="form-group col-12 col-md-6 mb-4" id="formJilid">
@@ -169,7 +175,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-hand-spock"></i></div>
                     </div>
-                    <select class="form-control select2" name="up_jilid" id="jilidChange" required>
+                    <select class="form-control select2" name="up_jilid" id="jilidChange">
                         <option label="Pilih"></option>
                         @foreach($jilid as $j)
                             <option value="{{ $j }}">{{ $j}}</option>
@@ -185,7 +191,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-scroll"></i></div>
                     </div>
-                    <select class="form-control select2" name="up_kertas_isi" required>
+                    <select class="form-control select2" name="up_kertas_isi">
                         <option label="Pilih"></option>
                     @foreach ($kertas_isi as $ki)
                         <option value="{{$ki}}">{{$ki}}</option>
@@ -200,7 +206,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-palette"></i></div>
                     </div>
-                    <select class="form-control select2" name="up_isi_warna" required>
+                    <select class="form-control select2" name="up_isi_warna">
                         <option label="Pilih"></option>
                     @foreach ($isi_warna as $ki)
                         <option value="{{$ki}}">{{$ki}}</option>
@@ -215,7 +221,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-map"></i></div>
                     </div>
-                    <input type="text" class="form-control" name="up_jenis_cover" placeholder="Jenis cover" required>
+                    <input type="text" class="form-control" name="up_jenis_cover" placeholder="Jenis cover">
                     <div id="err_up_jenis_cover"></div>
                 </div>
             </div>
@@ -225,7 +231,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-sticky-note"></i></div>
                     </div>
-                    <input type="text" class="form-control" name="up_kertas_cover" placeholder="Kertas cover" required>
+                    <input type="text" class="form-control" name="up_kertas_cover" placeholder="Kertas cover">
                     <div id="err_up_kertas_cover"></div>
                 </div>
             </div>
@@ -235,7 +241,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-palette"></i></div>
                     </div>
-                    <input type="text" class="form-control" name="up_warna_cover" placeholder="Warna cover" required>
+                    <input type="text" class="form-control" name="up_warna_cover" placeholder="Warna cover">
                     <div id="err_up_warna_cover"></div>
                 </div>
             </div>
@@ -264,12 +270,12 @@
                 <div id="err_up_buku_jadi" style="display: block;"></div>
             </div>
             <div class="form-group col-12 col-md-3 mb-4">
-                <label>Jumlah Cetak: <span class="text-danger">*</span></label>
+                <label for="jumCetakInput">Jumlah Cetak: <span class="text-danger">*</span></label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-copy"></i></div>
                     </div>
-                    <input id="jumCetakInput" type="number" class="form-control" name="up_jumlah_cetak" min="1" placeholder="Jumlah cetak" required>
+                    <input id="jumCetakInput" type="number" class="form-control" name="up_jumlah_cetak" min="1" placeholder="Jumlah cetak">
                     <div id="err_up_jumlah_cetak"></div>
                 </div>
             </div>
@@ -279,7 +285,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                     </div>
-                    <input type="text" class="form-control datepicker-year" name="up_tahun_terbit" placeholder="Tahun" readonly required>
+                    <input type="text" class="form-control datepicker-year" name="up_tahun_terbit" placeholder="Tahun" readonly>
                     <div id="err_up_tahun_terbit"></div>
                 </div>
             </div>
@@ -289,7 +295,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                     </div>
-                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" readonly required>
+                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" readonly>
                     <div id="err_up_tgl_permintaan_jadi"></div>
                 </div>
             </div>

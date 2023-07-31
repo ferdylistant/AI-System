@@ -343,7 +343,7 @@ class PenerimaanBukuController extends Controller
                     $q->on('pn.kelompok_buku_id', '=', 'kb.id')
                         ->whereNull('kb.deleted_at');
                 })
-                ->join('penerbitan_m_s_kelompok_buku as skb', function ($q) {
+                ->leftJoin('penerbitan_m_s_kelompok_buku as skb', function ($q) {
                     $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
                         ->whereNull('skb.deleted_at');
                 })
@@ -352,7 +352,7 @@ class PenerimaanBukuController extends Controller
                     'dtc.*',
                     'pn.id as naskah_id',
                     'kb.kode as kode_kb',
-                    'skb.kode as kode_skb'
+                    'skb.kode_sub as kode_skb'
                 )
                 ->first();
                 //Format SKU 00-000-0000-000000
@@ -400,7 +400,7 @@ class PenerimaanBukuController extends Controller
         $kodeSKB = $kode_skb ?? '0000';
         $kodeSKU = $tipeOrder.'-'.$kodeKb.'-'.$kodeSKB;
         $checkLast = DB::table('pj_st_andi')
-        ->whereRaw('SUBSTRING_INDEX(kode_sku, '-', 3) == '.$kodeSKU.'');
+        ->whereRaw("SUBSTRING_INDEX(kode_sku, '-', 3) = '$kodeSKU'");
         if ($checkLast->exists()) {
             $sortNumber = substr($checkLast->first()->kode_sku,-6);
             $kodeFix =  $kodeSKU.'-'.sprintf("%06d",$sortNumber+1);

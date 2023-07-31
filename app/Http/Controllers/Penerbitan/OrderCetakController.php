@@ -264,6 +264,10 @@ class OrderCetakController extends Controller
                 $q->on('pn.kelompok_buku_id', '=', 'kb.id')
                     ->whereNull('kb.deleted_at');
             })
+            ->leftJoin('penerbitan_m_s_kelompok_buku as skb', function ($q) {
+                $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
+                    ->whereNull('skb.deleted_at');
+            })
             ->where('oc.id', $id)
             ->where('pn.kode', $naskah)
             ->select(
@@ -281,9 +285,11 @@ class OrderCetakController extends Controller
                 'dp.format_buku',
                 'dp.nama_pena',
                 'dp.imprint',
-                'kb.nama',
+                'kb.nama as nama_kb',
+                'skb.nama as nama_skb',
                 'pn.id as naskah_id',
                 'pn.kelompok_buku_id',
+                'pn.sub_kelompok_buku_id',
                 'pn.jalur_buku',
                 'ps.isbn',
                 'ps.jml_hal_final',
@@ -301,7 +307,8 @@ class OrderCetakController extends Controller
                     ->select('pp.id', 'pp.nama')
                     ->get();
                 $disableCetakUlang = $data->status_cetak == '3' ? TRUE:FALSE;
-                $data = (object)collect($data)->map(function ($item, $key) {
+                $dataUse = $data;
+                $data = (object)collect($data)->map(function ($item, $key) use ($dataUse) {
                     switch ($key) {
                         case 'imprint':
                             return !is_null($item) ? DB::table('imprint')->where('id', $item)->whereNull('deleted_at')->first()->nama : '-';
@@ -310,7 +317,7 @@ class OrderCetakController extends Controller
                         //     return !is_null($item) ? DB::table('format_buku')->where('id', $item)->whereNull('deleted_at')->first()->jenis_format : '-';
                         //     break;
                         case 'tgl_permintaan_jadi':
-                            return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : '-';
+                            return !is_null($item) ? Carbon::createFromFormat('Y-m-d', $item)->format('d F Y') : $item;
                             break;
                         case 'status_cetak':
                             switch ($item) {
@@ -328,6 +335,18 @@ class OrderCetakController extends Controller
                                     break;
                             }
                             return $item;
+                            break;
+                        case 'kelompok_buku_id':
+                            return [
+                                'id' => $item,
+                                'nama' => $dataUse->nama_kb
+                            ];
+                            break;
+                        case 'sub_kelompok_buku_id':
+                            return [
+                                'id' => $item,
+                                'nama' => $dataUse->nama_skb
+                            ];
                             break;
                         default:
                             $item;
@@ -357,6 +376,10 @@ class OrderCetakController extends Controller
                         ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
                             $q->on('pn.kelompok_buku_id', '=', 'kb.id')
                                 ->whereNull('kb.deleted_at');
+                        })
+                        ->leftJoin('penerbitan_m_s_kelompok_buku as skb', function ($q) {
+                            $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
+                                ->whereNull('skb.deleted_at');
                         })
                         ->where('oc.id', $request->id)
                         ->select(
@@ -409,6 +432,7 @@ class OrderCetakController extends Controller
                             'edisi_cetak' => $request->up_edisi_cetak, //Pracetak Setter
                             'jml_hal_final' => $request->up_jml_hal_final, //Deskripsi Produk
                             'kelompok_buku_id' => $request->up_kelompok_buku, //Penerbitan Naskah
+                            'sub_kelompok_buku_id' => $request->up_sub_kelompok_buku, //Penerbitan Naskah
                             'tipe_order' => $request->up_tipe_order, //Deskripsi Turcet
                             'posisi_layout' => $request->up_posisi_layout,
                             'dami' => $request->up_dami,
@@ -503,8 +527,6 @@ class OrderCetakController extends Controller
         $tipeOrd = array(['id' => 1, 'name' => 'Umum'], ['id' => 2, 'name' => 'Rohani']);
         $pilihanTerbit = DB::table('pilihan_penerbitan')->get();
         $platformDigital = DB::table('platform_digital_ebook')->whereNull('deleted_at')->get();
-        $kbuku = DB::table('penerbitan_m_kelompok_buku')
-            ->get();
         $nama_pena = json_decode($data->nama_pena);
         $format_buku_list = DB::table('format_buku')->whereNull('deleted_at')->get();
         $buku_jadi = ['Wrapping', 'Tidak Wrapping'];
@@ -523,7 +545,6 @@ class OrderCetakController extends Controller
             'tipeOrd' => $tipeOrd,
             'pilihanTerbit' => $pilihanTerbit,
             'platformDigital' => $platformDigital,
-            'kbuku' => $kbuku,
             'data' => $data,
             'jilid' => $jilid,
             'format_buku_list' => $format_buku_list,

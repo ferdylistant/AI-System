@@ -302,6 +302,9 @@ class DeskripsiProdukController extends Controller
                     ->where('id', $request->id)
                     ->whereNull('deleted_at')
                     ->first();
+                DB::table('penerbitan_naskah')->where('id',$history->naskah_id)->update([
+                    'sub_kelompok_buku_id' => $request->sub_kelompok_buku
+                ]);
                 $update = [
                     'params' => 'Edit Despro',
                     'id' => $request->id,
@@ -360,6 +363,10 @@ class DeskripsiProdukController extends Controller
                 $q->on('pn.kelompok_buku_id', '=', 'kb.id')
                     ->whereNull('kb.deleted_at');
             })
+            ->leftJoin('penerbitan_m_s_kelompok_buku as skb', function ($q) {
+                $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
+                    ->whereNull('skb.deleted_at');
+            })
             ->where('dp.id', $id)
             ->where('pn.kode', $kodenaskah)
             ->whereNull('dp.deleted_at')
@@ -367,7 +374,10 @@ class DeskripsiProdukController extends Controller
                 'dp.*',
                 'pn.kode',
                 'pn.judul_asli',
-                'kb.nama'
+                'pn.sub_kelompok_buku_id',
+                'pn.kelompok_buku_id',
+                'kb.nama',
+                'skb.nama as nama_skb',
             )
             ->first();
         is_null($data) ? abort(404) :

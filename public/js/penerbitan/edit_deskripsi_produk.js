@@ -177,7 +177,41 @@ $(function () {
                 $(this).valid();
             }
         });
-
+    $(".select-sub")
+        .select2({
+            placeholder: "Pilih\xa0\xa0",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(this).valid();
+            }
+        });
+        let kelompok_id = $('[name="kelompok_id"]').val();
+        $("#sKelBuku").select2({
+                    placeholder: 'Pilih\xa0\xa0',
+                    ajax: {
+                        url: window.location.origin + "/penerbitan/naskah/membuat-naskah",
+                        type: "GET",
+                        data: function (params) {
+                            var queryParameters = {
+                                request_select: "selectSub",
+                                term: params.term,
+                                kelompok_id: kelompok_id,
+                            };
+                            return queryParameters;
+                        },
+                        processResults: function (data) {
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        id: item.id,
+                                        text: item.nama,
+                                    };
+                                }),
+                            };
+                        },
+                    },
+                });
     $(".datepicker").datepicker({
         format: "MM yyyy",
         viewMode: "months",

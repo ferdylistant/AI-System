@@ -574,19 +574,27 @@ class NaskahController extends Controller
                     return abort(500, $e->getMessage());
                 }
             } else {
-                return abort('404');
+                if ($request->request_select == 'selectKategoriAll') {
+                    $kbuku = DB::table('penerbitan_m_kelompok_buku')
+                    ->whereNull('deleted_at')
+                    ->where('nama', 'like', '%' . $request->input('term') . '%')
+                    ->get();
+                    return response()->json($kbuku);
+                } elseif ($request->request_select == 'selectSub') {
+                    $dataSelect = DB::table('penerbitan_m_s_kelompok_buku')
+                    ->where('kelompok_id',$request->kelompok_id)
+                    ->whereNull('deleted_at')
+                    ->where('nama', 'like', '%' . $request->input('term') . '%')->get();
+                    return response()->json($dataSelect);
+                }
             }
         }
-
-        $kbuku = DB::table('penerbitan_m_kelompok_buku')
-            ->get();
         $user = DB::table('users as u')->join('jabatan as j', 'u.jabatan_id', '=', 'j.id')
             ->where('j.nama', 'LIKE', '%Prodev%')
             ->select('u.nama', 'u.id')
             ->get();
         return view('penerbitan.naskah.create-naskah', [
             'kode' => self::generateId(),
-            'kbuku' => $kbuku,
             'user' => $user,
             'title' => 'Tambah Naskah Penerbitan'
         ]);

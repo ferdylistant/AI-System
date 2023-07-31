@@ -100,7 +100,23 @@
                                                         <tr>
                                                             <th class="table-secondary" style="width: 25%">Kelompok Buku:
                                                             </th>
+                                                            <input type="hidden" name="kelompok_id"
+                                                                value="{{ $data->kelompok_buku_id }}">
                                                             <td class="table-active text-right">{{ $data->nama }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="table-secondary" style="width: 25%">Sub-Kelompok Buku: <span class="text-danger">*</span>
+                                                            </th>
+                                                            <td class="table-active text-right">
+                                                                @if (!is_null($data->sub_kelompok_buku_id))
+                                                                {{ $data->nama_skb }}
+                                                                @else
+                                                                <select id="sKelBuku" name="sub_kelompok_buku"
+                                                                        class="form-control select-sub" required>
+                                                                        <option label="Pilih"></option>
+                                                                    </select>
+                                                                @endif
+                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             <th class="table-secondary" style="width: 25%">Penulis:</th>
@@ -531,6 +547,16 @@
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Kelompok Buku:</th>
                                                         <td class="table-active text-right">{{ $data->nama }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="table-secondary" style="width: 25%">Sub-Kelompok Buku: <span class="text-danger">*</span></th>
+                                                        <td class="table-active text-right">
+                                                            @if (!is_null($data->sub_kelompok_buku_id))
+                                                                {{ $data->nama_skb }}
+                                                            @else
+                                                            <span class="text-danger text-small">Belum diinput</span>
+                                                            @endif
+                                                        </td>
                                                     </tr>
                                                     <tr>
                                                         <th class="table-secondary" style="width: 25%">Penulis:</th>

@@ -256,7 +256,6 @@ $(document).ready(function () {
         $(this).addClass("modal-progress");
     });
 });
-$(document).ready(function () {
     function ajaxUpdateStatusDeskripsiTurunCetak(data) {
         let el = data.get(0);
         // console.log(el);
@@ -325,4 +324,3 @@ $(document).ready(function () {
             });
         }
     });
-});

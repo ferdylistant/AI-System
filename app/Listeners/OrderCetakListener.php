@@ -80,6 +80,7 @@ class OrderCetakListener
                         'ps.jml_hal_final' => $data['jml_hal_final'],
                         'dp.format_buku' => $data['format_buku'],
                         'pn.kelompok_buku_id' => $data['kelompok_buku_id'],
+                        'pn.sub_kelompok_buku_id' => $data['sub_kelompok_buku_id'],
                         'dc.jilid' => $data['jilid'],
                         'dc.warna' => $data['warna'],
                         'dc.finishing_cover' => $data['finishing_cover'],

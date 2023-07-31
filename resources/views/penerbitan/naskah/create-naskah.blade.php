@@ -65,11 +65,8 @@
                                         <div class="input-group-prepend">
                                             <div class="input-group-text"><i class="fas fa-flag"></i></div>
                                         </div>
-                                        <select class="form-control select2" name="add_kelompok_buku">
+                                        <select id="kelBuku" class="form-control select2" name="add_kelompok_buku">
                                             <option label="Pilih"></option>
-                                            @foreach($kbuku as $kb)
-                                            <option value="{{$kb->id}}">{{$kb->nama}}</option>
-                                            @endforeach
                                         </select>
                                         <div id="err_add_kelompok_buku"></div>
                                     </div>
@@ -251,7 +248,31 @@
                 $(this).valid();
             }
         });
-
+        $('#kelBuku').select2({
+            placeholder: 'Pilih',
+            ajax: {
+                url: window.location.origin + "/penerbitan/naskah/membuat-naskah",
+                type: "GET",
+                cache: true,
+                data: function (params) {
+                    var queryParameters = {
+                        request_select: "selectKategoriAll",
+                        term: params.term,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.nama,
+                                id: item.id,
+                            };
+                        }),
+                    };
+                },
+            },
+        });
         $('.datepicker').datepicker({
             format: 'dd MM yyyy',
             autoclose: true,
