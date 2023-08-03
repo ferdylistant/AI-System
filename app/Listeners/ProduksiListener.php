@@ -97,7 +97,16 @@ class ProduksiListener
                 $res = DB::table('proses_produksi_track_riwayat')->where('id',$data['id'])->update([
                     'catatan' => $data['catatan'],
                     'tgl_diterima' => $data['tgl_diterima'],
-                    'diterima_oleh' => $data['diterima_oleh']
+                    'diterima_oleh' => $data['diterima_oleh'],
+                    'status_new' => $data['status_new'],
+                ]);
+                DB::commit();
+                break;
+            case 'Selesai Penerimaan Buku':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_track')->where('id',$data['id'])->update([
+                    'status' => $data['status'],
+                    'tgl_selesai' => $data['tgl_selesai']
                 ]);
                 DB::commit();
                 break;

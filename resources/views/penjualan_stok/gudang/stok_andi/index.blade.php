@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/responsive/2.2.0/css/responsive.dataTables.min.css">
     <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css')}}">
     <link rel="stylesheet" href="{{ url('vendors/SpinKit/spinkit.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
     <style>
@@ -83,7 +84,7 @@
 @section('content')
 <section class="section">
     <div class="section-header">
-        <h1>Penerimaan Buku Andi</h1>
+        <h1>Stok Buku Andi</h1>
     </div>
     <div class="section-body">
         <div class="row">
@@ -91,7 +92,7 @@
                 <div class="card card-primary">
                     <div class="card-body">
                         <div class="col-12 table-responsive">
-                            <table class="table table-striped dt-responsive" id="tb_penerimaanBuku" style="width:100%">
+                            <table class="table table-striped dt-responsive" id="tb_stokGudangAndi" style="width:100%">
                             </table>
                         </div>
                     </div>
@@ -100,7 +101,7 @@
         </div>
     </div>
 </section>
-@include('penjualan_stok.gudang.penerimaan_buku_andi.include.modal_gudang_riwayat')
+@include('penjualan_stok.gudang.stok_andi.include.modal_rack')
 @include('tracker_modal')
 @endsection
 
@@ -110,6 +111,7 @@
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script src="{{url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js')}}"></script>
     <script type="text/javascript" charset="utf8"
         src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
     <script type="text/javascript" charset="utf8"
@@ -120,5 +122,5 @@
 @endsection
 
 @section('jsNeeded')
-<script src="{{ url('js/penjualan_stok/update_progress_penerimaan_buku_andi.js') }}"></script>
+<script src="{{ url('js/penjualan_stok/update_progress_st_andi.js') }}"></script>
 @endsection

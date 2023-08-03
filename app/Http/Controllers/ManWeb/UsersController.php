@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Hash, Gate, Storage};
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Yajra\DataTables\DataTables;
 
 use function PHPUnit\Framework\isNull;
@@ -58,7 +59,7 @@ class UsersController extends Controller
                                 $class = 'secondary';
                                 break;
                         }
-                        $html .= '<span class="bullet text-'.$class.'"></span><b class="text-'.$class.'">'.$text.'</b>';
+                        $html .= '<span class="bullet text-' . $class . '"></span><b class="text-' . $class . '">' . $text . '</b>';
                         return $html;
                     })
                     ->addColumn('history', function ($data) {
@@ -714,10 +715,10 @@ class UsersController extends Controller
     {
         DB::transaction(function () use ($request) {
             try {
+                DB::table('user_permission')
+                    ->where('user_id', $request->input('user_id'))
+                    ->delete();
                 if ($request->has('access')) {
-                    DB::table('user_permission')
-                        ->where('user_id', $request->input('user_id'))
-                        ->delete();
                     foreach ($request->input('access') as $a) {
                         $access[] = [
                             'user_id' => $request->input('user_id'),
@@ -725,7 +726,7 @@ class UsersController extends Controller
                         ];
                     }
 
-                   DB::table('user_permission')->insert($access);
+                    DB::table('user_permission')->insert($access);
                 }
 
                 DB::commit();
@@ -739,30 +740,49 @@ class UsersController extends Controller
 
     protected function getDataPermissions($id)
     {
-        $userPermissions = DB::table('user_permission')
-            ->where('user_id', $id)
-            ->get();;
-        $accessBagian   = DB::table('access_bagian')
-            ->orderBy('order_ab', 'asc')
-            ->get();
-        $access         = DB::table('access')
-            ->select(
-                'id',
-                'parent_id',
-                'bagian_id',
-                'level',
-                'order_menu',
-                'url',
-                'name'
-            )
-            ->orderBy('order_menu', 'asc')
-            // ->orderBy('level', 'desc')
-            ->get();
-        $permissions    = DB::table('permissions as p')
-            ->join('access as a', 'p.access_id', '=', 'a.id')
-            ->select(DB::raw('p.*, a.bagian_id'))
-            ->get();
-
+        if (Cache::has('userPermission')) {
+            $userPermissions = Cache::get('userPermission');
+        } else {
+            $userPermissions = DB::table('user_permission')
+                ->where('user_id', $id)
+                ->get();
+            Cache::put('userPermission', $userPermissions, now()->addMinutes(5));
+        }
+        if (Cache::has('accessBagian')) {
+            $accessBagian = Cache::get('accessBagian');
+        } else {
+            $accessBagian   = DB::table('access_bagian')
+                ->orderBy('order_ab', 'asc')
+                ->get();
+            Cache::put('accessBagian', $accessBagian, now()->addMinutes(5));
+        }
+        if (Cache::has('access')) {
+            $access = Cache::get('access');
+        } else {
+            $access = DB::table('access')
+                ->select(
+                    'id',
+                    'parent_id',
+                    'bagian_id',
+                    'level',
+                    'order_menu',
+                    'url',
+                    'name'
+                )
+                ->orderBy('order_menu', 'asc')
+                ->orderBy('level', 'desc')
+                ->get();
+            Cache::put('access', $access, now()->addMinutes(5));
+        }
+        if (Cache::has('permissions')) {
+            $permissions = Cache::get('permissions');
+        } else {
+            $permissions    = DB::table('permissions as p')
+                ->join('access as a', 'p.access_id', '=', 'a.id')
+                ->select(DB::raw('p.*, a.bagian_id'))
+                ->get();
+            Cache::put('permissions', $permissions, now()->addMinutes(5));
+        }
         $temp = 0;
         foreach ($permissions as $p) {
             foreach ($userPermissions as $up) {
@@ -793,8 +813,8 @@ class UsersController extends Controller
             }
             $temp = 0;
         }
-
         $ld = [];
+        // dd($perm);
         foreach ($access as $a) {
             if ($a->level == 2) {
                 foreach ($perm as $p) {
@@ -840,7 +860,6 @@ class UsersController extends Controller
             }
             $temp = 0;
         }
-
         foreach ($accessBagian as $ab) {
             foreach ($ls as $s) {
                 if ($ab->id == $s->bagian_id and $s->checked) {
@@ -862,7 +881,6 @@ class UsersController extends Controller
             }
             $temp = 0;
         }
-        // dd($ld);
         return [
             'accbag' => $accbag,
             'ls' => $ls,
@@ -875,14 +893,14 @@ class UsersController extends Controller
     {
         try {
             DB::beginTransaction();
-            DB::table('users')->where('id',$request->id)->update([
+            DB::table('users')->where('id', $request->id)->update([
                 'password' => Hash::make('password')
             ]);
             DB::commit();
             return;
         } catch (\Exception $e) {
             DB::rollBack();
-            return abort(500,$e->getMessage());
+            return abort(500, $e->getMessage());
         }
     }
 

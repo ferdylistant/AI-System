@@ -301,12 +301,13 @@ $(function () {
         }
     });
     //Delete Riwayat Kirim
-    function ajaxDeleteRiwayatKirim(element, id) {
+    function ajaxDeleteRiwayatKirim(element, id, track_id) {
         $.ajax({
             url: window.location.origin + "/produksi/proses/cetak/ajax/delete-riwayat-track",
             type: 'POST',
             data: {
-                id: id
+                id: id,
+                track_id: track_id
             },
             cache: false,
             beforeSend: function () {
@@ -318,6 +319,9 @@ $(function () {
                 // console.log(res);
                 notifToast(res.status, res.message);
                 if (res.status == 'success') {
+                    if (res.load === true) {
+                        location.reload();
+                    }
                     var i = 0;
                     //remove post on table
                     element.closest("tr").remove();
@@ -349,6 +353,7 @@ $(function () {
     $('#form_Tracking').on('click', '#btnDeleteRiwayatKirim', function (e) {
         e.preventDefault();
         let id = $(this).data('id');
+        let track_id = $(this).data('track_id');
         swal({
             text: "Apakah Anda yakin ingin menghapus?",
             icon: "warning",
@@ -356,7 +361,7 @@ $(function () {
             dangerMode: true,
         }).then((confirm_) => {
             if (confirm_) {
-                ajaxDeleteRiwayatKirim($(this), id);
+                ajaxDeleteRiwayatKirim($(this), id, track_id);
             }
         });
     });

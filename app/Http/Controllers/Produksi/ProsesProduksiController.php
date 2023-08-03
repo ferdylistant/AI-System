@@ -510,7 +510,7 @@ class ProsesProduksiController extends Controller
                                     id="btnEditRiwayatKirim" data-id="'.$kg->id.'" data-dibuat="'.Carbon::parse($kg->created_at)->translatedFormat('l, d M Y - H:i:s').'"
                                     data-toggle="modal" data-target="#modalEditRiwayatKirim">
                                     <i class="fas fa-edit"></i></button>
-                                    <button type="button" class="btnHapusRiwayat btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="'.$kg->id.'" data-toggle="tooltip" title="Hapus Data">
+                                    <button type="button" class="btnHapusRiwayat btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="'.$kg->id.'" data-track_id="'.$kg->track_id.'" data-toggle="tooltip" title="Hapus Data">
                                     <i class="fas fa-trash"></i></button>
                                     <button type="button" class="btnCatatan btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalCatatan">
                                     <i class="fas fa-comment-alt"></i></button>';
@@ -931,7 +931,21 @@ class ProsesProduksiController extends Controller
     {
         try {
             $id = $request->id;
-
+            $track_id = $request->track_id;
+            $totalRiwayat = DB::table('proses_produksi_track_riwayat')
+            ->where('track_id',$track_id)->get()->count();
+            if ($totalRiwayat == 1) {
+                DB::beginTransaction();
+                //CASCADE MYSQL DELETE
+                DB::table('proses_produksi_track')->delete($track_id);
+                DB::commit();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Berhasil dihapus!',
+                    'data' => [],
+                    'load' => TRUE
+                ]);
+            }
             $params = [
                 'params' => 'Delete Riwayat Track',
                 'id' => $id
@@ -942,7 +956,8 @@ class ProsesProduksiController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Berhasil dihapus!',
-                'data' => $totalDikirim[0]->total_dikirim
+                'data' => $totalDikirim[0]->total_dikirim,
+                'load' => FALSE
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1147,14 +1162,7 @@ class ProsesProduksiController extends Controller
                 $track_id = $checkData->id;
                 $tahap = $riwayat + 1;
             } else {
-                //INSERT GUDANG
                 $idGudang = Uuid::uuid4()->toString();
-                $insertGudang = [
-                    'params' => 'Insert Penerimaan Stok',
-                    'id' => $idGudang,
-                    'produksi_id' => $produksi_id
-                ];
-                event(new PenjualanStokEvent($insertGudang));
                 //INSERT TRACKING TIMELINE STOK GUDANG
                 $trackerGudang = [
                     'id' => Uuid::uuid4()->toString(),
@@ -1179,6 +1187,14 @@ class ProsesProduksiController extends Controller
                 ];
                 event(new ProduksiEvent($insert));
                 $track_id = DB::getPdo()->lastInsertId();
+                //INSERT GUDANG
+                $insertGudang = [
+                    'params' => 'Insert Penerimaan Stok',
+                    'id' => $idGudang,
+                    'produksi_id' => $produksi_id,
+                    'track_id' => $track_id,
+                ];
+                event(new PenjualanStokEvent($insertGudang));
                 $tahap = 1;
             }
             $insertRiwayat = [

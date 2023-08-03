@@ -9,6 +9,7 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
 {
@@ -93,11 +94,19 @@ class HomeController extends Controller
         } elseif (Gate::allows('do_create', 'ubah-atau-buat-editing-mou')) {
             $timeline = TRUE;
         }
-        $naskah = DB::table('penerbitan_naskah')->whereNull('deleted_at')->get();
-        $userdata = DB::table('users')->where('id', Auth::id())->first();
+        $naskah = Cache::rememberForever('naskahHome', function() {
+            return DB::table('penerbitan_naskah')->whereNull('deleted_at')->get();
+        });
+        $userdata = Cache::rememberForever('userHome', function() {
+            return DB::table('users')->where('id', Auth::id())->first();
+        });
+        $imprint = Cache::rememberForever('imprintHome', function() {
+            return DB::table('imprint')->get();
+        });
+        $penulis = Cache::rememberForever('penulisHome', function() {
+            return DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
+        });
         $users = DB::table('users')->whereNotIn('id', [Auth::id()])->whereNull('deleted_at')->get();
-        $imprint = DB::table('imprint')->get();
-        $penulis = DB::table('penerbitan_penulis')->whereNull('deleted_at')->get();
         $divisi = DB::table('divisi')->whereNull('deleted_at')->get();
         $desprod = DB::table('deskripsi_produk')->get();
         $desfin = DB::table('deskripsi_final')->get();
@@ -212,15 +221,30 @@ class HomeController extends Controller
                 return $this->deleteTodo($request);
                 break;
             case 'semua':
-                $semua = DB::table('todo_list')->where('users_id', auth()->user()->id)->get();
+                if (Cache::has('todolistSemua')) {
+                    $semua = Cache::get('todolistSemua');
+                } else {
+                    $semua = DB::table('todo_list')->where('users_id', auth()->user()->id)->get();
+                    Cache::put('todolistSemua',$semua);
+                }
                 return $this->loadTodoList($semua);
                 break;
             case 'belum-selesai':
-                $belumSelesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '0')->get();
+                if (Cache::has('todolistBelum')) {
+                    $belumSelesai = Cache::get('todolistBelum');
+                } else {
+                    $belumSelesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '0')->get();
+                    Cache::put('todolistBelum',$belumSelesai);
+                }
                 return $this->loadTodoList($belumSelesai);
                 break;
             case 'selesai':
-                $selesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '1')->get();
+                if (Cache::has('todolistSelesai')) {
+                    $selesai = Cache::get('todolistSelesai');
+                } else {
+                    $selesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '1')->get();
+                    Cache::put('todolistSelesai',$selesai);
+                }
                 return $this->loadTodoList($selesai);
                 break;
             default:

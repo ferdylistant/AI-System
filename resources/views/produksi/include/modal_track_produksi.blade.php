@@ -1,6 +1,6 @@
 <!-- Modal -->
 <div class="modal fade" id="modalTrackProduksi" tabindex="-1" role="dialog" aria-labelledby="judul_final" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
         <form method="post" id="form_Tracking">
             <div class="modal-header">

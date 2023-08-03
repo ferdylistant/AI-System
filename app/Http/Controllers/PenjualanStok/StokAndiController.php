@@ -14,48 +14,33 @@ class StokAndiController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = DB::table('st_andi as sp')
-                ->join('proses_produksi_cetak as ppc', 'sp.produksi_id', '=', 'ppc.id')
-                ->join('order_cetak as oc', 'oc.id', '=', 'ppc.order_cetak_id')
-                ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
-                ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
-                ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+            $data = DB::table('pj_st_andi as st')
+                ->leftJoin('penerbitan_naskah as pn', 'pn.id', '=', 'st.naskah_id')
+                ->leftJoin('deskripsi_produk as dp','pn.id','=','dp.naskah_id')
+                ->leftJoin('deskripsi_final as df','dp.id','=','df.deskripsi_produk_id')
+                ->leftJoin('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+                ->leftJoin('deskripsi_turun_cetak as dtc', 'df.id', '=', 'dtc.pracetak_setter_id')
+                ->leftJoin('penerbitan_m_kelompok_buku as kb', function ($q) {
                     $q->on('pn.kelompok_buku_id', '=', 'kb.id')
                         ->whereNull('kb.deleted_at');
                 })
-                ->orderBy('oc.kode_order', 'asc')
+                ->leftJoin('penerbitan_m_s_kelompok_buku as skb', function ($q) {
+                    $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
+                        ->whereNull('skb.deleted_at');
+                })
+                ->orderBy('pn.kode', 'asc')
                 ->select(
-                    'sp.*',
-                    'ppc.naskah_dari_divisi',
-                    'oc.kode_order',
-                    'oc.status_cetak',
-                    'oc.tahun_terbit',
-                    'oc.tgl_permintaan_jadi',
-                    'oc.jumlah_cetak',
-                    'oc.ukuran_jilid_binding',
-                    'oc.jenis_cover',
-                    'oc.keterangan',
-                    'oc.posisi_layout',
-                    'oc.keterangan',
-                    'oc.dami',
-                    'oc.buku_jadi',
+                    'st.*',
                     'ps.edisi_cetak',
                     'ps.pengajuan_harga',
-                    'df.kertas_isi',
+                    'df.sub_judul_final',
                     'dp.judul_final',
                     'dp.naskah_id',
                     'dp.format_buku',
                     'dp.imprint',
-                    'dp.jml_hal_perkiraan',
-                    'dc.finishing_cover',
-                    'dc.warna',
                     'pn.kode',
-                    'kb.nama'
+                    'kb.nama as nama_kb',
+                    'skb.nama as nama_skb',
                 )
                 ->get();
             if ($request->isMethod('GET')) {
@@ -66,8 +51,8 @@ class StokAndiController extends Controller
                     case 'show-track-timeline':
                         return $this->trackTimeline($request);
                         break;
-                    case 'show-modal-pengiriman':
-                        return $this->showModalPengiriman($request);
+                    case 'show-modal-rack':
+                        return $this->showModalRack($request);
                         break;
                 }
             } else {
@@ -81,34 +66,20 @@ class StokAndiController extends Controller
     {
         $update = Gate::allows('do_update', 'pic-data-produksi');
         return DataTables::of($data)
-            ->addColumn('kode_order', function ($data) {
-                return $data->kode_order;
+            ->addColumn('kode_sku', function ($data) {
+                return $data->kode_sku;
             })
             ->addColumn('kode', function ($data) {
                 return $data->kode;
             })
-            ->addColumn('naskah_dari_divisi', function ($data) {
-                return $data->naskah_dari_divisi;
-            })
             ->addColumn('judul_final', function ($data) {
-                return $data->judul_final;
+                return ucfirst($data->judul_final);
             })
-            ->addColumn('status_cetak', function ($data) {
-                switch ($data->status_cetak) {
-                    case 1:
-                        $res = 'Buku Baru';
-                        break;
-                    case 2:
-                        $res = 'Cetak Ulang Revisi';
-                        break;
-                    case 3:
-                        $res = 'Cetak Ulang';
-                        break;
-                    default:
-                        $res = '-';
-                        break;
-                }
-                return $res;
+            ->addColumn('sub_judul_final', function ($data) {
+                return $data->sub_judul_final ?? '-';
+            })
+            ->addColumn('kelompok_buku', function ($data) {
+                return $data->nama_kb.' <i class="fas fa-chevron-right"></i> '.$data->nama_skb;
             })
             ->addColumn('penulis', function ($data) {
                 $result = '';
@@ -126,64 +97,39 @@ class StokAndiController extends Controller
                 }
                 return $result;
             })
-            ->addColumn('edisi_cetak', function ($data) {
-                $roman = event(new convertNumberToRoman($data->edisi_cetak));
-                $edisiCetak = implode('', $roman) . '/' . $data->edisi_cetak;
-                return $edisiCetak . '/' . $data->tahun_terbit;
-            })
             ->addColumn('imprint', function ($data) {
                 $res = DB::table('imprint')->where('id', $data->imprint)->whereNull('deleted_at')->first()->nama ?? '-';
                 return $res;
             })
-            ->addColumn('buku_jadi', function ($data) {
-                return $data->buku_jadi;
+            ->addColumn('total_stok', function ($data) {
+                return $data->total_stok;
             })
-            ->addColumn('cek_pengiriman', function ($data) {
-                $dataTrack = DB::table('proses_produksi_track')
-                    ->where('produksi_id', $data->produksi_id)
-                    ->where('proses_tahap', 'Kirim Gudang')
-                    ->first();
-                $statusColor = $dataTrack->status == 'sedang dalam proses'?'warning':'success';
-                $res = '<button class="btn btn-sm btn-light btn-icon position-relative" data-track_id="' . $dataTrack->id . '"
-                data-judulfinal="'.$data->judul_final.'" data-status="'.$dataTrack->status.'"
-                data-statuscolor="'.$statusColor.'" data-toggle="modal" data-target="#modalRiwayatPengirimanGudang" data-backdrop="static">
-                <i class="fas fa-truck-loading"></i> Pengiriman
-                <span class="position-absolute translate-middle p-1 bg-'.$statusColor.' border border-light rounded-circle" style="top:0;right:0">
-                </span>
+            ->addColumn('rack', function ($data) {
+                return '<button class="btn btn-light" data-toggle="modal" data-judul="'.$data->judul_final.'" data-stok_id="'.$data->id.'" data-target="#modalRack" data-backdrop="static">
+                <i class="fas fa-border-all"></i> Rak Buku
                 </button>';
-                return $res;
-            })
-            ->addColumn('tracking_timeline', function ($data) {
-                $historyData = DB::table('tracker')->where('section_id', $data->id)->get();
-                if ($historyData->isEmpty()) {
-                    return '-';
-                } else {
-                    $date = '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 btn-tracker" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
-                    return $date;
-                }
             })
             ->addColumn('action', function ($data) use ($update) {
-                $btn = '<a href="' . url('produksi/proses/cetak/detail?no=' . $data->kode_order . '&naskah=' . $data->kode) . '"
+                $btn = '<a href="' . url('produksi/proses/cetak/detail?no=' . $data->kode_sku . '&naskah=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                 if ($update) {
-                    $btn .= '<a href="' . url('produksi/proses/cetak/edit?no=' . $data->kode_order . '&naskah=' . $data->kode) . '"
+                    $btn .= '<a href="' . url('produksi/proses/cetak/edit?no=' . $data->kode_sku . '&naskah=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                 }
                 return $btn;
             })
             ->rawColumns([
-                'kode_order',
+                'kode_sku',
                 'kode',
-                'naskah_dari_divisi',
                 'judul_final',
-                'status_cetak',
+                'sub_judul_final',
+                'kelompok_buku',
                 'penulis',
-                'edisi_cetak',
                 'imprint',
-                'cek_pengiriman',
-                'tracking_timeline',
+                'total_stok',
+                'rack',
                 'action'
             ])
             ->make(true);
@@ -214,21 +160,38 @@ class StokAndiController extends Controller
             return $html;
         }
     }
-    protected function showModalPengiriman($request)
+    protected function showModalRack($request)
     {
         try {
-            $content = '';
-            $track_id = $request->track_id;
-            $data = DB::table('proses_produksi_track_riwayat')->where('track_id', $track_id)->get();
-            $totalDiterima = DB::table('proses_produksi_track_riwayat')
-                ->whereNotNull('tgl_diterima')
-                ->where('track_id', $track_id)
-                ->orderBy('created_at', 'asc')
-                ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_diterima'))
-                ->get();
-            $content .= '<div class="form-group">
-                        <label for="historyKirim">Riwayat Kirim</label>
-                            <div class="scroll-riwayat">
+            $stok_id = $request->stok_id;
+            $dataRack = DB::table('pj_st_rack_data as rd')
+            ->leftJoin('pj_st_rack_master as rm', function ($q) {
+                $q->on('rd.rack_id', '=', 'rm.id')
+                    ->whereNull('rm.deleted_at');
+            })
+            ->leftJoin('pj_st_andi as st','rd.stok_id','=','st.id')
+            ->where('rd.stok_id', $stok_id)
+            ->select('rd.*','rm.kode','rm.nama','st.total_stok')
+            ->orderBy('rd.created_at','ASC');
+            $contentRack = '<p class="text-danger">Belum ada stok yang diiput dalam rak.</p>';
+            if ($dataRack->exists()) {
+                $contentRack = self::contentRack($dataRack->get());
+            }
+            $contentForm = self::contentForm();
+
+
+            return [
+                'contentForm' => $contentForm,
+                'contentRack' => $contentRack
+            ];
+        } catch (\Exception $e) {
+            return abort(500, $e->getMessage());
+        }
+    }
+    private function contentRack($data) //!BELUM
+    {
+        $contentRack = '';
+        $contentRack .= '<div class="scroll-riwayat">
                             <table class="table table-striped" style="width:100%" id="tableRiwayatKirim">
                             <thead style="position: sticky;top:0">
                               <tr>
@@ -242,7 +205,6 @@ class StokAndiController extends Controller
                               </tr>
                             </thead>
                             <tbody>';
-            $totalKirim = NULL;
             foreach ($data as $i => $kg) {
                 $i++;
                 if (!is_null($kg->tgl_diterima)) {
@@ -274,7 +236,7 @@ class StokAndiController extends Controller
                             break;
                     }
                 })->all();
-                $content .= '<tr id="index_' . $kg->id . '">
+                $contentRack .= '<tr id="index_' . $kg->id . '">
                                   <td id="row_num' . $i . '">' . $i . '<input type="hidden" name="task_number[]" value=' . $i . '></td>
                                   <td>' . $kg->created_at . '</td>
                                   <td>' . $kg->users_id . '</td>
@@ -283,36 +245,34 @@ class StokAndiController extends Controller
                                   <td id="indexJmlKirim' . $kg->id . '">' . $kg->jml_dikirim . ' eks</td>
                                   <td>' . $btnAction . '</td>
                                 </tr>';
-                $totalKirim += $kg->jml_dikirim;
             }
-            $content .= '</tbody>
+            $contentRack .= '</tbody>
             </table>
-            </div>
-            </div>
-            <div class="alert d-flex justify-content-between" style="background: #141517;
-            background: -webkit-linear-gradient(to right, #6777ef, #141517);
-            background: linear-gradient(to right, #6777ef, #141517);
-            " role="alert">
-                <div class="col-auto">
-                    <span class="bullet"></span><span>Total Kirim</span><br>
-                    <span class="bullet"></span><span>Total Diterima  <a href="javascript:void(0)" class="text-warning" tabindex="0" role="button"
-                    data-toggle="popover" data-trigger="focus" title="Informasi"
-                    data-content="Total diterima adalah total yang diterima dan diotorisasi oleh departemen Penjualan & Stok.">
-                    <abbr title="">
-                    <i class="fas fa-info-circle me-3"></i>
-                    </abbr>
-                    </a></span>
-                </div>
-                <div class="col-auto">
-                    <span class="text-center" id="totDikirim">' . $totalKirim . ' eks</span><br>
-                    <span class="text-center">' . $totalDiterima[0]->total_diterima . ' eks</span>
-                </div>
             </div>';
-            return [
-                'content' => $content
-            ];
-        } catch (\Exception $e) {
-            return abort(500, $e->getMessage());
-        }
+            return $contentRack;
+    }
+    private function contentForm()
+    {
+        $contentForm = '<div class="input-group mb-1">
+        <div class="input-group-prepend">
+            <span class="input-group-text bg-light text-dark" id="">Rak</span>
+        </div>
+        <input type="text" class="form-control">
+        <div class="input-group-prepend">
+            <span class="input-group-text bg-light text-dark" id="">Jumlah</span>
+        </div>
+        <input type="text" class="form-control">
+        <div class="input-group-prepend">
+            <span class="input-group-text bg-light text-dark" id="">Masuk Gudang</span>
+        </div>
+        <input type="text" class="form-control datepicker" name="tgl_masuk_stok"
+            placeholder="DD/MM/YYYY">
+        <div class="input-group-prepend">
+            <span class="input-group-text bg-light text-dark" id="">Oleh</span>
+        </div>
+        <input type="text" class="form-control">
+
+    </div>';
+        return $contentForm;
     }
 }

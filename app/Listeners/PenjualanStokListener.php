@@ -32,7 +32,8 @@ class PenjualanStokListener
             case 'Insert Penerimaan Stok':
                 $res = DB::table('pj_st_penerimaan')->insert([
                     'id' => $data['id'],
-                    'produksi_id' => $data['produksi_id']
+                    'produksi_id' => $data['produksi_id'],
+                    'track_id' => $data['track_id'],
                 ]);
                 break;
             case 'Insert Stok Andi':

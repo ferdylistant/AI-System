@@ -7,7 +7,7 @@ use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
-use App\Events\{PenjualanStokEvent,convertNumberToRoman,ProduksiEvent};
+use App\Events\{PenjualanStokEvent, convertNumberToRoman, ProduksiEvent};
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\{DB, Gate};
 
@@ -26,9 +26,13 @@ class PenerimaanBukuController extends Controller
                 ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
                 ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
                 ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                ->leftJoin('penerbitan_m_kelompok_buku as kb', function ($q) {
                     $q->on('pn.kelompok_buku_id', '=', 'kb.id')
                         ->whereNull('kb.deleted_at');
+                })
+                ->leftJoin('penerbitan_m_s_kelompok_buku as skb', function ($q) {
+                    $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
+                        ->whereNull('skb.deleted_at');
                 })
                 ->orderBy('oc.kode_order', 'asc')
                 ->select(
@@ -58,7 +62,8 @@ class PenerimaanBukuController extends Controller
                     'dc.warna',
                     'pn.id as naskah_id',
                     'pn.kode',
-                    'kb.nama'
+                    'kb.nama as nama_kb',
+                    'skb.nama as nama_skb',
                 )
                 ->get();
             if ($request->isMethod('GET')) {
@@ -77,6 +82,9 @@ class PenerimaanBukuController extends Controller
                 switch ($request->request_type) {
                     case 'terima-buku':
                         return $this->penerimaanBuku($request);
+                        break;
+                    case 'selesai-penerimaan':
+                        return $this->selesaiPenerimaanBuku($request);
                         break;
                 }
             }
@@ -99,7 +107,10 @@ class PenerimaanBukuController extends Controller
                 return $data->naskah_dari_divisi;
             })
             ->addColumn('judul_final', function ($data) {
-                return $data->judul_final;
+                return ucfirst($data->judul_final);
+            })
+            ->addColumn('kelompok_buku', function ($data) {
+                return $data->nama_kb.' <i class="fas fa-chevron-right"></i> '.$data->nama_skb;
             })
             ->addColumn('status_cetak', function ($data) {
                 switch ($data->status_cetak) {
@@ -147,19 +158,23 @@ class PenerimaanBukuController extends Controller
                 return $data->buku_jadi;
             })
             ->addColumn('cek_pengiriman', function ($data) {
-                $dataTrack = DB::table('proses_produksi_track')
-                    ->where('produksi_id', $data->produksi_id)
-                    ->where('proses_tahap', 'Kirim Gudang')
-                    ->first();
-                $statusColor = $dataTrack->status == 'sedang dalam proses'?'warning':'success';
-                $res = '<button class="btn btn-sm btn-light btn-icon position-relative" data-track_id="' . $dataTrack->id . '"
-                data-judulfinal="'.$data->judul_final.'" data-status="'.$dataTrack->status.'" data-naskah_id="'.$data->naskah_id.'"
-                data-produksi_id="'.$dataTrack->produksi_id.'" data-proses_tahap="'.$dataTrack->proses_tahap.'"
-                data-statuscolor="'.$statusColor.'" data-toggle="modal" data-target="#modalPenerimaanBuku" data-backdrop="static">
-                <i class="fas fa-truck-loading"></i> Pengiriman
-                <span class="position-absolute translate-middle p-1 bg-'.$statusColor.' border border-light rounded-circle" style="top:0;right:0">
-                </span>
-                </button>';
+                if (Gate::allows('do_approval', 'otorisasi-penerimaan-buku')) {
+                    $dataTrack = DB::table('proses_produksi_track')
+                        ->where('produksi_id', $data->produksi_id)
+                        ->where('proses_tahap', 'Kirim Gudang')
+                        ->first();
+                    $statusColor = $dataTrack->status == 'sedang dalam proses' ? 'warning' : 'success';
+                    $res = '<button class="btn btn-sm btn-light btn-icon position-relative" data-track_id="' . $dataTrack->id . '"
+                    data-judulfinal="' . $data->judul_final . '" data-status="' . $dataTrack->status . '" data-naskah_id="' . $data->naskah_id . '"
+                    data-produksi_id="' . $dataTrack->produksi_id . '" data-proses_tahap="' . $dataTrack->proses_tahap . '"
+                    data-statuscolor="' . $statusColor . '" data-toggle="modal" data-target="#modalPenerimaanBuku" data-backdrop="static">
+                    <i class="fas fa-truck-loading"></i> Pengiriman
+                    <span class="position-absolute translate-middle p-1 bg-' . $statusColor . ' border border-light rounded-circle" style="top:0;right:0">
+                    </span>
+                    </button>';
+                } else {
+                    $res = '<span class="text-danger">Anda tidak memiliki hak akses untuk melihat data ini</span>';
+                }
                 return $res;
             })
             ->addColumn('action', function ($data) use ($update) {
@@ -178,6 +193,7 @@ class PenerimaanBukuController extends Controller
                 'kode',
                 'naskah_dari_divisi',
                 'judul_final',
+                'kelompok_buku',
                 'status_cetak',
                 'penulis',
                 'edisi_cetak',
@@ -225,7 +241,8 @@ class PenerimaanBukuController extends Controller
                 ->orderBy('created_at', 'asc')
                 ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_diterima'))
                 ->get();
-            $content .= '<div class="form-group">
+            $content .= '
+                    <div class="form-group">
                         <label for="historyKirim">Riwayat Kirim</label>
                             <div class="scroll-riwayat">
                             <table class="table table-striped" style="width:100%" id="tableRiwayatKirim">
@@ -248,7 +265,7 @@ class PenerimaanBukuController extends Controller
                     $btnAction = '<span class="badge badge-light">No action</span>';
                 } else {
                     $btnAction = '<button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
-                    id="btnTerimaBuku" data-id="' . $kg->id . '" data-jml_diterima="'.$kg->jml_dikirim.'">
+                    id="btnTerimaBuku" data-id="' . $kg->id . '" data-jml_diterima="' . $kg->jml_dikirim . '">
                                     Terima</button>';
                 }
                 $kg = (object)collect($kg)->map(function ($item, $key) {
@@ -277,7 +294,7 @@ class PenerimaanBukuController extends Controller
                                   <td id="indexTglTerima' . $kg->id . '">' . $kg->tgl_diterima . '</td>
                                   <td id="indexDiterimaOleh' . $kg->id . '">' . $kg->diterima_oleh . '</td>
                                   <td id="indexJmlKirim' . $kg->id . '">' . $kg->jml_dikirim . ' eks</td>
-                                  <td id="indexAction'.$kg->id.'">' . $btnAction . '</td>
+                                  <td id="indexAction' . $kg->id . '">' . $btnAction . '</td>
                                 </tr>';
                 $totalKirim += $kg->jml_dikirim;
             }
@@ -321,7 +338,14 @@ class PenerimaanBukuController extends Controller
             $catatan = $request->catatan;
             $tgl = Carbon::now('Asia/Jakarta')->toDateTimeString();
             $session = auth()->id();
-            $data = DB::table('pj_st_andi')->where('naskah_id',$naskah_id);
+            $check = DB::table('proses_produksi_track_riwayat')->where('id',$id)->exists();
+            if (!$check) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak ada riwayat pengiriman!',
+                ]);
+            }
+            $data = DB::table('pj_st_andi')->where('naskah_id', $naskah_id);
             if ($data->exists()) {
                 //! Jumlah stok ditotal
                 $jml_diterima = $data->first()->total_stok + $jml_diterima;
@@ -333,28 +357,28 @@ class PenerimaanBukuController extends Controller
                 event(new PenjualanStokEvent($update));
             } else {
                 $naskah = DB::table('deskripsi_turun_cetak as dtc')
-                ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
-                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
-                    $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                        ->whereNull('kb.deleted_at');
-                })
-                ->leftJoin('penerbitan_m_s_kelompok_buku as skb', function ($q) {
-                    $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
-                        ->whereNull('skb.deleted_at');
-                })
-                ->where('pn.id',$naskah_id)
-                ->select(
-                    'dtc.*',
-                    'pn.id as naskah_id',
-                    'kb.kode as kode_kb',
-                    'skb.kode_sub as kode_skb'
-                )
-                ->first();
+                    ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                    ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                    ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->join('penerbitan_m_kelompok_buku as kb', function ($q) {
+                        $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                            ->whereNull('kb.deleted_at');
+                    })
+                    ->leftJoin('penerbitan_m_s_kelompok_buku as skb', function ($q) {
+                        $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
+                            ->whereNull('skb.deleted_at');
+                    })
+                    ->where('pn.id', $naskah_id)
+                    ->select(
+                        'dtc.*',
+                        'pn.id as naskah_id',
+                        'kb.kode as kode_kb',
+                        'skb.kode_sub as kode_skb'
+                    )
+                    ->first();
                 //Format SKU 00-000-0000-000000
                 $tipeOrder = Str::padLeft($naskah->tipe_order, 2, '0');
                 //! Insert Stok Andi
@@ -362,7 +386,7 @@ class PenerimaanBukuController extends Controller
                     'params' => 'Insert Stok Andi',
                     'id' => Uuid::uuid4()->toString(),
                     'naskah_id' => $naskah_id,
-                    'kode_sku' => self::generateKodeSku($tipeOrder, $naskah->kode_kb,$naskah->kode_skb),
+                    'kode_sku' => self::generateKodeSku($tipeOrder, $naskah->kode_kb, $naskah->kode_skb),
                     'total_stok' => $jml_diterima
                 ];
                 event(new PenjualanStokEvent($insert));
@@ -373,7 +397,8 @@ class PenerimaanBukuController extends Controller
                 'id' => $id,
                 'catatan' => $catatan,
                 'tgl_diterima' => $tgl,
-                'diterima_oleh' => $session
+                'diterima_oleh' => $session,
+                'status_new' => 'selesai',
             ];
             event(new ProduksiEvent($update));
             return response()->json([
@@ -381,7 +406,7 @@ class PenerimaanBukuController extends Controller
                 'message' => 'Stok bertambah!',
                 'data' => [
                     'tgl_diterima' => Carbon::parse($tgl)->format('d-m-Y H:i:s'),
-                    'penerima' => DB::table('users')->where('id',$session)->first()->nama,
+                    'penerima' => DB::table('users')->where('id', $session)->first()->nama,
                     'action' => '<span class="badge badge-light">No action</span>',
                     'total_diterima' => $jml_diterima
                 ]
@@ -394,19 +419,51 @@ class PenerimaanBukuController extends Controller
             ]);
         }
     }
-    private function generateKodeSku($tipeOrder,$kode_kb,$kode_skb)
+    private function generateKodeSku($tipeOrder, $kode_kb, $kode_skb)
     {
         $kodeKb = (int)substr($kode_kb, -3);
         $kodeSKB = $kode_skb ?? '0000';
-        $kodeSKU = $tipeOrder.'-'.$kodeKb.'-'.$kodeSKB;
+        $kodeSKU = $tipeOrder . '-' . $kodeKb . '-' . $kodeSKB;
         $checkLast = DB::table('pj_st_andi')
-        ->whereRaw("SUBSTRING_INDEX(kode_sku, '-', 3) = '$kodeSKU'");
+            ->whereRaw("SUBSTRING_INDEX(kode_sku, '-', 3) = '$kodeSKU'");
         if ($checkLast->exists()) {
-            $sortNumber = substr($checkLast->first()->kode_sku,-6);
-            $kodeFix =  $kodeSKU.'-'.sprintf("%06d",$sortNumber+1);
+            $sortNumber = substr($checkLast->first()->kode_sku, -6);
+            $kodeFix =  $kodeSKU . '-' . sprintf("%06d", $sortNumber + 1);
         } else {
-            $kodeFix = $kodeSKU.'-000001';
+            $kodeFix = $kodeSKU . '-000001';
         }
         return $kodeFix;
+    }
+    protected function selesaiPenerimaanBuku($request)
+    {
+        try {
+            $id = $request->id;
+            $belumDiterima = DB::table('proses_produksi_track_riwayat')
+            ->where('track_id',$id)
+            ->whereNull('tgl_diterima');
+            if ($belumDiterima->exists()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Ada pengiriman yang belum diterima!'
+                ]);
+            }
+            $update = [
+                'params' => 'Selesai Penerimaan Buku',
+                'id' => $id,
+                'status' => 'selesai',
+                'tgl_selesai' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+            ];
+            event(new ProduksiEvent($update));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Penerimaan buku telah selesai!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }
