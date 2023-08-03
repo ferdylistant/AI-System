@@ -37,6 +37,11 @@ function jqueryValidation_(element, rules) {
         },
         rules: _rules,
         ignore: ".note-editor *",
+        messages: {
+            adduser_email: {
+                remote: "The email already in use."
+            }
+        }
     })
 }
 

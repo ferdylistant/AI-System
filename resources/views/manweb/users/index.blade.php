@@ -98,9 +98,9 @@
                     <div class="modal-body">
                         <h5 class="modal-title mb-3">#Tambah User</h5>
                         <div class="form-group">
-                            <label for="adduser_name">Nama: <span class="text-danger">*</span></label>
+                            <label for="adduser_nama">Nama: <span class="text-danger">*</span></label>
                             <input class="form-control" type="text" name="adduser_nama" placeholder="Nama User" required>
-                            <div id="err_adduser_name"></div>
+                            <div id="err_adduser_nama"></div>
                         </div>
                         <div class="form-group">
                             <label for="adduser_email">Email: <span class="text-danger">*</span></label>
@@ -109,9 +109,9 @@
                             <div id="err_adduser_email"></div>
                         </div>
                         <div class="form-group">
-                            <label for="adduser_name">Password: </label>
+                            <label for="adduser_password">Password: </label>
                             <input class="form-control" type="text" name="adduser_password" placeholder="Password User">
-                            <div id="err_adduser_name"></div>
+                            <div id="err_adduser_password"></div>
                         </div>
                         <div class="form-group">
                             <label for="adduser_cabang">Cabang: <span class="text-danger">*</span></label>
@@ -259,7 +259,11 @@
             });
 
             let addUser = jqueryValidation_('#fm_AddUser', {
-                adduser_email: 'email'
+                adduser_email: {
+                    required : true,
+                    email: true,
+                    remote: window.location.origin + "/manajemen-web/user/ajax/check-email"
+                }
             });
 
             function resetForm(form) {

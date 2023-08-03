@@ -433,6 +433,9 @@ class UsersController extends Controller
             case 'reset-default-password':
                 return $this->resetDefaultPassword($request);
                 break;
+            case 'check-email':
+                return $this->checkEmail($request);
+                break;
             default:
                 return abort(404);
                 break;
@@ -683,7 +686,6 @@ class UsersController extends Controller
         ]);
         return;
     }
-
     protected function deleteUser($request)
     {
         try {
@@ -710,7 +712,6 @@ class UsersController extends Controller
             ]);
         }
     }
-
     protected function updateAccess($request)
     {
         DB::transaction(function () use ($request) {
@@ -737,7 +738,6 @@ class UsersController extends Controller
             }
         });
     }
-
     protected function getDataPermissions($id)
     {
         if (Cache::has('userPermission')) {
@@ -888,7 +888,6 @@ class UsersController extends Controller
             'perm' => $perm
         ];
     }
-
     protected function resetDefaultPassword($request)
     {
         try {
@@ -903,7 +902,16 @@ class UsersController extends Controller
             return abort(500, $e->getMessage());
         }
     }
-
+    protected function checkEmail($request)
+    {
+        $email = $request->adduser_email;
+        $check = DB::table('users')->where('email',$email)->exists();
+        $res = TRUE;
+        if ($check) {
+            $res = FALSE;
+        }
+        return response()->json($res,200);
+    }
     public function lihatHistoryUser(Request $request)
     {
         if ($request->ajax()) {
@@ -1148,7 +1156,6 @@ class UsersController extends Controller
             return $html;
         }
     }
-
     public function restoreUser(Request $request)
     {
         try {
