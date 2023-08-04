@@ -241,7 +241,7 @@ Route::middleware(['auth'])->group(function () use ($path) {
         //Penerimaan Buku Stok Andi
         Route::match(['get','post'],'/gudang/penerimaan-buku/andi', $path.'\PenjualanStok\PenerimaanBukuController@index');
         //Stok Andi
-        Route::get('/gudang/stok-buku/andi', $path.'\PenjualanStok\StokAndiController@index');
+        Route::match(['get','post'],'/gudang/stok-buku/andi', $path.'\PenjualanStok\StokAndiController@index');
         //Stok Non-Andi (Buku)
         Route::get('/gudang/non-andi/buku', $path.'\PenjualanStok\StokNonAndiController@index');
         //Stok Non-Andi (Non-Buku)

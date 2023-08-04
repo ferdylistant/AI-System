@@ -71,10 +71,11 @@ $(function () {
             },
             cache: false,
             success: function (result) {
-                console.log(result.contentForm);
+                // console.log(result.contentForm);
                 cardWrap.find('#sectionTitle').text(judul.charAt(0).toUpperCase() + judul.slice(1)).trigger('change');
                 cardWrap.find('#contentRack').html(result.contentRack).trigger('change');
                 cardWrap.find('#contentForm').html(result.contentForm).trigger('change');
+                cardWrap.find('[name="stok_id"]').val(result.stok_id).trigger('change');
                 $('[data-toggle="popover"]').popover();
                 $('.datepicker').datepicker({
                     format: 'dd MM yyyy',
@@ -83,7 +84,7 @@ $(function () {
                 });
             },
             error: function (err) {
-                console.log(err);
+                // console.log(err);
                 notifToast('error', err.statusText);
                 cardWrap.removeClass('modal-progress')
             },
@@ -98,116 +99,71 @@ $(function () {
         $(this).find("form").trigger("reset");
         $(this).addClass("modal-progress");
     });
-    function ajaxTerimaBuku(data) {
-        let cardWrap = $("#modalRack");
-        $.ajax({
-            url: window.location.origin + '/penjualan-stok/gudang/penerimaan-buku/andi?request_type=terima-buku',
-            type: 'POST',
-            data: data,
-            cache: false,
-            success: function (result) {
-                console.log(result);
-                cardWrap.find('#indexTglTerima'+data.id).html(result.data.tgl_diterima).change();
-                cardWrap.find('#indexDiterimaOleh'+data.id).html(result.data.penerima).change();
-                cardWrap.find('#indexAction'+data.id).html(result.data.action).change();
-                cardWrap.find('#totDiterima').html(result.data.total_diterima+' eks').change();
-                notifToast(result.status,result.message);
-                tabelPenerimaan.ajax.reload();
-                swal.close();
-            },
-            error: function (err) {
-                notifToast('error','Terjadi kesalahan!')
-            }
-        });
-    }
-    $("#modalRack").on('click', '#btnTerimaBuku', function () {
-        var id = $(this).data('id');
-        var jml_diterima = $(this).data('jml_diterima');
-        var naskah_id = $("#modalRack").find('[name="naskah_id"]').val();
-        var produksi_id = $("#modalRack").find('[name="produksi_id"]').val();
-        var proses_tahap = $("#modalRack").find('[name="proses_tahap"]').val();
-        // var id = $(this).data('id');
-        var textarea = document.createElement('textarea');
-        textarea.rows = 3;
-        textarea.className = 'swal-content__textarea';
-        // Set swal return value every time an onkeyup event is fired in this textarea
-        textarea.onkeyup = function () {
-            swal.setActionValue({
-                confirm: this.value
-            });
-        };
-        swal({
-            title: 'Apakah jumlah kirim sudah benar?',
-            text: 'Catatan (Opsional)',
-            content: textarea,
-            icon: "warning",
-            dangerMode: true,
-            buttons: {
-                cancel: {
-                    text: 'Cancel',
-                    visible: true
-                },
-                confirm: {
-                    text: 'Submit',
-                    closeModal: false
-                }
-            }
-        }).then(function (value) {
-            if (value !== null) {
-                var data = {
-                    id: id,
-                    jml_diterima: jml_diterima,
-                    catatan: value === true ? null : value,
-                    naskah_id: naskah_id,
-                    produksi_id: produksi_id,
-                    proses_tahap: proses_tahap
-                };
-                ajaxTerimaBuku(data)
-            }
-        });
+    let addRack = jqueryValidation_('#fm_addRak', {
+        "rack[]": {
+            required : true,
+        },
+        "jml_stok[]": {
+            required : true,
+            number: true
+        },
+        "tgl_masuk_stok[]": {
+            required : true,
+            date: true
+        },
+        "users_id[]": {
+            required : true,
+        },
     });
-    function ajaxSelesaiPenerimaan(id) {
-        let cardWrap = $("#modalRack");
+    function ajaxAddRak(data) {
+        let el = data.get(0),
+        cardWrap = $('#modalRack');
+
         $.ajax({
-            url: window.location.origin + '/penjualan-stok/gudang/penerimaan-buku/andi?request_type=selesai-penerimaan',
+            url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=add-data-rack',
             type: 'POST',
-            data: {id:id},
-            cache: false,
-            beforeSend: function () {
-                cardWrap.addClass('modal-progress')
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: () => {
+                cardWrap.addClass("modal-progress");
             },
-            success: function (res) {
-                console.log(res);
+            success: (res) => {
                 notifToast(res.status,res.message);
-                if (res.status == 'success') {
-                    tabelPenerimaan.ajax.reload();
-                    cardWrap.modal('hide');
-                } else {
-                    cardWrap.removeClass('modal-progress');
+            },
+            error: (err) => {
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    addRack.showErrors(err);
                 }
+                notifToast("error", err.statusText);
+                cardWrap.removeClass("modal-progress");
             },
-            error: function (err) {
-                console.log(err);
-                cardWrap.removeClass('modal-progress');
-            },
-            complete: function () {
-                cardWrap.removeClass('modal-progress');
+            complete: () => {
+                cardWrap.removeClass("modal-progress");
+
             }
         });
     }
-    $("#modalRack").on('click', '#btnSubmitSelesai', function (e) {
+    $('#fm_addRak').on('submit',function (e) {
         e.preventDefault();
-        var id = $(this).data('id');
-        swal({
-            title: 'Apakah semua pengiriman sudah diterima?',
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((confirm_) => {
-            if (confirm_) {
-                ajaxSelesaiPenerimaan(id);
-            }
-        });
+        if ($(this).valid()) {
+            swal({
+                title: 'Apakah penempatan rak sudah sesuai?',
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxAddRak($(this));
+                }
+            });
+        }
     });
     $(document).ready(function () {
         var max_fields = 20; //maximum input boxes allowed
@@ -226,20 +182,20 @@ $(function () {
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Rak</span>
                     </div>
-                    <input type="text" class="form-control">
+                    <input type="text" class="form-control" name="rak[]" required>
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Jumlah</span>
                     </div>
-                    <input type="text" class="form-control">
+                    <input type="text" class="form-control" name="jml_stok[]" required>
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Masuk Gudang</span>
                     </div>
-                    <input type="text" class="form-control datepicker" name="tgl_masuk_stok"
-                        placeholder="DD/MM/YYYY">
+                    <input type="text" class="form-control datepicker" name="tgl_masuk_stok[]"
+                        placeholder="DD/MM/YYYY" required>
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Oleh</span>
                     </div>
-                    <input type="text" class="form-control">
+                    <input type="text" class="form-control" name="users_id[]" required>
                     <div class="input-group-append">
                         <button type="button" class="btn btn-outline-danger remove_field text-danger"
                             data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>

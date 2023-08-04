@@ -1,5 +1,4 @@
-<div id="modalRack" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalRackTitle"
-    aria-hidden="true">
+<div id="modalRack" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalRackTitle" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -12,18 +11,25 @@
                 <div class="section">
                     <div class="section-body">
                         <h6 class="section-title" id="sectionTitle"></h6>
-                        <div class="form-group">
-                            <label for="">Penempatan Rak</label>
-                            <div id="contentRack"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="">Form Input Rak</label>
-                            <div id="contentForm" class="input_fields_wrap"></div>
-                        </div>
+                        <form id="fm_editRak">
+                            <div class="form-group">
+                                <label>Penempatan Rak</label>
+                                <div id="contentRack"></div>
+                            </div>
+                        </form>
+                        <form id="fm_addRak">
+                            <div class="form-group">
+                                <label>Form Input Rak</label>
+                                <input type="hidden" name="stok_id" value="">
+                                <div id="contentForm" class="input_fields_wrap example-1 scrollbar-deep-purple thin"></div>
+                            </div>
+                            <button type="button" class="add_field_button btn btn-dark">
+                                <i class="fas fa-plus-circle"></i> Tambah Rak</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-file-import"></i> Submit</button>
+                        </form>
                     </div>
                 </div>
-                <button type="button" class="add_field_button btn btn-dark"><i class="fas fa-plus-circle"></i> Tambah Rak</button>
-                <button type="button" class="btn btn-primary"><i class="fas fa-file-import"></i> Submit</button>
             </div>
         </div>
     </div>

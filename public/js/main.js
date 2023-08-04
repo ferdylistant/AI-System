@@ -9,8 +9,9 @@ $(document).ajaxError(function (event, xhr, settings, thrownError) {
         alert('Request too many!')
     }
 });
-function jqueryValidation_(element, rules) {
+function jqueryValidation_(element, rules, messages = {}) {
     let _rules = rules === undefined ? {} : rules;
+    // var x = 0;
     return $(element).validate({
         errorElement: 'span',
         errorPlacement: function (error, element) {
@@ -18,6 +19,8 @@ function jqueryValidation_(element, rules) {
             let name = element.attr('name');
             name = name.replace('[]', '');
             $('#err_' + name).addClass('invalid-feedback').append(error)
+            // x++;
+            // $('#err_' + name+x).addClass('invalid-feedback').append(error)
         },
         highlight: function (element) {
             if ($(element).parent().hasClass('image-preview')) {
@@ -37,11 +40,7 @@ function jqueryValidation_(element, rules) {
         },
         rules: _rules,
         ignore: ".note-editor *",
-        messages: {
-            adduser_email: {
-                remote: "The email already in use."
-            }
-        }
+        messages: messages
     })
 }
 

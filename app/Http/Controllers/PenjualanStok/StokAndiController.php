@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\PenjualanStok;
 
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Events\convertNumberToRoman;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\{DB, Gate};
+use Symfony\Component\Console\Input\Input;
 
 class StokAndiController extends Controller
 {
@@ -16,8 +19,8 @@ class StokAndiController extends Controller
         if ($request->ajax()) {
             $data = DB::table('pj_st_andi as st')
                 ->leftJoin('penerbitan_naskah as pn', 'pn.id', '=', 'st.naskah_id')
-                ->leftJoin('deskripsi_produk as dp','pn.id','=','dp.naskah_id')
-                ->leftJoin('deskripsi_final as df','dp.id','=','df.deskripsi_produk_id')
+                ->leftJoin('deskripsi_produk as dp', 'pn.id', '=', 'dp.naskah_id')
+                ->leftJoin('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
                 ->leftJoin('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
                 ->leftJoin('deskripsi_turun_cetak as dtc', 'df.id', '=', 'dtc.pracetak_setter_id')
                 ->leftJoin('penerbitan_m_kelompok_buku as kb', function ($q) {
@@ -46,16 +49,21 @@ class StokAndiController extends Controller
             if ($request->isMethod('GET')) {
                 switch ($request->request_type) {
                     case 'table-index':
-                        return $this->datatableIndex($data);
+                        return self::datatableIndex($data);
                         break;
                     case 'show-track-timeline':
-                        return $this->trackTimeline($request);
+                        return self::trackTimeline($request);
                         break;
                     case 'show-modal-rack':
-                        return $this->showModalRack($request);
+                        return self::showModalRack($request);
                         break;
                 }
             } else {
+                switch ($request->request_type) {
+                    case 'add-data-rack':
+                        return self::addDataRack($request);
+                        break;
+                }
             }
         }
         return view('penjualan_stok.gudang.stok_andi.index', [
@@ -79,7 +87,7 @@ class StokAndiController extends Controller
                 return $data->sub_judul_final ?? '-';
             })
             ->addColumn('kelompok_buku', function ($data) {
-                return $data->nama_kb.' <i class="fas fa-chevron-right"></i> '.$data->nama_skb;
+                return $data->nama_kb . ' <i class="fas fa-chevron-right"></i> ' . $data->nama_skb;
             })
             ->addColumn('penulis', function ($data) {
                 $result = '';
@@ -105,7 +113,7 @@ class StokAndiController extends Controller
                 return $data->total_stok;
             })
             ->addColumn('rack', function ($data) {
-                return '<button class="btn btn-light" data-toggle="modal" data-judul="'.$data->judul_final.'" data-stok_id="'.$data->id.'" data-target="#modalRack" data-backdrop="static">
+                return '<button class="btn btn-light" data-toggle="modal" data-judul="' . $data->judul_final . '" data-stok_id="' . $data->id . '" data-target="#modalRack" data-backdrop="static">
                 <i class="fas fa-border-all"></i> Rak Buku
                 </button>';
             })
@@ -165,14 +173,14 @@ class StokAndiController extends Controller
         try {
             $stok_id = $request->stok_id;
             $dataRack = DB::table('pj_st_rack_data as rd')
-            ->leftJoin('pj_st_rack_master as rm', function ($q) {
-                $q->on('rd.rack_id', '=', 'rm.id')
-                    ->whereNull('rm.deleted_at');
-            })
-            ->leftJoin('pj_st_andi as st','rd.stok_id','=','st.id')
-            ->where('rd.stok_id', $stok_id)
-            ->select('rd.*','rm.kode','rm.nama','st.total_stok')
-            ->orderBy('rd.created_at','ASC');
+                ->leftJoin('pj_st_rack_master as rm', function ($q) {
+                    $q->on('rd.rack_id', '=', 'rm.id')
+                        ->whereNull('rm.deleted_at');
+                })
+                ->leftJoin('pj_st_andi as st', 'rd.stok_id', '=', 'st.id')
+                ->where('rd.stok_id', $stok_id)
+                ->select('rd.*', 'rm.kode', 'rm.nama', 'st.total_stok')
+                ->orderBy('rd.created_at', 'ASC');
             $contentRack = '<p class="text-danger">Belum ada stok yang diiput dalam rak.</p>';
             if ($dataRack->exists()) {
                 $contentRack = self::contentRack($dataRack->get());
@@ -181,6 +189,7 @@ class StokAndiController extends Controller
 
 
             return [
+                'stok_id' => $stok_id,
                 'contentForm' => $contentForm,
                 'contentRack' => $contentRack
             ];
@@ -205,38 +214,38 @@ class StokAndiController extends Controller
                               </tr>
                             </thead>
                             <tbody>';
-            foreach ($data as $i => $kg) {
-                $i++;
-                if (!is_null($kg->tgl_diterima)) {
-                    $btnAction = '<span class="badge badge-light">No action</span>';
-                } else {
-                    $btnAction = '<a href="javascript:void(0)"
+        foreach ($data as $i => $kg) {
+            $i++;
+            if (!is_null($kg->tgl_diterima)) {
+                $btnAction = '<span class="badge badge-light">No action</span>';
+            } else {
+                $btnAction = '<a href="javascript:void(0)"
                                     class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1" id="btnEditRiwayatKirim" data-id="' . $kg->id . '" data-dibuat="' . Carbon::parse($kg->created_at)->translatedFormat('l, d M Y - H:i:s') . '" data-toggle="modal" data-target="#modalEditRiwayatKirim">
                                     <i class="fas fa-edit"></i></a>
                                     <a href="javascript:void(0)"
                                     class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="' . $kg->id . '" data-toggle="tooltip" title="Hapus Data">
                                     <i class="fas fa-trash"></i></a>';
+            }
+            $kg = (object)collect($kg)->map(function ($item, $key) {
+                switch ($key) {
+                    case 'users_id':
+                        return DB::table('users')->where('id', $item)->first()->nama;
+                        break;
+                    case 'diterima_oleh':
+                        return is_null($item) ? '-' : DB::table('users')->where('id', $item)->first()->nama;
+                        break;
+                    case 'tgl_diterima':
+                        return is_null($item) ? '<small class="badge badge-danger">menunggu</small>' : $item;
+                        break;
+                    case 'created_at':
+                        return Carbon::parse($item)->format('d-m-Y H:i:s');
+                        break;
+                    default:
+                        return is_null($item) ? '-' : $item;
+                        break;
                 }
-                $kg = (object)collect($kg)->map(function ($item, $key) {
-                    switch ($key) {
-                        case 'users_id':
-                            return DB::table('users')->where('id', $item)->first()->nama;
-                            break;
-                        case 'diterima_oleh':
-                            return is_null($item) ? '-' : DB::table('users')->where('id', $item)->first()->nama;
-                            break;
-                        case 'tgl_diterima':
-                            return is_null($item) ? '<small class="badge badge-danger">menunggu</small>' : $item;
-                            break;
-                        case 'created_at':
-                            return Carbon::parse($item)->format('d-m-Y H:i:s');
-                            break;
-                        default:
-                            return is_null($item) ? '-' : $item;
-                            break;
-                    }
-                })->all();
-                $contentRack .= '<tr id="index_' . $kg->id . '">
+            })->all();
+            $contentRack .= '<tr id="index_' . $kg->id . '">
                                   <td id="row_num' . $i . '">' . $i . '<input type="hidden" name="task_number[]" value=' . $i . '></td>
                                   <td>' . $kg->created_at . '</td>
                                   <td>' . $kg->users_id . '</td>
@@ -245,11 +254,11 @@ class StokAndiController extends Controller
                                   <td id="indexJmlKirim' . $kg->id . '">' . $kg->jml_dikirim . ' eks</td>
                                   <td>' . $btnAction . '</td>
                                 </tr>';
-            }
-            $contentRack .= '</tbody>
+        }
+        $contentRack .= '</tbody>
             </table>
             </div>';
-            return $contentRack;
+        return $contentRack;
     }
     private function contentForm()
     {
@@ -257,22 +266,49 @@ class StokAndiController extends Controller
         <div class="input-group-prepend">
             <span class="input-group-text bg-light text-dark" id="">Rak</span>
         </div>
-        <input type="text" class="form-control">
+        <input type="text" class="form-control" name="rak[]" required>
         <div class="input-group-prepend">
             <span class="input-group-text bg-light text-dark" id="">Jumlah</span>
         </div>
-        <input type="text" class="form-control">
+        <input type="text" class="form-control" name="jml_stok[]" required>
         <div class="input-group-prepend">
             <span class="input-group-text bg-light text-dark" id="">Masuk Gudang</span>
         </div>
-        <input type="text" class="form-control datepicker" name="tgl_masuk_stok"
-            placeholder="DD/MM/YYYY">
+        <input type="text" class="form-control datepicker" name="tgl_masuk_stok[]"
+            placeholder="DD/MM/YYYY" required>
         <div class="input-group-prepend">
             <span class="input-group-text bg-light text-dark" id="">Oleh</span>
         </div>
-        <input type="text" class="form-control">
-
-    </div>';
+        <input type="text" class="form-control" name="users_id[]" required>
+        </div>';
         return $contentForm;
+    }
+    protected function addDataRack($request)
+    {
+        $stok_id = $request->stok_id;
+        $rak = $request->rak;
+        $jml_stok = $request->jml_stok;
+        $tgl_masuk_stok = $request->tgl_masuk_stok;
+        $users_id = $request->users_id;
+        $author = auth()->id();
+        for ($count = 0; $count < count($rak); $count++) {
+            $data[] = [
+                'rack_id' => $rak[$count],
+                'stok_id' => $stok_id,
+                'jml_stok'  => $jml_stok[$count],
+                'tgl_masuk_stok'  => $tgl_masuk_stok[$count],
+                'users_id'  => $users_id[$count],
+                'created_by' => $author
+            ];
+
+        }
+        $unique = array_unique($rak);
+        if (count($unique) < count($rak)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Rak tidak boleh duplikat!'
+            ]);
+        }
+        return response()->json($data);
     }
 }

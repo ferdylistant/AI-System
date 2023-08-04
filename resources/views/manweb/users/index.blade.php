@@ -264,6 +264,11 @@
                     email: true,
                     remote: window.location.origin + "/manajemen-web/user/ajax/check-email"
                 }
+            },
+            {
+                adduser_email: {
+                    remote: "The email already in use."
+                }
             });
 
             function resetForm(form) {
