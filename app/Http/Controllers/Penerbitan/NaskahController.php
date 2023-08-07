@@ -14,7 +14,6 @@ use PhpParser\Node\Stmt\Catch_;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Gate};
 
 class NaskahController extends Controller
@@ -146,61 +145,56 @@ class NaskahController extends Controller
                     return $data;
                     break;
                 default:
-                    if (Cache::has('naskahIndex')) {
-                        $data = Cache::get('naskahIndex');
+                    if ((Gate::allows('do_update', 'naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
+                        $data = DB::table('penerbitan_naskah as pn')
+                            ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+                            ->whereNull('pn.deleted_at')->where('pic_prodev', auth()->user()->id)->select(
+                                'pn.id',
+                                'pn.kode',
+                                'pn.judul_asli',
+                                'pn.pic_prodev',
+                                'pn.created_by',
+                                'pn.jalur_buku',
+                                'pn.tanggal_masuk_naskah',
+                                'pn.selesai_penilaian',
+                                'pn.bukti_email_penulis',
+                                'pn.urgent',
+                                'pns.tgl_pn_prodev',
+                                'pns.tgl_pn_m_penerbitan',
+                                'pns.tgl_pn_m_pemasaran',
+                                'pns.tgl_pn_d_pemasaran',
+                                'pns.tgl_pn_direksi',
+                                'pns.tgl_pn_editor',
+                                'pns.tgl_pn_setter',
+                                'pns.tgl_pn_selesai'
+                            )
+                            ->orderBy('pn.tanggal_masuk_naskah', 'desc')
+                            ->get();
                     } else {
-                        if ((Gate::allows('do_update', 'naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
-                            $data = DB::table('penerbitan_naskah as pn')
-                                ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
-                                ->whereNull('pn.deleted_at')->where('pic_prodev', auth()->user()->id)->select(
-                                    'pn.id',
-                                    'pn.kode',
-                                    'pn.judul_asli',
-                                    'pn.pic_prodev',
-                                    'pn.created_by',
-                                    'pn.jalur_buku',
-                                    'pn.tanggal_masuk_naskah',
-                                    'pn.selesai_penilaian',
-                                    'pn.bukti_email_penulis',
-                                    'pn.urgent',
-                                    'pns.tgl_pn_prodev',
-                                    'pns.tgl_pn_m_penerbitan',
-                                    'pns.tgl_pn_m_pemasaran',
-                                    'pns.tgl_pn_d_pemasaran',
-                                    'pns.tgl_pn_direksi',
-                                    'pns.tgl_pn_editor',
-                                    'pns.tgl_pn_setter',
-                                    'pns.tgl_pn_selesai'
-                                )
-                                ->orderBy('pn.tanggal_masuk_naskah', 'desc')
-                                ->get();
-                        } else {
-                            $data = DB::table('penerbitan_naskah as pn')
-                                ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
-                                ->whereNull('pn.deleted_at')->select(
-                                    'pn.id',
-                                    'pn.kode',
-                                    'pn.judul_asli',
-                                    'pn.pic_prodev',
-                                    'pn.created_by',
-                                    'pn.jalur_buku',
-                                    'pn.tanggal_masuk_naskah',
-                                    'pn.selesai_penilaian',
-                                    'pn.bukti_email_penulis',
-                                    'pn.urgent',
-                                    'pns.tgl_pn_prodev',
-                                    'pns.tgl_pn_m_penerbitan',
-                                    'pns.tgl_pn_m_pemasaran',
-                                    'pns.tgl_pn_d_pemasaran',
-                                    'pns.tgl_pn_direksi',
-                                    'pns.tgl_pn_editor',
-                                    'pns.tgl_pn_setter',
-                                    'pns.tgl_pn_selesai'
-                                )
-                                ->orderBy('pn.tanggal_masuk_naskah', 'asc')
-                                ->get();
-                        }
-                        Cache::add('naskahIndex', $data, now()->addMinutes(5));
+                        $data = DB::table('penerbitan_naskah as pn')
+                            ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+                            ->whereNull('pn.deleted_at')->select(
+                                'pn.id',
+                                'pn.kode',
+                                'pn.judul_asli',
+                                'pn.pic_prodev',
+                                'pn.created_by',
+                                'pn.jalur_buku',
+                                'pn.tanggal_masuk_naskah',
+                                'pn.selesai_penilaian',
+                                'pn.bukti_email_penulis',
+                                'pn.urgent',
+                                'pns.tgl_pn_prodev',
+                                'pns.tgl_pn_m_penerbitan',
+                                'pns.tgl_pn_m_pemasaran',
+                                'pns.tgl_pn_d_pemasaran',
+                                'pns.tgl_pn_direksi',
+                                'pns.tgl_pn_editor',
+                                'pns.tgl_pn_setter',
+                                'pns.tgl_pn_selesai'
+                            )
+                            ->orderBy('pn.tanggal_masuk_naskah', 'asc')
+                            ->get();
                     }
                     $update = Gate::allows('do_update', 'ubah-data-naskah');
 
@@ -576,15 +570,15 @@ class NaskahController extends Controller
             } else {
                 if ($request->request_select == 'selectKategoriAll') {
                     $kbuku = DB::table('penerbitan_m_kelompok_buku')
-                    ->whereNull('deleted_at')
-                    ->where('nama', 'like', '%' . $request->input('term') . '%')
-                    ->get();
+                        ->whereNull('deleted_at')
+                        ->where('nama', 'like', '%' . $request->input('term') . '%')
+                        ->get();
                     return response()->json($kbuku);
                 } elseif ($request->request_select == 'selectSub') {
                     $dataSelect = DB::table('penerbitan_m_s_kelompok_buku')
-                    ->where('kelompok_id',$request->kelompok_id)
-                    ->whereNull('deleted_at')
-                    ->where('nama', 'like', '%' . $request->input('term') . '%')->get();
+                        ->where('kelompok_id', $request->kelompok_id)
+                        ->whereNull('deleted_at')
+                        ->where('nama', 'like', '%' . $request->input('term') . '%')->get();
                     return response()->json($dataSelect);
                 }
             }
@@ -1252,7 +1246,6 @@ class NaskahController extends Controller
                         'message' => 'Naskah sudah dihapus!'
                     ]);
                 }
-                Cache::put('naskahIndex', $deleted);
                 $data = [
                     'params' => 'Delete Naskah',
                     'type_history' => 'Delete',

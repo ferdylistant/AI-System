@@ -57,6 +57,9 @@ class StokAndiController extends Controller
                     case 'show-modal-rack':
                         return self::showModalRack($request);
                         break;
+                    case 'select-rack':
+                        return self::selectRack($request);
+                        break;
                 }
             } else {
                 switch ($request->request_type) {
@@ -266,7 +269,7 @@ class StokAndiController extends Controller
         <div class="input-group-prepend">
             <span class="input-group-text bg-light text-dark" id="">Rak</span>
         </div>
-        <input type="text" class="form-control" name="rak[]" required>
+        <select id="selectRack" class="form-control" name="rak[]" required></select>
         <div class="input-group-prepend">
             <span class="input-group-text bg-light text-dark" id="">Jumlah</span>
         </div>
@@ -309,6 +312,14 @@ class StokAndiController extends Controller
                 'message' => 'Rak tidak boleh duplikat!'
             ]);
         }
+        return response()->json($data);
+    }
+    protected function selectRack($request)
+    {
+        $data = DB::table('pj_st_rack_master')
+            ->whereNull('deleted_at')
+            ->where('nama', 'like', '%' . $request->input('term') . '%')
+            ->get();
         return response()->json($data);
     }
 }

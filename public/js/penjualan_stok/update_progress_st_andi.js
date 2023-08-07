@@ -82,6 +82,33 @@ $(function () {
                     autoclose: true,
                     clearBtn: true,
                 });
+                $('#selectRack').select2({
+                    placeholder: 'Pilih rak',
+                    ajax: {
+                        url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-rack',
+                        type: "GET",
+                        data: function (params) {
+                            var queryParameters = {
+                                term: params.term
+                            };
+                            return queryParameters;
+                        },
+                        processResults: function (data) {
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        text: item.nama,
+                                        id: item.id,
+                                    };
+                                }),
+                            };
+                        },
+                    },
+                }).on("change", function (e) {
+                    if (this.value) {
+                        $(this).valid();
+                    }
+                });
             },
             error: function (err) {
                 // console.log(err);
@@ -129,6 +156,7 @@ $(function () {
                 cardWrap.addClass("modal-progress");
             },
             success: (res) => {
+                console.log(res);
                 notifToast(res.status,res.message);
             },
             error: (err) => {
@@ -182,7 +210,7 @@ $(function () {
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Rak</span>
                     </div>
-                    <input type="text" class="form-control" name="rak[]" required>
+                    <select id="selectRack`+x+`" class="form-control" name="rak[]" required></select>
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Jumlah</span>
                     </div>
@@ -206,6 +234,33 @@ $(function () {
                     format: 'dd MM yyyy',
                     autoclose: true,
                     clearBtn: true,
+                });
+                $('#selectRack'+x).select2({
+                    placeholder: 'Pilih rak',
+                    ajax: {
+                        url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-rack',
+                        type: "GET",
+                        data: function (params) {
+                            var queryParameters = {
+                                term: params.term
+                            };
+                            return queryParameters;
+                        },
+                        processResults: function (data) {
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        text: item.nama,
+                                        id: item.id,
+                                    };
+                                }),
+                            };
+                        },
+                    },
+                }).on("change", function (e) {
+                    if (this.value) {
+                        $(this).valid();
+                    }
                 });
             }
         });

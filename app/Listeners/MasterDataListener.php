@@ -357,6 +357,62 @@ class MasterDataListener
                 ]);
                 DB::commit();
                 break;
+            case 'Create Master Rack':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_rack_master')->insert([
+                    'id' => $data['id'],
+                    'nama' => $data['nama'],
+                    'location' => $data['location'],
+                    'created_by' => $data['created_by']
+                ]);
+                DB::commit();
+                break;
+            case 'Update Master Rack':
+                $res = DB::table('pj_st_rack_master')
+                    ->where('id', $data['id'])
+                    ->update([
+                        'nama' => $data['nama'],
+                        'location' => $data['location'],
+                        'updated_by' => $data['updated_by']
+                    ]);
+                break;
+            case 'Insert History Update Rack':
+                $res = DB::table('pj_st_rack_master_history')->insert([
+                    'rack_id' => $data['rack_id'],
+                    'type_history' => $data['type_history'],
+                    'nama_his' => $data['nama_his'],
+                    'nama_new' => $data['nama_new'],
+                    'location_his' => $data['location_his'],
+                    'location_new' => $data['location_new'],
+                    'author_id' => $data['author_id'],
+                ]);
+                break;
+            case 'Insert History Delete Rack':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_rack_master')->where('id', $data['rack_id'])->update([
+                    'deleted_at' => $data['modified_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                DB::table('pj_st_rack_master_history')->insert([
+                    'rack_id' => $data['rack_id'],
+                    'type_history' => $data['type_history'],
+                    'author_id' => $data['author_id'],
+                ]);
+                DB::commit();
+                break;
+            case 'Restore Rack':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_rack_master')->where('id',$data['rack_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['deleted_by']
+                ]);
+                DB::table('pj_st_rack_master_history')->insert([
+                    'rack_id' => $data['rack_id'],
+                    'type_history' => $data['type_history'],
+                    'author_id'=> $data['author_id'],
+                ]);
+                DB::commit();
+                break;
             default:
                 abort(500);
                 break;

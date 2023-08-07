@@ -136,6 +136,15 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::post('/operator-mesin/hapus', $path.'\MasterData\OperatorMesinController@deleteOmesin')->name('om.delete');
         Route::post('/operator-mesin/restore', $path.'\MasterData\OperatorMesinController@restoreOmesin')->name('om.restore');
         Route::post('/operator-mesin/lihat-history', $path.'\MasterData\OperatorMesinController@lihatHistoryOmesin')->name('om.history');
+        //Rack List
+        Route::get('/rack-list', $path.'\MasterData\RackController@index')->name('rl.view');
+        Route::get('/rack-list/rack-list-telah-dihapus', $path.'\MasterData\RackController@rackListTelahDihapus')->name('rl.telah_dihapus');
+        Route::match(['get', 'post'], '/rack-list/tambah', $path.'\MasterData\RackController@createRackList')->name('rl.create');
+        Route::match(['get', 'post'], '/rack-list/ubah', $path.'\MasterData\RackController@updateRackList')->name('rl.update');
+        Route::post('/rack-list/hapus', $path.'\MasterData\RackController@deleteRackList')->name('rl.delete');
+        Route::post('/rack-list/restore', $path.'\MasterData\RackController@restoreRackList')->name('rl.restore');
+        Route::post('/rack-list/lihat-history', $path.'\MasterData\RackController@lihatHistoryRackList')->name('rl.history');
+        Route::match(['get','post'],'/rack-list/ajax/{cat}', $path.'\MasterData\RackController@callAjax');
 
     });
     //Penerbitan

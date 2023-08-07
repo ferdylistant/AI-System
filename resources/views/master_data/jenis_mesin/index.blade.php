@@ -70,7 +70,7 @@
                     <div class="card-header-action">
                         <button id="btn_AddJMesin" class="btn btn-success" data-toggle="modal" data-target="#md_AddJMesin"
                             data-backdrop="static">Tambah</button>
-                        <a href="{{ route('jm.telah_dihapus') }}" class="btn btn-danger">Format Buku Telah Dihapus</a>
+                        <a href="{{ route('jm.telah_dihapus') }}" class="btn btn-danger">Jenis Mesin Telah Dihapus</a>
                     </div>
                 </div>
             @endif
