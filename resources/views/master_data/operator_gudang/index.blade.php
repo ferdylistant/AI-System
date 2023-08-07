@@ -64,13 +64,13 @@
 @section('content')
     <section class="section">
         <div class="section-header">
-            <h1>Data Rack Gudang</h1>
+            <h1>Data Operator Gudang</h1>
             @if (Gate::allows('do_create', 'buat-rack-list'))
                 <div class="section-header-button">
                     <div class="card-header-action">
-                        <button id="btn_AddRackList" class="btn btn-success" data-toggle="modal" data-target="#md_AddRackList"
+                        <button id="btn_AddOperatorGudang" class="btn btn-success" data-toggle="modal" data-target="#md_AddOperatorGudang"
                             data-backdrop="static">Tambah</button>
-                        <a href="{{ route('rl.telah_dihapus') }}" class="btn btn-danger">Data Rack Telah Dihapus</a>
+                        <a href="{{ route('og.telah_dihapus') }}" class="btn btn-danger">Data Operator Gudang Telah Dihapus</a>
                     </div>
                 </div>
             @endif
@@ -82,7 +82,7 @@
                     <div class="card card-primary">
                         <div class="card-body">
                             <div class="col-12 table-responsive">
-                                <table class="table table-striped" id="tb_RackList" style="width:100%">
+                                <table class="table table-striped" id="tb_OperatorGudang" style="width:100%">
                                 </table>
                             </div>
                         </div>
@@ -92,9 +92,9 @@
         </div>
     </section>
     <!-- Modal Format Buku -->
-    @include('master_data.rack_list.include.modal_add_rack_list')
-    @include('master_data.rack_list.include.modal_edit_rack_list')
-    @include('master_data.rack_list.include.modal_history_rack_list')
+    @include('master_data.operator_gudang.include.modal_add_operator_gudang')
+    @include('master_data.operator_gudang.include.modal_edit_operator_gudang')
+    @include('master_data.operator_gudang.include.modal_history_operator_gudang')
 @endsection
 
 @section('jsRequired')
@@ -111,5 +111,5 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/master_data/rack_list.js') }}"></script>
+    <script src="{{ url('js/master_data/operator_gudang.js') }}"></script>
 @endsection

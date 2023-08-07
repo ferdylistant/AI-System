@@ -1,5 +1,5 @@
 $(function () {
-    let tabelPenerimaan = $('#tb_stokGudangAndi').DataTable({
+    let tabelStok = $('#tb_stokGudangAndi').DataTable({
         "responsive": true,
         "autoWidth": false,
         pagingType: "input",
@@ -61,13 +61,15 @@ $(function () {
     });
     $('#modalRack').on('shown.bs.modal', function (e) {
         let stok_id = $(e.relatedTarget).data('stok_id'),
+            total_stok = $(e.relatedTarget).data('total_stok')
             judul = $(e.relatedTarget).data('judul')
             cardWrap = $("#modalRack");
         $.ajax({
             url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=show-modal-rack',
             type: 'GET',
             data: {
-                stok_id: stok_id
+                stok_id: stok_id,
+                total_stok: total_stok,
             },
             cache: false,
             success: function (result) {
@@ -76,6 +78,20 @@ $(function () {
                 cardWrap.find('#contentRack').html(result.contentRack).trigger('change');
                 cardWrap.find('#contentForm').html(result.contentForm).trigger('change');
                 cardWrap.find('[name="stok_id"]').val(result.stok_id).trigger('change');
+                cardWrap.find('[name="total_stok"]').val(result.total_stok).trigger('change');
+                cardWrap.find('#totalStok').text(result.total_stok).trigger('change');
+                cardWrap.find('#totalMasuk').text(result.total_masuk).trigger('change');
+                $('.counter').each(function() {
+                    $(this).prop('Counter', 0).animate({
+                        Counter: $(this).text()
+                    }, {
+                        duration: 3000,
+                        easing: 'swing',
+                        step: function(now) {
+                            $(this).text(Math.ceil(now));
+                        }
+                    });
+                });
                 $('[data-toggle="popover"]').popover();
                 $('.datepicker').datepicker({
                     format: 'dd MM yyyy',
@@ -86,6 +102,33 @@ $(function () {
                     placeholder: 'Pilih rak',
                     ajax: {
                         url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-rack',
+                        type: "GET",
+                        data: function (params) {
+                            var queryParameters = {
+                                term: params.term
+                            };
+                            return queryParameters;
+                        },
+                        processResults: function (data) {
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        text: item.nama,
+                                        id: item.id,
+                                    };
+                                }),
+                            };
+                        },
+                    },
+                }).on("change", function (e) {
+                    if (this.value) {
+                        $(this).valid();
+                    }
+                });
+                $('#selectOptGudang').select2({
+                    placeholder: 'Pilih operator gudang',
+                    ajax: {
+                        url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-operator-gudang',
                         type: "GET",
                         data: function (params) {
                             var queryParameters = {
@@ -156,8 +199,11 @@ $(function () {
                 cardWrap.addClass("modal-progress");
             },
             success: (res) => {
-                console.log(res);
                 notifToast(res.status,res.message);
+                if (res.status === 'success') {
+                    cardWrap.modal('hide');
+                    tabelStok.ajax.reload()
+                }
             },
             error: (err) => {
                 rs = err.responseJSON.errors;
@@ -182,7 +228,7 @@ $(function () {
         e.preventDefault();
         if ($(this).valid()) {
             swal({
-                title: 'Apakah penempatan rak sudah sesuai?',
+                title: 'Apakah penempatan rak dan jumlah sudah sesuai?',
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
@@ -205,6 +251,7 @@ $(function () {
             if (x < max_fields) {
                 //max input box allowed
                 x++; //text box increment
+                var $index = x - 1;
                 $(wrapper).append(
                     `<div class="input-group mb-1">
                     <div class="input-group-prepend">
@@ -214,7 +261,7 @@ $(function () {
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Jumlah</span>
                     </div>
-                    <input type="text" class="form-control" name="jml_stok[]" required>
+                    <input type="text" class="form-control" name="jml_stok[]" placeholder="Jumlah yang dimasukkan" required>
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Masuk Gudang</span>
                     </div>
@@ -223,7 +270,7 @@ $(function () {
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Oleh</span>
                     </div>
-                    <input type="text" class="form-control" name="users_id[]" required>
+                    <select id="selectOptGudang`+x+`" class="form-control" name="users_id[`+$index+`][]" multiple="multiple" required></select>
                     <div class="input-group-append">
                         <button type="button" class="btn btn-outline-danger remove_field text-danger"
                             data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
@@ -239,6 +286,33 @@ $(function () {
                     placeholder: 'Pilih rak',
                     ajax: {
                         url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-rack',
+                        type: "GET",
+                        data: function (params) {
+                            var queryParameters = {
+                                term: params.term
+                            };
+                            return queryParameters;
+                        },
+                        processResults: function (data) {
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        text: item.nama,
+                                        id: item.id,
+                                    };
+                                }),
+                            };
+                        },
+                    },
+                }).on("change", function (e) {
+                    if (this.value) {
+                        $(this).valid();
+                    }
+                });
+                $('#selectOptGudang'+x).select2({
+                    placeholder: 'Pilih operator gudang',
+                    ajax: {
+                        url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-operator-gudang',
                         type: "GET",
                         data: function (params) {
                             var queryParameters = {

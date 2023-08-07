@@ -53,6 +53,11 @@ class PenjualanStokListener
                 ]);
                 DB::commit();
                 break;
+            case 'Insert Stock In Rack':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_rack_data')->insert($data['data']);
+                DB::commit();
+                break;
             default:
             return abort(500);
             break;

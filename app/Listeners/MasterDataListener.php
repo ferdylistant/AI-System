@@ -413,6 +413,58 @@ class MasterDataListener
                 ]);
                 DB::commit();
                 break;
+            case 'Create Master Operator Gudang':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_op_master')->insert([
+                    'id' => $data['id'],
+                    'nama' => $data['nama'],
+                    'created_by' => $data['created_by']
+                ]);
+                DB::commit();
+                break;
+            case 'Update Master Operator Gudang':
+                $res = DB::table('pj_st_op_master')
+                    ->where('id', $data['id'])
+                    ->update([
+                        'nama' => $data['nama'],
+                        'updated_by' => $data['updated_by']
+                    ]);
+                break;
+            case 'Insert History Update Operator Gudang':
+                $res = DB::table('pj_st_op_master_history')->insert([
+                    'operator_id' => $data['operator_id'],
+                    'type_history' => $data['type_history'],
+                    'nama_his' => $data['nama_his'],
+                    'nama_new' => $data['nama_new'],
+                    'author_id' => $data['author_id'],
+                ]);
+                break;
+            case 'Insert History Delete Operator Gudang':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_op_master')->where('id', $data['operator_id'])->update([
+                    'deleted_at' => $data['modified_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                DB::table('pj_st_op_master_history')->insert([
+                    'operator_id' => $data['operator_id'],
+                    'type_history' => $data['type_history'],
+                    'author_id' => $data['author_id'],
+                ]);
+                DB::commit();
+                break;
+            case 'Restore Operator Gudang':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_op_master')->where('id',$data['operator_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['deleted_by']
+                ]);
+                DB::table('pj_st_op_master_history')->insert([
+                    'operator_id' => $data['operator_id'],
+                    'type_history' => $data['type_history'],
+                    'author_id'=> $data['author_id'],
+                ]);
+                DB::commit();
+                break;
             default:
                 abort(500);
                 break;

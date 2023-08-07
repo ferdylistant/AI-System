@@ -145,6 +145,15 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::post('/rack-list/restore', $path.'\MasterData\RackController@restoreRackList')->name('rl.restore');
         Route::post('/rack-list/lihat-history', $path.'\MasterData\RackController@lihatHistoryRackList')->name('rl.history');
         Route::match(['get','post'],'/rack-list/ajax/{cat}', $path.'\MasterData\RackController@callAjax');
+        //Operator Gudang
+        Route::get('/operator-gudang', $path.'\MasterData\OperatorGudangController@index')->name('og.view');
+        Route::get('/operator-gudang/operator-gudang-telah-dihapus', $path.'\MasterData\OperatorGudangController@operatorGudangTelahDihapus')->name('og.telah_dihapus');
+        Route::match(['get', 'post'], '/operator-gudang/tambah', $path.'\MasterData\OperatorGudangController@createOperatorGudang')->name('og.create');
+        Route::match(['get', 'post'], '/operator-gudang/ubah', $path.'\MasterData\OperatorGudangController@updateOperatorGudang')->name('og.update');
+        Route::post('/operator-gudang/hapus', $path.'\MasterData\OperatorGudangController@deleteOperatorGudang')->name('og.delete');
+        Route::post('/operator-gudang/restore', $path.'\MasterData\OperatorGudangController@restoreOperatorGudang')->name('og.restore');
+        Route::post('/operator-gudang/lihat-history', $path.'\MasterData\OperatorGudangController@lihatHistoryOperatorGudang')->name('og.history');
+        Route::match(['get','post'],'/operator-gudang/ajax/{cat}', $path.'\MasterData\OperatorGudangController@callAjax');
 
     });
     //Penerbitan

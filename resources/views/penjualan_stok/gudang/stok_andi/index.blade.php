@@ -62,7 +62,7 @@
         .example-1 {
             position: relative;
             overflow-y: scroll;
-            height: 200px;
+            max-height: 200px;
         }
 
         .example-2 {
@@ -73,10 +73,6 @@
         .scroll-riwayat thead {
         position: sticky; /* make the table heads sticky */
         top: 0; /* table head will be placed from the top of the table and sticks to it */
-      }
-        .scroll-riwayat tfoot {
-        position: sticky; /* make the table heads sticky */
-        bottom: 0; /* table head will be placed from the top of the table and sticks to it */
       }
     </style>
 @endsection
