@@ -47,7 +47,7 @@
                         <form id="fm_editRak">
                             <div class="form-group">
                                 <label>Penempatan Rak</label>
-                                <div id="contentRack" class="example-1"></div>
+                                <div id="contentRack"></div>
                             </div>
                         </form>
                         <form id="fm_addRak">

@@ -58,6 +58,12 @@ class StokAndiController extends Controller
                     case 'show-modal-rack':
                         return self::showModalRack($request);
                         break;
+                    case 'show-modal-rack-detail':
+                        return self::showModalRackDetail($request);
+                        break;
+                    case 'show-modal-rack-edit':
+                        return self::showModalRackEdit($request);
+                        break;
                     case 'select-rack':
                         return self::selectRack($request);
                         break;
@@ -120,7 +126,7 @@ class StokAndiController extends Controller
                 return $data->total_stok;
             })
             ->addColumn('rack', function ($data) {
-                return '<button class="btn btn-light" data-toggle="modal" data-judul="' . $data->judul_final . '" data-total_stok="'.$data->total_stok.'" data-stok_id="' . $data->id . '" data-target="#modalRack" data-backdrop="static">
+                return '<button class="btn btn-light" data-toggle="modal" data-judul="' . $data->judul_final . '" data-total_stok="' . $data->total_stok . '" data-stok_id="' . $data->id . '" data-target="#modalRack" data-backdrop="static">
                 <i class="fas fa-border-all"></i> Rak Buku
                 </button>';
             })
@@ -196,9 +202,9 @@ class StokAndiController extends Controller
             $contentForm = self::contentForm();
 
             $totalMasuk = DB::table('pj_st_rack_data')
-            ->where('stok_id',$stok_id)
-            ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_diterima'))
-            ->get();
+                ->where('stok_id', $stok_id)
+                ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_diterima'))
+                ->get();
             return [
                 'stok_id' => $stok_id,
                 'total_stok' => $total_stok,
@@ -210,16 +216,142 @@ class StokAndiController extends Controller
             return abort(500, $e->getMessage());
         }
     }
+    protected function showModalRackDetail($request)
+    {
+        $content = '';
+        $rack_id = $request->rack_id;
+        $stok_id = $request->stok_id;
+        $nama_rak = $request->nama_rak;
+        $data = DB::table('pj_st_rack_data')
+            ->where('rack_id', $rack_id)
+            ->where('stok_id', $stok_id)
+            ->orderBy('created_at', 'DESC')->get();
+        $totalStok = DB::table('pj_st_rack_data')
+            ->where('rack_id', $rack_id)
+            ->where('stok_id', $stok_id)
+            ->orderBy('created_at', 'DESC')
+            ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_stok'))
+            ->get();
+        $content .= '<div class="scroll-riwayat">
+                            <table class="table table-striped" style="width:100%">
+                            <thead style="position: sticky;top:0">
+                              <tr>
+                                <th scope="col" style="background: #eee;">No</th>
+                                <th scope="col" style="background: #eee;">Operator Gudang</th>
+                                <th scope="col" style="background: #eee;">Jumlah</th>
+                                <th scope="col" style="background: #eee;">Tgl Masuk Gudang</th>
+                                <th scope="col" style="background: #eee;">Tgl Diinput</th>
+                                <th scope="col" style="background: #eee;">Otorisasi</th>
+                                <th scope="col" style="background: #eee;">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>';
+        foreach ($data as $i => $d) {
+            $i++;
+            $created_by = $d->created_by;
+            $d = (object)collect($d)->map(function ($item, $key) {
+                switch ($key) {
+                    case 'operators_id':
+                        foreach (json_decode($item) as $data) {
+                            $convert[] = DB::table('pj_st_op_master')->where('id', $data)->first()->nama;
+                        }
+                        $result = implode(", ", $convert);
+                        return $result;
+                        break;
+                    case 'tgl_masuk_stok':
+                        return Carbon::parse($item)->format('d-m-Y');
+                        break;
+                    case 'created_at':
+                        return Carbon::parse($item)->format('d-m-Y H:i');
+                        break;
+                    case 'created_by':
+                        return DB::table('users')->where('id', $item)->first()->nama;
+                        break;
+                    default:
+                        return is_null($item) ? '-' : $item;
+                        break;
+                }
+            })->all();
+            $content .= '<tr>
+                        <td id="row_num' . $i . '">' . $i . '<input type="hidden" name="task_number[]" value=' . $i . '></td>
+                        <td>' . $d->operators_id . '</td>
+                        <td>' . $d->jml_stok . '</td>
+                        <td>' . $d->tgl_masuk_stok . '</td>
+                        <td>' . $d->created_at . '</td>
+                        <td><a href="' . url('/manajemen-web/user/' . $created_by) . '">' . $d->created_by . '</a></td>
+                        <td><a href="javascript:void(0)"
+                        class="d-flex btn btn-sm btn-outline-warning btn-icon mr-1 mt-1" id="btnEditRack" data-rack_id="' . $d->rack_id . '" data-stok_id="' . $d->stok_id . '" data-id="' . $d->id . '" data-toggle="modal" data-target="#modalEditRack">
+                        <i class="fas fa-edit"></i></a>
+                        <a href="javascript:void(0)"
+                        class="d-flex btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRack" data-rack_id="' . $d->rack_id . '" data-stok_id="' . $d->stok_id . '" data-id="' . $d->id . '">
+                        <i class="fas fa-trash"></i></a></td>
+                        </tr>';
+        }
+        $content .= '</tbody>
+            </table>
+            </div>';
+        $popover = '<a href="javascript:void(0)" class="text-primary" tabindex="0" role="button"
+                data-toggle="popover" data-trigger="focus" title="Informasi"
+                data-content="Total stok yang ada di rak ' . $nama_rak . ' sejumlah ' . $totalStok[0]->total_stok . ' buku.">
+                <abbr title="">
+                <i class="fas fa-info-circle me-3"></i>
+                </abbr>
+                </a>';
+        return ['content' => $content, 'popover' => $popover];
+    }
+    protected function showModalRackEdit($request)
+    {
+        $id = $request->id;
+        $rack_id = $request->rack_id;
+        $stok_id = $request->stok_id;
+        $content = '';
+        $data = DB::table('pj_st_rack_data')
+        ->where('id',$id)
+        ->where('rack_id',$rack_id)
+        ->where('stok_id',$stok_id)->first();
+        $master = DB::table('pj_st_op_master')
+            ->whereNull('deleted_at')
+            ->get();
+        $content .= '<div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="inputJmlStok">Jumlah</label>
+            <input id="inputJmlStok" type="text" class="form-control" name="edit_jml_stok" value="'.$data->jml_stok.'" placeholder="Jumlah yang dimasukkan">
+            <div id="err_edit_jml_stok"></div>
+        </div>
+        <div class="form-group col-md-6">
+            <label>Masuk Gudang</label>
+            <input type="text" class="form-control datepicker" value="'.Carbon::parse($data->tgl_masuk_stok)->format('d F Y').'" name="edit_tgl_masuk_stok"
+                placeholder="DD/MM/YYYY">
+            <div id="err_edit_tgl_masuk_stok"></div>
+        </div>
+        </div>
+        <div class="form-group">
+            <label for="selectOptGudangEdit">Oleh</label>
+            <select id="selectOptGudangEdit" class="form-control selectOptGudangEdit" name="operators_id[]" multiple="multiple">';
+            foreach($master as $o) {
+                $sel = '';
+                if (in_array($o->id, json_decode($data->operators_id))) {
+                    $sel = ' selected="selected" ';
+                }
+                $content .='<option value="'.$o->id.'" '.$sel.'>'.$o->nama.'</option>';
+            }
+            $content .='</select>
+            <div id="err_operators_id"></div>
+        </div>';
+        return [
+            'content' => $content,
+        ];
+    }
     private function contentRack($data) //!BELUM
     {
         $contentRack = '';
         $contentRack .= '<div class="scroll-riwayat">
-                            <table class="table table-striped" style="width:100%" id="tableRiwayatKirim">
+                            <table class="table table-striped" style="width:100%">
                             <thead style="position: sticky;top:0">
                               <tr>
                                 <th scope="col" style="background: #eee;">No</th>
                                 <th scope="col" style="background: #eee;">Rak</th>
-                                <th scope="col" style="background: #eee;">Action</th>
+                                <th scope="col" style="background: #eee;">Detail</th>
                               </tr>
                             </thead>
                             <tbody>';
@@ -228,12 +360,9 @@ class StokAndiController extends Controller
             $contentRack .= '<tr>
                                   <td id="row_num' . $i . '">' . $i . '<input type="hidden" name="task_number[]" value=' . $i . '></td>
                                   <td>' . $kg->nama . '</td>
-                                  <td><a href="javascript:void(0)"
-                                  class="btn btn-sm btn-outline-warning btn-icon mr-1 mt-1" id="btnEditRiwayatKirim" data-stok_id="' . $kg->stok_id . '" data-toggle="modal" data-target="#modalEditRiwayatKirim">
-                                  <i class="fas fa-edit"></i></a>
-                                  <a href="javascript:void(0)"
-                                  class="btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-stok_id="' . $kg->stok_id . '" data-toggle="tooltip" title="Hapus Data">
-                                  <i class="fas fa-trash"></i></a></td>
+                                  <td><a href="javascript:void(0)" data-rack_id="' . $kg->rack_id . '" data-stok_id="' . $kg->stok_id . '" data-nama_rak="' . $kg->nama . '" id="btnDetailRak" data-toggle="modal" data-target="#modalDetailRack">
+                                  <span class="badge badge-primary"><i class="fas fa-info-circle"></i> Detail</span>
+                                  </a></td>
                                 </tr>';
         }
         $contentRack .= '</tbody>
@@ -275,9 +404,9 @@ class StokAndiController extends Controller
             $users_id = $request->users_id;
             $author = auth()->id();
             $check = DB::table('pj_st_rack_data')
-            ->where('stok_id',$stok_id)
-            ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_diterima'))
-            ->get();
+                ->where('stok_id', $stok_id)
+                ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_diterima'))
+                ->get();
             $totalMasuk = $check[0]->total_diterima + array_sum($jml_stok);
             if ($totalMasuk > $total_stok) {
                 return response()->json([

@@ -97,9 +97,7 @@ class HomeController extends Controller
         $naskah = Cache::rememberForever('naskahHome', function() {
             return DB::table('penerbitan_naskah')->whereNull('deleted_at')->get();
         });
-        $userdata = Cache::rememberForever('userHome', function() {
-            return DB::table('users')->where('id', Auth::id())->first();
-        });
+        $userdata =  DB::table('users')->where('id', Auth::id())->first();
         $imprint = Cache::rememberForever('imprintHome', function() {
             return DB::table('imprint')->get();
         });
