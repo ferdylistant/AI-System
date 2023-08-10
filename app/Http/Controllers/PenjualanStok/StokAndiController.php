@@ -401,7 +401,7 @@ class StokAndiController extends Controller
             $rak = $request->rak;
             $jml_stok = $request->jml_stok;
             $tgl_masuk_stok = $request->tgl_masuk_stok;
-            $users_id = $request->users_id;
+            $users_id = array_values($request->users_id);
             $author = auth()->id();
             $check = DB::table('pj_st_rack_data')
                 ->where('stok_id', $stok_id)

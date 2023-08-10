@@ -44,12 +44,10 @@
                             </div>
 
                         </div>
-                        <form id="fm_editRak">
-                            <div class="form-group">
-                                <label>Penempatan Rak</label>
-                                <div id="contentRack"></div>
-                            </div>
-                        </form>
+                        <div class="form-group">
+                            <label>Penempatan Rak</label>
+                            <div id="contentRack"></div>
+                        </div>
                         <form id="fm_addRak">
                             <div class="form-group">
                                 <label>Form Input Rak</label>
@@ -57,14 +55,17 @@
                                 <input type="hidden" name="total_stok" value="">
                                 <div id="contentForm" class="input_fields_wrap example-1 scrollbar-deep-purple thin"></div>
                             </div>
-                            <button type="button" class="add_field_button btn btn-dark">
-                                <i class="fas fa-plus-circle"></i> Tambah Rak</button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-file-import"></i> Submit</button>
-                        </form>
+
                     </div>
                 </div>
             </div>
+            <div class="modal-footer bg-whitesmoke br">
+                <button type="button" class="add_field_button btn btn-dark">
+                    <i class="fas fa-plus-circle"></i> Tambah Rak</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-file-import"></i> Submit</button>
+            </div>
+        </form>
         </div>
     </div>
 </div>

@@ -323,8 +323,8 @@ $(function () {
             e.preventDefault();
             if (x < max_fields) {
                 //max input box allowed
-                x++; //text box increment
                 var $index = x - 1;
+                x++; //text box increment
                 $(wrapper).append(
                     `<div class="input-group mb-1">
                     <div class="input-group-prepend">
