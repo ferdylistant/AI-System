@@ -36,14 +36,7 @@ $(function () {
         }
     };
     function datepickerGlobal() {
-        $('.datepicker').datepicker({
-            format: 'dd MM yyyy',
-            endDate: new Date(),
-            autoclose: true,
-            clearBtn: true,
-            todayHighlight: true,
-            zIndexOffset: 20,
-        });
+
     }
     $("#tb_penerimaanBuku").on("click", ".btn-tracker", function (e) {
         e.preventDefault();
@@ -72,8 +65,8 @@ $(function () {
     $('#modalRack').on('shown.bs.modal', function (e) {
         let stok_id = $(e.relatedTarget).data('stok_id'),
             total_stok = $(e.relatedTarget).data('total_stok')
-            judul = $(e.relatedTarget).data('judul')
-            cardWrap = $("#modalRack");
+        judul = $(e.relatedTarget).data('judul')
+        cardWrap = $("#modalRack");
         $.ajax({
             url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=show-modal-rack',
             type: 'GET',
@@ -91,13 +84,13 @@ $(function () {
                 cardWrap.find('[name="total_stok"]').val(result.total_stok).trigger('change');
                 cardWrap.find('#totalStok').text(result.total_stok).trigger('change');
                 cardWrap.find('#totalMasuk').text(result.total_masuk).trigger('change');
-                $('.counter').each(function() {
+                $('.counter').each(function () {
                     $(this).prop('Counter', 0).animate({
                         Counter: $(this).text()
                     }, {
                         duration: 3000,
                         easing: 'swing',
-                        step: function(now) {
+                        step: function (now) {
                             $(this).text(Math.ceil(now));
                         }
                     });
@@ -157,7 +150,14 @@ $(function () {
                         $(this).valid();
                     }
                 });
-                datepickerGlobal();
+                $('.datepicker').datepicker({
+                    format: 'dd MM yyyy',
+                    endDate: new Date(),
+                    autoclose: true,
+                    clearBtn: true,
+                    todayHighlight: true,
+                    container: '#modalRack .modal-body'
+                });
             },
             error: function (err) {
                 // console.log(err);
@@ -177,23 +177,23 @@ $(function () {
     });
     let addRack = jqueryValidation_('#fm_addRak', {
         "rack[]": {
-            required : true,
+            required: true,
         },
         "jml_stok[]": {
-            required : true,
+            required: true,
             number: true
         },
         "tgl_masuk_stok[]": {
-            required : true,
+            required: true,
             date: true
         },
         "users_id[]": {
-            required : true,
+            required: true,
         },
     });
     function ajaxAddRak(data) {
         let el = data.get(0),
-        cardWrap = $('#modalRack');
+            cardWrap = $('#modalRack');
 
         $.ajax({
             url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=add-data-rack',
@@ -205,7 +205,7 @@ $(function () {
                 cardWrap.addClass("modal-progress");
             },
             success: (res) => {
-                notifToast(res.status,res.message);
+                notifToast(res.status, res.message);
                 if (res.status === 'success') {
                     cardWrap.modal('hide');
                     tabelStok.ajax.reload()
@@ -230,7 +230,7 @@ $(function () {
             }
         });
     }
-    $('#fm_addRak').on('submit',function (e) {
+    $('#fm_addRak').on('submit', function (e) {
         e.preventDefault();
         if ($(this).valid()) {
             swal({
@@ -260,7 +260,7 @@ $(function () {
             },
             cache: false,
             success: function (result) {
-                cardWrap.find('#sectionTitle').html("Rack ("+nama_rak+") "+result.popover).trigger('change');
+                cardWrap.find('#sectionTitle').html("Rack (" + nama_rak + ") " + result.popover).trigger('change');
                 cardWrap.find('#contentDetailRack').html(result.content).trigger('change');
                 // cardWrap.find('#totalStok').text(result.total_stok).trigger('change');
                 $('[data-toggle="popover"]').popover();
@@ -274,44 +274,214 @@ $(function () {
                 cardWrap.removeClass('modal-progress')
             }
         });
+    });
+    $("#modalDetailRack").on("hidden.bs.modal", function (e) {
+        // let d = $(e.relatedTarget).attr('id','statusJob');
+        // console.log(d);
+        $(this).addClass("modal-progress");
+    });
+    $('#modalDetailRack').on('click', '#btnEditRack', function (e) {
+        e.preventDefault();
+        let rack_id = $(this).data('rack_id'),
+            stok_id = $(this).data('stok_id'),
+            id = $(this).data('id'),
+            cardWrap = $("#modalEditRack");
+        $.ajax({
+            url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=show-modal-rack-edit',
+            type: 'GET',
+            cache: false,
+            data: {
+                rack_id: rack_id,
+                stok_id: stok_id,
+                id: id
+            },
+            cache: false,
+            success: (result) => {
+                cardWrap.modal('show')
+                // $.fn.modal.Constructor.prototype._enforceFocus = function () { };
+                cardWrap.find('#contentEditRackModal').html(result);
+                $('#selectOptGudangEdit').select2({
+                    placeholder: 'Pilih operator gudang'
+                }).on("change", function (e) {
+                    if (this.value) {
+                        $(this).valid();
+                    }
+                });
+            },
+            error: (err) => {
+                console.log(err);
+                notifToast('error', err.statusText);
+                cardWrap.removeClass('modal-progress')
+            },
+            complete: function () {
+                cardWrap.removeClass('modal-progress')
+            }
+        });
+    });
+    $("#modalEditRack").on("hidden.bs.modal", function (e) {
+        // let d = $(e.relatedTarget).attr('id','statusJob');
+        // console.log(d);
+        $(this).find("form").trigger("reset");
+        $(this).addClass("modal-progress");
+    });
+
+    $('#modalEditRack').on('focus', '#datepickerEditRack', function (e) {
+        e.preventDefault();
+        $(this).datepicker({
+            format: 'dd MM yyyy',
+            endDate: new Date(),
+            autoclose: true,
+            clearBtn: true,
+            todayHighlight: true,
+            container: '#modalEditRack .modal-body',
+        });
     })
-    $(document).ready(function() {
-        $('#modalEditRack').on('show.bs.modal', function (e) {
-            let rack_id = $(e.relatedTarget).data('rack_id'),
-                stok_id = $(e.relatedTarget).data('stok_id'),
-                id = $(e.relatedTarget).data('id'),
-                cardWrap = $("#modalEditRack");
-            $.ajax({
-                url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=show-modal-rack-edit',
-                type: 'GET',
-                data: {
-                    rack_id: rack_id,
-                    stok_id: stok_id,
-                    id: id
-                },
-                cache: false,
-                success: function (result) {
-                    console.log(result);
-                    cardWrap.find('#contentEditRack').html(result.content);
-                    $('#selectOptGudangEdit').select2({
-                        placeholder: 'Pilih operator gudang'}).on("change", function (e) {
-                        if (this.value) {
-                            $(this).valid();
-                        }
+    let editRack = jqueryValidation_('#fm_EditRack', {
+        edit_jml_stok: {
+            required: true
+        },
+        edit_tgl_masuk_stok: {
+            required: true
+        },
+        "edit_operators_id[]": {
+            required: true
+        },
+    })
+    function ajaxEditRak(data) {
+        let el = data.get(0),
+            cardWrap = $('#modalEditRack');
+        cardWrap_Other = $('#modalDetailRack');
+        $.ajax({
+            url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=edit-data-rack',
+            type: 'POST',
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: () => {
+                cardWrap.addClass("modal-progress");
+            },
+            success: (res) => {
+                // console.log(res);
+                notifToast(res.status, res.message);
+                if (res.status === 'success') {
+                    cardWrap.modal('hide');
+                    cardWrap_Other.modal('hide');
+                    tabelStok.ajax.reload();
+                    $("#modalRack").find('#totalStok').text(result.total_stok).trigger('change');
+                    $("#modalRack").find('#totalMasuk').text(res.total_masuk).trigger('change');
+                    $('.counter').each(function () {
+                        $(this).prop('Counter', 0).animate({
+                            Counter: $(this).text()
+                        }, {
+                            duration: 3000,
+                            easing: 'swing',
+                            step: function (now) {
+                                $(this).text(Math.ceil(now));
+                            }
+                        });
                     });
-                    datepickerGlobal();
-                },
-                error: function (err) {
-                    console.log(err);
-                    notifToast('error', err.statusText);
-                    cardWrap.removeClass('modal-progress')
-                },
-                complete: function () {
-                    cardWrap.removeClass('modal-progress')
+                }
+            },
+            error: (err) => {
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    editRack.showErrors(err);
+                }
+                notifToast("error", err.statusText);
+                cardWrap.removeClass("modal-progress");
+            },
+            complete: () => {
+                cardWrap.removeClass("modal-progress");
+
+            }
+        });
+    }
+    $('#modalEditRack #fm_EditRack').on('submit', function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            swal({
+                title: 'Apakah perubahan sudah benar?',
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxEditRak($(this));
                 }
             });
-        })
+        }
     });
+    function ajaxDeleteRak(element,nama_rak, id, rack_id, stok_id) {
+        $.ajax({
+            url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=delete-data-rack',
+            type: 'POST',
+            data: {
+                id: id,
+                nama_rak: nama_rak,
+                rack_id: rack_id,
+                stok_id: stok_id
+            },
+            cache: false,
+            beforeSend: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", true)
+                    .addClass("btn-progress");
+            },
+            success: function (res) {
+                // console.log(res);
+                notifToast(res.status, res.message);
+                if (res.status == 'success') {
+                    $('#modalDetailRack').find('#sectionTitle').html("Rack (" + nama_rak + ") " + res.popover).trigger('change');
+                    $('[data-toggle="popover"]').popover();
+                    var i = 0;
+                    //remove post on table
+                    element.closest("tr").remove();
+                    // $(`#modalTrackProduksi #index_`+id).remove();
+                    $('#tableRackDetail').find('tbody tr').each(function (index) {
+                        // console.log(index);
+                        //change id of first tr
+                        $(this).find("td:eq(0)").attr("id", "row_num" + (index + 1))
+                        //change hidden input value
+                        $(this).find("td:eq(0)").html((index + 1) + '<input type="hidden" name="task_number[]" value=' + (index + 1) + '>')
+                    });
+                    i--;
+                }
+            },
+            error: function (err) {
+                notifToast("error", "Terjadi kesalahan!");
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+            complete: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+        });
+    }
+    $('#modalDetailRack').on('click', '#btnDeleteRack', function (e) {
+        e.preventDefault();
+        let id = $(this).data('id');
+        let nama_rak = $(this).data('nama_rak');
+        let rack_id = $(this).data('rack_id');
+        let stok_id = $(this).data('stok_id');
+        swal({
+            title: 'Apakah yakin ingin menghapus?',
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((confirm_) => {
+            if (confirm_) {
+                ajaxDeleteRak($(this),nama_rak, id,rack_id,stok_id);
+            }
+        });
+    })
     $(document).ready(function () {
         var max_fields = 20; //maximum input boxes allowed
         var wrapper = $(".input_fields_wrap"); //Fields wrapper
@@ -330,7 +500,7 @@ $(function () {
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Rak</span>
                     </div>
-                    <select id="selectRack`+x+`" class="form-control" name="rak[]" required></select>
+                    <select id="selectRack`+ x + `" class="form-control" name="rak[]" required></select>
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Jumlah</span>
                     </div>
@@ -343,15 +513,22 @@ $(function () {
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Oleh</span>
                     </div>
-                    <select id="selectOptGudang`+x+`" class="form-control" name="users_id[`+$index+`][]" multiple="multiple" required></select>
+                    <select id="selectOptGudang`+ x + `" class="form-control" name="users_id[` + $index + `][]" multiple="multiple" required></select>
                     <div class="input-group-append">
                         <button type="button" class="btn btn-outline-danger remove_field text-danger"
                             data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
                     </div>
                 </div>`
                 ); //add input box
-                datepickerGlobal();
-                $('#selectRack'+x).select2({
+                $('.datepicker').datepicker({
+                    format: 'dd MM yyyy',
+                    endDate: new Date(),
+                    autoclose: true,
+                    clearBtn: true,
+                    todayHighlight: true,
+                    container: '#modalRack .modal-body'
+                });
+                $('#selectRack' + x).select2({
                     placeholder: 'Pilih rak',
                     ajax: {
                         url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-rack',
@@ -378,7 +555,7 @@ $(function () {
                         $(this).valid();
                     }
                 });
-                $('#selectOptGudang'+x).select2({
+                $('#selectOptGudang' + x).select2({
                     placeholder: 'Pilih operator gudang',
                     ajax: {
                         url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-operator-gudang',

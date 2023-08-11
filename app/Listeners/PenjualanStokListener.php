@@ -58,6 +58,16 @@ class PenjualanStokListener
                 $res = DB::table('pj_st_rack_data')->insert($data['data']);
                 DB::commit();
                 break;
+            case 'Update Stock In Rack':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_rack_data')->where('id',$data['id'])->where('stok_id',$data['stok_id'])
+                ->update([
+                    'jml_stok' => $data['jml_stok'],
+                    'tgl_masuk_stok' => $data['tgl_masuk_stok'],
+                    'operators_id' => $data['operators_id']
+                ]);
+                DB::commit();
+                break;
             default:
             return abort(500);
             break;

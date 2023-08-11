@@ -76,6 +76,12 @@ class StokAndiController extends Controller
                     case 'add-data-rack':
                         return self::addDataRack($request);
                         break;
+                    case 'edit-data-rack':
+                        return self::editDataRack($request);
+                        break;
+                    case 'delete-data-rack':
+                        return self::deleteDataRack($request);
+                        break;
                 }
             }
         }
@@ -233,7 +239,7 @@ class StokAndiController extends Controller
             ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_stok'))
             ->get();
         $content .= '<div class="scroll-riwayat">
-                            <table class="table table-striped" style="width:100%">
+                            <table class="table table-striped" style="width:100%" id="tableRackDetail">
                             <thead style="position: sticky;top:0">
                               <tr>
                                 <th scope="col" style="background: #eee;">No</th>
@@ -273,17 +279,17 @@ class StokAndiController extends Controller
                 }
             })->all();
             $content .= '<tr>
-                        <td id="row_num' . $i . '">' . $i . '<input type="hidden" name="task_number[]" value=' . $i . '></td>
+                        <td id="row_num'. $i . '">'.$i.'<input type="hidden" name="task_number[]" value=' . $i . '></td>
                         <td>' . $d->operators_id . '</td>
                         <td>' . $d->jml_stok . '</td>
                         <td>' . $d->tgl_masuk_stok . '</td>
                         <td>' . $d->created_at . '</td>
                         <td><a href="' . url('/manajemen-web/user/' . $created_by) . '">' . $d->created_by . '</a></td>
                         <td><a href="javascript:void(0)"
-                        class="d-flex btn btn-sm btn-outline-warning btn-icon mr-1 mt-1" id="btnEditRack" data-rack_id="' . $d->rack_id . '" data-stok_id="' . $d->stok_id . '" data-id="' . $d->id . '" data-toggle="modal" data-target="#modalEditRack">
+                        class="d-flex btn btn-sm btn-outline-warning btn-icon mr-1 mt-1" id="btnEditRack" data-rack_id="' . $d->rack_id . '" data-stok_id="' . $d->stok_id . '" data-id="' . $d->id . '">
                         <i class="fas fa-edit"></i></a>
                         <a href="javascript:void(0)"
-                        class="d-flex btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRack" data-rack_id="' . $d->rack_id . '" data-stok_id="' . $d->stok_id . '" data-id="' . $d->id . '">
+                        class="d-flex btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRack" data-nama_rak="'.$nama_rak.'" data-rack_id="' . $d->rack_id . '" data-stok_id="' . $d->stok_id . '" data-id="' . $d->id . '">
                         <i class="fas fa-trash"></i></a></td>
                         </tr>';
         }
@@ -315,19 +321,21 @@ class StokAndiController extends Controller
         $content .= '<div class="form-row">
         <div class="form-group col-md-6">
             <label for="inputJmlStok">Jumlah</label>
+            <input type="hidden" name="edit_id" value="'.$data->id.'">
+            <input type="hidden" name="edit_stok_id" value="'.$data->stok_id.'">
             <input id="inputJmlStok" type="text" class="form-control" name="edit_jml_stok" value="'.$data->jml_stok.'" placeholder="Jumlah yang dimasukkan">
             <div id="err_edit_jml_stok"></div>
         </div>
         <div class="form-group col-md-6">
-            <label>Masuk Gudang</label>
-            <input type="text" class="form-control datepicker" value="'.Carbon::parse($data->tgl_masuk_stok)->format('d F Y').'" name="edit_tgl_masuk_stok"
-                placeholder="DD/MM/YYYY">
+            <label for="datepickerEditRack">Masuk Gudang</label>
+            <input type="text" class="form-control" value="'.Carbon::parse($data->tgl_masuk_stok)->format('d F Y').'" name="edit_tgl_masuk_stok"
+                placeholder="DD/MM/YYYY" id="datepickerEditRack">
             <div id="err_edit_tgl_masuk_stok"></div>
         </div>
         </div>
         <div class="form-group">
             <label for="selectOptGudangEdit">Oleh</label>
-            <select id="selectOptGudangEdit" class="form-control selectOptGudangEdit" name="operators_id[]" multiple="multiple">';
+            <select id="selectOptGudangEdit" class="form-control selectOptGudangEdit" name="edit_operators_id[]" multiple="multiple">';
             foreach($master as $o) {
                 $sel = '';
                 if (in_array($o->id, json_decode($data->operators_id))) {
@@ -336,13 +344,11 @@ class StokAndiController extends Controller
                 $content .='<option value="'.$o->id.'" '.$sel.'>'.$o->nama.'</option>';
             }
             $content .='</select>
-            <div id="err_operators_id"></div>
+            <div id="err_edit_operators_id"></div>
         </div>';
-        return [
-            'content' => $content,
-        ];
+        return response()->json($content);
     }
-    private function contentRack($data) //!BELUM
+    private function contentRack($data)
     {
         $contentRack = '';
         $contentRack .= '<div class="scroll-riwayat">
@@ -440,6 +446,86 @@ class StokAndiController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data stok berhasil ditempatkan pada rak!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function editDataRack($request)
+    {
+        try {
+            $id = $request->edit_id;
+            $stok_id = $request->edit_stok_id;
+            $jml_stok = $request->edit_jml_stok;
+            $tgl_masuk_stok = $request->edit_tgl_masuk_stok;
+            $operators_id = $request->edit_operators_id;
+            $total_stok = DB::table('pj_st_andi')->where('id',$stok_id)->select('total_stok')->first()->total_stok;
+            $check = DB::table('pj_st_rack_data')
+            ->where('stok_id', $stok_id)
+            ->where('id','<>',$id)
+            ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_diterima'))
+            ->get();
+            $totalMasuk = $check[0]->total_diterima + $jml_stok;
+            if ($totalMasuk > $total_stok) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Jumlah input melebihi total stok!'
+                ]);
+            }
+            $update = [
+                'params' => 'Update Stock In Rack',
+                'id' => $id,
+                'stok_id' => $stok_id,
+                'jml_stok'  => $jml_stok,
+                'tgl_masuk_stok'  => Carbon::createFromFormat('d F Y', $tgl_masuk_stok)->format('Y-m-d'),
+                'operators_id'  => json_encode($operators_id)
+            ];
+            event(new PenjualanStokEvent($update));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data stok berhasil diperbarui!',
+                'total_stok' => $total_stok,
+                'total_masuk' => $totalMasuk,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function deleteDataRack($request)
+    {
+        try {
+            $rack_id = $request->rack_id;
+            $stok_id = $request->stok_id;
+            $id = $request->id;
+            $nama_rak = $request->nama_rak;
+            DB::beginTransaction();
+            DB::table('pj_st_rack_data')->delete($id);
+            DB::commit();
+            $totalStok = DB::table('pj_st_rack_data')
+            ->where('rack_id', $rack_id)
+            ->where('stok_id', $stok_id)
+            ->orderBy('created_at', 'DESC')
+            ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_stok'))
+            ->get();
+            $popover = '<a href="javascript:void(0)" class="text-primary" tabindex="0" role="button"
+                data-toggle="popover" data-trigger="focus" title="Informasi"
+                data-content="Total stok yang ada di rak ' . $nama_rak . ' sejumlah ' . $totalStok[0]->total_stok . ' buku.">
+                <abbr title="">
+                <i class="fas fa-info-circle me-3"></i>
+                </abbr>
+                </a>';
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data stok berhasil diperbarui!',
+                'popover' => $popover
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

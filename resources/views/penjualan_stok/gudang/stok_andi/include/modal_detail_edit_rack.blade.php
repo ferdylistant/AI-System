@@ -3,7 +3,6 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <form id="fm_EditRack">
-                @CSRF
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalEditRackTitle"><i class="fas fa-edit"></i>&nbsp;Rack Edit</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -13,7 +12,7 @@
                 <div class="modal-body scrollbar-deep-purple" style="max-height: 500px; overflow-y: auto;">
                     <div class="section">
                         <div class="section-body">
-                            <div id="contentEditRack"></div>
+                            <div id="contentEditRackModal"></div>
                         </div>
                     </div>
                 </div>
