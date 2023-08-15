@@ -1,4 +1,4 @@
-$(function () {
+$(document).ready(function () {
     let tabelStok = $('#tb_stokGudangAndi').DataTable({
         "responsive": true,
         "autoWidth": false,
@@ -35,9 +35,6 @@ $(function () {
             window.location.reload();
         }
     };
-    function datepickerGlobal() {
-
-    }
     $("#tb_penerimaanBuku").on("click", ".btn-tracker", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
@@ -367,8 +364,9 @@ $(function () {
                     cardWrap.modal('hide');
                     cardWrap_Other.modal('hide');
                     tabelStok.ajax.reload();
-                    $("#modalRack").find('#totalStok').text(result.total_stok).trigger('change');
+                    $("#modalRack").find('#totalStok').text(res.total_stok).trigger('change');
                     $("#modalRack").find('#totalMasuk').text(res.total_masuk).trigger('change');
+                    $("#modalRack").find('#jumlahDalamRak'+res.rack_id).html(res.total_dalam_rak+' pcs').trigger('change');
                     $('.counter').each(function () {
                         $(this).prop('Counter', 0).animate({
                             Counter: $(this).text()

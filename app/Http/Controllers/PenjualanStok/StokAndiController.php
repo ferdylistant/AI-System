@@ -199,7 +199,14 @@ class StokAndiController extends Controller
                 })
                 ->leftJoin('pj_st_andi as st', 'rd.stok_id', '=', 'st.id')
                 ->where('rd.stok_id', $stok_id)
-                ->select('rd.*', 'rm.kode', 'rm.nama', 'st.total_stok')
+                ->select(
+                    'rd.*',
+                    'rm.kode',
+                    'rm.nama',
+                    'st.total_stok',
+                    DB::raw('IFNULL(SUM(rd.jml_stok),0) as total_diletakkan'),
+                    DB::raw('IFNULL(count(rd.id),0) as count_proses'
+                ))
                 ->orderBy('rd.created_at', 'ASC');
             $contentRack = '<p class="text-danger">Belum ada stok yang diiput dalam rak.</p>';
             if ($dataRack->exists()) {
@@ -322,6 +329,7 @@ class StokAndiController extends Controller
         <div class="form-group col-md-6">
             <label for="inputJmlStok">Jumlah</label>
             <input type="hidden" name="edit_id" value="'.$data->id.'">
+            <input type="hidden" name="edit_rack_id" value="'.$data->rack_id.'">
             <input type="hidden" name="edit_stok_id" value="'.$data->stok_id.'">
             <input id="inputJmlStok" type="text" class="form-control" name="edit_jml_stok" value="'.$data->jml_stok.'" placeholder="Jumlah yang dimasukkan">
             <div id="err_edit_jml_stok"></div>
@@ -357,6 +365,8 @@ class StokAndiController extends Controller
                               <tr>
                                 <th scope="col" style="background: #eee;">No</th>
                                 <th scope="col" style="background: #eee;">Rak</th>
+                                <th scope="col" style="background: #eee;">Peletakan Rak</th>
+                                <th scope="col" style="background: #eee;">Jumlah Buku</th>
                                 <th scope="col" style="background: #eee;">Detail</th>
                               </tr>
                             </thead>
@@ -366,6 +376,8 @@ class StokAndiController extends Controller
             $contentRack .= '<tr>
                                   <td id="row_num' . $i . '">' . $i . '<input type="hidden" name="task_number[]" value=' . $i . '></td>
                                   <td>' . $kg->nama . '</td>
+                                  <td>' . $kg->count_proses . ' kali</td>
+                                  <td id="jumlahDalamRak' . $kg->rack_id . '">' . $kg->total_diletakkan . ' pcs</td>
                                   <td><a href="javascript:void(0)" data-rack_id="' . $kg->rack_id . '" data-stok_id="' . $kg->stok_id . '" data-nama_rak="' . $kg->nama . '" id="btnDetailRak" data-toggle="modal" data-target="#modalDetailRack">
                                   <span class="badge badge-primary"><i class="fas fa-info-circle"></i> Detail</span>
                                   </a></td>
@@ -460,6 +472,7 @@ class StokAndiController extends Controller
         try {
             $id = $request->edit_id;
             $stok_id = $request->edit_stok_id;
+            $rack_id = $request->edit_rack_id;
             $jml_stok = $request->edit_jml_stok;
             $tgl_masuk_stok = $request->edit_tgl_masuk_stok;
             $operators_id = $request->edit_operators_id;
@@ -469,6 +482,7 @@ class StokAndiController extends Controller
             ->where('id','<>',$id)
             ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_diterima'))
             ->get();
+
             $totalMasuk = $check[0]->total_diterima + $jml_stok;
             if ($totalMasuk > $total_stok) {
                 return response()->json([
@@ -485,11 +499,18 @@ class StokAndiController extends Controller
                 'operators_id'  => json_encode($operators_id)
             ];
             event(new PenjualanStokEvent($update));
+            $totalDalamRak = DB::table('pj_st_rack_data')
+            ->where('rack_id',$rack_id)
+            ->where('stok_id', $stok_id)
+            ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_dalam_rak'))
+            ->get();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data stok berhasil diperbarui!',
                 'total_stok' => $total_stok,
                 'total_masuk' => $totalMasuk,
+                'total_dalam_rak' => $totalDalamRak[0]->total_dalam_rak,
+                'rack_id' => $rack_id,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
