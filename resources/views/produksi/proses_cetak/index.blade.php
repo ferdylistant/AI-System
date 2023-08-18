@@ -1,8 +1,9 @@
 @extends('layouts.app')
 
 @section('cssRequired')
-<link rel="stylesheet" href="{{ url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/rowreorder/1.2.3/css/rowReorder.dataTables.min.css">
     <link rel="stylesheet" type="text/css"
@@ -58,6 +59,7 @@
             overflow: auto;
             height: 250px;
         }
+
         .example-1 {
             position: relative;
             overflow-y: scroll;
@@ -69,49 +71,65 @@
             overflow-y: scroll;
             height: 400px;
         }
+
         .scroll-riwayat thead {
-        position: sticky; /* make the table heads sticky */
-        top: 0; /* table head will be placed from the top of the table and sticks to it */
-      }
+            position: sticky;
+            /* make the table heads sticky */
+            top: 0;
+            /* table head will be placed from the top of the table and sticks to it */
+        }
+
         .scroll-riwayat tfoot {
-        position: sticky; /* make the table heads sticky */
-        bottom: 0; /* table head will be placed from the top of the table and sticks to it */
-      }
-      #editCatatan.form-control {
-        height: 94px!important;
-      }
+            position: sticky;
+            /* make the table heads sticky */
+            bottom: 0;
+            /* table head will be placed from the top of the table and sticks to it */
+        }
+
+        #editCatatan.form-control {
+            height: 94px !important;
+        }
     </style>
 @endsection
 
 @section('content')
-<section class="section">
-    <div class="section-header">
-        <h1>Data Proses Produksi</h1>
-    </div>
-    <div class="section-body">
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-primary">
-                    <div class="card-body">
-                        <div class="col-12 table-responsive">
-                            <table class="table table-striped dt-responsive" id="tb_prosesProduksi" style="width:100%">
-                            </table>
+    <section class="section">
+        <div class="section-header">
+            <h1>Data Proses Produksi</h1>
+        </div>
+        <div class="section-body">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-primary">
+                        <div class="card-body">
+                            <div class="col-12 table-responsive">
+                                <table class="table table-striped dt-responsive" id="tb_prosesProduksi" style="width:100%">
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-@include('produksi.include.modal_track_produksi')
-@include('produksi.include.modal_edit_riwayatkirim')
-@include('produksi.include.modal_catatan')
-@include('tracker_modal')
+    </section>
+    @include('produksi.include.modal_track_produksi')
+    @include('produksi.include.modal_edit_riwayatkirim')
+    @include('produksi.include.modal_catatan')
+    @include('tracker_modal')
 @endsection
 
 @section('jsRequired')
-<script src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
@@ -121,9 +139,9 @@
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
-        <script src="https://unpkg.com/imask"></script>
+    <script src="https://unpkg.com/imask"></script>
 @endsection
 
 @section('jsNeeded')
-<script src="{{ url('js/produksi/update_progress_produksi_cetak.js') }}"></script>
+    <script src="{{ url('js/produksi/update_progress_produksi_cetak.js') }}"></script>
 @endsection

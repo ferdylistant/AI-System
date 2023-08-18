@@ -2,6 +2,38 @@ $(function () {
     let tableProduksi = $('#tb_prosesProduksi').DataTable({
         "responsive": true,
         "autoWidth": false,
+        dom: 'Bfrtip',
+        buttons: [
+            'pageLength',
+            'spacer',
+            {
+                extend: 'collection',
+                text: 'Exports',
+                buttons: [
+                    {
+                        extend: 'print',
+                        text: '<i class="text-secondary bi bi-printer"></i> Print',
+                        exportOptions: {
+                            columns: [0,1,2,4,5,6,7,8,9]
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="text-danger bi bi-filetype-pdf"></i> PDF',
+                        exportOptions: {
+                            columns: [0,1,2,4,5,6,7,8,9]
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="text-success bi bi-filetype-xlsx"></i> Excel',
+                        exportOptions: {
+                            columns: [0,1,2,4,5,6,7,8,9]
+                        }
+                    },
+                ]
+            },
+        ],
         pagingType: "input",
         processing: true,
         serverSide: false,
@@ -12,6 +44,14 @@ $(function () {
         },
         ajax: {
             url: window.location.origin + "/produksi/proses/cetak",
+            complete: () => {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl,{
+                        trigger : 'hover'
+                    })
+                })
+            }
         },
         columns: [
             // { data: 'no', name: 'no', title: 'No' },
@@ -27,6 +67,11 @@ $(function () {
             { data: 'tracking', name: 'tracking', title: 'Tracking', width: "100%", },
             { data: 'tracking_timeline', name: 'tracking_timeline', title: 'Tracking Timeline' },
             { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false },
+        ]
+    });
+    new $.fn.dataTable.Buttons(tableProduksi, {
+        buttons: [
+            'print', 'excel', 'pdf'
         ]
     });
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {

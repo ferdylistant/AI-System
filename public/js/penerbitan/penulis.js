@@ -4,6 +4,38 @@ $(function () {
         "responsive": true,
         "autoWidth": false,
         "aaSorting": [],
+        dom: 'Bfrtip',
+        buttons: [
+            'pageLength',
+            'spacer',
+            {
+                extend: 'collection',
+                text: 'Exports',
+                buttons: [
+                    {
+                        extend: 'print',
+                        text: '<i class="text-secondary bi bi-printer"></i> Print',
+                        exportOptions: {
+                            columns: 'th:not(:last-child)'
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="text-danger bi bi-filetype-pdf"></i> PDF',
+                        exportOptions: {
+                            columns: 'th:not(:last-child)'
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="text-success bi bi-filetype-xlsx"></i> Excel',
+                        exportOptions: {
+                            columns: 'th:not(:last-child)'
+                        }
+                    },
+                ]
+            },
+        ],
         pagingType: "input",
         processing: true,
         serverSide: false,
@@ -52,6 +84,11 @@ $(function () {
                 orderable: false,
             },
         ],
+    });
+    new $.fn.dataTable.Buttons(tablePenulis, {
+        buttons: [
+            'print', 'excel', 'pdf'
+        ]
     });
     loadCountData();
     // History Penulis Start

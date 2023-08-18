@@ -214,7 +214,7 @@ class ProsesProduksiController extends Controller
                     })
                     ->addColumn('action', function ($data) use ($update) {
                         $btn = '<a href="' . url('produksi/proses/cetak/detail?no=' . $data->kode_order . '&naskah=' . $data->kode) . '"
-                                    class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
+                                    class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" data-placement="top" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                         if ($update) {
                             $btn .= '<a href="' . url('produksi/proses/cetak/edit?no=' . $data->kode_order . '&naskah=' . $data->kode) . '"

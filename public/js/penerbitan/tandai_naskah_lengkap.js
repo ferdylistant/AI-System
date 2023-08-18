@@ -3,9 +3,9 @@ function loadData() {
         url: window.location.origin + "/penerbitan/naskah?request_=getCountNaskah",
         type: "GET",
         dataType: "JSON",
-        success: function(data) {
+        success: function (data) {
             // console.log(data);
-            $("#totalNaskah").prop('Counter',0).animate({
+            $("#totalNaskah").prop('Counter', 0).animate({
                 Counter: data
             }, {
                 duration: 4000,
@@ -17,7 +17,7 @@ function loadData() {
         },
     });
 }
-$(function() {
+$(document).ready(function () {
     $(".select-filter-jb").val("").trigger("change");
     $(".select-filter").val("").trigger("change");
     let tableNaskah = $('#tb_Naskah').DataTable({
@@ -25,6 +25,38 @@ $(function() {
         "responsive": true,
         "autoWidth": false,
         "aaSorting": [],
+        dom: 'Bfrtip',
+        buttons: [
+            'pageLength',
+            'spacer',
+            {
+                extend: 'collection',
+                text: 'Exports',
+                buttons: [
+                    {
+                        extend: 'print',
+                        text: '<i class="text-secondary bi bi-printer"></i> Print',
+                        exportOptions: {
+                            columns: 'th:not(:last-child)'
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="text-danger bi bi-filetype-pdf"></i> PDF',
+                        exportOptions: {
+                            columns: 'th:not(:last-child)'
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="text-success bi bi-filetype-xlsx"></i> Excel',
+                        exportOptions: {
+                            columns: 'th:not(:last-child)'
+                        }
+                    },
+                ]
+            },
+        ],
         pagingType: 'input',
         processing: true,
         serverSide: false,
@@ -35,63 +67,77 @@ $(function() {
         },
         ajax: {
             url: window.location.origin + "/penerbitan/naskah",
+            complete: () => {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl,{
+                        trigger : 'hover'
+                    })
+                })
+            }
         },
         columns: [{
-                data: 'kode',
-                name: 'kode',
-                title: 'Kode'
-            },
-            {
-                data: 'judul_asli',
-                name: 'judul_asli',
-                title: 'Judul Asli'
-            },
-            {
-                data: 'pic_prodev',
-                name: 'pic_prodev',
-                title: 'PIC Prodev'
-            },
-            {
-                data: 'jalur_buku',
-                name: 'jalur_buku',
-                title: 'Jalur Buku'
-            },
-            {
-                data: 'masuk_naskah',
-                name: 'masuk_naskah',
-                title: 'Masuk Naskah'
-            },
-            {
-                data: 'created_by',
-                name: 'created_by',
-                title: 'Pembuat Naskah'
-            },
-            {
-                data: 'stts_penilaian',
-                name: 'stts_penilaian',
-                title: 'Penilaian'
-            },
-            {
-                data: 'history',
-                name: 'history',
-                title: 'History'
-            },
-            {
-                data: 'tracker',
-                name: 'tracker',
-                title: 'Tracker'
-            },
-            {
-                data: 'action',
-                name: 'action',
-                title: 'Action',
-                searchable: false,
-                orderable: false
-            },
+            data: 'kode',
+            name: 'kode',
+            title: 'Kode'
+        },
+        {
+            data: 'judul_asli',
+            name: 'judul_asli',
+            title: 'Judul Asli'
+        },
+        {
+            data: 'pic_prodev',
+            name: 'pic_prodev',
+            title: 'PIC Prodev'
+        },
+        {
+            data: 'jalur_buku',
+            name: 'jalur_buku',
+            title: 'Jalur Buku'
+        },
+        {
+            data: 'masuk_naskah',
+            name: 'masuk_naskah',
+            title: 'Masuk Naskah'
+        },
+        {
+            data: 'created_by',
+            name: 'created_by',
+            title: 'Pembuat Naskah'
+        },
+        {
+            data: 'stts_penilaian',
+            name: 'stts_penilaian',
+            title: 'Penilaian'
+        },
+        {
+            data: 'history',
+            name: 'history',
+            title: 'History'
+        },
+        {
+            data: 'tracker',
+            name: 'tracker',
+            title: 'Tracker'
+        },
+        {
+            data: 'action',
+            name: 'action',
+            title: 'Action',
+            searchable: false,
+            orderable: false
+        },
         ],
     });
+    new $.fn.dataTable.Buttons(tableNaskah, {
+        buttons: [
+            'print', 'excel', 'pdf'
+        ]
+    });
+
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
-        notifToast("error",settings.jqXHR.statusText)
+        notifToast("error", settings.jqXHR.statusText)
         if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
             window.location.reload();
         }
@@ -103,7 +149,7 @@ $(function() {
     //     var info = tableNaskah.page.info();
     //     console.log(info.pages);
     // });
-    $('[name="status_filter_jb"]').on('change', function() {
+    $('[name="status_filter_jb"]').on('change', function () {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());
         tableNaskah.column($(this).data('column'))
             .search(val ? val : '', true, false)
@@ -117,11 +163,11 @@ $(function() {
                 beforeSend: function () {
                     cardWrap.addClass("card-progress");
                 },
-                success: function(data) {
+                success: function (data) {
                     // console.log(data);
                     $("#countPenilaian").attr("hidden", false);
                     $("#countPenilaian").html(data.html);
-                    $("#naskahBelumDinilai").prop('Counter',0).animate({
+                    $("#naskahBelumDinilai").prop('Counter', 0).animate({
                         Counter: data.belumDinilai
                     }, {
                         duration: 4000,
@@ -130,7 +176,7 @@ $(function() {
                             $(this).text(Math.ceil(now) + ' Naskah');
                         }
                     });
-                    $("#animate-count-prodev").prop('Counter',0).animate({
+                    $("#animate-count-prodev").prop('Counter', 0).animate({
                         Counter: data.countProdev
                     }, {
                         duration: 4000,
@@ -139,7 +185,7 @@ $(function() {
                             $(this).text(Math.ceil(now));
                         }
                     });
-                    $("#animate-count-mpenerbitan").prop('Counter',0).animate({
+                    $("#animate-count-mpenerbitan").prop('Counter', 0).animate({
                         Counter: data.countMPenerbitan
                     }, {
                         duration: 4000,
@@ -148,7 +194,7 @@ $(function() {
                             $(this).text(Math.ceil(now));
                         }
                     });
-                    $("#animate-count-mpemasaran").prop('Counter',0).animate({
+                    $("#animate-count-mpemasaran").prop('Counter', 0).animate({
                         Counter: data.countMPemasaran
                     }, {
                         duration: 4000,
@@ -157,7 +203,7 @@ $(function() {
                             $(this).text(Math.ceil(now));
                         }
                     });
-                    $("#animate-count-dpemasaran").prop('Counter',0).animate({
+                    $("#animate-count-dpemasaran").prop('Counter', 0).animate({
                         Counter: data.countDPemasaran
                     }, {
                         duration: 4000,
@@ -166,7 +212,7 @@ $(function() {
                             $(this).text(Math.ceil(now));
                         }
                     });
-                    $("#animate-count-direksi").prop('Counter',0).animate({
+                    $("#animate-count-direksi").prop('Counter', 0).animate({
                         Counter: data.countDireksi
                     }, {
                         duration: 4000,
@@ -183,13 +229,13 @@ $(function() {
             });
         } else {
             cardWrap.addClass("card-progress");
-            setTimeout(function() {
+            setTimeout(function () {
                 cardWrap.removeClass("card-progress");
             }, 1000);
             $("#countPenilaian").attr("hidden", true);
         }
     });
-    $('[name="status_filter"]').on('change', function() {
+    $('[name="status_filter"]').on('change', function () {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());
         tableNaskah.column($(this).data('column'))
             .search(val ? val : '', true, false)
@@ -270,7 +316,7 @@ $(function() {
                     notifToast("error", "Tidak ada data lagi");
                 } else {
                     $("#dataHistoryNaskah").append(response);
-                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
+                    $('.thin').animate({ scrollTop: $('.thin').prop("scrollHeight") }, 800);
                 }
             },
             complete: function (params) {
@@ -283,41 +329,33 @@ $(function() {
         $('.load-more').data("paginate", 2);
         $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
-    $(document).ready(function() {
-        $(".select-filter-jb")
-            .select2({
-                placeholder: "Filter Jalur Buku",
-            })
-            .on("change", function(e) {
-                if (this.value) {
-                    $(".clear_field_jb").removeAttr("hidden");
-                    // $(this).valid();
-                }
-            });
-    });
-    $(document).ready(function() {
-        $(".clear_field_jb").click(function() {
-            $(".select-filter-jb").val("").trigger("change");
-            $(".clear_field_jb").attr("hidden", "hidden");
-        });
-    });
-    $(document).ready(function() {
-        $(".select-filter").select2({
-            placeholder: 'Filter Data Lengkap/Belum\xa0\xa0',
-        }).on('change', function(e) {
+    $(".select-filter-jb")
+        .select2({
+            placeholder: "Filter Jalur Buku",
+        })
+        .on("change", function (e) {
             if (this.value) {
-                $('.clear_field').removeAttr('hidden');
+                $(".clear_field_jb").removeAttr("hidden");
                 // $(this).valid();
             }
         });
+    $(".clear_field_jb").click(function () {
+        $(".select-filter-jb").val("").trigger("change");
+        $(".clear_field_jb").attr("hidden", "hidden");
     });
-    $(document).ready(function() {
-        $('.clear_field').click(function() {
-            $(".select-filter").val('').trigger('change');
-            $('.clear_field').attr('hidden', 'hidden');
-        });
+    $(".select-filter").select2({
+        placeholder: 'Filter Data Lengkap/Belum\xa0\xa0',
+    }).on('change', function (e) {
+        if (this.value) {
+            $('.clear_field').removeAttr('hidden');
+            // $(this).valid();
+        }
     });
-    $(document).on("click",".action-modal",function(e){
+    $('.clear_field').click(function () {
+        $(".select-filter").val('').trigger('change');
+        $('.clear_field').attr('hidden', 'hidden');
+    });
+    $(document).on("click", ".action-modal", function (e) {
         e.preventDefault();
         let role = $(this).data('role');
         let cardWrap = $(this).closest(".card");
@@ -326,7 +364,7 @@ $(function() {
             url: window.location.origin + "/penerbitan/naskah?request_=getModalDetailJumlahPenilaian",
             type: 'GET',
             data: {
-                role : role
+                role: role
             },
             cache: false,
             beforeSend: function () {
@@ -336,13 +374,13 @@ $(function() {
                 $("#modalPenilaian").find("#titleModalPenilaian").text(data.titleModal);
                 $("#modalPenilaian").find("#totalNaskahDinilai").text(data.totalNaskah);
                 $("#modalPenilaian").find("#contentModal").html(data.content);
-                $("#modalPenilaian").find("#boxContent").attr('style','box-shadow:'+data.style);
-                $("#modalPenilaian").find("#badgeTotal").addClass('badge '+data.class);
-                $("#modalPenilaian").find("#scrollBar").addClass('container-fluid p-3 example-2 '+data.scroll+' thin');
+                $("#modalPenilaian").find("#boxContent").attr('style', 'box-shadow:' + data.style);
+                $("#modalPenilaian").find("#badgeTotal").addClass('badge ' + data.class);
+                $("#modalPenilaian").find("#scrollBar").addClass('container-fluid p-3 example-2 ' + data.scroll + ' thin');
                 $("#modalPenilaian").modal("show");
             },
             error: function (err) {
-                notifToast("error","Gagal memuat!");
+                notifToast("error", "Gagal memuat!");
             },
             complete: function () {
                 cardWrap.removeClass('card-progress');
@@ -474,7 +512,7 @@ $(function() {
         });
     });
 });
-$(function() {
+$(document).ready(function () {
     let tableRestoreNaskah = $('#tb_RestoreNaskah').DataTable({
         // "bSort": false,
         "responsive": true,
@@ -534,7 +572,7 @@ $(function() {
             },
         ],
     });
-    $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
+    $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
         console.log(message);
         notifToast("error", message)
     };
@@ -545,31 +583,31 @@ $(function() {
             url: window.location.origin +
                 "/penerbitan/naskah/restore",
             data: data,
-            beforeSend: function() {
+            beforeSend: function () {
                 cardWrap.addClass("card-progress");
             },
-            success: function(result) {
+            success: function (result) {
                 if (result.status == "success") {
                     tableRestoreNaskah.ajax.reload();
                 }
                 notifToast(result.status, result.message);
             },
-            error: function(err) {
+            error: function (err) {
                 console.log(err);
                 cardWrap.removeClass("card-progress");
-                notifToast('error','Terjadi kesalahan!')
+                notifToast('error', 'Terjadi kesalahan!')
             },
-            complete: function() {
+            complete: function () {
                 cardWrap.removeClass("card-progress");
             },
         });
     }
-    $('#tb_RestoreNaskah').on("click", ".btn-restore-naskah", function(e) {
+    $('#tb_RestoreNaskah').on("click", ".btn-restore-naskah", function (e) {
         let judul = $(this).data("judul"),
             id = $(this).data("id"),
             kode = $(this).data("kode");
         swal({
-            text: "Kembalikan data naskah (" +kode+'-'+ judul + ")?",
+            text: "Kembalikan data naskah (" + kode + '-' + judul + ")?",
             icon: "warning",
             buttons: true,
             dangerMode: true,
