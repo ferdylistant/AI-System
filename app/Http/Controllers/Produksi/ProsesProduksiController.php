@@ -478,6 +478,8 @@ class ProsesProduksiController extends Controller
                 ->orderBy('created_at','asc')
                 ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_diterima'))
                 ->get();
+                $totalKekurangan = $data->jumlah_cetak - $totalDiterima[0]->total_diterima;
+                $totalKekurangan = $totalDiterima[0]->total_diterima > $data->jumlah_cetak ? 0:$totalKekurangan;
                 $addContent .='<div class="form-group">
                         <label for="historyKirim">Riwayat Kirim</label>
                             <div class="scroll-riwayat">
@@ -554,6 +556,7 @@ class ProsesProduksiController extends Controller
                             background: linear-gradient(to right, #6777ef, #141517);
                             " role="alert">
                                 <div class="col-auto">
+                                    <span class="bullet"></span><span>Total Oplah</span><br>
                                     <span class="bullet"></span><span>Total Kirim</span><br>
                                     <span class="bullet"></span><span>Total Diterima  <a href="javascript:void(0)" class="text-warning" tabindex="0" role="button"
                                     data-toggle="popover" data-trigger="focus" title="Informasi"
@@ -561,11 +564,14 @@ class ProsesProduksiController extends Controller
                                     <abbr title="">
                                     <i class="fas fa-info-circle me-3"></i>
                                     </abbr>
-                                    </a></span>
+                                    </a></span><br>
+                                    <span class="bullet"></span><span>Total Kekurangan</span><br>
                                 </div>
                                 <div class="col-auto">
+                                <span class="text-center">' . $data->jumlah_cetak . ' eks</span><br>
                                     <span class="text-center" id="totDikirim">'.$totalKirim.' eks</span><br>
-                                    <span class="text-center">'.$totalDiterima[0]->total_diterima.' eks</span>
+                                    <span class="text-center">'.$totalDiterima[0]->total_diterima.' eks</span><br>
+                                    <span class="text-center" id="totKekurangan">' . $totalKekurangan. ' eks</span>
                                 </div>
                             </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
@@ -588,6 +594,8 @@ class ProsesProduksiController extends Controller
                 ->orderBy('created_at','asc')
                 ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_diterima'))
                 ->get();
+                $totalKekurangan = $data->jumlah_cetak - $totalDiterima[0]->total_diterima;
+                $totalKekurangan = $totalDiterima[0]->total_diterima > $data->jumlah_cetak ? 0:$totalKekurangan;
                 $addContent .='<div class="form-group">
                         <label for="historyKirim">Riwayat Kirim</label>
                             <div class="scroll-riwayat">
@@ -652,6 +660,7 @@ class ProsesProduksiController extends Controller
                             background: linear-gradient(to right, #6777ef, #141517);
                             " role="alert">
                                 <div class="col-auto">
+                                    <span class="bullet"></span><span>Total Oplah</span><br>
                                     <span class="bullet"></span><span>Total Kirim</span><br>
                                     <span class="bullet"></span><span>Total Diterima  <a href="javascript:void(0)" class="text-warning" tabindex="0" role="button"
                                     data-toggle="popover" data-trigger="focus" title="Informasi"
@@ -659,11 +668,14 @@ class ProsesProduksiController extends Controller
                                     <abbr title="">
                                     <i class="fas fa-info-circle me-3"></i>
                                     </abbr>
-                                    </a></span>
+                                    </a></span><br>
+                                    <span class="bullet"></span><span>Total Kekurangan</span><br>
                                 </div>
                                 <div class="col-auto">
+                                <span class="text-center">' . $data->jumlah_cetak . ' eks</span><br>
                                     <span class="text-center">'.$totalKirim.' eks</span><br>
-                                    <span class="text-center">'.$totalDiterima[0]->total_diterima.' eks</span>
+                                    <span class="text-center">'.$totalDiterima[0]->total_diterima.' eks</span><br>
+                                    <span class="text-center" id="totKekurangan">' . $totalKekurangan. ' eks</span>
                                 </div>
                             </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';

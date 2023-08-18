@@ -354,7 +354,7 @@ class OrderCetakController extends Controller
                     }
                     return $item;
                 })->all();
-                if ($data->status == 'Proses' || ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                if ($data->status == 'Proses' || ($data->status == 'Selesai' && (Gate::allows('do_approval', 'approval-deskripsi-produk') || Gate::allows('do_update', 'update-order-cetak')))) {
                     $disableBtn = false;
                     $cursorBtn = 'pointer';
                 } else {

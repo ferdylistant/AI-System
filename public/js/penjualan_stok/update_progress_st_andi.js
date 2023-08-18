@@ -93,7 +93,7 @@ $(document).ready(function () {
                     });
                 });
                 $('[data-toggle="popover"]').popover();
-                $('#selectRack').select2({
+                $('.select-rack').select2({
                     placeholder: 'Pilih rak',
                     ajax: {
                         url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-rack',
@@ -120,7 +120,7 @@ $(document).ready(function () {
                         $(this).valid();
                     }
                 });
-                $('#selectOptGudang').select2({
+                $('.select-optgudang').select2({
                     placeholder: 'Pilih operator gudang',
                     ajax: {
                         url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-operator-gudang',
@@ -202,6 +202,7 @@ $(document).ready(function () {
                 cardWrap.addClass("modal-progress");
             },
             success: (res) => {
+                console.log(res);
                 notifToast(res.status, res.message);
                 if (res.status === 'success') {
                     cardWrap.modal('hide');
@@ -209,6 +210,7 @@ $(document).ready(function () {
                 }
             },
             error: (err) => {
+                console.log(err);
                 rs = err.responseJSON.errors;
                 if (rs != undefined) {
                     err = {};
@@ -491,14 +493,13 @@ $(document).ready(function () {
             e.preventDefault();
             if (x < max_fields) {
                 //max input box allowed
-                var $index = x - 1;
                 x++; //text box increment
                 $(wrapper).append(
                     `<div class="input-group mb-1">
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Rak</span>
                     </div>
-                    <select id="selectRack`+ x + `" class="form-control" name="rak[]" required></select>
+                    <select class="form-control select-rack" name="rak[]" required></select>
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Jumlah</span>
                     </div>
@@ -511,7 +512,7 @@ $(document).ready(function () {
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light text-dark" id="">Oleh</span>
                     </div>
-                    <select id="selectOptGudang`+ x + `" class="form-control" name="users_id[` + $index + `][]" multiple="multiple" required></select>
+                    <select class="form-control select-optgudang" name="users_id[` + x + `][]" multiple="multiple" required></select>
                     <div class="input-group-append">
                         <button type="button" class="btn btn-outline-danger remove_field text-danger"
                             data-toggle="tooltip" title="Batal Edit"><i class="fas fa-times"></i></button>
@@ -526,7 +527,7 @@ $(document).ready(function () {
                     todayHighlight: true,
                     container: '#modalRack .modal-body'
                 });
-                $('#selectRack' + x).select2({
+                $('.select-rack').select2({
                     placeholder: 'Pilih rak',
                     ajax: {
                         url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-rack',
@@ -553,7 +554,7 @@ $(document).ready(function () {
                         $(this).valid();
                     }
                 });
-                $('#selectOptGudang' + x).select2({
+                $('.select-optgudang').select2({
                     placeholder: 'Pilih operator gudang',
                     ajax: {
                         url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-operator-gudang',

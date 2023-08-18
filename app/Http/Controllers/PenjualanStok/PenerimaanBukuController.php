@@ -167,7 +167,7 @@ class PenerimaanBukuController extends Controller
                     $res = '<button class="btn btn-sm btn-light btn-icon position-relative" data-track_id="' . $dataTrack->id . '"
                     data-judulfinal="' . $data->judul_final . '" data-status="' . $dataTrack->status . '" data-naskah_id="' . $data->naskah_id . '"
                     data-produksi_id="' . $dataTrack->produksi_id . '" data-proses_tahap="' . $dataTrack->proses_tahap . '"
-                    data-statuscolor="' . $statusColor . '" data-toggle="modal" data-target="#modalPenerimaanBuku" data-backdrop="static">
+                    data-statuscolor="' . $statusColor . '" data-jml_cetak="'.$data->jumlah_cetak.'" data-toggle="modal" data-target="#modalPenerimaanBuku" data-backdrop="static">
                     <i class="fas fa-truck-loading"></i> Pengiriman
                     <span class="position-absolute translate-middle p-1 bg-' . $statusColor . ' border border-light rounded-circle" style="top:0;right:0">
                     </span>
@@ -234,6 +234,7 @@ class PenerimaanBukuController extends Controller
         try {
             $content = '';
             $track_id = $request->track_id;
+            $jml_cetak = $request->jml_cetak;
             $data = DB::table('proses_produksi_track_riwayat')->where('track_id', $track_id)->get();
             $totalDiterima = DB::table('proses_produksi_track_riwayat')
                 ->whereNotNull('tgl_diterima')
@@ -241,6 +242,8 @@ class PenerimaanBukuController extends Controller
                 ->orderBy('created_at', 'asc')
                 ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_diterima'))
                 ->get();
+            $totalKekurangan = $jml_cetak - $totalDiterima[0]->total_diterima;
+            $totalKekurangan = $totalDiterima[0]->total_diterima > $jml_cetak ? 0:$totalKekurangan;
             $content .= '
                     <div class="form-group">
                         <label for="historyKirim">Riwayat Kirim</label>
@@ -265,7 +268,7 @@ class PenerimaanBukuController extends Controller
                     $btnAction = '<span class="badge badge-light">No action</span>';
                 } else {
                     $btnAction = '<button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
-                    id="btnTerimaBuku" data-id="' . $kg->id . '" data-jml_diterima="' . $kg->jml_dikirim . '">
+                    id="btnTerimaBuku" data-id="' . $kg->id . '" data-jml_cetak="'.$jml_cetak.'" data-jml_diterima="' . $kg->jml_dikirim . '">
                                     Terima</button>';
                 }
                 $kg = (object)collect($kg)->map(function ($item, $key) {
@@ -307,6 +310,7 @@ class PenerimaanBukuController extends Controller
             background: linear-gradient(to right, #6777ef, #141517);
             " role="alert">
                 <div class="col-auto">
+                    <span class="bullet"></span><span>Total Oplah</span><br>
                     <span class="bullet"></span><span>Total Kirim</span><br>
                     <span class="bullet"></span><span>Total Diterima  <a href="javascript:void(0)" class="text-warning" tabindex="0" role="button"
                     data-toggle="popover" data-trigger="focus" title="Informasi"
@@ -314,11 +318,14 @@ class PenerimaanBukuController extends Controller
                     <abbr title="">
                     <i class="fas fa-info-circle me-3"></i>
                     </abbr>
-                    </a></span>
+                    </a></span><br>
+                    <span class="bullet"></span><span>Total Kekurangan</span><br>
                 </div>
                 <div class="col-auto">
+                    <span class="text-center">' . $jml_cetak . ' eks</span><br>
                     <span class="text-center" id="totDikirim">' . $totalKirim . ' eks</span><br>
-                    <span class="text-center" id="totDiterima">' . $totalDiterima[0]->total_diterima . ' eks</span>
+                    <span class="text-center" id="totDiterima">' . $totalDiterima[0]->total_diterima . ' eks</span><br>
+                    <span class="text-center" id="totKekurangan">' . $totalKekurangan. ' eks</span>
                 </div>
             </div>';
             return [
@@ -332,6 +339,7 @@ class PenerimaanBukuController extends Controller
     {
         try {
             $id = $request->id;
+            $jml_cetak = $request->jml_cetak;
             $jml_diterima = $request->jml_diterima;
             $naskah_id = $request->naskah_id;
             $produksi_id = $request->produksi_id;
@@ -346,6 +354,7 @@ class PenerimaanBukuController extends Controller
                 ]);
             }
             $data = DB::table('pj_st_andi')->where('naskah_id', $naskah_id);
+
             if ($data->exists()) {
                 //! Jumlah stok ditotal
                 $jml_diterima = $data->first()->total_stok + $jml_diterima;
@@ -401,6 +410,9 @@ class PenerimaanBukuController extends Controller
                 'status_new' => 'selesai',
             ];
             event(new ProduksiEvent($update));
+
+            $totalKekurangan = $jml_cetak - $jml_diterima;
+            $totalKekurangan = $jml_diterima > $jml_cetak ? 0:$totalKekurangan;
             return response()->json([
                 'status' => 'success',
                 'message' => 'Stok bertambah!',
@@ -408,7 +420,8 @@ class PenerimaanBukuController extends Controller
                     'tgl_diterima' => Carbon::parse($tgl)->format('d-m-Y H:i:s'),
                     'penerima' => DB::table('users')->where('id', $session)->first()->nama,
                     'action' => '<span class="badge badge-light">No action</span>',
-                    'total_diterima' => $jml_diterima
+                    'total_diterima' => $jml_diterima,
+                    'total_kekurangan' => $totalKekurangan,
                 ]
             ]);
         } catch (\Exception $e) {

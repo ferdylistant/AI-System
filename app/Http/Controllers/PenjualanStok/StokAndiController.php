@@ -394,7 +394,7 @@ class StokAndiController extends Controller
         <div class="input-group-prepend">
             <span class="input-group-text bg-light text-dark" id="">Rak</span>
         </div>
-        <select id="selectRack" class="form-control" name="rak[]" required></select>
+        <select class="form-control select-rack" name="rak[]" required></select>
         <div class="input-group-prepend">
             <span class="input-group-text bg-light text-dark" id="">Jumlah</span>
         </div>
@@ -407,7 +407,7 @@ class StokAndiController extends Controller
         <div class="input-group-prepend">
             <span class="input-group-text bg-light text-dark" id="">Oleh</span>
         </div>
-        <select id="selectOptGudang" class="form-control" name="users_id[0][]" multiple="multiple" required></select>
+        <select class="form-control select-optgudang" name="users_id[0][]" multiple="multiple" required></select>
         </div>';
         return $contentForm;
     }
@@ -419,6 +419,7 @@ class StokAndiController extends Controller
             $rak = $request->rak;
             $jml_stok = $request->jml_stok;
             $tgl_masuk_stok = $request->tgl_masuk_stok;
+            // $users_id = $request->users_id;
             $users_id = array_values($request->users_id);
             $author = auth()->id();
             $check = DB::table('pj_st_rack_data')

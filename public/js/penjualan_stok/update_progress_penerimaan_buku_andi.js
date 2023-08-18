@@ -66,13 +66,15 @@ $(function () {
             naskah_id = $(e.relatedTarget).data('naskah_id'),
             produksi_id = $(e.relatedTarget).data('produksi_id'),
             proses_tahap = $(e.relatedTarget).data('proses_tahap'),
+            jml_cetak = $(e.relatedTarget).data('jml_cetak'),
             cardWrap = $("#modalPenerimaanBuku");
         $.ajax({
             url: window.location.origin + '/penjualan-stok/gudang/penerimaan-buku/andi?request_type=show-modal-pengiriman',
             type: 'GET',
             data: {
                 track_id: track_id,
-                status: status
+                status: status,
+                jml_cetak: jml_cetak
             },
             cache: false,
             success: function (result) {
@@ -120,6 +122,7 @@ $(function () {
                     cardWrap.find('#indexDiterimaOleh'+data.id).html(result.data.penerima).change();
                     cardWrap.find('#indexAction'+data.id).html(result.data.action).change();
                     cardWrap.find('#totDiterima').html(result.data.total_diterima+' eks').change();
+                    cardWrap.find('#totKekurangan').html(result.data.total_kekurangan+' eks').change();
                 }
                 tabelPenerimaan.ajax.reload();
                 swal.close();
@@ -131,6 +134,7 @@ $(function () {
     }
     $("#modalPenerimaanBuku").on('click', '#btnTerimaBuku', function () {
         var id = $(this).data('id');
+        var jml_cetak = $(this).data('jml_cetak');
         var jml_diterima = $(this).data('jml_diterima');
         var naskah_id = $("#modalPenerimaanBuku").find('[name="naskah_id"]').val();
         var produksi_id = $("#modalPenerimaanBuku").find('[name="produksi_id"]').val();
@@ -165,6 +169,7 @@ $(function () {
             if (value !== null) {
                 var data = {
                     id: id,
+                    jml_cetak: jml_cetak,
                     jml_diterima: jml_diterima,
                     catatan: value === true ? null : value,
                     naskah_id: naskah_id,
