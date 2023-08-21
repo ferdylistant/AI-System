@@ -1,164 +1,164 @@
-$(function () {
-    function loadDataValue() {
-        let id = window.location.search.split('?').pop(),
-            cardWrap = $('.section-body').find('.card');
-        $.ajax({
-            url: window.location.origin + "/penerbitan/order-cetak/edit?" + id,
-            beforeSend: function () {
-                cardWrap.addClass('card-progress');
-            },
-            success: function (result) {
-                let {
-                    data,
-                    penulis,
-                    disable,
-                    cursor,
-                    disableCetakUlang
-                } = result;
-                // console.log(result);
-                for (let p of penulis) {
-                    $(".select-penulis").select2("trigger", "select", {
-                        data: {
-                            id: p.id,
-                            text: p.nama
-                        }
-                    });
-                }
-                for (let n in data) {
-                    // console.log(data[n]);
-                    switch (n) {
-                        case 'id':
-                            $('[name="up_id"]').attr("data-id", data[n]).change();
-                            var id = data[n];
-                            break;
-                        case 'kelompok_buku_id':
-                            $('[name="up_kelompok_buku"]').val([data[n]].id).change();
-                            $("#kelBuku").select2("trigger", "select", {
-                                data: {
-                                    id: data[n].id,
-                                    text: data[n].nama
-                                }
-                            });
-                            $('[name="up_kelompok_buku"]').attr('disabled', disableCetakUlang).change();
-                            break;
-                        case 'sub_kelompok_buku_id':
-                            $('[name="up_sub_kelompok_buku"]').val([data[n]].id).change();
-                            $("#sKelBuku").select2("trigger", "select", {
-                                data: {
-                                    id: data[n].id,
-                                    text: data[n].nama
-                                }
-                            });
-                            $('[name="up_sub_kelompok_buku"]').attr('disabled', disableCetakUlang).change();
-                            break;
-                        case 'sub_judul_final':
-                            if (data[n]) {
-                                $('[name="up_' + n + '"]').val(data[n]).change();
-                            } else {
-                                $('[name="up_' + n + '"]').val('-').change();
-                            }
-                            $('[name="up_' + n + '"]').attr('disabled', disableCetakUlang).change();
-                            break;
-                        case 'buku_jadi':
-                            $('[name="up_buku_jadi"]').val([data[n]]);
-                            $('[name="up_buku_jadi"]').attr('disabled', disableCetakUlang).change();
-                            break;
-                        // case 'format_buku':
-                        //     $('[name="up_format_buku"]').val([data[n]]);
-                        //     break;
-                        case 'finishing_cover':
-                            $.map(JSON.parse(data[n]), function (item) {
-                                $(".select-finishing-cover").select2("trigger", "select", {
-                                    data: {
-                                        id: item,
-                                        text: item
-                                    }
-                                });
-                            });
-                            $('.select-finishing-cover').attr('disabled', disableCetakUlang).change();
-                            break;
-                        case 'jumlah_cetak':
-                            $('[name="up_' + n + '"]').val(data[n]).change();
-                            if (disableCetakUlang == true) {
-                                $('#fup_OrderCetak #jumCetakInput').focus();
-                            }
-                            break;
-                        case 'ukuran_jilid_binding':
-                            if (data[n]) {
-                                $('#ukuranBinding').show('slow');
-                                $('#ukuranBinding').html(`<div class="form-group" style="display:none" id="divBinding"><label>Ukuran Binding: <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-ruler"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
-                                    <div id="err_up_ukuran_jilid_binding"></div>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text"><strong>cm</strong></span>
-                                    </div>
-                                    </div></div>`);
-                                $('[name="up_' + n + '"]').val([data[n]]).change();
-                                $('[name="up_' + n + '"]').attr('disabled', disableCetakUlang).change();
-                                $('#divBinding').show('slow');
-                            } else {
-                                $('#ukuranBinding').html(`<div class="form-group" style="display:none" id="divBinding"><label>Ukuran Binding: <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text"><i class="fa fa-ruler"></i></div>
-                                    </div>
-                                    <input type="text" class="form-control" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
-                                    <div id="err_up_ukuran_jilid_binding"></div>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text"><strong>cm</strong></span>
-                                    </div>
-                                    </div></div>`);
-                            }
-                            break;
-                        case 'posisi_layout':
-                            if (data[n]) {
-                                $('[name="up_' + n + '"]').val(data[n]).change();
-                                $('[name="up_' + n + '"]').attr('disabled', disableCetakUlang).change();
-                                $.ajax({
-                                    url: window.location.origin + "/list/list-dami-data",
-                                    type: "GET",
-                                    data: "value=" + data[n] + "&id=" + id,
-                                    beforeSend: function () {
-                                        cardWrap.addClass('card-progress');
-                                    },
-                                    success: function (hasil) {
-                                        $("#fup_OrderCetak #dami").empty();
-                                        $("#fup_OrderCetak #dami").html(hasil);
-                                    },
-                                    error: function (hasil) {
-                                        // $("#fup_OrderCetak #dami").empty();
-                                        $("#fup_OrderCetak #dami").html(hasil);
-                                    },
-                                    complete: function () {
-                                        cardWrap.removeClass('card-progress');
-                                    }
-                                });
-
-                            }
-                            break;
-                        default:
-                            $('[name="up_' + n + '"]').val(data[n]).change();
-                            $('[name="up_' + n + '"]').attr('disabled', disableCetakUlang).change();
-                            break;
+function loadDataValue() {
+    let id = window.location.search.split('?').pop(),
+        cardWrap = $('.section-body').find('.card');
+    $.ajax({
+        url: window.location.origin + "/penerbitan/order-cetak/edit?" + id,
+        beforeSend: function () {
+            cardWrap.addClass('card-progress');
+        },
+        success: function (result) {
+            let {
+                data,
+                penulis,
+                disable,
+                cursor,
+                disableCetakUlang
+            } = result;
+            // console.log(result);
+            for (let p of penulis) {
+                $(".select-penulis").select2("trigger", "select", {
+                    data: {
+                        id: p.id,
+                        text: p.nama
                     }
-                }
-                $('#fup_OrderCetak button').attr('disabled', disable).change();
-                $('#fup_OrderCetak button').css('cursor', cursor).change();
-            },
-            error: function (err) {
-                console.log(err);
-                notifToast("error", "Terjadi kesalahan!");
-            },
-            complete: function () {
-                cardWrap.removeClass('card-progress');
+                });
             }
+            for (let n in data) {
+                // console.log(data[n]);
+                switch (n) {
+                    case 'id':
+                        $('[name="up_id"]').attr("data-id", data[n]).change();
+                        var id = data[n];
+                        break;
+                    case 'kelompok_buku_id':
+                        $('[name="up_kelompok_buku"]').val([data[n]].id).change();
+                        $("#kelBuku").select2("trigger", "select", {
+                            data: {
+                                id: data[n].id,
+                                text: data[n].nama
+                            }
+                        });
+                        $('[name="up_kelompok_buku"]').attr('disabled', disableCetakUlang).change();
+                        break;
+                    case 'sub_kelompok_buku_id':
+                        $('[name="up_sub_kelompok_buku"]').val([data[n]].id).change();
+                        $("#sKelBuku").select2("trigger", "select", {
+                            data: {
+                                id: data[n].id,
+                                text: data[n].nama
+                            }
+                        });
+                        $('[name="up_sub_kelompok_buku"]').attr('disabled', disableCetakUlang).change();
+                        break;
+                    case 'sub_judul_final':
+                        if (data[n]) {
+                            $('[name="up_' + n + '"]').val(data[n]).change();
+                        } else {
+                            $('[name="up_' + n + '"]').val('-').change();
+                        }
+                        $('[name="up_' + n + '"]').attr('disabled', disableCetakUlang).change();
+                        break;
+                    case 'buku_jadi':
+                        $('[name="up_buku_jadi"]').val([data[n]]);
+                        $('[name="up_buku_jadi"]').attr('disabled', disableCetakUlang).change();
+                        break;
+                    // case 'format_buku':
+                    //     $('[name="up_format_buku"]').val([data[n]]);
+                    //     break;
+                    case 'finishing_cover':
+                        $.map(JSON.parse(data[n]), function (item) {
+                            $(".select-finishing-cover").select2("trigger", "select", {
+                                data: {
+                                    id: item,
+                                    text: item
+                                }
+                            });
+                        });
+                        $('.select-finishing-cover').attr('disabled', disableCetakUlang).change();
+                        break;
+                    case 'jumlah_cetak':
+                        $('[name="up_' + n + '"]').val(data[n]).change();
+                        if (disableCetakUlang == true) {
+                            $('#fup_OrderCetak #jumCetakInput').focus();
+                        }
+                        break;
+                    case 'ukuran_jilid_binding':
+                        if (data[n]) {
+                            $('#ukuranBinding').show('slow');
+                            $('#ukuranBinding').html(`<div class="form-group" style="display:none" id="divBinding"><label>Ukuran Binding: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"><i class="fa fa-ruler"></i></div>
+                                </div>
+                                <input type="text" class="form-control" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
+                                <div id="err_up_ukuran_jilid_binding"></div>
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><strong>cm</strong></span>
+                                </div>
+                                </div></div>`);
+                            $('[name="up_' + n + '"]').val([data[n]]).change();
+                            $('[name="up_' + n + '"]').attr('disabled', disableCetakUlang).change();
+                            $('#divBinding').show('slow');
+                        } else {
+                            $('#ukuranBinding').html(`<div class="form-group" style="display:none" id="divBinding"><label>Ukuran Binding: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"><i class="fa fa-ruler"></i></div>
+                                </div>
+                                <input type="text" class="form-control" name="up_ukuran_jilid_binding" placeholder="Ukuran Binding" required>
+                                <div id="err_up_ukuran_jilid_binding"></div>
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><strong>cm</strong></span>
+                                </div>
+                                </div></div>`);
+                        }
+                        break;
+                    case 'posisi_layout':
+                        if (data[n]) {
+                            $('[name="up_' + n + '"]').val(data[n]).change();
+                            $('[name="up_' + n + '"]').attr('disabled', disableCetakUlang).change();
+                            $.ajax({
+                                url: window.location.origin + "/list/list-dami-data",
+                                type: "GET",
+                                data: "value=" + data[n] + "&id=" + id,
+                                beforeSend: function () {
+                                    cardWrap.addClass('card-progress');
+                                },
+                                success: function (hasil) {
+                                    $("#fup_OrderCetak #dami").empty();
+                                    $("#fup_OrderCetak #dami").html(hasil);
+                                },
+                                error: function (hasil) {
+                                    // $("#fup_OrderCetak #dami").empty();
+                                    $("#fup_OrderCetak #dami").html(hasil);
+                                },
+                                complete: function () {
+                                    cardWrap.removeClass('card-progress');
+                                }
+                            });
 
-        })
-    }
+                        }
+                        break;
+                    default:
+                        $('[name="up_' + n + '"]').val(data[n]).change();
+                        $('[name="up_' + n + '"]').attr('disabled', disableCetakUlang).change();
+                        break;
+                }
+            }
+            $('#fup_OrderCetak button').attr('disabled', disable).change();
+            $('#fup_OrderCetak button').css('cursor', cursor).change();
+        },
+        error: function (err) {
+            console.log(err);
+            notifToast("error", "Terjadi kesalahan!");
+        },
+        complete: function () {
+            cardWrap.removeClass('card-progress');
+        }
+
+    })
+}
+$(document).ready(function () {
     $(".select2")
         .select2({
             placeholder: "Pilih",

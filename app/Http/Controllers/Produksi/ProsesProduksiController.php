@@ -180,6 +180,18 @@ class ProsesProduksiController extends Controller
                                             data-status="' . $status->status . '" data-type="' . $m . '" ' . $dataId . ' ' . $tglMulai . ' ' . $tglSelesai . ' data-toggle="modal" data-target="#modalTrackProduksi" data-backdrop="static">
                                             <span class="bullet"></span> ' . $m . '
                                             </a>';
+                                        } elseif(Gate::allows('do_approval','pic-pengiriman-produksi')) {
+                                            if ($m == 'Kirim Gudang') {
+                                                $badge .= '<a href="javascript:void(0)"
+                                            class="text-' . $lbl . ' text-small text-decoration-none d-block font-600-bold"
+                                            data-status="' . $status->status . '" data-type="' . $m . '" ' . $dataId . ' ' . $tglMulai . ' ' . $tglSelesai . ' data-toggle="modal" data-target="#modalTrackProduksi" data-backdrop="static">
+                                            <span class="bullet"></span> ' . $m . '
+                                            </a>';
+                                            } else {
+                                                $badge .= '<span class="text-' . $lbl . ' text-small text-decoration-none d-block font-600-bold">
+                                            <span class="bullet"></span> ' . $m . '
+                                            </span>';
+                                            }
                                         } else {
                                             $badge .= '<span class="text-' . $lbl . ' text-small text-decoration-none d-block font-600-bold">
                                             <span class="bullet"></span> ' . $m . '
@@ -194,6 +206,18 @@ class ProsesProduksiController extends Controller
                                     data-status="belum selesai" data-type="' . $m . '" ' . $dataId . ' ' . $tglMulai . ' ' . $tglSelesai . ' data-toggle="modal" data-target="#modalTrackProduksi" data-backdrop="static">
                                     <span class="bullet"></span> ' . $m . '
                                     </a>';
+                                } elseif(Gate::allows('do_approval','pic-pengiriman-produksi')) {
+                                    if ($m == 'Kirim Gudang') {
+                                        $badge .= '<a href="javascript:void(0)"
+                                    class="text-muted text-small text-decoration-none d-block font-600-bold"
+                                    data-status="belum selesai" data-type="' . $m . '" ' . $dataId . ' ' . $tglMulai . ' ' . $tglSelesai . ' data-toggle="modal" data-target="#modalTrackProduksi" data-backdrop="static">
+                                    <span class="bullet"></span> ' . $m . '
+                                    </a>';
+                                    } else {
+                                        $badge .= '<span class="text-muted text-small text-decoration-none d-block font-600-bold">
+                                    <span class="bullet"></span> ' . $m . '
+                                    </span>';
+                                    }
                                 } else {
                                     $badge .= '<span class="text-muted text-small text-decoration-none d-block font-600-bold">
                                     <span class="bullet"></span> ' . $m . '
@@ -439,8 +463,9 @@ class ProsesProduksiController extends Controller
             preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
             $masterStatus = explode("','", $matches[1]);
             $masterStatus = Arr::except($masterStatus, ['0']);
+            $kabag = Gate::allows('do_update', 'pic-data-produksi');
             if ($typeProses == 'Kirim Gudang') {
-                $res = $this->modalContentPrivateIf($disable = '', $id, $status, $footer = '', $masterStatus, $addContent = '', $content = '', $tglmulai, $tglselesai, $data, $trackData);
+                $res = $this->modalContentPrivateIf($kabag, $disable = '', $id, $status, $footer = '', $masterStatus, $addContent = '', $content = '', $tglmulai, $tglselesai, $data, $trackData);
             } else {
                 $res = $this->modalContentPrivateElse($status, $content = '', $addContent = '', $masterStatus, $footer = '', $sel = '', $disable = '', $tglselesai, $tglmulai, $trackData, $mesin, $opr);
             }
@@ -459,13 +484,20 @@ class ProsesProduksiController extends Controller
             return abort(500, $e->getMessage());
         }
     }
-    private function modalContentPrivateIf($disable, $id, $status, $footer, $masterStatus, $addContent, $content, $tglmulai, $tglselesai, $data, $trackData)
+    private function modalContentPrivateIf($kabag, $disable, $id, $status, $footer, $masterStatus, $addContent, $content, $tglmulai, $tglselesai, $data, $trackData)
     {
+        $classTooltip = '';
         switch ($status) {
             case 'belum selesai':
                 $badge = 'badge badge-light';
-                $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
-                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                if ($kabag) {
+                    $classTooltip ="tooltip-class";
+                    $disable = 'title="Hanya admin pengiriman" style="cursor:not-allowed" disabled';
+                    $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
+                } else {
+                    $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                            <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                }
                 break;
             case 'sedang dalam proses':
                 $masterStatus = Arr::except($masterStatus, ['1']);
@@ -499,23 +531,27 @@ class ProsesProduksiController extends Controller
                             $totalKirim = NULL;
                             foreach ($kirimGudang as $i => $kg) {
                                 $i++;
-                                if(!is_null($kg->tgl_diterima)) {
-                                    $btnAction = '<button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
-                                    id="btnEditRiwayatKirim" data-toggle="tooltip" data-title="Data sudah diterima" style="cursor:not-allowed" disabled>
-                                    <i class="fas fa-edit"></i></button>
-                                    <button type="button" class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-toggle="tooltip" title="Data sudah diterima" style="cursor:not-allowed" disabled>
-                                    <i class="fas fa-trash"></i></button>
-                                    <button type="button" class="btnCatatan btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalCatatan">
-                                    <i class="fas fa-comment-alt"></i></button>';
+                                if ($kabag) {
+                                    $btnAction = '<span class="badge badge-secondary tooltip-class" title="Hanya admin pengiriman">No Action</span>';
                                 } else {
-                                    $btnAction = '<button type="button" class="btnEditRiwayat btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
-                                    id="btnEditRiwayatKirim" data-id="'.$kg->id.'" data-dibuat="'.Carbon::parse($kg->created_at)->translatedFormat('l, d M Y - H:i:s').'"
-                                    data-toggle="modal" data-target="#modalEditRiwayatKirim">
-                                    <i class="fas fa-edit"></i></button>
-                                    <button type="button" class="btnHapusRiwayat btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="'.$kg->id.'" data-track_id="'.$kg->track_id.'" data-toggle="tooltip" title="Hapus Data">
-                                    <i class="fas fa-trash"></i></button>
-                                    <button type="button" class="btnCatatan btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalCatatan">
-                                    <i class="fas fa-comment-alt"></i></button>';
+                                    if(!is_null($kg->tgl_diterima)) {
+                                        $btnAction = '<button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1 tooltip-class"
+                                        id="btnEditRiwayatKirim" title="Data sudah diterima" style="cursor:not-allowed" disabled>
+                                        <i class="fas fa-edit"></i></button>
+                                        <button type="button" class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1 tooltip-class" id="btnDeleteRiwayatKirim" title="Data sudah diterima" style="cursor:not-allowed" disabled>
+                                        <i class="fas fa-trash"></i></button>
+                                        <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" title="Catatan" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalCatatan">
+                                        <i class="fas fa-comment-alt"></i></button>';
+                                    } else {
+                                        $btnAction = '<button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
+                                        id="btnEditRiwayatKirim" data-id="'.$kg->id.'" data-dibuat="'.Carbon::parse($kg->created_at)->translatedFormat('l, d M Y - H:i:s').'"
+                                        title="Edit Data" data-toggle="modal" data-target="#modalEditRiwayatKirim">
+                                        <i class="fas fa-edit"></i></button>
+                                        <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="'.$kg->id.'" data-track_id="'.$kg->track_id.'" title="Hapus Data">
+                                        <i class="fas fa-trash"></i></button>
+                                        <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" title="Catatan" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalCatatan">
+                                        <i class="fas fa-comment-alt"></i></button>';
+                                    }
                                 }
                                 $kg = (object)collect($kg)->map(function($item,$key){
                                     switch ($key) {
@@ -574,8 +610,15 @@ class ProsesProduksiController extends Controller
                                     <span class="text-center" id="totKekurangan">' . $totalKekurangan. ' eks</span>
                                 </div>
                             </div>';
-                $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                            if ($kabag) {
+                                $classTooltip ="tooltip-class";
+                                $disable = 'title="Hanya admin pengiriman" style="cursor:not-allowed" disabled';
+                                $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
+                            } else {
+                                $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
                         <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                            }
+
                 $badge = 'badge badge-warning';
                 break;
 
@@ -641,12 +684,12 @@ class ProsesProduksiController extends Controller
                                   <td>'.$kg->tgl_diterima.'</td>
                                   <td>'.$kg->diterima_oleh.'</td>
                                   <td>'.$kg->jml_dikirim.' eks</td>
-                                  <td><button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
-                                  data-toggle="tooltip" data-title="Data sudah diterima" style="cursor:not-allowed" disabled>
+                                  <td><button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1 tooltip-class"
+                                  title="Data sudah diterima" style="cursor:not-allowed" disabled>
                                   <i class="fas fa-edit"></i></button>
-                                  <button type="button" class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-toggle="tooltip" title="Data sudah diterima" style="cursor:not-allowed" disabled>
+                                  <button type="button" class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1 tooltip-class" id="btnDeleteRiwayatKirim" title="Data sudah diterima" style="cursor:not-allowed" disabled>
                                   <i class="fas fa-trash"></i></button>
-                                  <button type="button" class="btnCatatan btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalCatatan">
+                                  <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" data-id="'.$kg->id.'" title="Catatan" data-toggle="modal" data-target="#modalCatatan">
                                   <i class="fas fa-comment-alt"></i></button></td>
                                 </tr>';
                                 $totalKirim +=$kg->jml_dikirim;
@@ -680,7 +723,12 @@ class ProsesProduksiController extends Controller
                             </div>';
                 $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
                 $badge = 'badge badge-success';
-                $disable = 'disabled';
+                if($kabag) {
+                    $classTooltip ="tooltip-class";
+                    $disable = 'title="Hanya admin pengiriman" style="cursor:not-allowed" disabled';
+                } else {
+                    $disable = 'style="cursor:not-allowed" disabled';
+                }
                 break;
         }
         $content .= '<input type="hidden" name="buku_jadi" value="'.$data->buku_jadi.'">
@@ -693,11 +741,11 @@ class ProsesProduksiController extends Controller
                             <i class="fas fa-info-circle me-3"></i>
                             </abbr>
                             </a></label>
-                            <input name="jml_cetak" class="form-control" id="jmlCetak" value="' . $data->jumlah_cetak . '" style="cursor:not-allowed" readonly>
+                            <input name="jml_cetak" class="form-control tooltip-class" id="jmlCetak" value="' . $data->jumlah_cetak . '" title="Tidak dapat diubah" style="cursor:not-allowed" readonly>
                             </div>
                             <div class="form-group col-md-6">
                             <label for="jmlDikirim">Jumlah Dikirim (<span class="text-danger">*</span>)</label>
-                            <input name="jml_dikirim" class="form-control" id="jmlDikirim" ' . $disable . '>
+                            <input name="jml_dikirim" class="form-control '.$classTooltip.'" id="jmlDikirim" ' . $disable . '>
                             <span id="err_jml_dikirim"></span>
                             </div>
                         </div>';

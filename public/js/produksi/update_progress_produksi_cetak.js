@@ -160,10 +160,16 @@ $(function () {
                 cardWrap.find('#contentData').html(result.content).trigger('change');
                 cardWrap.find('#footerModal').html(result.footer).trigger('change');
                 $('[data-toggle="popover"]').popover();
-                $('#jmlCetak').tooltip({'trigger':'hover', 'title': 'Tidak dapat diubah'});
-                $('.btnEditRiwayat').tooltip({'trigger':'hover', 'title': 'Edit Data','placement':'left'});
-                $('.btnHapusRiwayat').tooltip({'trigger':'hover', 'title': 'Hapus Data','placement':'left'});
-                $('.btnCatatan').tooltip({'trigger':'hover', 'title': 'Catatan','placement':'left'});
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('.tooltip-class'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl,{
+                        trigger : 'hover'
+                    })
+                })
+                // $('#jmlCetak').tooltip({'trigger':'hover', 'title': 'Tidak dapat diubah'});
+                // $('.btnEditRiwayat').tooltip({'trigger':'hover', 'title': 'Edit Data','placement':'left'});
+                // $('.btnHapusRiwayat').tooltip({'trigger':'hover', 'title': 'Hapus Data','placement':'left'});
+                // $('.btnCatatan').tooltip({'trigger':'hover', 'title': 'Catatan','placement':'left'});
                 if (result.proses_tahap !== 'Kirim Gudang') {
                     if (result.trackData) {
                         loadSelected(result.trackData.mesin, result.trackData.operator);
