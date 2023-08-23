@@ -110,6 +110,18 @@ class ProduksiListener
                 ]);
                 DB::commit();
                 break;
+            case 'Create Data Rekondisi':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_rekondisi')->insert([
+                    'id' => $data['id'],
+                    'kode' => $data['kode'],
+                    'produksi_id' => $data['produksi_id'],
+                    'jml_rekondisi' => $data['jml_rekondisi'],
+                    'catatan' => $data['catatan'],
+                    'created_by' => $data['created_by']
+                ]);
+                DB::commit();
+                break;
             default:
                 return abort(500);
                 break;

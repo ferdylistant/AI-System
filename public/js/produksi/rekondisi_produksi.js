@@ -45,7 +45,7 @@ $(document).ready(function () {
         ajax: {
             url: window.location.origin + "/produksi/rekondisi",
             complete: () => {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'))
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('.tooltip-class'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl,{
                         trigger : 'hover'
@@ -58,6 +58,7 @@ $(document).ready(function () {
             { data: 'kode_naskah', name: 'kode_naskah', title: 'Kode Naskah' },
             { data: 'judul_final', name: 'judul_final', title: 'Judul Final' },
             { data: 'penulis', name: 'penulis', title: 'Penulis' },
+            { data: 'created_at', name: 'created_at', title: 'Dibuat' },
             { data: 'kirim_gudang', name: 'kirim_gudang', title: 'Kirim Gudang'},
             { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false },
         ]
@@ -68,6 +69,7 @@ $(document).ready(function () {
         ]
     });
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
+        // console.log(message);
         notifToast("error",settings.jqXHR.statusText)
         if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
             window.location.reload();
@@ -97,16 +99,6 @@ $(document).ready(function () {
                         $('#formOther').hide('slow');
                     }
                 });
-                jqueryValidation_("#formTambahRekondisi", {
-                    naskah_rekondisi: {
-                        required: true,
-                    },
-                    jml_rekondisi: {
-                        required: true,
-                        number: true
-                    },
-                });
-
             },
             error: (err) => {
 
@@ -116,9 +108,57 @@ $(document).ready(function () {
             }
         })
     })
+    let formAddRekondisi = jqueryValidation_("#formTambahRekondisi", {
+        produksi_id: {
+            required: true,
+        },
+        jml_rekondisi: {
+            required: true,
+            number: true
+        },
+    });
+    function ajaxAddRekondisi(data) {
+        let el = new FormData(data.get(0)),
+            cardWrap = $('#md_addRekondisi');
+
+        $.ajax({
+            url: window.location.origin + '/produksi/rekondisi',
+            type: 'POST',
+            data: el,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                cardWrap.addClass("modal-progress");
+            },
+            success: function (res) {
+                // console.log(res);
+                notifToast(res.status, res.message);
+                if (res.status == 'success') {
+                    tableRekondisiProduksi.ajax.reload();
+                    cardWrap.modal("hide");
+                }
+            },
+            error: function (err) {
+                // console.log(err.responseJSON)
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    formAddRekondisi.showErrors(err);
+                }
+                notifToast("error", "Terjadi kesalahan!");
+                cardWrap.removeClass("modal-progress");
+            },
+            complete: function () {
+                cardWrap.removeClass("modal-progress");
+            },
+        });
+    }
     $('#formTambahRekondisi').submit(function (e) {
         e.preventDefault();
-
         if ($(this).valid()) {
             swal({
                 text: "Apakah data rekondisi sudah benar?",
@@ -127,9 +167,55 @@ $(document).ready(function () {
                 dangerMode: true,
             }).then((confirm_) => {
                 if (confirm_) {
-                    ajaxAddTrackData($(this));
+                    ajaxAddRekondisi($(this));
                 }
             });
         }
+    })
+    $('#modalPengirimanRekondisi').on('shown.bs.modal',function (e) {
+        let id = $(e.relatedTarget).data('id'),
+            status = $(e.relatedTarget).data('status'),
+            judul = $(e.relatedTarget).data('judul'),
+            cardWrap = $("#modalPengirimanRekondisi");
+            cardWrap.find('#modalPengirimanTitle').html('<i class="fas fa-truck-loading"></i> ' + judul.charAt(0).toUpperCase() + judul.slice(1)).trigger('change');
+
+            $.ajax({
+                url: window.location.origin + '/produksi/rekondisi/'+id,
+                type: 'GET',
+            data: {
+                id: id,
+                status: status,
+            },
+            cache: false,
+            success: function (result) {
+                cardWrap.find('#statusJob').attr('class', result.badge).trigger('change');
+                cardWrap.find('#statusJob').text(result.status).trigger('change');
+                cardWrap.find('#sectionTitle').html(result.sectionTitle).trigger('change');
+                cardWrap.find('[name="produksi_id"]').val(result.data.id).trigger('change');
+                cardWrap.find('[name="proses_tahap"]').val(result.proses_tahap).trigger('change');cardWrap.find('#contentData').html(result.content).trigger('change');
+                cardWrap.find('#footerModal').html(result.footer).trigger('change');
+                $('[data-toggle="popover"]').popover();
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('.tooltip-class'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl,{
+                        trigger : 'hover'
+                    })
+                })
+                var jmlDikirim = document.getElementById('jmlDikirim');
+                var maskjmlDikirim = {
+                    mask: '0000000000000'
+                };
+                var mask = IMask(jmlDikirim, maskjmlDikirim, reverse = true);
+
+            },
+            error: function (err) {
+                console.log(err);
+                notifToast('error', err.statusText);
+                cardWrap.removeClass('modal-progress')
+            },
+            complete: function () {
+                cardWrap.removeClass('modal-progress')
+            }
+            });
     })
 });
