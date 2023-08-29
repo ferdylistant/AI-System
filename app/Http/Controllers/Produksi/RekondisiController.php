@@ -86,8 +86,8 @@ class RekondisiController extends Controller
                                 break;
                         }
                         $res = '<button class="btn btn-sm btn-light btn-icon position-relative tooltip-class" data-id="' . $data->id . '" data-produksi_id="' . $data->produksi_id . '"
-                            data-judul="'.$data->judul_final.'" data-status="'.$data->status.'"
-                            data-statuscolor="' . $statusColor . '" data-toggle="modal" data-target="#modalPengirimanRekondisi" data-backdrop="static" title="'.$data->status.'">
+                            data-judul="' . $data->judul_final . '" data-status="' . $data->status . '"
+                            data-statuscolor="' . $statusColor . '" data-toggle="modal" data-target="#modalPengirimanRekondisi" data-backdrop="static" title="' . $data->status . '">
                             <i class="fas fa-truck-loading"></i> Pengiriman
                             <span class="position-absolute translate-middle p-1 bg-' . $statusColor . ' border border-light rounded-circle" style="top:0;right:0">
                             </span>
@@ -197,6 +197,9 @@ class RekondisiController extends Controller
     public function store(Request $request)
     {
         if ($request->ajax()) {
+            if ($request->request_type == 'submit-kirim-gudang') {
+                return self::submitKirimGudang($request);
+            }
             try {
                 $produksi_id = $request->produksi_id;
                 $jml_rekondisi = $request->jml_rekondisi;
@@ -231,43 +234,85 @@ class RekondisiController extends Controller
             }
         }
     }
+    protected function submitKirimGudang($request)
+    {
+        try {
+            $id = $request->id;
+            $produksi_id = $request->produksi_id;
+            $jml_rekondisi = $request->jml_rekondisi;
+            $jml_kirim = $request->jml_kirim;
+            $data = DB::table('proses_produksi_rekondisi_kirim')
+                ->where('rekondisi_id', $id)
+                ->select(DB::raw('IFNULL(SUM(jml_kirim),0) as total_diterima'))->get();
+            $total = $jml_kirim + $data[0]->total_diterima;
+            if ($total > $jml_rekondisi) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Total jumlah kirim melebihi jumlah data rekondisi yang ditentukan!'
+                ]);
+            }
+            DB::beginTransaction();
+            DB::table('proses_produksi_rekondisi')->where('id', $id)->update([
+                'status' => 'sedang dalam proses'
+            ]);
+            DB::commit();
+            $arr = [
+                'params' => 'Kirim Rekondisi Ke Gudang',
+                'rekondisi_id' => $id,
+                'jml_kirim' => $jml_kirim,
+                'otorisasi_oleh' => auth()->user()->id,
+            ];
+            event(new ProduksiEvent($arr));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil kirim gudang, selanjutnya menunggu untuk diterima oleh admin stok.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
     public function show(Request $request, $id)
     {
         if ($request->ajax()) {
-            $data = DB::table('proses_produksi_rekondisi')->where('id',$id)->first();
+            $data = DB::table('proses_produksi_rekondisi')->where('id', $id)->first();
             if (is_null($data)) {
                 return abort(404);
             }
             $status = $request->status;
             $kabag = Gate::allows('do_update', 'pic-data-produksi');
             $classTooltip = '';
-            $content ='';
+            $content = '';
             $addContent = '';
-            $footer ='';
-            $disable ='';
-        switch ($status) {
-            case 'belum selesai':
-                $badge = 'badge badge-light';
-                if ($kabag) {
-                    $classTooltip ="tooltip-class";
-                    $disable = 'title="Hanya admin pengiriman" style="cursor:not-allowed" disabled';
-                    $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
-                } else {
-                    $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
-                            <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
-                }
-                break;
-            case 'sedang dalam proses':
-                $kirimGudang = DB::table('proses_produksi_rekondisi_kirim')->where('rekondisi_id',$id)->get();
-                $totalDiterima = DB::table('proses_produksi_rekondisi_kirim')
-                ->whereNotNull('tgl_diterima')
-                ->where('rekondisi_id',$id)
-                ->orderBy('created_at','asc')
-                ->select(DB::raw('IFNULL(SUM(jml_kirim),0) as total_diterima'))
-                ->get();
-                $totalKekurangan = $data->jml_rekondisi - $totalDiterima[0]->total_diterima;
-                $totalKekurangan = $totalDiterima[0]->total_diterima > $data->jml_rekondisi ? 0:$totalKekurangan;
-                $addContent .='<div class="form-group">
+            $footer = '';
+            $disable = '';
+            switch ($status) {
+                case 'belum selesai':
+                    $badge = 'badge badge-light';
+                    if ($kabag) {
+                        $classTooltip = "tooltip-class";
+                        $disable = 'title="Hanya admin pengiriman" style="cursor:not-allowed" disabled';
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
+                    } else {
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                            <button type="submit" class="btn btn-primary" form="form_Tracking" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                    }
+                    break;
+                case 'sedang dalam proses':
+                    $kirimGudang = DB::table('proses_produksi_rekondisi_kirim')->where('rekondisi_id', $id)
+                        ->orderBy('tgl_kirim', 'asc')->get();
+                    $totalDiterima = DB::table('proses_produksi_rekondisi_kirim')
+                        ->whereNotNull('tgl_diterima')
+                        ->where('rekondisi_id', $id)
+                        ->orderBy('tgl_kirim', 'asc')
+                        ->select(DB::raw('IFNULL(SUM(jml_kirim),0) as total_diterima'))
+                        ->get();
+                    $totalKekurangan = $data->jml_rekondisi - $totalDiterima[0]->total_diterima;
+                    $totalKekurangan = $totalDiterima[0]->total_diterima > $data->jml_rekondisi ? 0 : $totalKekurangan;
+                    $addContent .= '<div class="form-group">
                         <label for="historyKirim">Riwayat Kirim</label>
                             <div class="scroll-riwayat">
                             <table class="table table-striped" style="width:100%" id="tableRiwayatKirim">
@@ -279,66 +324,73 @@ class RekondisiController extends Controller
                                 <th scope="col" style="background: #eee;">Tanggal Diterima</th>
                                 <th scope="col" style="background: #eee;">Penerima</th>
                                 <th scope="col" style="background: #eee;">Jumlah Kirim</th>
+                                <th scope="col" style="background: #eee;">Status</th>
                                 <th scope="col" style="background: #eee;">Action</th>
                               </tr>
                             </thead>
                             <tbody>';
-                            $totalKirim = NULL;
-                            foreach ($kirimGudang as $i => $kg) {
-                                $i++;
-                                if ($kabag) {
-                                    $btnAction = '<span class="badge badge-secondary tooltip-class" title="Hanya admin pengiriman">No Action</span>';
-                                } else {
-                                    if(!is_null($kg->tgl_diterima)) {
-                                        $btnAction = '<button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1 tooltip-class"
+                    $totalKirim = NULL;
+                    foreach ($kirimGudang as $i => $kg) {
+                        $i++;
+                        if ($kabag) {
+                            $btnAction = '<span class="badge badge-secondary tooltip-class" title="Hanya admin pengiriman">No Action</span>';
+                        } else {
+                            if (!is_null($kg->tgl_diterima)) {
+                                $btnAction = '<button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1 tooltip-class"
                                         id="btnEditRiwayatKirim" title="Data sudah diterima" style="cursor:not-allowed" disabled>
                                         <i class="fas fa-edit"></i></button>
                                         <button type="button" class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1 tooltip-class" id="btnDeleteRiwayatKirim" title="Data sudah diterima" style="cursor:not-allowed" disabled>
                                         <i class="fas fa-trash"></i></button>
-                                        <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" title="Catatan" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalCatatan">
+                                        <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" title="Catatan" data-id="' . $kg->id . '" data-toggle="modal" data-target="#modalCatatan">
                                         <i class="fas fa-comment-alt"></i></button>';
-                                    } else {
-                                        $btnAction = '<button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
-                                        id="btnEditRiwayatKirim" data-id="'.$kg->id.'" data-dibuat="'.Carbon::parse($kg->created_at)->translatedFormat('l, d M Y - H:i:s').'"
+                            } else {
+                                $btnAction = '<button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
+                                        id="btnEditRiwayatKirim" data-id="' . $kg->id . '" data-dibuat="' . Carbon::parse($kg->tgl_kirim)->translatedFormat('l, d M Y - H:i:s') . '"
                                         title="Edit Data" data-toggle="modal" data-target="#modalEditRiwayatKirim">
                                         <i class="fas fa-edit"></i></button>
-                                        <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="'.$kg->id.'" data-track_id="'.$kg->track_id.'" title="Hapus Data">
+                                        <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="' . $kg->id . '" title="Hapus Data">
                                         <i class="fas fa-trash"></i></button>
-                                        <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" title="Catatan" data-id="'.$kg->id.'" data-toggle="modal" data-target="#modalCatatan">
+                                        <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" title="Catatan" data-id="' . $kg->id . '" data-toggle="modal" data-target="#modalCatatan">
                                         <i class="fas fa-comment-alt"></i></button>';
-                                    }
-                                }
-                                $kg = (object)collect($kg)->map(function($item,$key){
-                                    switch ($key) {
-                                        case 'users_id':
-                                            return DB::table('users')->where('id',$item)->first()->nama;
-                                            break;
-                                        case 'diterima_oleh':
-                                            return is_null($item) ? '-':DB::table('users')->where('id',$item)->first()->nama;
-                                            break;
-                                        case 'tgl_diterima':
-                                            return is_null($item) ? '<small class="badge badge-danger">menunggu</small>':Carbon::parse($item)->format('d-m-Y H:i:s');
-                                            break;
-                                        case 'created_at':
-                                            return Carbon::parse($item)->format('d-m-Y H:i:s');
-                                            break;
-                                        default:
-                                            return is_null($item) ? '-':$item;
-                                            break;
-                                    }
-                                })->all();
-                                $addContent .='<tr id="index_'.$kg->id.'">
-                                  <td id="row_num'. $i . '">'.$i.'<input type="hidden" name="task_number[]" value=' . $i . '></td>
-                                  <td>'.$kg->created_at.'</td>
-                                  <td>'.$kg->users_id.'</td>
-                                  <td>'.$kg->tgl_diterima.'</td>
-                                  <td>'.$kg->diterima_oleh.'</td>
-                                  <td id="indexJmlKirim'.$kg->id.'">'.$kg->jml_dikirim.' eks</td>
-                                  <td>'.$btnAction.'</td>
-                                </tr>';
-                                $totalKirim +=$kg->jml_dikirim;
                             }
-                            $addContent .='</tbody>
+                        }
+                        $kg = (object)collect($kg)->map(function ($item, $key) {
+                            switch ($key) {
+                                case 'otorisasi_oleh':
+                                    return DB::table('users')->where('id', $item)->first()->nama;
+                                    break;
+                                case 'diterima_oleh':
+                                    return is_null($item) ? '-' : DB::table('users')->where('id', $item)->first()->nama;
+                                    break;
+                                case 'tgl_diterima':
+                                    return is_null($item) ? '-' : Carbon::parse($item)->format('d-m-Y H:i:s');
+                                    break;
+                                case 'tgl_kirim':
+                                    return Carbon::parse($item)->format('d-m-Y H:i:s');
+                                    break;
+                                case 'status':
+                                    $color = $item == 'dalam pengiriman' ? 'warning' : 'success';
+                                    $item = '<span class="badge bg-' . $color . '">' . $item . '</span>';
+                                    return $item;
+                                    break;
+                                default:
+                                    return is_null($item) ? '-' : $item;
+                                    break;
+                            }
+                        })->all();
+                        $addContent .= '<tr id="index_' . $kg->id . '">
+                                  <td id="row_num' . $i . '">' . $i . '<input type="hidden" name="task_number[]" value=' . $i . '></td>
+                                  <td>' . $kg->tgl_kirim . '</td>
+                                  <td>' . $kg->otorisasi_oleh . '</td>
+                                  <td>' . $kg->tgl_diterima . '</td>
+                                  <td>' . $kg->diterima_oleh . '</td>
+                                  <td id="indexJmlKirim' . $kg->id . '">' . $kg->jml_kirim . ' eks</td>
+                                  <td>' . $kg->status . '</td>
+                                  <td>' . $btnAction . '</td>
+                                </tr>';
+                        $totalKirim += $kg->jml_kirim;
+                    }
+                    $addContent .= '</tbody>
                           </table>
                             </div>
                             </div>
@@ -347,7 +399,7 @@ class RekondisiController extends Controller
                             background: linear-gradient(to right, #6777ef, #141517);
                             " role="alert">
                                 <div class="col-auto">
-                                    <span class="bullet"></span><span>Total Oplah</span><br>
+                                    <span class="bullet"></span><span>Total Cetak</span><br>
                                     <span class="bullet"></span><span>Total Kirim</span><br>
                                     <span class="bullet"></span><span>Total Diterima  <a href="javascript:void(0)" class="text-warning" tabindex="0" role="button"
                                     data-toggle="popover" data-trigger="focus" title="Informasi"
@@ -359,184 +411,183 @@ class RekondisiController extends Controller
                                     <span class="bullet"></span><span>Total Kekurangan</span><br>
                                 </div>
                                 <div class="col-auto">
-                                <span class="text-center">' . $data->jumlah_cetak . ' eks</span><br>
-                                    <span class="text-center" id="totDikirim">'.$totalKirim.' eks</span><br>
-                                    <span class="text-center">'.$totalDiterima[0]->total_diterima.' eks</span><br>
-                                    <span class="text-center" id="totKekurangan">' . $totalKekurangan. ' eks</span>
+                                <span class="text-center">' . $data->jml_rekondisi . ' eks</span><br>
+                                    <span class="text-center" id="totDikirim">' . $totalKirim . ' eks</span><br>
+                                    <span class="text-center">' . $totalDiterima[0]->total_diterima . ' eks</span><br>
+                                    <span class="text-center" id="totKekurangan">' . $totalKekurangan . ' eks</span>
                                 </div>
                             </div>';
-                            if ($kabag) {
-                                $classTooltip ="tooltip-class";
-                                $disable = 'title="Hanya admin pengiriman" style="cursor:not-allowed" disabled';
-                                $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
-                            } else {
-                                $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
-                        <button type="submit" class="btn btn-primary" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                    if ($kabag) {
+                        $classTooltip = "tooltip-class";
+                        $disable = 'title="Hanya admin pengiriman" style="cursor:not-allowed" disabled';
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
+                    } else {
+                        $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>
+                        <button type="submit" class="btn btn-primary" form="form_Tracking" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Konfirmasi</button>';
+                    }
+
+                    $badge = 'badge badge-warning';
+                    break;
+
+                case 'selesai':
+                    $kirimGudang = DB::table('proses_produksi_rekondisi_kirim')->where('rekondisi_id', $id)
+                        ->orderBy('tgl_kirim', 'asc')->get();
+                    $totalDiterima = DB::table('proses_produksi_rekondisi_kirim')
+                        ->whereNotNull('tgl_diterima')
+                        ->where('rekondisi_id', $id)
+                        ->orderBy('tgl_kirim', 'asc')
+                        ->select(DB::raw('IFNULL(SUM(jml_kirim),0) as total_diterima'))
+                        ->get();
+                    $totalKekurangan = $data->jml_rekondisi - $totalDiterima[0]->total_diterima;
+                    $totalKekurangan = $totalDiterima[0]->total_diterima > $data->jml_rekondisi ? 0 : $totalKekurangan;
+                    $addContent .= '<div class="form-group">
+                        <label for="historyKirim">Riwayat Kirim</label>
+                            <div class="scroll-riwayat">
+                            <table class="table table-striped" style="width:100%" id="tableRiwayatKirim">
+                            <thead style="position: sticky;top:0">
+                              <tr>
+                                <th scope="col" style="background: #eee;">No</th>
+                                <th scope="col" style="background: #eee;">Tanggal Kirim</th>
+                                <th scope="col" style="background: #eee;">Otorisasi Oleh</th>
+                                <th scope="col" style="background: #eee;">Tanggal Diterima</th>
+                                <th scope="col" style="background: #eee;">Penerima</th>
+                                <th scope="col" style="background: #eee;">Jumlah Kirim</th>
+                                <th scope="col" style="background: #eee;">Status</th>
+                                <th scope="col" style="background: #eee;">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>';
+                    $totalKirim = NULL;
+                    foreach ($kirimGudang as $i => $kg) {
+                        $i++;
+                        $kg = (object)collect($kg)->map(function ($item, $key) {
+                            switch ($key) {
+                                case 'otorisasi_oleh':
+                                    return DB::table('users')->where('id', $item)->first()->nama;
+                                    break;
+                                case 'diterima_oleh':
+                                    return is_null($item) ? '-' : DB::table('users')->where('id', $item)->first()->nama;
+                                    break;
+                                case 'tgl_diterima':
+                                    return is_null($item) ? '-' : Carbon::parse($item)->format('d-m-Y H:i:s');
+                                    break;
+                                case 'tgl_kirim':
+                                    return Carbon::parse($item)->format('d-m-Y H:i:s');
+                                    break;
+                                case 'status':
+                                    $color = $item == 'dalam pengiriman' ? 'warning' : 'success';
+                                    $item = '<span class="badge bg-' . $color . '">' . $item . '</span>';
+                                    return $item;
+                                    break;
+                                default:
+                                    return is_null($item) ? '-' : $item;
+                                    break;
                             }
-
-                $badge = 'badge badge-warning';
-                break;
-
-            // case 'selesai':
-            //     foreach ($masterStatus as $ms) {
-            //         if ($status == $ms) {
-            //             $sel = ' selected="selected" ';
-            //         }
-            //     }
-            //     $kirimGudang = DB::table('proses_produksi_track_riwayat')->where('track_id',$trackData->id)->where('track',$trackData->proses_tahap)
-            //     ->orderBy('created_at','asc')->get();
-            //     $totalDiterima = DB::table('proses_produksi_track_riwayat')
-            //     ->whereNotNull('tgl_diterima')
-            //     ->where('track_id',$trackData->id)
-            //     ->where('track',$trackData->proses_tahap)
-            //     ->orderBy('created_at','asc')
-            //     ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_diterima'))
-            //     ->get();
-            //     $totalKekurangan = $data->jumlah_cetak - $totalDiterima[0]->total_diterima;
-            //     $totalKekurangan = $totalDiterima[0]->total_diterima > $data->jumlah_cetak ? 0:$totalKekurangan;
-            //     $addContent .='<div class="form-group">
-            //             <label for="historyKirim">Riwayat Kirim</label>
-            //                 <div class="scroll-riwayat">
-            //                 <table class="table table-striped" style="width:100%" id="tableRiwayatKirim">
-            //                 <thead style="position: sticky;top:0">
-            //                   <tr>
-            //                     <th scope="col" style="background: #eee;">No</th>
-            //                     <th scope="col" style="background: #eee;">Tanggal Kirim</th>
-            //                     <th scope="col" style="background: #eee;">Otorisasi Oleh</th>
-            //                     <th scope="col" style="background: #eee;">Tanggal Diterima</th>
-            //                     <th scope="col" style="background: #eee;">Penerima</th>
-            //                     <th scope="col" style="background: #eee;">Jumlah Kirim</th>
-            //                     <th scope="col" style="background: #eee;">Action</th>
-            //                   </tr>
-            //                 </thead>
-            //                 <tbody>';
-            //                 $totalKirim = NULL;
-            //                 foreach ($kirimGudang as $i => $kg) {
-            //                     $i++;
-            //                     $kg = (object)collect($kg)->map(function($item,$key){
-            //                         switch ($key) {
-            //                             case 'users_id':
-            //                                 return DB::table('users')->where('id',$item)->first()->nama;
-            //                                 break;
-            //                             case 'diterima_oleh':
-            //                                 return is_null($item) ? '-':DB::table('users')->where('id',$item)->first()->nama;
-            //                                 break;
-            //                             case 'tgl_diterima':
-            //                                 return is_null($item) ? '<small class="badge badge-danger">menunggu</small>':Carbon::parse($item)->format('d-m-Y H:i:s');
-            //                                 break;
-            //                             case 'created_at':
-            //                                 return Carbon::parse($item)->format('d-m-Y H:i:s');
-            //                                 break;
-            //                             default:
-            //                                 return is_null($item) ? '-':$item;
-            //                                 break;
-            //                         }
-            //                     })->all();
-            //                     $addContent .='<tr id="index_'.$kg->id.'">
-            //                       <td id="row_num'. $i . '">'.$i.'<input type="hidden" name="task_number[]" value=' . $i . '></td>
-            //                       <td>'.$kg->created_at.'</td>
-            //                       <td>'.$kg->users_id.'</td>
-            //                       <td>'.$kg->tgl_diterima.'</td>
-            //                       <td>'.$kg->diterima_oleh.'</td>
-            //                       <td>'.$kg->jml_dikirim.' eks</td>
-            //                       <td><button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1 tooltip-class"
-            //                       title="Data sudah diterima" style="cursor:not-allowed" disabled>
-            //                       <i class="fas fa-edit"></i></button>
-            //                       <button type="button" class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1 tooltip-class" id="btnDeleteRiwayatKirim" title="Data sudah diterima" style="cursor:not-allowed" disabled>
-            //                       <i class="fas fa-trash"></i></button>
-            //                       <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" data-id="'.$kg->id.'" title="Catatan" data-toggle="modal" data-target="#modalCatatan">
-            //                       <i class="fas fa-comment-alt"></i></button></td>
-            //                     </tr>';
-            //                     $totalKirim +=$kg->jml_dikirim;
-            //                 }
-            //                 $addContent .='</tbody>
-            //               </table>
-            //                 </div>
-            //                 </div>
-            //                 <div class="alert d-flex justify-content-between" style="background: #141517;
-            //                 background: -webkit-linear-gradient(to right, #6777ef, #141517);
-            //                 background: linear-gradient(to right, #6777ef, #141517);
-            //                 " role="alert">
-            //                     <div class="col-auto">
-            //                         <span class="bullet"></span><span>Total Oplah</span><br>
-            //                         <span class="bullet"></span><span>Total Kirim</span><br>
-            //                         <span class="bullet"></span><span>Total Diterima  <a href="javascript:void(0)" class="text-warning" tabindex="0" role="button"
-            //                         data-toggle="popover" data-trigger="focus" title="Informasi"
-            //                         data-content="Jumlah oplah hanya dapat diinput oleh departemen penerbitan.">
-            //                         <abbr title="">
-            //                         <i class="fas fa-info-circle me-3"></i>
-            //                         </abbr>
-            //                         </a></span><br>
-            //                         <span class="bullet"></span><span>Total Kekurangan</span><br>
-            //                     </div>
-            //                     <div class="col-auto">
-            //                     <span class="text-center">' . $data->jumlah_cetak . ' eks</span><br>
-            //                         <span class="text-center">'.$totalKirim.' eks</span><br>
-            //                         <span class="text-center">'.$totalDiterima[0]->total_diterima.' eks</span><br>
-            //                         <span class="text-center" id="totKekurangan">' . $totalKekurangan. ' eks</span>
-            //                     </div>
-            //                 </div>';
-            //     $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
-            //     $badge = 'badge badge-success';
-            //     if($kabag) {
-            //         $classTooltip ="tooltip-class";
-            //         $disable = 'title="Hanya admin pengiriman" style="cursor:not-allowed" disabled';
-            //     } else {
-            //         $disable = 'style="cursor:not-allowed" disabled';
-            //     }
-            //     break;
-        }
-        $content .= '
+                        })->all();
+                        $addContent .= '<tr id="index_' . $kg->id . '">
+                                  <td id="row_num' . $i . '">' . $i . '<input type="hidden" name="task_number[]" value=' . $i . '></td>
+                                  <td>' . $kg->tgl_kirim . '</td>
+                                  <td>' . $kg->otorisasi_oleh . '</td>
+                                  <td>' . $kg->tgl_diterima . '</td>
+                                  <td>' . $kg->diterima_oleh . '</td>
+                                  <td>' . $kg->jml_kirim . ' eks</td>
+                                  <td>' . $kg->status . '</td>
+                                  <td><button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1 tooltip-class"
+                                  title="Data sudah diterima" style="cursor:not-allowed" disabled>
+                                  <i class="fas fa-edit"></i></button>
+                                  <button type="button" class="btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1 tooltip-class" id="btnDeleteRiwayatKirim" title="Data sudah diterima" style="cursor:not-allowed" disabled>
+                                  <i class="fas fa-trash"></i></button>
+                                  <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" data-id="' . $kg->id . '" title="Catatan" data-toggle="modal" data-target="#modalCatatan">
+                                  <i class="fas fa-comment-alt"></i></button></td>
+                                </tr>';
+                        $totalKirim += $kg->jml_kirim;
+                    }
+                    $addContent .= '</tbody>
+                          </table>
+                            </div>
+                            </div>
+                            <div class="alert d-flex justify-content-between" style="background: #141517;
+                            background: -webkit-linear-gradient(to right, #6777ef, #141517);
+                            background: linear-gradient(to right, #6777ef, #141517);
+                            " role="alert">
+                                <div class="col-auto">
+                                    <span class="bullet"></span><span>Total Cetak</span><br>
+                                    <span class="bullet"></span><span>Total Kirim</span><br>
+                                    <span class="bullet"></span><span>Total Diterima  <a href="javascript:void(0)" class="text-warning" tabindex="0" role="button"
+                                    data-toggle="popover" data-trigger="focus" title="Informasi"
+                                    data-content="Jumlah cetak rekondisi hanya dapat diinput oleh admin pengiriman.">
+                                    <abbr title="">
+                                    <i class="fas fa-info-circle me-3"></i>
+                                    </abbr>
+                                    </a></span><br>
+                                    <span class="bullet"></span><span>Total Kekurangan</span><br>
+                                </div>
+                                <div class="col-auto">
+                                <span class="text-center">' . $data->jml_rekondisi . ' eks</span><br>
+                                    <span class="text-center">' . $totalKirim . ' eks</span><br>
+                                    <span class="text-center">' . $totalDiterima[0]->total_diterima . ' eks</span><br>
+                                    <span class="text-center" id="totKekurangan">' . $totalKekurangan . ' eks</span>
+                                </div>
+                            </div>';
+                    $footer .= '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;">Close</button>';
+                    $badge = 'badge badge-success';
+                    if ($kabag) {
+                        $classTooltip = "tooltip-class";
+                        $disable = 'title="Hanya admin pengiriman" style="cursor:not-allowed" disabled';
+                    } else {
+                        $disable = 'style="cursor:not-allowed" disabled';
+                    }
+                    break;
+            }
+            $content .= '
                         <div class="form-row">
                             <div class="form-group col-md-6">
                             <label for="jmlCetak">Jumlah buku yang rekondisi <a href="javascript:void(0)" class="text-primary" tabindex="0" role="button"
                             data-toggle="popover" data-trigger="focus" title="Informasi"
-                            data-content="Jumlah rekondisi hanya dapat diinput oleh departemen penerbitan.">
+                            data-content="Jumlah rekondisi hanya dapat diinput di awal pembuatan rekondisi produksi.">
                             <abbr title="">
                             <i class="fas fa-info-circle me-3"></i>
                             </abbr>
                             </a></label>
-                            <input name="jml_cetak" class="form-control tooltip-class" id="jmlCetak" value="' . $data->jml_rekondisi . '" title="Tidak dapat diubah" style="cursor:not-allowed" readonly>
+                            <input name="jml_rekondisi" class="form-control tooltip-class" id="jmlCetak" value="' . $data->jml_rekondisi . '" title="Tidak dapat diubah" style="cursor:not-allowed" readonly>
                             </div>
                             <div class="form-group col-md-6">
                             <label for="jmlDikirim">Jumlah Dikirim (<span class="text-danger">*</span>)</label>
-                            <input name="jml_dikirim" class="form-control '.$classTooltip.'" id="jmlDikirim" ' . $disable . '>
-                            <span id="err_jml_dikirim"></span>
+                            <input name="jml_kirim" class="form-control ' . $classTooltip . '" id="jmlDikirim" ' . $disable . '>
+                            <span id="err_jml_kirim"></span>
                             </div>
                         </div>';
-        $content .= $addContent;
-        return [
-            'badge' => $badge,
-            'status' => $status,
-            'content' => $content,
-            'footer' => $footer,
-            'data' => $data,
-        ];
+            $content .= $addContent;
+            return [
+                'badge' => $badge,
+                'status' => $status,
+                'content' => $content,
+                'footer' => $footer,
+                'data' => $data,
+            ];
         }
     }
-    public function edit($id)
+    public function edit(Request $request,$id)
     {
-        //
+        if ($request->ajax()) {
+            if ($request->request_type == 'show-modal-edit-riwayat') {
+                return self::showModalEditRiwayat($id);
+            }
+        }
     }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    protected function showModalEditRiwayat($id)
+    {
+        try {
+            $data = DB::table('proses_produksi_rekondisi_kirim')->where('id',$id)->first();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return abort(500);
+        }
+    }
     public function update(Request $request, $id)
     {
         //
     }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         //

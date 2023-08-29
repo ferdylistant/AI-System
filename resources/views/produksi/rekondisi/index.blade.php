@@ -120,8 +120,8 @@
         </div>
     </section>
     @include('produksi.rekondisi.include.modal_tambah')
-    {{-- @include('produksi.include.modal_edit_riwayatkirim') --}}
     @include('produksi.rekondisi.include.modal_pengiriman')
+    @include('produksi.include.modal_edit_riwayatkirim')
     {{-- @include('tracker_modal') --}}
 @endsection
 

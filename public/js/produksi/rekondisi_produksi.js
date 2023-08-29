@@ -174,6 +174,7 @@ $(document).ready(function () {
     })
     $('#modalPengirimanRekondisi').on('shown.bs.modal',function (e) {
         let id = $(e.relatedTarget).data('id'),
+            produksi_id = $(e.relatedTarget).data('produksi_id'),
             status = $(e.relatedTarget).data('status'),
             judul = $(e.relatedTarget).data('judul'),
             cardWrap = $("#modalPengirimanRekondisi");
@@ -190,9 +191,9 @@ $(document).ready(function () {
             success: function (result) {
                 cardWrap.find('#statusJob').attr('class', result.badge).trigger('change');
                 cardWrap.find('#statusJob').text(result.status).trigger('change');
-                cardWrap.find('#sectionTitle').html(result.sectionTitle).trigger('change');
-                cardWrap.find('[name="produksi_id"]').val(result.data.id).trigger('change');
-                cardWrap.find('[name="proses_tahap"]').val(result.proses_tahap).trigger('change');cardWrap.find('#contentData').html(result.content).trigger('change');
+                cardWrap.find('[name="id"]').val(id).trigger('change');
+                cardWrap.find('[name="produksi_id"]').val(produksi_id).trigger('change');
+                cardWrap.find('#contentData').html(result.content).trigger('change');
                 cardWrap.find('#footerModal').html(result.footer).trigger('change');
                 $('[data-toggle="popover"]').popover();
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('.tooltip-class'))
@@ -218,4 +219,158 @@ $(document).ready(function () {
             }
             });
     })
+    let formKirimRekondisi = jqueryValidation_("#form_Tracking", {
+        jml_kirim: {
+            required: true,
+            number: true
+        },
+    });
+    function ajaxKirimRekondisi(data) {
+        let el = new FormData(data.get(0)),
+        cardWrap = $('#modalPengirimanRekondisi');
+
+        $.ajax({
+            url: window.location.origin + "/produksi/rekondisi?request_type=submit-kirim-gudang",
+            type: 'POST',
+            data: el,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                cardWrap.addClass("modal-progress");
+            },
+            success: function (res) {
+                console.log(res);
+                notifToast(res.status, res.message);
+                if (res.status == 'success') {
+                    tableRekondisiProduksi.ajax.reload();
+                    $("#modalTrackProduksi").modal("hide");
+                }
+            },
+            error: function (err) {
+                // console.log(err.responseJSON)
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    formKirimRekondisi.showErrors(err);
+                }
+                notifToast("error", "Terjadi kesalahan!");
+                cardWrap.removeClass("modal-progress");
+            },
+            complete: function () {
+                cardWrap.removeClass("modal-progress");
+            },
+        });
+    }
+    $('#form_Tracking').submit(function (e) {
+        e.preventDefault();
+
+        if ($(this).valid()) {
+            swal({
+                text: "Apakah data pengiriman rekondisi sudah benar?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxKirimRekondisi($(this));
+                }
+            });
+        }
+    });
+    //Edit Riwayat Kirim
+    $('#modalEditRiwayatKirim').on('shown.bs.modal', function (e) {
+        let id = $(e.relatedTarget).data('id'),
+            tglmulai =  $(e.relatedTarget).data('dibuat'),
+            cardWrap = $("#modalEditRiwayatKirim");
+        $.ajax({
+            url: window.location.origin + "/produksi/rekondisi/"+id+"/edit?request_type=show-modal-edit-riwayat",
+            type: 'GET',
+            success: function (res) {
+                $('#modalEditRiwayatKirim').find('#titleEditRiwayat').text(tglmulai).change();
+                $('#modalEditRiwayatKirim').find('[name="track_id"]').val(res.rekondisi_id).change();
+                $('#modalEditRiwayatKirim').find('[name="jml_dikirim"]').val(res.jml_kirim).change();
+                $('#modalEditRiwayatKirim').find('[name="catatan"]').val(res.catatan).change();
+                var jmlDikirim = document.getElementById('editJmlDikirim');
+                var maskjmlDikirim = {
+                    mask: '0000000000000'
+                };
+                var mask = IMask(jmlDikirim, maskjmlDikirim, reverse = true);
+                cardWrap.removeClass('modal-progress')
+            }
+        });
+    });
+    $("#modalEditRiwayatKirim").on("hidden.bs.modal", function (e) {
+        // let d = $(e.relatedTarget).attr('id','statusJob');
+        // console.log(d);
+        $(this).find("form").trigger("reset");
+        $(this).addClass("modal-progress");
+        $(this).modal('hide');
+    });
+    function ajaxEditRiwayatKirim(data,id,track_id) {
+        let el = data.get(0);
+        $.ajax({
+            url: window.location.origin + "/produksi/proses/cetak/ajax/submit-edit-riwayat?id="+id+'&track_id='+track_id,
+            type: 'POST',
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", true)
+                    .addClass("btn-progress");
+            },
+            success: function (res) {
+                notifToast(res.status, res.message);
+                if (res.status == 'success') {
+                    // $("#modalTrackProduksi #indexCatatan"+id).html(res.data.catatan).change();
+                    $("#modalTrackProduksi #indexJmlKirim"+id).html(res.data.jml_dikirim+' eks').change();
+                    $("#modalTrackProduksi #totDikirim").html(res.data.total_dikirim+' eks').change();
+                    $("#modalEditRiwayatKirim").modal("hide");
+                }
+            },
+            error: function (err) {
+                // console.log(err.responseJSON)
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    editRiwayat.showErrors(err);
+                }
+                notifToast("error", "Terjadi kesalahan!");
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+            complete: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            },
+        });
+    }
+    $('#form_EditRiwayat').on('submit', function (e) {
+        e.preventDefault();
+        let id = $(this).find('[name="id"]').val();
+        let track_id = $(this).find('[name="track_id"]').val();
+        console.log(track_id);
+        if ($(this).valid()) {
+            swal({
+                text: "Apakah Anda yakin ingin mengubah data?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxEditRiwayatKirim($(this),id,track_id);
+                }
+            });
+        }
+    });
 });

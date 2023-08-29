@@ -122,6 +122,15 @@ class ProduksiListener
                 ]);
                 DB::commit();
                 break;
+            case 'Kirim Rekondisi Ke Gudang':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_rekondisi_kirim')->insert([
+                    'rekondisi_id' => $data['rekondisi_id'],
+                    'jml_kirim' => $data['jml_kirim'],
+                    'otorisasi_oleh' => $data['otorisasi_oleh']
+                ]);
+                DB::commit();
+                break;
             default:
                 return abort(500);
                 break;
