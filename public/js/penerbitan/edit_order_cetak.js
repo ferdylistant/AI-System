@@ -145,8 +145,8 @@ function loadDataValue() {
                         break;
                 }
             }
-            $('#fup_OrderCetak button').attr('disabled', disable).change();
-            $('#fup_OrderCetak button').css('cursor', cursor).change();
+            $('#fup_OrderCetak').find('button').attr('disabled', disable).change();
+            $('#fup_OrderCetak').find('button').css('cursor', cursor).change();
         },
         error: function (err) {
             console.log(err);
