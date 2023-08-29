@@ -267,6 +267,60 @@ $(document).ready(function () {
             }
         });
     });
+    $('#kelBuku').select2({
+        placeholder: 'Pilih',
+        ajax: {
+            url: window.location.origin + "/penerbitan/naskah/membuat-naskah",
+            type: "GET",
+            cache: true,
+            data: function (params) {
+                var queryParameters = {
+                    request_select: "selectKategoriAll",
+                    term: params.term,
+                };
+                return queryParameters;
+            },
+            processResults: function (data) {
+                return {
+                    results: $.map(data, function (item) {
+                        return {
+                            text: item.nama,
+                            id: item.id,
+                        };
+                    }),
+                };
+            },
+        },
+    }).on("select2:select", function (e) {
+        getSubKelompokVal(e.params.data.id);
+    });
+    function getSubKelompokVal(id) {
+        $("#sKelBuku").select2({
+            placeholder: 'Pilih',
+            ajax: {
+                url: window.location.origin + "/penerbitan/naskah/membuat-naskah",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        request_select: "selectSub",
+                        term: params.term,
+                        kelompok_id: id,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                id: item.id,
+                                text: item.nama,
+                            };
+                        }),
+                    };
+                },
+            },
+        });
+    }
     let editFormValid = jqueryValidation_("#fup_OrderCetak", {
         up_edisi_cetak: {
             required: true,
@@ -331,60 +385,6 @@ $(document).ready(function () {
             required: true,
         },
     });
-    $('#kelBuku').select2({
-        placeholder: 'Pilih',
-        ajax: {
-            url: window.location.origin + "/penerbitan/naskah/membuat-naskah",
-            type: "GET",
-            cache: true,
-            data: function (params) {
-                var queryParameters = {
-                    request_select: "selectKategoriAll",
-                    term: params.term,
-                };
-                return queryParameters;
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data, function (item) {
-                        return {
-                            text: item.nama,
-                            id: item.id,
-                        };
-                    }),
-                };
-            },
-        },
-    }).on("select2:select", function (e) {
-        getSubKelompokVal(e.params.data.id);
-    });
-    function getSubKelompokVal(id) {
-        $("#sKelBuku").select2({
-            placeholder: 'Pilih',
-            ajax: {
-                url: window.location.origin + "/penerbitan/naskah/membuat-naskah",
-                type: "GET",
-                data: function (params) {
-                    var queryParameters = {
-                        request_select: "selectSub",
-                        term: params.term,
-                        kelompok_id: id,
-                    };
-                    return queryParameters;
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                id: item.id,
-                                text: item.nama,
-                            };
-                        }),
-                    };
-                },
-            },
-        });
-    }
     function ajaxUpOrderCetak(data) {
         let el = data.get(0);
         let id = data.data("id");
@@ -434,7 +434,6 @@ $(document).ready(function () {
 
     $("#fup_OrderCetak").on("submit", function (e) {
         e.preventDefault();
-        console.log(e);
         if ($(this).valid()) {
             let nama = $(this).find('[name="up_judul_final"]').val();
             console.log(nama);

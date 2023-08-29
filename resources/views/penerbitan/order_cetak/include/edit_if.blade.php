@@ -251,7 +251,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fa fa-swatchbook"></i></div>
                     </div>
-                    <select name="up_finishing_cover[]" class="form-control select-finishing-cover" multiple="multiple" required>
+                    <select name="up_finishing_cover[]" class="form-control select-finishing-cover" multiple="multiple">
                         @foreach ($finishing_cover as $f)
                             <option value="{{$f}}">{{$f}}&nbsp;&nbsp;</option>
                         @endforeach
@@ -263,8 +263,8 @@
                 <label>Buku Jadi: <span class="text-danger">*</span></label>
                 <div class="form-check">
                     @foreach ($buku_jadi as $bj)
-                        <input class="form-check-input" type="radio" name="up_buku_jadi" value="{{ $bj }}" required>
-                        <label class="form-check-label mr-4" for="up_buku_jadi">{{ $bj }}</label><br>
+                        <input class="form-check-input" type="radio" name="up_buku_jadi" value="{{ $bj }}" id="bukuJadiCheck">
+                        <label class="form-check-label mr-4" for="bukuJadiCheck">{{ $bj }}</label><br>
                     @endforeach
                 </div>
                 <div id="err_up_buku_jadi" style="display: block;"></div>
@@ -285,7 +285,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                     </div>
-                    <input type="text" class="form-control datepicker-year" name="up_tahun_terbit" placeholder="Tahun" readonly>
+                    <input type="text" class="form-control datepicker-year" name="up_tahun_terbit" placeholder="Tahun">
                     <div id="err_up_tahun_terbit"></div>
                 </div>
             </div>
@@ -295,7 +295,7 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text"><i class="fas fa-calendar-alt"></i></div>
                     </div>
-                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun" readonly>
+                    <input type="text" class="form-control datepicker" name="up_tgl_permintaan_jadi" placeholder="Hari Bulan Tahun">
                     <div id="err_up_tgl_permintaan_jadi"></div>
                 </div>
             </div>
