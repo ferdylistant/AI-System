@@ -315,7 +315,7 @@ $(document).ready(function () {
         up_warna_cover: {
             required: true,
         },
-        up_finishing_cover: {
+        "up_finishing_cover[]": {
             required: true,
         },
         up_buku_jadi: {
