@@ -432,7 +432,7 @@ $(document).ready(function () {
         });
     }
 
-    $("#fup_OrderCetak").on("submit", function (e) {
+    $("#fup_OrderCetak").submit(function (e) {
         e.preventDefault();
         if ($(this).valid()) {
             let nama = $(this).find('[name="up_judul_final"]').val();
