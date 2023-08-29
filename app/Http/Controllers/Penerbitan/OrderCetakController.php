@@ -1724,6 +1724,7 @@ class OrderCetakController extends Controller
             ->join('deskripsi_cover as dc','dc.id','=','pc.deskripsi_cover_id')
             ->join('deskripsi_produk as dp','dp.id','=','dc.deskripsi_produk_id')
             ->join('penerbitan_naskah as pn','pn.id','=','dp.naskah_id')
+            ->join('pj_st_andi as st','pn.id','=','st.naskah_id')
             ->groupBy('pn.kode')
             ->select(
                 'oc.*',
