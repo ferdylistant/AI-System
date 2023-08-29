@@ -740,49 +740,29 @@ class UsersController extends Controller
     }
     protected function getDataPermissions($id)
     {
-        if (Cache::has('userPermission')) {
-            $userPermissions = Cache::get('userPermission');
-        } else {
-            $userPermissions = DB::table('user_permission')
-                ->where('user_id', $id)
-                ->get();
-            Cache::put('userPermission', $userPermissions, now()->addMinutes(5));
-        }
-        if (Cache::has('accessBagian')) {
-            $accessBagian = Cache::get('accessBagian');
-        } else {
-            $accessBagian   = DB::table('access_bagian')
-                ->orderBy('order_ab', 'asc')
-                ->get();
-            Cache::put('accessBagian', $accessBagian, now()->addMinutes(5));
-        }
-        if (Cache::has('access')) {
-            $access = Cache::get('access');
-        } else {
-            $access = DB::table('access')
-                ->select(
-                    'id',
-                    'parent_id',
-                    'bagian_id',
-                    'level',
-                    'order_menu',
-                    'url',
-                    'name'
-                )
-                ->orderBy('order_menu', 'asc')
-                ->orderBy('level', 'desc')
-                ->get();
-            Cache::put('access', $access, now()->addMinutes(5));
-        }
-        if (Cache::has('permissions')) {
-            $permissions = Cache::get('permissions');
-        } else {
-            $permissions    = DB::table('permissions as p')
-                ->join('access as a', 'p.access_id', '=', 'a.id')
-                ->select(DB::raw('p.*, a.bagian_id'))
-                ->get();
-            Cache::put('permissions', $permissions, now()->addMinutes(5));
-        }
+        $userPermissions = DB::table('user_permission')
+            ->where('user_id', $id)
+            ->get();
+        $accessBagian   = DB::table('access_bagian')
+            ->orderBy('order_ab', 'asc')
+            ->get();
+        $access = DB::table('access')
+            ->select(
+                'id',
+                'parent_id',
+                'bagian_id',
+                'level',
+                'order_menu',
+                'url',
+                'name'
+            )
+            ->orderBy('order_menu', 'asc')
+            ->orderBy('level', 'desc')
+            ->get();
+        $permissions    = DB::table('permissions as p')
+            ->join('access as a', 'p.access_id', '=', 'a.id')
+            ->select(DB::raw('p.*, a.bagian_id'))
+            ->get();
         $temp = 0;
         foreach ($permissions as $p) {
             foreach ($userPermissions as $up) {
