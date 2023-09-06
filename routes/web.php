@@ -3,6 +3,7 @@
 use App\Models\Naskah;
 use Illuminate\Http\Request;
 use App\Events\TesWebsocketEvent;
+use App\Http\Controllers\PenjualanStok\PenerimaanRekondisiController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Produksi\RekondisiController;
 
@@ -258,6 +259,8 @@ Route::middleware(['auth'])->group(function () use ($path) {
     });
     //Penjualan Dan Stok
     Route::prefix('penjualan-stok')->group(function () use ($path) {
+        //Rekondisi
+        Route::resource('/gudang/penerimaan-rekondisi',PenerimaanRekondisiController::class);
         //Penerimaan Buku Stok Andi
         Route::match(['get','post'],'/gudang/penerimaan-buku/andi', $path.'\PenjualanStok\PenerimaanBukuController@index');
         //Stok Andi

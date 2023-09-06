@@ -32,7 +32,7 @@
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
-                    <div class="card card-success">
+                    <div class="card card-primary">
                         <form id="fadd_Penulis">
                             <div class="card-header">
                                 <h4>Form Penulis</h4>
@@ -322,13 +322,12 @@
                                         </div>
                                     </div>
                                     <div class="form-group col-12 col-md-12 mb-4">
-                                        <label>File Hibah Royalti (<span class="text-danger">.pdf</span>) </label>
-                                        <div class="custom-file">
-                                            <input type="file" class="custom-file-input form-control"
-                                                name="add_file_hibah_royalti" id="fileHR">
-                                            <label class="custom-file-label" for="fileHR">Choose file</label>
+                                        <label>URL File Hibah Royalti (<span class="text-danger">-Format
+                                            URL</span>)</label>
+                                        <div class="input-group">
+                                            <textarea class="form-control" name="add_url_hibah_royalti"></textarea>
+                                            <div id="err_add_url_hibah_royalti"></div>
                                         </div>
-                                        <div id="err_add_file_hibah_royalti" style="display: block;"></div>
                                     </div>
                                 </div>
 
@@ -341,6 +340,13 @@
                                         <div class="input-group">
                                             <textarea class="form-control" name="add_url_tentang_penulis"></textarea>
                                             <div id="err_add_url_tentang_penulis"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-12 mb-4">
+                                        <label>Catatan: (<span class="text-secondary">Opsional</span>)</label>
+                                        <div class="input-group">
+                                            <textarea class="form-control" name="add_catatan"></textarea>
+                                            <div id="err_add_catatan"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -534,10 +540,6 @@
                     min: 0,
                     maxlength: 20,
                     number: true
-                },
-                add_file_hibah_royalti: {
-                    extension: "pdf",
-                    maxsize: 2000000,
                 },
                 add_scan_ktp: {
                     extension: "pdf",

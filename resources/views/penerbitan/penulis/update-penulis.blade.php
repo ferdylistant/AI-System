@@ -34,7 +34,7 @@
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
-                    <div class="card card-warning">
+                    <div class="card card-primary">
                         <form id="fedit_Penulis">
                             <div class="card-header">
                                 <h4>Form Penulis</h4>
@@ -332,33 +332,32 @@
                                             <div id="err_edit_foto_penulis" style="display: block;"></div>
                                         </div>
                                     </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>File Hibah Royalti (<span class="text-danger">.pdf</span>) </label>
-                                        <div class="custom-file">
-                                            <input type="file" class="custom-file-input"
-                                                name="edit_file_hibah_royalti" id="fileHR">
-                                            <label class="custom-file-label" for="fileHR">Choose file</label>
+                                    <div class="form-group col-12 col-md-12 mb-4">
+                                        <label>URL File Hibah Royalti: (<span class="text-danger">-Format
+                                            URL</span>)</label>
+                                        <div class="input-group">
+                                            <textarea class="form-control" name="edit_url_hibah_royalti">{{ $penulis->url_hibah_royalti }}</textarea>
+                                            <div id="err_edit_url_hibah_royalti"></div>
                                         </div>
-                                        <div id="err_edit_file_hibah_royalti" style="display: block;"></div>
-                                    </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        @if (!is_null($penulis->file_hibah_royalti))
-                                            <div class="ipgs-flipbook"
-                                                data-pdf-src="{{ url('storage/penerbitan/penulis/' . $penulis->id . '/' . $penulis->file_hibah_royalti) }}"
-                                                data-book-engine="onepageswipe" style="max-height: 300px;"></div>
-                                        @endif
                                     </div>
                                 </div>
 
                                 <h5>#3</h5>
                                 <hr>
-                                <div class="row  mb-5">
+                                <div class="row mb-5">
                                     <div class="form-group col-12 mb-4">
                                         <label>URL File Tentang Penulis: (<span class="text-danger">-Format
                                                 URL</span>)</label>
                                         <div class="input-group">
                                             <textarea class="form-control" name="edit_url_tentang_penulis">{{ $penulis->url_tentang_penulis }}</textarea>
                                             <div id="err_edit_url_tentang_penulis"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-12 mb-4">
+                                        <label>Catatan: (<span class="text-secondary">Opsional</span>)</label>
+                                        <div class="input-group">
+                                            <textarea class="form-control" name="edit_catatan">{{ $penulis->catatan }}</textarea>
+                                            <div id="err_edit_catatan"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -571,10 +570,6 @@
                     min: 0,
                     maxlength: 20,
                     number: true
-                },
-                edit_file_hibah_royalti: {
-                    extension: "pdf",
-                    maxsize: 2000000,
                 },
                 edit_scan_ktp: {
                     extension: "pdf",

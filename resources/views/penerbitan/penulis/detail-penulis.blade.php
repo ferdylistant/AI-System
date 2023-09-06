@@ -229,13 +229,10 @@
                                 @endif
                             </div>
                             <div class="form-group col-12 col-md-4 mb-4">
-                                <label>File Hibah Royalti (<span class="text-danger">.pdf</span>) </label>
-                                @if(!is_null($penulis->file_hibah_royalti))
-                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->file_hibah_royalti)}}"
-                                    data-book-engine="onepageswipe" style="max-height: 300px;"></div>
-                                @else
-                                <div><small class="text-muted">#Tidak ada file diupload.</small></div>
-                                @endif
+                                <label>URL File Hibah Royalti: (<span class="text-danger">-Format URL</span>)</label>
+                                <div class="input-group">
+                                    <textarea class="form-control" disabled>{{is_null($penulis->url_hibah_royalti)?'-':$penulis->url_hibah_royalti}}</textarea>
+                                </div>
                             </div>
                         </div>
 
@@ -244,6 +241,12 @@
                                 <label>URL File Tentang Penulis: (<span class="text-danger">-Format URL</span>)</label>
                                 <div class="input-group">
                                     <textarea class="form-control" disabled>{{is_null($penulis->url_tentang_penulis)?'-':$penulis->url_tentang_penulis}}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-group col-12 mb-4">
+                                <label>Catatan: (<span class="text-secondary">Opsional</span>)</label>
+                                <div class="input-group">
+                                    <textarea class="form-control" disabled>{{is_null($penulis->catatan)?'-':$penulis->catatan}}</textarea>
                                 </div>
                             </div>
                         </div>

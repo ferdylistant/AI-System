@@ -12,21 +12,21 @@ $(document).ready(function () {
                 buttons: [
                     {
                         extend: 'print',
-                        text: '<i class="text-secondary bi bi-printer"></i> Print',
+                        text: '<i class="text-secondary fa fa-print"></i> Print',
                         exportOptions: {
                             columns: [0,1,2,4,5,6,7,8,9]
                         }
                     },
                     {
                         extend: 'pdf',
-                        text: '<i class="text-danger bi bi-filetype-pdf"></i> PDF',
+                        text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
                         exportOptions: {
                             columns: [0,1,2,4,5,6,7,8,9]
                         }
                     },
                     {
                         extend: 'excel',
-                        text: '<i class="text-success bi bi-filetype-xlsx"></i> Excel',
+                        text: '<i class="text-success fa fa-file-excel"></i> Excel',
                         exportOptions: {
                             columns: [0,1,2,4,5,6,7,8,9]
                         }

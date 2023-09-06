@@ -153,7 +153,7 @@ class PenulisController extends Controller
 
         $penulis = (object) collect($penulis)
             ->map(function ($val, $key) {
-                if (!in_array($key, ['scan_ktp', 'scan_npwp', 'foto_penulis', 'file_hibah_royalti']) and $val == '') {
+                if (!in_array($key, ['scan_ktp', 'scan_npwp', 'foto_penulis']) and $val == '') {
                     return '-';
                 }
                 if ($key == 'tanggal_lahir') {
@@ -182,7 +182,7 @@ class PenulisController extends Controller
                         'add_npwp' => 'nullable|unique:penerbitan_penulis,npwp',
                         'add_scan_ktp' => 'nullable|mimes:pdf',
                         'add_scan_npwp' => 'nullable|mimes:pdf',
-                        'add_file_hibah_royalti' => 'nullable|mimes:pdf',
+                        'add_url_hibah_royalti' => 'nullable|url',
                         'add_url_tentang_penulis' => 'nullable|url',
                     ],
                     [
@@ -194,7 +194,7 @@ class PenulisController extends Controller
                 $scanktp = null;
                 $scannpwp = null;
                 $fotoPenulis = null;
-                $fHibahRoyalti = null;
+                // $fHibahRoyalti = null;
                 if (!is_null($request->file('add_scan_npwp'))) {
                     $scannpwp = explode('/', $request->file('add_scan_npwp')->store('penerbitan/penulis/' . $idPenulis . '/'));
                     $scannpwp = end($scannpwp);
@@ -213,10 +213,10 @@ class PenulisController extends Controller
                     $fotoPenulis = 'default.jpg';
                 }
 
-                if (!is_null($request->file('add_file_hibah_royalti'))) {
-                    $fHibahRoyalti = explode('/', $request->file('add_file_hibah_royalti')->store('penerbitan/penulis/' . $idPenulis . '/'));
-                    $fHibahRoyalti = end($fHibahRoyalti);
-                }
+                // if (!is_null($request->file('add_file_hibah_royalti'))) {
+                //     $fHibahRoyalti = explode('/', $request->file('add_file_hibah_royalti')->store('penerbitan/penulis/' . $idPenulis . '/'));
+                //     $fHibahRoyalti = end($fHibahRoyalti);
+                // }
 
                 try {
                     DB::beginTransaction();
@@ -247,7 +247,8 @@ class PenulisController extends Controller
                         'scan_ktp' => $scanktp,
                         'foto_penulis' => $fotoPenulis,
                         'url_tentang_penulis' => $request->input('add_url_tentang_penulis'),
-                        'file_hibah_royalti' => $fHibahRoyalti,
+                        'url_hibah_royalti' => $request->input('add_url_hibah_royalti'),
+                        'catatan' => $request->input('add_catatan'),
                         'created_by' => auth()->id(),
                     ]);
                     $insert = [
@@ -261,6 +262,7 @@ class PenulisController extends Controller
                         'alamat_domisili' => $request->input('add_alamat_domisili'),
                         'telepon_domisili' => $request->input('add_telepon_domisili'),
                         'ponsel_domisili' => $request->input('add_ponsel_domisili'),
+                        'url_hibah_royalti' => $request->input('add_url_hibah_royalti'),
                         'email' => $request->input('add_email'),
                         'nama_kantor' => $request->input('add_nama_kantor'),
                         'alamat_kantor' => $request->input('add_alamat_kantor'),
@@ -269,6 +271,7 @@ class PenulisController extends Controller
                         'sosmed_fb' => $request->input('add_sosmed_fb'),
                         'sosmed_ig' => $request->input('add_sosmed_ig'),
                         'sosmed_tw' => $request->input('add_sosmed_tw'),
+                        'catatan' => $request->input('add_catatan'),
                         'author_id' => auth()->user()->id,
                         'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                     ];
@@ -308,7 +311,7 @@ class PenulisController extends Controller
                 $scanktp = $penulis->scan_ktp;
                 $scannpwp = $penulis->scan_npwp;
                 $fotoPenulis = $penulis->foto_penulis;
-                $fHibahRoyalti = $penulis->file_hibah_royalti;
+                // $fHibahRoyalti = $penulis->file_hibah_royalti;
                 try {
                     if (!is_null($request->file('edit_scan_npwp'))) {
                         $scannpwp = explode('/', $request->file('edit_scan_npwp')->store('penerbitan/penulis/' . $request->id . '/'));
@@ -322,10 +325,10 @@ class PenulisController extends Controller
                         $fotoPenulis = explode('/', $request->file('edit_foto_penulis')->store('penerbitan/penulis/' . $request->id . '/'));
                         $fotoPenulis = end($fotoPenulis);
                     }
-                    if (!is_null($request->file('edit_file_hibah_royalti'))) {
-                        $fHibahRoyalti = explode('/', $request->file('edit_file_hibah_royalti')->store('penerbitan/penulis/' . $request->id . '/'));
-                        $fHibahRoyalti = end($fHibahRoyalti);
-                    }
+                    // if (!is_null($request->file('edit_file_hibah_royalti'))) {
+                    //     $fHibahRoyalti = explode('/', $request->file('edit_file_hibah_royalti')->store('penerbitan/penulis/' . $request->id . '/'));
+                    //     $fHibahRoyalti = end($fHibahRoyalti);
+                    // }
                     $history = DB::table('penerbitan_penulis')
                         ->where('id', $request->edit_id)
                         ->first();
@@ -354,10 +357,11 @@ class PenulisController extends Controller
                             'bank_atasnama' => $request->input('edit_bank_atasnama'),
                             'npwp' => $request->input('edit_npwp'),
                             'ktp' => $request->input('edit_ktp'),
-                            'file_hibah_royalti' => $fHibahRoyalti,
+                            'url_hibah_royalti' => $request->input('edit_url_hibah_royalti'),
                             'scan_npwp' => $scannpwp,
                             'scan_ktp' => $scanktp,
                             'foto_penulis' => $fotoPenulis,
+                            'catatan' => $request->input('edit_catatan'),
                             'updated_at' => date('Y-m-d H:i:s'),
                             'updated_by' => auth()->id(),
                         ]);
@@ -396,6 +400,8 @@ class PenulisController extends Controller
                         'sosmed_ig_new' => $history->sosmed_ig == $request->edit_sosmed_ig ? null : $request->edit_sosmed_ig,
                         'sosmed_tw_his' => $history->sosmed_tw == $request->edit_sosmed_tw ? null : $history->sosmed_tw,
                         'sosmed_tw_new' => $history->sosmed_tw == $request->edit_sosmed_tw ? null : $request->edit_sosmed_tw,
+                        'url_hibah_royalti_his' => $history->url_hibah_royalti == $request->edit_url_hibah_royalti ? null : $history->url_hibah_royalti,
+                        'url_hibah_royalti_new' => $history->url_hibah_royalti == $request->edit_url_hibah_royalti ? null : $request->edit_url_hibah_royalti,
                         'url_tentang_penulis_his' => $history->url_tentang_penulis == $request->edit_url_tentang_penulis ? null : $history->url_tentang_penulis,
                         'url_tentang_penulis_new' => $history->url_tentang_penulis == $request->edit_url_tentang_penulis ? null : $request->edit_url_tentang_penulis,
                         'bank_his' => $history->bank == $request->edit_bank ? null : $history->bank,
@@ -408,6 +414,8 @@ class PenulisController extends Controller
                         'npwp_new' => $history->npwp == $request->edit_npwp ? null : $request->edit_npwp,
                         'ktp_his' => $history->ktp == $request->edit_ktp ? null : $history->ktp,
                         'ktp_new' => $history->ktp == $request->edit_ktp ? null : $request->edit_ktp,
+                        'catatan_his' => $history->catatan == $request->edit_catatan ? null : $history->catatan,
+                        'catatan_new' => $history->catatan == $request->edit_catatan ? null : $request->edit_catatan,
                         'author_id' => auth()->user()->id,
                         'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                     ];
@@ -427,9 +435,9 @@ class PenulisController extends Controller
                     if ($fotoPenulis !== $penulis->foto_penulis) {
                         Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $fotoPenulis);
                     }
-                    if ($fHibahRoyalti !== $penulis->file_hibah_royalti) {
-                        Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $fHibahRoyalti);
-                    }
+                    // if ($fHibahRoyalti !== $penulis->file_hibah_royalti) {
+                    //     Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $fHibahRoyalti);
+                    // }
                     return abort(500);
                 }
 
@@ -442,9 +450,9 @@ class PenulisController extends Controller
                 if ($penulis->foto_penulis != $fotoPenulis) {
                     Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $penulis->foto_penulis);
                 }
-                if ($penulis->file_hibah_royalti != $fHibahRoyalti) {
-                    Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $penulis->file_hibah_royalti);
-                }
+                // if ($penulis->file_hibah_royalti != $fHibahRoyalti) {
+                //     Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $penulis->file_hibah_royalti);
+                // }
                 return;
             }
         }
@@ -781,6 +789,36 @@ class PenulisController extends Controller
                                 '<div class="ticket-title">
                                     <span><span class="bullet"></span> Sosmed twitter <b class="text-dark">' .
                                 $d->sosmed_tw_new .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        if (!is_null($d->catatan_his)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Catatan <b class="text-dark">' .
+                                $d->catatan_his .
+                                '</b> diubah menjadi <b class="text-dark">' .
+                                $d->catatan_new .
+                                '</b> </span></div>';
+                        } elseif (!is_null($d->catatan_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Catatan <b class="text-dark">' .
+                                $d->catatan_new .
+                                '</b> ditambahkan. </span></div>';
+                        }
+                        if (!is_null($d->url_hibah_royalti_his)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Url hibah royalti <b class="text-dark">' .
+                                $d->url_hibah_royalti_his .
+                                '</b> diubah menjadi <b class="text-dark">' .
+                                $d->url_hibah_royalti_new .
+                                '</b> </span></div>';
+                        } elseif (!is_null($d->url_hibah_royalti_new)) {
+                            $html .=
+                                '<div class="ticket-title">
+                                    <span><span class="bullet"></span> Url hibah royalti <b class="text-dark">' .
+                                $d->url_hibah_royalti_new .
                                 '</b> ditambahkan. </span></div>';
                         }
                         if (!is_null($d->url_tentang_penulis_his)) {

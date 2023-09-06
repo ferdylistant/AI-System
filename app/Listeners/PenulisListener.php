@@ -40,6 +40,7 @@ class penulisListener
                     'alamat_domisili_new' => $data['alamat_domisili'],
                     'telepon_domisili_new' => $data['telepon_domisili'],
                     'ponsel_domisili_new' => $data['ponsel_domisili'],
+                    'url_hibah_royalti_new' => $data['url_hibah_royalti'],
                     'email_new' => $data['email'],
                     'nama_kantor_new' => $data['nama_kantor'],
                     'alamat_kantor_new' => $data['alamat_kantor'],
@@ -48,6 +49,7 @@ class penulisListener
                     'sosmed_fb_new' => $data['sosmed_fb'],
                     'sosmed_ig_new' => $data['sosmed_ig'],
                     'sosmed_tw_new' => $data['sosmed_tw'],
+                    'catatan_new' => $data['catatan'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
@@ -86,6 +88,8 @@ class penulisListener
                     'sosmed_ig_his' => $data['sosmed_ig_his'],
                     'sosmed_tw_new' => $data['sosmed_tw_new'],
                     'sosmed_tw_his' => $data['sosmed_tw_his'],
+                    'url_hibah_royalti_new' => $data['url_hibah_royalti_new'],
+                    'url_hibah_royalti_his' => $data['url_hibah_royalti_his'],
                     'url_tentang_penulis_new' => $data['url_tentang_penulis_new'],
                     'url_tentang_penulis_his' => $data['url_tentang_penulis_his'],
                     'bank_new' => $data['bank_new'],
@@ -98,6 +102,8 @@ class penulisListener
                     'npwp_his' => $data['npwp_his'],
                     'ktp_new' => $data['ktp_new'],
                     'ktp_his' => $data['ktp_his'],
+                    'catatan_new' => $data['catatan_new'],
+                    'catatan_his' => $data['catatan_his'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
