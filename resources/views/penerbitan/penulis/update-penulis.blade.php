@@ -334,7 +334,7 @@
                                     </div>
                                     <div class="form-group col-12 col-md-12 mb-4">
                                         <label>URL File Hibah Royalti: (<span class="text-danger">-Format
-                                            URL</span>)</label>
+                                                URL</span>)</label>
                                         <div class="input-group">
                                             <textarea class="form-control" name="edit_url_hibah_royalti">{{ $penulis->url_hibah_royalti }}</textarea>
                                             <div id="err_edit_url_hibah_royalti"></div>
@@ -442,7 +442,10 @@
                 $(this).valid();
             });
             $('.datepicker').datepicker({
-                format: 'dd MM yyyy'
+                format: 'dd MM yyyy',
+                autoclose: true,
+                clearBtn: true,
+                todayHighlight: true
             });
             $('[data-magnify]').magnify({
                 resizable: false,
@@ -606,6 +609,7 @@
                         notifToast('success', 'Data penulis berhasil disimpan!', true);
                     },
                     error: function(err) {
+                        console.log(err.statusText);
                         rs = err.responseJSON.errors;
                         if (rs != undefined) {
                             err = {};

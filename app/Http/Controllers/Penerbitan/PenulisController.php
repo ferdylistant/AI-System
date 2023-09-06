@@ -23,10 +23,10 @@ class PenulisController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-                $data = DB::table('penerbitan_penulis')
+            $data = DB::table('penerbitan_penulis')
                 ->whereNull('deleted_at')
                 ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp')
-                ->orderBy('created_at','desc')
+                ->orderBy('created_at', 'desc')
                 ->get();
             switch ($request->input('request_')) {
                 case 'table-penulis':
@@ -308,6 +308,7 @@ class PenulisController extends Controller
 
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
+
                 $scanktp = $penulis->scan_ktp;
                 $scannpwp = $penulis->scan_npwp;
                 $fotoPenulis = $penulis->foto_penulis;
@@ -332,8 +333,8 @@ class PenulisController extends Controller
                     $history = DB::table('penerbitan_penulis')
                         ->where('id', $request->edit_id)
                         ->first();
-                    // DB::beginTransaction();
-                    DB::table('penerbitan_penulis')
+                    DB::beginTransaction();
+                    $updated = DB::table('penerbitan_penulis')
                         ->where('id', $request->id)
                         ->update([
                             'nama' => $request->input('edit_nama'),
@@ -362,65 +363,81 @@ class PenulisController extends Controller
                             'scan_ktp' => $scanktp,
                             'foto_penulis' => $fotoPenulis,
                             'catatan' => $request->input('edit_catatan'),
-                            'updated_at' => date('Y-m-d H:i:s'),
+                            'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                             'updated_by' => auth()->id(),
                         ]);
                     // return response()->json($penulis);
-                    $insert = [
-                        'params' => 'History Update Penulis',
-                        'type_history' => 'Update',
-                        'id' => $request->id,
-                        'nama_his' => $history->nama == $request->edit_nama ? null : $history->nama,
-                        'nama_new' => $history->nama == $request->edit_nama ? null : $request->edit_nama,
-                        'tanggal_lahir_his' => $history->tanggal_lahir == date('Y-m-d', strtotime($request->edit_tanggal_lahir)) ? null : $history->tanggal_lahir,
-                        'tanggal_lahir_new' => $history->tanggal_lahir == date('Y-m-d', strtotime($request->edit_tanggal_lahir)) ? null : Carbon::createFromFormat('d F Y', $request->edit_tanggal_lahir)->format('Y-m-d'),
-                        'tempat_lahir_his' => $history->tempat_lahir == $request->edit_tempat_lahir ? null : $history->tempat_lahir,
-                        'tempat_lahir_new' => $history->tempat_lahir == $request->edit_tempat_lahir ? null : $request->edit_tempat_lahir,
-                        'kewarganegaraan_his' => $history->kewarganegaraan == $request->edit_kewarganegaraan ? null : $history->kewarganegaraan,
-                        'kewarganegaraan_new' => $history->kewarganegaraan == $request->edit_kewarganegaraan ? null : $request->edit_kewarganegaraan,
-                        'alamat_domisili_his' => $history->alamat_domisili == $request->edit_alamat_domisili ? null : $history->alamat_domisili,
-                        'alamat_domisili_new' => $history->alamat_domisili == $request->edit_alamat_domisili ? null : $request->edit_alamat_domisili,
-                        'ponsel_domisili_his' => $history->ponsel_domisili == $request->edit_ponsel_domisili ? null : $history->ponsel_domisili,
-                        'ponsel_domisili_new' => $history->ponsel_domisili == $request->edit_ponsel_domisili ? null : $request->edit_ponsel_domisili,
-                        'telepon_domisili_his' => $history->telepon_domisili == $request->edit_telepon_domisili ? null : $history->telepon_domisili,
-                        'telepon_domisili_new' => $history->telepon_domisili == $request->edit_telepon_domisili ? null : $request->edit_telepon_domisili,
-                        'email_his' => $history->email == $request->edit_email ? null : $history->email,
-                        'email_new' => $history->email == $request->edit_email ? null : $request->edit_email,
-                        'nama_kantor_his' => $history->nama_kantor == $request->edit_nama_kantor ? null : $history->nama_kantor,
-                        'nama_kantor_new' => $history->nama_kantor == $request->edit_nama_kantor ? null : $request->edit_nama_kantor,
-                        'jabatan_dikantor_his' => $history->jabatan_dikantor == $request->edit_jabatan_dikantor ? null : $history->jabatan_dikantor,
-                        'jabatan_dikantor_new' => $history->jabatan_dikantor == $request->edit_jabatan_dikantor ? null : $request->edit_jabatan_dikantor,
-                        'alamat_kantor_his' => $history->alamat_kantor == $request->edit_alamat_kantor ? null : $history->alamat_kantor,
-                        'alamat_kantor_new' => $history->alamat_kantor == $request->edit_alamat_kantor ? null : $request->edit_alamat_kantor,
-                        'telepon_kantor_his' => $history->telepon_kantor == $request->edit_telepon_kantor ? null : $history->telepon_kantor,
-                        'telepon_kantor_new' => $history->telepon_kantor == $request->edit_telepon_kantor ? null : $request->edit_telepon_kantor,
-                        'sosmed_fb_his' => $history->sosmed_fb == $request->edit_sosmed_fb ? null : $history->sosmed_fb,
-                        'sosmed_fb_new' => $history->sosmed_fb == $request->edit_sosmed_fb ? null : $request->edit_sosmed_fb,
-                        'sosmed_ig_his' => $history->sosmed_ig == $request->edit_sosmed_ig ? null : $history->sosmed_ig,
-                        'sosmed_ig_new' => $history->sosmed_ig == $request->edit_sosmed_ig ? null : $request->edit_sosmed_ig,
-                        'sosmed_tw_his' => $history->sosmed_tw == $request->edit_sosmed_tw ? null : $history->sosmed_tw,
-                        'sosmed_tw_new' => $history->sosmed_tw == $request->edit_sosmed_tw ? null : $request->edit_sosmed_tw,
-                        'url_hibah_royalti_his' => $history->url_hibah_royalti == $request->edit_url_hibah_royalti ? null : $history->url_hibah_royalti,
-                        'url_hibah_royalti_new' => $history->url_hibah_royalti == $request->edit_url_hibah_royalti ? null : $request->edit_url_hibah_royalti,
-                        'url_tentang_penulis_his' => $history->url_tentang_penulis == $request->edit_url_tentang_penulis ? null : $history->url_tentang_penulis,
-                        'url_tentang_penulis_new' => $history->url_tentang_penulis == $request->edit_url_tentang_penulis ? null : $request->edit_url_tentang_penulis,
-                        'bank_his' => $history->bank == $request->edit_bank ? null : $history->bank,
-                        'bank_new' => $history->bank == $request->edit_bank ? null : $request->edit_bank,
-                        'bank_atasnama_his' => $history->bank_atasnama == $request->edit_bank_atasnama ? null : $history->bank_atasnama,
-                        'bank_atasnama_new' => $history->bank_atasnama == $request->edit_bank_atasnama ? null : $request->edit_bank_atasnama,
-                        'no_rekening_his' => $history->no_rekening == $request->edit_no_rek ? null : $history->no_rekening,
-                        'no_rekening_new' => $history->no_rekening == $request->edit_no_rek ? null : $request->edit_no_rek,
-                        'npwp_his' => $history->npwp == $request->edit_npwp ? null : $history->npwp,
-                        'npwp_new' => $history->npwp == $request->edit_npwp ? null : $request->edit_npwp,
-                        'ktp_his' => $history->ktp == $request->edit_ktp ? null : $history->ktp,
-                        'ktp_new' => $history->ktp == $request->edit_ktp ? null : $request->edit_ktp,
-                        'catatan_his' => $history->catatan == $request->edit_catatan ? null : $history->catatan,
-                        'catatan_new' => $history->catatan == $request->edit_catatan ? null : $request->edit_catatan,
-                        'author_id' => auth()->user()->id,
-                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
-                    ];
-                    event(new PenulisEvent($insert));
-                    // DB::commit();
+                    if ($updated) {
+
+                        if (is_null($history->tanggal_lahir)) {
+                            $tglLahirNew = NULL;
+                            $tglLahirHis = NULL;
+                            if (!is_null($request->edit_tanggal_lahir)) {
+                                $tglLahirNew = Carbon::createFromFormat('d F Y', $request->edit_tanggal_lahir)->format('Y-m-d');
+                            }
+                        } else {
+                            $tglLahirNew = NULL;
+                            $tglLahirHis = $history->tanggal_lahir;
+                            if (!is_null($request->edit_tanggal_lahir)) {
+                                $tglLahirNew = Carbon::createFromFormat('d F Y', $request->edit_tanggal_lahir)->format('Y-m-d');
+                            }
+                        }
+                        $insert = [
+                            'params' => 'History Update Penulis',
+                            'type_history' => 'Update',
+                            'id' => $request->id,
+                            'nama_his' => $history->nama == $request->edit_nama ? null : $history->nama,
+                            'nama_new' => $history->nama == $request->edit_nama ? null : $request->edit_nama,
+                            'tanggal_lahir_his' => $tglLahirHis,
+                            'tanggal_lahir_new' => $tglLahirNew,
+                            'tempat_lahir_his' => $history->tempat_lahir == $request->edit_tempat_lahir ? null : $history->tempat_lahir,
+                            'tempat_lahir_new' => $history->tempat_lahir == $request->edit_tempat_lahir ? null : $request->edit_tempat_lahir,
+                            'kewarganegaraan_his' => $history->kewarganegaraan == $request->edit_kewarganegaraan ? null : $history->kewarganegaraan,
+                            'kewarganegaraan_new' => $history->kewarganegaraan == $request->edit_kewarganegaraan ? null : $request->edit_kewarganegaraan,
+                            'alamat_domisili_his' => $history->alamat_domisili == $request->edit_alamat_domisili ? null : $history->alamat_domisili,
+                            'alamat_domisili_new' => $history->alamat_domisili == $request->edit_alamat_domisili ? null : $request->edit_alamat_domisili,
+                            'ponsel_domisili_his' => $history->ponsel_domisili == $request->edit_ponsel_domisili ? null : $history->ponsel_domisili,
+                            'ponsel_domisili_new' => $history->ponsel_domisili == $request->edit_ponsel_domisili ? null : $request->edit_ponsel_domisili,
+                            'telepon_domisili_his' => $history->telepon_domisili == $request->edit_telepon_domisili ? null : $history->telepon_domisili,
+                            'telepon_domisili_new' => $history->telepon_domisili == $request->edit_telepon_domisili ? null : $request->edit_telepon_domisili,
+                            'email_his' => $history->email == $request->edit_email ? null : $history->email,
+                            'email_new' => $history->email == $request->edit_email ? null : $request->edit_email,
+                            'nama_kantor_his' => $history->nama_kantor == $request->edit_nama_kantor ? null : $history->nama_kantor,
+                            'nama_kantor_new' => $history->nama_kantor == $request->edit_nama_kantor ? null : $request->edit_nama_kantor,
+                            'jabatan_dikantor_his' => $history->jabatan_dikantor == $request->edit_jabatan_dikantor ? null : $history->jabatan_dikantor,
+                            'jabatan_dikantor_new' => $history->jabatan_dikantor == $request->edit_jabatan_dikantor ? null : $request->edit_jabatan_dikantor,
+                            'alamat_kantor_his' => $history->alamat_kantor == $request->edit_alamat_kantor ? null : $history->alamat_kantor,
+                            'alamat_kantor_new' => $history->alamat_kantor == $request->edit_alamat_kantor ? null : $request->edit_alamat_kantor,
+                            'telepon_kantor_his' => $history->telepon_kantor == $request->edit_telepon_kantor ? null : $history->telepon_kantor,
+                            'telepon_kantor_new' => $history->telepon_kantor == $request->edit_telepon_kantor ? null : $request->edit_telepon_kantor,
+                            'sosmed_fb_his' => $history->sosmed_fb == $request->edit_sosmed_fb ? null : $history->sosmed_fb,
+                            'sosmed_fb_new' => $history->sosmed_fb == $request->edit_sosmed_fb ? null : $request->edit_sosmed_fb,
+                            'sosmed_ig_his' => $history->sosmed_ig == $request->edit_sosmed_ig ? null : $history->sosmed_ig,
+                            'sosmed_ig_new' => $history->sosmed_ig == $request->edit_sosmed_ig ? null : $request->edit_sosmed_ig,
+                            'sosmed_tw_his' => $history->sosmed_tw == $request->edit_sosmed_tw ? null : $history->sosmed_tw,
+                            'sosmed_tw_new' => $history->sosmed_tw == $request->edit_sosmed_tw ? null : $request->edit_sosmed_tw,
+                            'url_hibah_royalti_his' => $history->url_hibah_royalti == $request->edit_url_hibah_royalti ? null : $history->url_hibah_royalti,
+                            'url_hibah_royalti_new' => $history->url_hibah_royalti == $request->edit_url_hibah_royalti ? null : $request->edit_url_hibah_royalti,
+                            'url_tentang_penulis_his' => $history->url_tentang_penulis == $request->edit_url_tentang_penulis ? null : $history->url_tentang_penulis,
+                            'url_tentang_penulis_new' => $history->url_tentang_penulis == $request->edit_url_tentang_penulis ? null : $request->edit_url_tentang_penulis,
+                            'bank_his' => $history->bank == $request->edit_bank ? null : $history->bank,
+                            'bank_new' => $history->bank == $request->edit_bank ? null : $request->edit_bank,
+                            'bank_atasnama_his' => $history->bank_atasnama == $request->edit_bank_atasnama ? null : $history->bank_atasnama,
+                            'bank_atasnama_new' => $history->bank_atasnama == $request->edit_bank_atasnama ? null : $request->edit_bank_atasnama,
+                            'no_rekening_his' => $history->no_rekening == $request->edit_no_rek ? null : $history->no_rekening,
+                            'no_rekening_new' => $history->no_rekening == $request->edit_no_rek ? null : $request->edit_no_rek,
+                            'npwp_his' => $history->npwp == $request->edit_npwp ? null : $history->npwp,
+                            'npwp_new' => $history->npwp == $request->edit_npwp ? null : $request->edit_npwp,
+                            'ktp_his' => $history->ktp == $request->edit_ktp ? null : $history->ktp,
+                            'ktp_new' => $history->ktp == $request->edit_ktp ? null : $request->edit_ktp,
+                            'catatan_his' => $history->catatan == $request->edit_catatan ? null : $history->catatan,
+                            'catatan_new' => $history->catatan == $request->edit_catatan ? null : $request->edit_catatan,
+                            'author_id' => auth()->user()->id,
+                            'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                        ];
+                        event(new PenulisEvent($insert));
+                    }
+                    DB::commit();
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Data penulis berhasil ditambahkan!',
@@ -438,7 +455,8 @@ class PenulisController extends Controller
                     // if ($fHibahRoyalti !== $penulis->file_hibah_royalti) {
                     //     Storage::delete('penerbitan/penulis/' . $penulis->id . '/' . $fHibahRoyalti);
                     // }
-                    return abort(500);
+                    DB::rollBack();
+                    return abort(500, $e->getMessage());
                 }
 
                 if ($penulis->scan_ktp != $scanktp) {
@@ -989,16 +1007,16 @@ class PenulisController extends Controller
             if (Cache::has('penulis')) {
                 $value = Cache::get('penulis');
             } else {
-                $value = Cache::remember('penulis',600, function () {
+                $value = Cache::remember('penulis', 600, function () {
                     return  DB::table('penerbitan_penulis')
-                    ->select('nama','email','tempat_lahir','tanggal_lahir','alamat_domisili','ponsel_domisili','npwp','ktp')
-                    ->get();
+                        ->select('nama', 'email', 'tempat_lahir', 'tanggal_lahir', 'alamat_domisili', 'ponsel_domisili', 'npwp', 'ktp')
+                        ->get();
                     // return Penulis::all();
                 });
             }
             $setOption = new Options();
             $setOption->set('dpi', 150);
-            $setOption->set('defaultFont','sans-serif');
+            $setOption->set('defaultFont', 'sans-serif');
             // $setOption->set('isRemoteEnabled',true);
             $result = new Dompdf($setOption);
             // dd($value);
@@ -1019,6 +1037,6 @@ class PenulisController extends Controller
             $result = (new PenulisExport);
             $type = "download";
         }
-        return $result->$type('penulis_'.$tgl.'.'.$format);
+        return $result->$type('penulis_' . $tgl . '.' . $format);
     }
 }
