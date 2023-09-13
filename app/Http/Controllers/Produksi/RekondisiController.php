@@ -200,6 +200,14 @@ class RekondisiController extends Controller
             if ($request->request_type == 'submit-kirim-gudang') {
                 return self::submitKirimGudang($request);
             }
+            switch ($request->request_type) {
+                case 'submit-kirim-gudang':
+                    return self::submitKirimGudang($request);
+                    break;
+                case 'update-kirim-gudang':
+                    return self::updateKirimGudang($request);
+                    break;
+            }
             try {
                 $produksi_id = $request->produksi_id;
                 $jml_rekondisi = $request->jml_rekondisi;
@@ -266,6 +274,41 @@ class RekondisiController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Berhasil kirim gudang, selanjutnya menunggu untuk diterima oleh admin stok.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    protected function updateKirimGudang($request)
+    {
+        try {
+            $jml_dikirim = $request->jml_dikirim;
+            $catatan = $request->catatan;
+            $id = $request->id;
+            $rekondisi_id = $request->track_id;
+            $params = [
+                'params' => 'Edit Riwayat Jumlah Kirim Rekondisi',
+                'id' => $id,
+                'jml_dikirim' => $jml_dikirim,
+                'catatan' => $catatan ??'-',
+            ];
+            event(new ProduksiEvent($params));
+            $totalDikirim = DB::table('proses_produksi_rekondisi_kirim')
+            ->where('rekondisi_id',$rekondisi_id)
+            ->select(DB::raw('IFNULL(SUM(jml_kirim),0) as total_dikirim'))->get();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil mengubah jumlah kirim!',
+                'data' => [
+                    'jml_dikirim' => $jml_dikirim,
+                    'catatan' => $catatan,
+                    'total_dikirim' => $totalDikirim[0]->total_dikirim,
+                    'id' => $id
+                ]
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -348,7 +391,7 @@ class RekondisiController extends Controller
                                         id="btnEditRiwayatKirim" data-id="' . $kg->id . '" data-dibuat="' . Carbon::parse($kg->tgl_kirim)->translatedFormat('l, d M Y - H:i:s') . '"
                                         title="Edit Data" data-toggle="modal" data-target="#modalEditRiwayatKirim">
                                         <i class="fas fa-edit"></i></button>
-                                        <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="' . $kg->id . '" title="Hapus Data">
+                                        <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-danger btn-icon mr-1 mt-1" id="btnDeleteRiwayatKirim" data-id="' . $kg->id . '" data-rekondisi_id="' . $id . '" title="Hapus Data">
                                         <i class="fas fa-trash"></i></button>
                                         <button type="button" class="tooltip-class btn-block btn btn-sm btn-outline-info btn-icon mr-1 mt-1" title="Catatan" data-id="' . $kg->id . '" data-toggle="modal" data-target="#modalCatatan">
                                         <i class="fas fa-comment-alt"></i></button>';
@@ -567,7 +610,7 @@ class RekondisiController extends Controller
             ];
         }
     }
-    public function edit(Request $request,$id)
+    public function edit(Request $request, $id)
     {
         if ($request->ajax()) {
             if ($request->request_type == 'show-modal-edit-riwayat') {
@@ -578,7 +621,7 @@ class RekondisiController extends Controller
     protected function showModalEditRiwayat($id)
     {
         try {
-            $data = DB::table('proses_produksi_rekondisi_kirim')->where('id',$id)->first();
+            $data = DB::table('proses_produksi_rekondisi_kirim')->where('id', $id)->first();
             return response()->json($data);
         } catch (\Exception $e) {
             return abort(500);
@@ -588,8 +631,47 @@ class RekondisiController extends Controller
     {
         //
     }
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        if ($request->ajax()) {
+            try {
+                $rekondisi_id = $request->rekondisi_id;
+                $totalRiwayat = DB::table('proses_produksi_rekondisi_kirim')->where('rekondisi_id', $rekondisi_id)->get()->count();
+                if ($totalRiwayat == 1) {
+                    DB::beginTransaction();
+                    DB::table('proses_produksi_rekondisi')->where('id',$rekondisi_id)->update([
+                        'status' => 'belum selesai'
+                    ]);
+                    DB::table('proses_produksi_rekondisi_kirim')->delete($id);
+                    DB::commit();
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Berhasil dihapus!',
+                        'data' => [],
+                        'load' => TRUE
+                    ]);
+                }
+                $params = [
+                    'params' => 'Delete Riwayat Kirim Rekondisi',
+                    'id' => $id
+                ];
+                event(new ProduksiEvent($params));
+                $totalDikirim = DB::table('proses_produksi_rekondisi_kirim')
+                ->where('rekondisi_id', $rekondisi_id)
+                ->select(DB::raw('IFNULL(SUM(jml_kirim),0) as total_dikirim'))->get();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Berhasil dihapus!',
+                    'data' => $totalDikirim[0]->total_dikirim,
+                    'load' => FALSE
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+            }
+        }
     }
 }

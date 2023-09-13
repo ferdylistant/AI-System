@@ -1012,6 +1012,7 @@ class ProsesProduksiController extends Controller
             ];
             event(new ProduksiEvent($params));
             $totalDikirim = DB::table('proses_produksi_track_riwayat')
+            ->where('track_id',$track_id)
             ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_dikirim'))->get();
             return response()->json([
                 'status' => 'success',
@@ -1291,6 +1292,7 @@ class ProsesProduksiController extends Controller
             $jml_dikirim = $request->jml_dikirim;
             $catatan = $request->catatan;
             $id = $request->id;
+            $track_id = $request->track_id;
             $params = [
                 'params' => 'Edit Riwayat Jumlah Kirim',
                 'id' => $id,
@@ -1300,6 +1302,7 @@ class ProsesProduksiController extends Controller
             ];
             event(new ProduksiEvent($params));
             $totalDikirim = DB::table('proses_produksi_track_riwayat')
+            ->where('track_id',$track_id)
             ->select(DB::raw('IFNULL(SUM(jml_dikirim),0) as total_dikirim'))->get();
             return response()->json([
                 'status' => 'success',

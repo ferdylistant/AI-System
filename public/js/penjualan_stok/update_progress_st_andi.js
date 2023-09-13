@@ -334,7 +334,7 @@ $(document).ready(function () {
             todayHighlight: true,
             container: '#modalEditRack .modal-body',
         });
-    })
+    });
     let editRack = jqueryValidation_('#fm_EditRack', {
         edit_jml_stok: {
             required: true
@@ -345,7 +345,7 @@ $(document).ready(function () {
         "edit_operators_id[]": {
             required: true
         },
-    })
+    });
     function ajaxEditRak(data) {
         let el = data.get(0),
             cardWrap = $('#modalEditRack');
@@ -481,7 +481,26 @@ $(document).ready(function () {
                 ajaxDeleteRak($(this),nama_rak, id,rack_id,stok_id);
             }
         });
-    })
+    });
+    $(document).ready(function () {
+        $('#btn_PermohonanRekondisi').click(function(e) {
+            e.preventDefault();
+            let stok_id = $('[name="stok_id"]').val();
+            let total_stok = $('[name="total_stok"]').val();
+            $.ajax({
+                url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=modal-permohonan-rekondisi',
+                type: 'GET',
+                data: {
+                    stok_id:stok_id,
+                    total_stok:total_stok,
+                },
+                cache: false,
+                success: (res) => {
+                    console.log(res);
+                }
+            });
+        });
+    });
     $(document).ready(function () {
         var max_fields = 20; //maximum input boxes allowed
         var wrapper = $(".input_fields_wrap"); //Fields wrapper

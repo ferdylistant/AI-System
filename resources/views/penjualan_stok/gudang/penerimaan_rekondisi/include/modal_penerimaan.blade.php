@@ -1,10 +1,10 @@
 <!-- Modal -->
-<div class="modal fade" id="modalPengirimanRekondisi" tabindex="-1" role="dialog" aria-labelledby="modalPengirimanTitle"
+<div class="modal fade" id="modalPenerimaanRekondisi" tabindex="-1" role="dialog" aria-labelledby="modalPenerimaanTitle"
     aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalPengirimanTitle"></h5>
+                <h5 class="modal-title" id="modalPenerimaanTitle"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -15,7 +15,7 @@
                         <div class="section-body">
                             <div class="d-flex justify-content-between">
                                 <div class="col-auto">
-                                    <h6 class="section-title" id="sectionTitle">Pengiriman buku rekondisi ke gudang</h6>
+                                    <h6 class="section-title" id="sectionTitle">Penerimaan buku rekondisi ke gudang</h6>
                                 </div>
                                 <div class="col-auto mt-4">
                                     <small id="statusJob"

@@ -73,10 +73,10 @@ class PenerimaanRekondisiController extends Controller
                 })
                 ->addColumn('cek_pengiriman', function ($data) {
                     if (Gate::allows('do_approval', 'otorisasi-penerimaan-rekondisi')) {
-                        $statusColor = $data->status == 'selesai' ? 'success':'warning';
+                        $statusColor = $data->status == 'selesai' ? 'success' : 'warning';
                         $res = '<button class="btn btn-sm btn-light btn-icon position-relative tooltip-class" data-id="' . $data->id . '" data-produksi_id="' . $data->produksi_id . '"
                             data-judul="' . $data->judul_final . '" data-status="' . $data->status . '"
-                            data-statuscolor="' . $statusColor . '" data-toggle="modal" data-target="#modalPengirimanRekondisi" data-backdrop="static" title="' . $data->status . '">
+                            data-statuscolor="' . $statusColor . '" data-toggle="modal" data-target="#modalPenerimaanRekondisi" data-backdrop="static" title="' . $data->status . '">
                             <i class="fas fa-truck-loading"></i> Pengiriman
                             <span class="position-absolute translate-middle p-1 bg-' . $statusColor . ' border border-light rounded-circle" style="top:0;right:0">
                             </span>
@@ -141,9 +141,122 @@ class PenerimaanRekondisiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        //
+        if ($request->ajax()) {
+            try {
+                $dataParent = DB::table('proses_produksi_rekondisi')->where('id', $id)->first();
+                if (is_null($dataParent)) {
+                    return abort(404);
+                }
+                $content = '';
+                $jml_cetak = $request->jml_cetak;
+                $data = DB::table('proses_produksi_rekondisi_kirim')->where('rekondisi_id', $id)->get();
+                $totalDiterima = DB::table('proses_produksi_rekondisi_kirim')
+                    ->whereNotNull('tgl_diterima')
+                    ->where('rekondisi_id', $id)
+                    ->select(DB::raw('IFNULL(SUM(jml_kirim),0) as total_diterima'))
+                    ->get();
+                $totalKekurangan = $jml_cetak - $totalDiterima[0]->total_diterima;
+                $totalKekurangan = $totalDiterima[0]->total_diterima > $jml_cetak ? 0 : $totalKekurangan;
+                $content .= '
+                    <div class="form-group">
+                        <label for="historyKirim">Riwayat Kirim</label>
+                            <div class="scroll-riwayat">
+                            <table class="table table-striped" style="width:100%" id="tableRiwayatKirim">
+                            <thead style="position: sticky;top:0">
+                              <tr>
+                              <th scope="col" style="background: #eee;">No</th>
+                              <th scope="col" style="background: #eee;">Tanggal Kirim</th>
+                              <th scope="col" style="background: #eee;">Otorisasi Oleh</th>
+                              <th scope="col" style="background: #eee;">Tanggal Diterima</th>
+                              <th scope="col" style="background: #eee;">Penerima</th>
+                              <th scope="col" style="background: #eee;">Jumlah Kirim</th>
+                              <th scope="col" style="background: #eee;">Status</th>
+                              <th scope="col" style="background: #eee;">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>';
+                $totalKirim = NULL;
+                foreach ($data as $i => $kg) {
+                    $i++;
+                    if (!is_null($kg->tgl_diterima)) {
+                        $btnAction = '<span class="badge badge-light">No action</span>';
+                    } else {
+                        $btnAction = '<button type="button" class="btn-block btn btn-sm btn-outline-warning btn-icon mr-1 mt-1"
+                    id="btnTerimaBuku" data-id="' . $kg->id . '" data-jml_cetak="' . $jml_cetak . '" data-jml_diterima="' . $kg->jml_kirim . '">
+                                    Terima</button>';
+                    }
+                    $kg = (object)collect($kg)->map(function ($item, $key) {
+                        switch ($key) {
+                            case 'otorisasi_oleh':
+                                return DB::table('users')->where('id', $item)->first()->nama;
+                                break;
+                            case 'diterima_oleh':
+                                return is_null($item) ? '-' : DB::table('users')->where('id', $item)->first()->nama;
+                                break;
+                            case 'tgl_diterima':
+                                return is_null($item) ? '-' : Carbon::parse($item)->format('d-m-Y H:i:s');
+                                break;
+                            case 'tgl_kirim':
+                                return Carbon::parse($item)->format('d-m-Y H:i:s');
+                                break;
+                            case 'status':
+                                $color = $item == 'dalam pengiriman' ? 'warning' : 'success';
+                                $item = '<span class="badge bg-' . $color . '">' . $item . '</span>';
+                                return $item;
+                                break;
+                            default:
+                                return is_null($item) ? '-' : $item;
+                                break;
+                        }
+                    })->all();
+                    $content .= '<tr id="index_' . $kg->id . '">
+                                  <td id="row_num' . $i . '">' . $i . '<input type="hidden" name="task_number[]" value=' . $i . '></td>
+                                  <td>' . $kg->tgl_kirim . '</td>
+                                  <td>' . $kg->otorisasi_oleh . '</td>
+                                  <td id="indexTglTerima' . $kg->id . '">' . $kg->tgl_diterima . '</td>
+                                  <td id="indexDiterimaOleh' . $kg->id . '">' . $kg->diterima_oleh . '</td>
+                                  <td id="indexJmlKirim' . $kg->id . '">' . $kg->jml_kirim . ' eks</td>
+                                  <td id="indexStatus' . $kg->id . '">' . $kg->status . '</td>
+                                  <td id="indexAction' . $kg->id . '">' . $btnAction . '</td>
+                                </tr>';
+                    $totalKirim += $kg->jml_kirim;
+                }
+                $content .= '</tbody>
+                </table>
+                </div>
+                </div>
+                <div class="alert d-flex justify-content-between" style="background: #141517;
+                background: -webkit-linear-gradient(to right, #6777ef, #141517);
+                background: linear-gradient(to right, #6777ef, #141517);
+                " role="alert">
+                <div class="col-auto">
+                    <span class="bullet"></span><span>Total Cetak</span><br>
+                    <span class="bullet"></span><span>Total Kirim</span><br>
+                    <span class="bullet"></span><span>Total Diterima  <a href="javascript:void(0)" class="text-warning" tabindex="0" role="button"
+                    data-toggle="popover" data-trigger="focus" title="Informasi"
+                    data-content="Jumlah cetak rekondisi hanya dapat diinput oleh admin pengiriman.">
+                    <abbr title="">
+                    <i class="fas fa-info-circle me-3"></i>
+                    </abbr>
+                    </a></span><br>
+                    <span class="bullet"></span><span>Total Kekurangan</span><br>
+                </div>
+                <div class="col-auto">
+                    <span class="text-center">' . $dataParent->jml_rekondisi . ' eks</span><br>
+                    <span class="text-center" id="totDikirim">' . $totalKirim . ' eks</span><br>
+                    <span class="text-center" id="totDiterima">' . $totalDiterima[0]->total_diterima . ' eks</span><br>
+                    <span class="text-center" id="totKekurangan">' . $totalKekurangan . ' eks</span>
+                </div>
+                </div>';
+                return [
+                    'content' => $content
+                ];
+            } catch (\Exception $e) {
+                return abort(500, $e->getMessage());
+            }
+        }
     }
 
     /**

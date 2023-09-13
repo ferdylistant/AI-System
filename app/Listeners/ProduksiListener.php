@@ -83,12 +83,25 @@ class ProduksiListener
                 $res = DB::table('proses_produksi_track_riwayat')->delete($data['id']);
                 DB::commit();
                 break;
+            case 'Delete Riwayat Kirim Rekondisi':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_rekondisi_kirim')->delete($data['id']);
+                DB::commit();
+                break;
             case 'Edit Riwayat Jumlah Kirim':
                 DB::beginTransaction();
                 $res = DB::table('proses_produksi_track_riwayat')->where('id',$data['id'])->update([
                     'jml_dikirim' => $data['jml_dikirim'],
                     'catatan' => $data['catatan'],
                     'updated_at' => $data['updated_at'],
+                ]);
+                DB::commit();
+                break;
+            case 'Edit Riwayat Jumlah Kirim Rekondisi':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_rekondisi_kirim')->where('id',$data['id'])->update([
+                    'jml_kirim' => $data['jml_dikirim'],
+                    'catatan' => $data['catatan'],
                 ]);
                 DB::commit();
                 break;

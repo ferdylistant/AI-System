@@ -70,6 +70,9 @@ class StokAndiController extends Controller
                     case 'select-operator-gudang':
                         return self::selectOperator($request);
                         break;
+                    case 'modal-permohonan-rekondisi':
+                        return self::showModalPermohonanRekondisi($request);
+                        break;
                 }
             } else {
                 switch ($request->request_type) {
@@ -186,6 +189,28 @@ class StokAndiController extends Controller
             }
             return $html;
         }
+    }
+    protected function showModalPermohonanRekondisi($request)
+    {
+        $stok_id = $request->stok_id;
+        $total_stok = $request->total_stok;
+        $dataRack = DB::table('pj_st_rack_data as rd')
+                ->leftJoin('pj_st_rack_master as rm', function ($q) {
+                    $q->on('rd.rack_id', '=', 'rm.id')
+                        ->whereNull('rm.deleted_at');
+                })
+                ->leftJoin('pj_st_andi as st', 'rd.stok_id', '=', 'st.id')
+                ->where('rd.stok_id', $stok_id)
+                ->select(
+                    'rd.*',
+                    'rm.kode',
+                    'rm.nama',
+                    'st.total_stok',
+                    DB::raw('IFNULL(SUM(rd.jml_stok),0) as total_diletakkan'),
+                    DB::raw('IFNULL(count(rd.id),0) as count_proses'
+                ))
+                ->orderBy('rd.created_at', 'ASC');
+        return response()->json($dataRack->get());
     }
     protected function showModalRack($request)
     {

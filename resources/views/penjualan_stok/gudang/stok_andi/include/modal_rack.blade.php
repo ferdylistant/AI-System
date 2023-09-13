@@ -10,7 +10,15 @@
             <div class="modal-body scrollbar-deep-purple" style="max-height: 500px; overflow-y: auto;">
                 <div class="section">
                     <div class="section-body">
-                        <h6 class="section-title" id="sectionTitle"></h6>
+                        <div class="row justify-content-between">
+                            <div class="col-auto">
+                                <h6 class="section-title" id="sectionTitle"></h6>
+                            </div>
+                            <div class="col-auto">
+                                <a class="text-default font-weight-bolder" href="javascript:void(0)" id="btn_PermohonanRekondisi"><i class="fas fa-recycle text-danger"></i> Permohonan Rekondisi</a>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-sm-6 col-12">
                                 <div class="card card-statistic-1">

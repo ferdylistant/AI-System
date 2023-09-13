@@ -112,7 +112,7 @@
             </div>
         </div>
     </section>
-    @include('penjualan_stok.gudang.penerimaan_rekondisi.include.modal_pengiriman')
+    @include('penjualan_stok.gudang.penerimaan_rekondisi.include.modal_penerimaan')
     {{-- @include('tracker_modal') --}}
 @endsection
 
