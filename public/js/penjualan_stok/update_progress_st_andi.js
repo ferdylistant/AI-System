@@ -496,11 +496,37 @@ $(document).ready(function () {
                 },
                 cache: false,
                 success: (res) => {
-                    console.log(res);
+                    $('#showModalPermohonanRekondisi').html(res.modal);
+                    $('#modalPermohonanRekondisi').modal('show')
+                    if (res.exist === true) {
+                        Object.entries(res.data).forEach((entry) => {
+                            let [key, value] = entry;
+                            $('#check'+value.rack_id).change(function(e) {
+                                if (this.checked)
+                                    showDetail(this.value,$(this).data('name'));
+                                else
+                                    just_hide(this.value);
+                            });
+                        });
+                    }
+                },
+                error: (err) => {
+                    notifToast('error',err.statusText)
+                    $('#modalPermohonanRekondisi').removeClass("modal-progress");
+                },
+                complete: () => {
+                    $('#modalPermohonanRekondisi').removeClass("modal-progress");
                 }
             });
         });
     });
+    function showDetail(ele,title) {
+        $('#inputRakRekondisi').append(`<input type="text" class="form-control mb-1" name="jml_rekondisi[]" id="input`+ele+`" placeholder="Rak `+title+`">`);
+    }
+
+    function just_hide(ele) {
+        $('#input'+ele).remove();
+    }
     $(document).ready(function () {
         var max_fields = 20; //maximum input boxes allowed
         var wrapper = $(".input_fields_wrap"); //Fields wrapper

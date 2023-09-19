@@ -210,7 +210,74 @@ class StokAndiController extends Controller
                     DB::raw('IFNULL(count(rd.id),0) as count_proses'
                 ))
                 ->orderBy('rd.created_at', 'ASC');
-        return response()->json($dataRack->get());
+        $modal ='';
+        $modal .='<div id="modalPermohonanRekondisi" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalPermohonanRekondisiTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalPermohonanRekondisiTitle"><i class="fas fa-recycle"></i>&nbsp;Permohonan Rekondisi</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body scrollbar-deep-purple" style="max-height: 500px; overflow-y: auto;">
+                    <div class="section">
+                        <div class="section-body">';
+                        if ($dataRack->exists()) {
+                            $modal .='<form id="fm_PermohonanRekondisi">
+                            <div class="form-group">
+                            <label class="form-label"><span class="beep"></span>Pilih dari rak mana buku akan direkondisi</label>
+                            <div class="selectgroup selectgroup-pills">';
+                            $exist = TRUE;
+                            $dataLoop = $dataRack->groupBy('rm.nama')->get();
+                            $footer = '<button class="d-block btn btn-sm btn-outline-primary btn-block" form="fm_PermohonanRekondisi">Submit</button>';
+                            foreach ($dataLoop as $loop) {
+                                $modal .='<label class="selectgroup-item">
+                                  <input type="checkbox" name="rack_id" value="'.$loop->rack_id.'" data-name="'.$loop->nama.'" class="selectgroup-input" id="check'.$loop->rack_id.'">
+                                  <span class="selectgroup-button">'.$loop->nama.' <span class="badge badge-pill badge-light">Total: '.$loop->total_diletakkan.'</span></span>
+                                </label>';
+                            }
+                            $modal .='</div>
+                          </div>
+                            <div class="form-group" id="showInputJumlahRak">
+                            <label class="form-label"><span class="beep"></span>Form jumlah yang direkondisi (<span class="text-danger">*Pilih rak terlebih dahulu</span>)</label>
+                            <div id="inputRakRekondisi"></div>
+                            </div>
+                            <div class="form-group">
+                            <label class="form-label"><span class="beep"></span>Catatan</label>
+                            <textarea class="form-control"></textarea>
+                            </div>
+                            </form>
+                          ';
+                        } else {
+                            $exist = FALSE;
+                            $dataLoop = [];
+                            $footer ='';
+                            $modal .= '<div class="col-12 offset-3 mt-5">
+                    <div class="row">
+                        <div class="col-4 offset-1">
+                        <h6 class="text-danger">#Tidak ada stok buku di rak!</h6>
+                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png"
+                                width="100%">
+                        </div>
+                    </div>
+                </div>';
+                        }
+                        $modal .='</div>
+                    </div>
+                </div>
+                <div class="modal-footer">';
+                $modal .= $footer;
+                $modal .='<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+            </div>
+        </div>
+        </div>';
+        return response()->json([
+            'modal' => $modal,
+            'exist' => $exist,
+            'data' => $dataLoop
+        ]);
     }
     protected function showModalRack($request)
     {
@@ -475,6 +542,10 @@ class StokAndiController extends Controller
                     'operators_id'  => json_encode($users_id[$count]),
                     'created_by' => $author
                 ];
+                $totItem = DB::table('pj_st_rack_master')->where('id',$rak[$count])->first()->total_item + $jml_stok[$count];
+                DB::table('pj_st_rack_master')->where('id',$rak[$count])->update([
+                    'total_item' => $totItem
+                ]);
             }
             $insert = [
                 'params' => 'Insert Stock In Rack',

@@ -98,6 +98,7 @@
     </div>
 </section>
 @include('penjualan_stok.gudang.stok_andi.include.modal_rack')
+@include('penjualan_stok.gudang.stok_andi.include.modal_permohonan_rekondisi')
 @include('penjualan_stok.gudang.stok_andi.include.modal_detail_rack')
 @include('penjualan_stok.gudang.stok_andi.include.modal_detail_edit_rack')
 @include('tracker_modal')

@@ -1,8 +1,10 @@
 $(function () {
     let tableRackList = $("#tb_RackList").DataTable({
-        responsive: true,
+        "responsive": true,
+        "autoWidth": false,
+        pagingType: "input",
         processing: true,
-        serverSide: true,
+        serverSide: false,
         language: {
             searchPlaceholder: "Search...",
             sSearch: "",
@@ -26,6 +28,11 @@ $(function () {
                 data: "location",
                 name: "location",
                 title: "Lokasi Rak",
+            },
+            {
+                data: "total_item",
+                name: "total_item",
+                title: "Total di dalam rak",
             },
             {
                 data: "created_at",
