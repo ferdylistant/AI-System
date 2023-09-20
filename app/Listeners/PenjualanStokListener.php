@@ -53,9 +53,9 @@ class PenjualanStokListener
                 ]);
                 DB::commit();
                 break;
-            case 'Insert Stock In Rack':
+            case 'Insert Stock Detail In Rack':
                 DB::beginTransaction();
-                $res = DB::table('pj_st_rack_data')->insert($data['data']);
+                $res = DB::table('pj_st_rack_data_detail')->insert($data['data']);
                 DB::commit();
                 break;
             case 'Update Stock In Rack':

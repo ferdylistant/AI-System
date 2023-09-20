@@ -295,21 +295,20 @@ class StokAndiController extends Controller
                     'rd.*',
                     'rm.kode',
                     'rm.nama',
-                    'st.total_stok',
-                    DB::raw('IFNULL(SUM(rd.jml_stok),0) as total_diletakkan'),
-                    DB::raw('IFNULL(count(rd.id),0) as count_proses'
-                ))
-                ->orderBy('rd.created_at', 'ASC');
+                    'st.total_stok as stok_keseluruhan',
+                    // 'rdd.jml_stok'
+                )
+                ->orderBy('rd.id', 'ASC');
             $contentRack = '<p class="text-danger">Belum ada stok yang diiput dalam rak.</p>';
             if ($dataRack->exists()) {
-                $contentRack = self::contentRack($dataRack->groupBy('rm.nama')->get());
+                $contentRack = self::contentRack($dataRack->get());
             }
             $contentForm = self::contentForm();
 
             $totalMasuk = DB::table('pj_st_rack_data')
-                ->where('stok_id', $stok_id)
-                ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_diterima'))
-                ->get();
+            ->where('stok_id', $stok_id)
+            ->select(DB::raw('IFNULL(SUM(total_stok),0) as total_diterima'))
+            ->get();
             return [
                 'stok_id' => $stok_id,
                 'total_stok' => $total_stok,
@@ -457,7 +456,6 @@ class StokAndiController extends Controller
                               <tr>
                                 <th scope="col" style="background: #eee;">No</th>
                                 <th scope="col" style="background: #eee;">Rak</th>
-                                <th scope="col" style="background: #eee;">Peletakan Rak</th>
                                 <th scope="col" style="background: #eee;">Jumlah Buku</th>
                                 <th scope="col" style="background: #eee;">Detail</th>
                               </tr>
@@ -468,8 +466,7 @@ class StokAndiController extends Controller
             $contentRack .= '<tr>
                                   <td id="row_num' . $i . '">' . $i . '<input type="hidden" name="task_number[]" value=' . $i . '></td>
                                   <td>' . $kg->nama . '</td>
-                                  <td>' . $kg->count_proses . ' kali</td>
-                                  <td id="jumlahDalamRak' . $kg->rack_id . '">' . $kg->total_diletakkan . ' pcs</td>
+                                  <td id="jumlahDalamRak' . $kg->rack_id . '">' . $kg->total_stok . ' pcs</td>
                                   <td><a href="javascript:void(0)" data-rack_id="' . $kg->rack_id . '" data-stok_id="' . $kg->stok_id . '" data-nama_rak="' . $kg->nama . '" id="btnDetailRak" data-toggle="modal" data-target="#modalDetailRack">
                                   <span class="badge badge-primary"><i class="fas fa-info-circle"></i> Detail</span>
                                   </a></td>
@@ -511,14 +508,14 @@ class StokAndiController extends Controller
             $rak = $request->rak;
             $jml_stok = $request->jml_stok;
             $tgl_masuk_stok = $request->tgl_masuk_stok;
-            // $users_id = $request->users_id;
             $users_id = array_values($request->users_id);
+            $totalInputJmlStok = array_sum($jml_stok);
             $author = auth()->id();
             $check = DB::table('pj_st_rack_data')
                 ->where('stok_id', $stok_id)
-                ->select(DB::raw('IFNULL(SUM(jml_stok),0) as total_diterima'))
+                ->select(DB::raw('IFNULL(SUM(total_stok),0) as total_diterima'))
                 ->get();
-            $totalMasuk = $check[0]->total_diterima + array_sum($jml_stok);
+            $totalMasuk = $check[0]->total_diterima + $totalInputJmlStok;
             if ($totalMasuk > $total_stok) {
                 return response()->json([
                     'status' => 'error',
@@ -533,10 +530,27 @@ class StokAndiController extends Controller
                 ]);
             }
             for ($count = 0; $count < count($rak); $count++) {
-
-                $data[] = [
-                    'rack_id' => $rak[$count],
-                    'stok_id' => $stok_id,
+                $checkRack = DB::table('pj_st_rack_data')
+                ->where('rack_id', $rak[$count])
+                ->first();
+                if (is_null($checkRack)) {
+                    $rackData = [
+                        'rack_id' => $rak[$count],
+                        'stok_id' => $stok_id,
+                        'total_stok'  => $jml_stok[$count],
+                    ];
+                    DB::table('pj_st_rack_data')->insert($rackData);
+                    $rack_data_id =  DB::getPdo()->lastInsertId();
+                } else {
+                    $rack_data_id = $checkRack->id;
+                    DB::table('pj_st_rack_data')
+                    ->where('rack_id', $rak[$count])
+                    ->update([
+                        'total_stok' => $checkRack->total_stok + $jml_stok[$count]
+                    ]);
+                }
+                $rackDataDetail[] = [
+                    'rack_data_id' => $rack_data_id,
                     'jml_stok'  => $jml_stok[$count],
                     'tgl_masuk_stok'  => Carbon::createFromFormat('d F Y', $tgl_masuk_stok[$count])->format('Y-m-d'),
                     'operators_id'  => json_encode($users_id[$count]),
@@ -548,8 +562,8 @@ class StokAndiController extends Controller
                 ]);
             }
             $insert = [
-                'params' => 'Insert Stock In Rack',
-                'data' => $data
+                'params' => 'Insert Stock Detail In Rack',
+                'data' => $rackDataDetail
             ];
             event(new PenjualanStokEvent($insert));
             return response()->json([
