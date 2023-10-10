@@ -60,11 +60,25 @@ class PenjualanStokListener
                 break;
             case 'Update Stock In Rack':
                 DB::beginTransaction();
-                $res = DB::table('pj_st_rack_data')->where('id',$data['id'])->where('stok_id',$data['stok_id'])
+                $res = DB::table('pj_st_rack_data_detail')->where('id',$data['id'])
                 ->update([
                     'jml_stok' => $data['jml_stok'],
                     'tgl_masuk_stok' => $data['tgl_masuk_stok'],
                     'operators_id' => $data['operators_id']
+                ]);
+                DB::commit();
+                break;
+            case 'Insert Riwayat Aktivitas Rak':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_rack_data_activity')->insert([
+                    'rack_id' => $data['rack_id'],
+                    'stok_id' => $data['stok_id'],
+                    'type_history' => $data['type_history'],
+                    'type_activity' => $data['type_activity'],
+                    'qty' => $data['qty'],
+                    'sisa' => $data['sisa'],
+                    'catatan' => $data['catatan'],
+                    'created_by' => $data['created_by']
                 ]);
                 DB::commit();
                 break;

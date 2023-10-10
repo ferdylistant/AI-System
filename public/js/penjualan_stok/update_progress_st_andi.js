@@ -81,6 +81,7 @@ $(document).ready(function () {
                 cardWrap.find('[name="total_stok"]').val(result.total_stok).trigger('change');
                 cardWrap.find('#totalStok').text(result.total_stok).trigger('change');
                 cardWrap.find('#totalMasuk').text(result.total_masuk).trigger('change');
+                cardWrap.find('#totalBelum').text(result.total_belum).trigger('change');
                 $('.counter').each(function () {
                     $(this).prop('Counter', 0).animate({
                         Counter: $(this).text()
@@ -247,6 +248,7 @@ $(document).ready(function () {
     $('#modalDetailRack').on('show.bs.modal', function (e) {
         let rack_id = $(e.relatedTarget).data('rack_id'),
             stok_id = $(e.relatedTarget).data('stok_id'),
+            rack_data_id = $(e.relatedTarget).data('rack_data_id'),
             nama_rak = $(e.relatedTarget).data('nama_rak'),
             cardWrap = $("#modalDetailRack");
         $.ajax({
@@ -255,12 +257,15 @@ $(document).ready(function () {
             data: {
                 rack_id: rack_id,
                 stok_id: stok_id,
+                rack_data_id: rack_data_id,
                 nama_rak: nama_rak
             },
             cache: false,
             success: function (result) {
                 cardWrap.find('#sectionTitle').html("Rack (" + nama_rak + ") " + result.popover).trigger('change');
                 cardWrap.find('#contentDetailRack').html(result.content).trigger('change');
+                cardWrap.find('button').data('rack_data_id',rack_data_id);
+                cardWrap.find('button').data('stok_id',stok_id);
                 // cardWrap.find('#totalStok').text(result.total_stok).trigger('change');
                 $('[data-toggle="popover"]').popover();
             },
@@ -323,7 +328,6 @@ $(document).ready(function () {
         $(this).find("form").trigger("reset");
         $(this).addClass("modal-progress");
     });
-
     $('#modalEditRack').on('focus', '#datepickerEditRack', function (e) {
         e.preventDefault();
         $(this).datepicker({
@@ -436,6 +440,9 @@ $(document).ready(function () {
                 // console.log(res);
                 notifToast(res.status, res.message);
                 if (res.status == 'success') {
+                    if (res.load === true) {
+                        location.reload();
+                    }
                     $('#modalDetailRack').find('#sectionTitle').html("Rack (" + nama_rak + ") " + res.popover).trigger('change');
                     $('[data-toggle="popover"]').popover();
                     var i = 0;
@@ -481,6 +488,222 @@ $(document).ready(function () {
                 ajaxDeleteRak($(this),nama_rak, id,rack_id,stok_id);
             }
         });
+    });
+    $('#modalAktivitasRak').on('shown.bs.modal',function(e) {
+        e.preventDefault();
+        if ($.fn.DataTable.isDataTable('#tb_aktivitasRak')) {
+            $('#tb_aktivitasRak').DataTable().destroy();
+        }
+        $('#sectionTitleActivity').text($('#sectionTitle').text());
+        let stok_id = $('[name="stok_id"]').val();
+        let tabelStok = $('#tb_aktivitasRak').DataTable({
+            footerCallback: function (row, data, start, end, display) {
+                let api = this.api();
+
+                // Remove the formatting to get integer data for summation
+                let intVal = function (i) {
+                    return typeof i === 'string'
+                        ? i.replace(/[\$,]/g, '') * 1
+                        : typeof i === 'number'
+                        ? i
+                        : 0;
+                };
+
+                // Total over all pages
+                total = api
+                    .column(6)
+                    .data()
+                    .reduce((a, b) => intVal(a) + intVal(b), 0);
+
+                // Total over this page
+                pageTotal = api
+                    .column(6, { page: 'current' })
+                    .data()
+                    .reduce((a, b) => intVal(a) + intVal(b), 0);
+
+                api.column(0).footer().innerHTML = 'Total:';
+                // Update footer
+                api.column(6).footer().innerHTML =
+                     pageTotal + ' (' + total + ' total keseluruhan)';
+            },
+            "responsive": true,
+            "autoWidth": false,
+            pagingType: "input",
+            processing: true,
+            serverSide: false,
+            language: {
+                searchPlaceholder: "Cari...",
+                sSearch: "",
+                lengthMenu: "_MENU_ /halaman",
+            },
+            ajax: {
+                url: window.location.origin + "/penjualan-stok/gudang/stok-buku/andi?request_type=table-riwayat-aktivitas-rak",
+                data: {
+                    stok_id:stok_id
+                }
+            },
+            columns: [
+                { data: 'no', name: 'no', title: 'No' },
+                { data: 'created_at', name: 'created_at', title: 'Tanggal' },
+                { data: 'rack_id', name: 'rack_id', title: 'Di Rak' },
+                { data: 'type_history', name: 'type_history', title: 'Uraian' },
+                { data: 'type_activity', name: 'type_activity', title: 'Keluar/Masuk' },
+                { data: 'created_by', name: 'created_by', title: 'Otorisasi' },
+                { data: 'qty', name: 'qty', title: 'Jumlah' },
+                { data: 'sisa', name: 'sisa', title: 'Sisa' },
+            ]
+        });
+        $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
+            console.log(helpPage);
+            console.log(message);
+            notifToast("error", settings.jqXHR.statusText)
+            if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
+                window.location.reload();
+            }
+        };
+    });
+    $('#md_PindahRak').on('shown.bs.modal', function (e) {
+        e.preventDefault();
+        let rack_data_id = $(e.relatedTarget).data('rack_data_id'),
+            stok_id = $(e.relatedTarget).data('stok_id'),
+            cardWrap = $("#md_PindahRak");
+        $.ajax({
+            url: window.location.origin + "/penjualan-stok/gudang/stok-buku/andi?request_type=show-modal-rack-move",
+            type: 'GET',
+            data: {
+                rack_data_id:rack_data_id,
+                stok_id:stok_id,
+            },
+            cache: false,
+            success: (res) => {
+                cardWrap.find('#sectionTitle').text("Rak saat ini (" + res.nama + ")").trigger('change');
+                cardWrap.find('[name="stok_id"]').val(res.stok_id).trigger('change');
+                cardWrap.find('[name="current_rack_id"]').val(res.rack_id).trigger('change');
+                cardWrap.find('[name="rack_data_id"]').val(res.id).trigger('change');
+                $('.select-rack-move').select2({
+                    placeholder: 'Pilih rak',
+                    ajax: {
+                        url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=select-rack-for-move&rack_id='+res.rack_id,
+                        type: "GET",
+                        data: function (params) {
+                            var queryParameters = {
+                                term: params.term
+                            };
+                            return queryParameters;
+                        },
+                        processResults: function (data) {
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        text: item.nama,
+                                        id: item.id,
+                                    };
+                                }),
+                            };
+                        },
+                    },
+                }).on("change", function (e) {
+                    if (this.value) {
+                        $(this).valid();
+                    }
+                });
+
+            },
+            error: (err) => {
+                notifToast('error',err.statusText);
+                cardWrap.removeClass('modal-progress');
+            },
+            complete: () => {
+                cardWrap.removeClass('modal-progress');
+                $('.datepicker-pindah').datepicker({
+                    format: 'dd MM yyyy',
+                    endDate: new Date(),
+                    autoclose: true,
+                    clearBtn: true,
+                    todayHighlight: true,
+                    container: '#md_PindahRak .modal-content'
+                }).on("change", function (e) {
+                    if (this.value) {
+                        $(this).valid();
+                    }
+                });
+            }
+        });
+    });
+    let pindahRak = jqueryValidation_('#fm_PindahRak', {
+        rack_id: {
+            required: true
+        },
+        jml_stok_rak: {
+            required: true,
+            number: true
+        },
+        tgl_pindah: {
+            required: true
+        },
+        "users_id[]": {
+            required: true
+        }
+    });
+    $("#md_PindahRak").on("hidden.bs.modal", function (e) {
+        $(this).addClass("modal-progress");
+        pindahRak.resetForm();
+        $(this).find("form").trigger("reset");
+    });
+    function ajaxPindahRak(data) {
+        let datapost = new FormData(data.get(0)),
+            cardWrap = $('#md_PindahRak'),
+            cardWrapParent = $('#modalDetailRack');
+
+        $.ajax({
+            url: window.location.origin + "/penjualan-stok/gudang/stok-buku/andi?request_type=pindah-rack",
+            type: 'POST',
+            data: datapost,
+            processData: false,
+            contentType: false,
+            beforeSend: () => {
+                cardWrap.addClass("modal-progress");
+            },
+            success: (res) => {
+                // console.log(res);
+                notifToast(res.status,res.message);
+                if (res.status == 'success') {
+                    location.reload();
+                }
+            },
+            error: (err) => {
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    pindahRak.showErrors(err);
+                }
+                notifToast("error", err.statusText);
+                cardWrap.removeClass("modal-progress");
+            },
+            complete: () => {
+                cardWrap.removeClass("modal-progress");
+
+            }
+        });
+    }
+    $("#md_PindahRak #fm_PindahRak").submit(function(e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            swal({
+                title: 'Apakah tujuan pemindahan rak sudah benar?',
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxPindahRak($(this));
+                }
+            });
+        }
     });
     $(document).ready(function () {
         $('#btn_PermohonanRekondisi').click(function(e) {
