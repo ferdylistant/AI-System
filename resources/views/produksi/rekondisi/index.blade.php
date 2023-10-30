@@ -101,6 +101,9 @@
                     <button class="btn btn-success" data-toggle="modal" data-target="#md_addRekondisi">
                         Tambah Data Rekondisi
                     </button>
+                    <button type="button" class="btn btn-dark">
+                        Data Dari Gudang <span class="badge badge-danger">4</span>
+                      </button>
                 </div>
             @endif
         </div>
@@ -110,7 +113,8 @@
                     <div class="card card-primary">
                         <div class="card-body">
                             <div class="col-12 table-responsive">
-                                <table class="table table-striped dt-responsive" id="tb_rekondisiProduksi" style="width:100%">
+                                <table class="table table-striped dt-responsive" id="tb_rekondisiProduksi"
+                                    style="width:100%">
                                 </table>
                             </div>
                         </div>

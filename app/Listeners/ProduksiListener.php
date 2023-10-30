@@ -134,6 +134,19 @@ class ProduksiListener
                     'created_by' => $data['created_by']
                 ]);
                 DB::commit();
+            case 'Create Data Rekondisi Dari Gudang':
+                DB::beginTransaction();
+                $res = DB::table('proses_produksi_rekondisi')->insert([
+                    'id' => $data['id'],
+                    'kode' => $data['kode'],
+                    'rekondisi_dari' => $data['rekondisi_dari'],
+                    'naskah_id' => $data['naskah_id'],
+                    'jml_rekondisi' => $data['jml_rekondisi'],
+                    'catatan' => $data['catatan'],
+                    'status' => $data['status'],
+                    'created_by' => $data['created_by']
+                ]);
+                DB::commit();
                 break;
             case 'Kirim Rekondisi Ke Gudang':
                 DB::beginTransaction();

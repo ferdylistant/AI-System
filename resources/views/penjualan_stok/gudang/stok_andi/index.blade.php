@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css')}}">
     <link rel="stylesheet" href="{{ url('vendors/SpinKit/spinkit.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <style>
         .scrollbar-deep-purple::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
@@ -103,6 +104,7 @@
 @include('penjualan_stok.gudang.stok_andi.include.modal_detail_rack')
 @include('penjualan_stok.gudang.stok_andi.include.modal_detail_edit_rack')
 @include('penjualan_stok.gudang.stok_andi.include.modal_detail_pindah_rack')
+@include('penjualan_stok.gudang.stok_andi.include.modal_detail_history_rack')
 @include('tracker_modal')
 @endsection
 
@@ -120,6 +122,8 @@
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
         <script src="https://unpkg.com/imask"></script>
+        <script type="text/javascript" src="//cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
 @endsection
 
 @section('jsNeeded')

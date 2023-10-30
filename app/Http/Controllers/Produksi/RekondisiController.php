@@ -21,37 +21,69 @@ class RekondisiController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = DB::table('proses_produksi_rekondisi as ppr')
-                ->join('proses_produksi_cetak as ppc', 'ppc.id', '=', 'ppr.produksi_id')
-                ->join('order_cetak as oc', 'oc.id', '=', 'ppc.order_cetak_id')
-                ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
-                ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
-                ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
-                ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
-                ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
-                ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
-                ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
-                ->orderBy('pn.kode', 'asc')
-                ->select(
-                    'ppr.*',
-                    'dp.judul_final',
-                    'dp.naskah_id',
-                    'pn.kode as kode_naskah',
-                )
-                ->get();
-            if ($request->has('modal')) {
-                $response = $this->modalTrackProduksi($request);
-                return $response;
-            }
+            $data = DB::table('proses_produksi_rekondisi')->where('status','<>','approval')
+            ->orderBy('created_at','ASC')
+            ->get();
+            $data = collect($data)->map(function($item){
+                $id = $item->id;
+                $kodeRekondisi = $item->kode;
+                $createdAt = $item->created_at;
+                $status = $item->status;
+                $dari = $item->rekondisi_dari;
+                if ($item->rekondisi_dari == 'Produksi') {
+                    $dataNew = DB::table('proses_produksi_cetak as ppc')
+                    ->join('order_cetak as oc', 'oc.id', '=', 'ppc.order_cetak_id')
+                    ->join('deskripsi_turun_cetak as dtc', 'dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
+                    ->join('pracetak_setter as ps', 'ps.id', '=', 'dtc.pracetak_setter_id')
+                    ->join('pracetak_cover as pc', 'pc.id', '=', 'dtc.pracetak_cover_id')
+                    ->join('deskripsi_final as df', 'df.id', '=', 'ps.deskripsi_final_id')
+                    ->join('deskripsi_cover as dc', 'dc.id', '=', 'pc.deskripsi_cover_id')
+                    ->join('deskripsi_produk as dp', 'dp.id', '=', 'dc.deskripsi_produk_id')
+                    ->join('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')
+                    ->where('ppc.id',$item->produksi_id)
+                    ->select(
+                        'ppc.id as produksi_id',
+                        'dp.judul_final',
+                        'dp.naskah_id',
+                        'pn.kode as kode_naskah',
+                    )
+                    ->first();
+                    $dataNew = (object)collect($dataNew)->put('id',$id);
+                    $dataNew = (object)collect($dataNew)->put('rekondisi_dari',$dari);
+                    $dataNew = (object)collect($dataNew)->put('kode',$kodeRekondisi);
+                    $dataNew = (object)collect($dataNew)->put('created_at',$createdAt);
+                    $dataNew = (object)collect($dataNew)->put('status',$status);
+                } else {
+                    $dataNew = DB::table('penerbitan_naskah as pn')
+                    ->join('deskripsi_produk as dp','dp.naskah_id','=','pn.id')
+                    ->where('pn.id',$item->naskah_id)
+                    ->select(
+                        'pn.id as naskah_id',
+                        'pn.kode as kode_naskah',
+                        'dp.judul_final'
+                    )
+                    ->first();
+                    $dataNew = (object)collect($dataNew)->put('id',$id);
+                    $dataNew = (object)collect($dataNew)->put('rekondisi_dari',$dari);
+                    $dataNew = (object)collect($dataNew)->put('kode',$kodeRekondisi);
+                    $dataNew = (object)collect($dataNew)->put('created_at',$createdAt);
+                    $dataNew = (object)collect($dataNew)->put('status',$status);
+                }
+                return $dataNew;
+            })->all();
+            // if ($request->has('modal')) {
+            //     $response = $this->modalTrackProduksi($request);
+            //     return $response;
+            // }
             return DataTables::of($data)
                 ->addColumn('kode_rekondisi', function ($data) {
-                    return $data->kode;
+                    return $data['kode'];
                 })
                 ->addColumn('kode_naskah', function ($data) {
-                    return $data->kode_naskah;
+                    return $data['kode_naskah'];
                 })
                 ->addColumn('judul_final', function ($data) {
-                    return $data->judul_final;
+                    return $data['judul_final'];
                 })
                 ->addColumn('penulis', function ($data) {
                     $result = '';
@@ -60,7 +92,7 @@ class RekondisiController extends Controller
                             $q->on('pnp.penulis_id', '=', 'pp.id')
                                 ->whereNull('pp.deleted_at');
                         })
-                        ->where('pnp.naskah_id', '=', $data->naskah_id)
+                        ->where('pnp.naskah_id', '=', $data['naskah_id'])
                         ->select('pp.nama')
                         // ->pluck('pp.nama');
                         ->get();
@@ -70,11 +102,11 @@ class RekondisiController extends Controller
                     return $result;
                 })
                 ->addColumn('created_at', function ($data) {
-                    return Carbon::parse($data->created_at)->translatedFormat('l, d-m-Y H:i');
+                    return Carbon::parse($data['created_at'])->translatedFormat('l, d-m-Y H:i');
                 })
                 ->addColumn('kirim_gudang', function ($data) {
                     if (Gate::allows('do_approval', 'kirim-data-rekondisi')) {
-                        switch ($data->status) {
+                        switch ($data['status']) {
                             case 'belum selesai':
                                 $statusColor = 'dark';
                                 break;
@@ -85,9 +117,10 @@ class RekondisiController extends Controller
                                 $statusColor = 'success';
                                 break;
                         }
-                        $res = '<button class="btn btn-sm btn-light btn-icon position-relative tooltip-class" data-id="' . $data->id . '" data-produksi_id="' . $data->produksi_id . '"
-                            data-judul="' . $data->judul_final . '" data-status="' . $data->status . '"
-                            data-statuscolor="' . $statusColor . '" data-toggle="modal" data-target="#modalPengirimanRekondisi" data-backdrop="static" title="' . $data->status . '">
+                        $conditional_id = $data['rekondisi_dari'] == 'Produksi'?'data-produksi_id="' . $data['produksi_id'] . '"':'data-naskah_id="' . $data['naskah_id'] . '"';
+                        $res = '<button class="btn btn-sm btn-light btn-icon position-relative tooltip-class" data-id="' . $data['id'] . '" '.$conditional_id.'
+                            data-judul="' . $data['judul_final'] . '" data-status="' . $data['status'] . '"
+                            data-statuscolor="' . $statusColor . '" data-toggle="modal" data-target="#modalPengirimanRekondisi" data-backdrop="static" title="' . $data['status'] . '">
                             <i class="fas fa-truck-loading"></i> Pengiriman
                             <span class="position-absolute translate-middle p-1 bg-' . $statusColor . ' border border-light rounded-circle" style="top:0;right:0">
                             </span>

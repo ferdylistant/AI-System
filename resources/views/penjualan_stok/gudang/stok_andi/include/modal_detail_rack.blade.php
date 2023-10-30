@@ -18,7 +18,7 @@
                                     <div class="card-header">
                                         <div class="card-header-action">
                                             <button type="button" class="btn btn-light" data-rack_data_id="" data-stok_id="" data-toggle="modal" data-target="#md_PindahRak" id="btn_PindahRak"><i class="fas fa-exchange-alt"></i> Pindah Rak</button>
-                                            <button type="button" class="btn btn-dark" data-rack_data_id="" data-stok_id="" id="btn_HistoryRak"><i class="fas fa-history"></i> History</button>
+                                            <button type="button" class="btn btn-dark" data-rack_data_id="" data-stok_id="" data-toggle="modal" data-target="#md_HistoryRack" id="btn_HistoryRak"><i class="fas fa-history"></i> History</button>
                                         </div>
                                     </div>
                                     <div class="card-body">

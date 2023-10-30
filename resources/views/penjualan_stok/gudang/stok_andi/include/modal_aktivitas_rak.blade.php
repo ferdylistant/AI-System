@@ -15,8 +15,8 @@
                             <table class="table table-bordered dt-responsive" id="tb_aktivitasRak" style="width:100%">
                                 <tfoot style="background: #F5F5F5">
                                     <tr>
-                                        <th colspan="6"></th>
-                                        <th colspan="2"></th>
+                                        <th colspan="7"></th>
+                                        <th colspan="1"></th>
                                     </tr>
                                 </tfoot>
                             </table>

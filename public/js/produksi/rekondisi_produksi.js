@@ -69,7 +69,7 @@ $(document).ready(function () {
         ]
     });
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
-        // console.log(message);
+        console.log(message);
         notifToast("error",settings.jqXHR.statusText)
         if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
             window.location.reload();

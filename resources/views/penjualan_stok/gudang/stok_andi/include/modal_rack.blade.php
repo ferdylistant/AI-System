@@ -15,8 +15,7 @@
                                 <h6 class="section-title" id="sectionTitle"></h6>
                             </div>
                             <div class="col-auto">
-                                <a class="text-default font-weight-bolder" href="javascript:void(0)"
-                                    id="btn_PermohonanRekondisi"><i class="fas fa-recycle text-danger"></i> Permohonan
+                                <a class="text-default font-weight-bolder" href="javascript:void(0)" data-toggle="modal" data-target="#modalPermohonanRekondisi"><i class="fas fa-recycle text-danger"></i> Permohonan
                                     Rekondisi</a>
                             </div>
                         </div>

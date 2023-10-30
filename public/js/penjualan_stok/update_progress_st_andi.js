@@ -82,6 +82,9 @@ $(document).ready(function () {
                 cardWrap.find('#totalStok').text(result.total_stok).trigger('change');
                 cardWrap.find('#totalMasuk').text(result.total_masuk).trigger('change');
                 cardWrap.find('#totalBelum').text(result.total_belum).trigger('change');
+                cardWrap.find('#totalKeluar').text(result.total_keluar).trigger('change');
+                cardWrap.find('#totalPenjualan').text(result.total_penjualan).trigger('change');
+                cardWrap.find('#totalLain').text(result.total_lain).trigger('change');
                 $('.counter').each(function () {
                     $(this).prop('Counter', 0).animate({
                         Counter: $(this).text()
@@ -203,7 +206,7 @@ $(document).ready(function () {
                 cardWrap.addClass("modal-progress");
             },
             success: (res) => {
-                console.log(res);
+                // console.log(res);
                 notifToast(res.status, res.message);
                 if (res.status === 'success') {
                     cardWrap.modal('hide');
@@ -496,35 +499,62 @@ $(document).ready(function () {
         }
         $('#sectionTitleActivity').text($('#sectionTitle').text());
         let stok_id = $('[name="stok_id"]').val();
+        var start_date;
+        var end_date;
+        var DateFilterFunction = (function (oSettings, aData, iDataIndex) {
+            var dateStart = parseDateValue(start_date);
+            var dateEnd = parseDateValue(end_date);
+            //Kolom tanggal yang akan kita gunakan berada dalam urutan 1, karena dihitung mulai dari 0
+            var evalDate= parseDateValue(aData[1]);
+              if ( ( isNaN( dateStart ) && isNaN( dateEnd ) ) ||
+                   ( isNaN( dateStart ) && evalDate <= dateEnd ) ||
+                   ( dateStart <= evalDate && isNaN( dateEnd ) ) ||
+                   ( dateStart <= evalDate && evalDate <= dateEnd ) )
+              {
+                  return true;
+              }
+              return false;
+        });
+
+        // fungsi untuk converting format tanggal dd/mm/yyyy menjadi format tanggal javascript menggunakan zona aktubrowser
+        function parseDateValue(rawDate) {
+            var dateArray= rawDate.split("/");
+            var parsedDate= new Date(dateArray[2], parseInt(dateArray[1])-1, dateArray[0]);  // -1 because months are from 0 to 11
+            return parsedDate;
+        }
         let tabelStok = $('#tb_aktivitasRak').DataTable({
-            footerCallback: function (row, data, start, end, display) {
+            "dom": "<'row'<'col-sm-4'l><'col-sm-5' <'datesearchbox'>><'col-sm-3'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+            "fnFooterCallback": function (row, data, start, end, display) {
                 let api = this.api();
 
-                // Remove the formatting to get integer data for summation
-                let intVal = function (i) {
-                    return typeof i === 'string'
-                        ? i.replace(/[\$,]/g, '') * 1
-                        : typeof i === 'number'
-                        ? i
-                        : 0;
-                };
-
-                // Total over all pages
                 total = api
-                    .column(6)
-                    .data()
-                    .reduce((a, b) => intVal(a) + intVal(b), 0);
+                .column(7,{ page: 'current' })
+                .data();
 
-                // Total over this page
-                pageTotal = api
-                    .column(6, { page: 'current' })
-                    .data()
-                    .reduce((a, b) => intVal(a) + intVal(b), 0);
+                totalKeseluruhan = api
+                .column(7)
+                .data();
 
+                var tot = 0;
+                for (var i = 0; i < total.length; i++) {
+                    if (i === total.length - 1) {
+                        // this is the last one
+                        tot += total[i] * 1;
+                    }
+                }
+                var totKes = 0;
+                for (var i = 0; i < totalKeseluruhan.length; i++) {
+                    if (i === totalKeseluruhan.length - 1) {
+                        // this is the last one
+                        totKes += totalKeseluruhan[i] * 1;
+                    }
+                }
                 api.column(0).footer().innerHTML = 'Total:';
                 // Update footer
-                api.column(6).footer().innerHTML =
-                     pageTotal + ' (' + total + ' total keseluruhan)';
+                api.column(7).footer().innerHTML =
+                     tot + ' (' + totKes + ' total keseluruhan)';
             },
             "responsive": true,
             "autoWidth": false,
@@ -553,9 +583,34 @@ $(document).ready(function () {
                 { data: 'sisa', name: 'sisa', title: 'Sisa' },
             ]
         });
+        $("div.datesearchbox").html('<div class="input-group"> <div class="input-group-addon"> <i class="glyphicon glyphicon-calendar"></i> </div><input type="text" class="form-control pull-right" id="datesearch" placeholder="Filter by date range.."> </div>');
+
+        document.getElementsByClassName("datesearchbox")[0].style.textAlign = "right";
+
+        //konfigurasi daterangepicker pada input dengan id datesearch
+        $('#datesearch').daterangepicker({
+            autoUpdateInput: false
+            });
+
+        //menangani proses saat apply date range
+        $('#datesearch').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+        start_date=picker.startDate.format('DD/MM/YYYY');
+        end_date=picker.endDate.format('DD/MM/YYYY');
+        $.fn.dataTableExt.afnFiltering.push(DateFilterFunction);
+            tabelStok.draw();
+        });
+
+        $('#datesearch').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+        start_date='';
+        end_date='';
+        $.fn.dataTable.ext.search.splice($.fn.dataTable.ext.search.indexOf(DateFilterFunction, 1));
+            tabelStok.draw();
+        });
         $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
-            console.log(helpPage);
-            console.log(message);
+            // console.log(helpPage);
+            // console.log(message);
             notifToast("error", settings.jqXHR.statusText)
             if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
                 window.location.reload();
@@ -650,6 +705,85 @@ $(document).ready(function () {
         pindahRak.resetForm();
         $(this).find("form").trigger("reset");
     });
+    $('#md_HistoryRack').on('shown.bs.modal', function (e) {
+        e.preventDefault();
+        let rack_data_id = $(e.relatedTarget).data('rack_data_id'),
+            stok_id = $(e.relatedTarget).data('stok_id'),
+            cardWrap = $("#md_HistoryRack");
+        $.ajax({
+            url: window.location.origin + "/penjualan-stok/gudang/stok-buku/andi?request_type=show-modal-rack-history",
+            type: 'GET',
+            data: {
+                rack_data_id:rack_data_id,
+                stok_id:stok_id,
+            },
+            cache: false,
+            success: (res) => {
+                // console.log(res);
+                $("#titleModalDetailHistoryRak").html(
+                    '<i class="fas fa-history"></i>&nbsp;History Rack "' +
+                        res.title +
+                        '"'
+                );
+                if (res.status === 'error') {
+                    $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
+                } else {
+                    $("#load_more").data("id", res.rack_data_id);
+                }
+                $("#dataHistoryDetailRak").html(res.html);
+            },
+            error: (err) => {
+                notifToast('error',err.statusText);
+                cardWrap.removeClass('modal-progress');
+            },
+            complete: () => {
+                cardWrap.removeClass('modal-progress');
+
+            }
+        });
+    });
+    $("#md_HistoryRack").on("hidden.bs.modal", function (e) {
+        $(this).addClass("modal-progress");
+        $(".load-more").data("paginate", 2);
+        $(".load-more").attr("disabled", false).css("cursor", "pointer");
+    });
+    $(".load-more").click(function (e) {
+        e.preventDefault();
+        var page = $(this).data("paginate");
+        var id = $(this).data("id");
+        let form = $("#md_HistoryRack");
+        $(this).data("paginate", page + 1);
+        $.ajax({
+            url:
+                window.location.origin + "/penjualan-stok/gudang/stok-buku/andi?request_type=show-modal-rack-history",
+            data: {
+                rack_data_id: id,
+                page: page,
+            },
+            type: "GET",
+            beforeSend: function () {
+                form.addClass("modal-progress");
+            },
+            success: function (response) {
+                // console.log(response.html.length);
+                if (response.html.length == 0) {
+                    $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
+                    notifToast("error", "Tidak ada data lagi");
+                } else {
+                    $("#dataHistoryDetailRak").append(response.html);
+                    $('.thin').animate({scrollTop: $('.modal-body').prop("scrollHeight")}, 800);
+                }
+                // Setting little delay while displaying new content
+                // setTimeout(function() {
+                //     // appending posts after last post with class="post"
+                //     $("#dataHistory:last").htnl(response).show().fadeIn("slow");
+                // }, 2000);
+            },
+            complete: function (params) {
+                form.removeClass("modal-progress");
+            },
+        });
+    });
     function ajaxPindahRak(data) {
         let datapost = new FormData(data.get(0)),
             cardWrap = $('#md_PindahRak'),
@@ -705,51 +839,126 @@ $(document).ready(function () {
             });
         }
     });
-    $(document).ready(function () {
-        $('#btn_PermohonanRekondisi').click(function(e) {
-            e.preventDefault();
-            let stok_id = $('[name="stok_id"]').val();
-            let total_stok = $('[name="total_stok"]').val();
-            $.ajax({
-                url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=modal-permohonan-rekondisi',
-                type: 'GET',
-                data: {
-                    stok_id:stok_id,
-                    total_stok:total_stok,
-                },
-                cache: false,
-                success: (res) => {
-                    $('#showModalPermohonanRekondisi').html(res.modal);
-                    $('#modalPermohonanRekondisi').modal('show')
-                    if (res.exist === true) {
-                        Object.entries(res.data).forEach((entry) => {
-                            let [key, value] = entry;
-                            $('#check'+value.rack_id).change(function(e) {
-                                if (this.checked)
-                                    showDetail(this.value,$(this).data('name'));
-                                else
-                                    just_hide(this.value);
-                            });
+    $('#modalPermohonanRekondisi').on('shown.bs.modal',function(e) {
+        e.preventDefault();
+        // console.log(e);
+        let stok_id = $('[name="stok_id"]').val(),
+        total_stok = $('[name="total_stok"]').val(),
+        cardWrap = $("#modalPermohonanRekondisi");
+        $.ajax({
+            url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi?request_type=modal-permohonan-rekondisi',
+            type: 'GET',
+            data: {
+                stok_id:stok_id,
+                total_stok:total_stok,
+            },
+            cache: false,
+            success: (res) => {
+                $('#contentPermohonan').html(res.modal);
+                if (res.exist === true) {
+                    Object.entries(res.data).forEach((entry) => {
+                        let [key, value] = entry;
+                        $('#check'+value.rack_id).change(function(e) {
+                            if (this.checked)
+                                showDetail(this.value,$(this).data('name'),value.total_diletakkan);
+                            else
+                                just_hide(this.value);
                         });
-                    }
-                },
-                error: (err) => {
-                    notifToast('error',err.statusText)
-                    $('#modalPermohonanRekondisi').removeClass("modal-progress");
-                },
-                complete: () => {
-                    $('#modalPermohonanRekondisi').removeClass("modal-progress");
+                    });
+                } else {
+                    $(".submit-permohonan").attr("disabled", true).css("cursor", "not-allowed");
                 }
-            });
+            },
+            error: (err) => {
+                notifToast('error',err.statusText)
+                cardWrap.removeClass('modal-progress');
+            },
+            complete: () => {
+                cardWrap.removeClass('modal-progress');
+            }
         });
     });
-    function showDetail(ele,title) {
-        $('#inputRakRekondisi').append(`<input type="text" class="form-control mb-1" name="jml_rekondisi[]" id="input`+ele+`" placeholder="Rak `+title+`">`);
+    $("#modalPermohonanRekondisi").on("hidden.bs.modal", function (e) {
+        $(this).addClass("modal-progress");
+        $(".submit-permohonan").attr("disabled", false).css("cursor", "pointer");
+    });
+    function showDetail(ele,title,total) {
+        $('#inputRakRekondisi').append(`<input type="number" class="form-control mb-1 input`+ele+`" min="1" name="jml_rekondisi[]" placeholder="Rak `+title+`">
+        <input type="hidden" name="rekondisi_rak_id[]" class="input`+ele+`" value="`+ele+`">
+        <input type="hidden" name="nama_rak[]" class="input`+ele+`" value="`+title+`">
+        <input type="hidden" name="total_dalam_rak[]" class="input`+ele+`" value="`+total+`">
+        `);
     }
 
     function just_hide(ele) {
-        $('#input'+ele).remove();
+        $('.input'+ele).remove();
     }
+    let permohonanRek = jqueryValidation_('#fm_PermohonanRekondisi', {
+        "rack_id[]": {
+            required: true,
+        },
+        "jml_rekondisi[]": {
+            required: true,
+            number: true
+        }
+    });
+    function ajaxPermohonanRekondisi(data) {
+        let el = data.get(0),
+            cardWrap = $('#modalPermohonanRekondisi');
+        $.ajax({
+            url: window.location.origin + "/penjualan-stok/gudang/stok-buku/andi?request_type=permohonan-rekondisi",
+            type: 'POST',
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: () => {
+                cardWrap.addClass("modal-progress");
+            },
+            success: (res) => {
+                console.log(res);
+                notifToast(res.status, res.message);
+                if (res.status === 'success') {
+                    location.reload();
+                }
+            },
+            error: (err) => {
+                console.log(err);
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    permohonanRek.showErrors(err);
+                }
+                notifToast("error", err.statusText);
+                cardWrap.removeClass("modal-progress");
+            },
+            complete: () => {
+                cardWrap.removeClass("modal-progress");
+
+            }
+        });
+    }
+    $('#modalPermohonanRekondisi #fm_PermohonanRekondisi').submit(function(e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            $("#errTextRack").addClass('d-none');
+            swal({
+                title: 'Apakah rak dan jumlah buku yang akan direkondisi sudah sesuai?',
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxPermohonanRekondisi($(this));
+                }
+            });
+        } else {
+            $("#errTextRack").text('Rak wajib dipilih!').fadeIn("slow");
+        }
+    });
     $(document).ready(function () {
         var max_fields = 20; //maximum input boxes allowed
         var wrapper = $(".input_fields_wrap"); //Fields wrapper
