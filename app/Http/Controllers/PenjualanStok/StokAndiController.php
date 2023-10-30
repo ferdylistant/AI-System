@@ -277,7 +277,6 @@ class StokAndiController extends Controller
             )
             ->orderBy('rd.id', 'ASC')->groupBy('rm.nama')->get();
         $modal = '';
-        dd($dataRack);
         if (!$dataRack->isEmpty()) {
             $modal .= '<div class="form-group">
             <label class="form-label"><span class="beep"></span>Pilih dari rak mana buku akan direkondisi</label>
