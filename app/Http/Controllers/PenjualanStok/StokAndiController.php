@@ -275,9 +275,10 @@ class StokAndiController extends Controller
                     'IFNULL(count(rd.id),0) as count_proses'
                 )
             )
-            ->orderBy('rd.id', 'ASC');
+            ->orderBy('rd.id', 'ASC')->groupBy('rm.nama')->get();
         $modal = '';
-        if ($dataRack->exists()) {
+        dd($dataRack);
+        if (!$dataRack->isEmpty()) {
             $modal .= '<div class="form-group">
             <label class="form-label"><span class="beep"></span>Pilih dari rak mana buku akan direkondisi</label>
             <br>
@@ -285,7 +286,7 @@ class StokAndiController extends Controller
             <small class="text-danger" id="errTextRack"></small>
                             <div class="selectgroup selectgroup-pills">';
             $exist = TRUE;
-            $dataLoop = $dataRack->groupBy('rm.nama')->get();
+            $dataLoop = $dataRack;
             foreach ($dataLoop as $loop) {
                 $modal .= '<label class="selectgroup-item">
                                   <input type="checkbox" name="rack_id[]" value="' . $loop->rack_id . '" data-name="' . $loop->nama . '" class="selectgroup-input" id="check' . $loop->rack_id . '">
