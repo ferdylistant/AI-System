@@ -56,10 +56,10 @@ $(document).ready(function () {
         columns: [
             { data: 'kode_rekondisi', name: 'kode_rekondisi', title: 'Kode Rekondisi' },
             { data: 'kode_naskah', name: 'kode_naskah', title: 'Kode Naskah' },
+            { data: 'rekondisi_dari', name: 'rekondisi_dari', title: 'Rekondisi Dari' },
             { data: 'judul_final', name: 'judul_final', title: 'Judul Final' },
             { data: 'penulis', name: 'penulis', title: 'Penulis' },
             { data: 'created_at', name: 'created_at', title: 'Dibuat' },
-            { data: 'kirim_gudang', name: 'kirim_gudang', title: 'Kirim Gudang'},
             { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false },
         ]
     });
@@ -108,6 +108,93 @@ $(document).ready(function () {
             }
         })
     })
+    $(document).ready(function() {
+        $.ajax({
+            url: window.location.origin + "/produksi/rekondisi",
+            type: 'GET',
+            data: {
+                request_type : 'count_data'
+            },
+            cache: false,
+            success: (res) => {
+                $('#countRekondisi').text(res);
+            },
+            error: (err) => {
+                console.log(err);
+            }
+        });
+    });
+    $('#md_rekondisi').on('shown.bs.modal', function (e) {
+        e.preventDefault()
+
+        $.ajax({
+            url: window.location.origin + "/produksi/rekondisi",
+            type: 'GET',
+            data: {
+                request_type : 'modal_rekondisi'
+            },
+            cache: false,
+            success: (res) => {
+                $(this).find('#contentPermohonan').html(res);
+            },
+            error: (err) => {
+                console.log(err);
+                $(this).removeClass('modal-progress');
+            },
+            complete: () => {
+                $(this).removeClass('modal-progress');
+            }
+        });
+    });
+    $("#md_rekondisi").on("hidden.bs.modal", function (e) {
+        $(this).addClass("modal-progress");
+    });
+    function ajaxApprovalRekondisi(id,type) {
+        let cardWrap = $('#md_rekondisi');
+        $.ajax({
+            url: window.location.origin + "/produksi/rekondisi",
+            type: 'POST',
+            data: {
+                request_type: 'approval-permohonan-rekondisi',
+                id:id,
+                type:type
+            },
+            beforeSend: function () {
+                cardWrap.addClass("modal-progress");
+            },
+            success: (res) => {
+                console.log(res);
+                notifToast(res.status,res.message);
+                if (res.status === 'success') {
+                    location.reload();
+                }
+            },
+            error: (err) => {
+                console.log(err.statusText);
+                notifToast('error',err.statusText);
+                cardWrap.removeClass("modal-progress");
+            },
+            complete: () => {
+                cardWrap.removeClass("modal-progress");
+            }
+        });
+    }
+    $('#contentPermohonan').on('click','.btn-approval', function (e) {
+        e.preventDefault();
+        let id = $(this).data('id');
+        let type = $(this).data('type');
+        let text = type === 'decline' ? 'menolak':'menerima';
+        swal({
+            text: 'Yakin '+text+' permohonan rekondisi?',
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((confirm_) => {
+            if (confirm_) {
+                ajaxApprovalRekondisi(id,type);
+            }
+        });
+    });
     let formAddRekondisi = jqueryValidation_("#formTambahRekondisi", {
         produksi_id: {
             required: true,

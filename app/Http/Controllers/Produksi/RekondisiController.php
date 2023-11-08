@@ -21,6 +21,12 @@ class RekondisiController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
+            if ($request->request_type == 'count_data') {
+                return self::countRekondisiData();
+            }
+            if ($request->request_type == 'modal_rekondisi') {
+                return self::showModalRekondisi();
+            }
             $data = DB::table('proses_produksi_rekondisi')->where('status','<>','approval')
             ->orderBy('created_at','ASC')
             ->get();
@@ -104,7 +110,15 @@ class RekondisiController extends Controller
                 ->addColumn('created_at', function ($data) {
                     return Carbon::parse($data['created_at'])->translatedFormat('l, d-m-Y H:i');
                 })
-                ->addColumn('kirim_gudang', function ($data) {
+                ->addColumn('action', function ($data) {
+                    $btn = '<a href="' . url('produksi/proses/cetak/detail?no=') . '"
+                                    class="d-block btn btn-sm btn-primary btn-icon mr-1 tooltip-class" data-toggle="tooltip" data-placement="top" title="Lihat Detail">
+                                    <div><i class="fas fa-envelope-open-text"></i></div></a>';
+                    if (Gate::allows('do_update', 'ubah-data-rekondisi')) {
+                        $btn .= '<a href="' . url('produksi/proses/cetak/edit?no=') . '"
+                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1 tooltip-class" data-toggle="tooltip" title="Edit Data">
+                                    <div><i class="fas fa-edit"></i></div></a>';
+                    }
                     if (Gate::allows('do_approval', 'kirim-data-rekondisi')) {
                         switch ($data['status']) {
                             case 'belum selesai':
@@ -118,26 +132,13 @@ class RekondisiController extends Controller
                                 break;
                         }
                         $conditional_id = $data['rekondisi_dari'] == 'Produksi'?'data-produksi_id="' . $data['produksi_id'] . '"':'data-naskah_id="' . $data['naskah_id'] . '"';
-                        $res = '<button class="btn btn-sm btn-light btn-icon position-relative tooltip-class" data-id="' . $data['id'] . '" '.$conditional_id.'
+                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-light btn-icon mr-1 mt-1 position-relative tooltip-class" data-id="' . $data['id'] . '" '.$conditional_id.'
                             data-judul="' . $data['judul_final'] . '" data-status="' . $data['status'] . '"
                             data-statuscolor="' . $statusColor . '" data-toggle="modal" data-target="#modalPengirimanRekondisi" data-backdrop="static" title="' . $data['status'] . '">
-                            <i class="fas fa-truck-loading"></i> Pengiriman
+                            <i class="fas fa-truck-loading"></i>
                             <span class="position-absolute translate-middle p-1 bg-' . $statusColor . ' border border-light rounded-circle" style="top:0;right:0">
                             </span>
-                            </button>';
-                    } else {
-                        $res = '<span class="text-danger">Anda tidak memiliki hak akses untuk melihat data ini</span>';
-                    }
-                    return $res;
-                })
-                ->addColumn('action', function ($data) {
-                    $btn = '<a href="' . url('produksi/proses/cetak/detail?no=') . '"
-                                    class="d-block btn btn-sm btn-primary btn-icon mr-1 tooltip-class" data-toggle="tooltip" data-placement="top" title="Lihat Detail">
-                                    <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                    if (Gate::allows('do_update', 'ubah-data-rekondisi')) {
-                        $btn .= '<a href="' . url('produksi/proses/cetak/edit?no=') . '"
-                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1 tooltip-class" data-toggle="tooltip" title="Edit Data">
-                                    <div><i class="fas fa-edit"></i></div></a>';
+                            </a>';
                     }
                     return $btn;
                 })
@@ -147,7 +148,6 @@ class RekondisiController extends Controller
                     'judul_final',
                     'penulis',
                     'created_at',
-                    'kirim_gudang',
                     'action'
                 ])
                 ->make(true);
@@ -156,6 +156,76 @@ class RekondisiController extends Controller
         return view('produksi.rekondisi.index', [
             'title' => 'Proses Produksi Cetak'
         ]);
+    }
+    protected function countRekondisiData()
+    {
+        try {
+            $data = DB::table('proses_produksi_rekondisi')
+            ->where('status','approval')
+            ->get()->count();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return abort($e->getCode(),$e->getMessage());
+        }
+    }
+    protected function showModalRekondisi()
+    {
+        try {
+            $data = DB::table('proses_produksi_rekondisi as ppr')
+            ->join('penerbitan_naskah as pn','pn.id','=','ppr.naskah_id')
+            ->join('deskripsi_produk as dp','dp.naskah_id','=','pn.id')
+            ->where('ppr.rekondisi_dari','Gudang')
+            ->where('ppr.status','approval')
+            ->orderBy('ppr.created_at','ASC')
+            ->select(
+                'ppr.*',
+                'dp.judul_final'
+            )->get();
+            $html ='';
+            if ($data->isEmpty()) {
+                $html .='<div class="col-12 offset-3 mt-5">
+                <div class="row">
+                    <div class="col-4 offset-1">
+                    <h6 class="text-danger">#Tidak ada permohonan rekondisi!</h6>
+                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png"
+                            width="100%">
+                    </div>
+                </div>
+            </div>';
+            } else {
+                $html .='<ul class="list-group list-group-flush">';
+
+                foreach ($data as $d) {
+                    $d = (object) collect($d)->map(function($item,$key) {
+                        switch ($key) {
+                            case 'catatan':
+                                $item = $item ?? '-';
+                                break;
+                            case 'created_at':
+                                $item = Carbon::createFromFormat('Y-m-d H:i:s', $item, 'Asia/Jakarta')->diffForHumans();
+                                break;
+                        }
+                        return $item;
+                    })->all();
+                    $html .='<li class="list-group-item d-flex flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">'.ucfirst($d->judul_final).'</h5>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-sm btn-danger btn-approval" data-type="decline" data-id="'.$d->id.'"><i class="fas fa-times"></i> Tolak</button>
+                        <button type="button" class="btn btn-sm btn-primary btn-approval" data-type="approve" data-id="'.$d->id.'"><i class="fas fa-check"></i> Terima</button>
+                    </div>
+                    </div>
+                    <p class="mb-1">Jumlah Permohonan: <b>'.$d->jml_rekondisi.'</b></p>
+                    <p>Catatan: <b>'.$d->catatan.'</b></p>
+                    <small>'.$d->created_at.'</small>
+                  </li>';
+                }
+                $html .='</ul>';
+            }
+            return $html;
+        } catch (\Exception $e) {
+            return abort($e->getCode(),$e->getMessage());
+        }
     }
     public function create(Request $request)
     {
@@ -239,6 +309,9 @@ class RekondisiController extends Controller
                     break;
                 case 'update-kirim-gudang':
                     return self::updateKirimGudang($request);
+                    break;
+                case 'approval-permohonan-rekondisi':
+                    return self::approvalPermohonanRekondisi($request);
                     break;
             }
             try {
@@ -350,6 +423,63 @@ class RekondisiController extends Controller
                 'message' => $e->getMessage()
             ]);
         }
+    }
+    protected function approvalPermohonanRekondisi($request)
+    {
+        try {
+            switch ($request->type) {
+                case 'decline':
+                    return self::decline($request->id);
+                    break;
+                case 'approve':
+                    return self::approve($request->id);
+                    break;
+                default:
+                    return abort(404);
+                break;
+            }
+        } catch(\exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    private function decline($id)
+    {
+        $data = DB::table('proses_produksi_rekondisi')->where('id',$id)->first();
+        DB::beginTransaction();
+        DB::table('pj_st_andi')->where('naskah_id',$data->naskah_id)->increment('total_stok',$data->jml_rekondisi);
+        DB::table('proses_produksi_rekondisi')->where('id',$id)->delete();
+        DB::commit();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Permohonan berhasil ditolak!'
+        ]);
+    }
+    private function approve($id)
+    {
+        $last = DB::table('proses_produksi_rekondisi')
+        ->where('status','<>','approval')
+        ->orderBy('created_at', 'DESC')->first();
+        if (is_null($last)) {
+            $kode = 'RE' . date('ymd') . '-0001';
+        } else {
+            $sortNumber = (int)substr($last->kode, -4);
+            $kode = 'RE' . date('ymd') . '-' . sprintf("%04d", $sortNumber + 1);
+        }
+        DB::beginTransaction();
+        $data = DB::table('proses_produksi_rekondisi')->where('id',$id)->update([
+            'kode' => $kode,
+            'status' => 'belum selesai',
+            'created_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+        ]);
+        DB::commit();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Permohonan berhasil diterima!'
+        ]);
     }
     public function show(Request $request, $id)
     {

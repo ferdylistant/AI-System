@@ -101,8 +101,8 @@
                     <button class="btn btn-success" data-toggle="modal" data-target="#md_addRekondisi">
                         Tambah Data Rekondisi
                     </button>
-                    <button type="button" class="btn btn-dark">
-                        Data Dari Gudang <span class="badge badge-danger">4</span>
+                    <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#md_rekondisi">
+                        Data Dari Gudang <span class="badge badge-danger" id="countRekondisi">0</span>
                       </button>
                 </div>
             @endif
@@ -125,6 +125,7 @@
     </section>
     @include('produksi.rekondisi.include.modal_tambah')
     @include('produksi.rekondisi.include.modal_pengiriman')
+    @include('produksi.rekondisi.include.modal_rekondisi')
     @include('produksi.include.modal_edit_riwayatkirim')
     {{-- @include('tracker_modal') --}}
 @endsection

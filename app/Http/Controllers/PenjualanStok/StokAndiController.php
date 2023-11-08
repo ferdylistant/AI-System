@@ -119,18 +119,15 @@ class StokAndiController extends Controller
             ->addColumn('kode_sku', function ($data) {
                 return $data->kode_sku;
             })
-            ->addColumn('kode', function ($data) {
-                return $data->kode;
-            })
             ->addColumn('judul_final', function ($data) {
                 return ucfirst($data->judul_final);
             })
             ->addColumn('sub_judul_final', function ($data) {
                 return $data->sub_judul_final ?? '-';
             })
-            ->addColumn('kelompok_buku', function ($data) {
-                return $data->nama_kb . ' <i class="fas fa-chevron-right"></i> ' . $data->nama_skb;
-            })
+            // ->addColumn('kelompok_buku', function ($data) {
+            //     return $data->nama_kb . ' <i class="fas fa-chevron-right"></i> ' . $data->nama_skb;
+            // })
             ->addColumn('penulis', function ($data) {
                 $result = '';
                 $res = DB::table('penerbitan_naskah_penulis as pnp')
@@ -154,11 +151,6 @@ class StokAndiController extends Controller
             ->addColumn('total_stok', function ($data) {
                 return $data->total_stok;
             })
-            ->addColumn('rack', function ($data) {
-                return '<button class="btn btn-light" data-toggle="modal" data-judul="' . $data->judul_final . '" data-total_stok="' . $data->total_stok . '" data-stok_id="' . $data->id . '" data-target="#modalRack" data-backdrop="static">
-                <i class="fas fa-border-all"></i> Rak Buku
-                </button>';
-            })
             ->addColumn('action', function ($data) use ($update) {
                 $btn = '<a href="' . url('produksi/proses/cetak/detail?no=' . $data->kode_sku . '&naskah=' . $data->kode) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
@@ -168,18 +160,20 @@ class StokAndiController extends Controller
                                     class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                 }
+                $btn .='<a href="javascript:void(0)" class="d-block btn btn-light btn-icon mr-1 mt-1" data-toggle="modal" data-judul="' . $data->judul_final . '" data-total_stok="' . $data->total_stok . '" data-stok_id="' . $data->id . '" data-target="#modalRack" data-backdrop="static">
+                <i class="fas fa-border-all"></i> Rak Buku
+                </a>';
                 return $btn;
             })
             ->rawColumns([
                 'kode_sku',
-                'kode',
+                // 'kode',
                 'judul_final',
                 'sub_judul_final',
-                'kelompok_buku',
+                // 'kelompok_buku',
                 'penulis',
                 'imprint',
                 'total_stok',
-                'rack',
                 'action'
             ])
             ->make(true);
@@ -216,6 +210,9 @@ class StokAndiController extends Controller
             ->addColumn('sisa', function ($data) {
                 return $data->sisa;
             })
+            ->addColumn('keterangan', function ($data) {
+                return $data->catatan ?? '-';
+            })
             ->rawColumns([
                 'no',
                 'type_history',
@@ -225,6 +222,7 @@ class StokAndiController extends Controller
                 'created_by',
                 'qty',
                 'sisa',
+                'keterangan'
             ])
             ->make(true);
     }
@@ -963,15 +961,13 @@ class StokAndiController extends Controller
             if ($totalRiwayat == 1) {
                 DB::beginTransaction();
                 //CASCADE MYSQL DELETE
+                DB::table('pj_st_rack_master')
+                    ->where('id', $rack_id)
+                    ->decrement('total_item',$up_JUM->jml_stok);
                 DB::table('pj_st_rack_data')
                     ->where('stok_id', $stok_id)
                     ->where('rack_id', $rack_id)
                     ->delete();
-                DB::table('pj_st_rack_master')
-                    ->where('id', $rack_id)
-                    ->update([
-                        'total_item' => $totItemDiRak
-                    ]);
                 DB::commit();
                 return response()->json([
                     'status' => 'success',
@@ -1101,9 +1097,7 @@ class StokAndiController extends Controller
                 DB::table('pj_st_rack_data')
                     ->where('stok_id', $stok_id)
                     ->where('rack_id', $rack_id)
-                    ->update([
-                        'total_masuk' => $dataRackNew->total_masuk + $jml_stok_rak
-                    ]);
+                    ->increment('total_masuk',$jml_stok_rak);
             }
             $rackDataDetail = [
                 'rack_data_id' => $rack_data_id,
@@ -1185,8 +1179,6 @@ class StokAndiController extends Controller
                 if (is_null($rack_data)) {
                     return abort(404);
                 }
-                $rack_master = DB::table('pj_st_rack_master')->where('id',$rack_id[$count])->first();
-                $total_master = $rack_master->total_item - $jml_rekondisi[$count];
                 if($jml_rekondisi[$count] == $rack_data->total_masuk) {
                     DB::beginTransaction();
                     DB::table('pj_st_rack_data')
@@ -1217,13 +1209,9 @@ class StokAndiController extends Controller
                     DB::table('pj_st_rack_data')
                     ->where('stok_id', $stok_id)
                     ->where('rack_id', $rack_id[$count])
-                    ->update([
-                        'total_masuk' => $rack_data->total_masuk - $jml_rekondisi[$count]
-                    ]);
+                    ->decrement('total_masuk',$jml_rekondisi[$count]);
                 }
-                DB::table('pj_st_rack_master')->where('id',$rack_id[$count])->update([
-                    'total_item' => $total_master
-                ]);
+                DB::table('pj_st_rack_master')->where('id',$rack_id[$count])->decrement('total_item',$jml_rekondisi[$count]);
                 $checkRiwayat = DB::table('pj_st_rack_data_activity')->where('stok_id', $stok_id)->orderBy('id', 'DESC')->first();
                 $type_activity = 'Stok Keluar';
                 $qty = $jml_rekondisi[$count];

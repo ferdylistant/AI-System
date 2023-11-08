@@ -1754,8 +1754,18 @@ class OrderCetakController extends Controller
                     $html .= '<option value="naskah='.$d->kode.'&orcet_id='.$d->id.'">'.$d->kode.' &mdash; '.$d->judul_final.'</option>';
                 }
                 $html .= '</select>
+                <div id="err_naskah_baru" style="display: block;"></div>
+                </div>
+                <div class="form-group">
+                <label for="analisisExcel" class="col-form-label">Analisis Excel: <span class="text-danger">*</span></label>
+                <div class="custom-file">
+                <input type="file" class="custom-file-input form-control"
+                    name="analisis_excel" id="analisisExcel">
+                <label class="custom-file-label" for="analisisExcel">Choose file</label>
+            </div>
+            <div id="err_analisis_excel" style="display: block;"></div>
                 </div>';
-            $btn .= '<button type="submit" class="d-block btn btn-sm btn-outline-primary btn-block btn-cetak-ulang" id="btnRedirectCetul">Submit</button>
+            $btn .= '<button type="submit" class="d-block btn btn-sm btn-outline-primary btn-block btn-cetak-ulang" form="formTambahCetakUlang" id="btnRedirectCetul">Submit</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>';
             }
             return [
@@ -1816,6 +1826,12 @@ class OrderCetakController extends Controller
                 return abort(404);
             }
             $idOrder = Uuid::uuid4()->toString();
+            if ($request->hasFile('analisis_excel')) {
+                $fileAnalisis = explode('/', $request->file('analisis_excel')->store('penerbitan/order_cetak/file_analisis/' . $idOrder . '/'));
+                $fileAnalisis = end($fileAnalisis);
+            } else {
+                $fileAnalisis = NULL;
+            }
             $order = [
                 'id' => $idOrder,
                 'deskripsi_turun_cetak_id' => $data->deskripsi_turun_cetak_id,
@@ -1835,7 +1851,9 @@ class OrderCetakController extends Controller
                 'perlengkapan' => $data->perlengkapan,
                 'tgl_permintaan_jadi' => $data->tgl_permintaan_jadi,
                 'tgl_masuk' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'file_analisis' => $fileAnalisis
             ];
+
             DB::table('order_cetak')->insert($order);
             //INSERT TODO LIST ADMIN
             $permissionAdmin = DB::table('permissions as p')->join('user_permission as up','up.permission_id','=','p.id')

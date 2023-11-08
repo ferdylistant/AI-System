@@ -333,32 +333,72 @@ $(function(){
                 setTimeout(function () {
                     $("#overlay").fadeOut(300);
                 }, 500);
+                bsCustomFileInput.init();
+                let fmtambahCetul = jqueryValidation_('#formTambahCetakUlang', {
+                    naskah_baru: {
+                        required: true,
+                    },
+                    analisis_excel: {
+                        required: true,
+                        extension: "xls,xlsx,csv,docx,pdf",
+                        maxsize: 5000000,
+                    },
+                });
             },
         });
     });
-    $('#formTambahCetakUlang').on('submit',function (e) {
-        e.preventDefault();
-        let id = $(this).find('[name="naskah_baru"]').val();
+    function ajaxTambahCetul(data,id) {
+        let el = new FormData(data.get(0)),
+        cardWrap = $('#modalTambahCetakUlang');
         $.ajax({
             url: window.location.origin + '/penerbitan/order-cetak/ajax/submit-cetul?' + id,
+            type: 'POST',
+            data: el,
+            processData: false,
+            contentType: false,
             beforeSend: function () {
-                $('#modalTambahCetakUlang').addClass("modal-progress");
+                cardWrap.addClass("modal-progress");
             },
             success: function (result) {
                 console.log(result);
-                // window.location.href = "/penerbitan/order-cetak/add/cetak-ulang?naskah="+result.naskah+"&orcet_id="+result.orcet_id;
-                $('#formTambahCetakUlang').trigger('reset');
-                $("#modalTambahCetakUlang").modal("hide");
-                tableOrderCetak.ajax.reload();
-                notifToast('success', 'Data cetak ulang berhasil ditambahkan!');
+                // $('#formTambahCetakUlang').trigger('reset');
+                // cardWrap.modal("hide");
+                // tableOrderCetak.ajax.reload();
+                // notifToast('success', 'Data cetak ulang berhasil ditambahkan!');
             },
             error: function (err) {
-                console.log(err);
+                // console.log(err.responseJSON)
+                rs = err.responseJSON.errors;
+                if (rs != undefined) {
+                    err = {};
+                    Object.entries(rs).forEach((entry) => {
+                        let [key, value] = entry;
+                        err[key] = value;
+                    });
+                    fmtambahCetul.showErrors(err);
+                }
                 notifToast("error", "Terjadi kesalahan!");
+                cardWrap.removeClass("modal-progress");
             },
             complete: function () {
-                $('#modalTambahCetakUlang').removeClass("modal-progress");
+                cardWrap.removeClass("modal-progress");
             },
         });
+    }
+    $('#formTambahCetakUlang').on('submit',function (e) {
+        e.preventDefault();
+        let id = $(this).find('[name="naskah_baru"]').val();
+        if ($(this).valid()) {
+            swal({
+                text: 'Yakin data sudah benar?',
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxTambahCetul($(this),id);
+                }
+            });
+        }
     })
 });

@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     <title>
-        Laravel 8 PDF File Download using JQuery Ajax Request Example
+        Form Order Cetak
     </title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+    <link rel="icon" type="image/x-icon" href="{{ url('images/logo.png') }}">
 </head>
 <style type="text/css">
     h2 {
@@ -283,8 +284,7 @@
             <br>
             <div class="col-12">
                 @foreach ($departemen as $d)
-
-                <span class="mb-1">{{ $d }}</span>
+                <span class="mb-1">{{ $d }}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 @endforeach
             </div>
         </div>

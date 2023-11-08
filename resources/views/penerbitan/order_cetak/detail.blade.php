@@ -145,6 +145,35 @@
                                 @endif
                                 )
                                 <br>
+                                @if (!is_null($data->file_analisis))
+                                @php
+                                    $ext = pathinfo(storage_path().'/penerbitan/order_cetak/file_analisis/'.$data->id.'/'.$data->file_analisis, PATHINFO_EXTENSION);
+                                    switch ($ext) {
+                                        case 'xls':
+                                            $fa = 'excel';
+                                            $cl = 'success';
+                                            break;
+                                        case 'xlsx':
+                                            $fa = 'excel';
+                                            $cl = 'success';
+                                            break;
+                                        case 'csv':
+                                            $fa = 'csv';
+                                            $cl = 'success';
+                                            break;
+                                        case 'docx':
+                                            $fa = 'word';
+                                            $cl = 'primary';
+                                            break;
+                                        case 'pdf':
+                                            $fa = 'pdf';
+                                            $cl = 'danger';
+                                            break;
+                                    }
+                                @endphp
+                                <a href="{!!url('/storage/penerbitan/order_cetak/file_analisis/'.$data->id.'/'.$data->file_analisis)!!}"  class="btn btn-{{$cl}} mr-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;" download>
+                                    <i class="fas fa-file-{{$fa}}"></i> Download File Analisis</a>
+                                @endif
                                 <a target="_blank" href="{{url('/penerbitan/order-cetak/print/'.$data->id)}}" class="btn btn-light float-right" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
                                     <i class="fas fa-print"></i> Cetak Formulir
                                 </a>

@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalAktivitasRakTitle"><i class="fas fa-history"></i>&nbsp;Riwayat Akyivitas Rak</h5>
+                <h5 class="modal-title" id="modalAktivitasRakTitle"><i class="fas fa-history"></i>&nbsp;Riwayat Aktivitas Rak</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -16,7 +16,7 @@
                                 <tfoot style="background: #F5F5F5">
                                     <tr>
                                         <th colspan="7"></th>
-                                        <th colspan="1"></th>
+                                        <th colspan="2"></th>
                                     </tr>
                                 </tfoot>
                             </table>

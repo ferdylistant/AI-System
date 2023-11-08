@@ -16,14 +16,14 @@ $(document).ready(function () {
         columns: [
             // { data: 'no', name: 'no', title: 'No' },
             { data: 'kode_sku', name: 'kode_sku', title: 'Kode SKU' },
-            { data: 'kode', name: 'kode', title: 'Kode Naskah' },
+            // { data: 'kode', name: 'kode', title: 'Kode Naskah' },
             { data: 'judul_final', name: 'judul_final', title: 'Judul Buku' },
             { data: 'sub_judul_final', name: 'sub_judul_final', title: 'Sub-Judul' },
-            { data: 'kelompok_buku', name: 'kelompok_buku', title: 'Kategori' },
+            // { data: 'kelompok_buku', name: 'kelompok_buku', title: 'Kategori' },
             { data: 'penulis', name: 'penulis', title: 'Penulis' },
             { data: 'imprint', name: 'imprint', title: 'Imprint' },
             { data: 'total_stok', name: 'total_stok', title: 'Total Stok' },
-            { data: 'rack', name: 'rack', title: 'Rak' },
+            // { data: 'rack', name: 'rack', title: 'Rak' },
             { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false },
         ]
     });
@@ -516,16 +516,38 @@ $(document).ready(function () {
               return false;
         });
 
-        // fungsi untuk converting format tanggal dd/mm/yyyy menjadi format tanggal javascript menggunakan zona aktubrowser
+        // fungsi untuk converting format tanggal dd/mm/yyyy menjadi format tanggal javascript menggunakan zona waktubrowser
         function parseDateValue(rawDate) {
             var dateArray= rawDate.split("/");
             var parsedDate= new Date(dateArray[2], parseInt(dateArray[1])-1, dateArray[0]);  // -1 because months are from 0 to 11
             return parsedDate;
         }
         let tabelStok = $('#tb_aktivitasRak').DataTable({
-            "dom": "<'row'<'col-sm-4'l><'col-sm-5' <'datesearchbox'>><'col-sm-3'f>>" +
+            "dom": "<'row'<'col-sm-4'B><'col-sm-5' <'datesearchbox'>><'col-sm-3'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+                buttons: [
+                    'pageLength',
+                    'spacer',
+                    {
+                        extend: 'collection',
+                        text: 'Exports',
+                        buttons: [
+                            {
+                                extend: 'print',
+                                text: '<i class="text-secondary fa fa-print"></i> Print',
+                            },
+                            {
+                                extend: 'pdf',
+                                text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
+                            },
+                            {
+                                extend: 'excel',
+                                text: '<i class="text-success fa fa-file-excel"></i> Excel',
+                            },
+                        ]
+                    },
+                ],
             "fnFooterCallback": function (row, data, start, end, display) {
                 let api = this.api();
 
@@ -581,19 +603,68 @@ $(document).ready(function () {
                 { data: 'created_by', name: 'created_by', title: 'Otorisasi' },
                 { data: 'qty', name: 'qty', title: 'Jumlah' },
                 { data: 'sisa', name: 'sisa', title: 'Sisa' },
+                { data: 'keterangan', name: 'keterangan', title: 'Keterangan' },
             ]
         });
-        $("div.datesearchbox").html('<div class="input-group"> <div class="input-group-addon"> <i class="glyphicon glyphicon-calendar"></i> </div><input type="text" class="form-control pull-right" id="datesearch" placeholder="Filter by date range.."> </div>');
-
+        $("div.datesearchbox").html('<div class="input-group"> <div class="input-group-addon"> <i class="glyphicon glyphicon-calendar"></i> </div><input type="text" class="form-control pull-right deletable" id="datesearch" name="datefilter" placeholder="Filter by date range.."> </div>');
+        $('input.deletable').wrap('<span class="deleteicon"></span>').after($('<span>x</span>').click(function() {
+            $(this).prev('input').val('').trigger('change');
+            $.fn.dataTable.ext.search.splice($.fn.dataTable.ext.search.indexOf(DateFilterFunction, 1));
+            tabelStok.draw();
+        }));
         document.getElementsByClassName("datesearchbox")[0].style.textAlign = "right";
 
         //konfigurasi daterangepicker pada input dengan id datesearch
-        $('#datesearch').daterangepicker({
-            autoUpdateInput: false
+        $('input[name="datefilter"]').daterangepicker({
+            autoUpdateInput: false,
+            showDropdowns: true,
+            "timePicker24Hour": true,
+            maxDate: moment(),
+            ranges: {
+                'Hari Ini': [moment(), moment()],
+                'Kemarin': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                '7 Hari Terakhir': [moment().subtract(6, 'days'), moment()],
+                '30 Hari Terakhir': [moment().subtract(29, 'days'), moment()],
+                'Bulan Ini': [moment().startOf('month'), moment().endOf('month')],
+                'Bulan Sebelumnya': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            locale: {
+                "format": "DD/MM/YYYY",
+                "separator": " - ",
+                "applyLabel": "Apply",
+                "cancelLabel": "Clear",
+                "daysOfWeek": [
+                    "Min",
+                    "Sen",
+                    "Sel",
+                    "Rab",
+                    "Kam",
+                    "Jum",
+                    "Sab"
+                ],
+                "monthNames": [
+                    "Januari",
+                    "Februari",
+                    "Maret",
+                    "April",
+                    "Mei",
+                    "Juni",
+                    "Juli",
+                    "Agustus",
+                    "September",
+                    "Oktober",
+                    "November",
+                    "Desember"
+                ],
+                "firstDay": 1
+            },
+            "linkedCalendars": false,
+            "opens": "center",
+            "cancelClass": "btn-danger"
             });
 
         //menangani proses saat apply date range
-        $('#datesearch').on('apply.daterangepicker', function(ev, picker) {
+        $('input[name="datefilter"]').on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
         start_date=picker.startDate.format('DD/MM/YYYY');
         end_date=picker.endDate.format('DD/MM/YYYY');
@@ -601,12 +672,17 @@ $(document).ready(function () {
             tabelStok.draw();
         });
 
-        $('#datesearch').on('cancel.daterangepicker', function(ev, picker) {
+        $('input[name="datefilter"]').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
         start_date='';
         end_date='';
         $.fn.dataTable.ext.search.splice($.fn.dataTable.ext.search.indexOf(DateFilterFunction, 1));
             tabelStok.draw();
+        });
+        $.fn.dataTable.Buttons(tabelStok, {
+            buttons: [
+                'print', 'excel', 'pdf'
+            ]
         });
         $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
             // console.log(helpPage);

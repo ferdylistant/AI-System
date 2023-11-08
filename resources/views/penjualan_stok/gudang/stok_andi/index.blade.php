@@ -3,6 +3,7 @@
 @section('cssRequired')
 <link rel="stylesheet" href="{{ url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/rowreorder/1.2.3/css/rowReorder.dataTables.min.css">
     <link rel="stylesheet" type="text/css"
@@ -11,7 +12,7 @@
     <link rel="stylesheet" href="{{url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css')}}">
     <link rel="stylesheet" href="{{ url('vendors/SpinKit/spinkit.css') }}">
     <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <style>
         .scrollbar-deep-purple::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
@@ -75,6 +76,29 @@
         position: sticky; /* make the table heads sticky */
         top: 0; /* table head will be placed from the top of the table and sticks to it */
       }
+      span.deleteicon {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+            }
+            span.deleteicon span {
+                position: absolute;
+                display: block;
+                right: 3px;
+                width: 15px;
+                height: 15px;
+                border-radius: 50%;
+                color: #fff;
+                background-color: #ccc;
+                font: 13px monospace;
+                text-align: center;
+                line-height: 1em;
+                cursor: pointer;
+            }
+            span.deleteicon input {
+                padding-right: 18px;
+                box-sizing: border-box;
+            }
     </style>
 @endsection
 
@@ -115,6 +139,15 @@
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     <script src="{{url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js')}}"></script>
+    <script src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
     <script type="text/javascript" charset="utf8"
@@ -123,6 +156,7 @@
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
         <script src="https://unpkg.com/imask"></script>
         <script type="text/javascript" src="//cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
 
 @endsection
 

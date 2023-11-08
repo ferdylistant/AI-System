@@ -190,19 +190,19 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="formTambahCetakUlang">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="formTambahCetakUlang">
                         <h6 class="pl-3 pt-3"><span class="beep"></span>Pilih naskah yang akan dicetak ulang</h6>
                         <hr>
                         <div id="dataModalCetakUlang">
 
                         </div>
 
-                    </div>
-                    <div class="modal-footer" id="btnModalCetul">
+                    </form>
+                </div>
+                <div class="modal-footer" id="btnModalCetul">
 
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -222,6 +222,7 @@
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
+    <script src="{{ url('vendors/Custom-File-Input-Bootstrap-4/dist/bs-custom-file-input.js') }}"></script>
 @endsection
 
 @section('jsNeeded')
