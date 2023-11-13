@@ -156,7 +156,15 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::post('/operator-gudang/restore', $path.'\MasterData\OperatorGudangController@restoreOperatorGudang')->name('og.restore');
         Route::post('/operator-gudang/lihat-history', $path.'\MasterData\OperatorGudangController@lihatHistoryOperatorGudang')->name('og.history');
         Route::match(['get','post'],'/operator-gudang/ajax/{cat}', $path.'\MasterData\OperatorGudangController@callAjax');
-
+        //Harga Jual
+        Route::get('/harga-jual', $path.'\MasterData\HargaJualController@index')->name('hj.view');
+        Route::get('/harga-jual/harga-jual-telah-dihapus', $path.'\MasterData\HargaJualController@hargaJualTelahDihapus')->name('hj.telah_dihapus');
+        Route::match(['get', 'post'], '/harga-jual/tambah', $path.'\MasterData\HargaJualController@createHargaJual')->name('hj.create');
+        Route::match(['get', 'post'], '/harga-jual/ubah', $path.'\MasterData\HargaJualController@updateHargaJual')->name('hj.update');
+        Route::post('/harga-jual/hapus', $path.'\MasterData\HargaJualController@deleteHargaJual')->name('hj.delete');
+        Route::post('/harga-jual/restore', $path.'\MasterData\HargaJualController@restoreHargaJual')->name('hj.restore');
+        Route::post('/harga-jual/lihat-history', $path.'\MasterData\HargaJualController@lihatHistoryHargaJual')->name('hj.history');
+        Route::match(['get','post'],'/harga-jual/ajax/{cat}', $path.'\MasterData\HargaJualController@callAjax');
     });
     //Penerbitan
     Route::prefix('penerbitan')->group(function () use ($path) {

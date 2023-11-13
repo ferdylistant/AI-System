@@ -2127,6 +2127,12 @@ class OrderCetakController extends Controller
         $act_j = (array)collect($act)->map(function($item) {
             return $item->type_departemen;
         })->all();
+        $act_a = (array)collect($act)->map(function($item) {
+            return $item->type_action;
+        })->all();
+        $act_u = (array)collect($act)->map(function($item) {
+            return ucfirst(DB::table('users')->where('id',$item->users_id)->first()->nama);
+        })->all();
         $type = DB::select(DB::raw("SHOW COLUMNS FROM order_cetak_action WHERE Field = 'type_departemen'"))[0]->Type;
         preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
         $departemen = explode("','", $matches[1]);
@@ -2136,6 +2142,8 @@ class OrderCetakController extends Controller
             'data' => $data,
             'act' => $act,
             'act_j' => $act_j,
+            'act_a' => $act_a,
+            'act_u' => $act_u,
             'departemen' => $departemen
         ];
         // $pdf = Pdf::loadView('penerbitan.order_cetak.include.print_pdf');

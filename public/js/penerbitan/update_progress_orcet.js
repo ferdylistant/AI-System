@@ -361,10 +361,10 @@ $(function(){
             },
             success: function (result) {
                 console.log(result);
-                // $('#formTambahCetakUlang').trigger('reset');
-                // cardWrap.modal("hide");
-                // tableOrderCetak.ajax.reload();
-                // notifToast('success', 'Data cetak ulang berhasil ditambahkan!');
+                $('#formTambahCetakUlang').trigger('reset');
+                cardWrap.modal("hide");
+                tableOrderCetak.ajax.reload();
+                notifToast('success', 'Data cetak ulang berhasil ditambahkan!');
             },
             error: function (err) {
                 // console.log(err.responseJSON)

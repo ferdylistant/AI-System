@@ -152,27 +152,32 @@
                                         case 'xls':
                                             $fa = 'excel';
                                             $cl = 'success';
+                                            $txt = 'Excel';
                                             break;
                                         case 'xlsx':
                                             $fa = 'excel';
                                             $cl = 'success';
+                                            $txt = 'Excel';
                                             break;
                                         case 'csv':
                                             $fa = 'csv';
                                             $cl = 'success';
+                                            $txt = 'Excel';
                                             break;
                                         case 'docx':
                                             $fa = 'word';
                                             $cl = 'primary';
+                                            $txt = 'Word';
                                             break;
                                         case 'pdf':
                                             $fa = 'pdf';
                                             $cl = 'danger';
+                                            $txt = 'PDF';
                                             break;
                                     }
                                 @endphp
                                 <a href="{!!url('/storage/penerbitan/order_cetak/file_analisis/'.$data->id.'/'.$data->file_analisis)!!}"  class="btn btn-{{$cl}} mr-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;" download>
-                                    <i class="fas fa-file-{{$fa}}"></i> Download File Analisis</a>
+                                    <i class="fas fa-file-{{$fa}}"></i> Download {{$txt}} Analisis</a>
                                 @endif
                                 <a target="_blank" href="{{url('/penerbitan/order-cetak/print/'.$data->id)}}" class="btn btn-light float-right" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
                                     <i class="fas fa-print"></i> Cetak Formulir

@@ -68,7 +68,7 @@ $(document).ready(function () {
         ajax: {
             url: window.location.origin + "/penerbitan/naskah",
             complete: () => {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'))
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('.tooltip-class'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl,{
                         trigger : 'hover'

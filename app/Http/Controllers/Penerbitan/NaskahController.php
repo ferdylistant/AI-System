@@ -201,7 +201,7 @@ class NaskahController extends Controller
                     return Datatables::of($data)
                         ->addColumn('kode', function ($data) {
                             $html = '';
-                            $danger = $data->urgent == '0' ? '' : 'class="text-danger"';
+                            $danger = $data->urgent == '0' ? '' : 'class="text-danger tooltip-class"';
                             $tooltip =  $data->urgent == '0' ? '' : 'data-toggle="tooltip" data-placement="top" title="Naskah Urgent"';
                             $html .= '<span ' . $danger . ' ' . $tooltip . '>' . $data->kode . '</span>';
                             return $html;
@@ -309,17 +309,17 @@ class NaskahController extends Controller
                         })
                         ->addColumn('action', function ($data) use ($update) {
                             $btn = '<a href="' . url('penerbitan/naskah/melihat-naskah/' . $data->id) . '"
-                                class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" data-placement="top" title="Lihat Data">
+                                class="d-block btn btn-sm btn-primary btn-icon mr-1 tooltip-class" data-toggle="tooltip" data-placement="top" title="Lihat Data">
                                 <div><i class="fas fa-envelope-open-text"></i></div></a>';
                             if ($update) {
                                 if ((auth()->id() == $data->pic_prodev) || (auth()->id() == $data->created_by) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
                                     $btn .= '<a href="' . url('penerbitan/naskah/mengubah-naskah/' . $data->id) . '"
-                                        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1 tooltip-class" data-toggle="tooltip" title="Edit Data">
                                         <div><i class="fas fa-edit"></i></div></a>';
                                 }
                             }
                             if ((Gate::allows('do_delete', 'delete-data-naskah'))) {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-delete-naskah btn-danger btn-icon mr-1 mt-1"
+                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-delete-naskah btn-danger btn-icon mr-1 mt-1 tooltip-class"
                                 data-toggle="tooltip" title="Hapus Data"
                                 data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '">
                                 <i class="fas fa-trash-alt"></i></a>';

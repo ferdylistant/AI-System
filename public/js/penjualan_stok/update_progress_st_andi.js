@@ -12,6 +12,14 @@ $(document).ready(function () {
         },
         ajax: {
             url: window.location.origin + "/penjualan-stok/gudang/stok-buku/andi?request_type=table-index",
+            complete: () => {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('.tooltip-class'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl,{
+                        trigger : 'hover'
+                    })
+                });
+            }
         },
         columns: [
             // { data: 'no', name: 'no', title: 'No' },
@@ -23,6 +31,9 @@ $(document).ready(function () {
             { data: 'penulis', name: 'penulis', title: 'Penulis' },
             { data: 'imprint', name: 'imprint', title: 'Imprint' },
             { data: 'total_stok', name: 'total_stok', title: 'Total Stok' },
+            { data: 'zona1', name: 'zona1', title: 'Zona 1' },
+            { data: 'zona2', name: 'zona2', title: 'Zona 2' },
+            { data: 'zona3', name: 'zona3', title: 'Zona 3' },
             // { data: 'rack', name: 'rack', title: 'Rak' },
             { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false },
         ]
@@ -965,7 +976,6 @@ $(document).ready(function () {
         <input type="hidden" name="total_dalam_rak[]" class="input`+ele+`" value="`+total+`">
         `);
     }
-
     function just_hide(ele) {
         $('.input'+ele).remove();
     }

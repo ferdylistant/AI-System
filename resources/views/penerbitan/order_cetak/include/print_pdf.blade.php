@@ -83,6 +83,48 @@
     .ml3-min {
         margin-left: -264px;
     }
+    .stamp {
+            /* transform: rotate(12deg); */
+            color: #555;
+            font-size: 1rem;
+            font-weight: 700;
+            border: 0.25rem solid #555;
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            text-transform: uppercase;
+            border-radius: 1rem;
+            font-family: 'Courier';
+            -webkit-mask-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/8399/grunge.png');
+            -webkit-mask-size: 944px 604px;
+            mix-blend-mode: multiply;
+        }
+
+        .is-nope {
+            color: #D23;
+            border: 0.5rem double #D23;
+            transform: rotate(3deg);
+            -webkit-mask-position: 2rem 3rem;
+            font-size: 2rem;
+        }
+
+        .is-approved {
+            color: #0A9928;
+            border: 0.5rem double #0A9928;
+            -webkit-mask-position: 13rem 6rem;
+            transform: rotate(-14deg);
+            -webkit-mask-position: 2rem 3rem;
+            border-radius: 0;
+        }
+
+        .is-draft {
+            color: #C4C4C4;
+            border: 1rem double #C4C4C4;
+            transform: rotate(-5deg);
+            font-size: 6rem;
+            font-family: "Open sans", Helvetica, Arial, sans-serif;
+            border-radius: 0;
+            padding: 0.5rem;
+        }
 </style>
 
 <body>
@@ -279,10 +321,24 @@
                 <span class="mb-1">Jogja, {{ $data->tgl_selesai_order }}</span>
             </div>
             <br>
-            <br>
-            <br>
-            <br>
             <div class="col-12">
+                @foreach ($act_a as $k => $a)
+                    <small class="text-{{$a == 'Approval' ? 'success':'danger'}}">{!!$a == 'Approval' ? 'Disetujui':'Ditolak'!!}</small>
+
+                    @if ($k != count($act_a) - 1)
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    @else
+                    <br>
+                    @endif
+                @endforeach
+                @foreach ($act_u as $k => $u)
+                    <small>({{$u}})</small>
+                    @if ($k != count($act_u) - 1)
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    @else
+                    <br>
+                    @endif
+                @endforeach
                 @foreach ($departemen as $d)
                 <span class="mb-1">{{ $d }}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 @endforeach

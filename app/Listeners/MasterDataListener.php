@@ -465,6 +465,58 @@ class MasterDataListener
                 ]);
                 DB::commit();
                 break;
+                case 'Create Master Harga Jual':
+                    DB::beginTransaction();
+                    $res = DB::table('pj_st_master_harga_jual')->insert([
+                        'id' => $data['id'],
+                        'nama' => $data['nama'],
+                        'created_by' => $data['created_by']
+                    ]);
+                    DB::commit();
+                    break;
+                case 'Update Master Harga Jual':
+                    $res = DB::table('pj_st_master_harga_jual')
+                        ->where('id', $data['id'])
+                        ->update([
+                            'nama' => $data['nama'],
+                            'updated_by' => $data['updated_by']
+                        ]);
+                    break;
+                case 'Insert History Update Harga Jual':
+                    $res = DB::table('pj_st_master_harga_jual_history')->insert([
+                        'master_harga_jual_id' => $data['master_harga_jual_id'],
+                        'type_history' => $data['type_history'],
+                        'nama_his' => $data['nama_his'],
+                        'nama_new' => $data['nama_new'],
+                        'author_id' => $data['author_id'],
+                    ]);
+                    break;
+                case 'Insert History Delete Harga Jual':
+                    DB::beginTransaction();
+                    $res = DB::table('pj_st_master_harga_jual')->where('id', $data['master_harga_jual_id'])->update([
+                        'deleted_at' => $data['modified_at'],
+                        'deleted_by' => $data['author_id']
+                    ]);
+                    DB::table('pj_st_master_harga_jual_history')->insert([
+                        'master_harga_jual_id' => $data['master_harga_jual_id'],
+                        'type_history' => $data['type_history'],
+                        'author_id' => $data['author_id'],
+                    ]);
+                    DB::commit();
+                    break;
+                case 'Restore Harga Jual':
+                    DB::beginTransaction();
+                    $res = DB::table('pj_st_master_harga_jual')->where('id',$data['master_harga_jual_id'])->update([
+                        'deleted_at' => $data['deleted_at'],
+                        'deleted_by' => $data['deleted_by']
+                    ]);
+                    DB::table('pj_st_master_harga_jual_history')->insert([
+                        'master_harga_jual_id' => $data['master_harga_jual_id'],
+                        'type_history' => $data['type_history'],
+                        'author_id'=> $data['author_id'],
+                    ]);
+                    DB::commit();
+                    break;
             default:
                 abort(500);
                 break;

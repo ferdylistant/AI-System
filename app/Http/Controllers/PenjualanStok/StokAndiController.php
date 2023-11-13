@@ -151,16 +151,37 @@ class StokAndiController extends Controller
             ->addColumn('total_stok', function ($data) {
                 return $data->total_stok;
             })
+            ->addColumn('zona1', function ($data) {
+                return is_null($data->pengajuan_harga) ? '-' : $data->pengajuan_harga;
+            })
+            ->addColumn('zona2', function ($data) {
+                $avail = DB::table('pj_st_harga_jual as hj')
+                ->join('pj_st_master_harga_jual as mhj','hj.master_harga_jual_id','=','mhj.id')
+                ->where('hj.stok_id',$data->id)
+                ->where('mhj.nama','Zona 2')
+                ->select('hj.*','mhj.nama')
+                ->first();
+                return is_null($avail) ? '0' : $avail->harga;
+            })
+            ->addColumn('zona3', function ($data) {
+                $avail = DB::table('pj_st_harga_jual as hj')
+                ->join('pj_st_master_harga_jual as mhj','hj.master_harga_jual_id','=','mhj.id')
+                ->where('hj.stok_id',$data->id)
+                ->where('mhj.nama','Zona 3')
+                ->select('hj.*','mhj.nama')
+                ->first();
+                return is_null($avail) ? '0' : $avail->harga;
+            })
             ->addColumn('action', function ($data) use ($update) {
                 $btn = '<a href="' . url('produksi/proses/cetak/detail?no=' . $data->kode_sku . '&naskah=' . $data->kode) . '"
-                                    class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" title="Lihat Detail">
+                                    class="d-block btn btn-sm btn-primary btn-icon mr-1 tooltip-class" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                 if ($update) {
                     $btn .= '<a href="' . url('produksi/proses/cetak/edit?no=' . $data->kode_sku . '&naskah=' . $data->kode) . '"
-                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                    class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1 tooltip-class" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                 }
-                $btn .='<a href="javascript:void(0)" class="d-block btn btn-light btn-icon mr-1 mt-1" data-toggle="modal" data-judul="' . $data->judul_final . '" data-total_stok="' . $data->total_stok . '" data-stok_id="' . $data->id . '" data-target="#modalRack" data-backdrop="static">
+                $btn .='<a href="javascript:void(0)" class="d-block btn btn-light btn-icon mr-1 mt-1 tooltip-class" data-toggle="modal" data-judul="' . $data->judul_final . '" data-total_stok="' . $data->total_stok . '" data-stok_id="' . $data->id . '" data-target="#modalRack" title="Rak Buku" data-backdrop="static">
                 <i class="fas fa-border-all"></i> Rak Buku
                 </a>';
                 return $btn;
@@ -174,6 +195,9 @@ class StokAndiController extends Controller
                 'penulis',
                 'imprint',
                 'total_stok',
+                'zona1',
+                'zona2',
+                'zona3',
                 'action'
             ])
             ->make(true);
