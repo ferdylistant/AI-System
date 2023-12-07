@@ -1,3 +1,4 @@
+
 $(function () {
     $("#btn-decline").on("click", function () {
         let id = $(this).data('id');

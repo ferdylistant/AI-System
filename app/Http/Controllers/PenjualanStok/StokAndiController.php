@@ -13,6 +13,7 @@ use App\Events\PenjualanStokEvent;
 use App\Events\convertNumberToRoman;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\{DB, Gate};
 use Symfony\Component\Console\Input\Input;
@@ -133,40 +134,40 @@ class StokAndiController extends Controller
     public function detail($id)
     {
         $data = DB::table('pj_st_andi as st')
-        ->leftJoin('penerbitan_naskah as pn', 'pn.id', '=', 'st.naskah_id')
-        ->leftJoin('deskripsi_produk as dp', 'pn.id', '=', 'dp.naskah_id')
-        ->leftJoin('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
-        ->leftJoin('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
-        ->leftJoin('deskripsi_turun_cetak as dtc', 'df.id', '=', 'dtc.pracetak_setter_id')
-        ->leftJoin('penerbitan_m_kelompok_buku as kb', function ($q) {
-            $q->on('pn.kelompok_buku_id', '=', 'kb.id')
-                ->whereNull('kb.deleted_at');
-        })
-        ->leftJoin('penerbitan_m_s_kelompok_buku as skb', function ($q) {
-            $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
-                ->whereNull('skb.deleted_at');
-        })
-        ->where('st.id',$id)
-        ->orderBy('pn.kode', 'asc')
-        ->select(
-            'dp.judul_final',
-            'df.sub_judul_final',
-            'ps.edisi_cetak',
-            'ps.pengajuan_harga',
-            'ps.isbn',
-            'dp.naskah_id',
-            'dp.format_buku',
-            'dp.imprint',
-            'pn.kode',
-            'kb.nama as nama_kb',
-            'skb.nama as nama_skb',
-            'st.*',
-        )->first();
+            ->leftJoin('penerbitan_naskah as pn', 'pn.id', '=', 'st.naskah_id')
+            ->leftJoin('deskripsi_produk as dp', 'pn.id', '=', 'dp.naskah_id')
+            ->leftJoin('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+            ->leftJoin('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+            ->leftJoin('deskripsi_turun_cetak as dtc', 'df.id', '=', 'dtc.pracetak_setter_id')
+            ->leftJoin('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
+            })
+            ->leftJoin('penerbitan_m_s_kelompok_buku as skb', function ($q) {
+                $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
+                    ->whereNull('skb.deleted_at');
+            })
+            ->where('st.id', $id)
+            ->orderBy('pn.kode', 'asc')
+            ->select(
+                'dp.judul_final',
+                'df.sub_judul_final',
+                'ps.edisi_cetak',
+                'ps.pengajuan_harga',
+                'ps.isbn',
+                'dp.naskah_id',
+                'dp.format_buku',
+                'dp.imprint',
+                'pn.kode',
+                'kb.nama as nama_kb',
+                'skb.nama as nama_skb',
+                'st.*',
+            )->first();
         if (is_null($data)) {
             return abort(404);
         }
         $zone1 = $data->pengajuan_harga;
-        $data = (object)collect($data)->map(function($item,$key) {
+        $data = (object)collect($data)->map(function ($item, $key) {
             switch ($key) {
                 case 'judul_final':
                     return ucfirst($item);
@@ -175,35 +176,35 @@ class StokAndiController extends Controller
                     return ucfirst($item);
                     break;
                 case 'is_active':
-                    return $item == 0?'<span class="badge badge-danger">Tidak Aktif</span>':'<span class="badge badge-success">Aktif</span>';
+                    return $item == 0 ? '<span class="badge badge-danger">Tidak Aktif</span>' : '<span class="badge badge-success">Aktif</span>';
                     break;
                 case 'created_at':
                     return Carbon::parse($item)->translatedFormat('l d F Y H:i');
                     break;
                 case 'format_buku':
-                    $res = DB::table('format_buku')->whereNull('deleted_at')->where('id',$item)->first()->jenis_format.' cm';
+                    $res = DB::table('format_buku')->whereNull('deleted_at')->where('id', $item)->first()->jenis_format . ' cm';
                     return $res;
                     break;
                 case 'imprint':
-                    $res = DB::table('imprint')->whereNull('deleted_at')->where('id',$item)->first()->nama;
+                    $res = DB::table('imprint')->whereNull('deleted_at')->where('id', $item)->first()->nama;
                     return $res;
                     break;
                 case 'edisi_cetak':
                     $roman = event(new convertNumberToRoman($item));
-                    $item = implode('',$roman).'/'.$item;
+                    $item = implode('', $roman) . '/' . $item;
                     return $item;
                     break;
                 default:
                     return $item ?? '-';
-                break;
+                    break;
             }
-        })->except(['id','naskah_id','pengajuan_harga','created_at'])->all();
-        $hargaJual = DB::table('pj_st_harga_jual as hj')->join('pj_st_master_harga_jual as  mhj','hj.master_harga_jual_id','=','mhj.id')
-        ->where('hj.stok_id',$id)
-        ->whereNull('mhj.deleted_at')
-        ->select('hj.*','mhj.nama')
-        ->get();
-        return view('penjualan_stok.gudang.stok_andi.detail',[
+        })->except(['id', 'naskah_id', 'pengajuan_harga', 'created_at'])->all();
+        $hargaJual = DB::table('pj_st_harga_jual as hj')->join('pj_st_master_harga_jual as  mhj', 'hj.master_harga_jual_id', '=', 'mhj.id')
+            ->where('hj.stok_id', $id)
+            ->whereNull('mhj.deleted_at')
+            ->select('hj.*', 'mhj.nama')
+            ->get();
+        return view('penjualan_stok.gudang.stok_andi.detail', [
             'title' => 'Detail Stok Andi',
             'id' => $id,
             'data' => $data,
@@ -211,10 +212,93 @@ class StokAndiController extends Controller
             'zone1' => $zone1,
         ]);
     }
+    public function exportAll(Request $request)
+    {
+        $penulis = $request->penulis;
+        $imprint = $request->imprint;
+        $min = $request->min;
+        $max = $request->max;
+        $tgl = Carbon::now('Asia/Jakarta')->format('dmYHi');
+        return (new StokAndiExport($penulis,$imprint,$min,$max))->download($tgl.'_stok_andi.xlsx');
+    }
     public function export($id)
     {
-        // $tgl = Carbon::now('Asia/Jakarta')->format('dmYHis');
-        return Excel::download(new StokAndiExport($id),'_stok_andi.pdf');
+        $data = DB::table('pj_st_andi as st')
+            ->leftJoin('penerbitan_naskah as pn', 'pn.id', '=', 'st.naskah_id')
+            ->leftJoin('deskripsi_produk as dp', 'pn.id', '=', 'dp.naskah_id')
+            ->leftJoin('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
+            ->leftJoin('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
+            ->leftJoin('deskripsi_turun_cetak as dtc', 'df.id', '=', 'dtc.pracetak_setter_id')
+            ->leftJoin('penerbitan_m_kelompok_buku as kb', function ($q) {
+                $q->on('pn.kelompok_buku_id', '=', 'kb.id')
+                    ->whereNull('kb.deleted_at');
+            })
+            ->leftJoin('penerbitan_m_s_kelompok_buku as skb', function ($q) {
+                $q->on('pn.sub_kelompok_buku_id', '=', 'skb.id')
+                    ->whereNull('skb.deleted_at');
+            })
+            ->where('st.id', $id)
+            ->orderBy('pn.kode', 'asc')
+            ->select(
+                'dp.judul_final',
+                'df.sub_judul_final',
+                'ps.edisi_cetak',
+                'ps.pengajuan_harga',
+                'ps.isbn',
+                'dp.naskah_id',
+                'dp.format_buku',
+                'dp.imprint',
+                'pn.kode',
+                'kb.nama as nama_kb',
+                'skb.nama as nama_skb',
+                'st.*',
+            )->first();
+        $zone1 = $data->pengajuan_harga;
+        $data = (object)collect($data)->map(function ($item, $key) {
+            switch ($key) {
+                case 'judul_final':
+                    return ucfirst($item);
+                    break;
+                case 'sub_judul_final':
+                    return ucfirst($item);
+                    break;
+                case 'is_active':
+                    return $item == 0 ? '<span class="badge badge-danger">Tidak Aktif</span>' : '<span class="badge badge-success">Aktif</span>';
+                    break;
+                case 'created_at':
+                    return Carbon::parse($item)->translatedFormat('l d F Y H:i');
+                    break;
+                case 'format_buku':
+                    $res = DB::table('format_buku')->whereNull('deleted_at')->where('id', $item)->first()->jenis_format . ' cm';
+                    return $res;
+                    break;
+                case 'imprint':
+                    $res = DB::table('imprint')->whereNull('deleted_at')->where('id', $item)->first()->nama;
+                    return $res;
+                    break;
+                case 'edisi_cetak':
+                    $roman = event(new convertNumberToRoman($item));
+                    $item = implode('', $roman) . '/' . $item;
+                    return $item;
+                    break;
+                default:
+                    return $item ?? '-';
+                    break;
+            }
+        })->except(['id', 'naskah_id', 'pengajuan_harga', 'created_at'])->all();
+        $hargaJual = DB::table('pj_st_harga_jual as hj')->join('pj_st_master_harga_jual as  mhj', 'hj.master_harga_jual_id', '=', 'mhj.id')
+            ->where('hj.stok_id', $id)
+            ->whereNull('mhj.deleted_at')
+            ->select('hj.*', 'mhj.nama')
+            ->get();
+        $collect = [
+            'id' => $id,
+            'data' => $data,
+            'harga_jual' => $hargaJual,
+            'zone1' => $zone1,
+        ];
+        $pdf = Pdf::loadView('penjualan_stok.gudang.stok_andi.include.cetak_pdf', $collect)->setPaper('a4', 'potrait')->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif']);
+        return $pdf->stream();
     }
     protected function datatableIndex($data)
     {
@@ -227,7 +311,7 @@ class StokAndiController extends Controller
                 return ucfirst($data->judul_final);
             })
             ->addColumn('sub_judul_final', function ($data) {
-                return is_null($data->sub_judul_final) ? '-':ucfirst($data->sub_judul_final);
+                return is_null($data->sub_judul_final) ? '-' : ucfirst($data->sub_judul_final);
             })
             // ->addColumn('kelompok_buku', function ($data) {
             //     return $data->nama_kb . ' <i class="fas fa-chevron-right"></i> ' . $data->nama_skb;
@@ -263,40 +347,40 @@ class StokAndiController extends Controller
             })
             ->addColumn('zona2', function ($data) {
                 $avail = DB::table('pj_st_harga_jual as hj')
-                ->join('pj_st_master_harga_jual as mhj','hj.master_harga_jual_id','=','mhj.id')
-                ->where('hj.stok_id',$data->id)
-                ->where('mhj.nama','Zona 2')
-                ->select('hj.*','mhj.nama')
-                ->first();
+                    ->join('pj_st_master_harga_jual as mhj', 'hj.master_harga_jual_id', '=', 'mhj.id')
+                    ->where('hj.stok_id', $data->id)
+                    ->where('mhj.nama', 'Zona 2')
+                    ->select('hj.*', 'mhj.nama')
+                    ->first();
                 return is_null($avail) ? '0' : $avail->harga;
             })
             ->addColumn('zona3', function ($data) {
                 $avail = DB::table('pj_st_harga_jual as hj')
-                ->join('pj_st_master_harga_jual as mhj','hj.master_harga_jual_id','=','mhj.id')
-                ->where('hj.stok_id',$data->id)
-                ->where('mhj.nama','Zona 3')
-                ->select('hj.*','mhj.nama')
-                ->first();
+                    ->join('pj_st_master_harga_jual as mhj', 'hj.master_harga_jual_id', '=', 'mhj.id')
+                    ->where('hj.stok_id', $data->id)
+                    ->where('mhj.nama', 'Zona 3')
+                    ->select('hj.*', 'mhj.nama')
+                    ->first();
                 return is_null($avail) ? '0' : $avail->harga;
             })
             ->addColumn('status', function ($data) {
-                $text = $data->is_active == 0 ? 'Tidak Aktif':'Aktif';
+                $text = $data->is_active == 0 ? 'Tidak Aktif' : 'Aktif';
                 return $text;
             })
             ->addColumn('action', function ($data) use ($update) {
-                $btn = '<a href="' . url('penjualan-stok/gudang/stok-buku/andi/'.$data->id) . '"
+                $btn = '<a href="' . url('penjualan-stok/gudang/stok-buku/andi/' . $data->id) . '"
                                     class="d-block btn btn-sm btn-primary btn-icon mr-1 tooltip-class" data-toggle="tooltip" title="Lihat Detail">
                                     <div><i class="fas fa-envelope-open-text"></i></div></a>';
                 if ($update) {
-                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1 tooltip-class" data-id="'.$data->id.'"
-                    data-naskah_id="'.$data->naskah_id.'" data-judul="'.$data->judul_final.'" data-kode_sku="'.$data->kode_sku.'" data-toggle="modal" data-target="#modalEditHarga" title="Edit">
+                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1 tooltip-class" data-id="' . $data->id . '"
+                    data-naskah_id="' . $data->naskah_id . '" data-judul="' . $data->judul_final . '" data-kode_sku="' . $data->kode_sku . '" data-toggle="modal" data-target="#modalEditHarga" title="Edit">
                     <div><i class="fas fa-edit"></i></div></a>';
                 }
-                $btn .='<a href="#modalRack" class="d-block btn btn-light btn-icon mr-1 mt-1 mb-1 tooltip-class" data-toggle="modal" data-judul="' . $data->judul_final . '" data-total_stok="' . $data->total_stok . '" data-stok_id="' . $data->id . '" data-target="#modalRack" title="Rak Buku" data-backdrop="static">
+                $btn .= '<a href="#modalRack" class="d-block btn btn-light btn-icon mr-1 mt-1 mb-1 tooltip-class" data-toggle="modal" data-judul="' . $data->judul_final . '" data-total_stok="' . $data->total_stok . '" data-stok_id="' . $data->id . '" data-target="#modalRack" title="Rak Buku" data-backdrop="static">
                 <i class="fas fa-border-all"></i> Rak Buku
                 </a>';
-                $checked = $data->is_active == 0 ? '':'checked';
-                $btn .='<input type="checkbox" class="d-block checkbox-toggle mr-1 mt-1 tooltip-class btn-toggle-status" id="statusOnOff'.$data->id.'" data-id="'.$data->id.'" data-toggle="toggle" data-style="ios" data-on="On" data-off="Off" data-onstyle="success" data-offstyle="secondary" title="Status" '.$checked.'>';
+                $checked = $data->is_active == 0 ? '' : 'checked';
+                $btn .= '<input type="checkbox" class="d-block checkbox-toggle mr-1 mt-1 tooltip-class btn-toggle-status" id="statusOnOff' . $data->id . '" data-id="' . $data->id . '" data-toggle="toggle" data-style="ios" data-on="On" data-off="Off" data-onstyle="success" data-offstyle="secondary" title="Status" ' . $checked . '>';
                 return $btn;
             })
             ->rawColumns([
@@ -344,7 +428,7 @@ class StokAndiController extends Controller
                 return DB::table('users')->where('id', $data->created_by)->first()->nama;
             })
             ->addColumn('qty', function ($data) {
-                return $data->type_activity === 'Stok Masuk' ? '<b class="text-success">+'.$data->qty.'</b>' : '<b class="text-danger">-'.$data->qty.'</b>';
+                return $data->type_activity === 'Stok Masuk' ? '<b class="text-success">+' . $data->qty . '</b>' : '<b class="text-danger">-' . $data->qty . '</b>';
             })
             ->addColumn('sisa', function ($data) {
                 return $data->sisa;
@@ -418,7 +502,7 @@ class StokAndiController extends Controller
             $modal .= '<div class="form-group">
             <label class="form-label"><span class="beep"></span>Pilih dari rak mana buku akan direkondisi</label>
             <br>
-            <input type="hidden" name="stok_id" value="'.$stok_id.'">
+            <input type="hidden" name="stok_id" value="' . $stok_id . '">
             <small class="text-danger" id="errTextRack"></small>
                             <div class="selectgroup selectgroup-pills">';
             $exist = TRUE;
@@ -463,44 +547,44 @@ class StokAndiController extends Controller
     {
         try {
             $stok_id = $request->stok_id;
-            $master = DB::table('pj_st_master_harga_jual')->whereNull('deleted_at')->orderBy('nama','DESC')->get();
-            $hargajualData = DB::table('pj_st_harga_jual')->where('stok_id',$stok_id)->get();
+            $master = DB::table('pj_st_master_harga_jual')->whereNull('deleted_at')->orderBy('nama', 'DESC')->get();
+            $hargajualData = DB::table('pj_st_harga_jual')->where('stok_id', $stok_id)->get();
             $html = '';
             if (!$master->isEmpty()) {
-                $html .='<form id="fm_editHarga">
-                <input type="hidden" name="stok_id" value="'.$stok_id.'">
+                $html .= '<form id="fm_editHarga">
+                <input type="hidden" name="stok_id" value="' . $stok_id . '">
                 <div class="row">';
                 if (!$hargajualData->isEmpty()) {
-                    $hargajualData = (array)collect($hargajualData)->map(function($item) {
+                    $hargajualData = (array)collect($hargajualData)->map(function ($item) {
                         return $item->master_harga_jual_id;
                     })->all();
                     foreach ($master as $m) {
-                        $html .='<input type="hidden" name="master_harga_jual_id[]" value="'.$m->id.'">';
-                        if (in_array($m->id,$hargajualData)) {
-                            $first = DB::table('pj_st_harga_jual')->where('stok_id',$stok_id)->where('master_harga_jual_id',$m->id)->first();
-                            $html .='<div class="form-group col-md-6">
-                            <label for="'.$m->id.'">'.$m->nama.'</label>
-                            <input type="text" class="form-control" id="'.$m->id.'" name="harga_jual[]" value="'.$first->harga.'" placeholder="Harga '.$m->nama.'">
+                        $html .= '<input type="hidden" name="master_harga_jual_id[]" value="' . $m->id . '">';
+                        if (in_array($m->id, $hargajualData)) {
+                            $first = DB::table('pj_st_harga_jual')->where('stok_id', $stok_id)->where('master_harga_jual_id', $m->id)->first();
+                            $html .= '<div class="form-group col-md-6">
+                            <label for="' . $m->id . '">' . $m->nama . '</label>
+                            <input type="text" class="form-control" id="' . $m->id . '" name="harga_jual[]" value="' . $first->harga . '" placeholder="Harga ' . $m->nama . '">
                           </div>';
                         } else {
-                            $html .='<div class="form-group col-md-6">
-                            <label for="'.$m->id.'">'.$m->nama.'</label>
-                            <input type="text" class="form-control" id="'.$m->id.'" name="harga_jual[]" placeholder="Harga '.$m->nama.'">
+                            $html .= '<div class="form-group col-md-6">
+                            <label for="' . $m->id . '">' . $m->nama . '</label>
+                            <input type="text" class="form-control" id="' . $m->id . '" name="harga_jual[]" placeholder="Harga ' . $m->nama . '">
                           </div>';
                         }
-                       }
+                    }
                 } else {
-                   foreach ($master as $m) {
-                    $html .='<div class="form-group col-md-6">
-                    <label for="'.$m->id.'">'.$m->nama.'</label>
-                    <input type="hidden" name="master_harga_jual_id[]" value="'.$m->id.'">
-                    <input type="text" class="form-control" id="'.$m->id.'" name="harga_jual[]" placeholder="Harga '.$m->nama.'">
+                    foreach ($master as $m) {
+                        $html .= '<div class="form-group col-md-6">
+                    <label for="' . $m->id . '">' . $m->nama . '</label>
+                    <input type="hidden" name="master_harga_jual_id[]" value="' . $m->id . '">
+                    <input type="text" class="form-control" id="' . $m->id . '" name="harga_jual[]" placeholder="Harga ' . $m->nama . '">
                   </div>';
-                   }
+                    }
                 }
-                $html .='</div></form>';
+                $html .= '</div></form>';
             } else {
-                $html .='<div class="col-12 offset-3 mt-5">
+                $html .= '<div class="col-12 offset-3 mt-5">
                 <div class="row">
                     <div class="col-4 offset-1">
                     <h6 class="text-danger">#Master harga jual belum diinput!</h6>
@@ -511,8 +595,8 @@ class StokAndiController extends Controller
             </div>';
             }
             return response()->json($html);
-        } catch(\Exception $e) {
-            return abort($e->getCode(),$e->getMessage());
+        } catch (\Exception $e) {
+            return abort($e->getCode(), $e->getMessage());
         }
     }
     protected function showModalRack($request)
@@ -557,7 +641,7 @@ class StokAndiController extends Controller
                 ->get();
             $totalLain = DB::table('pj_st_rack_data_activity')
                 ->where('stok_id', $stok_id)
-                ->where('type_history','<>', 'Penjualan')
+                ->where('type_history', '<>', 'Penjualan')
                 ->where('type_activity', 'Stok Keluar')
                 ->select(DB::raw('IFNULL(SUM(qty),0) as total_lain'))
                 ->get();
@@ -912,18 +996,18 @@ class StokAndiController extends Controller
             $id = $request->id;
             $value = $request->value;
             DB::beginTransaction();
-            DB::table('pj_st_andi')->where('id',$id)->update([
+            DB::table('pj_st_andi')->where('id', $id)->update([
                 'is_active' => $value
             ]);
             DB::commit();
-            $txt = $value == 0 ? 'tidak aktif':'aktif';
+            $txt = $value == 0 ? 'tidak aktif' : 'aktif';
             return response()->json([
                 'status' => 'success',
-                'message' => 'Stok '.$txt.'!'
+                'message' => 'Stok ' . $txt . '!'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return abort($e->getCode(),$e->getMessage());
+            return abort($e->getCode(), $e->getMessage());
         }
     }
     protected function editHargaJual($request)
@@ -936,10 +1020,10 @@ class StokAndiController extends Controller
                 if (!is_null($harga_jual[$count])) {
                     DB::beginTransaction();
                     DB::table('pj_st_harga_jual')
-                    ->updateOrInsert(
-                        ['stok_id' =>  $stok_id,'master_harga_jual_id' => $master_harga_jual_id[$count]],
-                        ['harga' => $harga_jual[$count]]
-                    );
+                        ->updateOrInsert(
+                            ['stok_id' =>  $stok_id, 'master_harga_jual_id' => $master_harga_jual_id[$count]],
+                            ['harga' => $harga_jual[$count]]
+                        );
                     DB::commit();
                 }
                 continue;
@@ -950,7 +1034,7 @@ class StokAndiController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return abort($e->getCode(),$e->getMessage());
+            return abort($e->getCode(), $e->getMessage());
         }
     }
     protected function addDataRack($request)
@@ -1134,7 +1218,7 @@ class StokAndiController extends Controller
             $checkRiwayat = DB::table('pj_st_rack_data_activity')->where('stok_id', $stok_id)->orderBy('id', 'DESC')->first();
 
             if ($totalPerRak->jml_stok != $jml_stok) {
-                $type_activity = $jml_stok > $totalPerRak->jml_stok ? 'Stok Masuk':'Stok Keluar';
+                $type_activity = $jml_stok > $totalPerRak->jml_stok ? 'Stok Masuk' : 'Stok Keluar';
                 $qty = $jml_stok > $totalPerRak->jml_stok ? $jml_stok - $totalPerRak->jml_stok : abs($jml_stok - $totalPerRak->jml_stok);
                 $sisa = $type_activity == 'Stok Masuk' ? $checkRiwayat->sisa + $qty : $checkRiwayat->sisa - $qty;
                 $insertRiwayat = [
@@ -1205,7 +1289,7 @@ class StokAndiController extends Controller
                 //CASCADE MYSQL DELETE
                 DB::table('pj_st_rack_master')
                     ->where('id', $rack_id)
-                    ->decrement('total_item',$up_JUM->jml_stok);
+                    ->decrement('total_item', $up_JUM->jml_stok);
                 DB::table('pj_st_rack_data')
                     ->where('stok_id', $stok_id)
                     ->where('rack_id', $rack_id)
@@ -1339,7 +1423,7 @@ class StokAndiController extends Controller
                 DB::table('pj_st_rack_data')
                     ->where('stok_id', $stok_id)
                     ->where('rack_id', $rack_id)
-                    ->increment('total_masuk',$jml_stok_rak);
+                    ->increment('total_masuk', $jml_stok_rak);
             }
             $rackDataDetail = [
                 'rack_data_id' => $rack_data_id,
@@ -1405,32 +1489,32 @@ class StokAndiController extends Controller
             $nama_rak = array_values($request->nama_rak);
             $total_dalam_rak = array_values($request->total_dalam_rak);
             $catatan = $request->catatan;
-            $data_stok = DB::table('pj_st_andi')->where('id',$stok_id)->first();
+            $data_stok = DB::table('pj_st_andi')->where('id', $stok_id)->first();
 
             for ($count = 0; $count < count($rack_id); $count++) {
                 if ($jml_rekondisi[$count] > $total_dalam_rak[$count]) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Jumlah input rekondisi tidak boleh melebihi total di dalam rak '.$nama_rak[$count].'!'
+                        'message' => 'Jumlah input rekondisi tidak boleh melebihi total di dalam rak ' . $nama_rak[$count] . '!'
                     ]);
                 }
                 $rack_data = DB::table('pj_st_rack_data')
-                ->where('rack_id',$rack_id[$count])
-                ->where('stok_id',$stok_id)
-                ->first();
+                    ->where('rack_id', $rack_id[$count])
+                    ->where('stok_id', $stok_id)
+                    ->first();
                 if (is_null($rack_data)) {
                     return abort(404);
                 }
-                if($jml_rekondisi[$count] == $rack_data->total_masuk) {
+                if ($jml_rekondisi[$count] == $rack_data->total_masuk) {
                     DB::beginTransaction();
                     DB::table('pj_st_rack_data')
-                    ->where('rack_id',$rack_id[$count])
-                    ->where('stok_id',$stok_id)->delete();
+                        ->where('rack_id', $rack_id[$count])
+                        ->where('stok_id', $stok_id)->delete();
                     DB::commit();
                 } else {
                     $detailRack = DB::table('pj_st_rack_data_detail')->where('rack_data_id', $rack_data->id)
-                    ->orderBy('id', 'DESC')
-                    ->get();
+                        ->orderBy('id', 'DESC')
+                        ->get();
                     $res = 0;
                     foreach ($detailRack as $dr) {
                         if ($jml_rekondisi[$count] >= $dr->jml_stok) {
@@ -1449,11 +1533,11 @@ class StokAndiController extends Controller
                         }
                     }
                     DB::table('pj_st_rack_data')
-                    ->where('stok_id', $stok_id)
-                    ->where('rack_id', $rack_id[$count])
-                    ->decrement('total_masuk',$jml_rekondisi[$count]);
+                        ->where('stok_id', $stok_id)
+                        ->where('rack_id', $rack_id[$count])
+                        ->decrement('total_masuk', $jml_rekondisi[$count]);
                 }
-                DB::table('pj_st_rack_master')->where('id',$rack_id[$count])->decrement('total_item',$jml_rekondisi[$count]);
+                DB::table('pj_st_rack_master')->where('id', $rack_id[$count])->decrement('total_item', $jml_rekondisi[$count]);
                 $checkRiwayat = DB::table('pj_st_rack_data_activity')->where('stok_id', $stok_id)->orderBy('id', 'DESC')->first();
                 $type_activity = 'Stok Keluar';
                 $qty = $jml_rekondisi[$count];
@@ -1470,11 +1554,10 @@ class StokAndiController extends Controller
                     'created_by' => auth()->user()->id
                 ];
                 event(new PenjualanStokEvent($insertRiwayat));
-
             }
             //Update Stok Global
             DB::beginTransaction();
-            DB::table('pj_st_andi')->where('id',$stok_id)->update([
+            DB::table('pj_st_andi')->where('id', $stok_id)->update([
                 'total_stok' => $data_stok->total_stok - $sum_jml_rekondisi
             ]);
             DB::commit();
@@ -1497,7 +1580,7 @@ class StokAndiController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return abort($e->getCode(),$e->getMessage());
+            return abort($e->getCode(), $e->getMessage());
         }
     }
     protected function selectRack($request)
@@ -1530,7 +1613,7 @@ class StokAndiController extends Controller
         $data = DB::table('penerbitan_penulis')
             ->whereNull('deleted_at')
             ->where('nama', 'like', '%' . $request->term . '%')
-            ->orderBy('nama','ASC')
+            ->orderBy('nama', 'ASC')
             ->get();
 
         return response()->json($data);
@@ -1540,7 +1623,7 @@ class StokAndiController extends Controller
         $data = DB::table('imprint')
             ->whereNull('deleted_at')
             ->where('nama', 'like', '%' . $request->term . '%')
-            ->orderBy('nama','ASC')
+            ->orderBy('nama', 'ASC')
             ->get();
 
         return response()->json($data);

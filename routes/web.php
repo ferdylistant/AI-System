@@ -273,6 +273,7 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::match(['get','post'],'/gudang/penerimaan-buku/andi', $path.'\PenjualanStok\PenerimaanBukuController@index');
         //Stok Andi
         Route::match(['get','post'],'/gudang/stok-buku/andi', $path.'\PenjualanStok\StokAndiController@index');
+        Route::get('/gudang/stok-buku/andi/export-all', $path.'\PenjualanStok\StokAndiController@exportAll');
         Route::get('/gudang/stok-buku/andi/{id}', $path.'\PenjualanStok\StokAndiController@detail');
         Route::get('/gudang/stok-buku/andi/{id}/export', $path.'\PenjualanStok\StokAndiController@export');
         //Stok Non-Andi (Buku)

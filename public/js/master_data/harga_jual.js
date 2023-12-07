@@ -1,3 +1,4 @@
+
 $(function () {
     let tableHargaJual = $("#tb_HargaJual").DataTable({
         "responsive": true,

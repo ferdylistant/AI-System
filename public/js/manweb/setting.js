@@ -1,3 +1,4 @@
+
 $(function () {
     let tableMenu = $("#tb_Menu").DataTable({
         bSort: false,

@@ -13,29 +13,57 @@ $(document).ready(function () {
             {
                 extend: 'collection',
                 text: 'Exports',
-                buttons: [
-                    {
-                        extend: 'print',
-                        text: '<i class="text-secondary fa fa-print"></i> Print',
+                buttons: ['export', {
+                    extend: 'csv',
+                    text: 'Export All To CSV',//Export all to CSV file
+                    action: function (e, dt, node, config) {
+                        let penulis = $('[name="filter_penulis"]').val();
+                        let imprint = $('[name="filter_imprint"]').val();
+                        let min = $('[name="filter_min"]').val();
+                        let max = $('[name="filter_max"]').val();
+
+                        window.location.href = window.location.origin + '/penjualan-stok/gudang/stok-buku/andi/export-all?penulis='+penulis+'&imprint='+imprint+'&min='+min+'&max='+max;
+                    }
+                }, 'csv', 'pdf', {
+                    extend: 'excel',
+                        text: 'Export Current Page',//Export to Excel only the current page and highlight the first row as headers
                         exportOptions: {
-                            columns: 'th:not(:last-child)'
+                            modifier: {
+                                page: 'current'
+                            }
+                        },
+                        customize: function (xlsx) {
+                            var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                            $('row:first c', sheet).attr('s', '7');
                         }
-                    },
-                    {
-                        extend: 'pdf',
-                        text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
-                        exportOptions: {
-                            columns: 'th:not(:last-child)'
-                        }
-                    },
-                    {
-                        extend: 'excel',
-                        text: '<i class="text-success fa fa-file-excel"></i> Excel',
-                        exportOptions: {
-                            columns: 'th:not(:last-child)'
-                        }
-                    },
-                ]
+                    }],
+                // buttons: [
+                //     {
+                //         extend: 'print',
+                //         text: '<i class="text-secondary fa fa-print"></i> Print',
+                //         exportOptions: {
+                //             columns: 'th:not(:last-child)'
+                //         }
+                //     },
+                //     {
+                //         extend: 'pdf',
+                //         text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
+                //         exportOptions: {
+                //             columns: 'th:not(:last-child)'
+                //         }
+                //     },
+                //     {
+                //         extend: 'excel',
+                //         text: '<i class="text-success fa fa-file-excel"></i> Excel',
+                //         exportOptions: {
+                //             columns: 'th:not(:last-child)'
+                //         },
+                //         action: function (e, dt, node, config)
+                //         {
+                //             window.location.href = window.location.origin + '/penjualan-stok/gudang/stok-buku/andi/export-all';
+                //         }
+                //     },
+                // ]
             },
         ],
         fixedColumns: {
@@ -66,7 +94,7 @@ $(document).ready(function () {
         },
         columns: [
             // { data: 'no', name: 'no', title: 'No' },
-            { data: 'kode_sku', name: 'kode_sku'},
+            { data: 'kode_sku', name: 'kode_sku' },
             // { data: 'kode', name: 'kode', title: 'Kode Naskah' },
             { data: 'judul_final', name: 'judul_final' },
             { data: 'sub_judul_final', name: 'sub_judul_final' },
@@ -95,8 +123,8 @@ $(document).ready(function () {
     <select class="form-control pull-right" id="imprint" name="filter_imprint" placeholder="Status.." data-nama=""></select>
     <button type="button" class="btn btn-lg btn-outline-danger clear_field_i text-danger align-self-center tooltip-class" data-toggle="tooltip" title="Reset" hidden><i
     class="fas fa-times"></i></button></div>`);
-    $("div.minbox").html('<div class="input-group"><input type="text" class="form-control pull-right deleteclass" id="min" placeholder="Stock minimum.."> </div>');
-    $("div.maxbox").html('<div class="input-group"><input type="text" class="form-control pull-right deleteclass" id="max" placeholder="Stock maximum.."> </div>');
+    $("div.minbox").html('<div class="input-group"><input type="text" class="form-control pull-right deleteclass" id="min" name="filter_min" placeholder="Stock minimum.."> </div>');
+    $("div.maxbox").html('<div class="input-group"><input type="text" class="form-control pull-right deleteclass" id="max" name="filter_max" placeholder="Stock maximum.."> </div>');
     $('input.deleteclass').wrap('<span class="deleteicon"></span>').after($('<span>x</span>').click(function () {
         $(this).prev('input').val('').trigger('change');
         // $.fn.dataTable.ext.search.splice($.fn.dataTable.ext.search.indexOf(DateFilterFunction, 1));
@@ -122,9 +150,9 @@ $(document).ready(function () {
     );
     // Custom range filtering function
     $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-        let min = parseInt(minEl.value, 10);
-        let max = parseInt(maxEl.value, 10);
-        let stock = parseFloat(data[5]) || 0; // use data for the stock column
+        let min = parseInt(minEl.value);
+        let max = parseInt(maxEl.value);
+        let stock = parseFloat(data[6]) || 0; // use data for the stock column
 
         if (
             (isNaN(min) && isNaN(max)) ||
@@ -184,17 +212,17 @@ $(document).ready(function () {
                 tabelStok.column(3)
                     .search(val ? val : '', true, false)
                     .draw();
-                    // $(this).text("");
-                    // $(this).removeAttr('data-nama');
-                    // $(this).attr('data-nama',"");
+                // $(this).text("");
+                // $(this).removeAttr('data-nama');
+                // $(this).attr('data-nama',"");
             }
         });
     $(".clear_field_p").click(function () {
         $("#penulis").val("").trigger("change");
         $(".clear_field_p").attr("hidden", "hidden");
         tabelStok.column(3)
-        .search('')
-        .draw();
+            .search('')
+            .draw();
     });
     $("#imprint")
         .select2({
@@ -230,17 +258,17 @@ $(document).ready(function () {
                 tabelStok.column(4)
                     .search(val ? val : '', true, false)
                     .draw();
-                    // $(this).text("");
-                    // $(this).removeAttr('data-nama');
-                    // $(this).attr('data-nama',"");
+                // $(this).text("");
+                // $(this).removeAttr('data-nama');
+                // $(this).attr('data-nama',"");
             }
         });
     $(".clear_field_i").click(function () {
         $("#imprint").val("").trigger("change");
         $(".clear_field_i").attr("hidden", "hidden");
         tabelStok.column(4)
-        .search('')
-        .draw();
+            .search('')
+            .draw();
     });
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
         // console.log(helpPage);
@@ -274,11 +302,11 @@ $(document).ready(function () {
             }
         });
     });
-    function ajaxStokStatus(id,value) {
+    function ajaxStokStatus(id, value) {
         $.ajax({
             url: window.location.origin + "/penjualan-stok/gudang/stok-buku/andi?request_type=status-on-off",
             type: 'POST',
-            data: {id:id,value:value},
+            data: { id: id, value: value },
             cache: false,
             success: (res) => {
                 // console.log(res);
@@ -290,11 +318,11 @@ $(document).ready(function () {
             },
             error: (err) => {
                 console.log(err);
-                notifToast('error',err.statusText);
+                notifToast('error', err.statusText);
             }
         });
     }
-    function confirmSweetAlert(id,value) {
+    function confirmSweetAlert(id, value) {
         swal({
             title: "Yakin ingin menonaktifkan stok?",
             text: "Harap diperiksa kembali, supaya tidak terjadi kesalahan.",
@@ -305,12 +333,12 @@ $(document).ready(function () {
             if (confirm_) {
                 ajaxStokStatus(id, value);
             } else {
-                $("#statusOnOff"+id).prop('checked',true).triggerHandler('change');
+                $("#statusOnOff" + id).prop('checked', true).triggerHandler('change');
                 // $('#statusOnOff'+id).removeAttr("checked").trigger('change');
             }
         });
     }
-    $('#tb_stokGudangAndi').on('change','.btn-toggle-status',function (e) {
+    $('#tb_stokGudangAndi').on('change', '.btn-toggle-status', function (e) {
         // e.stopPropagation();
         var id = $(this).data("id");
         if (this.checked) {
@@ -338,7 +366,7 @@ $(document).ready(function () {
             },
             cache: false,
             success: (res) => {
-                $(this).find('#sectionTitle').html(judul.charAt(0).toUpperCase() + judul.slice(1) + ' <small>('+kode_sku+')</small>').trigger('change');
+                $(this).find('#sectionTitle').html(judul.charAt(0).toUpperCase() + judul.slice(1) + ' <small>(' + kode_sku + ')</small>').trigger('change');
                 $(this).find('#contentForm').html(res).trigger('change');
             },
             error: function (err) {
@@ -357,7 +385,7 @@ $(document).ready(function () {
     });
     function ajaxEditHargaJual(data) {
         let el = new FormData(data.get(0)),
-        cardWrap = $('#modalEditHarga');
+            cardWrap = $('#modalEditHarga');
 
         $.ajax({
             url: window.location.origin + "/penjualan-stok/gudang/stok-buku/andi?request_type=edit-harga-jual",
@@ -396,7 +424,7 @@ $(document).ready(function () {
             }
         })
     }
-    $(document).on('submit','#fm_editHarga', function (e) {
+    $(document).on('submit', '#fm_editHarga', function (e) {
         e.preventDefault();
         swal({
             title: 'Apakah harga jual sudah sesuai?',

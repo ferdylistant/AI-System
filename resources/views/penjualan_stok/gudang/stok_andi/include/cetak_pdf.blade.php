@@ -15,14 +15,7 @@
         <div class="col-12 col-md-12">
             <div class="card card-primary">
                 <div class="card-header justify-content-between">
-                    <div class="col-auto">
                         <h4 class="section-title">Data Stok Andi</h4>
-                    </div>
-                    <div class="col-auto">
-                        <button type="button" id="exportExcel" class="btn btn-light" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">
-                            <i class="fas fa-file-pdf"></i> Cetak PDF
-                        </button>
-                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -91,4 +84,6 @@
         </div>
     </div>
 </body>
+    <script src="{{ url('vendors/bootstrap/dist/js/bootstrap.js') }}"></script>
+    <script src="{{ url('vendors/stisla/js/stisla.js') }}"></script>
 </html>

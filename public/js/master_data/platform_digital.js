@@ -1,3 +1,4 @@
+
 $(function () {
     let tablePlatform = $("#tb_Platform").DataTable({
         responsive: true,

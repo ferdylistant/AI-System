@@ -1,3 +1,4 @@
+
 $(function () {
     let tableImprint = $("#tb_Imprint").DataTable({
         responsive: true,

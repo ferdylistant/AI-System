@@ -1,12 +1,19 @@
 $.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    statusCode: {
+        401: function() {
+            window.location.reload();
+        }
     }
 });
 $(document).ajaxError(function (event, xhr, settings, thrownError) {
     if (xhr.status == 429) {
         // handle the error case
         alert('Request too many!')
+    } else if (xhr.status == 401) {
+        window.location.reload();
     }
 });
 function jqueryValidation_(element, rules, messages = {}) {

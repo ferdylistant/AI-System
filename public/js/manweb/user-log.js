@@ -1,3 +1,4 @@
+
 $(function () {
     loadDataAccess();
     // User log start

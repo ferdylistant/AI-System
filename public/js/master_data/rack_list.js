@@ -1,3 +1,4 @@
+
 $(function () {
     let tableRackList = $("#tb_RackList").DataTable({
         "responsive": true,

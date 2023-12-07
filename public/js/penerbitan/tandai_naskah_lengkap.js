@@ -1,3 +1,4 @@
+
 function loadData() {
     $.ajax({
         url: window.location.origin + "/penerbitan/naskah?request_=getCountNaskah",

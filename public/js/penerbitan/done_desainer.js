@@ -1,3 +1,4 @@
+
 $(function () {
     //! Desainer / Korektor
     function ajaxDoneDesain(id, autor) {

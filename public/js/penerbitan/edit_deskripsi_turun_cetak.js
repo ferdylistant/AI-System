@@ -1,3 +1,4 @@
+
 $(document).ready(function () {
     var max_fields = 15; //maximum input boxes allowed
     var wrapper = $(".input_fields_wrap"); //Fields wrapper

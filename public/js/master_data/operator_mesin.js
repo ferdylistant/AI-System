@@ -1,3 +1,4 @@
+
 $(function () {
     let tableOmesin = $("#tb_Omesin").DataTable({
         responsive: true,

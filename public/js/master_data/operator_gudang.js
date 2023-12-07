@@ -1,3 +1,4 @@
+
 $(function () {
     let tableOperatorGudang = $("#tb_OperatorGudang").DataTable({
         responsive: true,

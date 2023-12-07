@@ -1,3 +1,4 @@
+
 $(document).ready(function() {
     let tablePenerimaanRekondisi = $('#tb_penerimaanRekondisi').DataTable({
         "responsive": true,

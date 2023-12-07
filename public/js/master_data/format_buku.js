@@ -1,3 +1,4 @@
+
 $(function () {
     let tableFBuku = $("#tb_Fbuku").DataTable({
         responsive: true,

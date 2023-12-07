@@ -1,3 +1,4 @@
+
 $(function () {
     //! Setter / Korektor
     function ajaxDoneSetting(id, autor) {

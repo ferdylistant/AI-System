@@ -1,4 +1,5 @@
 
+
 $(document).ready(function () {
     function loadDataValue() {
         let id = window.location.search.split('?').pop(),

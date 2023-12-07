@@ -1,3 +1,4 @@
+
 $(function() {
     $('[name="status_filter"]').val('').trigger('change');
     $(".select-filter")

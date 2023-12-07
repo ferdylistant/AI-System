@@ -113,12 +113,20 @@
                 $.ajax({
                     url: window.location.origin + "/penjualan-stok/gudang/stok-buku/andi/"+id+"/export",
                     type: 'GET',
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
                     cache: false,
                     beforeSend: () => {
                         $(this).closest('.card').addClass("card-progress");
                     },
                     success: (res) => {
-                        console.log(res);
+                        // console.log(res);
+                        var blob = new Blob([res]);
+                        var link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = "stok_andi.pdf";
+                        link.click();
                     },
                     error: (err) => {
                         console.log(err.responseText);
