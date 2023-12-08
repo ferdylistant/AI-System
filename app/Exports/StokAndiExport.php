@@ -86,8 +86,8 @@ class StokAndiExport implements FromView, WithStyles, ShouldAutoSize, WithColumn
                 $q->on('dp.imprint', '=', 'im.id')
                     ->whereNull('im.deleted_at');
             })
-            ->when($imprint != 'null', function ($query) use ($imprint) {
-                return $query->where('im.nama', $imprint);
+            ->when($imprint != "null", function ($query) use ($imprint) {
+                return $query->where('im.imprint', $imprint);
             })
             ->when($min != 0, function ($query) use ($min) {
                 return $query->where('st.total_stok', '>=', $min);
