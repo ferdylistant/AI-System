@@ -15,8 +15,10 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithProperties;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
-class StokAndiExport implements FromView,WithStyles,ShouldAutoSize
+class StokAndiExport implements FromView, WithStyles, ShouldAutoSize, WithColumnFormatting
 {
     use Exportable;
 
@@ -43,8 +45,14 @@ class StokAndiExport implements FromView,WithStyles,ShouldAutoSize
                     'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
                     'wrapText' => true,
                 ]
-                ],
+            ],
             2 => ['font' => ['bold' => true]]
+        ];
+    }
+    public function columnFormats(): array
+    {
+        return [
+            'M' => NumberFormat::FORMAT_NUMBER,
         ];
     }
     /**
@@ -103,35 +111,35 @@ class StokAndiExport implements FromView,WithStyles,ShouldAutoSize
                 'skb.nama as sub_kelompok_buku',
             )
             ->get();
-        $data = (object)collect($data)->map(function($item,$key){
-            $res = (object)collect($item)->put('penulis',DB::table('penerbitan_naskah_penulis as pnp')
-            ->join('penerbitan_penulis as pp', function ($q) {
-                $q->on('pnp.penulis_id', '=', 'pp.id')
-                    ->whereNull('pp.deleted_at');
-            })
-            ->where('pnp.naskah_id', '=', $item->naskah_id)
-            ->select('pp.nama')
-            ->first()->nama)->all();
+        $data = (object)collect($data)->map(function ($item, $key) {
+            $res = (object)collect($item)->put('penulis', DB::table('penerbitan_naskah_penulis as pnp')
+                ->join('penerbitan_penulis as pp', function ($q) {
+                    $q->on('pnp.penulis_id', '=', 'pp.id')
+                        ->whereNull('pp.deleted_at');
+                })
+                ->where('pnp.naskah_id', '=', $item->naskah_id)
+                ->select('pp.nama')
+                ->first()->nama)->all();
             return $res;
         });
-        $data = (object)collect($data)->when($penulis != 'null', function($query) use ($penulis) {
-            return $query->where('penulis',$penulis);
+        $data = (object)collect($data)->when($penulis != 'null', function ($query) use ($penulis) {
+            return $query->where('penulis', $penulis);
         });
-        $hargaJual = (object)collect($data)->map(function($item,$key) {
+        $hargaJual = (object)collect($data)->map(function ($item, $key) {
             $master = DB::table('pj_st_master_harga_jual')->whereNull('deleted_at')->get();
-            $hargaJual = DB::table('pj_st_harga_jual')->where('stok_id',$item->id)->get();
-            $col = collect($hargaJual)->map(function($val){
+            $hargaJual = DB::table('pj_st_harga_jual')->where('stok_id', $item->id)->get();
+            $col = collect($hargaJual)->map(function ($val) {
                 return $val->master_harga_jual_id;
             })->all();
-            foreach($master as $mas) {
-                if(in_array($mas->id,$col)) {
+            foreach ($master as $mas) {
+                if (in_array($mas->id, $col)) {
                     $hargaJual = DB::table('pj_st_harga_jual')
-                    ->where('stok_id',$item->id)
-                    ->where('master_harga_jual_id',$mas->id)
-                    ->first();
-                    $item = (object)collect($item)->put($mas->nama,$hargaJual->harga)->all();
+                        ->where('stok_id', $item->id)
+                        ->where('master_harga_jual_id', $mas->id)
+                        ->first();
+                    $item = (object)collect($item)->put($mas->nama, $hargaJual->harga)->all();
                 } else {
-                    $item = (object)collect($item)->put($mas->nama,'0')->all();
+                    $item = (object)collect($item)->put($mas->nama, '0')->all();
                 }
             }
             return $item;
@@ -144,37 +152,57 @@ class StokAndiExport implements FromView,WithStyles,ShouldAutoSize
         //     return $col;
         // })->all();
         $master = DB::table('pj_st_master_harga_jual')->whereNull('deleted_at')->get();
-        foreach ($data as $value) {
-            $roman = event(new convertNumberToRoman($value->edisi_cetak));
-            $edisiCetak = implode('', $roman) . '/' . $value->edisi_cetak;
-            (object)$view[] = (object)[
-                'id' => $value->id,
-                'kode_sku' => $value->kode_sku,
-                'kode_naskah' => $value->kode_naskah,
-                'judul_final' => ucfirst($value->judul_final),
-                'sub_judul_final' => ucfirst($value->sub_judul_final),
-                'penulis' => $value->penulis,
-                'kelompok_buku' => ucfirst($value->kelompok_buku),
-                'sub_kelompok_buku' => ucfirst($value->sub_kelompok_buku),
-                'imprint' => $value->imprint,
-                'format_buku' => $value->format_buku . ' cm',
+        $view = (object)collect($data)->map(function($item,$key) {
+            $roman = event(new convertNumberToRoman($item->edisi_cetak));
+            $edisiCetak = implode('', $roman) . '/' . $item->edisi_cetak;
+            return $view[] = (object)[
+                'id' => $item->id,
+                'kode_sku' => $item->kode_sku,
+                'kode_naskah' => $item->kode_naskah,
+                'judul_final' => ucfirst($item->judul_final),
+                'sub_judul_final' => ucfirst($item->sub_judul_final),
+                'penulis' => $item->penulis,
+                'kelompok_buku' => ucfirst($item->kelompok_buku),
+                'sub_kelompok_buku' => ucfirst($item->sub_kelompok_buku),
+                'imprint' => $item->imprint,
+                'format_buku' => $item->format_buku . ' cm',
                 'edisi_cetak' => $edisiCetak,
-                'total_stok' => $value->total_stok,
-                'isbn' => (int)$value->isbn,
-                'is_active' => $value->is_active == '1' ? 'Aktif':'Tidak Aktif',
-                'zona1' => $value->zona1
+                'total_stok' => $item->total_stok,
+                'isbn' => (int)$item->isbn,
+                'is_active' => $item->is_active == '1' ? 'Aktif' : 'Tidak Aktif',
+                'zona1' => $item->zona1
             ];
-        }
-        // dd($hargaJual);
+        })->all();
+        // dd($view);
+        // foreach ($data as $value) {
+        //     $roman = event(new convertNumberToRoman($value->edisi_cetak));
+        //     $edisiCetak = implode('', $roman) . '/' . $value->edisi_cetak;
+        //     (object)$view[] = (object)[
+        //         'id' => $value->id,
+        //         'kode_sku' => $value->kode_sku,
+        //         'kode_naskah' => $value->kode_naskah,
+        //         'judul_final' => ucfirst($value->judul_final),
+        //         'sub_judul_final' => ucfirst($value->sub_judul_final),
+        //         'penulis' => $value->penulis,
+        //         'kelompok_buku' => ucfirst($value->kelompok_buku),
+        //         'sub_kelompok_buku' => ucfirst($value->sub_kelompok_buku),
+        //         'imprint' => $value->imprint,
+        //         'format_buku' => $value->format_buku . ' cm',
+        //         'edisi_cetak' => $edisiCetak,
+        //         'total_stok' => $value->total_stok,
+        //         'isbn' => (int)$value->isbn,
+        //         'is_active' => $value->is_active == '1' ? 'Aktif' : 'Tidak Aktif',
+        //         'zona1' => $value->zona1
+        //     ];
+        // }
         return view('penjualan_stok.gudang.stok_andi.include.export_excel', [
             'body' => $view,
-            'colspan' => count($master)+1,
+            'colspan' => count($master) + 1,
             'master' => $master,
             'harga_jual' => $hargaJual,
         ]);
     }
     public function failed(Throwable $e): void
     {
-
     }
 }
