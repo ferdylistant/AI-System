@@ -11,60 +11,116 @@ $(document).ready(function () {
             'pageLength',
             'spacer',
             {
-                extend: 'collection',
-                text: 'Exports',
-                buttons: ['export', {
-                    extend: 'csv',
-                    text: 'Export All To CSV',//Export all to CSV file
-                    action: function (e, dt, node, config) {
-                        let penulis = $('[name="filter_penulis"]').val();
-                        let imprint = $('[name="filter_imprint"]').val();
-                        let min = $('[name="filter_min"]').val();
-                        let max = $('[name="filter_max"]').val();
-
-                        window.location.href = window.location.origin + '/penjualan-stok/gudang/stok-buku/andi/export-all?penulis='+penulis+'&imprint='+imprint+'&min='+min+'&max='+max;
-                    }
-                }, 'csv', 'pdf', {
-                    extend: 'excel',
-                        text: 'Export Current Page',//Export to Excel only the current page and highlight the first row as headers
-                        exportOptions: {
-                            modifier: {
-                                page: 'current'
-                            }
+                extend: 'excel',
+                text: 'Export',//Export all to CSV file
+                action: function (e, dt, node, config) {
+                    e.preventDefault();
+                    let penulis = $('[name="filter_penulis"]').val();
+                    let imprint = $('[name="filter_imprint"]').val();
+                    let min = $('[name="filter_min"]').val();
+                    let max = $('[name="filter_max"]').val();
+                    $.ajax({
+                        url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi/export-all?penulis='+penulis+'&imprint='+imprint+'&min='+min+'&max='+max,
+                        type: 'GET',
+                        cache: false,
+                        beforeSend: function () {
+                            $("#overlay").fadeIn(300);
                         },
-                        customize: function (xlsx) {
-                            var sheet = xlsx.xl.worksheets['sheet1.xml'];
-                            $('row:first c', sheet).attr('s', '7');
+                        success: (res) => {
+                            window.location.href = window.location.origin + '/penjualan-stok/gudang/stok-buku/andi/export-all?penulis='+penulis+'&imprint='+imprint+'&min='+min+'&max='+max;
+                        },
+                        error: (err) => {
+                            setTimeout(function() {
+                                $("#overlay").fadeOut(300);
+                            }, 500);
+                            notifToast('error','Tabel kosong!');
+                        },
+                        complete: function () {
+                            setTimeout(function() {
+                                $("#overlay").fadeOut(300);
+                            }, 500);
                         }
-                    }],
-                // buttons: [
-                //     {
-                //         extend: 'print',
-                //         text: '<i class="text-secondary fa fa-print"></i> Print',
-                //         exportOptions: {
-                //             columns: 'th:not(:last-child)'
-                //         }
-                //     },
-                //     {
-                //         extend: 'pdf',
-                //         text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
-                //         exportOptions: {
-                //             columns: 'th:not(:last-child)'
-                //         }
-                //     },
-                //     {
-                //         extend: 'excel',
-                //         text: '<i class="text-success fa fa-file-excel"></i> Excel',
-                //         exportOptions: {
-                //             columns: 'th:not(:last-child)'
-                //         },
-                //         action: function (e, dt, node, config)
-                //         {
-                //             window.location.href = window.location.origin + '/penjualan-stok/gudang/stok-buku/andi/export-all';
-                //         }
-                //     },
-                // ]
-            },
+                    });
+                }
+            }
+            // {
+            //     extend: 'collection',
+            //     // text: 'Exports',
+            //     buttons: ['export', {
+            //         extend: 'csv',
+            //         text: '<i class="text-success fa fa-file-excel"></i> Export Semua',//Export all to CSV file
+            //         action: function (e, dt, node, config) {
+            //             e.preventDefault();
+            //             let penulis = $('[name="filter_penulis"]').val();
+            //             let imprint = $('[name="filter_imprint"]').val();
+            //             let min = $('[name="filter_min"]').val();
+            //             let max = $('[name="filter_max"]').val();
+            //             $.ajax({
+            //                 url: window.location.origin + '/penjualan-stok/gudang/stok-buku/andi/export-all?penulis='+penulis+'&imprint='+imprint+'&min='+min+'&max='+max,
+            //                 type: 'GET',
+            //                 cache: false,
+            //                 beforeSend: function () {
+            //                     $("#overlay").fadeIn(300);
+            //                 },
+            //                 success: (res) => {
+            //                     window.location.href = window.location.origin + '/penjualan-stok/gudang/stok-buku/andi/export-all?penulis='+penulis+'&imprint='+imprint+'&min='+min+'&max='+max;
+            //                 },
+            //                 error: (err) => {
+            //                     setTimeout(function() {
+            //                         $("#overlay").fadeOut(300);
+            //                     }, 500);
+            //                     notifToast('error','Tabel kosong!');
+            //                 },
+            //                 complete: function () {
+            //                     setTimeout(function() {
+            //                         $("#overlay").fadeOut(300);
+            //                     }, 500);
+            //                 }
+            //             });
+            //         }
+            //     },
+            //     // 'csv', 'pdf', {
+            //     //     extend: 'excel',
+            //     //         text: 'Export Current Page',//Export to Excel only the current page and highlight the first row as headers
+            //     //         exportOptions: {
+            //     //             modifier: {
+            //     //                 page: 'current'
+            //     //             }
+            //     //         },
+            //     //         customize: function (xlsx) {
+            //     //             var sheet = xlsx.xl.worksheets['sheet1.xml'];
+            //     //             $('row:first c', sheet).attr('s', '7');
+            //     //         }
+            //     //     }
+            //     ],
+            //     // buttons: [
+            //     //     {
+            //     //         extend: 'print',
+            //     //         text: '<i class="text-secondary fa fa-print"></i> Print',
+            //     //         exportOptions: {
+            //     //             columns: 'th:not(:last-child)'
+            //     //         }
+            //     //     },
+            //     //     {
+            //     //         extend: 'pdf',
+            //     //         text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
+            //     //         exportOptions: {
+            //     //             columns: 'th:not(:last-child)'
+            //     //         }
+            //     //     },
+            //     //     {
+            //     //         extend: 'excel',
+            //     //         text: '<i class="text-success fa fa-file-excel"></i> Excel',
+            //     //         exportOptions: {
+            //     //             columns: 'th:not(:last-child)'
+            //     //         },
+            //     //         action: function (e, dt, node, config)
+            //     //         {
+            //     //             window.location.href = window.location.origin + '/penjualan-stok/gudang/stok-buku/andi/export-all';
+            //     //         }
+            //     //     },
+            //     // ]
+            // },
         ],
         fixedColumns: {
             left: 0,

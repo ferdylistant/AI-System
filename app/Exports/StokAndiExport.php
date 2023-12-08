@@ -173,8 +173,8 @@ class StokAndiExport implements FromView,WithStyles,ShouldAutoSize
             'harga_jual' => $hargaJual,
         ]);
     }
-    public function failed(Throwable $exception): void
+    public function failed(Throwable $e): void
     {
-        dd($exception);
+
     }
 }
