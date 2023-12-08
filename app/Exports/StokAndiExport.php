@@ -144,13 +144,6 @@ class StokAndiExport implements FromView, WithStyles, ShouldAutoSize, WithColumn
             }
             return $item;
         });
-        // $hargaJual = (object)collect($data)->map(function($item,$key){
-        //     $hargaJual = DB::table('pj_st_harga_jual')->where('stok_id',$item->id)->get();
-        //     $col = (object)collect($hargaJual)->map(function($val){
-        //         return $val->master_harga_jual_id;
-        //     })->all();
-        //     return $col;
-        // })->all();
         $master = DB::table('pj_st_master_harga_jual')->whereNull('deleted_at')->get();
         $view = (object)collect($data)->map(function($item,$key) {
             $roman = event(new convertNumberToRoman($item->edisi_cetak));
@@ -173,28 +166,6 @@ class StokAndiExport implements FromView, WithStyles, ShouldAutoSize, WithColumn
                 'zona1' => $item->zona1
             ];
         })->all();
-        // dd($view);
-        // foreach ($data as $value) {
-        //     $roman = event(new convertNumberToRoman($value->edisi_cetak));
-        //     $edisiCetak = implode('', $roman) . '/' . $value->edisi_cetak;
-        //     (object)$view[] = (object)[
-        //         'id' => $value->id,
-        //         'kode_sku' => $value->kode_sku,
-        //         'kode_naskah' => $value->kode_naskah,
-        //         'judul_final' => ucfirst($value->judul_final),
-        //         'sub_judul_final' => ucfirst($value->sub_judul_final),
-        //         'penulis' => $value->penulis,
-        //         'kelompok_buku' => ucfirst($value->kelompok_buku),
-        //         'sub_kelompok_buku' => ucfirst($value->sub_kelompok_buku),
-        //         'imprint' => $value->imprint,
-        //         'format_buku' => $value->format_buku . ' cm',
-        //         'edisi_cetak' => $edisiCetak,
-        //         'total_stok' => $value->total_stok,
-        //         'isbn' => (int)$value->isbn,
-        //         'is_active' => $value->is_active == '1' ? 'Aktif' : 'Tidak Aktif',
-        //         'zona1' => $value->zona1
-        //     ];
-        // }
         return view('penjualan_stok.gudang.stok_andi.include.export_excel', [
             'body' => $view,
             'colspan' => count($master) + 1,
