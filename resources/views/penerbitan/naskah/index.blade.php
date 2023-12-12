@@ -275,7 +275,7 @@
                             <div class="col-auto mb-3" id="countPenilaian" hidden>
                             </div>
                             <div class="col-12 table-responsive">
-                                <table id="tb_Naskah" class="table table-striped  dt-responsive" style="width: 100%">
+                                <table id="tb_Naskah" class="table table-striped nowrap" style="width: 100%">
                                 </table>
                             </div>
                         </div>
