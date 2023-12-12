@@ -293,7 +293,7 @@ $(function() {
             {type:'zoom-out',     active:false},
             {type:'zoom-default', active:false},
             {type:'optional',     active:false},
-            {type:'download',     active:false, optional: false},
+            {type:'download',     active:true, optional: false},
             {type:'fullscreen',   active:true, optional: false},
         ],
     });

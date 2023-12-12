@@ -521,7 +521,7 @@
                     },
                     {
                         type: 'download',
-                        active: false,
+                        active: true,
                         optional: false
                     },
                     {
