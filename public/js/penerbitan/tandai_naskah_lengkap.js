@@ -1,24 +1,24 @@
 
-function loadData() {
-    $.ajax({
-        url: window.location.origin + "/penerbitan/naskah?request_=getCountNaskah",
-        type: "GET",
-        dataType: "JSON",
-        success: function (data) {
-            // console.log(data);
-            $("#totalNaskah").prop('Counter', 0).animate({
-                Counter: data
-            }, {
-                duration: 4000,
-                easing: 'swing',
-                step: function (now) {
-                    $(this).text(Math.ceil(now));
-                }
-            });
-        },
-    });
-}
 $(document).ready(function () {
+    function loadData() {
+        $.ajax({
+            url: window.location.origin + "/penerbitan/naskah?request_=getCountNaskah",
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+                // console.log(data);
+                $("#totalNaskah").prop('Counter', 0).animate({
+                    Counter: data
+                }, {
+                    duration: 4000,
+                    easing: 'swing',
+                    step: function (now) {
+                        $(this).text(Math.ceil(now));
+                    }
+                });
+            },
+        });
+    }
     $(".select-filter-jb").val("").trigger("change");
     $(".select-filter").val("").trigger("change");
     let tableNaskah = $('#tb_Naskah').DataTable({
@@ -27,6 +27,7 @@ $(document).ready(function () {
         "autoWidth": false,
         "aaSorting": [],
         dom: 'Bfrtip',
+        scrollX: true,
         buttons: [
             'pageLength',
             'spacer',
@@ -58,6 +59,10 @@ $(document).ready(function () {
                 ]
             },
         ],
+        fixedColumns: {
+            left: 0,
+            right: 2
+        },
         pagingType: 'input',
         processing: true,
         serverSide: false,
@@ -69,7 +74,7 @@ $(document).ready(function () {
         ajax: {
             url: window.location.origin + "/penerbitan/naskah",
             complete: () => {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('.tooltip-class'))
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip]'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl,{
                         trigger : 'hover'
@@ -111,16 +116,6 @@ $(document).ready(function () {
             data: 'stts_penilaian',
             name: 'stts_penilaian',
             title: 'Penilaian'
-        },
-        {
-            data: 'history',
-            name: 'history',
-            title: 'History'
-        },
-        {
-            data: 'tracker',
-            name: 'tracker',
-            title: 'Tracker'
         },
         {
             data: 'action',
