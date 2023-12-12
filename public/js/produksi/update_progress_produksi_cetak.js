@@ -4,6 +4,7 @@ $(function () {
         "responsive": true,
         "autoWidth": false,
         dom: 'Bfrtip',
+        scrollX: true,
         buttons: [
             'pageLength',
             'spacer',
@@ -35,6 +36,10 @@ $(function () {
                 ]
             },
         ],
+        fixedColumns: {
+            left: 0,
+            right: 2
+        },
         pagingType: "input",
         processing: true,
         serverSide: false,
@@ -63,10 +68,10 @@ $(function () {
             { data: 'status_cetak', name: 'status_cetak', title: 'Status Cetak' },
             { data: 'penulis', name: 'penulis', title: 'Penulis' },
             { data: 'edisi_cetak', name: 'edisi_cetak', title: 'Edisi Cetak' },
+            { data: 'tahun_terbit', name: 'tahun_terbit', title: 'Tahun Terbit' },
             { data: 'jenis_jilid', name: 'jenis_jilid', title: 'Jenis Jilid' },
             { data: 'buku_jadi', name: 'buku_jadi', title: 'Buku Jadi' },
             { data: 'tracking', name: 'tracking', title: 'Tracking', width: "100%", },
-            { data: 'tracking_timeline', name: 'tracking_timeline', title: 'Tracking Timeline' },
             { data: 'action', name: 'action', title: 'Action', searchable: false, orderable: false },
         ]
     });

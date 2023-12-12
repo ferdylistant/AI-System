@@ -119,7 +119,7 @@ class ProsesProduksiController extends Controller
                     ->addColumn('edisi_cetak', function ($data) {
                         $roman = event(new convertNumberToRoman($data->edisi_cetak));
                         $edisiCetak = implode('', $roman) . '/' . $data->edisi_cetak;
-                        return $edisiCetak . '/' . $data->tahun_terbit;
+                        return $edisiCetak;
                     })
                     ->addColumn('jenis_jilid', function ($data) {
                         if ($data->jenis_jilid == 'Binding') {
@@ -245,6 +245,10 @@ class ProsesProduksiController extends Controller
                                     class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                         }
+                        $historyData = DB::table('tracker')->where('section_id', $data->id)->get();
+                        if (!$historyData->isEmpty()) {
+                            $btn .= '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 mt-1 btn-tracker" data-id="' . $data->id . '" data-judulfinal="' . $data->judul_final . '" data-toggle="tooltip" title="Lihat Tracking"><i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                        }
                         return $btn;
                     })
                     ->rawColumns([
@@ -258,7 +262,6 @@ class ProsesProduksiController extends Controller
                         'jenis_jilid',
                         'buku_jadi',
                         'tracking',
-                        'tracking_timeline',
                         'action'
                     ])
                     ->make(true);

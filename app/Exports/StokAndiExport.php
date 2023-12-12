@@ -173,7 +173,4 @@ class StokAndiExport implements FromView, WithStyles, ShouldAutoSize, WithColumn
             'harga_jual' => $hargaJual,
         ]);
     }
-    public function failed(Throwable $e): void
-    {
-    }
 }

@@ -126,7 +126,7 @@
                     <div class="card card-primary">
                         <div class="card-body">
                             <div class="col-12">
-                                <table class="table table-bordered dt-responsive" id="tb_stokGudangAndi" style="width:100%">
+                                <table class="table table-bordered nowrap" id="tb_stokGudangAndi" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th scope="col" class="align-middle" rowspan="2">Kode SKU</th>
