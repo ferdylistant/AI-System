@@ -827,17 +827,17 @@ class PenulisController extends Controller
                         if (!is_null($d->url_hibah_royalti_his)) {
                             $html .=
                                 '<div class="ticket-title">
-                                    <span><span class="bullet"></span> Url hibah royalti <b class="text-dark">' .
-                                $d->url_hibah_royalti_his .
-                                '</b> diubah menjadi <b class="text-dark">' .
+                                    <span><span class="bullet"></span> Url hibah royalti <a target="_blank" href="'.$d->url_hibah_royalti_his.'" class="text-dark"><b>' .
+                                    $d->url_hibah_royalti_his .
+                                    '</b></a> diubah menjadi <a target="_blank" href="'.$d->url_hibah_royalti_new.'" class="text-dark"><b>' .
                                 $d->url_hibah_royalti_new .
-                                '</b> </span></div>';
+                                '</b></a> </span></div>';
                         } elseif (!is_null($d->url_hibah_royalti_new)) {
                             $html .=
                                 '<div class="ticket-title">
-                                    <span><span class="bullet"></span> Url hibah royalti <b class="text-dark">' .
-                                $d->url_hibah_royalti_new .
-                                '</b> ditambahkan. </span></div>';
+                                    <span><span class="bullet"></span> Url hibah royalti <a target="_blank" href="'.$d->url_hibah_royalti_new.'" class="text-dark"><b>' .
+                                    $d->url_hibah_royalti_new .
+                                    '</b></a> ditambahkan. </span></div>';
                         }
                         if (!is_null($d->url_tentang_penulis_his)) {
                             $html .=

@@ -314,7 +314,7 @@ class NaskahController extends Controller
                             $trackerData = DB::table('tracker')->where('section_id', $data->id)->get();
                             if (!$trackerData->isEmpty()) {
                                 $btn .= '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 mt-1 btn-tracker" data-id="' . $data->id . '" data-judulasli="' . $data->judul_asli . '" data-toggle="tooltip" title="Tracker">
-                                <i class="fas fa-file-signature"></i>&nbsp;Lihat Tracking</button>';
+                                <i class="fas fa-file-signature"></i>&nbsp;Tracking</button>';
                             }
                             return $btn;
                         })
