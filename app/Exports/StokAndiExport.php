@@ -69,7 +69,11 @@ class StokAndiExport implements FromView, WithStyles, ShouldAutoSize, WithColumn
             ->leftJoin('deskripsi_produk as dp', 'pn.id', '=', 'dp.naskah_id')
             ->leftJoin('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
             ->leftJoin('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
-            ->leftJoin('deskripsi_turun_cetak as dtc', 'df.id', '=', 'dtc.pracetak_setter_id')
+            ->leftJoin('deskripsi_turun_cetak as dtc', 'ps.id', '=', 'dtc.pracetak_setter_id')
+            ->leftJoin('order_cetak as oc',function($q) {
+                $q->on('dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
+                    ->whereNull('oc.tgl_selesai_order');
+            })
             ->leftJoin('penerbitan_m_kelompok_buku as kb', function ($q) {
                 $q->on('pn.kelompok_buku_id', '=', 'kb.id')
                     ->whereNull('kb.deleted_at');
@@ -96,6 +100,7 @@ class StokAndiExport implements FromView, WithStyles, ShouldAutoSize, WithColumn
                 return $query->where('st.total_stok', '<=', $max);
             })
             ->orderBy('pn.kode', 'asc')
+            ->groupBy('st.id')
             ->select(
                 'st.*',
                 'pn.kode as kode_naskah',
@@ -109,6 +114,8 @@ class StokAndiExport implements FromView, WithStyles, ShouldAutoSize, WithColumn
                 'im.nama as imprint',
                 'kb.nama as kelompok_buku',
                 'skb.nama as sub_kelompok_buku',
+                'oc.tahun_terbit',
+                'oc.deskripsi_turun_cetak_id',
             )
             ->get();
         $data = (object)collect($data)->map(function ($item, $key) {
@@ -147,7 +154,7 @@ class StokAndiExport implements FromView, WithStyles, ShouldAutoSize, WithColumn
         $master = DB::table('pj_st_master_harga_jual')->whereNull('deleted_at')->get();
         $view = (object)collect($data)->map(function($item,$key) {
             $roman = event(new convertNumberToRoman($item->edisi_cetak));
-            $edisiCetak = implode('', $roman) . '/' . $item->edisi_cetak;
+            $edisiCetak = implode('', $roman) . '/' . $item->edisi_cetak .'/'. $item->tahun_terbit;
             return $view[] = (object)[
                 'id' => $item->id,
                 'kode_sku' => $item->kode_sku,

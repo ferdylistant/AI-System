@@ -138,7 +138,11 @@ class StokAndiController extends Controller
             ->leftJoin('deskripsi_produk as dp', 'pn.id', '=', 'dp.naskah_id')
             ->leftJoin('deskripsi_final as df', 'dp.id', '=', 'df.deskripsi_produk_id')
             ->leftJoin('pracetak_setter as ps', 'df.id', '=', 'ps.deskripsi_final_id')
-            ->leftJoin('deskripsi_turun_cetak as dtc', 'df.id', '=', 'dtc.pracetak_setter_id')
+            ->leftJoin('deskripsi_turun_cetak as dtc', 'ps.id', '=', 'dtc.pracetak_setter_id')
+            ->leftJoin('order_cetak as oc',function($q) {
+                $q->on('dtc.id', '=', 'oc.deskripsi_turun_cetak_id')
+                    ->whereNull('oc.tgl_selesai_order');
+            })
             ->leftJoin('penerbitan_m_kelompok_buku as kb', function ($q) {
                 $q->on('pn.kelompok_buku_id', '=', 'kb.id')
                     ->whereNull('kb.deleted_at');
@@ -150,6 +154,7 @@ class StokAndiController extends Controller
             ->where('st.id', $id)
             ->orderBy('pn.kode', 'asc')
             ->select(
+                'oc.tahun_terbit',
                 'dp.judul_final',
                 'df.sub_judul_final',
                 'ps.edisi_cetak',
@@ -167,7 +172,8 @@ class StokAndiController extends Controller
             return abort(404);
         }
         $zone1 = $data->pengajuan_harga;
-        $data = (object)collect($data)->map(function ($item, $key) {
+        $tahunTerbit = $data->tahun_terbit;
+        $data = (object)collect($data)->map(function ($item, $key) use ($tahunTerbit) {
             switch ($key) {
                 case 'judul_final':
                     return ucfirst($item);
@@ -191,14 +197,15 @@ class StokAndiController extends Controller
                     break;
                 case 'edisi_cetak':
                     $roman = event(new convertNumberToRoman($item));
-                    $item = implode('', $roman) . '/' . $item;
+                    $item = implode('', $roman) . '/' . $item . '/' . $tahunTerbit;
                     return $item;
                     break;
                 default:
                     return $item ?? '-';
                     break;
             }
-        })->except(['id', 'naskah_id', 'pengajuan_harga', 'created_at'])->all();
+        })->except(['id', 'naskah_id', 'pengajuan_harga','tahun_terbit', 'created_at'])->all();
+
         $hargaJual = DB::table('pj_st_harga_jual as hj')->join('pj_st_master_harga_jual as  mhj', 'hj.master_harga_jual_id', '=', 'mhj.id')
             ->where('hj.stok_id', $id)
             ->whereNull('mhj.deleted_at')
