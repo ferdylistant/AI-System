@@ -10,38 +10,38 @@
     <table>
         <thead>
         <tr>
-            <th rowspan="2">No</th>
-            <th rowspan="2">Nama</th>
-            <th rowspan="2">Tanggal Lahir</th>
-            <th rowspan="2">Tempat Lahir</th>
-            <th rowspan="2">Kewarganegaraan</th>
-            <th rowspan="2">Alamat Domisili</th>
-            <th rowspan="2">Ponsel Domisili</th>
-            <th rowspan="2">Telepon Domisili</th>
-            <th rowspan="2">Email</th>
-            <th rowspan="2">Nama kantor</th>
-            <th rowspan="2">Jabatan</th>
-            <th rowspan="2">Alamat Kantor</th>
-            <th rowspan="2">Telepon Kantor</th>
-            <th rowspan="2">Instagram</th>
-            <th rowspan="2">Facebook</th>
-            <th rowspan="2">Twitter</th>
-            <th rowspan="2">File Hibah Royalti</th>
-            <th rowspan="2">Foto Penulis</th>
-            <th rowspan="2">Tentang Penulis</th>
-            <th rowspan="2">Bank</th>
-            <th rowspan="2">Atas Nama</th>
-            <th rowspan="2">No Rekening</th>
-            <th rowspan="2">NPWP</th>
-            <th rowspan="2">Scan NPWP</th>
-            <th rowspan="2">KTP</th>
-            <th rowspan="2">Scan KTP</th>
+            <th>No</th>
+            <th>Nama</th>
+            <th>Tanggal Lahir</th>
+            <th>Tempat Lahir</th>
+            <th>Kewarganegaraan</th>
+            <th>Alamat Domisili</th>
+            <th>Ponsel Domisili</th>
+            <th>Telepon Domisili</th>
+            <th>Email</th>
+            <th>Nama kantor</th>
+            <th>Jabatan</th>
+            <th>Alamat Kantor</th>
+            <th>Telepon Kantor</th>
+            <th>Instagram</th>
+            <th>Facebook</th>
+            <th>Twitter</th>
+            <th>File Hibah Royalti</th>
+            <th>Foto Penulis</th>
+            <th>Tentang Penulis</th>
+            <th>Bank</th>
+            <th>Atas Nama</th>
+            <th>No Rekening</th>
+            <th>NPWP</th>
+            <th>Scan NPWP</th>
+            <th>KTP</th>
+            <th>Scan KTP</th>
         </tr>
         </thead>
         <tbody>
         @foreach($data as $i => $v)
             <tr>
-                <td>{{ $i }}</td>
+                <td>{{ $i+1 }}</td>
                 <td>{{ $v->nama }}</td>
                 <td>{{ $v->tanggal_lahir }}</td>
                 <td>{{ $v->tempat_lahir }}</td>

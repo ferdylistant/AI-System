@@ -40,7 +40,9 @@ class PenulisExport implements FromView, WithStyles, ShouldAutoSize, WithColumnF
     public function columnFormats(): array
     {
         return [
-            // 'M' => NumberFormat::FORMAT_NUMBER,
+            'V' => NumberFormat::FORMAT_NUMBER,
+            'W' => NumberFormat::FORMAT_NUMBER,
+            'Y' => NumberFormat::FORMAT_NUMBER,
         ];
     }
     public function registerEvents(): array
