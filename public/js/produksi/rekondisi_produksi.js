@@ -3,7 +3,9 @@ $(document).ready(function () {
     let tableRekondisiProduksi = $('#tb_rekondisiProduksi').DataTable({
         "responsive": true,
         "autoWidth": false,
-        dom: 'Bfrtip',
+        "dom": "<'row'<'col-sm-6'B><'col-sm-6'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row'<'col-sm-5'i><'col-sm-7'p>>",
         buttons: [
             'pageLength',
             'spacer',
