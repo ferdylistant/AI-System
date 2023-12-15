@@ -341,20 +341,20 @@
 @endsection
 
 @section('jsRequired')
-    <script src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
-    <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script type="text/javascript" src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
     <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
@@ -362,9 +362,9 @@
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script> --}}
-        <script src="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/penerbitan/tandai_naskah_lengkap.js') }}"></script>
+    <script type="text/javascript" src="{{ url('js/penerbitan/tandai_naskah_lengkap.js') }}"></script>
 @endsection
