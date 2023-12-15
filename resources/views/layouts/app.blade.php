@@ -200,13 +200,13 @@
     </div>
 
     <!-- General JS Scripts -->
-    <script src="{{ url('vendors/jquery/dist/jquery.js') }}"></script>
-    <script src="{{ url('vendors/popper.js/dist/umd/popper.min.js') }}"></script>
-    <script src="{{ url('vendors/bootstrap/dist/js/bootstrap.js') }}"></script>
-    <script src="{{ url('vendors/jquery.nicescroll/jquery.nicescroll.js') }}"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script src="{{ url('vendors/moment/moment.js') }}"></script>
-    <script src="{{ url('vendors/stisla/js/stisla.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/jquery/dist/jquery.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/popper.js/dist/umd/popper.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/bootstrap/dist/js/bootstrap.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/jquery.nicescroll/jquery.nicescroll.js') }}"></script>
+    <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src="{{ url('vendors/moment/moment.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/stisla/js/stisla.js') }}"></script>
     {{-- <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.14.3/dist/algoliasearch-lite.umd.js"
         integrity="sha256-dyJcbGuYfdzNfifkHxYVd/rzeR6SLLcDFYEidcybldM=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.50.3/dist/instantsearch.production.min.js"
@@ -216,11 +216,11 @@
     @yield('jsRequired')
 
     <!-- Template JS File -->
-    <script src="{{ url('vendors/stisla/js/scripts.js') }}"></script>
-    <script src="{{ url('vendors/stisla/js/custom.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/stisla/js/scripts.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/stisla/js/custom.js') }}"></script>
 
     <!-- Specific JS File -->
-    <script>
+    <script type="text/javascript">
         $(document).on('click', '#logout', function(e) {
             e.preventDefault();
             swal({
@@ -236,9 +236,9 @@
             })
         });
     </script>
-    <script src="{{ url('js/main.js') }}"></script>
+    <script type="text/javascript" src="{{ url('js/main.js') }}"></script>
     {{-- <script src="{{url('js/app.js')}}"></script> --}}
-    <script>
+    <script type="text/javascript">
         // Reload the page when the user's internet connection is restored
         $(document).ready(function () {
             var awayTimeout;
