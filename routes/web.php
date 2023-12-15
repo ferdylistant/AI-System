@@ -169,6 +169,7 @@ Route::middleware(['auth'])->group(function () use ($path) {
     //Penerbitan
     Route::prefix('penerbitan')->group(function () use ($path) {
         //Penulis
+        Route::get('/penulis/export-all', $path.'\Penerbitan\PenulisController@exportAll');
         Route::get('/penulis/export/{format}', $path.'\Penerbitan\PenulisController@exportData');
         Route::get('/penulis', $path.'\Penerbitan\PenulisController@index');
         Route::get('/penulis/penulis-telah-dihapus', $path.'\Penerbitan\PenulisController@penulisTelahDihapus')->name('penulis.telah_dihapus');

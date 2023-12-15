@@ -997,6 +997,11 @@ class PenulisController extends Controller
         }
     }
 
+    public function exportAll()
+    {
+        $tgl = Carbon::now('Asia/Jakarta')->format('dmYHi');
+        return (new PenulisExport())->download($tgl.'_penulis.xlsx');
+    }
     public function exportData($format)
     {
         $tgl = Carbon::now('Asia/Jakarta')->format('hisdmY');

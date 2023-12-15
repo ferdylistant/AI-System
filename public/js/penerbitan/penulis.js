@@ -30,8 +30,30 @@ $(function () {
                     {
                         extend: 'excel',
                         text: '<i class="text-success fa fa-file-excel"></i> Excel',
-                        exportOptions: {
-                            columns: [0,1,2,3]
+                        action: function (e, dt, node, config) {
+                            e.preventDefault();
+                            $.ajax({
+                                url: window.location.origin + '/penerbitan/penulis/export-all',
+                                type: 'GET',
+                                cache: false,
+                                beforeSend: function () {
+                                    $("#overlay").fadeIn(300);
+                                },
+                                success: (res) => {
+                                    window.location.href = window.location.origin + '/penerbitan/penulis/export-all';
+                                },
+                                error: (err) => {
+                                    setTimeout(function() {
+                                        $("#overlay").fadeOut(300);
+                                    }, 500);
+                                    notifToast('error','Tabel kosong!');
+                                },
+                                complete: function () {
+                                    setTimeout(function() {
+                                        $("#overlay").fadeOut(300);
+                                    }, 500);
+                                }
+                            });
                         }
                     },
                 ]
