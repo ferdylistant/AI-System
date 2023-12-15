@@ -5,7 +5,9 @@ $(function () {
         "responsive": true,
         "autoWidth": false,
         "aaSorting": [],
-        dom: 'Bfrtip',
+        "dom": "<'row'<'col-sm-6'B><'col-sm-6'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row'<'col-sm-5'i><'col-sm-7'p>>",
         buttons: [
             'pageLength',
             'spacer',
