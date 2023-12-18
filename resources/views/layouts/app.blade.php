@@ -166,7 +166,7 @@
     @yield('cssNeeded')
 </head>
 
-<body>
+<body oncontextmenu="return false">
     <header class="header">
         <div id="autocomplete"></div>
     </header>
