@@ -1,4 +1,3 @@
-
 var _$_99e2=["content","attr","meta[name=\"csrf-token\"]","reload","location","ajaxSetup","status","Request too many!","ajaxError","span","name","[]","","replace","append","invalid-feedback","addClass","#err_","image-preview","hasClass","parent","border-color","#dc3545","css","is-valid","removeClass","is-invalid","#ddd",".note-editor *","validate","success","Okay!","fas fa-check-circle","topRight","rgba(0, 0, 0, 0.6)","flipInX","flipOutX","error","Oops!","fas fa-times-circle","file","maxSize","canvas","createElement","base64","indexOf",",","split",";",":","length","charCodeAt","width","height","drawImage","2d","getContext","image/jpeg","toDataURL","match","type","Not an image","onload","src","result","target","readAsDataURL","POST","origin","/notification","beep","a","children","#containerNotf","eq","div","ajax"];
 $[_$_99e2[5]]({headers:{'X-CSRF-TOKEN':$(_$_99e2[2])[_$_99e2[1]](_$_99e2[0])},statusCode:{401:function()
 {

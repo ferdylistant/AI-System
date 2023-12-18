@@ -307,7 +307,7 @@ class NaskahController extends Controller
                                 <i class="fas fa-trash-alt"></i></a>';
                             }
                             $historyData = DB::table('penerbitan_naskah_history')->where('naskah_id', $data->id)->get();
-                            if ($historyData->isEmpty()) {
+                            if (!$historyData->isEmpty()) {
                                 $btn .= '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 mt-1 btn-history" data-id="' . $data->id . '" data-judulasli="' . $data->judul_asli . '" data-toggle="tooltip" title="History">
                                 <i class="fas fa-history"></i>&nbsp;History</button>';
                             }
