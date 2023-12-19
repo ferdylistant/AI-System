@@ -166,7 +166,7 @@
     @yield('cssNeeded')
 </head>
 
-<body oncontextmenu="return false">
+<body>
     <header class="header">
         <div id="autocomplete"></div>
     </header>
@@ -240,61 +240,66 @@
     {{-- <script src="{{url('js/app.js')}}"></script> --}}
     <script type="text/javascript">
         // Reload the page when the user's internet connection is restored
-        $(document).ready(function () {
+        $(document).ready(function() {
             var awayTimeout;
-            var statusDB = '{{auth()->user()->status_activity}}';
-            var id = '{{auth()->user()->id}}';
+            var statusDB = '{{ auth()->user()->status_activity }}';
+            var id = '{{ auth()->user()->id }}';
             checkAuth(id);
+
             function checkAuth(id) {
                 $.ajax({
                     url: window.location.origin + '/check-authentication',
-                    data: {id : id},
+                    data: {
+                        id: id
+                    },
                     method: 'GET',
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         // console.error('Error checking authentication: ' + xhr);
                         // console.error('Error checking authentication: ' + status);
                         // console.error('Error checking authentication: ' + error);
                     }
                 });
             }
-            $(window).on('mousemove keydown',function (e) {
+            $(window).on('mousemove keydown', function(e) {
                 if (statusDB == 'online') {
                     clearTimeout(awayTimeout);
 
                     awayTimeout = setTimeout(function() {
-                        updateStatus('away',id);
+                        updateStatus('away', id);
                     }, 300000);
                 } else {
-                    updateStatus('online',id);
+                    updateStatus('online', id);
                 }
 
             });
-            $(window).on('beforeUnload', function () {
-                updateStatus('offline',id);
-            });
-            $(window).on('online offline',function () {
-                var status = navigator.onLine ? 'online':'offline';
-                updateStatus(status,id);
-            });
-            $(document).on('visibilitychange',function () {
-                if (document.hidden) {
-                    clearTimeout(awayTimeout);
-                    awayTimeout = setTimeout(function() {
-                        updateStatus('away',id);
-                    }, 300000);
-                } else {
-                    updateStatus('online',id);
+            $(window).on({
+                beforeUnload: function() {
+                    updateStatus('offline', id);
+                },
+                visibilitychange: function() {
+                    if (document.hidden) {
+                        clearTimeout(awayTimeout);
+                        awayTimeout = setTimeout(function() {
+                            updateStatus('away', id);
+                        }, 300000);
+                    } else {
+                        updateStatus('online', id);
+                    }
                 }
             });
+            $(window).on('online offline', function() {
+                var status = navigator.onLine ? 'online' : 'offline';
+                updateStatus(status, id);
+            });
             //! Function Process
-            function updateStatus(status,id) {
+            function updateStatus(status, id) {
                 $.ajax({
                     url: window.location.origin + '/update-status-activity',
                     method: 'POST',
                     data: {
                         status: status,
                         id: id
-                     },
+                    },
                     async: false,
                     // success: function (response) {
                     //     console.log(response);
