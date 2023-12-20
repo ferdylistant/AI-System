@@ -53,5 +53,5 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/penerbitan/tandai_naskah_lengkap.js') }}"></script>
+    <script src="{{ url('js/penerbitan/restore_naskah.js') }}"></script>
 @endsection

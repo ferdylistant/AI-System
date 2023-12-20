@@ -1,8 +1,9 @@
 
+var baseUrl = window.location.origin + "/penerbitan/naskah";
 $(document).ready(function () {
     function loadData() {
         $.ajax({
-            url: window.location.origin + "/penerbitan/naskah?request_=getCountNaskah",
+            url: baseUrl + "?request_=getCountNaskah",
             type: "GET",
             dataType: "JSON",
             success: function (data) {
@@ -74,7 +75,7 @@ $(document).ready(function () {
             lengthMenu: "_MENU_ /halaman",
         },
         ajax: {
-            url: window.location.origin + "/penerbitan/naskah",
+            url: baseUrl,
             complete: () => {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip]'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -155,7 +156,7 @@ $(document).ready(function () {
         cardWrap = $(this).closest(".card");
         if (val == "Reguler") {
             $.ajax({
-                url: window.location.origin + "/penerbitan/naskah?request_=getCountNaskahReguler",
+                url: baseUrl + "?request_=getCountNaskahReguler",
                 type: "GET",
                 dataType: "JSON",
                 beforeSend: function () {
@@ -219,7 +220,6 @@ $(document).ready(function () {
                             $(this).text(Math.ceil(now));
                         }
                     });
-                    //!BELUM SELESAI
                 },
                 complete: function () {
                     cardWrap.removeClass("card-progress");
@@ -244,7 +244,7 @@ $(document).ready(function () {
         var judul = $(this).data("judulasli");
         let cardWrap = $(this).closest(".card");
         $.ajax({
-            url: window.location.origin + "/penerbitan/naskah/ajax/lihat-tracker",
+            url: baseUrl + "/ajax/lihat-tracker",
             type: "POST",
             data: {
                 id: id,
@@ -269,7 +269,7 @@ $(document).ready(function () {
         var judul = $(this).data("judulasli");
         let cardWrap = $(this).closest(".card");
         $.ajax({
-            url: window.location.origin + "/penerbitan/naskah/ajax/lihat-history",
+            url: baseUrl + "/ajax/lihat-history",
             type: "POST",
             data: {
                 id: id,
@@ -298,7 +298,7 @@ $(document).ready(function () {
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/penerbitan/naskah/ajax/lihat-history",
+            url: baseUrl + "/ajax/lihat-history",
             data: {
                 id: id,
                 page: page,
@@ -359,7 +359,7 @@ $(document).ready(function () {
         let cardWrap = $(this).closest(".card");
         // console.log(role);
         $.ajax({
-            url: window.location.origin + "/penerbitan/naskah?request_=getModalDetailJumlahPenilaian",
+            url: baseUrl + "?request_=getModalDetailJumlahPenilaian",
             type: 'GET',
             data: {
                 role: role
@@ -397,7 +397,7 @@ $(document).ready(function () {
         let kode = data.data("kode");
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/naskah/tandai-data-lengkap",
+            url: baseUrl + "/tandai-data-lengkap",
             data: {
                 id: id,
                 judul_asli: judul_asli,
@@ -464,7 +464,7 @@ $(document).ready(function () {
         let cardWrap = data.closest(".card");
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/penerbitan/naskah/ajax/delete-naskah",
+            url: baseUrl + "/ajax/delete-naskah",
             data: {
                 id: id,
             },
@@ -506,114 +506,6 @@ $(document).ready(function () {
             if (confirm_) {
                 // window.location.href = getLink
                 ajaxDeleteNaskah($(this));
-            }
-        });
-    });
-});
-$(document).ready(function () {
-    let tableRestoreNaskah = $('#tb_RestoreNaskah').DataTable({
-        // "bSort": false,
-        "responsive": true,
-        "autoWidth": false,
-        pagingType: 'input',
-        "aaSorting": [],
-        processing: true,
-        serverSide: false,
-        language: {
-            searchPlaceholder: 'Cari...',
-            sSearch: '',
-            lengthMenu: "_MENU_ /halaman",
-        },
-        ajax: window.location.origin + "/penerbitan/naskah/restore",
-        columns: [
-            {
-                data: 'kode',
-                name: 'kode',
-                title: 'Kode'
-            },
-            {
-                data: 'judul_asli',
-                name: 'judul_asli',
-                title: 'Judul Asli'
-            },
-            {
-                data: 'pic_prodev',
-                name: 'pic_prodev',
-                title: 'PIC Prodev'
-            },
-            {
-                data: 'jalur_buku',
-                name: 'jalur_buku',
-                title: 'Jalur Buku'
-            },
-            {
-                data: 'tanggal_masuk_naskah',
-                name: 'tanggal_masuk_naskah',
-                title: 'Masuk Naskah'
-            },
-            {
-                data: 'deleted_at',
-                name: 'deleted_at',
-                title: 'Tgl Dihapus'
-            },
-            {
-                data: 'deleted_by',
-                name: 'deleted_by',
-                title: 'Dihapus Oleh'
-            },
-            {
-                data: 'action',
-                name: 'action',
-                title: 'Restore',
-                searchable: false,
-                orderable: false
-            },
-        ],
-    });
-    $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
-        console.log(message);
-        notifToast("error", message)
-    };
-    function ajaxRestoreNaskah(data) {
-        let cardWrap = $('#tb_RestoreNaskah').closest('.card');
-        $.ajax({
-            type: "POST",
-            url: window.location.origin +
-                "/penerbitan/naskah/restore",
-            data: data,
-            beforeSend: function () {
-                cardWrap.addClass("card-progress");
-            },
-            success: function (result) {
-                if (result.status == "success") {
-                    tableRestoreNaskah.ajax.reload();
-                }
-                notifToast(result.status, result.message);
-            },
-            error: function (err) {
-                console.log(err);
-                cardWrap.removeClass("card-progress");
-                notifToast('error', 'Terjadi kesalahan!')
-            },
-            complete: function () {
-                cardWrap.removeClass("card-progress");
-            },
-        });
-    }
-    $('#tb_RestoreNaskah').on("click", ".btn-restore-naskah", function (e) {
-        let judul = $(this).data("judul"),
-            id = $(this).data("id"),
-            kode = $(this).data("kode");
-        swal({
-            text: "Kembalikan data naskah (" + kode + '-' + judul + ")?",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((confirm_) => {
-            if (confirm_) {
-                ajaxRestoreNaskah({
-                    id: id
-                })
             }
         });
     });
