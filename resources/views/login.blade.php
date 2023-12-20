@@ -102,7 +102,7 @@
                                         <input id="email" type="email"
                                             class="form-control @error('email') is-invalid @enderror"
                                             value="{{ old('email') }}" name="email" tabindex="1" required autofocus>
-                                        <div class="invalid-feedback">
+                                        <div id="err_email" class="invalid-feedback">
                                             @error('email')
                                                 {{ $message }}
                                             @enderror
@@ -122,7 +122,7 @@
                                                 class="form-control @error('password') is-invalid @enderror" name="password"
                                                 tabindex="2" required>
                                             <i class="fas fa-eye" id="eye"></i>
-                                            <div class="invalid-feedback">
+                                            <div id="err_password" class="invalid-feedback">
                                                 @error('password')
                                                     {{ $message }}
                                                 @enderror
@@ -149,103 +149,6 @@
     </div>
 @endsection
 @section('scriptAddon')
-    <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
-    <script>
-        function notifToast(stts, msg, reload = false) {
-            if (stts == 'success') {
-                iziToast.success({
-                    title: 'Okay!',
-                    icon: 'fas fa-check-circle',
-                    message: msg,
-                    position: 'topRight',
-                    timeout: 2000,
-                    overlayColor: 'rgba(0, 0, 0, 0.6)',
-                    transitionIn: 'flipInX',
-                    transitionOut: 'flipOutX',
-                    transitionInMobile: 'flipInX',
-                    transitionOutMobile: 'flipOutX',
-                    onClosing: function() {
-                        if (reload) {
-                            location.reload();
-                        }
-                    }
-                });
-            } else if (stts == 'error') {
-                iziToast.error({
-                    title: 'Oops!',
-                    icon: 'fas fa-times-circle',
-                    message: msg,
-                    position: 'topRight',
-                    timeout: 2000,
-                    overlayColor: 'rgba(0, 0, 0, 0.6)',
-                    transitionIn: 'flipInX',
-                    transitionOut: 'flipOutX',
-                    transitionInMobile: 'flipInX',
-                    transitionOutMobile: 'flipOutX',
-                });
-            }
-        }
-    </script>
-@endsection
-@section('jsNeeded')
-    <script>
-        const passwordInput = document.querySelector("#password")
-        const eye = document.querySelector("#eye")
-        eye.addEventListener("click", function() {
-            this.classList.toggle("fa-eye-slash")
-            const type = passwordInput.getAttribute("type") === "password" ? "text" : "password"
-            passwordInput.setAttribute("type", type)
-        })
-    </script>
-    <script>
-        $('#loginSubmitForm').on('submit', function (e){
-            // e.preventDefault();
-            let email = $(this).find('[name="email"]').val();
-            let pass = $(this).find('[name="password"]').val();
-            if (email && pass) {
-                $('button[type="submit"]').prop('disabled', true).addClass('btn-progress');
-            }
-        })
-        function resetFrom(form) {
-            form.trigger("reset");
-            $('[name="email"]').val("").trigger("change");
-        }
-        $('#formResetPasswordModal').on('submit', function(e) {
-            e.preventDefault();
-
-            let el = $(this).get(0);
-            let form_ = $('#modalForgotPassword');
-            $.ajax({
-                type: "POST",
-                url: window.location.origin + "/forgot-password",
-                data: new FormData(el),
-                processData: false,
-                contentType: false,
-                beforeSend: function() {
-                    form_.addClass("modal-progress");
-                },
-                success: function(result) {
-                    notifToast(result.status, result.message);
-                    if (result.status == "success") {
-                        resetFrom($('#formResetPasswordModal'));
-                    }
-                },
-                error: function(err) {
-                    rs = err.responseJSON.errors;
-                    if (rs !== undefined) {
-                        err = {};
-                        Object.entries(rs).forEach((entry) => {
-                            let [key, value] = entry;
-                            err[key] = value;
-                        });
-                        // err.showErrors(err);
-                    }
-                    notifToast("error", "Terjadi kesalahan!");
-                },
-                complete: function() {
-                    form_.removeClass("modal-progress");
-                },
-            });
-        });
-    </script>
+    <script type="text/javascript" src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('js/login.js') }}"></script>
 @endsection

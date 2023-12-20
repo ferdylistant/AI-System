@@ -37,6 +37,7 @@
 
     <script src="{{ url('vendors/stisla/js/scripts.js') }}"></script>
     <script src="{{ url('vendors/stisla/js/custom.js') }}"></script>
+    <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     @yield('scriptAddon')
     <script>
         $(".alert").fadeTo(2000, 500).slideUp(500, function() {
