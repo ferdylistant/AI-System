@@ -5,8 +5,9 @@
             <div class="modal-header bg-success">
 
             </div>
-            <form id="fm_EditSubKelompokBuku">
-                <div class="modal-body">
+            <div class="modal-body">
+                <form id="fm_EditSubKelompokBuku">
+                    {!! csrf_field() !!}
                     <h5 class="modal-title mb-3">#Ubah Sub-Kelompok Buku</h5>
                     <div class="form-group">
                         <label class="col-form-label">Kelompok Buku <span class="text-danger">*</span></label>
@@ -22,12 +23,12 @@
                             placeholder="Nama Sub-Kelompok Buku">
                         <div id="err_edit_nama"></div>
                     </div>
-                </div>
-                <div class="modal-footer bg-whitesmoke br">
-                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-sm btn-success">Update</button>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="modal-footer bg-whitesmoke br">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-sm btn-success" form="fm_EditSubKelompokBuku">Update</button>
+            </div>
         </div>
     </div>
 </div>

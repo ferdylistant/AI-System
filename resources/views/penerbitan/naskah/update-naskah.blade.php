@@ -53,6 +53,7 @@
             <div class="col-12">
                 <div class="card card-primary">
                     <form id="fedit_Naskah">
+                        {!! csrf_field() !!}
                         <div class="card-header">
                             <h4 class="section-title">Form Naskah</h4>
                         </div>

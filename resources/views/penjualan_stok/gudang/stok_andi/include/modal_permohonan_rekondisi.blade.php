@@ -11,6 +11,7 @@
                 <div class="section">
                     <div class="section-body">
                         <form id="fm_PermohonanRekondisi">
+                            {!! csrf_field() !!}
                         <div id="contentPermohonan"></div>
                         </form>
                     </div>

@@ -93,6 +93,7 @@
                             <div id="contentRack"></div>
                         </div>
                         <form id="fm_addRak">
+                            {!! csrf_field() !!}
                             <div class="form-group">
                                 <label>Form Input Rak</label>
                                 <input type="hidden" name="stok_id" value="">

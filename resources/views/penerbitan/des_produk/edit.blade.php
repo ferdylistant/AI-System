@@ -80,6 +80,7 @@
                                 $data->status == 'Revisi' ||
                                 ($data->status == 'Acc' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
                             <form id="fup_deskripsiProduk">
+                                {!! csrf_field() !!}
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-12">

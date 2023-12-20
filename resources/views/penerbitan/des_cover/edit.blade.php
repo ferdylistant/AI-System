@@ -87,6 +87,7 @@ width: 100%;
                     </div>
                 @if ($data->status == 'Proses'  || ($data->status == 'Selesai' && Gate::allows('do_approval','approval-deskripsi-produk')))
                     <form id="fup_deskripsiCover">
+                        {!! csrf_field() !!}
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-12">

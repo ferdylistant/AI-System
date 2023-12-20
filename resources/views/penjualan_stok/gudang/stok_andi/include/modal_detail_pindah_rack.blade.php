@@ -12,6 +12,7 @@
                     <div class="section-body">
                         <h6 class="section-title" id="sectionTitle"></h6>
                         <form id="fm_PindahRak">
+                            {!! csrf_field() !!}
                             <input type="hidden" name="stok_id" value="">
                             <input type="hidden" name="rack_data_id" value="">
                             <input type="hidden" name="current_rack_id" value="">

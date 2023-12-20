@@ -36,6 +36,7 @@
                 <div class="col-12">
                     <div class="card card-primary">
                         <form id="fedit_Penulis">
+                            {!! csrf_field() !!}
                             <div class="card-header">
                                 <h4>Form Penulis</h4>
                             </div>

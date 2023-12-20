@@ -10,7 +10,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                @csrf
+                {!! csrf_field() !!}
                 <input type="hidden" name="id" id="_id" value="">
                 <input type="hidden" name="kode" id="kode" value="">
                 <input type="hidden" name="judul_final" id="judul_final" value="">

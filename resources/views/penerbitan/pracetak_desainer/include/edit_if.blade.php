@@ -1,4 +1,5 @@
 <form id="fup_pracetakDesainer" data-id="" data-id_praset="">
+    {!! csrf_field() !!}
     <div class="card-body">
         <div class="row">
             <div class="col-12">

@@ -127,7 +127,11 @@ $(function () {
         $(".load-more").attr("disabled", false);
     });
     // History Imprint End
-
+    let addForm = jqueryValidation_("#fm_addImprint", {
+        nama_imprint: {
+            required: true,
+        },
+    });
     // Add Imprint Start
     $(document).ready(function () {
         function ajaxAddImprint(data) {
@@ -161,6 +165,7 @@ $(function () {
                             let [key, value] = entry;
                             err[key] = value;
                         });
+                        addForm.showErrors(err);
                     }
                     notifToast("error", "Data imprint gagal disimpan!");
                 },

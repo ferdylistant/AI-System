@@ -1,5 +1,6 @@
 
-$(function () {
+$(document).ready(function () {
+    var baseUrl = window.location.origin + "/penjualan-stok/gudang/penerimaan-buku/andi";
     let tabelPenerimaan = $('#tb_penerimaanBuku').DataTable({
         "responsive": true,
         "autoWidth": false,
@@ -12,7 +13,7 @@ $(function () {
             lengthMenu: "_MENU_ /halaman",
         },
         ajax: {
-            url: window.location.origin + "/penjualan-stok/gudang/penerimaan-buku/andi?request_type=table-index",
+            url: baseUrl + "?request_type=table-index",
         },
         columns: [
             // { data: 'no', name: 'no', title: 'No' },
@@ -35,42 +36,9 @@ $(function () {
             window.location.reload();
         }
     };
-    $("#tb_penerimaanBuku").on("click", ".btn-tracker", function (e) {
-        e.preventDefault();
-        var id = $(this).data("id");
-        var judul = $(this).data("judulfinal");
-        let cardWrap = $(this).closest(".card");
+    function ajaxModalPenerimaanBuku(track_id,judul_final,status,statuscolor,naskah_id,produksi_id,proses_tahap,jml_cetak,cardWrap) {
         $.ajax({
-            url: window.location.origin +
-                "/penjualan-stok/gudang?request_type=show-track-timeline",
-            type: "GET",
-            data: { id: id },
-            cache: false,
-            beforeSend: function () {
-                cardWrap.addClass("card-progress");
-            },
-            success: function (data) {
-                $("#titleModalTracker").html('<i class="fas fa-file-signature"></i>&nbsp;Tracking Progress Naskah "' + judul + '"');
-                $("#dataShowTracking").html(data);
-                $("#md_Tracker").modal("show");
-            },
-            complete: function () {
-                cardWrap.removeClass("card-progress");
-            }
-        });
-    });
-    $('#modalPenerimaanBuku').on('shown.bs.modal', function (e) {
-        let track_id = $(e.relatedTarget).data('track_id'),
-            judul_final = $(e.relatedTarget).data('judulfinal'),
-            status = $(e.relatedTarget).data('status'),
-            statuscolor = $(e.relatedTarget).data('statuscolor'),
-            naskah_id = $(e.relatedTarget).data('naskah_id'),
-            produksi_id = $(e.relatedTarget).data('produksi_id'),
-            proses_tahap = $(e.relatedTarget).data('proses_tahap'),
-            jml_cetak = $(e.relatedTarget).data('jml_cetak'),
-            cardWrap = $("#modalPenerimaanBuku");
-        $.ajax({
-            url: window.location.origin + '/penjualan-stok/gudang/penerimaan-buku/andi?request_type=show-modal-pengiriman',
+            url: baseUrl + '?request_type=show-modal-pengiriman',
             type: 'GET',
             data: {
                 track_id: track_id,
@@ -102,17 +70,11 @@ $(function () {
                 cardWrap.removeClass('modal-progress')
             }
         });
-    });
-    $("#modalPenerimaanBuku").on("hidden.bs.modal", function (e) {
-        // let d = $(e.relatedTarget).attr('id','statusJob');
-        // console.log(d);
-        $(this).find("form").trigger("reset");
-        $(this).addClass("modal-progress");
-    });
+    }
     function ajaxTerimaBuku(data) {
         let cardWrap = $("#modalPenerimaanBuku");
         $.ajax({
-            url: window.location.origin + '/penjualan-stok/gudang/penerimaan-buku/andi?request_type=terima-buku',
+            url: baseUrl + '?request_type=terima-buku',
             type: 'POST',
             data: data,
             cache: false,
@@ -133,6 +95,53 @@ $(function () {
             }
         });
     }
+    function ajaxSelesaiPenerimaan(id) {
+        let cardWrap = $("#modalPenerimaanBuku");
+        $.ajax({
+            url: baseUrl + '?request_type=selesai-penerimaan',
+            type: 'POST',
+            data: {id:id},
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass('modal-progress')
+            },
+            success: function (res) {
+                console.log(res);
+                notifToast(res.status,res.message);
+                if (res.status == 'success') {
+                    tabelPenerimaan.ajax.reload();
+                    cardWrap.modal('hide');
+                } else {
+                    cardWrap.removeClass('modal-progress');
+                }
+            },
+            error: function (err) {
+                console.log(err);
+                cardWrap.removeClass('modal-progress');
+            },
+            complete: function () {
+                cardWrap.removeClass('modal-progress');
+            }
+        });
+    }
+    $('#modalPenerimaanBuku').on({
+        'shown.bs.modal': function (e) {
+            let track_id = $(e.relatedTarget).data('track_id'),
+                judul_final = $(e.relatedTarget).data('judulfinal'),
+                status = $(e.relatedTarget).data('status'),
+                statuscolor = $(e.relatedTarget).data('statuscolor'),
+                naskah_id = $(e.relatedTarget).data('naskah_id'),
+                produksi_id = $(e.relatedTarget).data('produksi_id'),
+                proses_tahap = $(e.relatedTarget).data('proses_tahap'),
+                jml_cetak = $(e.relatedTarget).data('jml_cetak'),
+                cardWrap = $("#modalPenerimaanBuku");
+            ajaxModalPenerimaanBuku(track_id,judul_final,status,statuscolor,naskah_id,produksi_id,proses_tahap,jml_cetak,cardWrap);
+        },
+        "hidden.bs.modal": function (e) {
+            $(this).find("form").trigger("reset");
+            $(this).addClass("modal-progress");
+        }
+    });
     $("#modalPenerimaanBuku").on('click', '#btnTerimaBuku', function () {
         var id = $(this).data('id');
         var jml_cetak = $(this).data('jml_cetak');
@@ -181,35 +190,6 @@ $(function () {
             }
         });
     });
-    function ajaxSelesaiPenerimaan(id) {
-        let cardWrap = $("#modalPenerimaanBuku");
-        $.ajax({
-            url: window.location.origin + '/penjualan-stok/gudang/penerimaan-buku/andi?request_type=selesai-penerimaan',
-            type: 'POST',
-            data: {id:id},
-            cache: false,
-            beforeSend: function () {
-                cardWrap.addClass('modal-progress')
-            },
-            success: function (res) {
-                console.log(res);
-                notifToast(res.status,res.message);
-                if (res.status == 'success') {
-                    tabelPenerimaan.ajax.reload();
-                    cardWrap.modal('hide');
-                } else {
-                    cardWrap.removeClass('modal-progress');
-                }
-            },
-            error: function (err) {
-                console.log(err);
-                cardWrap.removeClass('modal-progress');
-            },
-            complete: function () {
-                cardWrap.removeClass('modal-progress');
-            }
-        });
-    }
     $("#modalPenerimaanBuku").on('click', '#btnSubmitSelesai', function (e) {
         e.preventDefault();
         var id = $(this).data('id');

@@ -5,22 +5,22 @@
             <div class="modal-header bg-success">
 
             </div>
-            <form id="fm_EditJMesin">
-                <div class="modal-body">
+            <div class="modal-body">
+                <form id="fm_EditJMesin">
+                    {!! csrf_field() !!}
                     <h5 class="modal-title mb-3">#Ubah Jenis Mesin</h5>
                     <div class="form-group row mb-4">
                         <label class="col-form-label">Nama</label>
-                            <input type="text" name="edit_nama" class="form-control"
-                                placeholder="Jenis Mesin">
-                            <input type="hidden" name="edit_id" class="form-control" value="">
-                            <div id="err_edit_nama"></div>
+                        <input type="text" name="edit_nama" class="form-control" placeholder="Jenis Mesin">
+                        <input type="hidden" name="edit_id" class="form-control" value="">
+                        <div id="err_edit_nama"></div>
                     </div>
-                </div>
-                <div class="modal-footer bg-whitesmoke br">
-                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-sm btn-success">Simpan</button>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="modal-footer bg-whitesmoke br">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-sm btn-success" form="fm_EditJMesin">Simpan</button>
+            </div>
         </div>
     </div>
 </div>

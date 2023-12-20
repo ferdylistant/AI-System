@@ -7,6 +7,7 @@
             </div>
             <div class="modal-body">
                 <form id="fm_EditHargaJual">
+                    {!! csrf_field() !!}
                     <h5 class="modal-title mb-3">#Ubah Harga Jual</h5>
                     <div class="form-group mb-4">
                         <label class="col-form-label">Nama</label>

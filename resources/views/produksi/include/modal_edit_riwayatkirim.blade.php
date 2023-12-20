@@ -11,7 +11,7 @@
             <div class="modal-body">
                 <form id="form_EditRiwayat">
                     <div class="form-group">
-                        @csrf
+                        {!! csrf_field() !!}
                         <input type="hidden" name="id" value="">
                         <input type="hidden" name="track_id" value="">
                         <label for="editJmlDikirim">Jumlah Kirim (<span class="text-danger">*</span>)</label>

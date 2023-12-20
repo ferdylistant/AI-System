@@ -91,6 +91,7 @@
                     @if ($data->status == 'Proses' || $data->status == 'Revisi' ||
                     ($data->status == 'Selesai' && Gate::allows('do_approval', 'approval-deskripsi-produk')))
                     <form id="fup_editingProses">
+                        {!! csrf_field() !!}
                         <div class="card-body">
                             <div class="row">
                                 @if ($data->status == 'Revisi')

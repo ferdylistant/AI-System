@@ -5,21 +5,21 @@
             <div class="modal-header bg-success">
 
             </div>
-            <form id="fm_addOMesin">
-                <div class="modal-body">
+            <div class="modal-body">
+                <form id="fm_addOMesin">
+                    {!! csrf_field() !!}
                     <h5 class="modal-title mb-3">Tambah Operator Mesin</h5>
                     <div class="form-group">
                         <label class="col-form-label">Nama</label>
-                            <input type="text" name="nama" class="form-control"
-                                placeholder="Operator Mesin">
-                            <div id="err_nama"></div>
+                        <input type="text" name="nama" class="form-control" placeholder="Operator Mesin">
+                        <div id="err_nama"></div>
                     </div>
-                </div>
-                <div class="modal-footer bg-whitesmoke br">
-                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-sm btn-success">Simpan</button>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="modal-footer bg-whitesmoke br">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-sm btn-success" form="fm_addOMesin">Simpan</button>
+            </div>
         </div>
     </div>
 </div>

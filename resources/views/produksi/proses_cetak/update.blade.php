@@ -26,6 +26,7 @@
             <div class="col-12">
                 <div class="card card-warning">
                     <form id="fup_prosesProduksi">
+                        {!! csrf_field() !!}
                         <div class="card-header">
                             <h4>Form Order Cetak</h4>
                         </div>

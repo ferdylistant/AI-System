@@ -1,5 +1,6 @@
 
 $(document).ready(function() {
+    var baseUrl = window.location.origin + "/penjualan-stok/gudang/penerimaan-rekondisi";
     let tablePenerimaanRekondisi = $('#tb_penerimaanRekondisi').DataTable({
         "responsive": true,
         "autoWidth": false,
@@ -46,7 +47,7 @@ $(document).ready(function() {
             lengthMenu: "_MENU_ /halaman",
         },
         ajax: {
-            url: window.location.origin + "/penjualan-stok/gudang/penerimaan-rekondisi",
+            url: baseUrl,
             complete: () => {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('.tooltip-class'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -87,7 +88,7 @@ $(document).ready(function() {
             cardWrap.find('#modalPenerimaanTitle').html('<i class="fas fa-truck-loading"></i> ' + judul.charAt(0).toUpperCase() + judul.slice(1)).trigger('change');
 
             $.ajax({
-                url: window.location.origin + '/penjualan-stok/gudang/penerimaan-rekondisi/'+id,
+                url: baseUrl + '/' +id,
                 type: 'GET',
             data: {
                 status: status,
