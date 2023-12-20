@@ -196,16 +196,16 @@
 @endsection
 
 @section('jsRequired')
-<script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
-<script src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
-<script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
-<script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
-<script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+<script type="text/javascript" src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
+<script type="text/javascript" src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
+<script type="text/javascript" src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
+<script type="text/javascript" src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
+<script type="text/javascript" src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
 @endsection
 
 
 @section('jsNeeded')
-<script>
+<script type="text/javascript">
     function getSelectedPenulis(id, table) {
         $.ajax({
             url: `{{ url('/penerbitan/naskah') }}`,
@@ -313,7 +313,7 @@
         })
     }
 
-    $(function() {
+    $(document).ready(function() {
         loadDataPenulis();
         $(".select2").select2({
             placeholder: 'Pilih',
@@ -447,7 +447,7 @@
         })
     })
 </script>
-<script>
+<script type="text/javascript">
     $(document).ready(function() {
         $('#cbSC').change(function() {
             if (this.checked)
