@@ -33,6 +33,7 @@
     }
 </style>
 <form id="fm_EditUser">
+    {!! csrf_field() !!}
     <div class="profile-widget-header">
         <div id="container-pp">
             @php

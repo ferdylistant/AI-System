@@ -94,8 +94,9 @@
                 <div class="modal-header bg-success">
                 </div>
 
-                <form id="fm_AddUser">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="fm_AddUser">
+                        {!! csrf_field() !!}
                         <h5 class="modal-title mb-3">#Tambah User</h5>
                         <div class="form-group">
                             <label for="adduser_nama">Nama: <span class="text-danger">*</span></label>
@@ -143,13 +144,13 @@
                             </select>
                             <div id="err_adduser_jabatan"></div>
                         </div>
-                    </div>
+                    </form>
+                </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-success">Simpan</button>
-                    </div>
-                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-success" form="fm_AddUser">Simpan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -165,7 +166,8 @@
     <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
     <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
-    <script type="text/javascript" charset="utf8" src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
+    <script type="text/javascript" charset="utf8"
+        src="{{ url('vendors/datatables.net-bs4/js/dataTables.input.plugin.js') }}"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
@@ -173,8 +175,8 @@
 @endsection
 
 @section('jsNeeded')
-    <script>
-        $(function() {
+    <script type="text/javascript">
+        $(document).ready(function() {
             // Initial
             $(".select2").select2({
                 placeholder: 'Pilih',
@@ -260,12 +262,11 @@
 
             let addUser = jqueryValidation_('#fm_AddUser', {
                 adduser_email: {
-                    required : true,
+                    required: true,
                     email: true,
                     remote: window.location.origin + "/manajemen-web/user/ajax/check-email"
                 }
-            },
-            {
+            }, {
                 adduser_email: {
                     remote: "The email already in use."
                 }
@@ -367,25 +368,26 @@
                         }
                     });
             });
-            function ajaxResetDefaultPasswordUser(id,nama) {
+
+            function ajaxResetDefaultPasswordUser(id, nama) {
                 let cardWrap = $(this).closest(".card");
                 $.ajax({
-                    url: "{{url('/manajemen-web/user/ajax/reset-default-password/')}}",
+                    url: "{{ url('/manajemen-web/user/ajax/reset-default-password/') }}",
                     data: {
                         id: id
                     },
                     cache: false,
-                    beforeSend: function () {
+                    beforeSend: function() {
                         cardWrap.addClass("card-progress");
                     },
-                    success: function (result) {
+                    success: function(result) {
                         notifToast('success', 'Password user (' + nama + ') berhasil direset default!');
                         tableUsers.ajax.reload();
                     },
-                    error: function (err) {
+                    error: function(err) {
                         notifToast("error", "Terjadi kesalahan!");
                     },
-                    complete: function () {
+                    complete: function() {
                         cardWrap.removeClass('card-progress');
                     }
                 })
@@ -395,15 +397,15 @@
                 let id = $(this).data('id');
                 let nama = $(this).data('nama');
                 swal({
-                    title: 'Reset password '+nama+'?',
-                    text: 'Password akan direset default, yaitu "password".',
-                    icon: 'warning',
-                    buttons: true,
-                    dangerMode: true,
+                        title: 'Reset password ' + nama + '?',
+                        text: 'Password akan direset default, yaitu "password".',
+                        icon: 'warning',
+                        buttons: true,
+                        dangerMode: true,
                     })
                     .then((confirm) => {
                         if (confirm) {
-                            ajaxResetDefaultPasswordUser(id,nama);
+                            ajaxResetDefaultPasswordUser(id, nama);
 
                         }
                     });
@@ -453,7 +455,9 @@
                             notifToast("error", "Tidak ada data lagi");
                         } else {
                             $("#dataHistory").append(response);
-                            $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
+                            $('.thin').animate({
+                                scrollTop: $('.thin').prop("scrollHeight")
+                            }, 800);
                         }
                         // Setting little delay while displaying new content
                         // setTimeout(function() {

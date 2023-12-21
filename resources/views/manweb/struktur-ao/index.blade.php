@@ -80,8 +80,9 @@
                 <div class="modal-header bg-success">
 
                 </div>
-                <form id="fm_AddCabang">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="fm_AddCabang">
+                        {!! csrf_field() !!}
                         <h5 class="modal-title mb-3">#Tambah Cabang</h5>
                         <div class="form-group row mb-4">
                             <label class="col-form-label text-md-right col-12 col-md-3">Kode</label>
@@ -111,12 +112,12 @@
                                 <div id="err_add_alamat"></div>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer bg-whitesmoke br">
-                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-sm btn-success">Simpan</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="modal-footer bg-whitesmoke br">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-sm btn-success" form="fm_AddCabang">Simpan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -127,8 +128,9 @@
                 <div class="modal-header bg-warning">
 
                 </div>
-                <form id="fm_EditCabang">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="fm_EditCabang">
+                        {!! csrf_field() !!}
                         <h5 class="modal-title mb-3">#Ubah Cabang</h5>
                         <div class="form-group row mb-4">
                             <label class="col-form-label text-md-right col-12 col-md-3">Kode</label>
@@ -163,12 +165,12 @@
                                 <div id="err_edit_alamat"></div>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer bg-whitesmoke br">
-                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-sm btn-warning">Simpan</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="modal-footer bg-whitesmoke br">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-sm btn-warning" form="fm_EditCabang">Simpan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -178,8 +180,9 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-success"></div>
-                <form id="fm_AddDivJab">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="fm_AddDivJab">
+                        {!! csrf_field() !!}
                         <h5 class="modal-title mb-3"></h5>
                         <div class="form-group row mb-4">
                             <label class="col-form-label text-md-right col-12 col-md-3">Nama</label>
@@ -189,12 +192,12 @@
                                 <div id="err_add_djnama"></div>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer bg-whitesmoke br">
-                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-sm btn-success">Simpan</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="modal-footer bg-whitesmoke br">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-sm btn-success" form="fm_AddDivJab">Simpan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -202,8 +205,9 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-warning"></div>
-                <form id="fm_EditDivJab">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="fm_EditDivJab">
+                        {!! csrf_field() !!}
                         <h5 class="modal-title mb-3"></h5>
                         <div class="form-group row mb-4">
                             <label class="col-form-label text-md-right col-12 col-md-3">Nama</label>
@@ -215,12 +219,12 @@
                                 <div id="err_edit_djnama"></div>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer bg-whitesmoke br">
-                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-sm btn-warning">Simpan</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="modal-footer bg-whitesmoke br">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-sm btn-warning" form="fm_EditDivJab">Simpan</button>
+                </div>
             </div>
         </div>
     </div>

@@ -8,43 +8,46 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="fm_AddPermission">
-                <div class="modal-body">
+            <div class="modal-body">
+                <form id="fm_AddPermission">
+                    {!! csrf_field() !!}
                     <div class="form-group">
                         <label class="col-form-label">Nama</label>
-                            <input type="text" name="add_name" class="form-control" placeholder="Nama Permission">
-                            <div id="err_add_name"></div>
+                        <input type="text" name="add_name" class="form-control" placeholder="Nama Permission">
+                        <div id="err_add_name"></div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label class="col-form-label">Bagian</label>
-                                <select id="add_bagianPermission" name="add_bagian" class="form-control select-bagian-permission"></select>
-                                <div id="err_add_bagian"></div>
+                            <select id="add_bagianPermission" name="add_bagian"
+                                class="form-control select-bagian-permission"></select>
+                            <div id="err_add_bagian"></div>
                         </div>
                         <div class="form-group col-md-6">
                             <label class="col-form-label">Menu</label>
-                                <select id="add_menuPermission" name="add_menu" class="form-control select-menu-permission"></select>
-                                <div id="err_add_menu"></div>
+                            <select id="add_menuPermission" name="add_menu"
+                                class="form-control select-menu-permission"></select>
+                            <div id="err_add_menu"></div>
                         </div>
                     </div>
                     <div class="form-row mb-2">
                         <div class="form-group col-md-6">
                             <label class="col-form-label">Action Type</label>
-                                <select id="add_type" name="add_type" class="form-control select-type-permission"></select>
-                                <div id="err_add_type"></div>
+                            <select id="add_type" name="add_type" class="form-control select-type-permission"></select>
+                            <div id="err_add_type"></div>
                         </div>
                         <div class="form-group col-md-6">
                             <label class="col-form-label">Kata Kunci</label>
-                                <input id="add_raw" name="add_raw" class="form-control">
-                                <div id="err_add_raw"></div>
+                            <input id="add_raw" name="add_raw" class="form-control">
+                            <div id="err_add_raw"></div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer bg-whitesmoke br">
-                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-sm btn-success">Simpan</button>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="modal-footer bg-whitesmoke br">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-sm btn-success" form="fm_AddPermission">Simpan</button>
+            </div>
         </div>
     </div>
 </div>

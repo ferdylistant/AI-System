@@ -1,4 +1,5 @@
-<div class="modal fade modal-progress" tabindex="-1" role="dialog" aria-labelledby="titleSectionMenu" aria-hidden="true" id="md_EditSectionMenu">
+<div class="modal fade modal-progress" tabindex="-1" role="dialog" aria-labelledby="titleSectionMenu" aria-hidden="true"
+    id="md_EditSectionMenu">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -7,8 +8,9 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="fm_EditSectionMenu">
-                <div class="modal-body">
+            <div class="modal-body">
+                <form id="fm_EditSectionMenu">
+                    {!! csrf_field() !!}
                     <div class="form-group row mb-4">
                         <label class="col-form-label text-md-right col-12 col-md-3">Nama</label>
                         <div class="col-sm-12 col-md-9">
@@ -25,12 +27,12 @@
                             <div id="err_edit_order_ab"></div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer bg-whitesmoke br">
-                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-sm btn-warning">Perbarui</button>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="modal-footer bg-whitesmoke br">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-sm btn-warning" form="fm_EditSectionMenu">Perbarui</button>
+            </div>
         </div>
     </div>
 </div>

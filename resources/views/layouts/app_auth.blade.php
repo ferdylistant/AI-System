@@ -23,23 +23,23 @@
 <body>
     @yield('content')
     <!-- General JS Scripts -->
-    <script src="{{ url('vendors/jquery/dist/jquery.js') }}"></script>
-    <script src="{{ url('vendors/popper.js/dist/umd/popper.min.js') }}"></script>
-    <script src="{{ url('vendors/bootstrap/dist/js/bootstrap.js') }}"></script>
-    <script src="{{ url('vendors/jquery.nicescroll/jquery.nicescroll.js') }}"></script>
-    <!-- <script src="{{ url('vendors/moment/moment.js') }}"></script> -->
-    <script src="{{ url('vendors/stisla/js/stisla.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/jquery/dist/jquery.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/popper.js/dist/umd/popper.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/bootstrap/dist/js/bootstrap.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/jquery.nicescroll/jquery.nicescroll.js') }}"></script>
+    <!-- <script type="text/javascript" src="{{ url('vendors/moment/moment.js') }}"></script> -->
+    <script type="text/javascript" src="{{ url('vendors/stisla/js/stisla.js') }}"></script>
 
 
     <!-- JS Libraies -->
 
     <!-- Template JS File -->
 
-    <script src="{{ url('vendors/stisla/js/scripts.js') }}"></script>
-    <script src="{{ url('vendors/stisla/js/custom.js') }}"></script>
-    <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/stisla/js/scripts.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/stisla/js/custom.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     @yield('scriptAddon')
-    <script>
+    <script type="text/javascript">
         $(".alert").fadeTo(2000, 500).slideUp(500, function() {
             $(".alert").slideUp(500);
         });

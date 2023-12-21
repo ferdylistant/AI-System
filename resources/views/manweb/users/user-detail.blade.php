@@ -272,25 +272,25 @@
 
 
 @section('jsRequired')
-    <script src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
-    <script src="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
-    <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
-    <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ url('vendors/hummingbird-treeview/hummingbird-treeview.js') }}"></script>
-    <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
-    <script src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
-    <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
+    <script type="text/javascript" src="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/hummingbird-treeview/hummingbird-treeview.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/manweb/user-log.js') }}" defer></script>
-    <script>
+    <script type="text/javascript" src="{{ url('js/manweb/user-log.js') }}" defer></script>
+    <script type="text/javascript">
         $(document).ready(function() {
 
             // Initial
