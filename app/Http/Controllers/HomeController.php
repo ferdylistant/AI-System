@@ -245,6 +245,9 @@ class HomeController extends Controller
                 }
                 return $this->loadTodoList($selesai);
                 break;
+            case 'select-judul':
+                return self::selectMasterJudul($request);
+                break;
             default:
                 return abort(500);
                 break;
@@ -348,5 +351,13 @@ class HomeController extends Controller
         } catch (\Exception $e) {
             return abort(500);
         }
+    }
+    protected function selectMasterJudul($request)
+    {
+        $data = DB::table('pj_st_andi as st')->join('penerbitan_naskah as pn','st.naskah_id','=','pn.id')->join('deskripsi_produk as dp','pn.id','=','dp.naskah_id')
+        ->where('dp.judul_final','like','%'.$request->term.'%')
+        ->select('dp.judul_final')
+        ->get();
+        return response()->json($data);
     }
 }

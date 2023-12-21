@@ -28,8 +28,8 @@
         }
 
         /* .fc-event-title {
-                                                                            color: #1a252f;
-                                                                        } */
+                                                                                color: #1a252f;
+                                                                            } */
 
         .tb-detail-naskah {
             font-size: 12px;
@@ -165,7 +165,7 @@
                     </div>
                 </div>
             </div>
-            <input type="hidden" name="timeline" value="{{$timeline}}">
+            <input type="hidden" name="timeline" value="{{ $timeline }}">
             @if ($timeline == true)
                 <div class="row">
                     <div class="col-lg-8 col-md-12 col-12 col-sm-12">
@@ -217,7 +217,39 @@
                     </div>
                 </div>
             @endif
-
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="section-title">Stok Buku Andi</h4>
+                        </div>
+                        <div class="card-body">
+                            <form id="fm_cekStokAndi">
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="selJudul" class="form-label">Filter Judul</label>
+                                        <select class="form-control select2-judul" name="sel_judul" id="selJudul">
+                                            <option label="Pilih judul"></option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="selPenulis" class="form-label">Filter Penulis</label>
+                                        <select class="form-control select2-penulis" name="sel_penulis" id="selPenulis">
+                                            <option label="Pilih penulis"></option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="selKategori" class="form-label">Filter Kategori</label>
+                                        <select class="form-control select2-kategori" name="sel_kategori" id="selKategori">
+                                            <option label="Pilih kategori"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card-header bg-white">
@@ -505,11 +537,13 @@
 @section('jsRequired')
     <script type="text/javascript" src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
     <script type="text/javascript" src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}">
+    </script>
     <script type="text/javascript" src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     {{-- <script type="text/javascript" src="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
     <script type="text/javascript" src="{{ url('vendors/fullcalendar/lib/main.min.js') }}"></script> --}}
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ycodetech/horizontal-timeline-2.0@2/JavaScript/horizontal_timeline.2.0.min.js">
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/gh/ycodetech/horizontal-timeline-2.0@2/JavaScript/horizontal_timeline.2.0.min.js">
     </script>
     <script type="text/javascript" src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
 @endsection
@@ -517,7 +551,7 @@
 
 
 @section('jsNeeded')
-    <script type="text/javascript" src="{{url('js/home.js')}}"></script>
+    <script type="text/javascript" src="{{ url('js/home.js') }}"></script>
     {{-- <script>
         document.addEventListener("DOMContentLoaded", function(event) {
             Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (e) => {
