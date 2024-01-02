@@ -202,7 +202,7 @@ class NaskahController extends Controller
                         ->addColumn('kode', function ($data) {
                             $html = '';
                             $danger = $data->urgent == '0' ? '' : 'class="text-danger"';
-                            $tooltip =  $data->urgent == '0' ? '' : 'data-toggle="tooltip" data-placement="top" title="Naskah Urgent"';
+                            $tooltip =  $data->urgent == '0' ? '' : 'data-toggle="tooltip" data-placement="top" title="Naskah Urgent" style="cursor:context-menu"';
                             $html .= '<span ' . $danger . ' ' . $tooltip . '>' . $data->kode . '</span>';
                             return $html;
                         })
