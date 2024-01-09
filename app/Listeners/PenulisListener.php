@@ -2,12 +2,12 @@
 
 namespace App\Listeners;
 
-use App\Events\penulisEvent;
+use App\Events\PenulisEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\DB;
 
-class penulisListener
+class PenulisListener
 {
     /**
      * Create the event listener.
@@ -22,10 +22,10 @@ class penulisListener
     /**
      * Handle the event.
      *
-     * @param  \App\Events\penulisEvent  $event
+     * @param  \App\Events\PenulisEvent  $event
      * @return void
      */
-    public function handle(penulisEvent $event)
+    public function handle(PenulisEvent $event)
     {
         $data = $event->data;
         switch ($data['params']) {
