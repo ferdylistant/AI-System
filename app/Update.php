@@ -9,7 +9,7 @@ class Update
     public function production(Runner $run)
     {
         $run->external('composer', 'install', '--no-dev', '--prefer-dist', '--optimize-autoloader', '--ignore-platform-reqs')
-            ->external('npm', 'install', '--production')
+            ->external('npm', 'install', '--production','--legacy-peer-deps')
             ->external('npm', 'run', 'production')
             ->artisan('route:cache')
             ->artisan('config:cache')
@@ -22,7 +22,7 @@ class Update
     public function local(Runner $run)
     {
         $run->external('composer', 'install', '--ignore-platform-reqs')
-            ->external('npm', 'install')
+            ->external('npm', 'install', '--legacy-peer-deps')
             ->external('npm', 'run', 'development')
             ->artisan('migrate')
             ->artisan('cache:clear');
