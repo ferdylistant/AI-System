@@ -3,6 +3,7 @@
 namespace App;
 
 use MadWeb\Initializer\Contracts\Runner;
+use MadWeb\Initializer\Jobs\MakeCronTask;
 use MadWeb\Initializer\Jobs\Supervisor\MakeQueueSupervisorConfig;
 use MadWeb\Initializer\Jobs\Supervisor\MakeSocketSupervisorConfig;
 
@@ -14,8 +15,8 @@ class Install
             ->artisan('key:generate', ['--force' => true])
             ->artisan('migrate', ['--force' => true])
             ->artisan('storage:link')
-    //            ->dispatch(new MakeCronTask)
-            ->external('npm', 'install', '--production')
+               ->dispatch(new MakeCronTask)
+            ->external('npm', 'install', '--production', '--legacy-peer-deps')
             ->external('npm', 'run', 'production')
             ->artisan('route:cache')
             ->artisan('config:cache')
