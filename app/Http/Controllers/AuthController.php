@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Events\UserLogEvent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\{Auth, Hash, DB};
 
@@ -25,7 +26,6 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required|min:6'
         ]);
-
         if (Auth::attempt($credentials)) {
             $dataMenu = DB::select("
                 SELECT a.*, ab.name name_ab, ab.order_ab
@@ -50,10 +50,20 @@ class AuthController extends Controller
                 LEFT JOIN access_bagian AS ab ON a.bagian_id = ab.id
                 ORDER BY order_ab,`level`, order_menu ASC
             ");
-
-            $menus = [];
+            // $menus = (object)[];
             foreach ($dataMenu as $d) {
                 if ($d->level == 1) {
+                    // ? OBJECT
+                    // $menus[$d->id] =  (object)[
+                    //         'detail' => (object)[
+                    //             'bagian_id' => $d->bagian_id,
+                    //             'name_ab' => $d->name_ab,
+                    //             'url' => $d->url,
+                    //             'icon' => $d->icon,
+                    //             'name' => $d->name,
+                    //     ]
+                    // ];
+                    // ? ARRAY
                     $menus[$d->id]['detail'] = [
                         'bagian_id' => $d->bagian_id,
                         'name_ab' => $d->name_ab,
@@ -63,6 +73,15 @@ class AuthController extends Controller
                     ];
                 }
                 if ($d->level == 2) {
+                    // ? OBJECT
+                    // $menus[$d->parent_id] = (object)[
+                    //         'child' => (object)[
+                    //             'url' => $d->url,
+                    //             'icon' => $d->icon,
+                    //             'name' => $d->name,
+                    //     ]
+                    // ];
+                    // ? ARRAY
                     $menus[$d->parent_id]['child'][] = [
                         'url' => $d->url,
                         'icon' => $d->icon,
@@ -70,9 +89,17 @@ class AuthController extends Controller
                     ];
                 }
             }
-            $menus_ = [];
+            // $menus_ = (object)[];
             foreach ($menus as $key => $m) {
+                // dd($m->detail->name_ab);
+                // $menus_[] = [
+                //     $m->detail->name_ab => (object)[
+                //         $key => $m
+                //     ]
+                // ];
+                // $menus_[$m->detail->name_ab][$key] =$m;
                 $menus_[$m['detail']['name_ab']][$key] = $m;
+                // dd($menus_);
             }
             $permissions = DB::table('user_permission as up')
                 ->leftJoin('permissions as p', 'up.permission_id', '=', 'p.id')
@@ -80,7 +107,7 @@ class AuthController extends Controller
                 ->where('up.user_id', Auth::id())
                 ->get();
 
-
+            // dd($permissions);
             $userLog = [
                 'users_id' => auth()->id(),
                 'ip_address' => $request->getClientIp(true),
@@ -88,8 +115,11 @@ class AuthController extends Controller
                 'user_agent' => $request->server('HTTP_USER_AGENT'),
             ];
             event(new UserLogEvent($userLog));
-            $request->session()->put('menus', $menus_);
-            $request->session()->put('permissions', $permissions);
+            $menus = json_encode($menus_);
+            Redis::set('menus', $menus);
+            Redis::set('permissions', $permissions);
+            // $request->session()->put('menus', $menus_);
+            // $request->session()->put('permissions', $permissions);
 
             return redirect()->intended('/');
         }

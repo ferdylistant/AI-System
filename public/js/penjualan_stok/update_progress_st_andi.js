@@ -28,9 +28,11 @@ $(document).ready(function () {
                             $("#overlay").fadeIn(300);
                         },
                         success: (res) => {
+                            console.log(res);
                             window.location.href = baseUrl + '/export-all?penulis=' + penulis + '&imprint=' + imprint + '&min=' + min + '&max=' + max;
                         },
                         error: (err) => {
+                            // console.log(err);
                             setTimeout(function () {
                                 $("#overlay").fadeOut(300);
                             }, 500);

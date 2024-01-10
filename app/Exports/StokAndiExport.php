@@ -173,6 +173,7 @@ class StokAndiExport implements FromView, WithStyles, ShouldAutoSize, WithColumn
                 'zona1' => $item->zona1
             ];
         })->all();
+        // dd($hargaJual);
         return view('penjualan_stok.gudang.stok_andi.include.export_excel', [
             'body' => $view,
             'colspan' => count($master) + 1,
