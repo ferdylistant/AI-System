@@ -16,7 +16,7 @@ class Install
             ->artisan('migrate', ['--force' => true])
             ->artisan('storage:link')
                ->dispatch(new MakeCronTask)
-            ->external('npm', 'install', '--omit=dev', '--legacy-peer-deps')
+            ->external('npm', 'install', '--production')
             ->external('npm', 'run', 'production')
             ->artisan('route:cache')
             ->artisan('config:cache')
@@ -37,7 +37,7 @@ class Install
             ->artisan('key:generate')
             ->artisan('migrate')
             ->artisan('storage:link')
-            ->external('npm', 'install','--legacy-peer-deps')
+            ->external('npm', 'install',)
             ->external('npm', 'run', 'development');
     }
 }
