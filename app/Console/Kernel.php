@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->dispatch(new \MadWeb\Initializer\Jobs\MakeCronTask);
+        // $schedule->dispatch(new \MadWeb\Initializer\Jobs\MakeCronTask);
         $schedule->command('optimize:clear')->daily();
         $schedule->command('config:cache')->daily();
         $schedule->command('cache:clear')->daily();
