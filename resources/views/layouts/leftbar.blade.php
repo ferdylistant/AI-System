@@ -12,7 +12,7 @@
     </div>
 
     <ul class="sidebar-menu">
-        @foreach (json_decode(Redis::connection()->get('menus')) as $key => $menus)
+        @foreach (session('menus') as $key => $menus)
             @php
                 $keyChar = Str::contains($key, '&');
                 $keyDisplay = $key;
@@ -31,23 +31,23 @@
             </li>
             {{-- <div class="collapse show" style="" id="{{ Str::camel($key) }}"> --}}
                 @foreach ($menus as $menu)
-                    @if ($menu->detail->url == '#')
+                    @if ($menu['detail']['url'] == '#')
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link has-dropdown">
-                                <i class="{{ $menu->detail->icon }}"></i><span>{{ $menu->detail->name }}</span>
+                                <i class="{{ $menu['detail']['icon'] }}"></i><span>{{ $menu['detail']['name'] }}</span>
                             </a>
                             <ul class="dropdown-menu">
-                                @foreach ($menu->child as $child)
-                                    <li class="{{ $child->url == request()->path() ? 'active' : '' }}"><a class="nav-link"
-                                            href="{{ url($child->url) }}">{{ $child->name }}</a></li>
+                                @foreach ($menu['child'] as $child)
+                                    <li class="{{ $child['url'] == request()->path() ? 'active' : '' }}"><a class="nav-link"
+                                            href="{{ url($child['url']) }}">{{ $child['name'] }}</a></li>
                                 @endforeach
                             </ul>
                         </li>
                     @else
-                        <li class="{{ $menu->detail->url == request()->path() ? 'active' : '' }}">
-                            <a class="nav-link" href="{{ url($menu->detail->url) }}">
-                                <i class="{{ $menu->detail->icon }}"></i>
-                                <span>{{ $menu->detail->name }}</span>
+                        <li class="{{ $menu['detail']['url'] == request()->path() ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ url($menu['detail']['url']) }}">
+                                <i class="{{ $menu['detail']['icon'] }}"></i>
+                                <span>{{ $menu['detail']['name'] }}</span>
                             </a>
                         </li>
                     @endif
