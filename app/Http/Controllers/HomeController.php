@@ -219,30 +219,15 @@ class HomeController extends Controller
                 return $this->deleteTodo($request);
                 break;
             case 'semua':
-                if (Cache::has('todolistSemua')) {
-                    $semua = Cache::get('todolistSemua');
-                } else {
-                    $semua = DB::table('todo_list')->where('users_id', auth()->user()->id)->get();
-                    Cache::put('todolistSemua',$semua);
-                }
+                $semua = DB::table('todo_list')->where('users_id', auth()->user()->id)->get();
                 return $this->loadTodoList($semua);
                 break;
             case 'belum-selesai':
-                if (Cache::has('todolistBelum')) {
-                    $belumSelesai = Cache::get('todolistBelum');
-                } else {
-                    $belumSelesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '0')->get();
-                    Cache::put('todolistBelum',$belumSelesai);
-                }
+                $belumSelesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '0')->get();
                 return $this->loadTodoList($belumSelesai);
                 break;
             case 'selesai':
-                if (Cache::has('todolistSelesai')) {
-                    $selesai = Cache::get('todolistSelesai');
-                } else {
-                    $selesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '1')->get();
-                    Cache::put('todolistSelesai',$selesai);
-                }
+                $selesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '1')->get();
                 return $this->loadTodoList($selesai);
                 break;
             case 'select-judul':
