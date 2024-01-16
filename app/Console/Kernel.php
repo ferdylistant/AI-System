@@ -33,17 +33,17 @@ class Kernel extends ConsoleKernel
         $schedule->command('auth:clear-resets')->weekly();
         $schedule->command('queue:work')->withoutOverlapping()->runInBackground();
         $schedule->command('queue:flush')->weekdays();
-        $schedule->command('backup:clean')->daily();
-        $schedule->command('backup:run')->daily();
-        $schedule->call(function () {
-            $id = auth()->user()->id;
-            if (!auth()->check()) {
-               return abort(403);
-            }
-            DB::table('users')->where('id',$id)->update([
-                'status_activity' => 'online'
-            ]);
-        })->everyMinute();
+        // $schedule->command('backup:clean')->daily();
+        // $schedule->command('backup:run')->daily();
+        // $schedule->call(function () {
+        //     $id = auth()->user()->id;
+        //     if (!auth()->check()) {
+        //        return abort(403);
+        //     }
+        //     DB::table('users')->where('id',$id)->update([
+        //         'status_activity' => 'online'
+        //     ]);
+        // })->everyMinute();
 
     }
 
