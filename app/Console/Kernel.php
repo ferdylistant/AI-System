@@ -37,9 +37,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('backup:run')->daily();
         $schedule->call(function () {
             $id = auth()->user()->id;
-            $activity = auth()->check() ? 'online':'offline';
+            if (!auth()->check()) {
+               return abort(403);
+            }
             DB::table('users')->where('id',$id)->update([
-                'status_activity' => $activity
+                'status_activity' => 'online'
             ]);
         })->everyMinute();
 

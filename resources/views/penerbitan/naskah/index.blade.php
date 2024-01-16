@@ -230,6 +230,25 @@
 
         <div class="section-body">
             <div class="row">
+                 <div class="col-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h4 class="section-title">Advance Filter</h4>
+                            <div class="card-header-action">
+                                <a class="btn btn-icon btn-dark" data-collapse="#collapseAdvanceFilter" href="#">
+                                    <i class="fas fa-minus"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div id="collapseAdvanceFilter" class="collapse show" style="">
+                        <div class="card-body">
+
+                        </div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+            <div class="row">
                 <div class="col-12">
                     <div class="card card-primary">
                         <div class="card-body">
