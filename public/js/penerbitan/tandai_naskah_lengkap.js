@@ -1,6 +1,13 @@
 
 var baseUrl = window.location.origin + "/penerbitan/naskah";
 $(document).ready(function () {
+    $('#fm_FilterPenilaian').trigger("reset");
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                trigger: 'hover'
+            })
+        })
     function loadData() {
         $.ajax({
             url: baseUrl + "?request_=getCountNaskah",
@@ -42,21 +49,21 @@ $(document).ready(function () {
                         extend: 'print',
                         text: '<i class="text-secondary fa fa-print"></i> Print',
                         exportOptions: {
-                            columns: [0,1,2,4,5,6,7,8,9]
+                            columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
                         }
                     },
                     {
                         extend: 'pdf',
                         text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
                         exportOptions: {
-                            columns: [0,1,2,4,5,6,7,8,9]
+                            columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
                         }
                     },
                     {
                         extend: 'excel',
                         text: '<i class="text-success fa fa-file-excel"></i> Excel',
                         exportOptions: {
-                            columns: [0,1,2,4,5,6,7,8,9]
+                            columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
                         }
                     },
                 ]
@@ -79,8 +86,8 @@ $(document).ready(function () {
             complete: () => {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip]'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl,{
-                        trigger : 'hover'
+                    return new bootstrap.Tooltip(tooltipTriggerEl, {
+                        trigger: 'hover'
                     })
                 })
             }
@@ -232,6 +239,285 @@ $(document).ready(function () {
             }, 1000);
             $("#countPenilaian").attr("hidden", true);
         }
+    });
+    var checkBoxes = $('input:checkbox');
+    checkBoxes.change(function () {
+        $('button[type="submit"]').prop('disabled', checkBoxes.filter(':checked').length < 1);
+        $('button[type="reset"]').prop('disabled', checkBoxes.filter(':checked').length < 1);
+    });
+    $('input:checkbox').change();
+    $("input:checkbox").on('click', function() {
+        // in the handler, 'this' refers to the box clicked on
+        var $box = $(this);
+        if ($box.is(":checked")) {
+          // the name of the box is retrieved using the .attr() method
+          // as it is assumed and expected to be immutable
+          var group = "input:checkbox[name='" + $box.attr("name") + "']";
+          // the checked state of the group/box on the other hand will change
+          // and the current value is retrieved using .prop() method
+          $(group).prop("checked", false);
+          $box.prop("checked", true);
+        } else {
+          $box.prop("checked", false);
+        }
+      });
+    $('#fm_FilterPenilaian').submit(function (e) {
+        e.preventDefault();
+        let el = $(this).get(0)
+        $.ajax({
+            type: 'POST',
+            url: baseUrl + '/ajax/filter-penilaian',
+            data: new FormData(el),
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $('button[type="submit"]')
+                    .prop("disabled", true)
+                    .addClass("btn-progress");
+            },
+            success: (res) => {
+                // console.log(res);
+                if ($.fn.DataTable.isDataTable('#tb_Naskah')) {
+                    $('#tb_Naskah').DataTable().destroy();
+                }
+                $('#tb_Naskah').DataTable({
+                    // "bSort": false,
+                    "responsive": true,
+                    "autoWidth": false,
+                    "aaSorting": [],
+                    "dom": "<'row'<'col-sm-6'B><'col-sm-6'f>>" +
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+                    scrollX: true,
+                    buttons: [
+                        'pageLength',
+                        'spacer',
+                        {
+                            extend: 'collection',
+                            text: 'Exports',
+                            buttons: [
+                                {
+                                    extend: 'print',
+                                    text: '<i class="text-secondary fa fa-print"></i> Print',
+                                    exportOptions: {
+                                        columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                                    }
+                                },
+                                {
+                                    extend: 'pdf',
+                                    text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
+                                    exportOptions: {
+                                        columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                                    }
+                                },
+                                {
+                                    extend: 'excel',
+                                    text: '<i class="text-success fa fa-file-excel"></i> Excel',
+                                    exportOptions: {
+                                        columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                                    }
+                                },
+                            ]
+                        },
+                    ],
+                    fixedColumns: {
+                        left: 0,
+                        right: 2
+                    },
+                    pagingType: 'input',
+                    processing: true,
+                    serverSide: false,
+                    language: {
+                        searchPlaceholder: 'Cari...',
+                        sSearch: '',
+                        lengthMenu: "_MENU_ /halaman",
+                    },
+                    data: res.data,
+                    columns: [{
+                        data: 'kode',
+                        name: 'kode',
+                        title: 'Kode'
+                    },
+                    {
+                        data: 'judul_asli',
+                        name: 'judul_asli',
+                        title: 'Judul Asli'
+                    },
+                    {
+                        data: 'pic_prodev',
+                        name: 'pic_prodev',
+                        title: 'PIC Prodev'
+                    },
+                    {
+                        data: 'jalur_buku',
+                        name: 'jalur_buku',
+                        title: 'Jalur Buku'
+                    },
+                    {
+                        data: 'masuk_naskah',
+                        name: 'masuk_naskah',
+                        title: 'Masuk Naskah'
+                    },
+                    {
+                        data: 'created_by',
+                        name: 'created_by',
+                        title: 'Pembuat Naskah'
+                    },
+                    {
+                        data: 'stts_penilaian',
+                        name: 'stts_penilaian',
+                        title: 'Penilaian'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        title: 'Action',
+                        searchable: false,
+                        orderable: false
+                    },
+                    ],
+                });
+                new $.fn.dataTable.Buttons(tableNaskah, {
+                    buttons: [
+                        'print', 'excel', 'pdf'
+                    ]
+                });
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip]'))
+                            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                                    trigger: 'hover'
+                                })
+                            })
+            },
+            error: (err) => {
+                console.log(err);
+            },
+            complete: () => {
+                $('button[type="submit"]')
+                    .prop("disabled", false)
+                    .removeClass("btn-progress");
+            }
+        })
+    })
+    $('#fm_FilterPenilaian button[type="reset"]').click(function (e) {
+        $('#fm_FilterPenilaian').trigger('reset');
+        $('button[type="submit"]').attr("disabled", true).change();
+        $('button[type="reset"]').attr("disabled", true).change();
+        if ($.fn.DataTable.isDataTable('#tb_Naskah')) {
+            $('#tb_Naskah').DataTable().destroy();
+        }
+        let tableNaskah = $('#tb_Naskah').DataTable({
+            // "bSort": false,
+            "responsive": true,
+            "autoWidth": false,
+            "aaSorting": [],
+            "dom": "<'row'<'col-sm-6'B><'col-sm-6'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+            scrollX: true,
+            buttons: [
+                'pageLength',
+                'spacer',
+                {
+                    extend: 'collection',
+                    text: 'Exports',
+                    buttons: [
+                        {
+                            extend: 'print',
+                            text: '<i class="text-secondary fa fa-print"></i> Print',
+                            exportOptions: {
+                                columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                            }
+                        },
+                        {
+                            extend: 'pdf',
+                            text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
+                            exportOptions: {
+                                columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                            }
+                        },
+                        {
+                            extend: 'excel',
+                            text: '<i class="text-success fa fa-file-excel"></i> Excel',
+                            exportOptions: {
+                                columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                            }
+                        },
+                    ]
+                },
+            ],
+            fixedColumns: {
+                left: 0,
+                right: 2
+            },
+            pagingType: 'input',
+            processing: true,
+            serverSide: false,
+            language: {
+                searchPlaceholder: 'Cari...',
+                sSearch: '',
+                lengthMenu: "_MENU_ /halaman",
+            },
+            ajax: {
+                url: baseUrl,
+                complete: () => {
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip]'))
+                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl, {
+                            trigger: 'hover'
+                        })
+                    })
+                }
+            },
+            columns: [{
+                data: 'kode',
+                name: 'kode',
+                title: 'Kode'
+            },
+            {
+                data: 'judul_asli',
+                name: 'judul_asli',
+                title: 'Judul Asli'
+            },
+            {
+                data: 'pic_prodev',
+                name: 'pic_prodev',
+                title: 'PIC Prodev'
+            },
+            {
+                data: 'jalur_buku',
+                name: 'jalur_buku',
+                title: 'Jalur Buku'
+            },
+            {
+                data: 'masuk_naskah',
+                name: 'masuk_naskah',
+                title: 'Masuk Naskah'
+            },
+            {
+                data: 'created_by',
+                name: 'created_by',
+                title: 'Pembuat Naskah'
+            },
+            {
+                data: 'stts_penilaian',
+                name: 'stts_penilaian',
+                title: 'Penilaian'
+            },
+            {
+                data: 'action',
+                name: 'action',
+                title: 'Action',
+                searchable: false,
+                orderable: false
+            },
+            ],
+        });
+        new $.fn.dataTable.Buttons(tableNaskah, {
+            buttons: [
+                'print', 'excel', 'pdf'
+            ]
+        });
     });
     $('[name="status_filter"]').on('change', function () {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());

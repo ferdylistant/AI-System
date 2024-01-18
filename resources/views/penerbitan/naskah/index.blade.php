@@ -43,6 +43,7 @@
         .bordered-deep-purple::-webkit-scrollbar-thumb {
             -webkit-box-shadow: none;
         }
+
         .scrollbar-deep-red::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
             background-color: #F5F5F5;
@@ -72,6 +73,7 @@
         .bordered-deep-red::-webkit-scrollbar-thumb {
             -webkit-box-shadow: none;
         }
+
         .scrollbar-deep-success::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
             background-color: #F5F5F5;
@@ -101,6 +103,7 @@
         .bordered-deep-success::-webkit-scrollbar-thumb {
             -webkit-box-shadow: none;
         }
+
         .scrollbar-deep-info::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
             background-color: #F5F5F5;
@@ -130,6 +133,7 @@
         .bordered-deep-info::-webkit-scrollbar-thumb {
             -webkit-box-shadow: none;
         }
+
         .scrollbar-deep-light::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
             background-color: #F5F5F5;
@@ -159,6 +163,7 @@
         .bordered-deep-light::-webkit-scrollbar-thumb {
             -webkit-box-shadow: none;
         }
+
         .scrollbar-deep-secondary::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
             background-color: #F5F5F5;
@@ -206,6 +211,7 @@
             overflow-y: scroll;
             height: 200px;
         }
+
         .example-2 {
             position: relative;
             overflow-y: scroll;
@@ -219,34 +225,110 @@
         <div class="section-header">
             <h1>Data Naskah</h1>
             <div class="section-header-button">
-                    @if (Gate::allows('do_create', 'tambah-data-naskah'))
+                @if (Gate::allows('do_create', 'tambah-data-naskah'))
                     <a href="{{ url('penerbitan/naskah/membuat-naskah') }}" class="btn btn-success">Tambah</a>
-                    @endif
-                    @if (Gate::allows('do_delete', 'delete-data-naskah'))
+                @endif
+                @if (Gate::allows('do_delete', 'delete-data-naskah'))
                     <a href="{{ route('naskah.restore') }}" class="btn btn-danger">Naskah Telah Dihapus</a>
-                    @endif
-                </div>
+                @endif
+            </div>
         </div>
 
         <div class="section-body">
             <div class="row">
-                 <div class="col-12">
+                <div class="col-12">
                     <div class="card card-primary">
                         <div class="card-header">
-                            <h4 class="section-title">Advance Filter</h4>
+                            <h4 class="section-title">Filter Penilaian (Jalur Reguler)</h4>
                             <div class="card-header-action">
                                 <a class="btn btn-icon btn-dark" data-collapse="#collapseAdvanceFilter" href="#">
-                                    <i class="fas fa-minus"></i>
+                                    <i class="fas fa-plus"></i>
                                 </a>
                             </div>
                         </div>
-                        <div id="collapseAdvanceFilter" class="collapse show" style="">
-                        <div class="card-body">
-
-                        </div>
+                        <div id="collapseAdvanceFilter" class="collapse" style="">
+                            <div class="card-body">
+                                <form id="fm_FilterPenilaian">
+                                    <div class="row ml-3">
+                                        <p class="section-lead"><i class="fas fa-hourglass-start"></i> Belum Penilaian</p>
+                                    </div>
+                                    <div class="row justify-content-between">
+                                        <div class="form-group col-md-6">
+                                            <label class="custom-switch mt-2">
+                                                <input type="checkbox" name="belum_dinilai" value="tgl_pn_prodev"
+                                                    class="custom-switch-input">
+                                                <span class="custom-switch-indicator"></span>
+                                                <span class="custom-switch-description">Belum dinilai Prodev</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="custom-switch mt-2">
+                                                <input type="checkbox" name="belum_dinilai" value="tgl_pn_m_penerbitan"
+                                                    class="custom-switch-input">
+                                                <span class="custom-switch-indicator"></span>
+                                                <span class="custom-switch-description">Belum dinilai Manajer Penerbitan</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="custom-switch mt-2">
+                                                <input type="checkbox" name="belum_dinilai" value="tgl_pn_m_pemasaran"
+                                                    class="custom-switch-input">
+                                                <span class="custom-switch-indicator"></span>
+                                                <span class="custom-switch-description">Belum dinilai Manajer Pemasaran</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="custom-switch mt-2">
+                                                <input type="checkbox" name="belum_dinilai" value="tgl_pn_d_pemasaran"
+                                                    class="custom-switch-input">
+                                                <span class="custom-switch-indicator"></span>
+                                                <span class="custom-switch-description">Belum dinilai Direktur Pemasaran</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                        <hr>
+                                    <div class="row ml-3">
+                                        <p class="section-lead"><i class="fas fa-check-circle"></i> Sudah Penilaian</p>
+                                    </div>
+                                    <div class="row justify-content-between">
+                                        <div class="form-group col-md-6">
+                                            <label class="custom-switch mt-2">
+                                                <input type="checkbox" name="sudah_dinilai" value="tgl_pn_prodev"
+                                                    class="custom-switch-input">
+                                                <span class="custom-switch-indicator"></span>
+                                                <span class="custom-switch-description">Sudah dinilai Prodev</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="custom-switch mt-2">
+                                                <input type="checkbox" name="sudah_dinilai" value="mpenerbitanpemasaran"
+                                                    class="custom-switch-input">
+                                                <span class="custom-switch-indicator"></span>
+                                                <span class="custom-switch-description">Sudah dinilai Manajer
+                                                    Penerbitan & Manajer Pemasaran</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="custom-switch mt-2">
+                                                <input type="checkbox" name="sudah_dinilai" value="tgl_pn_d_pemasaran"
+                                                    class="custom-switch-input">
+                                                <span class="custom-switch-indicator"></span>
+                                                <span class="custom-switch-description">Sudah dinilai Direktur
+                                                    Pemasaran</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col text-center">
+                                            <button type="submit" class="btn btn-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-search"></i> Cari Berdasarkan Filter</button>
+                                            <button type="reset" class="btn btn-danger" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i class="fas fa-undo"></i> Reset</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                 </div>
+                </div>
             </div>
             <div class="row">
                 <div class="col-12">
@@ -275,7 +357,8 @@
                                             class="form-control select-filter status_filter">
                                             <option label="Pilih Filter Data"></option>
                                             @foreach ($data_naskah_penulis as $val)
-                                                <option value="{{ $val['value'] }}">{{ $val['value'] }}&nbsp;&nbsp;</option>
+                                                <option value="{{ $val['value'] }}">{{ $val['value'] }}&nbsp;&nbsp;
+                                                </option>
                                             @endforeach
 
                                         </select>
@@ -362,9 +445,10 @@
 @section('jsRequired')
     <script type="text/javascript" src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
     <script type="text/javascript" src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}">
+    </script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
@@ -381,7 +465,7 @@
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script> --}}
-        <script type="text/javascript" src="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
 @endsection
 
 @section('jsNeeded')

@@ -189,7 +189,7 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::match(['get', 'post'], '/naskah/mengubah-naskah/{id}', $path.'\Penerbitan\NaskahController@updateNaskah');
         Route::post('/naskah/penilaian/{cat}', $path.'\Penerbitan\PenilaianNaskahController@index');
         Route::post('/naskah/tandai-data-lengkap', $path.'\Penerbitan\NaskahController@tandaDataLengkap');
-        Route::post('/naskah/ajax/{cat}', $path.'\Penerbitan\NaskahController@ajaxCallModal');
+        Route::match(['get','post'],'/naskah/ajax/{cat}', $path.'\Penerbitan\NaskahController@ajaxCallModal');
         //Deskripsi Produk
         Route::get('/deskripsi/produk', $path.'\Penerbitan\DeskripsiProdukController@index')->name('despro.view');
         Route::get('/deskripsi/produk/detail', $path.'\Penerbitan\DeskripsiProdukController@detailDeskripsiProduk')->name('despro.detail');
