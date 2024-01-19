@@ -196,7 +196,7 @@ $(document).ready(function () {
                 if ($.fn.DataTable.isDataTable('#tb_Naskah')) {
                     $('#tb_Naskah').DataTable().destroy();
                 }
-                let tableNaskah = $('#tb_Naskah').DataTable({
+                var tableNaskah = $('#tb_Naskah').DataTable({
                     // "bSort": false,
                     "responsive": true,
                     "autoWidth": false,
@@ -317,12 +317,16 @@ $(document).ready(function () {
     })
     $('#fm_FilterPenilaian button[type="reset"]').click(function (e) {
         $('#fm_FilterPenilaian').trigger('reset');
+        $(".select-filter-jb").val("").trigger("change");
+        $(".clear_field_jb").attr("hidden", "hidden");
+        $(".select-filter").val("").trigger("change");
+        $(".clear_field").attr("hidden", "hidden");
         $('button[type="submit"]').attr("disabled", true).change();
         $('button[type="reset"]').attr("disabled", true).change();
         if ($.fn.DataTable.isDataTable('#tb_Naskah')) {
             $('#tb_Naskah').DataTable().destroy();
         }
-        let tableNaskah = $('#tb_Naskah').DataTable({
+        var tableNaskah = $('#tb_Naskah').DataTable({
             // "bSort": false,
             "responsive": true,
             "autoWidth": false,
