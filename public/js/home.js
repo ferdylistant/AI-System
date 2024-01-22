@@ -32,23 +32,17 @@ function loadRecentData(page) {
         datatype: "html",
         beforeSend: function() {
             cardWrap.addClass('card-progress');
-        },
-        success: (data) => {
-            console.log(data.check);
-            if (data.check == false) {
-                notifToast('error', 'Tidak ada data lagi!');
-                // return;
-            } else {
-                $("#recentActivity").append(data.html);
-            }
-        },
-        error: (err) => {
-            cardWrap.removeClass('card-progress');
-            notifToast('error', 'Terjadi kesalahan!')
-        },
-        complete: () => {
-            cardWrap.removeClass('card-progress');
         }
+    }).done(function(data) {
+        // console.log(data);
+        if (data === "") {
+            notifToast('error', 'Tidak ada data lagi!');
+            return;
+        }
+        cardWrap.removeClass('card-progress');
+        $("#recentActivity").append(data);
+    }).fail(function(jqXHR, ajaxOptions, thrownError) {
+        notifToast('error', 'Terjadi kesalahan!')
     });
 }
 function timelineFunction() {
@@ -222,7 +216,7 @@ $(document).ready(function() {
         let tab = $(e.delegateTarget.activeElement).data('typeget');
         loadTodoList(tab);
     });
-    let page = 1;
+    var page = 1;
     let timeline = $('[name="timeline"]').val();
     if (timeline == true) {
         loadRecentData(page);
