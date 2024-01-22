@@ -34,14 +34,16 @@ function loadRecentData(page) {
             cardWrap.addClass('card-progress');
         }
     }).done(function(data) {
-        // console.log(data);
+        console.log(data);
         if (data == "") {
+            cardWrap.removeClass('card-progress');
             notifToast('error', 'Tidak ada data lagi!');
-            return;
+        } else {
+            cardWrap.removeClass('card-progress');
+            $("#recentActivity").append(data);
         }
-        cardWrap.removeClass('card-progress');
-        $("#recentActivity").append(data);
     }).fail(function(jqXHR, ajaxOptions, thrownError) {
+        cardWrap.removeClass('card-progress');
         notifToast('error', 'Terjadi kesalahan!')
     });
 }
