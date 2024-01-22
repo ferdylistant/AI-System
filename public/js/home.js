@@ -34,12 +34,12 @@ function loadRecentData(page) {
             cardWrap.addClass('card-progress');
         }
     }).done(function(data) {
-        // console.log(data);
+        console.log(data);
         cardWrap.removeClass('card-progress');
-        if (data) {
-            $("#recentActivity").append(data);
-        } else {
+        if (data == "") {
             notifToast('error', 'Tidak ada data lagi!');
+        } else {
+            $("#recentActivity").append(data);
         }
     }).fail(function(jqXHR, ajaxOptions, thrownError) {
         cardWrap.removeClass('card-progress');
