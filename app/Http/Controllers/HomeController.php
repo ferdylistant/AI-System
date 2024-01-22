@@ -251,25 +251,23 @@ class HomeController extends Controller
                 ->orderBy('ul.last_login', 'desc')
                 ->select('ul.*', 'u.nama', 'u.email', 'u.avatar', 'j.nama as jabatan', 'd.nama as divisi')
                 ->paginate(4);
-            if ($data) {
-                foreach ($data as $key => $d) {
-                    if (auth()->id() == $d->users_id) {
-                        $namaUser = 'Anda';
-                    } else {
-                        $namaUser = ucwords($d->nama);
-                    }
-
-                    $html .= '<li class="media">
-                    <img class="mr-3 rounded-circle" src="' . url('storage/users/' . $d->users_id . '/' . $d->avatar) . '" alt="avatar"
-                        width="50">
-                    <div class="media-body">
-                        <div class="float-right text-primary">' . Carbon::parse($d->last_login, 'Asia/Jakarta')->diffForHumans() . '</div>
-                        <div class="media-title">' . $namaUser . '</div>
-                        <span class="text-small">' . $d->email . ' - ' . $d->ip_address . '</span>
-                        <p class="text-small text-muted">' . $d->jabatan . ' (' . $d->divisi . ')</p>
-                    </div>
-                </li>';
+            foreach ($data as $key => $d) {
+                if (auth()->id() == $d->users_id) {
+                    $namaUser = 'Anda';
+                } else {
+                    $namaUser = ucwords($d->nama);
                 }
+
+                $html .= '<li class="media">
+                <img class="mr-3 rounded-circle" src="' . url('storage/users/' . $d->users_id . '/' . $d->avatar) . '" alt="avatar"
+                    width="50">
+                <div class="media-body">
+                    <div class="float-right text-primary">' . Carbon::parse($d->last_login, 'Asia/Jakarta')->diffForHumans() . '</div>
+                    <div class="media-title">' . $namaUser . '</div>
+                    <span class="text-small">' . $d->email . ' - ' . $d->ip_address . '</span>
+                    <p class="text-small text-muted">' . $d->jabatan . ' (' . $d->divisi . ')</p>
+                </div>
+            </li>';
             }
             return $html;
         } catch (\Exception $e) {
