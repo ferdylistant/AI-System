@@ -34,7 +34,7 @@ function loadRecentData(page) {
             cardWrap.addClass('card-progress');
         }
     }).done(function(data) {
-        // console.log(data);
+        console.log(data.length);
         if (data === "") {
             notifToast('error', 'Tidak ada data lagi!');
             // return;
