@@ -35,11 +35,11 @@ function loadRecentData(page) {
         }
     }).done(function(data) {
         console.log(data);
+        cardWrap.removeClass('card-progress');
         if (data == "") {
             notifToast('error', 'Tidak ada data lagi!');
-            // return;
+            return;
         }
-        cardWrap.removeClass('card-progress');
         $("#recentActivity").append(data);
     }).fail(function(jqXHR, ajaxOptions, thrownError) {
         notifToast('error', 'Terjadi kesalahan!')
