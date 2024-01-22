@@ -49,21 +49,21 @@ $(document).ready(function () {
                         extend: 'print',
                         text: '<i class="text-secondary fa fa-print"></i> Print',
                         exportOptions: {
-                            columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                            columns: [0, 1, 2, 4, 5, 6, 7]
                         }
                     },
                     {
                         extend: 'pdf',
                         text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
                         exportOptions: {
-                            columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                            columns: [0, 1, 2, 4, 5, 6, 7]
                         }
                     },
                     {
                         extend: 'excel',
                         text: '<i class="text-success fa fa-file-excel"></i> Excel',
                         exportOptions: {
-                            columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                            columns: [0, 1, 2, 4, 5, 6, 7]
                         }
                     },
                 ]
