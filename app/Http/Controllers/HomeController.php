@@ -246,8 +246,10 @@ class HomeController extends Controller
                 ->join('users as u', 'u.id', '=', 'ul.users_id')
                 ->join('jabatan as j', 'j.id', '=', 'u.jabatan_id')
                 ->join('divisi as d', 'd.id', '=', 'u.divisi_id')
+                ->whereDate('ul.last_login', Carbon::today())
                 ->select('ul.*', 'u.nama', 'u.email', 'u.avatar', 'j.nama as jabatan', 'd.nama as divisi')
                 ->orderBy('ul.last_login', 'desc')
+                ->groupBy('u.id')
                 ->paginate(4);
             foreach ($data as $key => $d) {
                 if (auth()->id() == $d->users_id) {
