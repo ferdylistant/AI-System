@@ -37,7 +37,7 @@ function loadRecentData(page) {
         // console.log(data);
         if (data === "") {
             notifToast('error', 'Tidak ada data lagi!');
-            return;
+            // return;
         }
         cardWrap.removeClass('card-progress');
         $("#recentActivity").append(data);
