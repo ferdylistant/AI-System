@@ -39,6 +39,7 @@ function loadRecentData(page) {
                 notifToast('error', 'Tidak ada data lagi!');
                 // return;
             } else {
+                cardWrap.removeClass('card-progress');
                 $("#recentActivity").append(data.html);
             }
         },
