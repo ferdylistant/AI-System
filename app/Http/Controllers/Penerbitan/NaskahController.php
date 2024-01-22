@@ -1369,6 +1369,22 @@ class NaskahController extends Controller
             ->addColumn('judul_asli', function ($data) {
                 return $data->judul_asli;
             })
+            ->addColumn('penulis', function ($data) {
+                $result = '';
+                $res = DB::table('penerbitan_naskah_penulis as pnp')
+                    ->join('penerbitan_penulis as pp', function ($q) {
+                        $q->on('pnp.penulis_id', '=', 'pp.id')
+                            ->whereNull('pp.deleted_at');
+                    })
+                    ->where('pnp.naskah_id', '=', $data->id)
+                    ->select('pp.nama')
+                    // ->pluck('pp.nama');
+                    ->get();
+                foreach ($res as $q) {
+                    $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
+                }
+                return $result;
+            })
             ->addColumn('pic_prodev', function ($data) {
                 return DB::table('users')->where('id', $data->pic_prodev)->first()->nama;
             })
@@ -1478,7 +1494,7 @@ class NaskahController extends Controller
                 }
                 return $btn;
             })
-            ->rawColumns(['kode', 'judul_asli', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'action'])
+            ->rawColumns(['kode', 'judul_asli', 'penulis','pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'action'])
             ->make(true);
     }
     public function restorePage(Request $request)

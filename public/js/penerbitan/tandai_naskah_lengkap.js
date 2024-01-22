@@ -1,4 +1,3 @@
-
 var baseUrl = window.location.origin + "/penerbitan/naskah";
 $(document).ready(function () {
     $('#fm_FilterPenilaian').trigger("reset");
@@ -221,21 +220,21 @@ $(document).ready(function () {
                                     extend: 'print',
                                     text: '<i class="text-secondary fa fa-print"></i> Print',
                                     exportOptions: {
-                                        columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                                        columns: [0, 1, 2, 4, 5, 6, 7]
                                     }
                                 },
                                 {
                                     extend: 'pdf',
                                     text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
                                     exportOptions: {
-                                        columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                                        columns: [0, 1, 2, 4, 5, 6, 7]
                                     }
                                 },
                                 {
                                     extend: 'excel',
                                     text: '<i class="text-success fa fa-file-excel"></i> Excel',
                                     exportOptions: {
-                                        columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                                        columns: [0, 1, 2, 4, 5, 6, 7]
                                     }
                                 },
                             ]
@@ -263,6 +262,11 @@ $(document).ready(function () {
                         data: 'judul_asli',
                         name: 'judul_asli',
                         title: 'Judul Asli'
+                    },
+                    {
+                        data: 'penulis',
+                        name: 'penulis',
+                        title: 'Penulis'
                     },
                     {
                         data: 'pic_prodev',
@@ -351,21 +355,21 @@ $(document).ready(function () {
                             extend: 'print',
                             text: '<i class="text-secondary fa fa-print"></i> Print',
                             exportOptions: {
-                                columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                                columns: [0, 1, 2, 4, 5, 6, 7]
                             }
                         },
                         {
                             extend: 'pdf',
                             text: '<i class="text-danger fa fa-file-pdf"></i> PDF',
                             exportOptions: {
-                                columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                                columns: [0, 1, 2, 4, 5, 6, 7]
                             }
                         },
                         {
                             extend: 'excel',
                             text: '<i class="text-success fa fa-file-excel"></i> Excel',
                             exportOptions: {
-                                columns: [0, 1, 2, 4, 5, 6, 7, 8, 9]
+                                columns: [0, 1, 2, 4, 5, 6, 7]
                             }
                         },
                     ]
@@ -403,6 +407,11 @@ $(document).ready(function () {
                 data: 'judul_asli',
                 name: 'judul_asli',
                 title: 'Judul Asli'
+            },
+            {
+                data: 'penulis',
+                name: 'penulis',
+                title: 'Penulis'
             },
             {
                 data: 'pic_prodev',
@@ -806,5 +815,3 @@ $(document).ready(function () {
         });
     });
 });
-
-
