@@ -34,13 +34,12 @@ function loadRecentData(page) {
             cardWrap.addClass('card-progress');
         }
     }).done(function(data) {
-        console.log(data);
-        if (data == "") {
-            cardWrap.removeClass('card-progress');
-            notifToast('error', 'Tidak ada data lagi!');
-        } else {
-            cardWrap.removeClass('card-progress');
+        // console.log(data);
+        cardWrap.removeClass('card-progress');
+        if (data) {
             $("#recentActivity").append(data);
+        } else {
+            notifToast('error', 'Tidak ada data lagi!');
         }
     }).fail(function(jqXHR, ajaxOptions, thrownError) {
         cardWrap.removeClass('card-progress');
