@@ -39,7 +39,7 @@ function loadRecentData(page) {
                 notifToast('error', 'Tidak ada data lagi!');
                 // return;
             } else {
-                $("#recentActivity").append(data);
+                $("#recentActivity").append(data.html);
             }
         },
         error: (err) => {
