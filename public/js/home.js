@@ -32,18 +32,22 @@ function loadRecentData(page) {
         datatype: "html",
         beforeSend: function() {
             cardWrap.addClass('card-progress');
+        },
+        success: (data) => {
+            if (data.length == 0) {
+                notifToast('error', 'Tidak ada data lagi!');
+                // return;
+            } else {
+                $("#recentActivity").append(data);
+            }
+        },
+        error: (err) => {
+            cardWrap.removeClass('card-progress');
+            notifToast('error', 'Terjadi kesalahan!')
+        },
+        complete: () => {
+            cardWrap.removeClass('card-progress');
         }
-    }).done(function(data) {
-        // console.log(data);
-        cardWrap.removeClass('card-progress');
-        if (data.length == 0) {
-            notifToast('error', 'Tidak ada data lagi!');
-            // return;
-        } else {
-            $("#recentActivity").append(data);
-        }
-    }).fail(function(jqXHR, ajaxOptions, thrownError) {
-        notifToast('error', 'Terjadi kesalahan!')
     });
 }
 function timelineFunction() {
