@@ -217,10 +217,11 @@ $(document).ready(function() {
         loadTodoList(tab);
     });
     var page = 1;
-    let timeline = $('[name="timeline"]').val();
-    if (timeline == true) {
-        loadRecentData(page);
-    }
+    // let timeline = $('[name="timeline"]').val();
+    // if (timeline == true) {
+    //     loadRecentData(page);
+    // }
+    loadRecentData(page);
     $("#loadScroll").scroll(function() {
         if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
             page++;
