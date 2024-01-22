@@ -337,7 +337,7 @@
                             <div class="row justify-content-between">
                                 <div class="form-group col-auto col-md-3">
                                     <div class="input-group">
-                                        <select data-column="3" name="status_filter_jb" id="status_filter_jb"
+                                        <select data-column="4" name="status_filter_jb" id="status_filter_jb"
                                             class="form-control select-filter-jb status_filter_jb">
                                             <option label="Pilih Filter Data"></option>
                                             @foreach ($jalur_b as $val)
@@ -353,7 +353,7 @@
                                 </div>
                                 <div class="form-group col-auto col-md-3">
                                     <div class="input-group">
-                                        <select data-column="6" name="status_filter" id="status_filter"
+                                        <select data-column="7" name="status_filter" id="status_filter"
                                             class="form-control select-filter status_filter">
                                             <option label="Pilih Filter Data"></option>
                                             @foreach ($data_naskah_penulis as $val)

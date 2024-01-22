@@ -103,6 +103,11 @@ $(document).ready(function () {
             title: 'Judul Asli'
         },
         {
+            data: 'penulis',
+            name: 'penulis',
+            title: 'Penulis'
+        },
+        {
             data: 'pic_prodev',
             name: 'pic_prodev',
             title: 'PIC Prodev'
