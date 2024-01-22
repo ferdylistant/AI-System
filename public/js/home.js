@@ -118,7 +118,16 @@ function timelineFunction() {
         /* End new object options */
     });
 }
+$( window ).on( "load", function() {
+    var page = 1;
+    // let timeline = $('[name="timeline"]').val();
+    // if (timeline == true) {
+    //     loadRecentData(page);
+    // }
+    loadRecentData(page);
+});
 $(document).ready(function() {
+    var page = 1;
     $('.counter').each(function() {
         $(this).prop('Counter', 0).animate({
             Counter: $(this).text()
@@ -216,12 +225,7 @@ $(document).ready(function() {
         let tab = $(e.delegateTarget.activeElement).data('typeget');
         loadTodoList(tab);
     });
-    var page = 1;
-    // let timeline = $('[name="timeline"]').val();
-    // if (timeline == true) {
-    //     loadRecentData(page);
-    // }
-    loadRecentData(page);
+
     $("#loadScroll").scroll(function() {
         if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
             page++;
