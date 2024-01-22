@@ -247,7 +247,7 @@ class HomeController extends Controller
                 ->join('jabatan as j', 'j.id', '=', 'u.jabatan_id')
                 ->join('divisi as d', 'd.id', '=', 'u.divisi_id')
                 ->whereDate('ul.last_login', Carbon::today())
-                ->groupBy('u.id')
+                // ->groupBy('u.id')
                 ->orderBy('ul.last_login', 'desc')
                 ->select('ul.*', 'u.nama', 'u.email', 'u.avatar', 'j.nama as jabatan', 'd.nama as divisi')
                 ->paginate(4);
