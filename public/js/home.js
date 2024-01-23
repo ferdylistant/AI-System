@@ -38,7 +38,7 @@ function loadRecentData(page) {
         cardWrap.removeClass('card-progress');
         if (data.exist === false) {
             notifToast('error', 'Tidak ada data lagi!');
-            $('#loadScroll').animate({ scrollTop: $('.thin').scrollTop(0) }, 800,"swing");
+            $('div .thin').animate({ scrollTop: $('.thin').scrollTop(0) }, 800,"swing");
             // return;
         } else {
             $("#recentActivity").append(data.html);
