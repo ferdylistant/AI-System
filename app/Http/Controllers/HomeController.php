@@ -247,30 +247,34 @@ class HomeController extends Controller
                 ->join('jabatan as j', 'j.id', '=', 'u.jabatan_id')
                 ->join('divisi as d', 'd.id', '=', 'u.divisi_id')
                 ->whereDate('ul.last_login', Carbon::today())
-                ->groupBy('u.id')
                 ->orderBy('ul.last_login', 'desc')
+                ->groupBy('ul.users_id')
                 ->select('ul.*', 'u.nama', 'u.email', 'u.avatar', 'j.nama as jabatan', 'd.nama as divisi')
                 ->paginate(4);
+            if ($data->total() > 1) {
+                $exist = TRUE;
+                foreach ($data as $key => $d) {
+                    if (auth()->id() == $d->users_id) {
+                        $namaUser = 'Anda';
+                    } else {
+                        $namaUser = ucwords($d->nama);
+                    }
 
-            foreach ($data as $key => $d) {
-                if (auth()->id() == $d->users_id) {
-                    $namaUser = 'Anda';
-                } else {
-                    $namaUser = ucwords($d->nama);
+                    $html .= '<li class="media">
+                    <img class="mr-3 rounded-circle" src="' . url('storage/users/' . $d->users_id . '/' . $d->avatar) . '" alt="avatar"
+                        width="50">
+                    <div class="media-body">
+                        <div class="float-right text-primary">' . Carbon::parse($d->last_login, 'Asia/Jakarta')->diffForHumans() . '</div>
+                        <div class="media-title">' . $namaUser . '</div>
+                        <span class="text-small">' . $d->email . ' - ' . $d->ip_address . '</span>
+                        <p class="text-small text-muted">' . $d->jabatan . ' (' . $d->divisi . ')</p>
+                    </div>
+                    </li>';
                 }
-
-                $html .= '<li class="media">
-                <img class="mr-3 rounded-circle" src="' . url('storage/users/' . $d->users_id . '/' . $d->avatar) . '" alt="avatar"
-                    width="50">
-                <div class="media-body">
-                    <div class="float-right text-primary">' . Carbon::parse($d->last_login, 'Asia/Jakarta')->diffForHumans() . '</div>
-                    <div class="media-title">' . $namaUser . '</div>
-                    <span class="text-small">' . $d->email . ' - ' . $d->ip_address . '</span>
-                    <p class="text-small text-muted">' . $d->jabatan . ' (' . $d->divisi . ')</p>
-                </div>
-            </li>';
+            } else {
+                $exist = FALSE;
             }
-            return $html;
+            return ['html' => $html,'exist' => $exist];
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

@@ -34,13 +34,14 @@ function loadRecentData(page) {
             cardWrap.addClass('card-progress');
         }
     }).done(function(data) {
-        console.log(data.length);
-        if (data === "") {
+        // console.log(data.length);
+        cardWrap.removeClass('card-progress');
+        if (data.exist === false) {
             notifToast('error', 'Tidak ada data lagi!');
             // return;
+        } else {
+            $("#recentActivity").append(data);
         }
-        cardWrap.removeClass('card-progress');
-        $("#recentActivity").append(data);
     }).fail(function(jqXHR, ajaxOptions, thrownError) {
         notifToast('error', 'Terjadi kesalahan!')
     });
