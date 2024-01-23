@@ -38,7 +38,7 @@ Route::middleware(['auth'])->group(function () use ($path) {
     Route::post('/update-tanggal-upload-ebook',$path.'\ApiController@updateTanggalUploadEbook');
     Route::post('/update-tanggal-jadi-cetak', $path.'\ApiController@updateTanggalJadiCetak');
     Route::post('/update-jumlah-cetak', $path.'\ApiController@updateJumlahCetak');
-    Route::get('/batal/pending/order-cetak/{id}', $path.'\Produksi\ProduksiController@batalPendingOrderCetak');
+    // Route::get('/batal/pending/order-cetak/{id}', $path.'\Produksi\ProduksiController@batalPendingOrderCetak');
     Route::get('/batal/pending/order-ebook/{id}', $path.'\Produksi\EbookController@batalPendingOrderEbook');
     Route::post('/logout', $path.'\AuthController@logout');
     Route::get('/', $path.'\HomeController@index');
