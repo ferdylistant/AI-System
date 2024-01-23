@@ -40,7 +40,7 @@ function loadRecentData(page) {
             notifToast('error', 'Tidak ada data lagi!');
             // return;
         } else {
-            $("#recentActivity").append(data);
+            $("#recentActivity").append(data.html);
         }
     }).fail(function(jqXHR, ajaxOptions, thrownError) {
         notifToast('error', 'Terjadi kesalahan!')
