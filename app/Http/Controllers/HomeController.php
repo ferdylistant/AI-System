@@ -251,6 +251,8 @@ class HomeController extends Controller
                 ->groupBy('ul.users_id')
                 ->select('ul.*', 'u.nama', 'u.email', 'u.avatar', 'j.nama as jabatan', 'd.nama as divisi')
                 ->paginate(4);
+            if ($data->total() > 0) {
+                $exist = TRUE;
                 foreach ($data as $key => $d) {
                     if (auth()->id() == $d->users_id) {
                         $namaUser = 'Anda';
@@ -269,7 +271,10 @@ class HomeController extends Controller
                     </div>
                     </li>';
                 }
-            return $html;
+            } else {
+                $exist = FALSE;
+            }
+            return ['html' => $html,'exist' => $exist];
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
