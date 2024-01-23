@@ -36,11 +36,12 @@ function loadRecentData(page) {
     }).done(function(data) {
         // console.log(data.length);
         cardWrap.removeClass('card-progress');
-        if (data.exist === false) {
+        if (data === "") {
             notifToast('error', 'Tidak ada data lagi!');
+            $('#loadScroll').animate({ scrollTop: $('.thin').prop("scrollHeight") }, 800);
             // return;
         } else {
-            $("#recentActivity").append(data.html);
+            $("#recentActivity").append(data);
         }
     }).fail(function(jqXHR, ajaxOptions, thrownError) {
         notifToast('error', 'Terjadi kesalahan!')
