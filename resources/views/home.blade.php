@@ -9,7 +9,7 @@
     {{-- <link rel="stylesheet" href="{{ url('vendors/jquery.timeline-master/dist/css/timeline.min.css') }}"> --}}
     <link rel="stylesheet" type="text/css"
         href="https://cdn.jsdelivr.net/gh/ycodetech/horizontal-timeline-2.0@2/css/horizontal_timeline.2.0.min.css">
-    {{-- <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}"> --}}
+    <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
 @endsection
 
 @section('cssNeeded')
@@ -205,7 +205,7 @@
                             <div class="card-header">
                                 <h4 class="section-title">Recent Activities</h4>
                             </div>
-                            <div class="card-body example-1 scrollbar-deep-purple bordered-deep-purple square thin"
+                            <div class="card-body example-1 scrollbar-deep-purple bordered-deep-purple square thin scroll-index"
                                 id="loadScroll">
                                 <ul class="list-unstyled list-unstyled-border" id="recentActivity">
 

@@ -36,10 +36,9 @@ function loadRecentData(page) {
     }).done(function(data) {
         // console.log(data.length);
         cardWrap.removeClass('card-progress');
+        $('.scroll-index').animate({ scrollTop: 0 }, 800,"swing");
         if (data.exist === false) {
             notifToast('error', 'Tidak ada data lagi!');
-            $('div .thin').animate({ scrollTop: $('.thin').scrollTop(0) }, 800,"swing");
-            // return;
         } else {
             $("#recentActivity").append(data.html);
         }
