@@ -54,7 +54,7 @@ async function loadUserLog(){
             {
                 data: "ip",
                 name: "ip",
-                title: "Ip Address",
+                title: "IP Address",
             },
             {
                 data: "browser",
