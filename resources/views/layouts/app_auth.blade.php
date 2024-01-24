@@ -2,8 +2,11 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset='UTF-8'">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <meta name="description" content="AI System (Andi Intelligent System)">
+    <meta name="author" content="Andi Global Soft">
     <title>{{$title}} &mdash; AI System</title>
 
     <!-- General CSS Files -->
