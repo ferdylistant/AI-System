@@ -513,10 +513,11 @@ class NaskahController extends Controller
 
                     DB::table('penerbitan_naskah_penulis')->insert($daftarPenulis);
                     // DB::table('penerbitan_naskah_files')->insert($fileNaskah);
-                    $penilaian = $this->alurPenilaian($request->input('add_jalur_buku'), 'create-notif-from-naskah', [
+                    $penilaian = $this->alurPenilaian($request->input('add_jalur_buku'),
+                        $request->input('add_judul_asli'), 'create-notif-from-naskah', [
                         'id_prodev' => $request->input('add_pic_prodev'),
                         'form_id' => $idN
-                    ], $request->input('add_judul_asli'));
+                    ]);
 
                     $addNaskah = [
                         'params' => 'Add Naskah',
@@ -722,10 +723,12 @@ class NaskahController extends Controller
                         ]);
                     } else {
                         if ($request->input('edit_pic_prodev') != $naskah->pic_prodev) { // Update Notifikasi jika naskah diubah. (Hanya prodev)
-                            $this->alurPenilaian($request->input('edit_jalur_buku'), 'update-notif-from-naskah', [
+                            $this->alurPenilaian($request->input('edit_jalur_buku'),
+                                $request->input('edit_judul_asli'),
+                        'update-notif-from-naskah', [
                                 'id_prodev' => $request->input('edit_pic_prodev'),
                                 'form_id' => $naskah->id
-                            ], $request->input('edit_judul_asli'));
+                            ]);
                         }
                         if ($request->input('edit_judul_asli') != $naskah->judul_asli) {
                             DB::table('todo_list')
@@ -1588,7 +1591,7 @@ class NaskahController extends Controller
         }
         return $id;
     }
-    protected function alurPenilaian($jalbuk, $action = null, $data = null, $judul)
+    protected function alurPenilaian($jalbuk, $judul, $action, $data)
     {
         /*
             Reguler :: Prodev -> Pemasaran -> Penerbitan -> Direksi
