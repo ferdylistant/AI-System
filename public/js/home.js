@@ -10,7 +10,8 @@ function loadTodoList(tab) {
             },
             success: function(result) {
                 // console.log(tab)
-                $('#' + tab).html(result);
+                $('#count' + tab).text(result.count);
+                $('#' + tab).html(result.html);
                 $('[data-toggle="popover"]').popover();
             },
             error: function(err) {

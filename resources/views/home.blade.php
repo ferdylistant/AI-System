@@ -27,10 +27,9 @@
             border-color: #28a745;
         }
 
-        /* .fc-event-title {
-                                                                                color: #1a252f;
-                                                                            } */
-
+        span.badge {
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+        }
         .tb-detail-naskah {
             font-size: 12px;
             border: 1px solid #ced4da;
@@ -140,16 +139,16 @@
                                 <li class="nav-item">
                                     <a class="nav-link active" id="semua-tab" data-toggle="tab" href="#semua"
                                         role="tab" aria-controls="semua" data-typeget="semua"
-                                        aria-selected="true">Semua</a>
+                                        aria-selected="true">Semua <span class="badge badge-danger" id="countsemua">0</span></a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="belum-selesai-tab" data-toggle="tab" href="#belum-selesai"
                                         role="tab" aria-controls="belum-selesai" data-typeget="belum-selesai"
-                                        aria-selected="false">Belum Selesai</a>
+                                        aria-selected="false">Belum Selesai <span class="badge badge-danger" id="countbelum-selesai">0</span></a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="selesai-tab" data-toggle="tab" href="#selesai" role="tab"
-                                        aria-controls="selesai" data-typeget="selesai" aria-selected="false">Selesai</a>
+                                        aria-controls="selesai" data-typeget="selesai" aria-selected="false">Selesai <span class="badge badge-danger" id="countselesai">0</span></a>
                                 </li>
                             </ul>
                             <div class="tab-content example-2 scrollbar-deep-purple bordered-deep-purple square thin"

@@ -220,15 +220,15 @@ class HomeController extends Controller
                 break;
             case 'semua':
                 $semua = DB::table('todo_list')->where('users_id', auth()->user()->id)->get();
-                return $this->loadTodoList($semua);
+                return $this->loadTodoList($semua,$semua->count());
                 break;
             case 'belum-selesai':
                 $belumSelesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '0')->get();
-                return $this->loadTodoList($belumSelesai);
+                return $this->loadTodoList($belumSelesai,$belumSelesai->count());
                 break;
             case 'selesai':
                 $selesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '1')->get();
-                return $this->loadTodoList($selesai);
+                return $this->loadTodoList($selesai,$selesai->count());
                 break;
             case 'select-judul':
                 return self::selectMasterJudul($request);
@@ -282,7 +282,7 @@ class HomeController extends Controller
             ]);
         }
     }
-    protected function loadTodoList($data)
+    protected function loadTodoList($data,$count)
     {
         try {
             // return response()->json($data);
@@ -330,7 +330,7 @@ class HomeController extends Controller
                 }
             }
             $html .= '</ul>';
-            return $html;
+            return ['html'=>$html,'count'=>$count];
         } catch (\Exception $e) {
             return abort(500);
         }
