@@ -137,23 +137,23 @@
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 @can('do_update', 'ubah-data-user')
                                     <li class="nav-item">
-                                        <a class="nav-link active" id="access-tab" data-toggle="tab" href="#access"
+                                        <a class="nav-link active" id="access-tab" data-toggle="tab" data-typeget="access-menu" href="#access"
                                             role="tab" aria-controls="access" aria-selected="true">Access Menu</a>
                                     </li>
                                 @endcan
                                 <li class="nav-item">
-                                    <a class="nav-link" id="user-log-tab" data-toggle="tab" href="#log_user" role="tab"
+                                    <a class="nav-link" id="user-log-tab" data-toggle="tab" data-typeget="user-log" href="#log_user" role="tab"
                                         aria-controls="log_user" aria-selected="true">User log</a>
                                 </li>
                                 @if (auth()->id() == $user->id)
                                     <li class="nav-item">
                                         <a class="nav-link {{ Auth::user()->cannot('do_update', 'ubah-data-user') ? 'active' : '' }}"
-                                            id="password-tab" data-toggle="tab" href="#password" role="tab"
+                                            id="password-tab" data-toggle="tab" data-typeget="password" href="#password" role="tab"
                                             aria-controls="password" aria-selected="false">Password</a>
                                     </li>
                                 @endif
                                 <li class="nav-item">
-                                    <a class="nav-link" id="user-status-tab" data-toggle="tab" href="#user-status"
+                                    <a class="nav-link" id="user-status-tab" data-toggle="tab" data-typeget="user-status" href="#user-status"
                                         role="tab" aria-controls="user-status" aria-selected="false">User status</a>
                                 </li>
                             </ul>

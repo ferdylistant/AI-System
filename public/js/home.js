@@ -24,7 +24,7 @@ function loadTodoList(tab) {
     }
 
 }
-function loadRecentData(page) {
+async function loadRecentData(page) {
     cardWrap = $(".section-body").find('#card_recent_activity').closest(".card");
     $.ajax({
         url: window.location.origin + "/api/home/recent-activity?page=" + page,

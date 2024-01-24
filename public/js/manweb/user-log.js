@@ -1,9 +1,37 @@
-
-$(function () {
-    loadDataAccess();
+async function loadDataAccess(){
+    let id = window.location.pathname.split("/").pop();
+    $.ajax({
+        url:
+            window.location.origin +
+            "/manajemen-web/user/" + id + "?type=access",
+        type: "GET",
+        dataType: "html",
+        beforeSend: function () {
+            $('#loadAction').parent().addClass('card-progress')
+        },
+        success: function (result) {
+            // console.log(result);
+            $(".hummingbird-treeview").html(result);
+            $('#treeview').hummingbird();
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status);
+            console.log(thrownError);
+            notifToast("error", "Terjadi kesalahan, silahkan coba lagi.");
+        },
+        complete: function () {
+            $('#loadAction').parent().removeClass('card-progress')
+        }
+    });
+}
+async function loadUserLog(){
     // User log start
     let id = window.location.pathname.split("/").pop();
+    // if ($.fn.DataTable.isDataTable('#tb_UserLog')) {
+    //     $('#tb_UserLog').DataTable().destroy();
+    // }
     $("#tb_UserLog").DataTable({
+        destroy:true,
         responsive: true,
         autoWidth: true,
         responsive: true,
@@ -41,10 +69,8 @@ $(function () {
         ],
     });
     // User log end
-
-    // User status start
-});
-function ajaxUserStatus(id, value) {
+}
+async function ajaxUserStatus(id, value) {
     let val = value;
     $.ajax({
         url:
@@ -76,7 +102,7 @@ function ajaxUserStatus(id, value) {
         }, 500);
     });
 }
-function confirmSweetAlert(id, value) {
+async function confirmSweetAlert(id, value) {
     swal({
         title: "Yakin ingin menonaktifkan akun user?",
         text: "Harap diperiksa kembali, supaya tidak terjadi kesalahan.",
@@ -91,7 +117,19 @@ function confirmSweetAlert(id, value) {
         }
     });
 }
-$(function () {
+async function loadTab(tab) {
+    if (tab === 'access-menu') {
+        await loadDataAccess();
+    } else if (tab === 'user-log') {
+        await loadUserLog();
+    }
+}
+$(document).ready(function () {
+    loadTab($('#loadAction .nav-link.active').data('typeget'));
+    // Each change tab form penilaian
+    $(document).on('show.bs.tab', function(e) {
+        loadTab($(e.delegateTarget.activeElement).data('typeget'));
+    });
     $("#userStatus").click(function () {
         var id = $(this).data("id");
         if (this.checked) {
@@ -103,31 +141,5 @@ $(function () {
         }
 
     });
-    // User status end
 });
-function loadDataAccess(){
-    let id = window.location.pathname.split("/").pop();
-    $.ajax({
-        url:
-            window.location.origin +
-            "/manajemen-web/user/" + id + "?type=access",
-        type: "GET",
-        dataType: "html",
-        beforeSend: function () {
-            $('#loadAction').parent().addClass('card-progress')
-        },
-        success: function (result) {
-            // console.log(result);
-            $(".hummingbird-treeview").html(result);
-            $('#treeview').hummingbird();
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            console.log(xhr.status);
-            console.log(thrownError);
-            notifToast("error", "Terjadi kesalahan, silahkan coba lagi.");
-        },
-        complete: function () {
-            $('#loadAction').parent().removeClass('card-progress')
-        }
-    });
-}
+
