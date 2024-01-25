@@ -68,7 +68,7 @@
                 <div class="row">
                     <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
                         <div class="login-brand">
-                            <img src="{{ url('images/logo.png') }}" alt="logo" class="shadow-light rounded-circle">
+                            <img src="{!! url('images/logo.png') !!}" alt="logo" class="shadow-light rounded-circle">
                             AI System
                         </div>
                         <div class="card card-primary">
@@ -76,35 +76,35 @@
                                 @if (Session::has('status'))
                                     <div class="alert alert-success" style="width: 100%" role="alert">
                                         <h4 class="alert-heading">Sukses!</h4>
-                                        {{ Session::get('status') }}
+                                        {!! Session::get('status') !!}
 
                                     </div>
                                 @elseif (session('error'))
                                 <div class="alert alert-danger" style="width: 100%" role="alert">
                                     <h4 class="alert-heading">Gagal!</h4>
-                                    {{ session('error') }}
+                                    {!! session('error') !!}
 
                                 </div>
                                 @elseif ($errors->any())
                                     <div class="alert alert-danger" style="width: 100%" role="alert">
                                         <h4 class="alert-heading">Gagal!</h4>
                                         @foreach ($errors->all() as $error)
-                                            <p>{{ $error }}</p>
+                                            <p>{!! $error !!}</p>
                                         @endforeach
                                     </div>
                                 @endif
                             </div>
                             <div class="card-body">
-                                <form id="loginSubmitForm" method="POST" action="{{ url('do-login') }}" class="needs-validation" novalidate="">
+                                <form id="loginSubmitForm" method="POST" action="{!! url('do-login') !!}" class="needs-validation" novalidate="">
                                     @CSRF
                                     <div class="form-group">
                                         <label for="email">Email</label>
                                         <input id="email" type="email"
                                             class="form-control @error('email') is-invalid @enderror"
-                                            value="{{ old('email') }}" name="email" tabindex="1" required autofocus>
+                                            value="{!! old('email') !!}" name="email" tabindex="1" required autofocus>
                                         <div id="err_email" class="invalid-feedback">
                                             @error('email')
-                                                {{ $message }}
+                                                {!! $message !!}
                                             @enderror
                                         </div>
                                     </div>
@@ -124,7 +124,7 @@
                                             <i class="fas fa-eye" id="eye"></i>
                                             <div id="err_password" class="invalid-feedback">
                                                 @error('password')
-                                                    {{ $message }}
+                                                    {!! $message !!}
                                                 @enderror
                                             </div>
                                         </div>
@@ -138,7 +138,7 @@
                             </div>
                         </div>
 
-                        <div class="simple-footer">Copyright &copy; {{ date('Y') }}
+                        <div class="simple-footer">Copyright &copy; {!! date('Y') !!}
                             <div class="bullet"></div> Andi Global Soft
                         </div>
                     </div>

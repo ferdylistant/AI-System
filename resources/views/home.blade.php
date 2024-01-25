@@ -115,11 +115,11 @@
                     <div class="hero text-white hero-bg-image hero-bg-parallax"
                         style="background-image: image-set(url('images/background-home.avif') 1x)">
                         <div class="hero-inner">
-                            <h2>Selamat datang, {{ $userdata->nama }}!</h2>
+                            <h2>Selamat datang, {!! $userdata->nama !!}!</h2>
                             <p class="lead">You almost arrived, complete the information about your account to complete
                                 registration.</p>
                             <div class="mt-4">
-                                <a href="{{ url('manajemen-web/user/' . $userdata->id) }}"
+                                <a href="{!! url('manajemen-web/user/' . $userdata->id) !!}"
                                     class="btn btn-outline-white btn-lg btn-icon icon-left"><i class="far fa-user"></i>
                                     Setup Account</a>
                             </div>
@@ -164,7 +164,7 @@
                     </div>
                 </div>
             </div>
-            <input type="hidden" name="timeline" value="{{ $timeline }}">
+            <input type="hidden" name="timeline" value="{!! $timeline !!}">
             @if ($timeline == true)
                 <div class="row">
                     <div class="col-lg-8 col-md-12 col-12 col-sm-12">
@@ -179,8 +179,8 @@
                                             <select class="form-control select2-timeline" name="tb_naskah_tahapan">
                                                 <option label="Pilih timeline"></option>
                                                 @foreach ($naskah_kode_timeline as $nas_timeline)
-                                                    <option value="{{ $nas_timeline->id }}">{{ $nas_timeline->kode }}
-                                                        &#9903; {{ $nas_timeline->judul_asli }}</option>
+                                                    <option value="{!! $nas_timeline->id !!}">{!! $nas_timeline->kode !!}
+                                                        &#9903; {!! $nas_timeline->judul_asli !!}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -269,7 +269,7 @@
                                     <h4>Total User</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $users->count() }}
+                                    {!! $users->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -284,7 +284,7 @@
                                     <h4>Divisi</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $divisi->count() }}
+                                    {!! $divisi->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -301,7 +301,7 @@
                                     <h4>Penulis</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $penulis->count() }}
+                                    {!! $penulis->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -318,7 +318,7 @@
                                     <h4>Imprint</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $imprint->count() }}
+                                    {!! $imprint->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -335,7 +335,7 @@
                                     <h4>Naskah</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $naskah->count() }}
+                                    {!! $naskah->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -352,7 +352,7 @@
                                     <h4>Deskripsi Produk</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $desprod->count() }}
+                                    {!! $desprod->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -369,7 +369,7 @@
                                     <h4>Deskripsi Final</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $desfin->count() }}
+                                    {!! $desfin->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -386,7 +386,7 @@
                                     <h4>Deskripsi Cover</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $desfin->count() }}
+                                    {!! $desfin->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -403,7 +403,7 @@
                                     <h4>Editing</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $editing->count() }}
+                                    {!! $editing->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -420,7 +420,7 @@
                                     <h4>Pracetak Setter</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $praset->count() }}
+                                    {!! $praset->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -437,7 +437,7 @@
                                     <h4>Pracetak Designer</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $prades->count() }}
+                                    {!! $prades->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -454,7 +454,7 @@
                                     <h4>Deskripsi Turun Cetak</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $desturcet->count() }}
+                                    {!! $desturcet->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -471,7 +471,7 @@
                                     <h4>Order Cetak</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $or_ce->count() }}
+                                    {!! $or_ce->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -488,7 +488,7 @@
                                     <h4>Order E-Book</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $or_eb->count() }}
+                                    {!! $or_eb->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -505,7 +505,7 @@
                                     <h4>Proses Produksi Cetak</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $proses_cetak->count() }}
+                                    {!! $proses_cetak->count() !!}
                                 </div>
                             </div>
                         </div>
@@ -522,7 +522,7 @@
                                     <h4>Proses Upload E-Book</h4>
                                 </div>
                                 <div class="card-body counter">
-                                    {{ $upload_ebook->count() }}
+                                    {!! $upload_ebook->count() !!}
                                 </div>
                             </div>
                         </div>

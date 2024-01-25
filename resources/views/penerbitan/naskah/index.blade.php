@@ -249,6 +249,7 @@
                         <div id="collapseAdvanceFilter" class="collapse" style="">
                             <div class="card-body">
                                 <form id="fm_FilterPenilaian">
+                                    {!! csrf_field() !!}
                                     <div class="row ml-3">
                                         <p class="section-lead"><i class="fas fa-hourglass-start"></i> Belum Penilaian</p>
                                     </div>
