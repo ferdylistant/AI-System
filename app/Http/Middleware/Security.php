@@ -35,7 +35,8 @@ class Security
             $response->headers->set('Access-Control-Allow-Origin', '*');
             $response->headers->set('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
             $response->headers->set('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,X-CSRF-Token');
-            // $response->headers->set('Content-Security-Policy', "style-src 'self' 'unsafe-inline'");
+            $response->headers->set('X-Permitted-Cross-Domain-Policies', "none");
+            $response->headers->set('Content-Security-Policy', "script-src 'self' 'unsafe-inline' 'unsafe-eval'");
             // $response->headers->set('Content-Security-Policy', "
             // default-src *;
             // script-src 'self' platform.twitter.com plausible.io utteranc.es unpkg.com *.cloudflare.com 'unsafe-inline' 'unsafe-eval' plausible.io/js/plausible.js utteranc.es/client.js;
