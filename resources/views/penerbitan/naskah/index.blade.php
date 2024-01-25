@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
 @section('cssRequired')
-    <link rel="stylesheet" type="text/css" href="{{ url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
+    <link rel="stylesheet" href="{{ url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
     {{-- <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/rowreorder/1.2.3/css/rowReorder.dataTables.min.css">
     <link rel="stylesheet" type="text/css"
