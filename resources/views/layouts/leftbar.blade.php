@@ -1,13 +1,13 @@
 <aside id="sidebar-wrapper">
     <div class="sidebar-brand">
         <a href="{{ url('/') }}">
-            <img src="{{ url('images/logo.png') }}" alt="logo" width="7%" style="margin-top: -5px;">
+            <img src="{{ asset('images/logo.png') }}" alt="logo" width="7%" style="margin-top: -5px;">
             AI System
         </a>
     </div>
     <div class="sidebar-brand sidebar-brand-sm">
         <a href="{{ url('/') }}">
-            <img src="{{ url('images/logo.png') }}" alt="logo" class="shadow-light rounded-circle">
+            <img src="{{ asset('images/logo.png') }}" alt="logo" class="shadow-light rounded-circle">
         </a>
     </div>
 

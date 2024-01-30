@@ -23,8 +23,8 @@
 
     <!-- End Google Tag Manager -->
     <!-- General CSS Files -->
-    <link rel="stylesheet" href="{{ url('vendors/bootstrap/dist/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/font-awesome/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/bootstrap/dist/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/font-awesome/css/all.min.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@8.0.0/themes/satellite-min.css"
         integrity="sha256-p/rGN4RGy6EDumyxF9t7LKxWGg6/MZfGhJM/asKkqvA=" crossorigin="anonymous">
 
@@ -33,9 +33,9 @@
     @yield('cssRequired')
 
     <!-- Template CSS -->
-    <link rel="stylesheet" href="{{ url('vendors/stisla/css/style.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/stisla/css/components.css') }}">
-    <link rel="icon" type="image/x-icon" href="{{ url('images/logo.png') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/stisla/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/stisla/css/components.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('images/logo.png') }}">
     {{-- <link rel="stylesheet" href="https://unpkg.com/placeholder-loading/dist/css/placeholder-loading.min.css"> --}}
     {{-- <link href="https://unpkg.com/placeholdifier/placeholdifier.css" rel="stylesheet" /> --}}
     <!-- Specific JS File -->
@@ -220,13 +220,13 @@
     </div>
 
     <!-- General JS Scripts -->
-    <script type="text/javascript" src="{{ url('vendors/jquery/dist/jquery.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/popper.js/dist/umd/popper.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/bootstrap/dist/js/bootstrap.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/jquery.nicescroll/jquery.nicescroll.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/jquery/dist/jquery.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/popper.js/dist/umd/popper.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/bootstrap/dist/js/bootstrap.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/jquery.nicescroll/jquery.nicescroll.js') }}"></script>
     <script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script type="text/javascript" src="{{ url('vendors/moment/moment.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/stisla/js/stisla.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/moment/moment.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/stisla/js/stisla.js') }}"></script>
     {{-- <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.14.3/dist/algoliasearch-lite.umd.js"
         integrity="sha256-dyJcbGuYfdzNfifkHxYVd/rzeR6SLLcDFYEidcybldM=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.50.3/dist/instantsearch.production.min.js"
@@ -236,8 +236,8 @@
     @yield('jsRequired')
 
     <!-- Template JS File -->
-    <script type="text/javascript" src="{{ url('vendors/stisla/js/scripts.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/stisla/js/custom.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/stisla/js/scripts.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/stisla/js/custom.js') }}"></script>
 
     <!-- Specific JS File -->
     <script type="text/javascript">
@@ -256,8 +256,8 @@
             })
         });
     </script>
-    <script type="text/javascript" src="{{ url('js/main.js') }}"></script>
-    {{-- <script src="{{url('js/app.js')}}"></script> --}}
+    <script type="text/javascript" src="{{ asset('js/main.js') }}"></script>
+    {{-- <script src="{{asset('js/app.js')}}"></script> --}}
     <script type="text/javascript">
         // Reload the page when the user's internet connection is restored
         $(document).ready(function() {

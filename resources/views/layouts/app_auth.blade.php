@@ -22,16 +22,16 @@
 
     <!-- End Google Tag Manager -->
     <!-- General CSS Files -->
-    <link rel="stylesheet" href="{{ url('vendors/bootstrap/dist/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/font-awesome/css/all.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/bootstrap/dist/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/font-awesome/css/all.css') }}">
 
     <!-- CSS Libraries -->
-    <link rel="stylesheet" href="{{ url('vendors/bootstrap-social/bootstrap-social.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/bootstrap-social/bootstrap-social.css') }}">
 
     <!-- Template CSS -->
-    <link rel="stylesheet" href="{{ url('vendors/stisla/css/style.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/stisla/css/components.css') }}">
-    <link rel="icon" type="image/x-icon" href="{{ url('images/logo.png') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/stisla/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/stisla/css/components.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('images/logo.png') }}">
     @yield('cssNeeded')
 </head>
 
@@ -42,21 +42,21 @@
     <!-- End Google Tag Manager (noscript) -->
     @yield('content')
     <!-- General JS Scripts -->
-    <script type="text/javascript" src="{{ url('vendors/jquery/dist/jquery.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/popper.js/dist/umd/popper.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/bootstrap/dist/js/bootstrap.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/jquery.nicescroll/jquery.nicescroll.js') }}"></script>
-    <!-- <script type="text/javascript" src="{{ url('vendors/moment/moment.js') }}"></script> -->
-    <script type="text/javascript" src="{{ url('vendors/stisla/js/stisla.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/jquery/dist/jquery.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/popper.js/dist/umd/popper.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/bootstrap/dist/js/bootstrap.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/jquery.nicescroll/jquery.nicescroll.js') }}"></script>
+    <!-- <script type="text/javascript" src="{{ asset('vendors/moment/moment.js') }}"></script> -->
+    <script type="text/javascript" src="{{ asset('vendors/stisla/js/stisla.js') }}"></script>
 
 
     <!-- JS Libraies -->
 
     <!-- Template JS File -->
 
-    <script type="text/javascript" src="{{ url('vendors/stisla/js/scripts.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/stisla/js/custom.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/stisla/js/scripts.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/stisla/js/custom.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
     @yield('scriptAddon')
     <script type="text/javascript">
         $(".alert").fadeTo(2000, 500).slideUp(500, function() {

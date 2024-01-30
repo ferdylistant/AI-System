@@ -44,7 +44,7 @@
             @endphp
             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
                 <img alt="image"
-                    src="{{ url('storage/users/' . auth()->user()->id . '/' . auth()->user()->avatar) }}"
+                    src="{{ asset('storage/users/' . auth()->user()->id . '/' . auth()->user()->avatar) }}"
                     class="rounded-circle mr-1 {{ $class }}">
                 <div class="d-sm-none d-lg-inline-block">Hi, {{ ucwords(Auth::user()->nama) }}</div>
             </a>
