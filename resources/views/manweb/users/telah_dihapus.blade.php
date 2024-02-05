@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
 @section('cssRequired')
-    <link rel="stylesheet" href="{{ url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/rowreorder/1.2.3/css/rowReorder.dataTables.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/responsive/2.2.0/css/responsive.dataTables.min.css">
-    <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/SpinKit/spinkit.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/select2/dist/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/SpinKit/spinkit.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/izitoast/dist/css/iziToast.min.css') }}">
 @endsection
 
 @section('content')
@@ -50,11 +50,11 @@
 @endsection
 
 @section('jsRequired')
-    <script src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
-    <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script src="{{ asset('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('vendors/select2/dist/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
+    <script src="{{ asset('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
@@ -118,10 +118,7 @@
                     },
                 ]
             });
-
-            // Restore User Start
-            $(document).ready(function() {
-                function ajaxRestoreUser(data) {
+            function ajaxRestoreUser(data) {
                     $.ajax({
                         type: "POST",
                         url: window.location.origin +
@@ -165,8 +162,6 @@
                         }
                     });
                 });
-            });
-            // Restore User End
         })
     </script>
 @endsection

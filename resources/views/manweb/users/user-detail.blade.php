@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
 @section('cssRequired')
-    <link rel="stylesheet" href="{{ url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/rowreorder/1.2.3/css/rowReorder.dataTables.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/responsive/2.2.0/css/responsive.dataTables.min.css">
-    <link rel="stylesheet" href="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/hummingbird-treeview/hummingbird-treeview.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/jquery-magnify/dist/jquery.magnify.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/select2/dist/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/hummingbird-treeview/hummingbird-treeview.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/izitoast/dist/css/iziToast.min.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.css" />
     <style>
         .indicator {
@@ -57,10 +57,10 @@
                                 }
                             @endphp
                             <div class="profile-widget-header">
-                                <a href="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
+                                <a href="{{ asset('storage/users/' . $user->id . '/' . $user->avatar) }}"
                                     data-magnify="gallery">
                                     <img alt="{{ Str::upper($acronym) }}"
-                                        src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
+                                        src="{{ asset('storage/users/' . $user->id . '/' . $user->avatar) }}"
                                         class="rounded-circle profile-widget-picture image-output">
                                 </a>
                             </div>
@@ -174,7 +174,7 @@
                                                 <div class="form-group col-12 mb-4">
                                                     <label>Password Lama: <span class="text-danger">*</span></label>
                                                     <input type="hidden" name="uedit_pwd_id"
-                                                        value="{{ $user->id }}">
+                                                        value="{!! $user->id !!}">
                                                     <input type="password" class="form-control" name="uedit_pwd_old"
                                                         placeholder="Password Lama" required>
                                                     <div id="err_uedit_pwd_old"></div>
@@ -203,7 +203,7 @@
                                     aria-labelledby="user-status-tab">
                                     <div class="custom-control custom-switch" {{ Auth::user()->cannot('do_update', 'ubah-data-user') ? 'hidden':''}}>
                                         <input type="checkbox" name="proses" class="custom-control-input"
-                                            id="userStatus" data-id="{{ $user->id }}"
+                                            id="userStatus" data-id="{!! $user->id !!}"
                                             {{ $user->status == 1 ? 'checked' : '' }}>
                                         <label class="custom-control-label mr-3 text-dark" for="userStatus">
                                             Ubah Status
@@ -272,24 +272,24 @@
 
 
 @section('jsRequired')
-    <script type="text/javascript" src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
-    <script type="text/javascript" src="{{ url('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/hummingbird-treeview/hummingbird-treeview.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/select2/dist/js/select2.full.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/hummingbird-treeview/hummingbird-treeview.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
 @endsection
 
 @section('jsNeeded')
-    <script type="text/javascript" src="{{ url('js/manweb/user-log.js') }}" defer></script>
+    <script type="text/javascript" src="{{ asset('js/manweb/user-log.js') }}" defer></script>
     <script type="text/javascript">
         $(document).ready(function() {
 

@@ -44,12 +44,12 @@
                     $acronym .= mb_substr($w, 0, 1);
                 }
             @endphp
-            <a href="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}" data-magnify="gallery">
-                <img alt="{{ Str::upper($acronym) }}" src="{{ url('storage/users/' . $user->id . '/' . $user->avatar) }}"
+            <a href="{{ asset('storage/users/' . $user->id . '/' . $user->avatar) }}" data-magnify="gallery">
+                <img alt="{{ Str::upper($acronym) }}" src="{{ asset('storage/users/' . $user->id . '/' . $user->avatar) }}"
                     class="rounded-circle profile-widget-picture image-output">
             </a>
             <div id="btn-pp" class="btn btn-sm">
-                <input class="inputfile" type="file" name="uedit_pp" data-id="{{ $user->id }}" id="cover_image"
+                <input class="inputfile" type="file" name="uedit_pp" data-id="{!! $user->id !!}" id="cover_image"
                     accept="image/*">
                 <i class="fa fa-camera"></i>
             </div>
@@ -83,7 +83,7 @@
             </div>
             <div class="form-group col-12 mb-4">
                 <label>Nama Lengkap: <span class="text-danger">*</span></label>
-                <input type="hidden" name="uedit_id" value="{{ $user->id }}">
+                <input type="hidden" name="uedit_id" value="{!! $user->id !!}">
                 <input type="text" class="form-control" name="uedit_nama" value="{{ $user->nama }}"
                     placeholder="Nama Lengkap" required>
                 <div id="err_uedit_nama"></div>
@@ -118,7 +118,7 @@
                     <select class="form-control select2" name="uedit_cabang" required>
                         <option label="Pilih"></option>
                         @foreach ($lcab as $c)
-                            <option value="{{ $c->id }}" {{ $c->id == $user->cabang_id ? 'Selected' : '' }}>
+                            <option value="{!! $c->id !!}" {{ $c->id == $user->cabang_id ? 'Selected' : '' }}>
                                 {{ $c->nama }}</option>
                         @endforeach
                     </select>
@@ -129,7 +129,7 @@
                     <select class="form-control select2" name="uedit_divisi" required>
                         <option label="Pilih"></option>
                         @foreach ($ldiv as $d)
-                            <option value="{{ $d->id }}" {{ $d->id == $user->divisi_id ? 'Selected' : '' }}>
+                            <option value="{!! $d->id !!}" {{ $d->id == $user->divisi_id ? 'Selected' : '' }}>
                                 {{ $d->nama }}</option>
                         @endforeach
                     </select>
@@ -140,7 +140,7 @@
                     <select class="form-control select2" name="uedit_jabatan" required>
                         <option label="Pilih"></option>
                         @foreach ($ljab as $j)
-                            <option value="{{ $j->id }}" {{ $j->id == $user->jabatan_id ? 'Selected' : '' }}>
+                            <option value="{!! $j->id !!}" {{ $j->id == $user->jabatan_id ? 'Selected' : '' }}>
                                 {{ $j->nama }}</option>
                         @endforeach
                     </select>

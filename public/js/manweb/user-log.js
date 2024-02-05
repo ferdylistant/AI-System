@@ -1,3 +1,5 @@
+(() => {
+    "use strict";
 async function loadDataAccess(){
     let id = window.location.pathname.split("/").pop();
     $.ajax({
@@ -142,4 +144,5 @@ $(document).ready(function () {
 
     });
 });
-
+})()
+;

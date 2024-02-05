@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
 @section('cssRequired')
-    <link rel="stylesheet" href="{{ url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/select2/dist/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/izitoast/dist/css/iziToast.min.css') }}">
     <style>
         .scrollbar-deep-purple::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
@@ -205,13 +205,13 @@
 @endsection
 
 @section('jsRequired')
-    <script src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
-    <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('vendors/select2/dist/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script src="{{ asset('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/manweb/setting.js') }}"></script>
+    <script src="{{ asset('js/manweb/setting.js') }}"></script>
 @endsection
