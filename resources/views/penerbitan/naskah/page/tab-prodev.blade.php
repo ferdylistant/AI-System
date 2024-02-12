@@ -5,6 +5,9 @@
 <div class="row">
     <div class="col-12 mb-3">
         <h5 class="section-title">Penilaian oleh: <a class="text-primary text-decoration-none" href="{{url('manajemen-web/user/' . $pn_prodev->created_by)}}"><b>{{\Str::ucfirst($pn_prodev->nama_prodev)}}</b></a></h5>
+        @if ($history === TRUE)
+        <a class="btn btn-sm btn-dark float-right" href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a>
+        @endif
     </div>
     <div class="form-group col-12 col-md-4 mb-4">
         <label>Sistematika: <span class="text-danger">*</span></label>
@@ -87,6 +90,11 @@
 @elseif($form == 'add')
 <form id="fpn1">
 <div class="row">
+    @if ($history === TRUE)
+    <div class="col-12 mb-3">
+        <a class="btn btn-sm btn-dark float-right" href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a>
+    </div>
+    @endif
     <input type="hidden" name="pn1_naskah_id" value="{{$naskah->id}}">
     <input type="hidden" name="pn1_form" value="Add">
     <div class="form-group col-12 col-md-4 mb-4">
@@ -183,6 +191,11 @@
 @elseif($form == 'edit')
 <form id="fpn1">
 <div class="row">
+    @if ($history === TRUE)
+    <div class="col-12 mb-3">
+        <a class="btn btn-sm btn-dark float-right" href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a>
+    </div>
+    @endif
     <input type="hidden" name="pn1_naskah_id" value="{{$naskah->id}}">
     <input type="hidden" name="pn1_id" value="{{$pn_prodev->id}}">
     <input type="hidden" name="pn1_form" value="Edit">

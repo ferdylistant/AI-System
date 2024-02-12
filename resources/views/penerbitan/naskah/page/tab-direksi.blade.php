@@ -30,12 +30,9 @@
         <label>Keputusan Direksi: <span class="text-danger">*</span></label>
         <select class="form-control select2" name="pn5_keputusan" required>
             <option label="Pilih"></option>
-            <option value="Reguler">Reguler</option>
-            <option value="eBook">eBook</option>
-            <option value="Reguler-eBook">Reguler-eBook</option>
-            <option value="Revisi Minor">Revisi Minor</option>
-            <option value="Revisi Mayor">Revisi Mayor</option>
-            <option value="Ditolak">Ditolak</option>
+            @foreach ($list_keputusan as $list)
+            <option value="{!!$list!!}">{{$list}}</option>
+            @endforeach
         </select>
         <div id="err_pn5_keputusan"></div>
     </div>
