@@ -243,21 +243,20 @@ class NaskahController extends Controller
                             if (in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
                                 if (!is_null($data->tgl_pn_selesai)) {
                                     $statusPenilaianDB = DB::table('penerbitan_pn_direksi')->where('naskah_id', $data->id)->select('keputusan_final')->first();
-                                        switch($statusPenilaianDB->keputusan_final) {
-                                            case 'Ditolak':
-                                                $badgeKeputusan = 'danger';
-                                                break;
-                                            case 'Revisi':
-                                                $badgeKeputusan = 'warning';
-                                                break;
-                                            default:
-                                                $badgeKeputusan = 'primary';
-                                                break;
+                                    switch ($statusPenilaianDB->keputusan_final) {
+                                        case 'Ditolak':
+                                            $badgeKeputusan = 'danger';
+                                            break;
+                                        case 'Revisi':
+                                            $badgeKeputusan = 'warning';
+                                            break;
+                                        default:
+                                            $badgeKeputusan = 'primary';
+                                            break;
+                                    }
 
-                                        }
-
-                                    $badge .= '<span class="badge badge-'.$badgeKeputusan.'" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Diputuskan: ' . $statusPenilaianDB->keputusan_final . '</span>';
-                                    if ($statusPenilaianDB->keputusan_final != 'Ditolak' || $statusPenilaianDB->keputusan_final != 'Revisi') {
+                                    $badge .= '<span class="badge badge-' . $badgeKeputusan . '" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Diputuskan: ' . $statusPenilaianDB->keputusan_final . '</span>';
+                                    if ($statusPenilaianDB->keputusan_final != 'Ditolak') {
                                         if ($data->pic_prodev == auth()->user()->id) {
                                             if (is_null($data->bukti_email_penulis)) {
                                                 $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
@@ -326,21 +325,33 @@ class NaskahController extends Controller
                             return $badge;
                         })
                         ->addColumn('action', function ($data) use ($update) {
+                            $tolak = FALSE;
+                            if (in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
+                                if (!is_null($data->tgl_pn_selesai)) {
+                                    $PenilaianDB = DB::table('penerbitan_pn_direksi')->where('naskah_id', $data->id)->select('keputusan_final')->first();
+                                    $tolak = FALSE;
+                                    if ($PenilaianDB->keputusan_final == 'Ditolak') {
+                                        $tolak = TRUE;
+                                    }
+                                }
+                            }
                             $btn = '<a href="' . url('penerbitan/naskah/melihat-naskah/' . $data->id) . '"
                                 class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" data-placement="top" title="Lihat Data">
                                 <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                            if ($update) {
-                                if ((auth()->id() == $data->pic_prodev) || (auth()->id() == $data->created_by) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                    $btn .= '<a href="' . url('penerbitan/naskah/mengubah-naskah/' . $data->id) . '"
-                                        class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                        <div><i class="fas fa-edit"></i></div></a>';
+                            if (!$tolak) {
+                                if ($update) {
+                                    if ((auth()->id() == $data->pic_prodev) || (auth()->id() == $data->created_by) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                        $btn .= '<a href="' . url('penerbitan/naskah/mengubah-naskah/' . $data->id) . '"
+                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                            <div><i class="fas fa-edit"></i></div></a>';
+                                    }
                                 }
-                            }
-                            if ((Gate::allows('do_delete', 'delete-data-naskah'))) {
-                                $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-delete-naskah btn-danger btn-icon mr-1 mt-1"
-                                data-toggle="tooltip" title="Hapus Data"
-                                data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '">
-                                <i class="fas fa-trash-alt"></i></a>';
+                                if ((Gate::allows('do_delete', 'delete-data-naskah'))) {
+                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-delete-naskah btn-danger btn-icon mr-1 mt-1"
+                                    data-toggle="tooltip" title="Hapus Data"
+                                    data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '">
+                                    <i class="fas fa-trash-alt"></i></a>';
+                                }
                             }
                             $historyData = DB::table('penerbitan_naskah_history')->where('naskah_id', $data->id)->get();
                             if (!$historyData->isEmpty()) {
@@ -354,7 +365,7 @@ class NaskahController extends Controller
                             }
                             return $btn;
                         })
-                        ->rawColumns(['kode', 'judul_asli','penulis', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'action'])
+                        ->rawColumns(['kode', 'judul_asli', 'penulis', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'action'])
                         ->make(true);
                     break;
             }
@@ -533,11 +544,15 @@ class NaskahController extends Controller
 
                     DB::table('penerbitan_naskah_penulis')->insert($daftarPenulis);
                     // DB::table('penerbitan_naskah_files')->insert($fileNaskah);
-                    $penilaian = $this->alurPenilaian($request->input('add_jalur_buku'),
-                        $request->input('add_judul_asli'), 'create-notif-from-naskah', [
-                        'id_prodev' => $request->input('add_pic_prodev'),
-                        'form_id' => $idN
-                    ]);
+                    $penilaian = $this->alurPenilaian(
+                        $request->input('add_jalur_buku'),
+                        $request->input('add_judul_asli'),
+                        'create-notif-from-naskah',
+                        [
+                            'id_prodev' => $request->input('add_pic_prodev'),
+                            'form_id' => $idN
+                        ]
+                    );
 
                     $addNaskah = [
                         'params' => 'Add Naskah',
@@ -743,12 +758,15 @@ class NaskahController extends Controller
                         ]);
                     } else {
                         if ($request->input('edit_pic_prodev') != $naskah->pic_prodev) { // Update Notifikasi jika naskah diubah. (Hanya prodev)
-                            $this->alurPenilaian($request->input('edit_jalur_buku'),
+                            $this->alurPenilaian(
+                                $request->input('edit_jalur_buku'),
                                 $request->input('edit_judul_asli'),
-                        'update-notif-from-naskah', [
-                                'id_prodev' => $request->input('edit_pic_prodev'),
-                                'form_id' => $naskah->id
-                            ]);
+                                'update-notif-from-naskah',
+                                [
+                                    'id_prodev' => $request->input('edit_pic_prodev'),
+                                    'form_id' => $naskah->id
+                                ]
+                            );
                         }
                         if ($request->input('edit_judul_asli') != $naskah->judul_asli) {
                             DB::table('todo_list')
@@ -1305,17 +1323,17 @@ class NaskahController extends Controller
         if ((Gate::allows('do_update', 'naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
             $data = DB::table('penerbitan_naskah as pn')
                 ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
-                ->where('pn.jalur_buku','Reguler')
+                ->where('pn.jalur_buku', 'Reguler')
                 ->whereNull('pn.deleted_at')
                 ->when(!is_null($belum), function ($query) use ($belum) {
-                    return $query->whereNull('pns.'.$belum);
+                    return $query->whereNull('pns.' . $belum);
                 })
                 ->when(!is_null($sudah), function ($query) use ($sudah) {
                     if ($sudah == 'mpenerbitanpemasaran') {
                         return $query->whereNotNull('pns.tgl_pn_m_pemasaran')
-                        ->whereNotNull('pns.tgl_pn_m_penerbitan');
+                            ->whereNotNull('pns.tgl_pn_m_penerbitan');
                     }
-                    return $query->whereNotNull('pns.'.$sudah);
+                    return $query->whereNotNull('pns.' . $sudah);
                 })
                 ->whereNull('pns.tgl_pn_selesai')
                 ->where('pn.pic_prodev', auth()->user()->id)->select(
@@ -1343,17 +1361,17 @@ class NaskahController extends Controller
         } else {
             $data = DB::table('penerbitan_naskah as pn')
                 ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
-                ->where('pn.jalur_buku','Reguler')
+                ->where('pn.jalur_buku', 'Reguler')
                 ->whereNull('pn.deleted_at')
                 ->when(!is_null($belum), function ($query) use ($belum) {
-                    return $query->whereNull('pns.'.$belum);
+                    return $query->whereNull('pns.' . $belum);
                 })
                 ->when(!is_null($sudah), function ($query) use ($sudah) {
                     if ($sudah == 'mpenerbitanpemasaran') {
                         return $query->whereNotNull('pns.tgl_pn_m_pemasaran')
-                        ->whereNotNull('pns.tgl_pn_m_penerbitan');
+                            ->whereNotNull('pns.tgl_pn_m_penerbitan');
                     }
-                    return $query->whereNotNull('pns.'.$sudah);
+                    return $query->whereNotNull('pns.' . $sudah);
                 })
                 ->whereNull('pns.tgl_pn_selesai')
                 ->select(
@@ -1517,7 +1535,7 @@ class NaskahController extends Controller
                 }
                 return $btn;
             })
-            ->rawColumns(['kode', 'judul_asli', 'penulis','pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'action'])
+            ->rawColumns(['kode', 'judul_asli', 'penulis', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'action'])
             ->make(true);
     }
     public function restorePage(Request $request)

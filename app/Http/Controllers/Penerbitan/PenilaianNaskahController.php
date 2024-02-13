@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Penerbitan;
 
 use Carbon\Carbon;
+use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
 use App\Events\TrackerEvent;
@@ -17,33 +18,47 @@ class PenilaianNaskahController extends Controller
         switch ($request->cat) {
             case 'prodev':
                 return $this->penilaianProdev($request);
+                break;
             case 'editset':
                 return $this->penilaianEditSet($request);
+                break;
             case 'mpemasaran':
                 return $this->penilaianMPemasaran($request);
+                break;
             case 'dpemasaran':
                 return $this->penilaianDPemasaran($request);
+                break;
             case 'penerbitan':
                 return $this->penilaianPenerbitan($request);
+                break;
             case 'direksi':
                 return $this->penilaianDireksi($request);
+                break;
             case 'form-prodev':
                 return $this->formPenilaianProdev($request);
+                break;
             case 'form-editset':
                 return $this->formPenilaianEditorSetter($request);
+                break;
             case 'form-mpemasaran':
                 return $this->formPenilaianMPemasaran($request);
+                break;
             case 'form-dpemasaran':
                 return $this->formPenilaianDPemasaran($request);
+                break;
             case 'form-mpenerbitan':
                 return $this->formPenilaianPenerbitan($request);
+                break;
             case 'form-direksi':
                 return $this->formPenilaianDireksi($request);
+                break;
+            case 'load-history-penilaian':
+                return $this->modalHistoryPenilaian($request);
+                break;
             default:
                 return abort(500);
         }
     }
-
     protected function formPenilaianProdev($request)
     {
         $request->validate([
@@ -68,12 +83,10 @@ class PenilaianNaskahController extends Controller
                     $title = 'Tambah Penilaian Prodev';
                     $pn_prodev = NULL;
                     $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
-                    $histo = is_null($historyPn) ? FALSE:TRUE;
                     if (!is_null($naskah->selesai_penilaian)) { // Edit form prodev/Draf
                         $title = 'Edit Penilaian Prodev';
                         $form = 'edit';
                         $pn_prodev = DB::table('penerbitan_pn_prodev')->where('naskah_id', $naskah->id)->first();
-                        $histo = is_null($historyPn) ? FALSE:TRUE;
                     }
 
                     return view('penerbitan.naskah.page.tab-prodev', [
@@ -82,7 +95,7 @@ class PenilaianNaskahController extends Controller
                         'pn_prodev' => $pn_prodev,
                         'kbuku' => $kbuku,
                         'title' => $title,
-                        'history' => $histo
+                        'history' => $historyPn
                     ]);
                 } else {
                     $pn_prodev = DB::table('penerbitan_pn_prodev as pnp')
@@ -93,7 +106,6 @@ class PenilaianNaskahController extends Controller
                     // $fileProdev = DB::table('penerbitan_naskah_files')->where('naskah_id', $naskah->id)
                     //     ->where('kategori', 'File Tambahan Naskah Prodev')->first();
                     $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
-                    $histo = is_null($historyPn) ? FALSE:TRUE;
                     return view('penerbitan.naskah.page.tab-prodev', [
                         'form' => 'view',
                         'naskah' => $naskah,
@@ -101,7 +113,7 @@ class PenilaianNaskahController extends Controller
                         'kbuku' => $kbuku,
                         // 'fileProdev' => $fileProdev,
                         'title' => 'Lihat Penilaian Prodev',
-                        'history' => $histo
+                        'history' => $historyPn
                     ]);
                 }
             } else {
@@ -115,14 +127,13 @@ class PenilaianNaskahController extends Controller
                             ->where('pnp.naskah_id', $naskah->id)
                             ->select('pnp.*', 'u.nama as nama_prodev')
                             ->first();
-                        $histo = is_null($historyPn) ? FALSE:TRUE;
                         return view('penerbitan.naskah.page.tab-prodev', [
                             'form' => $form,
                             'naskah' => $naskah,
                             'pn_prodev' => $pn_prodev,
                             'kbuku' => $kbuku,
                             'title' => 'Lihat Penilaian Prodev',
-                            'history' => $histo
+                            'history' => $historyPn
                         ]);
                     } else {
                         $res = '';
@@ -130,7 +141,10 @@ class PenilaianNaskahController extends Controller
                         <img src="' . asset('images/forbbiden.png') . '" width="50">
                         <h5 class="text-muted">Prodev belum membuat penilaian.</h5>';
                         if (!is_null($historyPn)) {
-                            $res .= '<p><a href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
+                            $res .= '<p><a href="javascript:void(0)" class="btn-history-penilaian"
+                            data-toggle="modal" data-target="#modalHistoryPenilaian"
+                            data-pic="PR" data-naskahid="'.$naskah->id.'">
+                            <i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
                         }
                         $res .= '</center>';
                         return $res;
@@ -144,7 +158,6 @@ class PenilaianNaskahController extends Controller
                     // $fileProdev = DB::table('penerbitan_naskah_files')->where('naskah_id', $naskah->id)
                     //     ->where('kategori', 'File Tambahan Naskah Prodev')->first();
                     $kbuku = DB::table('penerbitan_m_kelompok_buku')->get();
-                    $histo = is_null($historyPn) ? FALSE:TRUE;
                     return view('penerbitan.naskah.page.tab-prodev', [
                         'form' => 'view',
                         'naskah' => $naskah,
@@ -152,7 +165,7 @@ class PenilaianNaskahController extends Controller
                         'kbuku' => $kbuku,
                         // 'fileProdev' => $fileProdev,
                         'title' => 'Lihat Penilaian Prodev',
-                        'history' => $histo
+                        'history' => $historyPn
                     ]);
                 }
             }
@@ -163,7 +176,6 @@ class PenilaianNaskahController extends Controller
             </center>';
         }
     }
-
     protected function formPenilaianEditorSetter($request)
     {
         $request->validate([
@@ -225,7 +237,6 @@ class PenilaianNaskahController extends Controller
             </center>';
         }
     }
-
     protected function formPenilaianMPemasaran($request)
     {
         $request->validate([
@@ -257,7 +268,9 @@ class PenilaianNaskahController extends Controller
                         <img src="' . asset('images/forbbiden.png') . '" width="50">
                         <h5 class="text-muted">Prodev belum mengisi penilaian (Menunggu penilaian prodev)</h5>';
                         if (!is_null($historyPn)) {
-                            $res .= '<p><a href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
+                            $res .= '<p><a href="javascript:void(0)" class="btn-history-penilaian" data-toggle="modal" data-target="#modalHistoryPenilaian"
+                            data-pic="MPM" data-naskahid="'.$naskah->id.'">
+                            <i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
                         }
                         $res .= '</center>';
                         return $res;
@@ -265,14 +278,16 @@ class PenilaianNaskahController extends Controller
                     return view('penerbitan.naskah.page.tab-mpemasaran', [
                         'form' => 'add',
                         'naskah' => $naskah,
-                        'pilar' => $pilar
+                        'pilar' => $pilar,
+                        'history' => $historyPn
                     ]);
                 } elseif (is_null($naskah->tgl_pn_direksi) and !is_null($pn_pemasaran)) {
                     return view('penerbitan.naskah.page.tab-mpemasaran', [
                         'form' => 'edit',
                         'naskah' => $naskah,
                         'pn_pemasaran' => $pn_pemasaran,
-                        'pilar' => $pilar
+                        'pilar' => $pilar,
+                        'history' => $historyPn
                     ]);
                 } else {
                     $pn_pemasaran = DB::table('penerbitan_pn_pemasaran as pnp')
@@ -285,7 +300,8 @@ class PenilaianNaskahController extends Controller
                         'form' => 'view',
                         'naskah' => $naskah,
                         'pn_pemasaran' => $pn_pemasaran,
-                        'pilar' => $pilar
+                        'pilar' => $pilar,
+                        'history' => $historyPn
                     ]);
                 }
             } else {
@@ -301,7 +317,9 @@ class PenilaianNaskahController extends Controller
                     <img src="' . asset('images/forbbiden.png') . '" width="50">
                     <h5 class="text-muted">Pemasaran belum membuat penilaian.</h5>';
                     if (!is_null($historyPn)) {
-                        $res .= '<p><a href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
+                        $res .= '<p><a href="javascript:void(0)" class="btn-history-penilaian" data-toggle="modal" data-target="#modalHistoryPenilaian"
+                            data-pic="MPM" data-naskahid="'.$naskah->id.'">
+                            <i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
                     }
                     $res .= '</center>';
                     return $res;
@@ -310,7 +328,8 @@ class PenilaianNaskahController extends Controller
                         'form' => 'view',
                         'naskah' => $naskah,
                         'pn_pemasaran' => $pn_pemasaran,
-                        'pilar' => $pilar
+                        'pilar' => $pilar,
+                        'history' => $historyPn
                     ]);
                 }
             }
@@ -321,7 +340,6 @@ class PenilaianNaskahController extends Controller
             </center>';
         }
     }
-
     protected function formPenilaianDPemasaran($request)
     {
         $request->validate([
@@ -353,7 +371,9 @@ class PenilaianNaskahController extends Controller
                         <img src="' . asset('images/forbbiden.png') . '" width="50">
                         <h5 class="text-muted">Manager Pemasaran belum membuat penilaian (Min 2 Penilaian).</h5>';
                         if (!is_null($historyPn)) {
-                            $res .= '<p><a href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
+                            $res .= '<p><a href="javascript:void(0)" class="btn-history-penilaian" data-toggle="modal" data-target="#modalHistoryPenilaian"
+                            data-pic="DPM" data-naskahid="'.$naskah->id.'">
+                            <i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
                         }
                         $res .= '</center>';
                         return $res;
@@ -362,19 +382,22 @@ class PenilaianNaskahController extends Controller
                     return view('penerbitan.naskah.page.tab-dpemasaran', [
                         'form' => 'add',
                         'naskah' => $naskah,
+                        'history' => $historyPn
                     ]);
                 } elseif (is_null($naskah->tgl_pn_direksi) and !is_null($pn_dpemasaran)) {
                     return view('penerbitan.naskah.page.tab-dpemasaran', [
                         'form' => 'edit',
                         'naskah' => $naskah,
                         'pn_pemasaran' => $pn_dpemasaran,
+                        'history' => $historyPn
                     ]);
                 } else {
                     return view('penerbitan.naskah.page.tab-dpemasaran', [
                         'form' => 'view',
                         'naskah' => $naskah,
                         'pn_pemasaran' => $pn_dpemasaran,
-                        'nama_direktur' => DB::table('users')->where('id', $pn_dpemasaran->created_by)->first()->nama
+                        'nama_direktur' => DB::table('users')->where('id', $pn_dpemasaran->created_by)->first()->nama,
+                        'history' => $historyPn
                     ]);
                 }
             } else {
@@ -384,7 +407,9 @@ class PenilaianNaskahController extends Controller
                     <img src="' . asset('images/forbbiden.png') . '" width="50">
                     <h5 class="text-muted">Direktur Pemasaran belum membuat penilaian.</h5>';
                     if (!is_null($historyPn)) {
-                        $res .= '<p><a href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
+                        $res .= '<p><a href="javascript:void(0)" class="btn-history-penilaian" data-toggle="modal" data-target="#modalHistoryPenilaian"
+                            data-pic="DPM" data-naskahid="'.$naskah->id.'">
+                            <i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
                     }
                     $res .= '</center>';
                     return $res;
@@ -400,7 +425,8 @@ class PenilaianNaskahController extends Controller
                         'form' => 'view',
                         'naskah' => $naskah,
                         'pn_pemasaran' => $pn_dpemasaran,
-                        'nama_direktur' => $pn_dpemasaran->nama_direktur
+                        'nama_direktur' => $pn_dpemasaran->nama_direktur,
+                        'history' => $historyPn
                     ]);
                 }
             }
@@ -434,7 +460,9 @@ class PenilaianNaskahController extends Controller
                         <img src="' . asset('images/forbbiden.png') . '" width="50">
                         <h5 class="text-muted">Prodev belum mengisi penilaian (Menunggu penilaian prodev)</h5>';
                         if (!is_null($historyPn)) {
-                            $res .= '<p><a href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
+                            $res .= '<p><a href="javascript:void(0)" class="btn-history-penilaian" data-toggle="modal" data-target="#modalHistoryPenilaian"
+                            data-pic="MPN" data-naskahid="'.$naskah->id.'">
+                            <i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
                         }
                         $res .= '</center>';
                         return $res;
@@ -442,7 +470,8 @@ class PenilaianNaskahController extends Controller
 
                     return view('penerbitan.naskah.page.tab-penerbitan', [
                         'form' => 'add',
-                        'naskah' => $naskah
+                        'naskah' => $naskah,
+                        'history' => $historyPn
                     ]);
                 } elseif (is_null($naskah->tgl_pn_direksi)) {
                     $pn_penerbitan = DB::table('penerbitan_pn_penerbitan')->where('naskah_id', $naskah->id)->first();
@@ -450,6 +479,7 @@ class PenilaianNaskahController extends Controller
                         'form' => 'edit',
                         'naskah' => $naskah,
                         'pn_penerbitan' => $pn_penerbitan,
+                        'history' => $historyPn
                     ]);
                 } else {
                     $pn_penerbitan = DB::table('penerbitan_pn_penerbitan as pnp')
@@ -461,6 +491,7 @@ class PenilaianNaskahController extends Controller
                         'form' => 'view',
                         'naskah' => $naskah,
                         'pn_penerbitan' => $pn_penerbitan,
+                        'history' => $historyPn
                     ]);
                 }
             } else {
@@ -470,7 +501,9 @@ class PenilaianNaskahController extends Controller
                     <img src="' . asset('images/forbbiden.png') . '" width="50">
                     <h5 class="text-muted">Prodev belum mengisi penilaian (Menunggu penilaian prodev)</h5>';
                     if (!is_null($historyPn)) {
-                        $res .= '<p><a href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
+                        $res .= '<p><a href="javascript:void(0)" class="btn-history-penilaian" data-toggle="modal" data-target="#modalHistoryPenilaian"
+                            data-pic="MPN" data-naskahid="'.$naskah->id.'">
+                            <i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
                     }
                     $res .= '</center>';
                     return $res;
@@ -480,7 +513,9 @@ class PenilaianNaskahController extends Controller
                     <img src="' . asset('images/forbbiden.png') . '" width="50">
                     <h5 class="text-muted">Penerbitan belum membuat penilaian.</h5>';
                     if (!is_null($historyPn)) {
-                        $res .= '<p><a href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
+                        $res .= '<p><a href="javascript:void(0)" class="btn-history-penilaian" data-toggle="modal" data-target="#modalHistoryPenilaian"
+                            data-pic="MPN" data-naskahid="'.$naskah->id.'">
+                            <i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
                     }
                     $res .= '</center>';
                     return $res;
@@ -494,6 +529,7 @@ class PenilaianNaskahController extends Controller
                         'form' => 'view',
                         'naskah' => $naskah,
                         'pn_penerbitan' => $pn_penerbitan,
+                        'history' => $historyPn
                     ]);
                 }
             }
@@ -531,7 +567,8 @@ class PenilaianNaskahController extends Controller
                         return view('penerbitan.naskah.page.tab-direksi', [
                             'form' => 'add',
                             'naskah' => $naskah,
-                            'list_keputusan' => $listKeputusan
+                            'list_keputusan' => $listKeputusan,
+                            'history' => $historyPn
                         ]);
                     } else {
                         $pn_direksi = DB::table('penerbitan_pn_direksi as pnd')
@@ -542,7 +579,8 @@ class PenilaianNaskahController extends Controller
                         return view('penerbitan.naskah.page.tab-direksi', [
                             'form' => 'view',
                             'naskah' => $naskah,
-                            'pn_direksi' => $pn_direksi
+                            'pn_direksi' => $pn_direksi,
+                            'history' => $historyPn
                         ]);
                     }
                 } else {
@@ -551,7 +589,9 @@ class PenilaianNaskahController extends Controller
                     <img src="' . asset('images/forbbiden.png') . '" width="50">
                     <h5 class="text-muted">Direksi belum bisa mengisi penilaian.</h5>';
                     if (!is_null($historyPn)) {
-                        $res .= '<p><a href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
+                        $res .= '<p><a href="javascript:void(0)" class="btn-history-penilaian" data-toggle="modal" data-target="#modalHistoryPenilaian"
+                            data-pic="DU" data-naskahid="'.$naskah->id.'">
+                            <i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
                     }
                     $res .= '</center>';
                     return $res;
@@ -563,7 +603,9 @@ class PenilaianNaskahController extends Controller
                     <img src="' . asset('images/forbbiden.png') . '" width="50">
                     <h5 class="text-muted">Direksi belum membuat penilaian.</h5>';
                     if (!is_null($historyPn)) {
-                        $res .= '<p><a href="javascript:void(0)"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
+                        $res .= '<p><a href="javascript:void(0)" class="btn-history-penilaian" data-toggle="modal" data-target="#modalHistoryPenilaian"
+                            data-pic="DU" data-naskahid="'.$naskah->id.'">
+                            <i class="fas fa-folder-open"></i> Riwayat Penilaian</a></p>';
                     }
                     $res .= '</center>';
                     return $res;
@@ -576,7 +618,8 @@ class PenilaianNaskahController extends Controller
                     return view('penerbitan.naskah.page.tab-direksi', [
                         'form' => 'view',
                         'naskah' => $naskah,
-                        'pn_direksi' => $pn_direksi
+                        'pn_direksi' => $pn_direksi,
+                        'history' => $historyPn
                     ]);
                 }
             }
@@ -1377,6 +1420,17 @@ class PenilaianNaskahController extends Controller
             ]);
         DB::table('notif')->whereNull('expired')->where('permission_id', '8791f143a90e42e2a4d1d0d6b1254bad')
             ->where('form_id', $naskahId)->update(['expired' => $tgl]);
+        //? TODO LIST D UTAMA
+        $direksi = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
+            ->where('p.id', '8791f143a90e42e2a4d1d0d6b1254bad')
+            ->select('up.user_id')
+            ->get();
+        $direksi = (object)collect($direksi)->map(function ($item) use ($naskahId) {
+            return DB::table('todo_list')
+                ->where('form_id', $naskahId)
+                ->where('users_id', $item->user_id)
+                ->delete();
+        })->all();
         //? TODO LIST D PEMASARAN
         $dpemasaran = DB::table('permissions as p')->join('user_permission as up', 'up.permission_id', '=', 'p.id')
             ->where('p.id', '9beba245308543ce821efe8a3ba965e3')
@@ -1492,5 +1546,248 @@ class PenilaianNaskahController extends Controller
             'content' => json_encode($content)
         ]);
         DB::table('penerbitan_pn_prodev')->where('naskah_id', $naskahId)->delete();
+    }
+    protected function modalHistoryPenilaian($request)
+    {
+        $data = DB::table('penerbitan_pn_history')
+            ->where('naskah_id', $request->naskah_id)
+            ->where('type_pn', $request->type_pn)
+            ->orderBy('id', 'ASC')
+            ->get();
+        if ($data->isEmpty()) {
+            return abort(404);
+        }
+        switch ($request->type_pn) {
+            case 'PR':
+                return $this->modalProdev($data);
+                break;
+            case 'MPN':
+                return $this->modalMpenerbitan($data);
+                break;
+            case 'MPM':
+                return $this->modalMpemasaran($data);
+                break;
+            case 'DPM':
+                return $this->modalDpemasaran($data);
+                break;
+            case 'DU':
+                return $this->modalDireksi($data);
+                break;
+            default:
+                return abort(404);
+                break;
+        }
+    }
+    private function modalProdev($data)
+    {
+        try {
+            $html = '';
+            $html .= '<div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">PIC</th>
+                  <th scope="col">Sistematika</th>
+                  <th scope="col">Nilai Keilmuan</th>
+                  <th scope="col">Kelompok Buku</th>
+                  <th scope="col">Potensi</th>
+                  <th scope="col">Sumber Dana Pasar</th>
+                  <th scope="col">Isi Materi</th>
+                  <th scope="col">Sasaran Keilmuan</th>
+                  <th scope="col">Sasaran Pasar</th>
+                  <th scope="col">Skala Penilaian</th>
+                  <th scope="col">Saran</th>
+                </tr>
+              </thead>
+              <tbody>';
+            foreach ($data as $i => $d) {
+                $i++;
+                $content = json_decode($d->content);
+                $html .= '<tr>
+                  <th scope="row">' . $i . '</th>
+                  <td>' . User::find($content->created_by)->nama . '</td>
+                  <td>' . $content->sistematika . '</td>
+                  <td>' . $content->nilai_keilmuan . '</td>
+                  <td>' . DB::table('penerbitan_m_kelompok_buku')->where('id', $content->kelompok_buku_id)->first()->nama . '</td>
+                  <td>' . $content->potensi . '</td>
+                  <td>' . $content->sumber_dana_pasar . '</td>
+                  <td>' . $content->isi_materi . '</td>
+                  <td>' . $content->sasaran_keilmuan . '</td>
+                  <td>' . $content->sasaran_pasar . '</td>
+                  <td>' . $content->skala_penilaian . '</td>
+                  <td>' . $content->saran . '</td>
+                </tr>';
+            }
+
+            $html .= '</tbody>
+            </table>
+          </div>';
+            return ['html' => $html, 'title' => 'History Penilaian Prodev'];
+        } catch (\Exception $e) {
+            return abort(500, $e->getMessage());
+        }
+    }
+    private function modalMpenerbitan($data)
+    {
+        try {
+            $html = '';
+            $html .= '<div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">PIC</th>
+                  <th scope="col">Saran</th>
+                  <th scope="col">Potensi</th>
+                  <th scope="col">Penilaian Umum</th>
+                  <th scope="col">Catatan</th>
+                </tr>
+              </thead>
+              <tbody>';
+            foreach ($data as $i => $d) {
+                $i++;
+                $content = json_decode($d->content);
+                $html .= '<tr>
+                  <th scope="row">' . $i . '</th>
+                  <td>' . User::find($content->created_by)->nama . '</td>
+                  <td>' . $content->saran . '</td>
+                  <td>' . $content->potensi . '</td>
+                  <td>' . $content->penilaian_umum . '</td>
+                  <td>' . $content->catatan . '</td>
+                </tr>';
+            }
+
+            $html .= '</tbody>
+            </table>
+          </div>';
+            return ['html' => $html, 'title' => 'History Penilaian M.Penerbitan'];
+        } catch (\Exception $e) {
+            return abort(500, $e->getMessage());
+        }
+    }
+    private function modalMpemasaran($data)
+    {
+        try {
+            $html = '';
+            foreach ($data as $d) {
+                $content = json_decode($d->content);
+            $html .= '<div class="table-responsive">
+            <table class="table table-sm">
+            <caption>'.Carbon::parse($d->created_at)->translatedFormat('l d M y H:i').'</caption>
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">PIC</th>
+                  <th scope="col">Prospek Pasar</th>
+                  <th scope="col">Potensi Dana</th>
+                  <th scope="col">DS/TB</th>
+                  <th scope="col">Pilar</th>
+                </tr>
+              </thead>
+              <tbody>';
+                foreach ($content as $i => $c) {
+                    $i++;
+                    $html .= '<tr>
+                  <th scope="row">' . $i . '</th>
+                  <td>' . User::find($c->created_by)->nama . '</td>
+                  <td>' . $c->prospek_pasar . '</td>
+                  <td>' . $c->potensi_dana . '</td>
+                  <td>';
+                  foreach (json_decode($c->ds_tb) as $v){
+                        $html.='<span class="bullet"></span>'.$v.'<br>';
+                  }
+                  $html.= '</td>
+                  <td>';
+                  foreach (json_decode($c->pilar) as $v){
+                        $html.='<span class="bullet"></span>'.$v.'<br>';
+                  }
+                  $html.= '</td>
+                </tr>';
+                }
+                $html .='</tbody>
+            </table>
+          </div>';
+                }
+            return ['html' => $html, 'title' => 'History Penilaian M.Pemasaran'];
+        } catch (\Exception $e) {
+            return abort(500, $e->getMessage());
+        }
+    }
+    private function modalDpemasaran($data)
+    {
+        try {
+            $html = '';
+            $html .= '<div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">PIC</th>
+                  <th scope="col">Tanggapan Penilaian Prospek Pasar</th>
+                  <th scope="col">Tanggapan Penilaian Potensi Dana</th>
+                  <th scope="col">Tanggapan Penilaian DS / TB</th>
+                  <th scope="col">Tanggapan Penilaian Pilar</th>
+                </tr>
+              </thead>
+              <tbody>';
+            foreach ($data as $i => $d) {
+                $i++;
+                $content = json_decode($d->content);
+                $html .= '<tr>
+                  <th scope="row">' . $i . '</th>
+                  <td>' . User::find($content->created_by)->nama . '</td>
+                  <td>' . $content->prospek_pasar . '</td>
+                  <td>' . $content->potensi_dana . '</td>
+                  <td>' . $content->ds_tb . '</td>
+                  <td>' . $content->pilar . '</td>
+                </tr>';
+            }
+
+            $html .= '</tbody>
+            </table>
+          </div>';
+            return ['html' => $html, 'title' => 'History Penilaian D.Pemasaran'];
+        } catch (\Exception $e) {
+            return abort(500, $e->getMessage());
+        }
+    }
+    private function modalDireksi($data)
+    {
+        try {
+            $html = '';
+            $html .= '<div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">PIC</th>
+                  <th scope="col">Keputusan Direksi</th>
+                  <th scope="col">Judul Final</th>
+                  <th scope="col">Sub Judul Final</th>
+                  <th scope="col">Catatan Direksi</th>
+                </tr>
+              </thead>
+              <tbody>';
+            foreach ($data as $i => $d) {
+                $i++;
+                $content = json_decode($d->content);
+                $html .= '<tr>
+                  <th scope="row">' . $i . '</th>
+                  <td>' . User::find($content->created_by)->nama . '</td>
+                  <td>' . $content->keputusan_final . '</td>
+                  <td>' . $content->judul_final . '</td>
+                  <td>' . $content->sub_judul_final . '</td>
+                  <td>' . $content->catatan . '</td>
+                </tr>';
+            }
+
+            $html .= '</tbody>
+            </table>
+          </div>';
+            return ['html' => $html, 'title' => 'History Penilaian D.Utama'];
+        } catch (\Exception $e) {
+            return abort(500, $e->getMessage());
+        }
     }
 }

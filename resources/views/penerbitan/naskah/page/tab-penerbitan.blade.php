@@ -2,6 +2,10 @@
 <div class="row">
     <div class="col-12 mb-3">
         <h5 class="section-title">Penilaian oleh: <a class="text-primary text-decoration-none" href="{{url('manajemen-web/user/' . $pn_penerbitan->created_by)}}"><b>{{\Str::ucfirst($pn_penerbitan->nama)}}</b></a></h5>
+        @if ($history)
+        <a class="btn btn-sm btn-dark float-right btn-history-penilaian" href="javascript:void(0)" data-toggle="modal" data-target="#modalHistoryPenilaian"
+        data-pic="MPN" data-naskahid="{!!$naskah->id!!}"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a>
+        @endif
     </div>
     <div class="form-group col-12 col-md-6 mb-4">
         <label>Saran: <span class="text-danger">*</span></label>
@@ -39,6 +43,12 @@
 @elseif($form == 'add')
 <form id="fpn4">
 <div class="row">
+    @if ($history)
+    <div class="col-12 mb-3">
+        <a class="btn btn-sm btn-dark float-right btn-history-penilaian" href="javascript:void(0)" data-toggle="modal" data-target="#modalHistoryPenilaian"
+        data-pic="MPN" data-naskahid="{!!$naskah->id!!}"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a>
+    </div>
+    @endif
     <input type="hidden" name="pn4_naskah_id" value="{{$naskah->id}}">
     <input type="hidden" name="pn4_form" value="Add">
     <div class="form-group col-12 col-md-6 mb-4">
@@ -83,6 +93,12 @@
 @elseif($form == 'edit')
 <form id="fpn4">
 <div class="row">
+    @if ($history)
+    <div class="col-12 mb-3">
+        <a class="btn btn-sm btn-dark float-right btn-history-penilaian" href="javascript:void(0)" data-toggle="modal" data-target="#modalHistoryPenilaian"
+        data-pic="MPN" data-naskahid="{!!$naskah->id!!}"><i class="fas fa-folder-open"></i> Riwayat Penilaian</a>
+    </div>
+    @endif
     <input type="hidden" name="pn4_naskah_id" value="{{$naskah->id}}">
     <input type="hidden" name="pn4_form" value="Edit">
     <input type="hidden" name="pn4_id" value="{{$pn_penerbitan->id}}">

@@ -261,16 +261,7 @@
 
         </div>
     </section>
-
-    <style>
-        #md_updateSubtimeline table {
-            width: 100%;
-        }
-
-        #md_updateSubtimeline table tr th {
-            text-align: center;
-        }
-    </style>
+    @include('penerbitan.naskah.page.modal-history-penilaian')
 @endsection
 
 @section('jsRequired')
