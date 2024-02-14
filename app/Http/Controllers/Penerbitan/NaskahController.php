@@ -243,20 +243,37 @@ class NaskahController extends Controller
                             if (in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
                                 if (!is_null($data->tgl_pn_selesai)) {
                                     $statusPenilaianDB = DB::table('penerbitan_pn_direksi')->where('naskah_id', $data->id)->select('keputusan_final')->first();
-                                    switch ($statusPenilaianDB->keputusan_final) {
-                                        case 'Ditolak':
-                                            $badgeKeputusan = 'danger';
-                                            break;
-                                        case 'Revisi':
-                                            $badgeKeputusan = 'warning';
-                                            break;
-                                        default:
-                                            $badgeKeputusan = 'primary';
-                                            break;
-                                    }
+                                    if (!is_null($statusPenilaianDB)) {
+                                        switch ($statusPenilaianDB->keputusan_final) {
+                                            case 'Ditolak':
+                                                $badgeKeputusan = 'danger';
+                                                break;
+                                            case 'Revisi':
+                                                $badgeKeputusan = 'warning';
+                                                break;
+                                            default:
+                                                $badgeKeputusan = 'primary';
+                                                break;
+                                        }
 
-                                    $badge .= '<span class="badge badge-' . $badgeKeputusan . '" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Diputuskan: ' . $statusPenilaianDB->keputusan_final . '</span>';
-                                    if ($statusPenilaianDB->keputusan_final != 'Ditolak') {
+                                        $badge .= '<span class="badge badge-' . $badgeKeputusan . '" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Diputuskan: ' . $statusPenilaianDB->keputusan_final . '</span>';
+                                        if ($statusPenilaianDB->keputusan_final != 'Ditolak') {
+                                            if ($data->pic_prodev == auth()->user()->id) {
+                                                if (is_null($data->bukti_email_penulis)) {
+                                                    $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
+                                                    $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" class="text-primary mark-sent-email">Tandai data lengkap</a>';
+                                                } else {
+                                                    $badge .= '&nbsp;|&nbsp;<span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data sudah lengkap</span>';
+                                                }
+                                            } else {
+                                                if (is_null($data->bukti_email_penulis)) {
+                                                    $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
+                                                } else {
+                                                    $badge .= '&nbsp;|&nbsp;<span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data sudah lengkap</span>';
+                                                }
+                                            }
+                                        }
+                                    } else {
                                         if ($data->pic_prodev == auth()->user()->id) {
                                             if (is_null($data->bukti_email_penulis)) {
                                                 $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
@@ -272,6 +289,7 @@ class NaskahController extends Controller
                                             }
                                         }
                                     }
+
                                 } else {
                                     if (!is_null($data->penilaian_direksi)) {
                                         $badge .= '<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Diputuskan: Revisi</span>';
@@ -329,9 +347,11 @@ class NaskahController extends Controller
                             if (in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
                                 if (!is_null($data->tgl_pn_selesai)) {
                                     $PenilaianDB = DB::table('penerbitan_pn_direksi')->where('naskah_id', $data->id)->select('keputusan_final')->first();
-                                    $tolak = FALSE;
-                                    if ($PenilaianDB->keputusan_final == 'Ditolak') {
-                                        $tolak = TRUE;
+                                    if (!is_null($PenilaianDB)) {
+                                        $tolak = FALSE;
+                                        if ($PenilaianDB->keputusan_final == 'Ditolak') {
+                                            $tolak = TRUE;
+                                        }
                                     }
                                 }
                             }
