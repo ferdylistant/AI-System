@@ -186,7 +186,8 @@ $(document).ready(function () {
       });
     $('#fm_FilterPenilaian').submit(function (e) {
         e.preventDefault();
-        let el = $(this).get(0)
+        let el = $(this).get(0),
+            cardWrap = $(this).closest(".card");
         $.ajax({
             type: 'POST',
             url: baseUrl + '/ajax/filter-penilaian',
@@ -194,6 +195,7 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             beforeSend: function () {
+                cardWrap.addClass("card-progress");
                 $('button[type="submit"]')
                     .prop("disabled", true)
                     .addClass("btn-progress");
@@ -316,11 +318,15 @@ $(document).ready(function () {
                                     trigger: 'hover'
                                 })
                             })
+                $('html, body').animate({
+                    scrollTop: $("#div_filterPenilaian").offset().top
+                }, 800);
             },
             error: (err) => {
                 console.log(err);
             },
             complete: () => {
+                cardWrap.removeClass("card-progress");
                 $('button[type="submit"]')
                     .prop("disabled", false)
                     .removeClass("btn-progress");
