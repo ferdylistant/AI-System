@@ -1,165 +1,165 @@
-/******/ (() => { // webpackBootstrap
-var __webpack_exports__ = {};
-/*!******************************!*\
-  !*** ./resources/js/main.js ***!
-  \******************************/
-var _$_99e2 = ["content", "attr", "meta[name=\"csrf-token\"]", "reload", "location", "ajaxSetup", "status", "Request too many!", "ajaxError", "span", "name", "[]", "", "replace", "append", "invalid-feedback", "addClass", "#err_", "image-preview", "hasClass", "parent", "border-color", "#dc3545", "css", "is-valid", "removeClass", "is-invalid", "#ddd", ".note-editor *", "validate", "success", "Okay!", "fas fa-check-circle", "topRight", "rgba(0, 0, 0, 0.6)", "flipInX", "flipOutX", "error", "Oops!", "fas fa-times-circle", "file", "maxSize", "canvas", "createElement", "base64", "indexOf", ",", "split", ";", ":", "length", "charCodeAt", "width", "height", "drawImage", "2d", "getContext", "image/jpeg", "toDataURL", "match", "type", "Not an image", "onload", "src", "result", "target", "readAsDataURL", "POST", "origin", "/notification", "beep", "a", "children", "#containerNotf", "eq", "div", "ajax"];
-$[_$_99e2[5]]({
-  headers: {
-    'X-CSRF-TOKEN': $(_$_99e2[2])[_$_99e2[1]](_$_99e2[0])
-  },
-  statusCode: {
-    401: function _() {
-      window[_$_99e2[4]][_$_99e2[3]]();
-    }
-  }
-});
-$(document)[_$_99e2[8]](function (_0x2ED0, _0x2F2D, _0x2EEF, _0x2F0E) {
-  if (_0x2F2D[_$_99e2[6]] == 429) {
-    alert(_$_99e2[7]);
-  } else {
-    if (_0x2F2D[_$_99e2[6]] == 401) {
-      window[_$_99e2[4]][_$_99e2[3]]();
-    }
-  }
-});
-function jqueryValidation_(_0x31F6, _0x3234) {
-  var _0x3215 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  var _0x31D7 = _0x3234 === undefined ? {} : _0x3234; //19
-  return $(_0x31F6)[_$_99e2[29]]({
-    errorElement: _$_99e2[9],
-    errorPlacement: function errorPlacement(_0x3253, _0x31F6) {
-      var _0x3272 = _0x31F6[_$_99e2[1]](_$_99e2[10]); //25
-      _0x3272 = _0x3272[_$_99e2[13]](_$_99e2[11], _$_99e2[12]);
-      $(_$_99e2[17] + _0x3272)[_$_99e2[16]](_$_99e2[15])[_$_99e2[14]](_0x3253);
-    },
-    highlight: function highlight(_0x31F6) {
-      if ($(_0x31F6)[_$_99e2[20]]()[_$_99e2[19]](_$_99e2[18])) {
-        $(_0x31F6)[_$_99e2[20]]()[_$_99e2[23]](_$_99e2[21], _$_99e2[22]);
-      } else {
-        $(_0x31F6)[_$_99e2[16]](_$_99e2[26])[_$_99e2[25]](_$_99e2[24]);
-      }
-    },
-    unhighlight: function unhighlight(_0x31F6) {
-      if ($(_0x31F6)[_$_99e2[20]]()[_$_99e2[19]](_$_99e2[18])) {
-        $(_0x31F6)[_$_99e2[20]]()[_$_99e2[23]](_$_99e2[21], _$_99e2[27]);
-      } else {
-        $(_0x31F6)[_$_99e2[25]](_$_99e2[26]);
-      }
-    },
-    rules: _0x31D7,
-    ignore: _$_99e2[28],
-    messages: _0x3215
-  });
+var _$_99e2=["content","attr","meta[name=\"csrf-token\"]","reload","location","ajaxSetup","status","Request too many!","ajaxError","span","name","[]","","replace","append","invalid-feedback","addClass","#err_","image-preview","hasClass","parent","border-color","#dc3545","css","is-valid","removeClass","is-invalid","#ddd",".note-editor *","validate","success","Okay!","fas fa-check-circle","topRight","rgba(0, 0, 0, 0.6)","flipInX","flipOutX","error","Oops!","fas fa-times-circle","file","maxSize","canvas","createElement","base64","indexOf",",","split",";",":","length","charCodeAt","width","height","drawImage","2d","getContext","image/jpeg","toDataURL","match","type","Not an image","onload","src","result","target","readAsDataURL","POST","origin","/notification","beep","a","children","#containerNotf","eq","div","ajax"];
+$[_$_99e2[5]]({headers:{'X-CSRF-TOKEN':$(_$_99e2[2])[_$_99e2[1]](_$_99e2[0])},statusCode:{401:function()
+{
+	window[_$_99e2[4]][_$_99e2[3]]()
 }
-function notifToast(_0x32CF, _0x3291) {
-  var _0x32B0 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-  if (_0x32CF == _$_99e2[30]) {
-    iziToast[_$_99e2[30]]({
-      title: _$_99e2[31],
-      icon: _$_99e2[32],
-      message: _0x3291,
-      position: _$_99e2[33],
-      timeout: 2000,
-      overlayColor: _$_99e2[34],
-      transitionIn: _$_99e2[35],
-      transitionOut: _$_99e2[36],
-      transitionInMobile: _$_99e2[35],
-      transitionOutMobile: _$_99e2[36],
-      onClosing: function onClosing() {
-        if (_0x32B0) {
-          location[_$_99e2[3]]();
-        }
-      }
-    });
-  } else {
-    if (_0x32CF == _$_99e2[37]) {
-      iziToast[_$_99e2[37]]({
-        title: _$_99e2[38],
-        icon: _$_99e2[39],
-        message: _0x3291,
-        position: _$_99e2[33],
-        timeout: 2000,
-        overlayColor: _$_99e2[34],
-        transitionIn: _$_99e2[35],
-        transitionOut: _$_99e2[36],
-        transitionInMobile: _$_99e2[35],
-        transitionOutMobile: _$_99e2[36]
-      });
-    }
-  }
+}});$(document)[_$_99e2[8]](function(_0x2ED0,_0x2F2D,_0x2EEF,_0x2F0E)
+{
+	if(_0x2F2D[_$_99e2[6]]== 429)
+	{
+		alert(_$_99e2[7])
+	}
+	else
+	{
+		if(_0x2F2D[_$_99e2[6]]== 401)
+		{
+			window[_$_99e2[4]][_$_99e2[3]]()
+		}
+
+	}
+
 }
-var resizeImage = function resizeImage(_0x2EEF) {
-  var _0x2F8A = _0x2EEF[_$_99e2[40]]; //89
-  var _0x2FC8 = _0x2EEF[_$_99e2[41]]; //90
-  var _0x2FE7 = new FileReader(); //91
-  var _0x2FA9 = new Image(); //92
-  var _0x2F4C = document[_$_99e2[43]](_$_99e2[42]); //93
-  var _0x2F6B = function _0x2F6B(_0x3044) {
-    var _0x3025 = _0x3044[_$_99e2[47]](_$_99e2[46])[0][_$_99e2[45]](_$_99e2[44]) >= 0 ? atob(_0x3044[_$_99e2[47]](_$_99e2[46])[1]) : unescape(_0x3044[_$_99e2[47]](_$_99e2[46])[1]); //95
-    var _0x30C0 = _0x3044[_$_99e2[47]](_$_99e2[46])[0][_$_99e2[47]](_$_99e2[49])[1][_$_99e2[47]](_$_99e2[48])[0]; //98
-    var _0x30A1 = _0x3025[_$_99e2[50]]; //99
-    var _0x3082 = new Uint8Array(_0x30A1); //100
-    for (var _0x3063 = 0; _0x3063 < _0x30A1; _0x3063++) {
-      _0x3082[_0x3063] = _0x3025[_$_99e2[51]](_0x3063);
-    }
-    //101
-    return new Blob([_0x3082], {
-      type: _0x30C0
-    });
-  }; //94
-  var _0x3006 = function _0x3006() {
-    var _0x311D = _0x2FA9[_$_99e2[52]]; //108
-    var _0x30FE = _0x2FA9[_$_99e2[53]]; //109
-    if (_0x311D > _0x30FE) {
-      if (_0x311D > _0x2FC8) {
-        _0x30FE *= _0x2FC8 / _0x311D;
-        _0x311D = _0x2FC8;
-      }
-    } else {
-      if (_0x30FE > _0x2FC8) {
-        _0x311D *= _0x2FC8 / _0x30FE;
-        _0x30FE = _0x2FC8;
-      }
-    }
-    //110
-    _0x2F4C[_$_99e2[52]] = _0x311D;
-    _0x2F4C[_$_99e2[53]] = _0x30FE;
-    _0x2F4C[_$_99e2[56]](_$_99e2[55])[_$_99e2[54]](_0x2FA9, 0, 0, _0x311D, _0x30FE);
-    var _0x30DF = _0x2F4C[_$_99e2[58]](_$_99e2[57]); //124
-    return _0x2F6B(_0x30DF);
-  }; //107
-  return new Promise(function (_0x315B, _0x313C) {
-    if (!_0x2F8A[_$_99e2[60]][_$_99e2[59]](/image.*/)) {
-      _0x313C(new Error(_$_99e2[61]));
-      return;
-    }
-    //128
-    _0x2FE7[_$_99e2[62]] = function (_0x317A) {
-      _0x2FA9[_$_99e2[62]] = function () {
-        return _0x315B(_0x3006());
-      };
-      _0x2FA9[_$_99e2[63]] = _0x317A[_$_99e2[65]][_$_99e2[64]];
-    };
-    _0x2FE7[_$_99e2[66]](_0x2F8A);
-  });
-}; //88
-$(function () {
-  $[_$_99e2[76]]({
-    type: _$_99e2[67],
-    url: window[_$_99e2[4]][_$_99e2[68]] + _$_99e2[69],
-    data: {},
-    success: function success(_0x3199) {
-      if (_0x3199 != _$_99e2[12]) {
-        $(_$_99e2[73])[_$_99e2[72]](_$_99e2[71])[_$_99e2[16]](_$_99e2[70]);
-        $(_$_99e2[73])[_$_99e2[72]](_$_99e2[75])[_$_99e2[72]]()[_$_99e2[74]](1)[_$_99e2[14]](_0x3199);
-      }
-    },
-    error: function error(_0x31B8) {
-      $(_$_99e2[73])[_$_99e2[72]](_$_99e2[75])[_$_99e2[72]]()[_$_99e2[74]](1)[_$_99e2[14]](_0x31B8);
-    }
-  });
-});
+);function jqueryValidation_(_0x31F6,_0x3234,_0x3215= {})
+{
+	let _0x31D7=_0x3234=== undefined?{}:_0x3234;//19
+	return $(_0x31F6)[_$_99e2[29]]({errorElement:_$_99e2[9],errorPlacement:function(_0x3253,_0x31F6)
+	{
+		let _0x3272=_0x31F6[_$_99e2[1]](_$_99e2[10]);//25
+		_0x3272= _0x3272[_$_99e2[13]](_$_99e2[11],_$_99e2[12]);$(_$_99e2[17]+ _0x3272)[_$_99e2[16]](_$_99e2[15])[_$_99e2[14]](_0x3253)
+	}
+	,highlight:function(_0x31F6)
+	{
+		if($(_0x31F6)[_$_99e2[20]]()[_$_99e2[19]](_$_99e2[18]))
+		{
+			$(_0x31F6)[_$_99e2[20]]()[_$_99e2[23]](_$_99e2[21],_$_99e2[22])
+		}
+		else
+		{
+			$(_0x31F6)[_$_99e2[16]](_$_99e2[26])[_$_99e2[25]](_$_99e2[24])
+		}
+
+	}
+	,unhighlight:function(_0x31F6)
+	{
+		if($(_0x31F6)[_$_99e2[20]]()[_$_99e2[19]](_$_99e2[18]))
+		{
+			$(_0x31F6)[_$_99e2[20]]()[_$_99e2[23]](_$_99e2[21],_$_99e2[27])
+		}
+		else
+		{
+			$(_0x31F6)[_$_99e2[25]](_$_99e2[26])
+		}
+
+	}
+	,rules:_0x31D7,ignore:_$_99e2[28],messages:_0x3215})
+}
+function notifToast(_0x32CF,_0x3291,_0x32B0= false)
+{
+	if(_0x32CF== _$_99e2[30])
+	{
+		iziToast[_$_99e2[30]]({title:_$_99e2[31],icon:_$_99e2[32],message:_0x3291,position:_$_99e2[33],timeout:2000,overlayColor:_$_99e2[34],transitionIn:_$_99e2[35],transitionOut:_$_99e2[36],transitionInMobile:_$_99e2[35],transitionOutMobile:_$_99e2[36],onClosing:function()
+		{
+			if(_0x32B0)
+			{
+				location[_$_99e2[3]]()
+			}
+
+		}
+		})
+	}
+	else
+	{
+		if(_0x32CF== _$_99e2[37])
+		{
+			iziToast[_$_99e2[37]]({title:_$_99e2[38],icon:_$_99e2[39],message:_0x3291,position:_$_99e2[33],timeout:2000,overlayColor:_$_99e2[34],transitionIn:_$_99e2[35],transitionOut:_$_99e2[36],transitionInMobile:_$_99e2[35],transitionOutMobile:_$_99e2[36]})
+		}
+
+	}
+
+}
+let resizeImage=function(_0x2EEF)
+{
+	let _0x2F8A=_0x2EEF[_$_99e2[40]];//89
+	let _0x2FC8=_0x2EEF[_$_99e2[41]];//90
+	let _0x2FE7= new FileReader();//91
+	let _0x2FA9= new Image();//92
+	let _0x2F4C=document[_$_99e2[43]](_$_99e2[42]);//93
+	let _0x2F6B=function(_0x3044)
+	{
+		let _0x3025=_0x3044[_$_99e2[47]](_$_99e2[46])[0][_$_99e2[45]](_$_99e2[44])>= 0?atob(_0x3044[_$_99e2[47]](_$_99e2[46])[1]):unescape(_0x3044[_$_99e2[47]](_$_99e2[46])[1]);//95
+		let _0x30C0=_0x3044[_$_99e2[47]](_$_99e2[46])[0][_$_99e2[47]](_$_99e2[49])[1][_$_99e2[47]](_$_99e2[48])[0];//98
+		let _0x30A1=_0x3025[_$_99e2[50]];//99
+		let _0x3082= new Uint8Array(_0x30A1);//100
+		for(let _0x3063=0;_0x3063< _0x30A1;_0x3063++)
+		{
+			_0x3082[_0x3063]= _0x3025[_$_99e2[51]](_0x3063)
+		}
+		//101
+		return  new Blob([_0x3082],{type:_0x30C0})
+	}
+	;//94
+	let _0x3006=function()
+	{
+		let _0x311D=_0x2FA9[_$_99e2[52]];//108
+		let _0x30FE=_0x2FA9[_$_99e2[53]];//109
+		if(_0x311D> _0x30FE)
+		{
+			if(_0x311D> _0x2FC8)
+			{
+				_0x30FE*= _0x2FC8/ _0x311D;_0x311D= _0x2FC8
+			}
+
+		}
+		else
+		{
+			if(_0x30FE> _0x2FC8)
+			{
+				_0x311D*= _0x2FC8/ _0x30FE;_0x30FE= _0x2FC8
+			}
+
+		}
+		//110
+		_0x2F4C[_$_99e2[52]]= _0x311D;_0x2F4C[_$_99e2[53]]= _0x30FE;_0x2F4C[_$_99e2[56]](_$_99e2[55])[_$_99e2[54]](_0x2FA9,0,0,_0x311D,_0x30FE);let _0x30DF=_0x2F4C[_$_99e2[58]](_$_99e2[57]);//124
+		return _0x2F6B(_0x30DF)
+	}
+	;//107
+	return  new Promise(function(_0x315B,_0x313C)
+	{
+		if(!_0x2F8A[_$_99e2[60]][_$_99e2[59]](/image.*/))
+		{
+			_0x313C( new Error(_$_99e2[61]));return
+		}
+		//128
+		_0x2FE7[_$_99e2[62]]= function(_0x317A)
+		{
+			_0x2FA9[_$_99e2[62]]= function()
+			{
+				return _0x315B(_0x3006())
+			}
+			;_0x2FA9[_$_99e2[63]]= _0x317A[_$_99e2[65]][_$_99e2[64]]
+		}
+		;_0x2FE7[_$_99e2[66]](_0x2F8A)
+	}
+	)
+}
+;//88
+$(function()
+{
+	$[_$_99e2[76]]({type:_$_99e2[67],url:window[_$_99e2[4]][_$_99e2[68]]+ _$_99e2[69],data:{},success:function(_0x3199)
+	{
+		if(_0x3199!= _$_99e2[12])
+		{
+			$(_$_99e2[73])[_$_99e2[72]](_$_99e2[71])[_$_99e2[16]](_$_99e2[70]);$(_$_99e2[73])[_$_99e2[72]](_$_99e2[75])[_$_99e2[72]]()[_$_99e2[74]](1)[_$_99e2[14]](_0x3199)
+		}
+
+	}
+	,error:function(_0x31B8)
+	{
+		$(_$_99e2[73])[_$_99e2[72]](_$_99e2[75])[_$_99e2[72]]()[_$_99e2[74]](1)[_$_99e2[14]](_0x31B8)
+	}
+	})
+}
+)
 // $.ajaxSetup({
 //     headers: {
 //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -319,5 +319,3 @@ $(function () {
 //         }
 //     })
 // });
-/******/ })()
-;
