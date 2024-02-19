@@ -2,11 +2,11 @@ var baseUrl = window.location.origin + "/penerbitan/naskah";
 $(document).ready(function () {
     $('#fm_FilterPenilaian').trigger("reset");
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl, {
-                trigger: 'hover'
-            })
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl, {
+            trigger: 'hover'
         })
+    })
     function loadData() {
         $.ajax({
             url: baseUrl + "?request_=getCountNaskah",
@@ -33,7 +33,7 @@ $(document).ready(function () {
         "responsive": true,
         "autoWidth": false,
         "aaSorting": [],
-        "dom": "<'row'<'col-sm-6'B><'col-sm-6'f>>" +
+        "dom": "<'row'<'col-sm-4' <'jalbuk'>><'col-sm-4'<'kelengkapan'>><'col-sm-4'<'keputusan'>>>" + "<'row'<'col-sm-3'B><'col-sm-6 text-center' <'totalData'>><'col-sm-3'f>>" +
             "<'row'<'col-sm-12'tr>>" +
             "<'row'<'col-sm-5'i><'col-sm-7'p>>",
         scrollX: true,
@@ -145,7 +145,6 @@ $(document).ready(function () {
             'print', 'excel', 'pdf'
         ]
     });
-
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
         console.log(settings);
         console.log(message);
@@ -155,13 +154,41 @@ $(document).ready(function () {
             window.location.reload();
         }
     };
+    $("div.jalbuk").html(`<div class="input-group mb-1">
+        <select data-column="4" name="status_filter_jb" id="status_filter_jb"
+            class="form-control select-filter-jb status_filter_jb">
+            <option label="Pilih Filter Data"></option>
+        </select>
+        <button type="button"
+            class="btn btn-outline-danger clear_field_jb text-danger align-self-center"
+            data-toggle="tooltip" title="Reset" hidden><i
+                class="fas fa-times"></i></button>
+    </div>`);
+    $("div.kelengkapan").html(`<div class="input-group mb-1">
+    <select data-column="7" name="status_filter" id="status_filter"
+        class="form-control select-filter status_filter">
+        <option label="Pilih Filter Data"></option>
+    </select>
+    <button type="button"
+        class="btn btn-outline-danger clear_field text-danger align-self-center"
+        data-toggle="tooltip" title="Reset" hidden><i
+            class="fas fa-times"></i></button>
+    </div>`);
+    $("div.keputusan").html(`<div class="input-group mb-1">
+    <select data-column="7" name="status_filter_kep" id="status_filter_kep"
+        class="form-control select-filter-kep status_filter_kep">
+        <option label="Pilih Filter Data"></option>
+    </select>
+    <button type="button"
+        class="btn btn-outline-danger clear_field_kep text-danger align-self-center"
+        data-toggle="tooltip" title="Reset" hidden><i
+            class="fas fa-times"></i></button>
+    </div>`);
+    $("div.totalData").html(`<span class="badge badge-warning"
+    style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i
+        class="fas fa-database"></i> Total data naskah
+    masuk: <b id="totalNaskah">0</b></span>`);
     loadData();
-    // tableNaskah.on('init.dt', function (e) {
-    //     tableNaskah.page(56).draw(false);
-    //     // tableNaskah.order( [[ 1, 'desc' ]] ).draw( false );
-    //     var info = tableNaskah.page.info();
-    //     console.log(info.pages);
-    // });
 
     var checkBoxes = $('input:checkbox');
     checkBoxes.change(function () {
@@ -169,21 +196,21 @@ $(document).ready(function () {
         $('button[type="reset"]').prop('disabled', checkBoxes.filter(':checked').length < 1);
     });
     $('input:checkbox').change();
-    $("input:checkbox").on('click', function() {
+    $("input:checkbox").on('click', function () {
         // in the handler, 'this' refers to the box clicked on
         var $box = $(this);
         if ($box.is(":checked")) {
-          // the name of the box is retrieved using the .attr() method
-          // as it is assumed and expected to be immutable
-          var group = "input:checkbox[name='" + $box.attr("name") + "']";
-          // the checked state of the group/box on the other hand will change
-          // and the current value is retrieved using .prop() method
-          $(group).prop("checked", false);
-          $box.prop("checked", true);
+            // the name of the box is retrieved using the .attr() method
+            // as it is assumed and expected to be immutable
+            var group = "input:checkbox[name='" + $box.attr("name") + "']";
+            // the checked state of the group/box on the other hand will change
+            // and the current value is retrieved using .prop() method
+            $(group).prop("checked", false);
+            $box.prop("checked", true);
         } else {
-          $box.prop("checked", false);
+            $box.prop("checked", false);
         }
-      });
+    });
     $('#fm_FilterPenilaian').submit(function (e) {
         e.preventDefault();
         let el = $(this).get(0),
@@ -210,7 +237,7 @@ $(document).ready(function () {
                     "responsive": true,
                     "autoWidth": false,
                     "aaSorting": [],
-                    "dom": "<'row'<'col-sm-6'B><'col-sm-6'f>>" +
+                    "dom": "<'row'<'col-sm-4' <'jalbuk'>><'col-sm-4'<'kelengkapan'>><'col-sm-4'<'keputusan'>>>" + "<'row'<'col-sm-3'B><'col-sm-6 text-center' <'totalData'>><'col-sm-3'f>>" +
                         "<'row'<'col-sm-12'tr>>" +
                         "<'row'<'col-sm-5'i><'col-sm-7'p>>",
                     scrollX: true,
@@ -313,11 +340,255 @@ $(document).ready(function () {
                     ]
                 });
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip]'))
-                            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                                return new bootstrap.Tooltip(tooltipTriggerEl, {
-                                    trigger: 'hover'
-                                })
-                            })
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl, {
+                        trigger: 'hover'
+                    })
+                });
+                $("div.jalbuk").html(`<div class="input-group mb-1">
+        <select data-column="4" name="status_filter_jb" id="status_filter_jb"
+            class="form-control select-filter-jb status_filter_jb">
+            <option label="Pilih Filter Data"></option>
+        </select>
+        <button type="button"
+            class="btn btn-outline-danger clear_field_jb text-danger align-self-center"
+            data-toggle="tooltip" title="Reset" hidden><i
+                class="fas fa-times"></i></button>
+        </div>`);
+                $("div.kelengkapan").html(`<div class="input-group mb-1">
+        <select data-column="7" name="status_filter" id="status_filter"
+            class="form-control select-filter status_filter">
+            <option label="Pilih Filter Data"></option>
+        </select>
+        <button type="button"
+            class="btn btn-outline-danger clear_field text-danger align-self-center"
+            data-toggle="tooltip" title="Reset" hidden><i
+                class="fas fa-times"></i></button>
+        </div>`);
+                $("div.keputusan").html(`<div class="input-group mb-1">
+        <select data-column="7" name="status_filter_kep" id="status_filter_kep"
+            class="form-control select-filter-kep status_filter_kep">
+            <option label="Pilih Filter Data"></option>
+        </select>
+        <button type="button"
+            class="btn btn-outline-danger clear_field_kep text-danger align-self-center"
+            data-toggle="tooltip" title="Reset" hidden><i
+                class="fas fa-times"></i></button>
+        </div>`);
+                $("div.totalData").html(`<span class="badge badge-warning"
+        style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i
+            class="fas fa-database"></i> Total data naskah
+        masuk: <b id="totalNaskah">0</b></span>`);
+                $(".status_filter_jb").select2({
+                    minimumResultsForSearch: -1,
+                    placeholder: 'Filter Jalur Buku',
+                    ajax: {
+                        url: baseUrl + "?request_=selectFilterJalurbuku",
+                        type: "GET",
+                        data: function (params) {
+                            var queryParameters = {
+                                term: params.term
+                            };
+                            return queryParameters;
+                        },
+                        processResults: function (data) {
+                            // console.log(data);
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        text: item,
+                                        id: item,
+                                    };
+                                }),
+                            };
+                        },
+                    },
+                }).on("change", function (e) {
+                    if (this.value) {
+                        $(".clear_field_jb").removeAttr("hidden");
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        tableNaskah.column($(this).data('column'))
+                            .search(val ? val : '', true, false)
+                            .draw();
+                        cardWrap = $(this).closest(".card");
+                        if (val == "Reguler") {
+                            $.ajax({
+                                url: baseUrl + "?request_=getCountNaskahReguler",
+                                type: "GET",
+                                dataType: "JSON",
+                                beforeSend: function () {
+                                    cardWrap.addClass("card-progress");
+                                },
+                                success: function (data) {
+                                    // console.log(data);
+                                    $("#countPenilaian").attr("hidden", false);
+                                    $("#countPenilaian").html(data.html);
+                                    $("#naskahBelumDinilai").prop('Counter', 0).animate({
+                                        Counter: data.belumDinilai
+                                    }, {
+                                        duration: 4000,
+                                        easing: 'swing',
+                                        step: function (now) {
+                                            $(this).text(Math.ceil(now) + ' Naskah');
+                                        }
+                                    });
+                                    $("#animate-count-prodev").prop('Counter', 0).animate({
+                                        Counter: data.countProdev
+                                    }, {
+                                        duration: 4000,
+                                        easing: 'swing',
+                                        step: function (now) {
+                                            $(this).text(Math.ceil(now));
+                                        }
+                                    });
+                                    $("#animate-count-mpenerbitan").prop('Counter', 0).animate({
+                                        Counter: data.countMPenerbitan
+                                    }, {
+                                        duration: 4000,
+                                        easing: 'swing',
+                                        step: function (now) {
+                                            $(this).text(Math.ceil(now));
+                                        }
+                                    });
+                                    $("#animate-count-mpemasaran").prop('Counter', 0).animate({
+                                        Counter: data.countMPemasaran
+                                    }, {
+                                        duration: 4000,
+                                        easing: 'swing',
+                                        step: function (now) {
+                                            $(this).text(Math.ceil(now));
+                                        }
+                                    });
+                                    $("#animate-count-dpemasaran").prop('Counter', 0).animate({
+                                        Counter: data.countDPemasaran
+                                    }, {
+                                        duration: 4000,
+                                        easing: 'swing',
+                                        step: function (now) {
+                                            $(this).text(Math.ceil(now));
+                                        }
+                                    });
+                                    $("#animate-count-direksi").prop('Counter', 0).animate({
+                                        Counter: data.countDireksi
+                                    }, {
+                                        duration: 4000,
+                                        easing: 'swing',
+                                        step: function (now) {
+                                            $(this).text(Math.ceil(now));
+                                        }
+                                    });
+                                },
+                                complete: function () {
+                                    cardWrap.removeClass("card-progress");
+                                }
+                            });
+                        } else {
+                            cardWrap.addClass("card-progress");
+                            setTimeout(function () {
+                                cardWrap.removeClass("card-progress");
+                            }, 1000);
+                            $("#countPenilaian").attr("hidden", true);
+                        }
+                    }
+                });
+                $(".status_filter").select2({
+                    minimumResultsForSearch: -1,
+                    placeholder: 'Filter Data Lengkap/Belum',
+                    ajax: {
+                        url: baseUrl + "?request_=selectFilterKelengkapanData",
+                        type: "GET",
+                        data: function (params) {
+                            var queryParameters = {
+                                term: params.term
+                            };
+                            return queryParameters;
+                        },
+                        processResults: function (data) {
+                            // console.log(data);
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        text: item,
+                                        id: item,
+                                    };
+                                }),
+                            };
+                        }
+                    }
+                }).on('change', function () {
+                    if (this.value) {
+                        $(".clear_field").removeAttr("hidden");
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        tableNaskah.column($(this).data('column'))
+                            .search(val ? val : '', true, false)
+                            .draw();
+                    }
+                });
+                $(".status_filter_kep").select2({
+                    minimumResultsForSearch: -1,
+                    placeholder: 'Keputusan Final',
+                    ajax: {
+                        url: baseUrl + "?request_=selectFilterKeputusanDireksi",
+                        type: "GET",
+                        data: function (params) {
+                            var queryParameters = {
+                                term: params.term
+                            };
+                            return queryParameters;
+                        },
+                        processResults: function (data) {
+                            // console.log(data);
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        text: item,
+                                        id: item,
+                                    };
+                                }),
+                            };
+                        }
+                    }
+                }).on('change', function () {
+                    if (this.value) {
+                        $(".clear_field_kep").removeAttr("hidden");
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        tableNaskah.column($(this).data('column'))
+                            .search(val ? val : '', true, false)
+                            .draw();
+                    }
+                });
+                $(".clear_field_jb").on('click', function (e) {
+                    var checkReg = false;
+                    if ($(".select-filter-jb").val() === 'Reguler') {
+                        var checkReg = true
+                    }
+                    $(".select-filter-jb").val(null).trigger("change");
+                    var val = $.fn.dataTable.util.escapeRegex($(".select-filter-jb").val());
+                    tableNaskah.column($(".select-filter-jb").data('column'))
+                        .search(val ? val : '', true, false)
+                        .draw();
+                    if (checkReg === true) {
+                        $("#countPenilaian").attr("hidden", checkReg);
+                    }
+                    $(".clear_field_jb").attr("hidden", "hidden");
+                });
+                $('.clear_field').click(function () {
+                    $(".select-filter").val(null).trigger('change');
+                    var val = $.fn.dataTable.util.escapeRegex($(".select-filter").val());
+                    tableNaskah.column($(".select-filter").data('column'))
+                        .search(val ? val : '', true, false)
+                        .draw();
+                    $('.clear_field').attr('hidden', 'hidden');
+                });
+                $('.clear_field_kep').click(function () {
+                    $(".select-filter-kep").val(null).trigger('change');
+                    var val = $.fn.dataTable.util.escapeRegex($(".select-filter-kep").val());
+                    tableNaskah.column($(".select-filter-kep").data('column'))
+                        .search(val ? val : '', true, false)
+                        .draw();
+                    $('.clear_field_kep').attr('hidden', 'hidden');
+                });
+                loadData();
                 $('html, body').animate({
                     scrollTop: $("#div_filterPenilaian").offset().top
                 }, 800);
@@ -349,7 +620,7 @@ $(document).ready(function () {
             "responsive": true,
             "autoWidth": false,
             "aaSorting": [],
-            "dom": "<'row'<'col-sm-6'B><'col-sm-6'f>>" +
+            "dom": "<'row'<'col-sm-4' <'jalbuk'>><'col-sm-4'<'kelengkapan'>><'col-sm-4'<'keputusan'>>>" + "<'row'<'col-sm-3'B><'col-sm-6 text-center' <'totalData'>><'col-sm-3'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-5'i><'col-sm-7'p>>",
             scrollX: true,
@@ -461,97 +732,250 @@ $(document).ready(function () {
                 'print', 'excel', 'pdf'
             ]
         });
-    });
-    $('[name="status_filter_jb"]').on('change', function () {
-        var val = $.fn.dataTable.util.escapeRegex($(this).val());
-        tableNaskah.column($(this).data('column'))
-            .search(val ? val : '', true, false)
-            .draw();
-        cardWrap = $(this).closest(".card");
-        if (val == "Reguler") {
-            $.ajax({
-                url: baseUrl + "?request_=getCountNaskahReguler",
+        $("div.jalbuk").html(`<div class="input-group mb-1">
+        <select data-column="4" name="status_filter_jb" id="status_filter_jb"
+            class="form-control select-filter-jb status_filter_jb">
+            <option label="Pilih Filter Data"></option>
+        </select>
+        <button type="button"
+            class="btn btn-outline-danger clear_field_jb text-danger align-self-center"
+            data-toggle="tooltip" title="Reset" hidden><i
+                class="fas fa-times"></i></button>
+        </div>`);
+        $("div.kelengkapan").html(`<div class="input-group mb-1">
+        <select data-column="7" name="status_filter" id="status_filter"
+            class="form-control select-filter status_filter">
+            <option label="Pilih Filter Data"></option>
+        </select>
+        <button type="button"
+            class="btn btn-outline-danger clear_field text-danger align-self-center"
+            data-toggle="tooltip" title="Reset" hidden><i
+                class="fas fa-times"></i></button>
+        </div>`);
+        $("div.keputusan").html(`<div class="input-group mb-1">
+        <select data-column="7" name="status_filter_kep" id="status_filter_kep"
+            class="form-control select-filter-kep status_filter_kep">
+            <option label="Pilih Filter Data"></option>
+        </select>
+        <button type="button"
+            class="btn btn-outline-danger clear_field_kep text-danger align-self-center"
+            data-toggle="tooltip" title="Reset" hidden><i
+                class="fas fa-times"></i></button>
+        </div>`);
+        $("div.totalData").html(`<span class="badge badge-warning"
+        style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;"><i
+            class="fas fa-database"></i> Total data naskah
+        masuk: <b id="totalNaskah">0</b></span>`);
+        $(".status_filter_jb").select2({
+            minimumResultsForSearch: -1,
+            placeholder: 'Filter Jalur Buku',
+            ajax: {
+                url: baseUrl + "?request_=selectFilterJalurbuku",
                 type: "GET",
-                dataType: "JSON",
-                beforeSend: function () {
-                    cardWrap.addClass("card-progress");
+                data: function (params) {
+                    var queryParameters = {
+                        term: params.term
+                    };
+                    return queryParameters;
                 },
-                success: function (data) {
+                processResults: function (data) {
                     // console.log(data);
-                    $("#countPenilaian").attr("hidden", false);
-                    $("#countPenilaian").html(data.html);
-                    $("#naskahBelumDinilai").prop('Counter', 0).animate({
-                        Counter: data.belumDinilai
-                    }, {
-                        duration: 4000,
-                        easing: 'swing',
-                        step: function (now) {
-                            $(this).text(Math.ceil(now) + ' Naskah');
-                        }
-                    });
-                    $("#animate-count-prodev").prop('Counter', 0).animate({
-                        Counter: data.countProdev
-                    }, {
-                        duration: 4000,
-                        easing: 'swing',
-                        step: function (now) {
-                            $(this).text(Math.ceil(now));
-                        }
-                    });
-                    $("#animate-count-mpenerbitan").prop('Counter', 0).animate({
-                        Counter: data.countMPenerbitan
-                    }, {
-                        duration: 4000,
-                        easing: 'swing',
-                        step: function (now) {
-                            $(this).text(Math.ceil(now));
-                        }
-                    });
-                    $("#animate-count-mpemasaran").prop('Counter', 0).animate({
-                        Counter: data.countMPemasaran
-                    }, {
-                        duration: 4000,
-                        easing: 'swing',
-                        step: function (now) {
-                            $(this).text(Math.ceil(now));
-                        }
-                    });
-                    $("#animate-count-dpemasaran").prop('Counter', 0).animate({
-                        Counter: data.countDPemasaran
-                    }, {
-                        duration: 4000,
-                        easing: 'swing',
-                        step: function (now) {
-                            $(this).text(Math.ceil(now));
-                        }
-                    });
-                    $("#animate-count-direksi").prop('Counter', 0).animate({
-                        Counter: data.countDireksi
-                    }, {
-                        duration: 4000,
-                        easing: 'swing',
-                        step: function (now) {
-                            $(this).text(Math.ceil(now));
-                        }
-                    });
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item,
+                                id: item,
+                            };
+                        }),
+                    };
                 },
-                complete: function () {
-                    cardWrap.removeClass("card-progress");
+            },
+        }).on("change", function (e) {
+            if (this.value) {
+                $(".clear_field_jb").removeAttr("hidden");
+                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                tableNaskah.column($(this).data('column'))
+                    .search(val ? val : '', true, false)
+                    .draw();
+                cardWrap = $(this).closest(".card");
+                if (val == "Reguler") {
+                    $.ajax({
+                        url: baseUrl + "?request_=getCountNaskahReguler",
+                        type: "GET",
+                        dataType: "JSON",
+                        beforeSend: function () {
+                            cardWrap.addClass("card-progress");
+                        },
+                        success: function (data) {
+                            // console.log(data);
+                            $("#countPenilaian").attr("hidden", false);
+                            $("#countPenilaian").html(data.html);
+                            $("#naskahBelumDinilai").prop('Counter', 0).animate({
+                                Counter: data.belumDinilai
+                            }, {
+                                duration: 4000,
+                                easing: 'swing',
+                                step: function (now) {
+                                    $(this).text(Math.ceil(now) + ' Naskah');
+                                }
+                            });
+                            $("#animate-count-prodev").prop('Counter', 0).animate({
+                                Counter: data.countProdev
+                            }, {
+                                duration: 4000,
+                                easing: 'swing',
+                                step: function (now) {
+                                    $(this).text(Math.ceil(now));
+                                }
+                            });
+                            $("#animate-count-mpenerbitan").prop('Counter', 0).animate({
+                                Counter: data.countMPenerbitan
+                            }, {
+                                duration: 4000,
+                                easing: 'swing',
+                                step: function (now) {
+                                    $(this).text(Math.ceil(now));
+                                }
+                            });
+                            $("#animate-count-mpemasaran").prop('Counter', 0).animate({
+                                Counter: data.countMPemasaran
+                            }, {
+                                duration: 4000,
+                                easing: 'swing',
+                                step: function (now) {
+                                    $(this).text(Math.ceil(now));
+                                }
+                            });
+                            $("#animate-count-dpemasaran").prop('Counter', 0).animate({
+                                Counter: data.countDPemasaran
+                            }, {
+                                duration: 4000,
+                                easing: 'swing',
+                                step: function (now) {
+                                    $(this).text(Math.ceil(now));
+                                }
+                            });
+                            $("#animate-count-direksi").prop('Counter', 0).animate({
+                                Counter: data.countDireksi
+                            }, {
+                                duration: 4000,
+                                easing: 'swing',
+                                step: function (now) {
+                                    $(this).text(Math.ceil(now));
+                                }
+                            });
+                        },
+                        complete: function () {
+                            cardWrap.removeClass("card-progress");
+                        }
+                    });
+                } else {
+                    cardWrap.addClass("card-progress");
+                    setTimeout(function () {
+                        cardWrap.removeClass("card-progress");
+                    }, 1000);
+                    $("#countPenilaian").attr("hidden", true);
                 }
-            });
-        } else {
-            cardWrap.addClass("card-progress");
-            setTimeout(function () {
-                cardWrap.removeClass("card-progress");
-            }, 1000);
-            $("#countPenilaian").attr("hidden", true);
-        }
-    });
-    $('[name="status_filter"]').on('change', function () {
-        var val = $.fn.dataTable.util.escapeRegex($(this).val());
-        tableNaskah.column($(this).data('column'))
-            .search(val ? val : '', true, false)
-            .draw();
+            }
+        });
+        $(".status_filter").select2({
+            minimumResultsForSearch: -1,
+            placeholder: 'Filter Data Lengkap/Belum',
+            ajax: {
+                url: baseUrl + "?request_=selectFilterKelengkapanData",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        term: params.term
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    // console.log(data);
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item,
+                                id: item,
+                            };
+                        }),
+                    };
+                }
+            }
+        }).on('change', function () {
+            if (this.value) {
+                $(".clear_field").removeAttr("hidden");
+                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                tableNaskah.column($(this).data('column'))
+                    .search(val ? val : '', true, false)
+                    .draw();
+            }
+        });
+        $(".status_filter_kep").select2({
+            minimumResultsForSearch: -1,
+            placeholder: 'Keputusan Final',
+            ajax: {
+                url: baseUrl + "?request_=selectFilterKeputusanDireksi",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        term: params.term
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    // console.log(data);
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item,
+                                id: item,
+                            };
+                        }),
+                    };
+                }
+            }
+        }).on('change', function () {
+            if (this.value) {
+                $(".clear_field_kep").removeAttr("hidden");
+                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                tableNaskah.column($(this).data('column'))
+                    .search(val ? val : '', true, false)
+                    .draw();
+            }
+        });
+        $(".clear_field_jb").on('click', function (e) {
+            var checkReg = false;
+            if ($(".select-filter-jb").val() === 'Reguler') {
+                var checkReg = true
+            }
+            $(".select-filter-jb").val(null).trigger("change");
+            var val = $.fn.dataTable.util.escapeRegex($(".select-filter-jb").val());
+            tableNaskah.column($(".select-filter-jb").data('column'))
+                .search(val ? val : '', true, false)
+                .draw();
+            if (checkReg === true) {
+                $("#countPenilaian").attr("hidden", checkReg);
+            }
+            $(".clear_field_jb").attr("hidden", "hidden");
+        });
+        $('.clear_field').click(function () {
+            $(".select-filter").val(null).trigger('change');
+            var val = $.fn.dataTable.util.escapeRegex($(".select-filter").val());
+            tableNaskah.column($(".select-filter").data('column'))
+                .search(val ? val : '', true, false)
+                .draw();
+            $('.clear_field').attr('hidden', 'hidden');
+        });
+        $('.clear_field_kep').click(function () {
+            $(".select-filter-kep").val(null).trigger('change');
+            var val = $.fn.dataTable.util.escapeRegex($(".select-filter-kep").val());
+            tableNaskah.column($(".select-filter-kep").data('column'))
+                .search(val ? val : '', true, false)
+                .draw();
+            $('.clear_field_kep').attr('hidden', 'hidden');
+        });
+        loadData();
     });
     $("#tb_Naskah").on("click", ".btn-tracker", function (e) {
         var id = $(this).data("id");
@@ -641,31 +1065,214 @@ $(document).ready(function () {
         $('.load-more').data("paginate", 2);
         $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
-    $(".select-filter-jb")
-        .select2({
-            placeholder: "Filter Jalur Buku",
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(".clear_field_jb").removeAttr("hidden");
-                // $(this).valid();
-            }
-        });
-    $(".clear_field_jb").click(function () {
-        $(".select-filter-jb").val("").trigger("change");
-        $(".clear_field_jb").attr("hidden", "hidden");
-    });
-    $(".select-filter").select2({
-        placeholder: 'Filter Data Lengkap/Belum\xa0\xa0',
-    }).on('change', function (e) {
+    $(".status_filter_jb").select2({
+        minimumResultsForSearch: -1,
+        placeholder: 'Filter Jalur Buku',
+        ajax: {
+            url: baseUrl + "?request_=selectFilterJalurbuku",
+            type: "GET",
+            data: function (params) {
+                var queryParameters = {
+                    term: params.term
+                };
+                return queryParameters;
+            },
+            processResults: function (data) {
+                // console.log(data);
+                return {
+                    results: $.map(data, function (item) {
+                        return {
+                            text: item,
+                            id: item,
+                        };
+                    }),
+                };
+            },
+        },
+    }).on("change", function (e) {
         if (this.value) {
-            $('.clear_field').removeAttr('hidden');
-            // $(this).valid();
+            $(".clear_field_jb").removeAttr("hidden");
+            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+            tableNaskah.column($(this).data('column'))
+                .search(val ? val : '', true, false)
+                .draw();
+            cardWrap = $(this).closest(".card");
+            if (val == "Reguler") {
+                $.ajax({
+                    url: baseUrl + "?request_=getCountNaskahReguler",
+                    type: "GET",
+                    dataType: "JSON",
+                    beforeSend: function () {
+                        cardWrap.addClass("card-progress");
+                    },
+                    success: function (data) {
+                        // console.log(data);
+                        $("#countPenilaian").attr("hidden", false);
+                        $("#countPenilaian").html(data.html);
+                        $("#naskahBelumDinilai").prop('Counter', 0).animate({
+                            Counter: data.belumDinilai
+                        }, {
+                            duration: 4000,
+                            easing: 'swing',
+                            step: function (now) {
+                                $(this).text(Math.ceil(now) + ' Naskah');
+                            }
+                        });
+                        $("#animate-count-prodev").prop('Counter', 0).animate({
+                            Counter: data.countProdev
+                        }, {
+                            duration: 4000,
+                            easing: 'swing',
+                            step: function (now) {
+                                $(this).text(Math.ceil(now));
+                            }
+                        });
+                        $("#animate-count-mpenerbitan").prop('Counter', 0).animate({
+                            Counter: data.countMPenerbitan
+                        }, {
+                            duration: 4000,
+                            easing: 'swing',
+                            step: function (now) {
+                                $(this).text(Math.ceil(now));
+                            }
+                        });
+                        $("#animate-count-mpemasaran").prop('Counter', 0).animate({
+                            Counter: data.countMPemasaran
+                        }, {
+                            duration: 4000,
+                            easing: 'swing',
+                            step: function (now) {
+                                $(this).text(Math.ceil(now));
+                            }
+                        });
+                        $("#animate-count-dpemasaran").prop('Counter', 0).animate({
+                            Counter: data.countDPemasaran
+                        }, {
+                            duration: 4000,
+                            easing: 'swing',
+                            step: function (now) {
+                                $(this).text(Math.ceil(now));
+                            }
+                        });
+                        $("#animate-count-direksi").prop('Counter', 0).animate({
+                            Counter: data.countDireksi
+                        }, {
+                            duration: 4000,
+                            easing: 'swing',
+                            step: function (now) {
+                                $(this).text(Math.ceil(now));
+                            }
+                        });
+                    },
+                    complete: function () {
+                        cardWrap.removeClass("card-progress");
+                    }
+                });
+            } else {
+                cardWrap.addClass("card-progress");
+                setTimeout(function () {
+                    cardWrap.removeClass("card-progress");
+                }, 1000);
+                $("#countPenilaian").attr("hidden", true);
+            }
         }
     });
+    $(".status_filter").select2({
+        minimumResultsForSearch: -1,
+        placeholder: 'Filter Data Lengkap/Belum',
+        ajax: {
+            url: baseUrl + "?request_=selectFilterKelengkapanData",
+            type: "GET",
+            data: function (params) {
+                var queryParameters = {
+                    term: params.term
+                };
+                return queryParameters;
+            },
+            processResults: function (data) {
+                // console.log(data);
+                return {
+                    results: $.map(data, function (item) {
+                        return {
+                            text: item,
+                            id: item,
+                        };
+                    }),
+                };
+            }
+        }
+    }).on('change', function () {
+        if (this.value) {
+            $(".clear_field").removeAttr("hidden");
+            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+            tableNaskah.column($(this).data('column'))
+                .search(val ? val : '', true, false)
+                .draw();
+        }
+    });
+    $(".status_filter_kep").select2({
+        minimumResultsForSearch: -1,
+        placeholder: 'Keputusan Final',
+        ajax: {
+            url: baseUrl + "?request_=selectFilterKeputusanDireksi",
+            type: "GET",
+            data: function (params) {
+                var queryParameters = {
+                    term: params.term
+                };
+                return queryParameters;
+            },
+            processResults: function (data) {
+                // console.log(data);
+                return {
+                    results: $.map(data, function (item) {
+                        return {
+                            text: item,
+                            id: item,
+                        };
+                    }),
+                };
+            }
+        }
+    }).on('change', function () {
+        if (this.value) {
+            $(".clear_field_kep").removeAttr("hidden");
+            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+            tableNaskah.column($(this).data('column'))
+                .search(val ? val : '', true, false)
+                .draw();
+        }
+    });
+    $(".clear_field_jb").on('click', function (e) {
+        var checkReg = false;
+        if ($(".select-filter-jb").val() === 'Reguler') {
+            var checkReg = true
+        }
+        $(".select-filter-jb").val(null).trigger("change");
+        var val = $.fn.dataTable.util.escapeRegex($(".select-filter-jb").val());
+        tableNaskah.column($(".select-filter-jb").data('column'))
+            .search(val ? val : '', true, false)
+            .draw();
+        if (checkReg === true) {
+            $("#countPenilaian").attr("hidden", checkReg);
+        }
+        $(".clear_field_jb").attr("hidden", "hidden");
+    });
     $('.clear_field').click(function () {
-        $(".select-filter").val('').trigger('change');
+        $(".select-filter").val(null).trigger('change');
+        var val = $.fn.dataTable.util.escapeRegex($(".select-filter").val());
+        tableNaskah.column($(".select-filter").data('column'))
+            .search(val ? val : '', true, false)
+            .draw();
         $('.clear_field').attr('hidden', 'hidden');
+    });
+    $('.clear_field_kep').click(function () {
+        $(".select-filter-kep").val(null).trigger('change');
+        var val = $.fn.dataTable.util.escapeRegex($(".select-filter-kep").val());
+        tableNaskah.column($(".select-filter-kep").data('column'))
+            .search(val ? val : '', true, false)
+            .draw();
+        $('.clear_field_kep').attr('hidden', 'hidden');
     });
     $(document).on("click", ".action-modal", function (e) {
         e.preventDefault();

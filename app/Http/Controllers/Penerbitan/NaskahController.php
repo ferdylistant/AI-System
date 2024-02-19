@@ -144,6 +144,20 @@ class NaskahController extends Controller
                         ->get();
                     return $data;
                     break;
+                case 'selectFilterJalurbuku':
+                    $type = DB::select(DB::raw("SHOW COLUMNS FROM penerbitan_naskah WHERE Field = 'jalur_buku'"))[0]->Type;
+                    preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+                    $jalurB = explode("','", $matches[1]);
+                    return $jalurB;
+                    break;
+                case 'selectFilterKelengkapanData':
+                    $result = ['Data Belum Lengkap','Data Sudah Lengkap'];
+                    return response()->json($result);
+                    break;
+                case 'selectFilterKeputusanDireksi':
+                    $result = ['Diterima','Ditolak','Revisi','Tidak Dinilai'];
+                    return response()->json($result);
+                    break;
                 default:
                     if ((Gate::allows('do_update', 'naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
                         $data = DB::table('penerbitan_naskah as pn')
@@ -390,21 +404,8 @@ class NaskahController extends Controller
                     break;
             }
         }
-        $dataLengkap = [
-            [
-                'value' => 'Data Belum Lengkap'
-            ],
-            [
-                'value' => 'Data Sudah Lengkap',
-            ]
-        ];
-        $type = DB::select(DB::raw("SHOW COLUMNS FROM penerbitan_naskah WHERE Field = 'jalur_buku'"))[0]->Type;
-        preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
-        $jalurB = explode("','", $matches[1]);
         return view('penerbitan.naskah.index', [
             'title' => 'Naskah Penerbitan',
-            'data_naskah_penulis' => $dataLengkap,
-            'jalur_b' => $jalurB
         ]);
     }
     protected function showModalJumlahPenilaian($request)
