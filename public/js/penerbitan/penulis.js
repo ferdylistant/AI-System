@@ -97,6 +97,11 @@ $(function () {
                 title: "Ponsel",
             },
             {
+                data: "status",
+                name: "status",
+                title: "Status Data",
+            },
+            {
                 data: "history",
                 name: "history",
                 title: "History Data",

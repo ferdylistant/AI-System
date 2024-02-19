@@ -40,6 +40,30 @@ class PenulisController extends Controller
                     $update = Gate::allows('do_update', 'ubah-data-penulis');
                     $delete = Gate::allows('do_delete', 'hapus-data-penulis');
                     return Datatables::of($data)
+                        ->addColumn('status', function ($data) {
+                            $html ='';
+                            $resPen = DB::table('penerbitan_penulis')
+                            ->where('id', $data->id)
+                            ->whereNotNull('tanggal_lahir')
+                            ->whereNotNull('tempat_lahir')
+                            ->whereNotNull('kewarganegaraan')
+                            ->whereNotNull('alamat_domisili')
+                            ->whereNotNull('ponsel_domisili')
+                            ->whereNotNull('telepon_domisili')
+                            ->whereNotNull('email')
+                            ->whereNotNull('bank')
+                            ->whereNotNull('bank_atasnama')
+                            ->whereNotNull('no_rekening')
+                            ->whereNotNull('ktp')
+                            ->whereNotNull('scan_ktp')
+                            ->whereNotNull('url_tentang_penulis')
+                            ->first();
+                            $badge = is_null($resPen) ? 'danger':'success';
+                            $text = is_null($resPen) ? 'Belum Lengkap':'Sudah Lengkap';
+                            $icon = is_null($resPen) ? 'fas fa-exclamation-triangle':'fas fa-check-circle';
+                            $html .= '<span class="badge badge-'.$badge.'"><i class="'.$icon.'"></i> '.$text.'</span>';
+                            return $html;
+                        })
                         ->addColumn('history', function ($data) {
                             $historyData = DB::table('penerbitan_penulis_history')
                                 ->where('penerbitan_penulis_id', $data->id)
@@ -78,7 +102,7 @@ class PenulisController extends Controller
                             }
                             return $btn;
                         })
-                        ->rawColumns(['history', 'action'])
+                        ->rawColumns(['status','history', 'action'])
                         ->make(true);
                     break;
                 case 'count-data':
