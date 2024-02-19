@@ -1,6 +1,6 @@
 @extends('layouts.app_auth')
 @section('cssNeeded')
-    <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/izitoast/dist/css/iziToast.min.css') }}">
     <style>
         .forget-pwd>a {
             color: #dc3545;
@@ -68,7 +68,7 @@
                 <div class="row">
                     <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
                         <div class="login-brand">
-                            <img src="{!! url('images/logo.png') !!}" alt="logo" class="shadow-light rounded-circle">
+                            <img src="{!! asset('images/logo.png') !!}" alt="logo" class="shadow-light rounded-circle">
                             AI System
                         </div>
                         <div class="card card-primary">
@@ -149,6 +149,6 @@
     </div>
 @endsection
 @section('scriptAddon')
-    <script type="text/javascript" src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('js/login.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/login.js') }}"></script>
 @endsection

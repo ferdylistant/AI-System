@@ -12,10 +12,10 @@
 // $arrPilihan_ = ["Baik", "Cukup", "Kurang"];
 ?>
 @section('cssRequired')
-    <link rel="stylesheet" href="{{ url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/izitoast/dist/css/iziToast.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/select2/dist/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/bootstrap-daterangepicker/daterangepicker.css') }}">
     {{-- <link rel="stylesheet" href="{{ url('vendors/flipbook/min_version/ipages.min.css') }}"> --}}
 @endsection
 
@@ -188,7 +188,7 @@
                                         <li class="nav-item">
                                             <a class="nav-link {{ $startPn == 'guest' ? 'active' : ($startPn == 'prodev' ? 'active' : '') }}"
                                                 id="prodev-tab" data-toggle="tab" data-penilaian="Prodev"
-                                                data-naskahid="{{ $naskah->id }}" href="#pn_Prodev" role="tab"
+                                                data-naskahid="{!! $naskah->id !!}" href="#pn_Prodev" role="tab"
                                                 aria-controls="prodev">Prodev&nbsp;<span
                                                     class="{{ $badgeDraf }}">{{ $badgeDrafText }}</span></a>
 
@@ -196,32 +196,32 @@
                                         <li class="nav-item">
                                             <a class="nav-link {{ in_array($startPn, ['editor', 'setter']) ? 'active' : '' }}"
                                                 id="editset-tab" data-toggle="tab" data-penilaian="EditSet"
-                                                data-naskahid="{{ $naskah->id }}" href="#pn_EditSet" role="tab"
+                                                data-naskahid="{!! $naskah->id !!}" href="#pn_EditSet" role="tab"
                                                 aria-controls="editset">Editor/Setter</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link {{ $startPn == 'mpenerbitan' ? 'active' : '' }}"
                                                 id="mpenerbitan-tab" data-toggle="tab" data-penilaian="mPenerbitan"
-                                                data-naskahid="{{ $naskah->id }}" href="#pn_mPenerbitan" role="tab"
+                                                data-naskahid="{!! $naskah->id !!}" href="#pn_mPenerbitan" role="tab"
                                                 aria-controls="mpenerbitan">M.Penerbitan</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link {{ $startPn == 'mpemasaran' ? 'active' : '' }}"
                                                 id="mpemasaran-tab" data-toggle="tab" data-penilaian="mPemasaran"
-                                                data-naskahid="{{ $naskah->id }}" href="#pn_mPemasaran" role="tab"
+                                                data-naskahid="{!! $naskah->id !!}" href="#pn_mPemasaran" role="tab"
                                                 aria-controls="mpemasaran">M.Pemasaran</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link {{ $startPn == 'dpemasaran' ? 'active' : '' }}"
                                                 id="dpemasaran-tab" data-toggle="tab" data-penilaian="dPemasaran"
-                                                data-naskahid="{{ $naskah->id }}" href="#pn_dPemasaran" role="tab"
+                                                data-naskahid="{!! $naskah->id !!}" href="#pn_dPemasaran" role="tab"
                                                 aria-controls="dpemasaran">D.Pemasaran</a>
                                         </li>
 
                                         <li class="nav-item">
                                             <a class="nav-link {{ $startPn == 'direksi' ? 'active' : '' }}"
                                                 id="direksi-tab"data-toggle="tab" data-penilaian="Direksi"
-                                                data-naskahid="{{ $naskah->id }}" href="#pn_Direksi" role="tab"
+                                                data-naskahid="{!! $naskah->id !!}" href="#pn_Direksi" role="tab"
                                                 aria-controls="direksi">Direksi</a>
                                         </li>
                                     </ul>
@@ -265,19 +265,19 @@
 @endsection
 
 @section('jsRequired')
-    <script src="{{ url('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
-    <script src="{{ url('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
-    <script src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
-    {{-- <script src="{{ url('vendors/flipbook/min_version/pdf.min.js') }}"></script> --}}
-    {{-- <script src="{{ url('vendors/flipbook/min_version/jquery.ipages.min.js') }}"></script> --}}
-    <script src="{{ url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
-    <script src="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
-    <script src="{{ url('vendors/js-skeleton-loader-master/index.js') }}"></script>
+    <script src="{{ asset('vendors/jquery-validation/dist/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('vendors/jquery-validation/dist/additional-methods.min.js') }}"></script>
+    <script src="{{ asset('vendors/select2/dist/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    {{-- <script src="{{ asset('vendors/flipbook/min_version/pdf.min.js') }}"></script> --}}
+    {{-- <script src="{{ asset('vendors/flipbook/min_version/jquery.ipages.min.js') }}"></script> --}}
+    <script src="{{ asset('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
+    <script src="{{ asset('vendors/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <script src="{{ asset('vendors/js-skeleton-loader-master/index.js') }}"></script>
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/penerbitan/penilaian_naskah.js') }}"></script>
+    <script src="{{ asset('js/penerbitan/penilaian_naskah.js') }}"></script>
 @endsection
 
 @yield('jsNeededForm')

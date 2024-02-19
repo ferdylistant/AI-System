@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('cssRequired')
-<link rel="stylesheet" href="{{url('vendors/izitoast/dist/css/iziToast.min.css')}}">
-<link rel="stylesheet" href="{{url('vendors/select2/dist/css/select2.min.css')}}">
-<link rel="stylesheet" href="{{url('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css')}}">
+<link rel="stylesheet" href="{{asset('vendors/izitoast/dist/css/iziToast.min.css')}}">
+<link rel="stylesheet" href="{{asset('vendors/select2/dist/css/select2.min.css')}}">
+<link rel="stylesheet" href="{{asset('vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker.standalone.css')}}">
 @endsection
 
 @section('cssNeeded')
@@ -187,11 +187,11 @@
 @endsection
 
 @section('jsRequired')
-<script src="{{url('vendors/jquery-validation/dist/jquery.validate.min.js')}}"></script>
-<script src="{{url('vendors/jquery-validation/dist/additional-methods.min.js')}}"></script>
-<script src="{{url('vendors/select2/dist/js/select2.full.min.js')}}"></script>
-<script src="{{url('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js')}}"></script>
-<script src="{{url('vendors/izitoast/dist/js/iziToast.min.js')}}"></script>
+<script src="{{asset('vendors/jquery-validation/dist/jquery.validate.min.js')}}"></script>
+<script src="{{asset('vendors/jquery-validation/dist/additional-methods.min.js')}}"></script>
+<script src="{{asset('vendors/select2/dist/js/select2.full.min.js')}}"></script>
+<script src="{{asset('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js')}}"></script>
+<script src="{{asset('vendors/izitoast/dist/js/iziToast.min.js')}}"></script>
 @endsection
 
 

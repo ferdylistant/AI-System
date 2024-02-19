@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('cssRequired')
-<link rel="stylesheet" href="{{url('vendors/jquery-magnify/dist/jquery.magnify.min.css')}}">
-<link rel="stylesheet" href="{{url('vendors/summernote/dist/summernote-bs4.css')}}">
-<link rel="stylesheet" href="{{url('vendors/flipbook/min_version/ipages.min.css')}}">
+<link rel="stylesheet" href="{{asset('vendors/jquery-magnify/dist/jquery.magnify.min.css')}}">
+<link rel="stylesheet" href="{{asset('vendors/summernote/dist/summernote-bs4.css')}}">
+<link rel="stylesheet" href="{{asset('vendors/flipbook/min_version/ipages.min.css')}}">
 @endsection
 
 @section('cssNeeded')
@@ -26,7 +26,7 @@
             <div class="col-12 col-md-12">
                 <div class="card card-primary profile-widget">
                     <div class="profile-widget-header">
-                        <img alt="image" src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->foto_penulis)}}" class="rounded-circle profile-widget-picture">
+                        <img alt="image" src="{{asset('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->foto_penulis)}}" class="rounded-circle profile-widget-picture">
                     </div>
                     <div class="profile-widget-description">
                         <div class="row mb-5">
@@ -213,7 +213,7 @@
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Scan NPWP: </label>
                                 @if(!is_null($penulis->scan_npwp))
-                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_npwp)}}"
+                                <div class="ipgs-flipbook" data-pdf-src="{{asset('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_npwp)}}"
                                     data-book-engine="onepageswipe" style="max-height: 300px;"></div>
                                 @else
                                 <div><small class="text-muted">#Tidak ada file diupload.</small></div>
@@ -222,7 +222,7 @@
                             <div class="form-group col-12 col-md-4 mb-4">
                                 <label>Scan KTP: </label>
                                 @if(!is_null($penulis->scan_ktp))
-                                <div class="ipgs-flipbook" data-pdf-src="{{url('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_ktp)}}"
+                                <div class="ipgs-flipbook" data-pdf-src="{{asset('storage/penerbitan/penulis/'.$penulis->id.'/'.$penulis->scan_ktp)}}"
                                     data-book-engine="onepageswipe" style="max-height: 300px;"></div>
                                 @else
                                 <div><small class="text-muted">#Tidak ada file diupload.</small></div>
@@ -259,10 +259,10 @@
 @endsection
 
 @section('jsRequired')
-<script src="{{url('vendors/jquery-magnify/dist/jquery.magnify.min.js')}}"></script>
-<script src="{{url('vendors/summernote/dist/summernote-bs4.js')}}"></script>
-<script src="{{url('vendors/flipbook/min_version/pdf.min.js')}}"></script>
-<script src="{{url('vendors/flipbook/min_version/jquery.ipages.min.js')}}"></script>
+<script src="{{asset('vendors/jquery-magnify/dist/jquery.magnify.min.js')}}"></script>
+<script src="{{asset('vendors/summernote/dist/summernote-bs4.js')}}"></script>
+<script src="{{asset('vendors/flipbook/min_version/pdf.min.js')}}"></script>
+<script src="{{asset('vendors/flipbook/min_version/jquery.ipages.min.js')}}"></script>
 @endsection
 
 @section('jsNeeded')

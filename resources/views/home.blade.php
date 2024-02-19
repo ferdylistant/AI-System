@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
 @section('cssRequired')
-    <link rel="stylesheet" href="{{ url('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/select2/dist/css/select2.min.css') }}">
-    {{-- <link rel="stylesheet" href="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.css') }}">
-    <link rel="stylesheet" href="{{ url('vendors/fullcalendar/lib/main.min.css') }}"> --}}
-    {{-- <link rel="stylesheet" href="{{ url('vendors/jquery.timeline-master/dist/css/timeline.min.css') }}"> --}}
+    <link rel="stylesheet" href="{{ asset('vendors/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/datatables.net-select-bs4/css/select.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/select2/dist/css/select2.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('vendors/bootstrap-daterangepicker/daterangepicker.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/fullcalendar/lib/main.min.css') }}"> --}}
+    {{-- <link rel="stylesheet" href="{{ asset('vendors/jquery.timeline-master/dist/css/timeline.min.css') }}"> --}}
     <link rel="stylesheet" type="text/css"
         href="https://cdn.jsdelivr.net/gh/ycodetech/horizontal-timeline-2.0@2/css/horizontal_timeline.2.0.min.css">
-    <link rel="stylesheet" href="{{ url('vendors/izitoast/dist/css/iziToast.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/izitoast/dist/css/iziToast.min.css') }}">
 @endsection
 
 @section('cssNeeded')
@@ -534,11 +534,11 @@
 @endsection
 
 @section('jsRequired')
-    <script type="text/javascript" src="{{ url('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}">
+    <script type="text/javascript" src="{{ asset('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/datatables.net-select-bs4/js/select.bootstrap4.min.js') }}">
     </script>
-    <script type="text/javascript" src="{{ url('vendors/select2/dist/js/select2.full.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     {{-- <script type="text/javascript" src="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
     <script type="text/javascript" src="{{ url('vendors/fullcalendar/lib/main.min.js') }}"></script> --}}
     <script type="text/javascript"
@@ -550,7 +550,7 @@
 
 
 @section('jsNeeded')
-    <script type="text/javascript" src="{{ url('js/home.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/home.js') }}"></script>
     {{-- <script>
         document.addEventListener("DOMContentLoaded", function(event) {
             Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (e) => {
