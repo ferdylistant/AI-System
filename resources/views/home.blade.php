@@ -151,7 +151,7 @@
                                         aria-controls="selesai" data-typeget="selesai" aria-selected="false">Selesai <span class="badge badge-danger" id="countselesai">0</span></a>
                                 </li>
                             </ul>
-                            <div class="tab-content example-2 scrollbar-deep-purple bordered-deep-purple square thin"
+                            <div class="tab-content example-2 scrollbar-deep-purple bordered-deep-purple square thin scroll-down"
                                 id="myTabContent">
                                 <div class="tab-pane fade show active" id="semua" role="tabpanel"
                                     aria-labelledby="semua-tab"></div>
@@ -544,7 +544,7 @@
     <script type="text/javascript"
         src="https://cdn.jsdelivr.net/gh/ycodetech/horizontal-timeline-2.0@2/JavaScript/horizontal_timeline.2.0.min.js">
     </script>
-    <script type="text/javascript" src="{{ url('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/izitoast/dist/js/iziToast.min.js') }}"></script>
 @endsection
 
 

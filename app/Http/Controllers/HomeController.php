@@ -220,15 +220,18 @@ class HomeController extends Controller
                 break;
             case 'semua':
                 $semua = DB::table('todo_list')->where('users_id', auth()->user()->id)->get();
-                return $this->loadTodoList($semua,$semua->count());
+                $paginate = DB::table('todo_list')->where('users_id', auth()->user()->id)->paginate(5);
+                return $this->loadTodoList($paginate,$semua->count());
                 break;
             case 'belum-selesai':
                 $belumSelesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '0')->get();
-                return $this->loadTodoList($belumSelesai,$belumSelesai->count());
+                $belum = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '0')->paginate(5);
+                return $this->loadTodoList($belum,$belumSelesai->count());
                 break;
             case 'selesai':
                 $selesai = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '1')->get();
-                return $this->loadTodoList($selesai,$selesai->count());
+                $sel = DB::table('todo_list')->where('users_id', auth()->user()->id)->where('status', '1')->paginate(5);
+                return $this->loadTodoList($sel,$selesai->count());
                 break;
             case 'select-judul':
                 return self::selectMasterJudul($request);
@@ -288,16 +291,16 @@ class HomeController extends Controller
             // return response()->json($data);
             $html = '';
             $html .= '<ul class="list-group mb-0">';
-            if ($data->isEmpty()) {
-                $html .= '<div class="col-12 offset-3 mt-5">
-                    <div class="row">
-                        <div class="col-4 offset-1">
-                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png"
-                                width="100%">
-                        </div>
-                    </div>
-                </div>';
-            } else {
+            // if ($data->isEmpty()) {
+            //     $html .= '<div class="col-12 offset-3 mt-5">
+            //         <div class="row">
+            //             <div class="col-4 offset-1">
+            //                 <img src="https://cdn-icons-png.flaticon.com/512/7486/7486831.png"
+            //                     width="100%">
+            //             </div>
+            //         </div>
+            //     </div>';
+            // } else {
                 foreach ($data as $d) {
                     $html .= '<li class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-top-0 border-end-0 border-bottom rounded-0 mb-2 delete_list_'.$d->id.'"
                         style="box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;">
@@ -328,7 +331,7 @@ class HomeController extends Controller
                     $html .= '</div>
                     </li>';
                 }
-            }
+            // }
             $html .= '</ul>';
             return ['html'=>$html,'count'=>$count];
         } catch (\Exception $e) {

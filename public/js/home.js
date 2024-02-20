@@ -1,18 +1,19 @@
 
-function loadTodoList(tab) {
+function loadTodoList(todolistPage,tab) {
     if (tab) {
         // console.log(tab);
         $.ajax({
             type: "POST",
-            url: window.location.origin + "/api/home/" + tab,
+            url: window.location.origin + "/api/home/" + tab + "?page=" + todolistPage,
             beforeSend: function() {
                 $('#todoList_data').parent().addClass('card-progress')
             },
             success: function(result) {
                 // console.log(tab)
                 $('#count' + tab).text(result.count);
-                $('#' + tab).html(result.html);
+                $('#' + tab).append(result.html);
                 $('[data-toggle="popover"]').popover();
+                $('.scroll-down').animate({ scrollTop: 0 }, 800,"swing");
             },
             error: function(err) {
                 // console.log(err)
@@ -212,11 +213,20 @@ $(document).ready(function() {
             }
         });
     });
-    loadTodoList($('#todoList_data .nav-link.active').data('typeget'));
+    var semuaPage = 1;
+    var belumPage = 1;
+    var selesaiPage = 1;
+    loadTodoList(semuaPage,$('#todoList_data .nav-link.active').data('typeget'));
     // Each change tab form penilaian
     $(document).on('show.bs.tab', function(e) {
         let tab = $(e.delegateTarget.activeElement).data('typeget');
-        loadTodoList(tab);
+        if (tab === 'selesai') {
+            loadTodoList(selesaiPage,tab);
+        } else if (tab === 'belum-selesai') {
+            loadTodoList(belumPage,tab);
+        } else {
+            loadTodoList(semuaPage,tab);
+        }
     });
     var page = 1;
     let timeline = $('[name="timeline"]').val();
@@ -227,6 +237,20 @@ $(document).ready(function() {
         if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
             page++;
             loadRecentData(page);
+        }
+    });
+    $("#myTabContent").scroll(function() {
+        if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
+            if($('#todoList_data .nav-link.active').data('typeget') === 'selesai') {
+                selesaiPage++;
+                loadTodoList(selesaiPage,$('#todoList_data .nav-link.active').data('typeget'));
+            } else if($('#todoList_data .nav-link.active').data('typeget') === 'belum-selesai') {
+                belumPage++;
+                loadTodoList(belumPage,$('#todoList_data .nav-link.active').data('typeget'));
+            }  else {
+                semuaPage++;
+                loadTodoList(semuaPage,$('#todoList_data .nav-link.active').data('typeget'));
+            }
         }
     });
     $('#todoList_data').on('click', '.delete-todo', function() {
