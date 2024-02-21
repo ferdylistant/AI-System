@@ -1,5 +1,5 @@
 
-$(document).ready(function () {
+$(function () {
     $("[name='status_filter']").val("").trigger("change");
     let tableDesFinal = $('#tb_DesFinal').DataTable({
         // "bSort": false,
@@ -33,7 +33,7 @@ $(document).ready(function () {
 
     });
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
-        notifToast("error",settings.jqXHR.statusText)
+        notifToast("error", settings.jqXHR.statusText)
         if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
             window.location.reload();
         }
@@ -120,7 +120,7 @@ $(document).ready(function () {
                     notifToast("error", "Tidak ada data lagi");
                 } else {
                     $("#dataHistoryDesfin").append(response);
-                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
+                    $('.thin').animate({ scrollTop: $('.thin').prop("scrollHeight") }, 800);
                 }
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
@@ -137,15 +137,13 @@ $(document).ready(function () {
         $(".load-more").data("paginate", 2);
         $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
-    $(".select-status")
-        .select2({
-            placeholder: "Pilih Status",
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(this).valid();
-            }
-        });
+    $(".select-status").select2({
+        placeholder: "Pilih Status",
+    }).on("change", function (e) {
+        if (this.value) {
+            $(this).valid();
+        }
+    });
     $(".select-filter")
         .select2({
             placeholder: "Filter Status\xa0\xa0",
@@ -188,48 +186,6 @@ $(document).ready(function () {
         $(this).find("form").trigger("reset");
         $(this).addClass("modal-progress");
     });
-
-    $("#fm_UpdateStatusDesfin").on("submit", function (e) {
-        e.preventDefault();
-        if ($(this).valid()) {
-            let kode = $(this).find('[name="kode"]').val();
-            let judul = $(this).find('[name="judul_final"]').val();
-            swal({
-                title:
-                    "Yakin mengubah status deskripsi final " +
-                    kode +
-                    "-" +
-                    judul +
-                    "?",
-                text: "Anda sebagai Prodev tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            }).then((confirm_) => {
-                if (confirm_) {
-                    ajaxUpdateStatusDeskripsiFinal($(this));
-                }
-            });
-        }
-    });
-    function loadDataCount() {
-        $.ajax({
-            url: window.location.origin + "/penerbitan/deskripsi/final?count_data=true",
-            type: "get",
-            dataType: "json",
-            success: function (response) {
-                $("#countData").prop('Counter',0).animate({
-                    Counter: response
-                }, {
-                    duration: 1000,
-                    easing: 'swing',
-                    step: function (now) {
-                        $(this).text(Math.ceil(now));
-                    }
-                });
-            },
-        });
-    }
     function ajaxUpdateStatusDeskripsiFinal(data) {
         let el = data.get(0);
         // console.log(el);
@@ -271,6 +227,47 @@ $(document).ready(function () {
                 $('button[type="submit"]')
                     .prop("disabled", false)
                     .removeClass("btn-progress");
+            },
+        });
+    }
+    $("#fm_UpdateStatusDesfin").on("submit", function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            let kode = $(this).find('[name="kode"]').val();
+            let judul = $(this).find('[name="judul_final"]').val();
+            swal({
+                title:
+                    "Yakin mengubah status deskripsi final " +
+                    kode +
+                    "-" +
+                    judul +
+                    "?",
+                text: "Anda sebagai Prodev tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxUpdateStatusDeskripsiFinal($(this));
+                }
+            });
+        }
+    });
+    function loadDataCount() {
+        $.ajax({
+            url: window.location.origin + "/penerbitan/deskripsi/final?count_data=true",
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                $("#countData").prop('Counter', 0).animate({
+                    Counter: response
+                }, {
+                    duration: 1000,
+                    easing: 'swing',
+                    step: function (now) {
+                        $(this).text(Math.ceil(now));
+                    }
+                });
             },
         });
     }
