@@ -1240,7 +1240,7 @@ class EditingController extends Controller
             }
         }
     }
-    protected function logicPermissionAction($status = null, $jb = null, $pic_prodev, $id, $kode, $judul_final, $btn)
+    protected function logicPermissionAction($status, $jb, $pic_prodev, $id, $kode, $judul_final, $btn)
     {
         switch ($jb) {
             case 'MoU-Reguler':
@@ -1269,7 +1269,7 @@ class EditingController extends Controller
         }
         return $btn;
     }
-    protected function panelStatusGuest($status = null, $btn)
+    protected function panelStatusGuest($status, $btn)
     {
         switch ($status) {
             case 'Antrian':
@@ -1293,7 +1293,7 @@ class EditingController extends Controller
         }
         return $btn;
     }
-    protected function panelStatusKabag($status = null, $id, $kode, $judul_final, $btn)
+    protected function panelStatusKabag($status, $id, $kode, $judul_final, $btn)
     {
         switch ($status) {
             case 'Antrian':

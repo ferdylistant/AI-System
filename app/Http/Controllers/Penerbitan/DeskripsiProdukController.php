@@ -39,7 +39,10 @@ class DeskripsiProdukController extends Controller
             if ($request->has('count_data')) {
                 return $data->count();
             } elseif ($request->has('show_status')) {
-                $showStatus = DB::table('deskripsi_produk')->where('id',$request->id)->first();
+                $showStatus = DB::table('deskripsi_produk as dp')
+                ->leftJoin('penerbitan_naskah as pn', 'pn.id', '=', 'dp.naskah_id')->where('dp.id',$request->id)
+                ->select('dp.*','pn.kode','pn.judul_asli','pn.pic_prodev','pn.jalur_buku')
+                ->first();
                 return response()->json($showStatus);
             } else {
                 return DataTables::of($data)

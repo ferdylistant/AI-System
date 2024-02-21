@@ -46,7 +46,7 @@ $(function () {
         ],
     });
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
-        notifToast("error",settings.jqXHR.statusText)
+        notifToast("error", settings.jqXHR.statusText)
         if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
             window.location.reload();
         }
@@ -173,64 +173,56 @@ $(function () {
         $(".load-more").data("paginate", 2);
         $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
-    $(document).ready(function () {
-        $(".select-status")
-            .select2({
-                placeholder: "Pilih Status",
-            })
-            .on("change", function (e) {
-                if (this.value) {
-                    $(this).valid();
-                }
-            });
+    $(".select-status")
+        .select2({
+            placeholder: "Pilih Status",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(this).valid();
+            }
+        });
+    $(".select-filter")
+        .select2({
+            placeholder: "Filter Status\xa0\xa0",
+        })
+        .on("change", function (e) {
+            if (this.value) {
+                $(".clear_field").removeAttr("hidden");
+                // $(this).valid();
+            }
+        });
+    $(".clear_field").click(function () {
+        $(".select-filter").val("").trigger("change");
+        $(".clear_field").attr("hidden", "hidden");
     });
-    $(document).ready(function () {
-        $(".select-filter")
-            .select2({
-                placeholder: "Filter Status\xa0\xa0",
-            })
-            .on("change", function (e) {
-                if (this.value) {
-                    $(".clear_field").removeAttr("hidden");
-                    // $(this).valid();
-                }
-            });
-    });
-    $(document).ready(function () {
-        $(".clear_field").click(function () {
-            $(".select-filter").val("").trigger("change");
-            $(".clear_field").attr("hidden", "hidden");
+    $("#md_UpdateStatusDesProduk").on("shown.bs.modal", function (e) {
+        let id = $(e.relatedTarget).data("id"),
+            cardWrap = $(this);
+        $.ajax({
+            url: window.location.origin + "/penerbitan/deskripsi/produk?show_status=true",
+            type: "GET",
+            data: {
+                id: id,
+            },
+            cache: false,
+            success: function (result) {
+                Object.entries(result).forEach((entry) => {
+                    let [key, value] = entry;
+                    cardWrap.find('[name="' + key + '"]').val(value).trigger('change');
+                });
+            },
+            error: function (err) {
+                console.error(err);
+            },
+            complete: function () {
+                cardWrap.removeClass('modal-progress')
+            }
         });
     });
-    $(document).ready(function () {
-        $("#md_UpdateStatusDesProduk").on("shown.bs.modal", function (e) {
-            let id = $(e.relatedTarget).data("id"),
-                cardWrap = $(this);
-            $.ajax({
-                url: window.location.origin + "/penerbitan/deskripsi/produk?show_status=true",
-                type: "GET",
-                data: {
-                    id: id,
-                },
-                cache: false,
-                success: function (result) {
-                    Object.entries(result).forEach((entry) => {
-                        let [key, value] = entry;
-                        cardWrap.find('[name="' + key + '"]').val(value).trigger('change');
-                    });
-                },
-                error: function (err) {
-                    console.error(err);
-                },
-                complete: function () {
-                    cardWrap.removeClass('modal-progress')
-                }
-            });
-        });
-        $("#md_UpdateStatusDesProduk").on("hidden.bs.modal", function () {
-            $(this).find("form").trigger("reset");
-            $(this).addClass("modal-progress");
-        });
+    $("#md_UpdateStatusDesProduk").on("hidden.bs.modal", function () {
+        $(this).find("form").trigger("reset");
+        $(this).addClass("modal-progress");
     });
     function ajaxUpdateStatusDeskripsiProduk(data) {
         let el = data.get(0);
