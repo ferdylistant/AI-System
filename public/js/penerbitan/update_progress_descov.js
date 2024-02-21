@@ -4,7 +4,7 @@ $(function () {
     let tableDesCover = $('#tb_DesCover').DataTable({
         // "bSort": false,
         "responsive": true,
-        "autoWidth" : false,
+        "autoWidth": false,
         pagingType: "input",
         processing: true,
         serverSide: false,
@@ -19,103 +19,101 @@ $(function () {
             // { data: 'DT_RowIndex', name: 'DT_RowIndex', title: 'No', orderable: false, searchable: false, "width": "5%" },
             { data: 'kode', name: 'kode', title: 'Kode' },
             { data: 'judul_asli', name: 'judul_asli', title: 'Judul Asli' },
-            { data: 'judul_final', name: 'judul_final', title: 'Judul Final'},
-            { data: 'penulis', name: 'penulis', title: 'Penulis'},
-            { data: 'nama_pena', name: 'nama_pena', title: 'Nama Pena'},
-            { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku'},
-            { data: 'kelompok_buku', name: 'kelompok_buku', title: 'Kelompok Buku'},
-            { data: 'tgl_deskripsi', name: 'tgl_deskripsi', title: 'Tgl Deskripsi'},
-            { data: 'pic_prodev', name: 'pic_prodev', title: 'PIC Prodev'},
-            { data: 'history', name: 'history', title: 'History Progress'},
-            { data: 'tracker', name: 'tracker', title: 'Tracker'},
-            { data: 'action', name: 'action', title: 'Action', orderable: false},
+            { data: 'judul_final', name: 'judul_final', title: 'Judul Final' },
+            { data: 'penulis', name: 'penulis', title: 'Penulis' },
+            { data: 'nama_pena', name: 'nama_pena', title: 'Nama Pena' },
+            { data: 'jalur_buku', name: 'jalur_buku', title: 'Jalur Buku' },
+            { data: 'kelompok_buku', name: 'kelompok_buku', title: 'Kelompok Buku' },
+            { data: 'tgl_deskripsi', name: 'tgl_deskripsi', title: 'Tgl Deskripsi' },
+            { data: 'pic_prodev', name: 'pic_prodev', title: 'PIC Prodev' },
+            { data: 'history', name: 'history', title: 'History Progress' },
+            { data: 'tracker', name: 'tracker', title: 'Tracker' },
+            { data: 'action', name: 'action', title: 'Action', orderable: false },
         ],
 
     });
     $.fn.dataTable.ext.errMode = function (settings, helpPage, message) {
-        notifToast("error",settings.jqXHR.statusText)
+        notifToast("error", settings.jqXHR.statusText)
         if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
             window.location.reload();
         }
     };
     loadDataCount();
-    $('[name="status_filter"]').on('change', function(){
+    $('[name="status_filter"]').on('change', function () {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());
-        tableDesCover.column( $(this).data('column') )
-        .search( val ? val : '', true, false )
-        .draw();
+        tableDesCover.column($(this).data('column'))
+            .search(val ? val : '', true, false)
+            .draw();
     });
-});
-function loadDataCount() {
-    $.ajax({
-        url: window.location.origin + "/penerbitan/deskripsi/cover?count_data=true",
-        method: "GET",
-        dataType: "json",
-        success: function (data) {
-            $("#countData").prop('Counter',0).animate({
-                Counter: data
-            }, {
-                duration: 1000,
-                easing: 'swing',
-                step: function (now) {
-                    $(this).text(Math.ceil(now));
-                }
-            });
-        },
+    function loadDataCount() {
+        $.ajax({
+            url: window.location.origin + "/penerbitan/deskripsi/cover?count_data=true",
+            method: "GET",
+            dataType: "json",
+            success: function (data) {
+                $("#countData").prop('Counter', 0).animate({
+                    Counter: data
+                }, {
+                    duration: 1000,
+                    easing: 'swing',
+                    step: function (now) {
+                        $(this).text(Math.ceil(now));
+                    }
+                });
+            },
+        });
+    }
+    $("#tb_DesCover").on("click", ".btn-tracker", function (e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var judul = $(this).data("judulfinal");
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin +
+                "/penerbitan/deskripsi/cover/ajax/lihat-tracking",
+            type: "post",
+            data: { id: id },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                $("#titleModalTracker").html('<i class="fas fa-file-signature"></i>&nbsp;Tracking Progress Naskah "' + judul + '"');
+                $("#dataShowTracking").html(data);
+                $("#md_Tracker").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
+        });
     });
-}
-$("#tb_DesCover").on("click", ".btn-tracker", function (e) {
-    e.preventDefault();
-    var id = $(this).data("id");
-    var judul = $(this).data("judulfinal");
-    let cardWrap = $(this).closest(".card");
-    $.ajax({
-        url: window.location.origin +
-            "/penerbitan/deskripsi/cover/ajax/lihat-tracking",
-        type: "post",
-        data: { id: id },
-        cache: false,
-        beforeSend: function () {
-            cardWrap.addClass("card-progress");
-        },
-        success: function (data) {
-            $("#titleModalTracker").html('<i class="fas fa-file-signature"></i>&nbsp;Tracking Progress Naskah "' + judul + '"');
-            $("#dataShowTracking").html(data);
-            $("#md_Tracker").modal("show");
-        },
-        complete: function () {
-            cardWrap.removeClass("card-progress");
-        }
-    });
-});
-$("#tb_DesCover").on("click", ".btn-history", function (e) {
-    var id = $(this).data("id");
-    var judul = $(this).data("judulfinal");
-    let cardWrap = $(this).closest(".card");
-    $.ajax({
-        url: window.location.origin + "/penerbitan/deskripsi/cover/ajax/lihat-history",
-        type: "POST",
-        data: { id: id },
-        cache: false,
-        beforeSend: function () {
-            cardWrap.addClass("card-progress");
-        },
-        success: function (data) {
-            $("#titleModalDescov").html(
-                '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
+    $("#tb_DesCover").on("click", ".btn-history", function (e) {
+        var id = $(this).data("id");
+        var judul = $(this).data("judulfinal");
+        let cardWrap = $(this).closest(".card");
+        $.ajax({
+            url: window.location.origin + "/penerbitan/deskripsi/cover/ajax/lihat-history",
+            type: "POST",
+            data: { id: id },
+            cache: false,
+            beforeSend: function () {
+                cardWrap.addClass("card-progress");
+            },
+            success: function (data) {
+                $("#titleModalDescov").html(
+                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Naskah "' +
                     judul +
                     '"'
-            );
-            $("#load_more").data("id", id);
-            $("#dataHistoryDescov").html(data);
-            $("#md_DescovHistory").modal("show");
-        },
-        complete: function () {
-            cardWrap.removeClass("card-progress");
-        }
+                );
+                $("#load_more").data("id", id);
+                $("#dataHistoryDescov").html(data);
+                $("#md_DescovHistory").modal("show");
+            },
+            complete: function () {
+                cardWrap.removeClass("card-progress");
+            }
+        });
     });
-});
-$(function () {
     $(".load-more").click(function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
@@ -141,7 +139,7 @@ $(function () {
                     notifToast("error", "Tidak ada data lagi");
                 } else {
                     $("#dataHistoryDesturcet").append(response);
-                    $('.thin').animate({scrollTop: $('.thin').prop("scrollHeight")}, 800);
+                    $('.thin').animate({ scrollTop: $('.thin').prop("scrollHeight") }, 800);
                 }
                 // Setting little delay while displaying new content
                 // setTimeout(function() {
@@ -158,8 +156,6 @@ $(function () {
         $(".load-more").data("paginate", 2);
         $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
-});
-$(document).ready(function () {
     $(".select-status")
         .select2({
             placeholder: "Pilih Status",
@@ -169,8 +165,6 @@ $(document).ready(function () {
                 $(this).valid();
             }
         });
-});
-$(document).ready(function () {
     $(".select-filter")
         .select2({
             placeholder: "Filter Status\xa0\xa0",
@@ -181,14 +175,10 @@ $(document).ready(function () {
                 // $(this).valid();
             }
         });
-});
-$(document).ready(function () {
     $(".clear_field").click(function () {
         $(".select-filter").val("").trigger("change");
         $(".clear_field").attr("hidden", "hidden");
     });
-});
-$(document).ready(function () {
     $("#md_UpdateStatusDesCover").on("shown.bs.modal", function (e) {
         let id = $(e.relatedTarget).data("id"),
             cardWrap = $(this);
@@ -217,8 +207,6 @@ $(document).ready(function () {
         $(this).find("form").trigger("reset");
         $(this).addClass("modal-progress");
     });
-});
-$(document).ready(function () {
     function ajaxUpdateStatusDeskripsiCover(data) {
         let el = data.get(0);
         // console.log(el);
