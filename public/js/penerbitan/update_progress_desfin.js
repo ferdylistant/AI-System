@@ -1,5 +1,5 @@
 
-$(function () {
+$(document).ready(function () {
     $("[name='status_filter']").val("").trigger("change");
     let tableDesFinal = $('#tb_DesFinal').DataTable({
         // "bSort": false,
@@ -137,26 +137,6 @@ $(function () {
         $(".load-more").data("paginate", 2);
         $(".load-more").attr("disabled", false).css("cursor", "pointer");
     });
-});
-function loadDataCount() {
-    $.ajax({
-        url: window.location.origin + "/penerbitan/deskripsi/final?count_data=true",
-        type: "get",
-        dataType: "json",
-        success: function (response) {
-            $("#countData").prop('Counter',0).animate({
-                Counter: response
-            }, {
-                duration: 1000,
-                easing: 'swing',
-                step: function (now) {
-                    $(this).text(Math.ceil(now));
-                }
-            });
-        },
-    });
-}
-$(document).ready(function () {
     $(".select-status")
         .select2({
             placeholder: "Pilih Status",
@@ -166,8 +146,6 @@ $(document).ready(function () {
                 $(this).valid();
             }
         });
-});
-$(document).ready(function () {
     $(".select-filter")
         .select2({
             placeholder: "Filter Status\xa0\xa0",
@@ -178,14 +156,10 @@ $(document).ready(function () {
                 // $(this).valid();
             }
         });
-});
-$(document).ready(function () {
     $(".clear_field").click(function () {
         $(".select-filter").val("").trigger("change");
         $(".clear_field").attr("hidden", "hidden");
     });
-});
-$(document).ready(function () {
     $("#md_UpdateStatusDesFinal").on("shown.bs.modal", function (e) {
         let id = $(e.relatedTarget).data("id"),
             cardWrap = $(this);
@@ -214,8 +188,48 @@ $(document).ready(function () {
         $(this).find("form").trigger("reset");
         $(this).addClass("modal-progress");
     });
-});
-$(document).ready(function () {
+
+    $("#fm_UpdateStatusDesfin").on("submit", function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            let kode = $(this).find('[name="kode"]').val();
+            let judul = $(this).find('[name="judul_final"]').val();
+            swal({
+                title:
+                    "Yakin mengubah status deskripsi final " +
+                    kode +
+                    "-" +
+                    judul +
+                    "?",
+                text: "Anda sebagai Prodev tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxUpdateStatusDeskripsiFinal($(this));
+                }
+            });
+        }
+    });
+    function loadDataCount() {
+        $.ajax({
+            url: window.location.origin + "/penerbitan/deskripsi/final?count_data=true",
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                $("#countData").prop('Counter',0).animate({
+                    Counter: response
+                }, {
+                    duration: 1000,
+                    easing: 'swing',
+                    step: function (now) {
+                        $(this).text(Math.ceil(now));
+                    }
+                });
+            },
+        });
+    }
     function ajaxUpdateStatusDeskripsiFinal(data) {
         let el = data.get(0);
         // console.log(el);
@@ -260,28 +274,4 @@ $(document).ready(function () {
             },
         });
     }
-
-    $("#fm_UpdateStatusDesfin").on("submit", function (e) {
-        e.preventDefault();
-        if ($(this).valid()) {
-            let kode = $(this).find('[name="kode"]').val();
-            let judul = $(this).find('[name="judul_final"]').val();
-            swal({
-                title:
-                    "Yakin mengubah status deskripsi final " +
-                    kode +
-                    "-" +
-                    judul +
-                    "?",
-                text: "Anda sebagai Prodev tetap dapat mengubah kembali data yang sudah Anda perbarui saat ini.",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            }).then((confirm_) => {
-                if (confirm_) {
-                    ajaxUpdateStatusDeskripsiFinal($(this));
-                }
-            });
-        }
-    });
 });

@@ -22,6 +22,7 @@ class AuthController extends Controller
 
     public function doLogin(Request $request)
     {
+        $request->merge(array('email' => trim($request->email)));
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6'
