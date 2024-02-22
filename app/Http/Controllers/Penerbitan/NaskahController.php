@@ -236,6 +236,7 @@ class NaskahController extends Controller
                                     ->select('pp.nama')
                                     // ->pluck('pp.nama');
                                     ->get();
+                                $res = (object)collect($res)->all();
                                 foreach ($res as $q) {
                                     $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
                                 }
