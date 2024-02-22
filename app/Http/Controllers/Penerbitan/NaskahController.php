@@ -213,7 +213,6 @@ class NaskahController extends Controller
                                 ->orderBy('pn.tanggal_masuk_naskah', 'asc')
                                 ->get();
                         }
-                        dd($data);
                         $update = Gate::allows('do_update', 'ubah-data-naskah');
                         return Datatables::of($data)
                             ->addColumn('kode', function ($data) {
