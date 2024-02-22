@@ -403,7 +403,7 @@ class NaskahController extends Controller
                             ->rawColumns(['kode', 'judul_asli', 'penulis', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'action'])
                             ->make(true);
                     } catch (\Exception $e) {
-                        return abort($e->getCode(),$e->getMessage());
+                        return abort(500,$e->getMessage());
                     }
                     break;
             }
