@@ -213,6 +213,7 @@ class NaskahController extends Controller
                                 ->orderBy('pn.tanggal_masuk_naskah', 'asc')
                                 ->get();
                         }
+                        dd($data);
                         $update = Gate::allows('do_update', 'ubah-data-naskah');
                         return Datatables::of($data)
                             ->addColumn('kode', function ($data) {
@@ -236,7 +237,7 @@ class NaskahController extends Controller
                                     ->select('pp.nama')
                                     // ->pluck('pp.nama');
                                     ->get();
-                                $res = (object)collect($res)->all();
+                                // $res = (object)collect($res)->all();
                                 foreach ($res as $q) {
                                     $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
                                 }
