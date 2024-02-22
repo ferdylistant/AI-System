@@ -159,119 +159,136 @@ class NaskahController extends Controller
                     return response()->json($result);
                     break;
                 default:
-                    if ((Gate::allows('do_update', 'naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
-                        $data = DB::table('penerbitan_naskah as pn')
-                            ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
-                            ->whereNull('pn.deleted_at')->where('pic_prodev', auth()->user()->id)->select(
-                                'pn.id',
-                                'pn.kode',
-                                'pn.judul_asli',
-                                'pn.pic_prodev',
-                                'pn.created_by',
-                                'pn.jalur_buku',
-                                'pn.tanggal_masuk_naskah',
-                                'pn.penilaian_direksi',
-                                'pn.selesai_penilaian',
-                                'pn.bukti_email_penulis',
-                                'pn.urgent',
-                                'pns.tgl_pn_prodev',
-                                'pns.tgl_pn_m_penerbitan',
-                                'pns.tgl_pn_m_pemasaran',
-                                'pns.tgl_pn_d_pemasaran',
-                                'pns.tgl_pn_direksi',
-                                'pns.tgl_pn_editor',
-                                'pns.tgl_pn_setter',
-                                'pns.tgl_pn_selesai'
-                            )
-                            ->orderBy('pn.tanggal_masuk_naskah', 'desc')
-                            ->get();
-                    } else {
-                        $data = DB::table('penerbitan_naskah as pn')
-                            ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
-                            ->whereNull('pn.deleted_at')->select(
-                                'pn.id',
-                                'pn.kode',
-                                'pn.judul_asli',
-                                'pn.pic_prodev',
-                                'pn.created_by',
-                                'pn.jalur_buku',
-                                'pn.tanggal_masuk_naskah',
-                                'pn.penilaian_direksi',
-                                'pn.selesai_penilaian',
-                                'pn.bukti_email_penulis',
-                                'pn.urgent',
-                                'pns.tgl_pn_prodev',
-                                'pns.tgl_pn_m_penerbitan',
-                                'pns.tgl_pn_m_pemasaran',
-                                'pns.tgl_pn_d_pemasaran',
-                                'pns.tgl_pn_direksi',
-                                'pns.tgl_pn_editor',
-                                'pns.tgl_pn_setter',
-                                'pns.tgl_pn_selesai'
-                            )
-                            ->orderBy('pn.tanggal_masuk_naskah', 'asc')
-                            ->get();
-                    }
-                    $update = Gate::allows('do_update', 'ubah-data-naskah');
-                    return Datatables::of($data)
-                        ->addColumn('kode', function ($data) {
-                            $html = '';
-                            $danger = $data->urgent == '0' ? '' : 'class="text-danger"';
-                            $tooltip =  $data->urgent == '0' ? '' : 'data-toggle="tooltip" data-placement="top" title="Naskah Urgent" style="cursor:context-menu"';
-                            $html .= '<span ' . $danger . ' ' . $tooltip . '>' . $data->kode . '</span>';
-                            return $html;
-                        })
-                        ->addColumn('judul_asli', function ($data) {
-                            return $data->judul_asli;
-                        })
-                        ->addColumn('penulis', function ($data) {
-                            $result = '';
-                            $res = DB::table('penerbitan_naskah_penulis as pnp')
-                                ->join('penerbitan_penulis as pp', function ($q) {
-                                    $q->on('pnp.penulis_id', '=', 'pp.id')
-                                        ->whereNull('pp.deleted_at');
-                                })
-                                ->where('pnp.naskah_id', '=', $data->id)
-                                ->select('pp.nama')
-                                // ->pluck('pp.nama');
+                    try {
+                        if ((Gate::allows('do_update', 'naskah-pn-prodev')) && (auth()->user()->id != 'be8d42fa88a14406ac201974963d9c1b')) {
+                            $data = DB::table('penerbitan_naskah as pn')
+                                ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+                                ->whereNull('pn.deleted_at')->where('pic_prodev', auth()->user()->id)->select(
+                                    'pn.id',
+                                    'pn.kode',
+                                    'pn.judul_asli',
+                                    'pn.pic_prodev',
+                                    'pn.created_by',
+                                    'pn.jalur_buku',
+                                    'pn.tanggal_masuk_naskah',
+                                    'pn.penilaian_direksi',
+                                    'pn.selesai_penilaian',
+                                    'pn.bukti_email_penulis',
+                                    'pn.urgent',
+                                    'pns.tgl_pn_prodev',
+                                    'pns.tgl_pn_m_penerbitan',
+                                    'pns.tgl_pn_m_pemasaran',
+                                    'pns.tgl_pn_d_pemasaran',
+                                    'pns.tgl_pn_direksi',
+                                    'pns.tgl_pn_editor',
+                                    'pns.tgl_pn_setter',
+                                    'pns.tgl_pn_selesai'
+                                )
+                                ->orderBy('pn.tanggal_masuk_naskah', 'desc')
                                 ->get();
-                            foreach ($res as $q) {
-                                $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
-                            }
-                            return $result;
-                        })
-                        ->addColumn('pic_prodev', function ($data) {
-                            return DB::table('users')->where('id', $data->pic_prodev)->first()->nama;
-                        })
-                        ->addColumn('jalur_buku', function ($data) {
-                            return $data->jalur_buku;
-                        })
-                        ->addColumn('masuk_naskah', function ($data) {
-                            return Carbon::parse($data->tanggal_masuk_naskah)->translatedFormat('l, d F Y');
-                        })
-                        ->addColumn('created_by', function ($data) {
-                            return DB::table('users')->where('id', $data->created_by)->first()->nama;
-                        })
-                        ->addColumn('stts_penilaian', function ($data) {
-                            $badge = '';
-                            if (in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
-                                if (!is_null($data->tgl_pn_selesai)) {
-                                    $statusPenilaianDB = DB::table('penerbitan_pn_direksi')->where('naskah_id', $data->id)->select('keputusan_final')->first();
-                                    if (!is_null($statusPenilaianDB)) {
-                                        switch ($statusPenilaianDB->keputusan_final) {
-                                            case 'Ditolak':
-                                                $badgeKeputusan = 'danger';
-                                                break;
-                                            case 'Revisi':
-                                                $badgeKeputusan = 'warning';
-                                                break;
-                                            default:
-                                                $badgeKeputusan = 'primary';
-                                                break;
-                                        }
+                        } else {
+                            $data = DB::table('penerbitan_naskah as pn')
+                                ->join('penerbitan_pn_stts as pns', 'pn.id', '=', 'pns.naskah_id')
+                                ->whereNull('pn.deleted_at')->select(
+                                    'pn.id',
+                                    'pn.kode',
+                                    'pn.judul_asli',
+                                    'pn.pic_prodev',
+                                    'pn.created_by',
+                                    'pn.jalur_buku',
+                                    'pn.tanggal_masuk_naskah',
+                                    'pn.penilaian_direksi',
+                                    'pn.selesai_penilaian',
+                                    'pn.bukti_email_penulis',
+                                    'pn.urgent',
+                                    'pns.tgl_pn_prodev',
+                                    'pns.tgl_pn_m_penerbitan',
+                                    'pns.tgl_pn_m_pemasaran',
+                                    'pns.tgl_pn_d_pemasaran',
+                                    'pns.tgl_pn_direksi',
+                                    'pns.tgl_pn_editor',
+                                    'pns.tgl_pn_setter',
+                                    'pns.tgl_pn_selesai'
+                                )
+                                ->orderBy('pn.tanggal_masuk_naskah', 'asc')
+                                ->get();
+                        }
+                        $update = Gate::allows('do_update', 'ubah-data-naskah');
+                        return Datatables::of($data)
+                            ->addColumn('kode', function ($data) {
+                                $html = '';
+                                $danger = $data->urgent == '0' ? '' : 'class="text-danger"';
+                                $tooltip =  $data->urgent == '0' ? '' : 'data-toggle="tooltip" data-placement="top" title="Naskah Urgent" style="cursor:context-menu"';
+                                $html .= '<span ' . $danger . ' ' . $tooltip . '>' . $data->kode . '</span>';
+                                return $html;
+                            })
+                            ->addColumn('judul_asli', function ($data) {
+                                return $data->judul_asli;
+                            })
+                            ->addColumn('penulis', function ($data) {
+                                $result = '';
+                                $res = DB::table('penerbitan_naskah_penulis as pnp')
+                                    ->join('penerbitan_penulis as pp', function ($q) {
+                                        $q->on('pnp.penulis_id', '=', 'pp.id')
+                                            ->whereNull('pp.deleted_at');
+                                    })
+                                    ->where('pnp.naskah_id', '=', $data->id)
+                                    ->select('pp.nama')
+                                    // ->pluck('pp.nama');
+                                    ->get();
+                                foreach ($res as $q) {
+                                    $result .= '<span class="d-block">-&nbsp;' . $q->nama . '</span>';
+                                }
+                                return $result;
+                            })
+                            ->addColumn('pic_prodev', function ($data) {
+                                return DB::table('users')->where('id', $data->pic_prodev)->first()->nama;
+                            })
+                            ->addColumn('jalur_buku', function ($data) {
+                                return $data->jalur_buku;
+                            })
+                            ->addColumn('masuk_naskah', function ($data) {
+                                return Carbon::parse($data->tanggal_masuk_naskah)->translatedFormat('l, d F Y');
+                            })
+                            ->addColumn('created_by', function ($data) {
+                                return DB::table('users')->where('id', $data->created_by)->first()->nama;
+                            })
+                            ->addColumn('stts_penilaian', function ($data) {
+                                $badge = '';
+                                if (in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
+                                    if (!is_null($data->tgl_pn_selesai)) {
+                                        $statusPenilaianDB = DB::table('penerbitan_pn_direksi')->where('naskah_id', $data->id)->select('keputusan_final')->first();
+                                        if (!is_null($statusPenilaianDB)) {
+                                            switch ($statusPenilaianDB->keputusan_final) {
+                                                case 'Ditolak':
+                                                    $badgeKeputusan = 'danger';
+                                                    break;
+                                                case 'Revisi':
+                                                    $badgeKeputusan = 'warning';
+                                                    break;
+                                                default:
+                                                    $badgeKeputusan = 'primary';
+                                                    break;
+                                            }
 
-                                        $badge .= '<span class="badge badge-' . $badgeKeputusan . '" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Diputuskan: ' . $statusPenilaianDB->keputusan_final . '</span>';
-                                        if ($statusPenilaianDB->keputusan_final != 'Ditolak') {
+                                            $badge .= '<span class="badge badge-' . $badgeKeputusan . '" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Diputuskan: ' . $statusPenilaianDB->keputusan_final . '</span>';
+                                            if ($statusPenilaianDB->keputusan_final != 'Ditolak') {
+                                                if ($data->pic_prodev == auth()->user()->id) {
+                                                    if (is_null($data->bukti_email_penulis)) {
+                                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
+                                                        $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" class="text-primary mark-sent-email">Tandai data lengkap</a>';
+                                                    } else {
+                                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data sudah lengkap</span>';
+                                                    }
+                                                } else {
+                                                    if (is_null($data->bukti_email_penulis)) {
+                                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
+                                                    } else {
+                                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data sudah lengkap</span>';
+                                                    }
+                                                }
+                                            }
+                                        } else {
                                             if ($data->pic_prodev == auth()->user()->id) {
                                                 if (is_null($data->bukti_email_penulis)) {
                                                     $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
@@ -287,7 +304,21 @@ class NaskahController extends Controller
                                                 }
                                             }
                                         }
+
                                     } else {
+                                        if (!is_null($data->penilaian_direksi)) {
+                                            $badge .= '<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Diputuskan: Revisi</span>';
+                                        } else {
+                                            $badge .= '<span class="d-block badge badge-' . (is_null($data->tgl_pn_prodev) ? 'danger' : 'success') . ' mr-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Prodev' . (is_null($data->tgl_pn_prodev) ? '' : '&nbsp;' . Carbon::parse($data->tgl_pn_prodev)->translatedFormat('d M Y, H:i:s')) . '</span>';
+                                            $badge .= '<span class="d-block badge badge-' . (is_null($data->tgl_pn_m_penerbitan) ? 'danger' : 'success') . ' mr-1 mt-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">M.Penerbitan' . (is_null($data->tgl_pn_m_penerbitan) ? '' : '&nbsp;' . Carbon::parse($data->tgl_pn_m_penerbitan)->translatedFormat('d M Y, H:i:s')) . '</span>';
+                                            $badge .= '<span class="d-block badge badge-' . (is_null($data->tgl_pn_m_pemasaran) ? 'danger' : 'success') . ' mr-1 mt-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">M.Pemasaran' . (is_null($data->tgl_pn_m_pemasaran) ? '' : '&nbsp;' . Carbon::parse($data->tgl_pn_m_pemasaran)->translatedFormat('d M Y, H:i:s')) . '</span>';
+                                            $badge .= '<span class="d-block badge badge-' . (is_null($data->tgl_pn_d_pemasaran) ? 'danger' : 'success') . ' mr-1 mt-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">D.Pemasaran' . (is_null($data->tgl_pn_d_pemasaran) ? '' : '&nbsp;' . Carbon::parse($data->tgl_pn_d_pemasaran)->translatedFormat('d M Y, H:i:s')) . '</span>';
+                                            $badge .= '<span class="d-block badge badge-' . (is_null($data->tgl_pn_direksi) ? 'danger' : 'success') . ' mr-1 mt-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Direksi' . (is_null($data->tgl_pn_direksi) ? '' : '&nbsp;' . Carbon::parse($data->tgl_pn_direksi)->translatedFormat('d M Y, H:i:s')) . '</span>';
+                                        }
+                                    }
+                                } elseif ($data->jalur_buku == 'Pro Literasi') {
+                                    if (!is_null($data->tgl_pn_selesai)) {
+                                        $badge .= '<span class="badge badge-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Selesai Dinilai</span>';
                                         if ($data->pic_prodev == auth()->user()->id) {
                                             if (is_null($data->bukti_email_penulis)) {
                                                 $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
@@ -302,26 +333,16 @@ class NaskahController extends Controller
                                                 $badge .= '&nbsp;|&nbsp;<span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data sudah lengkap</span>';
                                             }
                                         }
-                                    }
-
-                                } else {
-                                    if (!is_null($data->penilaian_direksi)) {
-                                        $badge .= '<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Diputuskan: Revisi</span>';
                                     } else {
-                                        $badge .= '<span class="d-block badge badge-' . (is_null($data->tgl_pn_prodev) ? 'danger' : 'success') . ' mr-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Prodev' . (is_null($data->tgl_pn_prodev) ? '' : '&nbsp;' . Carbon::parse($data->tgl_pn_prodev)->translatedFormat('d M Y, H:i:s')) . '</span>';
-                                        $badge .= '<span class="d-block badge badge-' . (is_null($data->tgl_pn_m_penerbitan) ? 'danger' : 'success') . ' mr-1 mt-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">M.Penerbitan' . (is_null($data->tgl_pn_m_penerbitan) ? '' : '&nbsp;' . Carbon::parse($data->tgl_pn_m_penerbitan)->translatedFormat('d M Y, H:i:s')) . '</span>';
-                                        $badge .= '<span class="d-block badge badge-' . (is_null($data->tgl_pn_m_pemasaran) ? 'danger' : 'success') . ' mr-1 mt-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">M.Pemasaran' . (is_null($data->tgl_pn_m_pemasaran) ? '' : '&nbsp;' . Carbon::parse($data->tgl_pn_m_pemasaran)->translatedFormat('d M Y, H:i:s')) . '</span>';
-                                        $badge .= '<span class="d-block badge badge-' . (is_null($data->tgl_pn_d_pemasaran) ? 'danger' : 'success') . ' mr-1 mt-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">D.Pemasaran' . (is_null($data->tgl_pn_d_pemasaran) ? '' : '&nbsp;' . Carbon::parse($data->tgl_pn_d_pemasaran)->translatedFormat('d M Y, H:i:s')) . '</span>';
-                                        $badge .= '<span class="d-block badge badge-' . (is_null($data->tgl_pn_direksi) ? 'danger' : 'success') . ' mr-1 mt-1" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Direksi' . (is_null($data->tgl_pn_direksi) ? '' : '&nbsp;' . Carbon::parse($data->tgl_pn_direksi)->translatedFormat('d M Y, H:i:s')) . '</span>';
+                                        $badge .= '<span class="badge badge-' . (is_null($data->tgl_pn_editor) ? 'danger' : 'success') . '" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Editor</span>';
+                                        $badge .= '<span class="badge badge-' . (is_null($data->tgl_pn_setter) ? 'danger' : 'success') . '" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Setter</span>';
                                     }
-                                }
-                            } elseif ($data->jalur_buku == 'Pro Literasi') {
-                                if (!is_null($data->tgl_pn_selesai)) {
-                                    $badge .= '<span class="badge badge-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Selesai Dinilai</span>';
+                                } else {
+                                    $badge .= '<span class="badge badge-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Tidak Dinilai</span>';
                                     if ($data->pic_prodev == auth()->user()->id) {
                                         if (is_null($data->bukti_email_penulis)) {
                                             $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
-                                            $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" class="text-primary mark-sent-email">Tandai data lengkap</a>';
+                                            $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" class="text-primary mark-sent-email">Tandai sudah lengkap</a>';
                                         } else {
                                             $badge .= '&nbsp;|&nbsp;<span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data sudah lengkap</span>';
                                         }
@@ -332,75 +353,58 @@ class NaskahController extends Controller
                                             $badge .= '&nbsp;|&nbsp;<span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data sudah lengkap</span>';
                                         }
                                     }
-                                } else {
-                                    $badge .= '<span class="badge badge-' . (is_null($data->tgl_pn_editor) ? 'danger' : 'success') . '" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Editor</span>';
-                                    $badge .= '<span class="badge badge-' . (is_null($data->tgl_pn_setter) ? 'danger' : 'success') . '" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Setter</span>';
                                 }
-                            } else {
-                                $badge .= '<span class="badge badge-primary" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Tidak Dinilai</span>';
-                                if ($data->pic_prodev == auth()->user()->id) {
-                                    if (is_null($data->bukti_email_penulis)) {
-                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
-                                        $badge .= '&nbsp;|&nbsp;<a href="javascript:void(0)" data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '" class="text-primary mark-sent-email">Tandai sudah lengkap</a>';
-                                    } else {
-                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data sudah lengkap</span>';
-                                    }
-                                } else {
-                                    if (is_null($data->bukti_email_penulis)) {
-                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-warning" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data belum lengkap</span>';
-                                    } else {
-                                        $badge .= '&nbsp;|&nbsp;<span class="badge badge-success" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;">Data sudah lengkap</span>';
-                                    }
-                                }
-                            }
 
-                            return $badge;
-                        })
-                        ->addColumn('action', function ($data) use ($update) {
-                            $tolak = FALSE;
-                            if (in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
-                                if (!is_null($data->tgl_pn_selesai)) {
-                                    $PenilaianDB = DB::table('penerbitan_pn_direksi')->where('naskah_id', $data->id)->select('keputusan_final')->first();
-                                    if (!is_null($PenilaianDB)) {
-                                        $tolak = FALSE;
-                                        if ($PenilaianDB->keputusan_final == 'Ditolak') {
-                                            $tolak = TRUE;
+                                return $badge;
+                            })
+                            ->addColumn('action', function ($data) use ($update) {
+                                $tolak = FALSE;
+                                if (in_array($data->jalur_buku, ['Reguler', 'MoU-Reguler'])) {
+                                    if (!is_null($data->tgl_pn_selesai)) {
+                                        $PenilaianDB = DB::table('penerbitan_pn_direksi')->where('naskah_id', $data->id)->select('keputusan_final')->first();
+                                        if (!is_null($PenilaianDB)) {
+                                            $tolak = FALSE;
+                                            if ($PenilaianDB->keputusan_final == 'Ditolak') {
+                                                $tolak = TRUE;
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            $btn = '<a href="' . url('penerbitan/naskah/melihat-naskah/' . $data->id) . '"
-                                class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" data-placement="top" title="Lihat Data">
-                                <div><i class="fas fa-envelope-open-text"></i></div></a>';
-                            if (!$tolak) {
-                                if ($update) {
-                                    if ((auth()->id() == $data->pic_prodev) || (auth()->id() == $data->created_by) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
-                                        $btn .= '<a href="' . url('penerbitan/naskah/mengubah-naskah/' . $data->id) . '"
-                                            class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
-                                            <div><i class="fas fa-edit"></i></div></a>';
+                                $btn = '<a href="' . url('penerbitan/naskah/melihat-naskah/' . $data->id) . '"
+                                    class="d-block btn btn-sm btn-primary btn-icon mr-1" data-toggle="tooltip" data-placement="top" title="Lihat Data">
+                                    <div><i class="fas fa-envelope-open-text"></i></div></a>';
+                                if (!$tolak) {
+                                    if ($update) {
+                                        if ((auth()->id() == $data->pic_prodev) || (auth()->id() == $data->created_by) || (auth()->id() == 'be8d42fa88a14406ac201974963d9c1b') || (Gate::allows('do_approval', 'approval-deskripsi-produk'))) {
+                                            $btn .= '<a href="' . url('penerbitan/naskah/mengubah-naskah/' . $data->id) . '"
+                                                class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1" data-toggle="tooltip" title="Edit Data">
+                                                <div><i class="fas fa-edit"></i></div></a>';
+                                        }
+                                    }
+                                    if ((Gate::allows('do_delete', 'delete-data-naskah'))) {
+                                        $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-delete-naskah btn-danger btn-icon mr-1 mt-1"
+                                        data-toggle="tooltip" title="Hapus Data"
+                                        data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '">
+                                        <i class="fas fa-trash-alt"></i></a>';
                                     }
                                 }
-                                if ((Gate::allows('do_delete', 'delete-data-naskah'))) {
-                                    $btn .= '<a href="javascript:void(0)" class="d-block btn btn-sm btn-delete-naskah btn-danger btn-icon mr-1 mt-1"
-                                    data-toggle="tooltip" title="Hapus Data"
-                                    data-id="' . $data->id . '" data-kode="' . $data->kode . '" data-judul="' . $data->judul_asli . '">
-                                    <i class="fas fa-trash-alt"></i></a>';
+                                $historyData = DB::table('penerbitan_naskah_history')->where('naskah_id', $data->id)->get();
+                                if (!$historyData->isEmpty()) {
+                                    $btn .= '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 mt-1 btn-history" data-id="' . $data->id . '" data-judulasli="' . $data->judul_asli . '" data-toggle="tooltip" title="History">
+                                    <i class="fas fa-history"></i>&nbsp;History</button>';
                                 }
-                            }
-                            $historyData = DB::table('penerbitan_naskah_history')->where('naskah_id', $data->id)->get();
-                            if (!$historyData->isEmpty()) {
-                                $btn .= '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 mt-1 btn-history" data-id="' . $data->id . '" data-judulasli="' . $data->judul_asli . '" data-toggle="tooltip" title="History">
-                                <i class="fas fa-history"></i>&nbsp;History</button>';
-                            }
-                            $trackerData = DB::table('tracker')->where('section_id', $data->id)->get();
-                            if (!$trackerData->isEmpty()) {
-                                $btn .= '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 mt-1 btn-tracker" data-id="' . $data->id . '" data-judulasli="' . $data->judul_asli . '" data-toggle="tooltip" title="Tracker">
-                                <i class="fas fa-file-signature"></i>&nbsp;Tracking</button>';
-                            }
-                            return $btn;
-                        })
-                        ->rawColumns(['kode', 'judul_asli', 'penulis', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'action'])
-                        ->make(true);
+                                $trackerData = DB::table('tracker')->where('section_id', $data->id)->get();
+                                if (!$trackerData->isEmpty()) {
+                                    $btn .= '<button type="button" class="btn btn-sm btn-info btn-icon mr-1 mt-1 btn-tracker" data-id="' . $data->id . '" data-judulasli="' . $data->judul_asli . '" data-toggle="tooltip" title="Tracker">
+                                    <i class="fas fa-file-signature"></i>&nbsp;Tracking</button>';
+                                }
+                                return $btn;
+                            })
+                            ->rawColumns(['kode', 'judul_asli', 'penulis', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'action'])
+                            ->make(true);
+                    } catch (\Exception $e) {
+                        return abort($e->getCode(),$e->getMessage());
+                    }
                     break;
             }
         }
