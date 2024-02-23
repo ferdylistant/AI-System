@@ -325,16 +325,17 @@ $(document).ready(function () {
             sSearch: '',
             lengthMenu: "_MENU_ /halaman",
         },
-        ajax: {
-            url: baseUrl,
-            complete: () => {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip]'))
+        drawCallback: () => {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('.tooltip-naskah'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl, {
                         trigger: 'hover'
                     })
                 })
-            }
+                console.log(tooltipTriggerList);
+        },
+        ajax: {
+            url: baseUrl,
         },
         columns: [{
             data: 'kode',

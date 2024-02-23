@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use App\Models\Penulis;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use App\Events\PenulisEvent;
 use Illuminate\Http\Request;
@@ -25,7 +26,6 @@ class PenulisController extends Controller
         if ($request->ajax()) {
             $data = DB::table('penerbitan_penulis')
                 ->whereNull('deleted_at')
-                ->select('id', 'nama', 'email', 'ponsel_domisili', 'ktp')
                 ->orderBy('created_at', 'desc')
                 ->get();
             switch ($request->input('request_')) {
@@ -61,7 +61,64 @@ class PenulisController extends Controller
                             $badge = is_null($resPen) ? 'danger':'success';
                             $text = is_null($resPen) ? 'Belum Lengkap':'Sudah Lengkap';
                             $icon = is_null($resPen) ? 'fas fa-exclamation-triangle':'fas fa-check-circle';
-                            $html .= '<span class="badge badge-'.$badge.'"><i class="'.$icon.'"></i> '.$text.'</span>';
+                            if ($text === 'Belum Lengkap') {
+                                $content ='';
+                                $arr = [];
+                                if (is_null($data->tanggal_lahir)) {
+                                    $arr = Arr::collapse([$arr,[ 'Tanggal Lahir']]);
+                                }
+                                if (is_null($data->kewarganegaraan)) {
+                                    $arr = Arr::collapse([$arr,['Kewarganegaraan']]);
+                                }
+                                if (is_null($data->alamat_domisili)) {
+                                    $arr = Arr::collapse([$arr,['Alamat Domisili']]);
+                                }
+                                if (is_null($data->ponsel_domisili)) {
+                                    $arr = Arr::collapse([$arr,['Ponsel Domisili']]);
+                                }
+                                if (is_null($data->telepon_domisili)) {
+                                    $arr = Arr::collapse([$arr,['Telepon Domisili']]);
+                                }
+                                if (is_null($data->email)) {
+                                    $arr = Arr::collapse([$arr,['Email']]);
+                                }
+                                if (is_null($data->bank)) {
+                                    $arr = Arr::collapse([$arr,['Bank']]);
+                                }
+                                if (is_null($data->bank_atasnama)) {
+                                    $arr = Arr::collapse([$arr,['Atasnama Bank']]);
+                                }
+                                if (is_null($data->no_rekening)) {
+                                    $arr = Arr::collapse([$arr,['Nomor Rekening']]);
+                                }
+                                if (is_null($data->ktp)) {
+                                    $arr = Arr::collapse([$arr,['KTP']]);
+                                }
+                                if (is_null($data->scan_ktp)) {
+                                    $arr = Arr::collapse([$arr,['Scan KTP']]);
+                                }
+                                if (is_null($data->url_tentang_penulis)) {
+                                    $arr = Arr::collapse([$arr,['URL Tentang Penulis']]);
+                                }
+                                $sum = count($arr);
+                                foreach($arr as $i => $v) {
+                                    $content .=$v;
+                                    $res = $i + 1;
+                                    if ($res == $sum) {
+                                        $content .='.';
+                                    } else {
+                                        $content .=', ';
+                                    }
+
+                                }
+                                $html .= '<a href="javascript:void(0)" class="text-warning popover-table" tabindex="0" role="button"
+                                data-content="'.$content.'" data-toggle="popover" data-trigger="focus" title="Belum Lengkap">
+                                <abbr title=""><span class="badge badge-'.$badge.'">
+                                <i class="'.$icon.' me-3"></i> '.$text.'</span></abbr>
+                                </a>';
+                            } else {
+                                $html .= '<span class="badge badge-'.$badge.'"><i class="'.$icon.'"></i> '.$text.'</span>';
+                            }
                             return $html;
                         })
                         ->addColumn('history', function ($data) {

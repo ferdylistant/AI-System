@@ -69,11 +69,22 @@ $(function () {
             sSearch: "",
             lengthMenu: "_MENU_ /halaman",
         },
+        drawCallback: function() {
+            var popoverTriggerList = [].slice.call(document.querySelectorAll('.popover-table'))
+                var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                    return new bootstrap.Popover(popoverTriggerEl, {
+                        html: true,
+                        container: 'body',
+                        placement: 'top',
+                    })
+                })
+                // console.log(popoverList);
+        },
         ajax: {
             url: window.location.origin + "/penerbitan/penulis",
             data: {
                 request_: "table-penulis",
-            },
+            }
         },
         columns: [
             {

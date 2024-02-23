@@ -13,6 +13,16 @@
     <link rel="stylesheet" href="{{ asset('vendors/SpinKit/spinkit.css') }}">
     <link rel="stylesheet" href="{{ asset('vendors/izitoast/dist/css/iziToast.min.css') }}">
     <style>
+        .popover {
+            /* background: tomato !important; */
+            box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px!important;
+        }
+
+        .popover.top .arrow:after {
+            /* border-bottom-color: tomato!important; */
+            box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px!important;
+        }
+
         .scrollbar-deep-purple::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
             background-color: #F5F5F5;
