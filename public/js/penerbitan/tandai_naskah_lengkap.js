@@ -332,7 +332,7 @@ $(document).ready(function () {
                         trigger: 'hover'
                     })
                 })
-                console.log(tooltipTriggerList);
+                // console.log(tooltipTriggerList);
         },
         ajax: {
             url: baseUrl,
