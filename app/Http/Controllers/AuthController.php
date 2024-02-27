@@ -102,6 +102,7 @@ class AuthController extends Controller
                 $menus_[$m['detail']['name_ab']][$key] = $m;
                 // dd($menus_);
             }
+            // dd($menus_);
             $permissions = DB::table('user_permission as up')
                 ->leftJoin('permissions as p', 'up.permission_id', '=', 'p.id')
                 ->select(DB::raw('up.*, p.url, p.type, p.raw'))
@@ -116,11 +117,11 @@ class AuthController extends Controller
                 'user_agent' => $request->server('HTTP_USER_AGENT'),
             ];
             event(new UserLogEvent($userLog));
-            // $menus = json_encode($menus_);
-            // Redis::set('menus', $menus);
-            // Redis::set('permissions', $permissions);
-            $request->session()->put('menus', $menus_);
-            $request->session()->put('permissions', $permissions);
+            $menus = json_encode($menus_);
+            Redis::set('menus', $menus);
+            Redis::set('permissions', $permissions);
+            // $request->session()->put('menus', $menus_);
+            // $request->session()->put('permissions', $permissions);
 
             return redirect()->intended('/');
         }
