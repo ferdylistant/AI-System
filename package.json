@@ -21,6 +21,7 @@
     "dependencies": {
         "caniuse-lite": "^1.0.30001576",
         "save": "^2.9.0",
-        "skeleton-screen-css": "^1.1.0"
+        "skeleton-screen-css": "^1.1.0",
+        "ws": "^8.16.0"
     }
 }
