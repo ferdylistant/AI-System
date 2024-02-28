@@ -256,7 +256,7 @@
             })
         });
     </script>
-    {{-- <script src="{{mix('js/app.js')}}"></script> --}}
+    <script src="{{mix('js/app.js')}}"></script>
     <script type="text/javascript" src="{{ asset('js/main.js') }}"></script>
     <script type="text/javascript">
         // Reload the page when the user's internet connection is restored

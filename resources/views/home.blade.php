@@ -550,7 +550,6 @@
 
 
 @section('jsNeeded')
-    <script type="text/javascript" src="{{ mix('js/app.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/home.js') }}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function(event) {
