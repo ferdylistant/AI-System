@@ -550,14 +550,15 @@
 
 
 @section('jsNeeded')
+    <script type="text/javascript" src="{{ mix('js/app.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/home.js') }}"></script>
-    {{-- <script>
+    <script>
         document.addEventListener("DOMContentLoaded", function(event) {
             Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (e) => {
                 console.log(e);
             });
         });
-    </script> --}}
+    </script>
     {{-- <script>
     $(document).ready(function() {
         const url = window.location.href;

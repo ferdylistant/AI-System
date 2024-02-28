@@ -96,17 +96,6 @@
                                         <span class="badge badge-warning"><i class="fas fa-database"></i> Total penulis: <b
                                                 id="countData">0</b></span>
                                     </div>
-                                    {{-- <div class="col-auto d-flex mb-3">
-                                        <a class="btn btn-light mr-1" href="{{ url('penerbitan/penulis/export/xlsx') }}"
-                                            style="box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;"><i
-                                                class="fas fa-file-excel"></i> Excel</a>
-                                        <a class="btn btn-light mr-1" href="{{ url('penerbitan/penulis/export/pdf') }}"
-                                            style="box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;"><i
-                                                class="fas fa-file-pdf"></i> PDF</a>
-                                        <a class="btn btn-light mr-1" href="{{ url('penerbitan/penulis/export/csv') }}"
-                                            style="box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;"><i
-                                                class="fas fa-file-csv"></i> CSV</a>
-                                    </div> --}}
                                 </div>
                             </div>
                             <div class="col-12 table-responsive">
