@@ -70,8 +70,7 @@ return [
      */
     'middleware' => [
         'web',
-        Authorize::class,
-        'auth:web'
+        Authorize::class
     ],
 
     'statistics' => [
