@@ -1634,14 +1634,13 @@ class NaskahController extends Controller
             'title' => 'Naskah Telah Dihapus',
         ]);
     }
-    public static function generateId()
+    protected static function generateId()
     {
         $last = DB::table('penerbitan_naskah')
             ->select('kode')
             ->where('created_at', '>', strtotime(date('Y-m-d') . '00:00:01'))
             ->orderBy('created_at', 'desc')
             ->first();
-
         if (is_null($last)) {
             $id = 'NA' . date('Ymd') . '001';
         } else {
