@@ -28,10 +28,7 @@ Route::get('/reset-password/{token}', function ($token, Request $request) {
 Route::post('reset-password', $path.'\AuthController@submitResetPasswordForm')->name('reset.password.post');
 
 Route::middleware(['auth'])->group(function () use ($path) {
-    Route::get('tes-socket', function () {
-        $data = 'Data coba-coba';
-        event(new TesWebsocketEvent($data));
-    });
+
     //API
     Route::post('/update-status-activity',$path.'\ApiController@updateStatusActivity');
     Route::get('/get-layout', $path.'\ApiController@getPosisiLayout');
