@@ -30,7 +30,9 @@ window.Echo = new Echo({
     forceTLS: true,
     disableStats: true,
     enabledTransports: ['ws', 'wss'],
-    authEndpoint: "/pusher/user-auth", // this is the new endpoint for auth    encrypted: true,
+    authEndpoint: "/pusher/user-auth", // this is the new endpoint for auth
+    encrypted: true,
+    activityTimeout: 10000
 });
 // window.Echo = new Echo({
 //     broadcaster: 'pusher',
