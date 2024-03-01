@@ -19,9 +19,9 @@ class AuthController extends Controller
     {
         return view('login',['title' => 'Login']);
     }
-
     public function doLogin(Request $request)
     {
+        $request->session()->regenerate();
         $request->merge(array('email' => trim($request->email)));
         $credentials = $request->validate([
             'email' => 'required|email',
@@ -118,8 +118,8 @@ class AuthController extends Controller
             ];
             event(new UserLogEvent($userLog));
             $menus = json_encode($menus_);
-            Redis::set('menus', $menus);
-            Redis::set('permissions', $permissions);
+            Redis::set('menus:'.session()->getId(), $menus);
+            Redis::set('permissions:'.session()->getId(), $permissions);
             // $request->session()->put('menus', $menus_);
             // $request->session()->put('permissions', $permissions);
 
@@ -130,7 +130,6 @@ class AuthController extends Controller
             'error' => 'The provided credentials do not match our records.',
         ]);
     }
-
     public function logout(Request $request)
     {
         DB::table('users')->where('id',auth()->id())->update([
@@ -142,7 +141,6 @@ class AuthController extends Controller
 
         return redirect('/login');
     }
-
     public function submitForgetPasswordForm(Request $request)
     {
         try {

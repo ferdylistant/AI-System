@@ -12,7 +12,7 @@
     </div>
 
     <ul class="sidebar-menu">
-        @foreach (json_decode(Redis::connection()->get('menus')) as $key => $menus)
+        @foreach (json_decode(Redis::get('menus:'.session()->getId())) as $key => $menus)
             @php
                 $keyChar = Str::contains($key, '&');
                 $keyDisplay = $key;

@@ -36,7 +36,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('do_read_raw', function ($user, $raw) {
             // return session('permissions')->where('raw', $raw)
             //         ->isNotEmpty();
-            $collect = json_decode(Redis::get('permissions'));
+            $collect = json_decode(Redis::get('permissions:'.session()->getId()));
             return collect($collect)->where('raw', $raw)
                     ->isNotEmpty();
         });
@@ -44,31 +44,31 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('do_create', function ($user, $raw) {
             // return session('permissions')->where('raw', $raw)
             //         ->isNotEmpty();
-            $collect = json_decode(Redis::get('permissions'));
+            $collect = json_decode(Redis::get('permissions:'.session()->getId()));
             return collect($collect)->where('raw', $raw)
                     ->isNotEmpty();
         });
 
         Gate::define('do_update', function ($user, $raw) {
-            $collect = json_decode(Redis::get('permissions'));
+            $collect = json_decode(Redis::get('permissions:'.session()->getId()));
             return collect($collect)->where('raw', $raw)
                     ->isNotEmpty();
         });
 
         Gate::define('do_delete', function ($user, $raw) {
-            $collect = json_decode(Redis::get('permissions'));
+            $collect = json_decode(Redis::get('permissions:'.session()->getId()));
             return collect($collect)->where('raw', $raw)
                     ->isNotEmpty();
         });
 
         Gate::define('do_approval', function ($user, $raw) {
-            $collect = json_decode(Redis::get('permissions'));
+            $collect = json_decode(Redis::get('permissions:'.session()->getId()));
             return collect($collect)->where('raw', $raw)
                     ->isNotEmpty();
         });
 
         Gate::define('do_decline', function ($user, $raw) {
-            $collect = json_decode(Redis::get('permissions'));
+            $collect = json_decode(Redis::get('permissions:'.session()->getId()));
             return collect($collect)->where('raw', $raw)
                     ->isNotEmpty();
         });
