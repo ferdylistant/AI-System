@@ -3,9 +3,10 @@
 use App\Models\Naskah;
 use Illuminate\Http\Request;
 use App\Events\TesWebsocketEvent;
-use App\Http\Controllers\PenjualanStok\PenerimaanRekondisiController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PusherController;
 use App\Http\Controllers\Produksi\RekondisiController;
+use App\Http\Controllers\PenjualanStok\PenerimaanRekondisiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,7 +29,8 @@ Route::get('/reset-password/{token}', function ($token, Request $request) {
 Route::post('reset-password', $path.'\AuthController@submitResetPasswordForm')->name('reset.password.post');
 
 Route::middleware(['auth'])->group(function () use ($path) {
-    Route::post('tes-socket', function () {
+    Route::post('/pusher/user-auth', [PusherController::class, 'pusherAuth']);
+    Route::get('tes-socket', function () {
         $data = 'Data coba-coba';
         event(new TesWebsocketEvent($data));
     });

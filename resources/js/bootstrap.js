@@ -26,9 +26,11 @@ window.Echo = new Echo({
     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
     wsHost: 'ws-ap1.pusher.com',
     wsPort: 443,
+    wssPort: 443,
     forceTLS: true,
     disableStats: true,
-    encrypted: true,
+    enabledTransports: ['ws', 'wss'],
+    authEndpoint: "/pusher/user-auth", // this is the new endpoint for auth    encrypted: true,
 });
 // window.Echo = new Echo({
 //     broadcaster: 'pusher',
