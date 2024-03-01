@@ -1636,16 +1636,26 @@ class NaskahController extends Controller
     }
     protected static function generateId()
     {
+        //?OLD
+        // $last = DB::table('penerbitan_naskah')
+        //     ->select('kode')
+        //     ->where('created_at', '>', strtotime(date('Y-m-d') . '00:00:01'))
+        //     ->orderBy('created_at', 'desc')
+        //     ->first();
+        //?NEW
         $last = DB::table('penerbitan_naskah')
             ->select('kode')
-            ->where('created_at', '>', strtotime(date('Y-m-d') . '00:00:01'))
             ->orderBy('created_at', 'desc')
             ->first();
         if (is_null($last)) {
             $id = 'NA' . date('Ymd') . '001';
         } else {
             $id = (int)substr($last->kode, -3);
-            $id = 'NA' . date('Ymd') . sprintf('%03s', $id + 1);
+            if ($id == 999) {
+                $id = 'NA' . date('Ymd') . '001';
+            } else {
+                $id = 'NA' . date('Ymd') . sprintf('%03s', $id + 1);
+            }
         }
         return $id;
     }
