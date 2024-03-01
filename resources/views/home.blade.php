@@ -553,9 +553,18 @@
     <script type="text/javascript" src="{{ asset('js/home.js') }}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function(event) {
-            Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (e) => {
-                console.log(e);
+            Pusher.logToConsole = true;
+
+            var pusher = new Pusher('{{env('PUSHER_APP_KEY')}}', {
+            cluster: '{{env('PUSHER_APP_CLUSTER')}}'
             });
+            var channel = pusher.subscribe('hello-channel');
+            channel.bind('TesWebsocketEvent', function(data) {
+            alert(JSON.stringify(data));
+            });
+            // Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (e) => {
+            //     console.log(e);
+            // });
         });
     </script>
     {{-- <script>

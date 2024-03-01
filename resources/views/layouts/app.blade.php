@@ -256,7 +256,8 @@
             })
         });
     </script>
-    <script src="{{mix('js/app.js')}}"></script>
+    {{-- <script src="{{mix('js/app.js')}}"></script> --}}
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script type="text/javascript" src="{{ asset('js/main.js') }}"></script>
     <script type="text/javascript">
         // Reload the page when the user's internet connection is restored
