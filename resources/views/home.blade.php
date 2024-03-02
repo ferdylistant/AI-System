@@ -560,7 +560,7 @@
             encrypted: true
             });
             var channel = pusher.subscribe('hello-channel');
-            channel.bind('TesWebsocketEvent', function(data) {
+            channel.bind('.test.notification', function(data) {
             alert(JSON.stringify(data));
             });
             // Echo.channel(`hello-channel`).listen('.test.notification', (data) => {
