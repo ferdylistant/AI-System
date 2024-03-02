@@ -562,7 +562,7 @@
             // channel.bind('TesWebsocketEvent', function(data) {
             // alert(JSON.stringify(data));
             // });
-            Echo.channel(`hello-channel`).listen('TesWebsocketEvent', (data) => {
+            Echo.channel(`hello-channel`).listen('.test.notification', (data) => {
                 alert(JSON.stringify(data));
             });
         });

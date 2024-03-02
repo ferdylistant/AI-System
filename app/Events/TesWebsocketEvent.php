@@ -35,6 +35,9 @@ class TesWebsocketEvent implements ShouldBroadcast
     {
         return new PrivateChannel('hello-channel');
     }
+    public function broadcastAs() {
+        return 'test.notification';
+    }
     public function broadcastWith()
     {
         return [
