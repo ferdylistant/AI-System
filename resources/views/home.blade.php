@@ -555,17 +555,17 @@
         document.addEventListener("DOMContentLoaded", function(event) {
             Pusher.logToConsole = true;
 
-            var pusher = new Pusher('{{env('PUSHER_APP_KEY')}}', {
-            cluster: '{{env('PUSHER_APP_CLUSTER')}}',
-            encrypted: true
-            });
-            var channel = pusher.subscribe('hello-channel');
-            channel.bind('.test.notification', function(data) {
-            alert(JSON.stringify(data));
-            });
-            // Echo.channel(`hello-channel`).listen('.test.notification', (data) => {
-            //     alert(JSON.stringify(data));
+            // var pusher = new Pusher('{{env('PUSHER_APP_KEY')}}', {
+            // cluster: '{{env('PUSHER_APP_CLUSTER')}}',
+            // encrypted: true
             // });
+            // var channel = pusher.subscribe('hello-channel');
+            // channel.bind('.test.notification', function(data) {
+            // alert(JSON.stringify(data));
+            // });
+            Echo.channel(`hello-channel`).listen('.test.notification', (data) => {
+                alert(JSON.stringify(data));
+            });
         });
     </script>
     {{-- <script>
