@@ -556,7 +556,8 @@
             Pusher.logToConsole = true;
 
             var pusher = new Pusher('{{env('PUSHER_APP_KEY')}}', {
-            cluster: '{{env('PUSHER_APP_CLUSTER')}}'
+            cluster: '{{env('PUSHER_APP_CLUSTER')}}',
+            encrypted: true
             });
             var channel = pusher.subscribe('hello-channel');
             channel.bind('TesWebsocketEvent', function(data) {
