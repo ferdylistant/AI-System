@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Events\TesWebsocketEvent;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PusherController;
+use App\Http\Controllers\WebSocketController;
 use App\Http\Controllers\Produksi\RekondisiController;
 use App\Http\Controllers\PenjualanStok\PenerimaanRekondisiController;
 
@@ -30,10 +31,7 @@ Route::post('reset-password', $path.'\AuthController@submitResetPasswordForm')->
 
 Route::middleware(['auth'])->group(function () use ($path) {
     Route::post('/pusher/user-auth', [PusherController::class, 'pusherAuth']);
-    Route::get('tes-socket', function () {
-        $data = 'Data coba-coba';
-        event(new TesWebsocketEvent($data));
-    });
+    Route::post('tes-socket', [WebSocketController::class,'index']);
     //API
     Route::post('/update-status-activity',$path.'\ApiController@updateStatusActivity');
     Route::get('/get-layout', $path.'\ApiController@getPosisiLayout');
