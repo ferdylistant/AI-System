@@ -174,6 +174,7 @@ class NaskahController extends Controller
                                 'pn.selesai_penilaian',
                                 'pn.bukti_email_penulis',
                                 'pn.urgent',
+                                'pn.created_at',
                                 'pns.tgl_pn_prodev',
                                 'pns.tgl_pn_m_penerbitan',
                                 'pns.tgl_pn_m_pemasaran',
@@ -200,6 +201,7 @@ class NaskahController extends Controller
                                 'pn.selesai_penilaian',
                                 'pn.bukti_email_penulis',
                                 'pn.urgent',
+                                'pn.created_at',
                                 'pns.tgl_pn_prodev',
                                 'pns.tgl_pn_m_penerbitan',
                                 'pns.tgl_pn_m_pemasaran',
@@ -251,6 +253,9 @@ class NaskahController extends Controller
                         })
                         ->addColumn('created_by', function ($data) {
                             return DB::table('users')->where('id', $data->created_by)->first()->nama;
+                        })
+                        ->addColumn('created_at', function ($data) {
+                            return Carbon::parse($data->created_at)->translatedFormat('d/m/Y');
                         })
                         ->addColumn('stts_penilaian', function ($data) {
                             $badge = '';
@@ -399,7 +404,7 @@ class NaskahController extends Controller
                             }
                             return $btn;
                         })
-                        ->rawColumns(['kode', 'judul_asli', 'penulis', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'action'])
+                        ->rawColumns(['kode', 'judul_asli', 'penulis', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by','created_at', 'stts_penilaian', 'action'])
                         ->make(true);
                     break;
             }
@@ -1368,6 +1373,7 @@ class NaskahController extends Controller
                     'pn.selesai_penilaian',
                     'pn.bukti_email_penulis',
                     'pn.urgent',
+                    'pn.created_at',
                     'pns.tgl_pn_prodev',
                     'pns.tgl_pn_m_penerbitan',
                     'pns.tgl_pn_m_pemasaran',
@@ -1406,6 +1412,7 @@ class NaskahController extends Controller
                     'pn.selesai_penilaian',
                     'pn.bukti_email_penulis',
                     'pn.urgent',
+                    'pn.created_at',
                     'pns.tgl_pn_prodev',
                     'pns.tgl_pn_m_penerbitan',
                     'pns.tgl_pn_m_pemasaran',
@@ -1458,6 +1465,9 @@ class NaskahController extends Controller
             })
             ->addColumn('created_by', function ($data) {
                 return DB::table('users')->where('id', $data->created_by)->first()->nama;
+            })
+            ->addColumn('created_at', function ($data) {
+                return Carbon::parse($data->created_at)->translatedFormat('d/m/Y');
             })
             ->addColumn('stts_penilaian', function ($data) {
                 $badge = '';
@@ -1556,7 +1566,7 @@ class NaskahController extends Controller
                 }
                 return $btn;
             })
-            ->rawColumns(['kode', 'judul_asli', 'penulis', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by', 'stts_penilaian', 'action'])
+            ->rawColumns(['kode', 'judul_asli', 'penulis', 'pic_prodev', 'jalur_buku', 'masuk_naskah', 'created_by','created_at', 'stts_penilaian', 'action'])
             ->make(true);
     }
     public function restorePage(Request $request)

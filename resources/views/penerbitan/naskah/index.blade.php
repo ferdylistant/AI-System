@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{ asset('vendors/SpinKit/spinkit.css') }}">
     <link rel="stylesheet" href="{{ asset('vendors/izitoast/dist/css/iziToast.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendors/jquery-magnify/dist/jquery.magnify.min.css') }}">
+    <link rel="stylesheet" href="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.css') }}">
     <style>
         .scrollbar-deep-purple::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
@@ -217,6 +218,31 @@
             overflow-y: scroll;
             height: 400px;
         }
+        span.deleteicon {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        span.deleteicon span {
+            position: absolute;
+            display: block;
+            right: 3px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            color: #fff;
+            background-color: #ccc;
+            font: 13px monospace;
+            text-align: center;
+            line-height: 1em;
+            cursor: pointer;
+        }
+
+        span.deleteicon input {
+            padding-right: 18px;
+            box-sizing: border-box;
+        }
     </style>
 @endsection
 
@@ -376,6 +402,7 @@
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script> --}}
     <script type="text/javascript" src="{{ asset('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
+    <script src="{{ url('vendors/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
 @endsection
 
 @section('jsNeeded')
