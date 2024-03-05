@@ -9,9 +9,9 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class TesWebsocketEvent implements ShouldBroadcastNow
+class TesWebsocketEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -33,7 +33,10 @@ class TesWebsocketEvent implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return [new Channel('hello-channel')];
+        return new Channel('hello-channel');
+    }
+    public function broadcastAs() {
+        return 'hello-event';
     }
     public function broadcastWith() {
         return [
