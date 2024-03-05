@@ -31,7 +31,7 @@ Route::post('reset-password', $path.'\AuthController@submitResetPasswordForm')->
 
 Route::middleware(['auth'])->group(function () use ($path) {
     Route::post('/pusher/user-auth', [PusherController::class, 'pusherAuth']);
-    Route::post('tes-socket', [WebSocketController::class,'index']);
+    Route::get('tes-socket', [WebSocketController::class,'index']);
     //API
     Route::post('/update-status-activity',$path.'\ApiController@updateStatusActivity');
     Route::get('/get-layout', $path.'\ApiController@getPosisiLayout');
