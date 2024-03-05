@@ -40,7 +40,6 @@ window.Echo = new Echo({
     encrypted: true,
     activityTimeout: 10000
 });
-console.log(token);
 // window.Echo = new Echo({
 //     broadcaster: 'pusher',
 //     key: process.env.MIX_PUSHER_APP_KEY,
