@@ -35,13 +35,9 @@ class TesWebsocketEvent implements ShouldBroadcast
     {
         return ['hello-channel'];
     }
-    public function broadcastAs() {
-        return 'test.notification';
-    }
-    public function broadcastWith()
-    {
+    public function broadcastWith() {
         return [
-            'id' => Str::slug($this->data,'-')
+            'data' => [$this->data]
         ];
     }
 }
