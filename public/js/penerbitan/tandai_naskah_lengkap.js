@@ -49,7 +49,7 @@ $(document).ready(function () {
             var parsedDate = new Date(dateArray[2], parseInt(dateArray[1]) - 1, dateArray[0]);  // -1 because months are from 0 to 11
             return parsedDate;
         }
-        $("div.jalbuk").html(`<div class="input-group mb-1">
+        $("div.jalbuk").html(`<div class="input-group mb-1 w-100">
         <select data-column="4" name="status_filter_jb" id="status_filter_jb"
             class="form-control select-filter-jb status_filter_jb">
             <option label="Pilih Filter Data"></option>
@@ -59,7 +59,7 @@ $(document).ready(function () {
             data-toggle="tooltip" title="Reset" hidden><i
                 class="fas fa-times"></i></button>
         </div>`);
-        $("div.kelengkapan").html(`<div class="input-group mb-1">
+        $("div.kelengkapan").html(`<div class="input-group mb-1 w-100">
         <select data-column="8" name="status_filter" id="status_filter"
             class="form-control select-filter status_filter">
             <option label="Pilih Filter Data"></option>
@@ -69,7 +69,7 @@ $(document).ready(function () {
             data-toggle="tooltip" title="Reset" hidden><i
                 class="fas fa-times"></i></button>
         </div>`);
-        $("div.keputusan").html(`<div class="input-group mb-1">
+        $("div.keputusan").html(`<div class="input-group mb-1 w-100">
         <select data-column="8" name="status_filter_kep" id="status_filter_kep"
             class="form-control select-filter-kep status_filter_kep">
             <option label="Pilih Filter Data"></option>
@@ -79,8 +79,8 @@ $(document).ready(function () {
             data-toggle="tooltip" title="Reset" hidden><i
                 class="fas fa-times"></i></button>
         </div>`);
-        $("div.datesearchbox").html('<div class="input-group"><input type="text" class="form-control pull-right deletable" id="datesearch" name="datefilter" placeholder="Filter by date range.."> </div>');
-        $('input.deletable').wrap('<span class="deleteicon"></span>').after($('<span>x</span>').click(function () {
+        $("div.datesearchbox").html('<div class="input-group mb-1 w-100"><input type="text" class="form-control pull-right deletable" id="datesearch" name="datefilter" placeholder="Filter by date range.."> </div>');
+        $('input.deletable').wrap('<span class="deleteicon  w-100"></span>').after($('<span>x</span>').click(function () {
             $(this).prev('input').val('').trigger('change');
             $.fn.dataTable.ext.search.splice($.fn.dataTable.ext.search.indexOf(DateFilterFunction, 1));
             tableNaskah.draw();
@@ -549,7 +549,7 @@ $(document).ready(function () {
                     "responsive": true,
                     "autoWidth": false,
                     "aaSorting": [],
-                    "dom": "<'row'<'col-sm-4' <'jalbuk'>><'col-sm-4'<'kelengkapan'>><'col-sm-4'<'keputusan'>>>" + "<'row'<'col-sm-3'B><'col-sm-6 text-center' <'totalData'>><'col-sm-3'f>>" +
+                    "dom": "<'row'<'col-sm-3' <'jalbuk'>><'col-sm-3'<'kelengkapan'>><'col-sm-3'<'keputusan'>><'col-sm-3'<'datesearchbox'>>>" + "<'row'<'col-sm-3'B><'col-sm-6 text-center' <'totalData'>><'col-sm-3'f>>" +
                         "<'row'<'col-sm-12'tr>>" +
                         "<'row'<'col-sm-5'i><'col-sm-7'p>>",
                     scrollX: true,
@@ -695,7 +695,7 @@ $(document).ready(function () {
             "responsive": true,
             "autoWidth": false,
             "aaSorting": [],
-            "dom": "<'row'<'col-sm-4' <'jalbuk'>><'col-sm-4'<'kelengkapan'>><'col-sm-4'<'keputusan'>>>" + "<'row'<'col-sm-3'B><'col-sm-6 text-center' <'totalData'>><'col-sm-3'f>>" +
+            "dom": "<'row'<'col-sm-3' <'jalbuk'>><'col-sm-3'<'kelengkapan'>><'col-sm-3'<'keputusan'>><'col-sm-3'<'datesearchbox'>>>" + "<'row'<'col-sm-3'B><'col-sm-6 text-center' <'totalData'>><'col-sm-3'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-5'i><'col-sm-7'p>>",
             scrollX: true,
@@ -787,6 +787,11 @@ $(document).ready(function () {
                 data: 'created_by',
                 name: 'created_by',
                 title: 'Pembuat Naskah'
+            },
+            {
+                data: 'created_at',
+                name: 'created_at',
+                title: 'Dibuat pada'
             },
             {
                 data: 'stts_penilaian',
