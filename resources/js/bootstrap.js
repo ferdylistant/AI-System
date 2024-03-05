@@ -31,11 +31,6 @@ window.Echo = new Echo({
     disableStats: false,
     enabledTransports: ['ws', 'wss'],
     authEndpoint: "/pusher/user-auth", // this is the new endpoint for auth
-    auth: {
-        headers: {
-            Authorization: 'X-CSRF-TOKEN: ' + token
-        }
-    },
     namespace: 'App.Events',
     encrypted: true,
     activityTimeout: 10000
