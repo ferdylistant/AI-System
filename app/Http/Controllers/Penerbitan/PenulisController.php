@@ -174,7 +174,6 @@ class PenulisController extends Controller
             'title' => 'Penulis Penerbitan',
         ]);
     }
-
     public function penulisTelahDihapus(Request $request)
     {
         if ($request->ajax()) {
@@ -221,7 +220,6 @@ class PenulisController extends Controller
             'title' => 'Penulis Telah Dihapus',
         ]);
     }
-
     public function detailPenulis(Request $request)
     {
         $penulis = DB::table('penerbitan_penulis')
@@ -249,7 +247,6 @@ class PenulisController extends Controller
             'title' => 'Detail Penulis Penerbitan',
         ]);
     }
-
     public function createPenulis(Request $request)
     {
         if ($request->ajax()) {
@@ -259,8 +256,6 @@ class PenulisController extends Controller
                         'add_nama' => 'required',
                         'add_telepon_domisili' => 'required',
                         'add_ponsel_domisili' => 'required',
-                        'add_ktp' => 'nullable|unique:penerbitan_penulis,ktp',
-                        'add_npwp' => 'nullable|unique:penerbitan_penulis,npwp',
                         'add_scan_ktp' => 'nullable|mimes:pdf',
                         'add_scan_npwp' => 'nullable|mimes:pdf',
                         'add_url_hibah_royalti' => 'nullable|url',
