@@ -166,6 +166,15 @@ Route::middleware(['auth'])->group(function () use ($path) {
         Route::post('/harga-jual/restore', $path.'\MasterData\HargaJualController@restoreHargaJual')->name('hj.restore');
         Route::post('/harga-jual/lihat-history', $path.'\MasterData\HargaJualController@lihatHistoryHargaJual')->name('hj.history');
         Route::match(['get','post'],'/harga-jual/ajax/{cat}', $path.'\MasterData\HargaJualController@callAjax');
+        // Type
+        Route::get('/type', $path.'\MasterData\TypeController@index')->name('type.view');
+        Route::get('/type/type-telah-dihapus', $path.'\MasterData\TypeController@typeTelahDihapus')->name('type.telah_dihapus');
+        Route::post('/type/tambah', $path.'\MasterData\TypeController@createType')->name('type.create');
+        Route::match(['get', 'post'], '/type/ubah', $path.'\MasterData\TypeController@updateType')->name('type.update');
+        Route::post('/type/hapus', $path.'\MasterData\TypeController@deleteType')->name('type.delete');
+        Route::post('/type/restore', $path.'\MasterData\TypeController@restoreType')->name('type.restore');
+        Route::post('/type/lihat-history', $path.'\MasterData\TypeController@lihatHistoryType')->name('type.history');
+        Route::match(['get','post'],'/type/ajax/{cat}', $path.'\MasterData\TypeController@callAjax');
     });
     //Penerbitan
     Route::prefix('penerbitan')->group(function () use ($path) {
