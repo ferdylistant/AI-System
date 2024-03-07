@@ -2,12 +2,9 @@
 
 use App\Models\Naskah;
 use Illuminate\Http\Request;
-use App\Events\TesWebsocketEvent;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PusherController;
 use App\Http\Controllers\WebSocketController;
-use App\Http\Controllers\Produksi\RekondisiController;
-use App\Http\Controllers\PenjualanStok\PenerimaanRekondisiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,272 +16,63 @@ use App\Http\Controllers\PenjualanStok\PenerimaanRekondisiController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
 $path = "App\Http\Controllers";
-Route::get('/check-authentication', $path.'\ApiController@checkAuth');
-Route::get('login', $path.'\AuthController@login')->name('login');
-Route::post('do-login', $path.'\AuthController@doLogin');
-Route::post('/forgot-password', $path.'\AuthController@submitForgetPasswordForm')->name('password.email');
+Route::get('/check-authentication', $path . '\ApiController@checkAuth');
+Route::get('login', $path . '\AuthController@login')->name('login');
+Route::post('do-login', $path . '\AuthController@doLogin');
+Route::post('/forgot-password', $path . '\AuthController@submitForgetPasswordForm')->name('password.email');
 Route::get('/reset-password/{token}', function ($token, Request $request) {
     return view('reset_password', ['token' => $token, 'email' => $request->email, 'title' => 'Reset Password']);
 })->name('password.reset');
-Route::post('reset-password', $path.'\AuthController@submitResetPasswordForm')->name('reset.password.post');
+Route::post('reset-password', $path . '\AuthController@submitResetPasswordForm')->name('reset.password.post');
 
 Route::middleware(['auth'])->group(function () use ($path) {
     Route::post('/pusher/user-auth', [PusherController::class, 'pusherAuth']);
-    Route::get('tes-socket', [WebSocketController::class,'index']);
+    Route::get('tes-socket', [WebSocketController::class, 'index']);
+    // Manajemen User
+    require __DIR__ . '/managementweb.php';
+    //Master Data
+    require __DIR__ . '/masterdata.php';
+    //Penerbitan
+    require __DIR__ . '/penerbitan.php';
+    //Jasa Cetak
+    require __DIR__ . '/jasacetak.php';
+    //Produksi
+    require __DIR__ . '/produksi.php';
+    //Penjualan Dan Stok
+    require __DIR__ . '/penjualanstok.php';
     //API
-    Route::post('/update-status-activity',$path.'\ApiController@updateStatusActivity');
-    Route::get('/get-layout', $path.'\ApiController@getPosisiLayout');
-    Route::get('/list/{list}', $path.'\ApiController@requestAjax');
-    Route::post('/update-tanggal-upload-ebook',$path.'\ApiController@updateTanggalUploadEbook');
-    Route::post('/update-tanggal-jadi-cetak', $path.'\ApiController@updateTanggalJadiCetak');
-    Route::post('/update-jumlah-cetak', $path.'\ApiController@updateJumlahCetak');
+    Route::post('/update-status-activity', $path . '\ApiController@updateStatusActivity');
+    Route::get('/get-layout', $path . '\ApiController@getPosisiLayout');
+    Route::get('/list/{list}', $path . '\ApiController@requestAjax');
+    Route::post('/update-tanggal-upload-ebook', $path . '\ApiController@updateTanggalUploadEbook');
+    Route::post('/update-tanggal-jadi-cetak', $path . '\ApiController@updateTanggalJadiCetak');
+    Route::post('/update-jumlah-cetak', $path . '\ApiController@updateJumlahCetak');
     // Route::get('/batal/pending/order-cetak/{id}', $path.'\Produksi\ProduksiController@batalPendingOrderCetak');
-    Route::get('/batal/pending/order-ebook/{id}', $path.'\Produksi\EbookController@batalPendingOrderEbook');
-    Route::post('/logout', $path.'\AuthController@logout');
-    Route::get('/', $path.'\HomeController@index');
-    Route::post('import-db', $path.'\HomeController@importDB');
+    Route::get('/batal/pending/order-ebook/{id}', $path . '\Produksi\EbookController@batalPendingOrderEbook');
+    Route::post('/logout', $path . '\AuthController@logout');
+    Route::get('/', $path . '\HomeController@index');
+    Route::post('import-db', $path . '\HomeController@importDB');
 
     /* Home */
-    Route::match(['get', 'post'],'/api/home/{cat}', $path.'\HomeController@apiAjax');
-    Route::post('home/test', $path.'\HomeController@ajaxTest');
-    Route::post('home/penerbitan/{cat}', $path.'\HomeController@ajaxPenerbitan');
-    Route::post('public/penerbitan/fullcalendar/{cat}', $path.'\Penerbitan\NaskahController@ajaxFromCalendar');
+    Route::match(['get', 'post'], '/api/home/{cat}', $path . '\HomeController@apiAjax');
+    Route::post('home/test', $path . '\HomeController@ajaxTest');
+    Route::post('home/penerbitan/{cat}', $path . '\HomeController@ajaxPenerbitan');
 
     Route::prefix('timeline')->group(function () use ($path) {
-        Route::post('/{cat}', $path.'\Penerbitan\TimelineController@index');
+        Route::post('/{cat}', $path . '\Penerbitan\TimelineController@index');
     });
 
     // Notification
     Route::prefix('notification')->group(function () use ($path) {
-        Route::post('/', $path.'\NotificationController@index');
-        Route::get('/view-all', $path.'\NotificationController@viewAll')->name('notification.view_all');
-    });
-
-    // Manajemen User
-    Route::prefix('manajemen-web')->group(function () use ($path) {
-        //Users
-        Route::get('/users', $path.'\ManWeb\UsersController@index');
-        Route::get('/users/user-telah-dihapus', $path.'\ManWeb\UsersController@userTelahDihapus')->name('user.telah_dihapus');
-        Route::match(['get', 'post'], '/user/ajax/{act}/{id?}', $path.'\ManWeb\UsersController@ajaxUser');
-        Route::get('/user/{id}', $path.'\ManWeb\UsersController@selectUser')->name('user.view');
-        Route::post('/user/update-access', $path.'\ManWeb\UsersController@updateAccess');
-        Route::post('/user/restore', $path.'\ManWeb\UsersController@restoreUser')->name('user.restore');
-        Route::post('/user/lihat-history', $path.'\ManWeb\UsersController@lihatHistoryUser')->name('user.history');
-        //Struktur AO
-        Route::get('/struktur-ao', $path.'\ManWeb\StrukturAoController@index');
-        Route::match(['get', 'post'], '/struktur-ao/{act}/{type}/{id?}', $path.'\ManWeb\StrukturAoController@crudSO');
+        Route::post('/', $path . '\NotificationController@index');
+        Route::get('/view-all', $path . '\NotificationController@viewAll')->name('notification.view_all');
     });
     //Setting
     Route::prefix('setting')->group(function () use ($path) {
-        Route::get('/', $path.'\ManWeb\SettingController@index')->name('setting.view');
-        Route::match(['get', 'post'], '/{act}/{type}/{id?}', $path.'\ManWeb\SettingController@crudSetting');
-    });
-    //Master Data
-    Route::prefix('master')->group(function () use ($path) {
-        //Platform Digital
-        Route::get('/platform-digital', $path.'\MasterData\ImprintController@indexPlatform')->name('platform.view');
-        Route::get('/platform-digital/platform-telah-dihapus', $path.'\MasterData\ImprintController@platformTelahDihapus')->name('platform.telah_dihapus');
-        Route::match(['get', 'post'], '/platform-digital/tambah', $path.'\MasterData\ImprintController@createPlatform')->name('platform.create');
-        Route::match(['get', 'post'], '/platform-digital/ubah', $path.'\MasterData\ImprintController@updatePlatform')->name('platform.update');
-        Route::post('/platform-digital/hapus', $path.'\MasterData\ImprintController@deletePlatform')->name('platform.delete');
-        Route::post('/platform-digital/restore', $path.'\MasterData\ImprintController@restorePlatform')->name('platform.restore');
-        Route::post('/platform-digital/lihat-history', $path.'\MasterData\ImprintController@lihatHistoryPlatform')->name('platform.history');
-        //Imprint
-        Route::get('/imprint', $path.'\MasterData\ImprintController@index')->name('imprint.view');
-        Route::get('/imprint/imprint-telah-dihapus', $path.'\MasterData\ImprintController@imprintTelahDihapus')->name('imprint.telah_dihapus');
-        Route::match(['get', 'post'], '/imprint/tambah', $path.'\MasterData\ImprintController@createImprint')->name('imprint.create');
-        Route::match(['get', 'post'], '/imprint/ubah', $path.'\MasterData\ImprintController@updateImprint')->name('imprint.update');
-        Route::post('/imprint/hapus', $path.'\MasterData\ImprintController@deleteImprint')->name('imprint.delete');
-        Route::post('/imprint/restore', $path.'\MasterData\ImprintController@restoreImprint')->name('imprint.restore');
-        Route::post('/imprint/lihat-history', $path.'\MasterData\ImprintController@lihatHistoryImprint')->name('imprint.history');
-        //Kelompok Buku
-        Route::get('/kelompok-buku', $path.'\MasterData\KelompokBukuController@index')->name('kb.view');
-        Route::get('/kelompok-buku/kelompok-buku-telah-dihapus', $path.'\MasterData\KelompokBukuController@kBukuTelahDihapus')->name('kb.telah_dihapus');
-        Route::match(['get', 'post'], '/kelompok-buku/tambah', $path.'\MasterData\KelompokBukuController@createKbuku')->name('kb.create');
-        Route::match(['get', 'post'], '/kelompok-buku/ubah', $path.'\MasterData\KelompokBukuController@updateKbuku')->name('kb.update');
-        Route::post('/kelompok-buku/hapus', $path.'\MasterData\KelompokBukuController@deleteKbuku')->name('kb.delete');
-        Route::post('/kelompok-buku/restore', $path.'\MasterData\KelompokBukuController@restoreKBuku')->name('kb.restore');
-        Route::post('/kelompok-buku/lihat-history', $path.'\MasterData\KelompokBukuController@lihatHistoryKBuku')->name('kb.history');
-        //SUB Kelompok Buku
-        Route::get('/sub-kelompok-buku', $path.'\MasterData\SubKelompokBukuController@index')->name('skb.view');
-        Route::get('/sub-kelompok-buku/sub-kelompok-buku-telah-dihapus', $path.'\MasterData\SubKelompokBukuController@skBukuTelahDihapus')->name('skb.telah_dihapus');
-        Route::match(['get', 'post'], '/sub-kelompok-buku/tambah', $path.'\MasterData\SubKelompokBukuController@createSKbuku')->name('skb.create');
-        Route::match(['get', 'post'], '/sub-kelompok-buku/ubah', $path.'\MasterData\SubKelompokBukuController@updateSKbuku')->name('skb.update');
-        Route::post('/sub-kelompok-buku/hapus', $path.'\MasterData\SubKelompokBukuController@deleteSKbuku')->name('skb.delete');
-        Route::post('/sub-kelompok-buku/restore', $path.'\MasterData\SubKelompokBukuController@restoreSKBuku')->name('skb.restore');
-        Route::post('/sub-kelompok-buku/lihat-history', $path.'\MasterData\SubKelompokBukuController@lihatHistorySKBuku')->name('skb.history');
-        Route::get('/sub-kelompok-buku/ajax-select', $path.'\MasterData\SubKelompokBukuController@ajaxSelect');
-        //Format Buku
-        Route::get('/format-buku', $path.'\MasterData\FormatBukuController@index')->name('fb.view');
-        Route::get('/format-buku/format-buku-telah-dihapus', $path.'\MasterData\FormatBukuController@fBukuTelahDihapus')->name('fb.telah_dihapus');
-        Route::match(['get', 'post'], '/format-buku/tambah', $path.'\MasterData\FormatBukuController@createFbuku')->name('fb.create');
-        Route::match(['get', 'post'], '/format-buku/ubah', $path.'\MasterData\FormatBukuController@updateFbuku')->name('fb.update');
-        Route::post('/format-buku/hapus', $path.'\MasterData\FormatBukuController@deleteFbuku')->name('fb.delete');
-        Route::post('/format-buku/restore', $path.'\MasterData\FormatBukuController@restoreFBuku')->name('fb.restore');
-        Route::post('/format-buku/lihat-history', $path.'\MasterData\FormatBukuController@lihatHistoryFBuku')->name('fb.history');
-        //JENIS MESIN
-        Route::get('/jenis-mesin', $path.'\MasterData\JenisMesinController@index')->name('jm.view');
-        Route::get('/jenis-mesin/jenis-mesin-telah-dihapus', $path.'\MasterData\JenisMesinController@jMesinTelahDihapus')->name('jm.telah_dihapus');
-        Route::match(['get', 'post'], '/jenis-mesin/tambah', $path.'\MasterData\JenisMesinController@createJmesin')->name('jm.create');
-        Route::match(['get', 'post'], '/jenis-mesin/ubah', $path.'\MasterData\JenisMesinController@updateJmesin')->name('jm.update');
-        Route::post('/jenis-mesin/hapus', $path.'\MasterData\JenisMesinController@deleteJmesin')->name('jm.delete');
-        Route::post('/jenis-mesin/restore', $path.'\MasterData\JenisMesinController@restoreJmesin')->name('jm.restore');
-        Route::post('/jenis-mesin/lihat-history', $path.'\MasterData\JenisMesinController@lihatHistoryJmesin')->name('jm.history');
-        //Operator MESIN
-        Route::get('/operator-mesin', $path.'\MasterData\OperatorMesinController@index')->name('om.view');
-        Route::get('/operator-mesin/operator-mesin-telah-dihapus', $path.'\MasterData\OperatorMesinController@oMesinTelahDihapus')->name('om.telah_dihapus');
-        Route::match(['get', 'post'], '/operator-mesin/tambah', $path.'\MasterData\OperatorMesinController@createOmesin')->name('om.create');
-        Route::match(['get', 'post'], '/operator-mesin/ubah', $path.'\MasterData\OperatorMesinController@updateOmesin')->name('om.update');
-        Route::post('/operator-mesin/hapus', $path.'\MasterData\OperatorMesinController@deleteOmesin')->name('om.delete');
-        Route::post('/operator-mesin/restore', $path.'\MasterData\OperatorMesinController@restoreOmesin')->name('om.restore');
-        Route::post('/operator-mesin/lihat-history', $path.'\MasterData\OperatorMesinController@lihatHistoryOmesin')->name('om.history');
-        //Rack List
-        Route::get('/rack-list', $path.'\MasterData\RackController@index')->name('rl.view');
-        Route::get('/rack-list/rack-list-telah-dihapus', $path.'\MasterData\RackController@rackListTelahDihapus')->name('rl.telah_dihapus');
-        Route::match(['get', 'post'], '/rack-list/tambah', $path.'\MasterData\RackController@createRackList')->name('rl.create');
-        Route::match(['get', 'post'], '/rack-list/ubah', $path.'\MasterData\RackController@updateRackList')->name('rl.update');
-        Route::post('/rack-list/hapus', $path.'\MasterData\RackController@deleteRackList')->name('rl.delete');
-        Route::post('/rack-list/restore', $path.'\MasterData\RackController@restoreRackList')->name('rl.restore');
-        Route::post('/rack-list/lihat-history', $path.'\MasterData\RackController@lihatHistoryRackList')->name('rl.history');
-        Route::match(['get','post'],'/rack-list/ajax/{cat}', $path.'\MasterData\RackController@callAjax');
-        //Operator Gudang
-        Route::get('/operator-gudang', $path.'\MasterData\OperatorGudangController@index')->name('og.view');
-        Route::get('/operator-gudang/operator-gudang-telah-dihapus', $path.'\MasterData\OperatorGudangController@operatorGudangTelahDihapus')->name('og.telah_dihapus');
-        Route::match(['get', 'post'], '/operator-gudang/tambah', $path.'\MasterData\OperatorGudangController@createOperatorGudang')->name('og.create');
-        Route::match(['get', 'post'], '/operator-gudang/ubah', $path.'\MasterData\OperatorGudangController@updateOperatorGudang')->name('og.update');
-        Route::post('/operator-gudang/hapus', $path.'\MasterData\OperatorGudangController@deleteOperatorGudang')->name('og.delete');
-        Route::post('/operator-gudang/restore', $path.'\MasterData\OperatorGudangController@restoreOperatorGudang')->name('og.restore');
-        Route::post('/operator-gudang/lihat-history', $path.'\MasterData\OperatorGudangController@lihatHistoryOperatorGudang')->name('og.history');
-        Route::match(['get','post'],'/operator-gudang/ajax/{cat}', $path.'\MasterData\OperatorGudangController@callAjax');
-        //Harga Jual
-        Route::get('/harga-jual', $path.'\MasterData\HargaJualController@index')->name('hj.view');
-        Route::get('/harga-jual/harga-jual-telah-dihapus', $path.'\MasterData\HargaJualController@hargaJualTelahDihapus')->name('hj.telah_dihapus');
-        Route::match(['get', 'post'], '/harga-jual/tambah', $path.'\MasterData\HargaJualController@createHargaJual')->name('hj.create');
-        Route::match(['get', 'post'], '/harga-jual/ubah', $path.'\MasterData\HargaJualController@updateHargaJual')->name('hj.update');
-        Route::post('/harga-jual/hapus', $path.'\MasterData\HargaJualController@deleteHargaJual')->name('hj.delete');
-        Route::post('/harga-jual/restore', $path.'\MasterData\HargaJualController@restoreHargaJual')->name('hj.restore');
-        Route::post('/harga-jual/lihat-history', $path.'\MasterData\HargaJualController@lihatHistoryHargaJual')->name('hj.history');
-        Route::match(['get','post'],'/harga-jual/ajax/{cat}', $path.'\MasterData\HargaJualController@callAjax');
-    });
-    //Penerbitan
-    Route::prefix('penerbitan')->group(function () use ($path) {
-        //Penulis
-        Route::get('/penulis/export-all', $path.'\Penerbitan\PenulisController@exportAll');
-        Route::get('/penulis/export/{format}', $path.'\Penerbitan\PenulisController@exportData');
-        Route::get('/penulis', $path.'\Penerbitan\PenulisController@index');
-        Route::get('/penulis/penulis-telah-dihapus', $path.'\Penerbitan\PenulisController@penulisTelahDihapus')->name('penulis.telah_dihapus');
-        Route::match(['get', 'post'], '/penulis/membuat-penulis', $path.'\Penerbitan\PenulisController@createPenulis');
-        Route::match(['get', 'post'], '/penulis/mengubah-penulis/{id}', $path.'\Penerbitan\PenulisController@updatePenulis');
-        Route::match(['get', 'post'], '/penulis/detail-penulis/{id}', $path.'\Penerbitan\PenulisController@detailPenulis');
-        Route::post('/penulis/hapus-penulis', $path.'\Penerbitan\PenulisController@deletePenulis');
-        Route::post('/penulis/restore', $path.'\Penerbitan\PenulisController@restorePenulis')->name('penulis.restore');
-        Route::post('/penulis/lihat-history', $path.'\Penerbitan\PenulisController@lihatHistoryPenulis')->name('penulis.history');
-
-        //Naskah
-        Route::get('/naskah', $path.'\Penerbitan\NaskahController@index')->name('naskah.view');
-        Route::match(['get','post'],'/naskah/restore', $path.'\Penerbitan\NaskahController@restorePage')->name('naskah.restore');
-        Route::get('/naskah/ajax-call-page/{page}', $path.'\Penerbitan\NaskahController@ajaxCallPage');
-        Route::match(['get', 'post'], '/naskah/melihat-naskah/{id}', $path.'\Penerbitan\NaskahController@viewNaskah');
-        Route::match(['get', 'post'], '/naskah/membuat-naskah', $path.'\Penerbitan\NaskahController@createNaskah');
-        Route::match(['get', 'post'], '/naskah/mengubah-naskah/{id}', $path.'\Penerbitan\NaskahController@updateNaskah');
-        Route::post('/naskah/penilaian/{cat}', $path.'\Penerbitan\PenilaianNaskahController@index');
-        Route::post('/naskah/tandai-data-lengkap', $path.'\Penerbitan\NaskahController@tandaDataLengkap');
-        Route::match(['get','post'],'/naskah/ajax/{cat}', $path.'\Penerbitan\NaskahController@ajaxCallModal');
-        //Deskripsi Produk
-        Route::get('/deskripsi/produk', $path.'\Penerbitan\DeskripsiProdukController@index')->name('despro.view');
-        Route::get('/deskripsi/produk/detail', $path.'\Penerbitan\DeskripsiProdukController@detailDeskripsiProduk')->name('despro.detail');
-        Route::match(['get', 'post'], '/deskripsi/produk/edit', $path.'\Penerbitan\DeskripsiProdukController@editDeskripsiProduk')->name('despro.edit');
-        Route::post('/deskripsi/produk/pilih-judul', $path.'\Penerbitan\DeskripsiProdukController@pilihJudul')->name('despro.pilihjudul');
-        Route::post('/deskripsi/produk/ajax/{cat}', $path.'\Penerbitan\DeskripsiProdukController@requestAjax');
-        //Deskripsi Final
-        Route::get('/deskripsi/final', $path.'\Penerbitan\DeskripsiFinalController@index')->name('desfin.view');
-        Route::get('/deskripsi/final/detail', $path.'\Penerbitan\DeskripsiFinalController@detailDeskripsiFinal')->name('desfin.detail');
-        Route::match(['get', 'post'], '/deskripsi/final/edit', $path.'\Penerbitan\DeskripsiFinalController@editDeskripsiFinal')->name('desfin.edit');
-        Route::post('/deskripsi/final/ajax/{cat}', $path.'\Penerbitan\DeskripsiFinalController@ajaxCall');
-        //Deskripsi Cover
-        Route::get('/deskripsi/cover', $path.'\Penerbitan\DeskripsiCoverController@index')->name('descov.view');
-        Route::get('/deskripsi/cover/detail', $path.'\Penerbitan\DeskripsiCoverController@detailDeskripsiCover')->name('descov.detail');
-        Route::match(['get', 'post'], '/deskripsi/cover/edit', $path.'\Penerbitan\DeskripsiCoverController@editDeskripsiCover')->name('descov.edit');
-        Route::post('/deskripsi/cover/ajax/{cat}', $path.'\Penerbitan\DeskripsiCoverController@ajaxCall');
-        //Deskripsi Turun Cetak
-        Route::get('/deskripsi/turun-cetak', $path.'\Penerbitan\DeskripsiTurunCetakController@index')->name('desturcet.view');
-        Route::match(['get', 'post'], '/deskripsi/turun-cetak/detail', $path.'\Penerbitan\DeskripsiTurunCetakController@detailDeskripsiTurunCetak')->name('desturcet.detail');
-        Route::match(['get', 'post'], '/deskripsi/turun-cetak/edit', $path.'\Penerbitan\DeskripsiTurunCetakController@editDeskripsiTurunCetak')->name('desturcet.edit');
-        Route::post('/deskripsi/turun-cetak/ajax/{act}', $path.'\Penerbitan\DeskripsiTurunCetakController@actionAjax');
-        //Editing
-        Route::get('/editing', $path.'\Penerbitan\EditingController@index')->name('editing.view');
-        Route::match(['get', 'post'],'/editing/detail', $path.'\Penerbitan\EditingController@detailEditing')->name('editing.detail');
-        Route::match(['get', 'post'], '/editing/edit', $path.'\Penerbitan\EditingController@editEditing')->name('editing.edit');
-        Route::post('/editing/ajax/{cat}', $path.'\Penerbitan\EditingController@ajaxCall');
-        Route::post('/editing/selesai/{cat}/{id}', $path.'\Penerbitan\EditingController@prosesSelesaiEditing')->name('editing.selesai');
-        //Pracetak Setter
-        Route::get('/pracetak/setter', $path.'\Penerbitan\PracetakSetterController@index')->name('setter.view');
-        Route::get('/pracetak/setter/detail', $path.'\Penerbitan\PracetakSetterController@detailSetter')->name('setter.detail');
-        Route::match(['get', 'post'], '/pracetak/setter/edit', $path.'\Penerbitan\PracetakSetterController@editSetter')->name('setter.edit');
-        Route::post('/pracetak/setter/selesai/{cat}/{id}', $path.'\Penerbitan\PracetakSetterController@prosesSelesaiSetter')->name('setter.selesai');
-        Route::post('/pracetak/setter/ajax/{act}', $path.'\Penerbitan\PracetakSetterController@actionAjax');
-        //Pracetak Desainer
-        Route::get('/pracetak/designer', $path.'\Penerbitan\PracetakDesainerController@index')->name('prades.view');
-        Route::get('/pracetak/designer/detail', $path.'\Penerbitan\PracetakDesainerController@detailPracetakDesainer')->name('prades.detail');
-        Route::match(['get', 'post'], '/pracetak/designer/edit', $path.'\Penerbitan\PracetakDesainerController@editDesigner')->name('prades.edit');
-        Route::post('/pracetak/designer/selesai/{cat}/{id}', $path.'\Penerbitan\PracetakDesainerController@prosesSelesaiDesigner')->name('prades.selesai');
-        Route::post('/pracetak/designer/ajax/{act}', $path.'\Penerbitan\PracetakDesainerController@actionAjax');
-        //Order Cetak
-        Route::get('/order-cetak', $path.'\Penerbitan\OrderCetakController@index')->name('cetak.view');
-        Route::get('/order-cetak/detail', $path.'\Penerbitan\OrderCetakController@detailOrderCetak')->name('cetak.detail');
-        Route::match(['get', 'post'], '/order-cetak/edit', $path.'\Penerbitan\OrderCetakController@updateOrderCetak')->name('cetak.update');
-        Route::match(['get','post'],'/order-cetak/ajax/{cat}', $path.'\Penerbitan\OrderCetakController@ajaxRequest');
-        Route::get('/order-cetak/print/{id}',$path.'\Penerbitan\OrderCetakController@printPdf');
-        //Order Ebook
-        Route::get('/order-ebook', $path.'\Penerbitan\OrderEbookController@index')->name('ebook.view');
-        Route::get('/order-ebook/detail', $path.'\Penerbitan\OrderEbookController@detailOrderEbook')->name('ebook.detail');
-        Route::match(['get', 'post'], '/order-ebook/edit', $path.'\Penerbitan\OrderEbookController@updateOrderEbook')->name('ebook.update');
-        Route::post('/order-ebook/ajax/{cat}', $path.'\Penerbitan\OrderEbookController@ajaxRequest');
-    });
-    Route::prefix('jasa-cetak/order-buku')->group(function () use ($path) {
-        //? BUKU
-        Route::get('/',$path.'\JasaCetak\OrderBukuController@index');
-        Route::match(['get', 'post'], '/create', $path.'\JasaCetak\OrderBukuController@createOrder');
-        Route::match(['get', 'post'], '/edit', $path.'\JasaCetak\OrderBukuController@updateOrder');
-        Route::match(['get', 'post'], '/detail', $path.'\JasaCetak\OrderBukuController@detailOrder');
-        Route::match(['get', 'post'], '/otorisasi-kabag', $path.'\JasaCetak\OrderBukuController@otorisasiKabag');
-        Route::match(['get', 'post'],'/ajax/{cat}', $path.'\JasaCetak\OrderBukuController@ajaxRequest');
-        //? NON-BUKU
-        Route::get('/order-nonbuku',$path.'\JasaCetak\OrderNonBukuController@index');
-    });
-    //Produksi
-    Route::prefix('produksi')->group(function () use ($path) {
-        //Proses Produksi Cetak
-        Route::get('/proses/cetak', $path.'\Produksi\ProsesProduksiController@index');
-        Route::get('/proses/cetak/detail', $path.'\Produksi\ProsesProduksiController@detailProduksi')->name('proses.cetak.detail');
-        Route::match(['get', 'post'], '/proses/cetak/edit', $path.'\Produksi\ProsesProduksiController@updateProduksi')->name('proses.cetak.update');
-        Route::match(['get', 'post'], '/proses/cetak/ajax/{cat}', $path.'\Produksi\ProsesProduksiController@ajaxCall');
-        //Rekondisi
-        Route::resource('/rekondisi',RekondisiController::class);
-        //Proses Produksi E-book Multimedia
-        Route::get('/proses/ebook-multimedia', $path.'\Produksi\ProsesEbookController@index')->name('proses.ebook.view');
-        Route::get('/proses/ebook-multimedia/detail', $path.'\Produksi\ProsesEbookController@detailProduksi')->name('proses.ebook.detail');
-        Route::match(['get', 'post'], '/proses/ebook-multimedia/edit', $path.'\Produksi\ProsesEbookController@updateProduksi')->name('proses.ebook.update');
-    });
-    //Penjualan Dan Stok
-    Route::prefix('penjualan-stok')->group(function () use ($path) {
-        //Rekondisi
-        Route::resource('/gudang/penerimaan-rekondisi',PenerimaanRekondisiController::class);
-        //Penerimaan Buku Stok Andi
-        Route::match(['get','post'],'/gudang/penerimaan-buku/andi', $path.'\PenjualanStok\PenerimaanBukuController@index');
-        //Stok Andi
-        Route::match(['get','post'],'/gudang/stok-buku/andi', $path.'\PenjualanStok\StokAndiController@index');
-        Route::get('/gudang/stok-buku/andi/export-all', $path.'\PenjualanStok\StokAndiController@exportAll');
-        Route::get('/gudang/stok-buku/andi/{id}', $path.'\PenjualanStok\StokAndiController@detail');
-        Route::get('/gudang/stok-buku/andi/{id}/export', $path.'\PenjualanStok\StokAndiController@export');
-        //Stok Non-Andi (Buku)
-        Route::get('/gudang/non-andi/buku', $path.'\PenjualanStok\StokNonAndiController@index');
-        //Stok Non-Andi (Non-Buku)
-        Route::get('/gudang/non-andi/non-buku', $path.'\PenjualanStok\StokNonAndiController@index');
-        // Route::get('/proses/cetak/detail', $path.'\Produksi\GudangController@detailProduksi')->name('proses.cetak.detail');
-        // Route::match(['get', 'post'], '/proses/cetak/edit', $path.'\Produksi\GudangController@updateProduksi')->name('proses.cetak.update');
-        // Route::match(['get', 'post'], '/proses/cetak/ajax/{cat}', $path.'\Produksi\GudangController@ajaxCall');
+        Route::get('/', $path . '\ManWeb\SettingController@index')->name('setting.view');
+        Route::match(['get', 'post'], '/{act}/{type}/{id?}', $path . '\ManWeb\SettingController@crudSetting');
     });
 
     Route::get('search', function () {

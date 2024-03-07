@@ -76,7 +76,7 @@ class HargaJualController extends Controller
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-alt"></i></div></a>';
                     }
-                    if (Auth::user()->cannot('do_update', 'ubah-harga-jual') && Auth::user()->cannot('do_delete', 'hapus-harga-jual')) {
+                    if (!Gate::allows('do_update', 'ubah-harga-jual') && !Gate::allows('do_delete', 'hapus-harga-jual')) {
                         $btn = '<span class="badge badge-dark">No action</span>';
                     }
                     return $btn;

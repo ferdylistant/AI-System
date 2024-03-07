@@ -612,7 +612,6 @@
                                 let [key, value] = entry;
                                 err[key] = value
                             })
-                            addCabang.showErrors(err);
                         }
                         notifToast('error', 'Data penulis gagal disimpan!');
                     },
