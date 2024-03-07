@@ -10,7 +10,7 @@ class WebSocketController extends Controller
     public function index() {
         $data = 'Data coba-coba';
         event(new TesWebsocketEvent($data));
-        return response()->json(['success' => true]);
+        return 'Sent!';
 
     }
 }

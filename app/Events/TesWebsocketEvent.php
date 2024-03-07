@@ -33,7 +33,10 @@ class TesWebsocketEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return ['hello-channel'];
+        return new Channel('hello-channel');
+    }
+    public function broadcastAs() {
+        return 'hello-event';
     }
     public function broadcastWith() {
         return [

@@ -25,12 +25,13 @@ window.Echo = new Echo({
     key: process.env.MIX_PUSHER_APP_KEY,
     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
     wsHost: process.env.PUSHER_HOST,
-    wsPort: 443,
+    wsPort: 6001,
     wssPort: 443,
     forceTLS: true,
     disableStats: false,
     enabledTransports: ['ws', 'wss'],
     authEndpoint: "/pusher/user-auth", // this is the new endpoint for auth
+    namespace: 'App.Events',
     encrypted: true,
     activityTimeout: 10000
 });
