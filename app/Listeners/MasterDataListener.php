@@ -302,7 +302,7 @@ class MasterDataListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
-            //PRODUKSI
+                //PRODUKSI
             case 'Create Master Produksi':
                 DB::beginTransaction();
                 $res = DB::table('proses_produksi_master')->insert([
@@ -315,7 +315,7 @@ class MasterDataListener
                 break;
             case 'Update Master Produksi':
                 DB::beginTransaction();
-                $res = DB::table('proses_produksi_master')->where('id',$data['id'])->update([
+                $res = DB::table('proses_produksi_master')->where('id', $data['id'])->update([
                     'nama' => $data['nama'],
                     'updated_by' => $data['updated_by']
                 ]);
@@ -345,14 +345,14 @@ class MasterDataListener
                 break;
             case 'Restore Master Produksi':
                 DB::beginTransaction();
-                $res = DB::table('proses_produksi_master')->where('id',$data['master_id'])->update([
+                $res = DB::table('proses_produksi_master')->where('id', $data['master_id'])->update([
                     'deleted_at' => $data['deleted_at'],
                     'deleted_by' => $data['deleted_by']
                 ]);
                 DB::table('proses_produksi_master_history')->insert([
                     'master_id' => $data['master_id'],
                     'type_history' => $data['type_history'],
-                    'author_id'=> $data['author_id'],
+                    'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
                 DB::commit();
@@ -402,14 +402,14 @@ class MasterDataListener
                 break;
             case 'Restore Rack':
                 DB::beginTransaction();
-                $res = DB::table('pj_st_rack_master')->where('id',$data['rack_id'])->update([
+                $res = DB::table('pj_st_rack_master')->where('id', $data['rack_id'])->update([
                     'deleted_at' => $data['deleted_at'],
                     'deleted_by' => $data['deleted_by']
                 ]);
                 DB::table('pj_st_rack_master_history')->insert([
                     'rack_id' => $data['rack_id'],
                     'type_history' => $data['type_history'],
-                    'author_id'=> $data['author_id'],
+                    'author_id' => $data['author_id'],
                 ]);
                 DB::commit();
                 break;
@@ -454,129 +454,221 @@ class MasterDataListener
                 break;
             case 'Restore Operator Gudang':
                 DB::beginTransaction();
-                $res = DB::table('pj_st_op_master')->where('id',$data['operator_id'])->update([
+                $res = DB::table('pj_st_op_master')->where('id', $data['operator_id'])->update([
                     'deleted_at' => $data['deleted_at'],
                     'deleted_by' => $data['deleted_by']
                 ]);
                 DB::table('pj_st_op_master_history')->insert([
                     'operator_id' => $data['operator_id'],
                     'type_history' => $data['type_history'],
-                    'author_id'=> $data['author_id'],
+                    'author_id' => $data['author_id'],
                 ]);
                 DB::commit();
                 break;
-                case 'Create Master Harga Jual':
-                    DB::beginTransaction();
-                    $res = DB::table('pj_st_master_harga_jual')->insert([
-                        'id' => $data['id'],
+            case 'Create Master Harga Jual':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_master_harga_jual')->insert([
+                    'id' => $data['id'],
+                    'nama' => $data['nama'],
+                    'created_by' => $data['created_by']
+                ]);
+                DB::commit();
+                break;
+            case 'Update Master Harga Jual':
+                $res = DB::table('pj_st_master_harga_jual')
+                    ->where('id', $data['id'])
+                    ->update([
                         'nama' => $data['nama'],
-                        'created_by' => $data['created_by']
+                        'updated_by' => $data['updated_by']
                     ]);
-                    DB::commit();
-                    break;
-                case 'Update Master Harga Jual':
-                    $res = DB::table('pj_st_master_harga_jual')
-                        ->where('id', $data['id'])
-                        ->update([
-                            'nama' => $data['nama'],
-                            'updated_by' => $data['updated_by']
-                        ]);
-                    break;
-                case 'Insert History Update Harga Jual':
-                    $res = DB::table('pj_st_master_harga_jual_history')->insert([
-                        'master_harga_jual_id' => $data['master_harga_jual_id'],
-                        'type_history' => $data['type_history'],
-                        'nama_his' => $data['nama_his'],
-                        'nama_new' => $data['nama_new'],
-                        'author_id' => $data['author_id'],
+                break;
+            case 'Insert History Update Harga Jual':
+                $res = DB::table('pj_st_master_harga_jual_history')->insert([
+                    'master_harga_jual_id' => $data['master_harga_jual_id'],
+                    'type_history' => $data['type_history'],
+                    'nama_his' => $data['nama_his'],
+                    'nama_new' => $data['nama_new'],
+                    'author_id' => $data['author_id'],
+                ]);
+                break;
+            case 'Insert History Delete Harga Jual':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_master_harga_jual')->where('id', $data['master_harga_jual_id'])->update([
+                    'deleted_at' => $data['modified_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                DB::table('pj_st_master_harga_jual_history')->insert([
+                    'master_harga_jual_id' => $data['master_harga_jual_id'],
+                    'type_history' => $data['type_history'],
+                    'author_id' => $data['author_id'],
+                ]);
+                DB::commit();
+                break;
+            case 'Restore Harga Jual':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_master_harga_jual')->where('id', $data['master_harga_jual_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['deleted_by']
+                ]);
+                DB::table('pj_st_master_harga_jual_history')->insert([
+                    'master_harga_jual_id' => $data['master_harga_jual_id'],
+                    'type_history' => $data['type_history'],
+                    'author_id' => $data['author_id'],
+                ]);
+                DB::commit();
+                break;
+            case 'Create Type':
+                $res = DB::table('type')->insert([
+                    'kode' => $data['content']['kode_type'],
+                    'nama' => $data['content']['nama_type'],
+                    'created_by' => $data['content']['created_by']
+                ]);
+                break;
+            case 'Update Type':
+                $res = DB::table('type')
+                    ->where('id', $data['id'])
+                    ->update([
+                        'nama' => $data['content']['nama_type_new'],
+                        'updated_by' => $data['content']['updated_by'],
+                        'updated_at' => $data['updated_at']
                     ]);
-                    break;
-                case 'Insert History Delete Harga Jual':
-                    DB::beginTransaction();
-                    $res = DB::table('pj_st_master_harga_jual')->where('id', $data['master_harga_jual_id'])->update([
-                        'deleted_at' => $data['modified_at'],
-                        'deleted_by' => $data['author_id']
+                break;
+            case 'Insert History Delete Harga Jual':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_master_harga_jual')->where('id', $data['master_harga_jual_id'])->update([
+                    'deleted_at' => $data['modified_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                DB::table('pj_st_master_harga_jual_history')->insert([
+                    'master_harga_jual_id' => $data['master_harga_jual_id'],
+                    'type_history' => $data['type_history'],
+                    'author_id' => $data['author_id'],
+                ]);
+                DB::commit();
+                break;
+            case 'Restore Harga Jual':
+                DB::beginTransaction();
+                $res = DB::table('pj_st_master_harga_jual')->where('id', $data['master_harga_jual_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['deleted_by']
+                ]);
+                DB::table('pj_st_master_harga_jual_history')->insert([
+                    'master_harga_jual_id' => $data['master_harga_jual_id'],
+                    'type_history' => $data['type_history'],
+                    'author_id' => $data['author_id'],
+                ]);
+                DB::commit();
+                break;
+            case 'Create Golongan':
+                $res = DB::table('golongan')->insert([
+                    'id' => $data['id'],
+                    'kode' => $data['kode'],
+                    'nama' => $data['nama_golongan'],
+                    'created_by' => $data['created_by']
+                ]);
+                break;
+            case 'Update Golongan':
+                $res = DB::table('golongan')
+                    ->where('id', $data['id'])
+                    ->update([
+                        'nama' => $data['nama'],
+                        'updated_by' => $data['updated_by']
                     ]);
-                    DB::table('pj_st_master_harga_jual_history')->insert([
-                        'master_harga_jual_id' => $data['master_harga_jual_id'],
-                        'type_history' => $data['type_history'],
-                        'author_id' => $data['author_id'],
-                    ]);
-                    DB::commit();
-                    break;
-                case 'Restore Harga Jual':
-                    DB::beginTransaction();
-                    $res = DB::table('pj_st_master_harga_jual')->where('id',$data['master_harga_jual_id'])->update([
-                        'deleted_at' => $data['deleted_at'],
-                        'deleted_by' => $data['deleted_by']
-                    ]);
-                    DB::table('pj_st_master_harga_jual_history')->insert([
-                        'master_harga_jual_id' => $data['master_harga_jual_id'],
-                        'type_history' => $data['type_history'],
-                        'author_id'=> $data['author_id'],
-                    ]);
-                    DB::commit();
-                    break;
-                case 'Create Golongan':
-                    $res = DB::table('golongan')->insert([
-                        'id' => $data['id'],
-                        'kode' => $data['kode'],
-                        'nama' => $data['nama_golongan'],
-                        'created_by' => $data['created_by']
-                    ]);
-                    break;
-                case 'Update Golongan':
-                    $res = DB::table('golongan')
-                        ->where('id', $data['id'])
-                        ->update([
-                            'nama' => $data['nama'],
-                            'updated_by' => $data['updated_by']
-                        ]);
-                    break;
-                case 'Insert History Create Golongan':
-                    $res = DB::table('golongan_history')->insert([
-                        'kelompok_buku_id' => $data['kelompok_buku_id'],
-                        'type_history' => $data['type_history'],
-                        'kode' => $data['kode'],
-                        'kelompok_buku_name' => $data['nama_kelompok_buku'],
-                        'author_id' => $data['author_id'],
-                        'modified_at' => $data['modified_at']
-                    ]);
-                    break;
-                case 'Insert History Update Golongan':
-                    $res = DB::table('golongan_history')->insert([
-                        'kelompok_buku_id' => $data['kelompok_buku_id'],
-                        'type_history' => $data['type_history'],
-                        'kelompok_buku_history' => $data['kelompok_buku_history'],
-                        'kelompok_buku_new' => $data['kelompok_buku_new'],
-                        'author_id' => $data['author_id'],
-                        'modified_at' => $data['modified_at']
-                    ]);
-                    break;
-                case 'Insert History Delete Golongan':
-                    DB::beginTransaction();
-                    $res = DB::table('golongan')->where('id', $data['golongan_id'])->update([
-                        'deleted_at' => $data['deleted_at'],
-                        'deleted_by' => $data['author_id']
-                    ]);
-                    DB::table('golongan_history')->insert([
-                        'kelompok_buku_id' => $data['kelompok_buku_id'],
-                        'type_history' => $data['type_history'],
-                        'deleted_at' => $data['deleted_at'],
-                        'author_id' => $data['author_id'],
-                        'modified_at' => $data['modified_at']
-                    ]);
-                    DB::commit();
-                    break;
-                case 'Insert History Restored Golongan':
-                    $res = DB::table('penerbitan_m_kelompok_buku_history')->insert([
-                        'kelompok_buku_id' => $data['kelompok_buku_id'],
-                        'type_history' => $data['type_history'],
-                        'restored_at' => $data['restored_at'],
-                        'author_id' => $data['author_id'],
-                        'modified_at' => $data['modified_at']
-                    ]);
-                    break;
+                break;
+            case 'Insert History Create Golongan':
+                $res = DB::table('golongan_history')->insert([
+                    'kelompok_buku_id' => $data['kelompok_buku_id'],
+                    'type_history' => $data['type_history'],
+                    'kode' => $data['kode'],
+                    'kelompok_buku_name' => $data['nama_kelompok_buku'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Insert History Update Golongan':
+                $res = DB::table('golongan_history')->insert([
+                    'kelompok_buku_id' => $data['kelompok_buku_id'],
+                    'type_history' => $data['type_history'],
+                    'kelompok_buku_history' => $data['kelompok_buku_history'],
+                    'kelompok_buku_new' => $data['kelompok_buku_new'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Insert History Delete Golongan':
+                DB::beginTransaction();
+                $res = DB::table('golongan')->where('id', $data['golongan_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                DB::table('golongan_history')->insert([
+                    'kelompok_buku_id' => $data['kelompok_buku_id'],
+                    'type_history' => $data['type_history'],
+                    'deleted_at' => $data['deleted_at'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                DB::commit();
+                break;
+            case 'Insert History Restored Golongan':
+                $res = DB::table('penerbitan_m_kelompok_buku_history')->insert([
+                    'kelompok_buku_id' => $data['kelompok_buku_id'],
+                    'type_history' => $data['type_history'],
+                    'restored_at' => $data['restored_at'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Insert History Create Type':
+                $res = DB::table('type_history')->insert([
+                    'type_id' => $data['type_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Insert History Update Type':
+                $res = DB::table('type_history')->insert([
+                    'type_id' => $data['type_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Insert History Delete Type':
+                DB::beginTransaction();
+                $res = DB::table('type')->where('id', $data['type_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                DB::table('type_history')->insert([
+                    'type_id' => $data['type_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id'],
+                    'deleted_at' => $data['deleted_at'],
+                    'modified_at' => $data['deleted_at']
+                ]);
+                DB::commit();
+                break;
+            case 'Insert History Restored Type':
+                DB::beginTransaction();
+                DB::table('type')->where('id', $data['type_id'])->update([
+                    'deleted_at' => null,
+                    'deleted_by' => null
+                ]);
+                $res = DB::table('type_history')->insert([
+                    'type_id' => $data['type_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id'],
+                    'restored_at' => $data['restored_at'],
+                    'modified_at' => $data['restored_at']
+                ]);
+                DB::commit();
+                break;
             default:
                 abort(500);
                 break;

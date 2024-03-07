@@ -95,4 +95,13 @@ Route::prefix('master')->group(function () use ($path) {
         Route::post('/golongan/restore', $path.'\MasterData\GolonganController@restoreGolongan')->name('golongan.restore');
         Route::post('/golongan/lihat-history', $path.'\MasterData\GolonganController@lihatHistoryGolongan')->name('golongan.history');
         Route::match(['get','post'],'/golongan/ajax/{cat}', $path.'\MasterData\GolonganController@callAjax');
+        //Type
+        Route::get('/type', $path.'\MasterData\TypeController@index')->name('type.view');
+        Route::get('/type/type-telah-dihapus', $path.'\MasterData\TypeController@typeTelahDihapus')->name('type.telah_dihapus');
+        Route::post('/type/tambah', $path.'\MasterData\TypeController@createType')->name('type.create');
+        Route::match(['get', 'post'], '/type/ubah', $path.'\MasterData\TypeController@updateType')->name('type.update');
+        Route::post('/type/hapus', $path.'\MasterData\TypeController@deleteType')->name('type.delete');
+        Route::post('/type/restore', $path.'\MasterData\TypeController@restoreType')->name('type.restore');
+        Route::post('/type/lihat-history', $path.'\MasterData\TypeController@lihatHistoryType')->name('type.history');
+        Route::match(['get','post'],'/type/ajax/{cat}', $path.'\MasterData\TypeController@callAjax');
     });
