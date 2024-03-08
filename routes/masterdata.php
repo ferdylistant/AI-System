@@ -106,4 +106,14 @@ Route::prefix('master')->group(function () use ($path) {
     Route::post('/type/restore', $path.'\MasterData\TypeController@restoreType')->name('type.restore');
     Route::post('/type/lihat-history', $path.'\MasterData\TypeController@lihatHistoryType')->name('type.history');
     Route::match(['get','post'],'/type/ajax/{cat}', $path.'\MasterData\TypeController@callAjax');
+    //Sub Type
+    Route::get('/sub-type', $path.'\MasterData\SubTypeController@index')->name('stype.view');
+    Route::get('/sub-type/sub-type-telah-dihapus', $path.'\MasterData\SubTypeController@sTypeTelahDihapus')->name('stype.telah_dihapus');
+    Route::post('/sub-type/tambah', $path.'\MasterData\SubTypeController@createSType')->name('stype.create');
+    Route::match(['get', 'post'], '/sub-type/ubah', $path.'\MasterData\SubTypeController@updateSType')->name('stype.update');
+    Route::post('/sub-type/hapus', $path.'\MasterData\SubTypeController@deleteSType')->name('stype.delete');
+    Route::post('/sub-type/restore', $path.'\MasterData\SubTypeController@restoreSType')->name('stype.restore');
+    Route::post('/sub-type/lihat-history', $path.'\MasterData\SubTypeController@lihatHistorySType')->name('stype.history');
+    Route::match(['get','post'],'/sub-type/ajax/{cat}', $path.'\MasterData\SubTypeController@callAjax');
+    Route::get('/sub-type/ajax-select', $path.'\MasterData\SubTypeController@ajaxSelect');
 });

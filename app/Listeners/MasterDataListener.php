@@ -607,7 +607,7 @@ class MasterDataListener
                 $res = DB::table('type')->insert([
                     'kode' => $data['content']['kode_type'],
                     'nama' => $data['content']['nama_type'],
-                    'created_by' => $data['content']['created_by']
+                    'created_by' => $data['created_by']
                 ]);
                 break;
             case 'Update Type':
@@ -615,7 +615,7 @@ class MasterDataListener
                     ->where('id', $data['id'])
                     ->update([
                         'nama' => $data['content']['nama_type_new'],
-                        'updated_by' => $data['content']['updated_by'],
+                        'updated_by' => $data['updated_by'],
                         'updated_at' => $data['updated_at']
                     ]);
                 break;
@@ -630,11 +630,11 @@ class MasterDataListener
                 break;
             case 'Insert History Delete Type':
                 DB::beginTransaction();
-                $res = DB::table('type')->where('id', $data['type_id'])->update([
+                DB::table('type')->where('id', $data['type_id'])->update([
                     'deleted_at' => $data['deleted_at'],
                     'deleted_by' => $data['author_id']
                 ]);
-                DB::table('type_history')->insert([
+                $res = DB::table('type_history')->insert([
                     'type_id' => $data['type_id'],
                     'type_history' => $data['type_history'],
                     'content' => $data['content'],
@@ -652,6 +652,65 @@ class MasterDataListener
                 ]);
                 $res = DB::table('type_history')->insert([
                     'type_id' => $data['type_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id'],
+                    'restored_at' => $data['restored_at'],
+                    'modified_at' => $data['restored_at']
+                ]);
+                DB::commit();
+                break;
+            case 'Create Sub Type':
+                $res = DB::table('type_sub')->insert([
+                    'type_id' => $data['type_id'],
+                    'kode' => $data['content']['kode_sub_type'],
+                    'nama' => $data['content']['nama_sub_type'],
+                    'created_by' => $data['created_by']
+                ]);
+                break;
+            case 'Update Sub Type':
+                $res = DB::table('type_sub')
+                    ->where('id', $data['id'])
+                    ->update([
+                        'type_id' => $data['content']['type_id_new'],
+                        'nama' => $data['content']['nama_sub_type_new'],
+                        'updated_by' => $data['updated_by'],
+                        'updated_at' => $data['updated_at']
+                    ]);
+                break;
+            case 'Insert History Create or Update Sub Type':
+                $res = DB::table('type_sub_history')->insert([
+                    'type_sub_id' => $data['type_sub_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Insert History Delete Sub Type':
+                DB::beginTransaction();
+                DB::table('type_sub')->where('id', $data['type_sub_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                $res = DB::table('type_sub_history')->insert([
+                    'type_sub_id' => $data['type_sub_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id'],
+                    'deleted_at' => $data['deleted_at'],
+                    'modified_at' => $data['deleted_at']
+                ]);
+                DB::commit();
+                break;
+            case 'Insert History Restored Sub Type':
+                DB::beginTransaction();
+                DB::table('type_sub')->where('id', $data['type_sub_id'])->update([
+                    'deleted_at' => null,
+                    'deleted_by' => null
+                ]);
+                $res = DB::table('type_sub_history')->insert([
+                    'type_sub_id' => $data['type_sub_id'],
                     'type_history' => $data['type_history'],
                     'content' => $data['content'],
                     'author_id' => $data['author_id'],

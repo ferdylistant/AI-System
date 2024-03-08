@@ -12,14 +12,16 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables;
 
-class TypeController extends Controller
+class SubTypeController extends Controller
 {
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = DB::table('type')
-                ->whereNull('deleted_at')
-                ->orderBy('kode', 'asc')
+            $data = DB::table('type_sub as ts')
+                ->join('type as t', 't.id', '=', 'ts.type_id')
+                ->whereNull('ts.deleted_at')
+                ->select('ts.*', 't.nama as nama_type')
+                ->orderBy('ts.kode', 'asc')
                 ->get();
             $start = 1;
             return DataTables::of($data)
@@ -29,8 +31,11 @@ class TypeController extends Controller
                 ->addColumn('kode', function ($data) {
                     return $data->kode;
                 })
-                ->addColumn('nama_type', function ($data) {
+                ->addColumn('nama_stype', function ($data) {
                     return $data->nama;
+                })
+                ->addColumn('type_id', function ($data) {
+                    return $data->nama_type;
                 })
                 ->addColumn('tgl_dibuat', function ($data) {
                     return Carbon::parse($data->created_at)->translatedFormat('d M Y, H:i');
@@ -55,7 +60,7 @@ class TypeController extends Controller
                     }
                 })
                 ->addColumn('history', function ($data) {
-                    $historyData = DB::table('type_history')->where('type_id', $data->id)->get();
+                    $historyData = DB::table('type_sub_history')->where('type_sub_id', $data->id)->get();
                     if ($historyData->isEmpty()) {
                         return '-';
                     } else {
@@ -64,27 +69,28 @@ class TypeController extends Controller
                     }
                 })
                 ->addColumn('action', function ($data) {
-                    if (Gate::allows('do_update', 'ubah-type')) {
+                    if (Gate::allows('do_update', 'ubah-sub-type')) {
                         $btn = '<a href="#" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1"
-                                    data-toggle="modal" data-target="#md_EditType" data-backdrop="static"
+                                    data-toggle="modal" data-target="#md_EditSType" data-backdrop="static"
                                     data-id="' . $data->id . '" data-nama="' . $data->nama . '"
                                     data-toggle="tooltip" title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                     }
-                    if (Gate::allows('do_delete', 'hapus-type')) {
-                        $btn .= '<a href="#" class="d-block btn btn-sm btn_DelType btn-danger btn-icon mr-1 mt-1"
+                    if (Gate::allows('do_delete', 'hapus-sub-type')) {
+                        $btn .= '<a href="#" class="d-block btn btn-sm btn_DelSType btn-danger btn-icon mr-1 mt-1"
                         data-toggle="tooltip" title="Hapus Data"
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-alt"></i></div></a>';
                     }
-                    if (!Gate::allows('do_update', 'ubah-type') && !Gate::allows('do_delete', 'hapus-type')) {
+                    if (!Gate::allows('do_update', 'ubah-sub-type') && !Gate::allows('do_delete', 'hapus-sub-type')) {
                         $btn = '<span class="badge badge-dark">No action</span>';
                     }
                     return $btn;
                 })
                 ->rawColumns([
                     'kode',
-                    'nama_type',
+                    'nama_stype',
+                    'type_id',
                     'tgl_dibuat',
                     'dibuat_oleh',
                     'diubah_terakhir',
@@ -95,19 +101,20 @@ class TypeController extends Controller
                 ->make(true);
         }
 
-        return view('master_data.type.index', [
-            'title' => 'Master Data Type',
+        return view('master_data.sub_type.index', [
+            'title' => 'Master Data Sub Type',
         ]);
     }
 
-    public function createType(Request $request)
+    public function createSType(Request $request)
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $validator = Validator::make($request->all(), [
-                    'nama_type' => 'required|string|unique:type,nama'
+                    'nama_type' => 'required',
+                    'nama_stype' => 'required|string|unique:type_sub,nama'
                 ], [
-                    'unique' => 'Type sudah terdaftar!'
+                    'unique' => 'Sub Type sudah terdaftar!'
                 ]);
                 if ($validator->fails()) {
                     return response()->json([
@@ -117,18 +124,19 @@ class TypeController extends Controller
                 }
 
                 try {
-                    $last = DB::table('type')->orderBy('created_at', 'desc')->first();
+                    $last = DB::table('type_sub')->orderBy('created_at', 'desc')->first();
                     if (is_null($last)) {
                         $kode = '01';
                     } else {
                         $kode = sprintf('%02d', (int)$last->kode + 1);
                     }
                     $content = [
-                        'kode_type' => $kode,
-                        'nama_type' => $request->nama_type
+                        'kode_sub_type' => $kode,
+                        'nama_sub_type' => $request->nama_stype
                     ];
                     $input = [
-                        'params' => 'Create Type',
+                        'params' => 'Create Sub Type',
+                        'type_id' => $request->nama_type,
                         'content' => $content,
                         'created_by' => auth()->user()->id
                     ];
@@ -136,8 +144,8 @@ class TypeController extends Controller
                     DB::beginTransaction();
                     event(new MasterDataEvent($input));
                     $insert = [
-                        'params' => 'Insert History Create or Update Type',
-                        'type_id' => DB::getPdo()->lastInsertId(),
+                        'params' => 'Insert History Create or Update Sub Type',
+                        'type_sub_id' => DB::getPdo()->lastInsertId(),
                         'type_history' => 'Create',
                         'content' => json_encode($content),
                         'author_id' => auth()->user()->id,
@@ -147,7 +155,7 @@ class TypeController extends Controller
                     DB::commit();
                     return response()->json([
                         'status' => 'success',
-                        'message' => 'Data type berhasil ditambahkan!'
+                        'message' => 'Data sub type berhasil ditambahkan!'
                     ]);
                 } catch (\Throwable $err) {
                     DB::rollBack();
@@ -163,8 +171,8 @@ class TypeController extends Controller
     public function callAjax(Request $request)
     {
         switch ($request->cat) {
-            case 'check-duplicate-type':
-                return $this->checkDuplicateType($request);
+            case 'check-duplicate-stype':
+                return $this->checkDuplicateSType($request);
                 break;
             default:
                 abort(500);
@@ -172,10 +180,10 @@ class TypeController extends Controller
         }
     }
 
-    protected function checkDuplicateType($request)
+    protected function checkDuplicateSType($request)
     {
-        $nama = $request->nama_type;
-        $check = DB::table('type')->where('nama', $nama)->exists();
+        $nama = $request->nama_stype;
+        $check = DB::table('type_sub')->where('nama', $nama)->exists();
         $res = TRUE;
         if ($check) {
             $res = FALSE;
@@ -183,14 +191,23 @@ class TypeController extends Controller
         return response()->json($res, 200);
     }
 
-    public function updateType(Request $request)
+    public function ajaxSelect(Request $request)
+    {
+        $data = DB::table('type')
+            ->whereNull('deleted_at')
+            ->where('nama', 'like', '%' . $request->input('term') . '%')
+            ->get();
+        return response()->json($data);
+    }
+
+    public function updateSType(Request $request)
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $validator = Validator::make($request->all(), [
-                    'edit_nama' => 'required|string|unique:type,nama,' . $request->edit_id
+                    'edit_nama' => 'required|string|unique:type_sub,nama,' . $request->edit_id
                 ], [
-                    'unique' => 'Type sudah terdaftar!'
+                    'unique' => 'Sub Type sudah terdaftar!'
                 ]);
                 if ($validator->fails()) {
                     return response()->json([
@@ -200,14 +217,16 @@ class TypeController extends Controller
                 }
 
                 try {
-                    $history = DB::table('type')->where('id', $request->edit_id)->first();
+                    $history = DB::table('type_sub')->where('id', $request->edit_id)->first();
                     $content = [
-                        'kode_type' => $history->kode,
-                        'nama_type_history' => $history->nama,
-                        'nama_type_new' => $request->edit_nama
+                        'kode_sub_type' => $history->kode,
+                        'type_id_history' => $history->type_id,
+                        'type_id_new' => $request->edit_nama_type ?? $history->type_id,
+                        'nama_sub_type_history' => $history->nama,
+                        'nama_sub_type_new' => $request->edit_nama
                     ];
                     $update = [
-                        'params' => 'Update Type',
+                        'params' => 'Update Sub Type',
                         'id' => $request->edit_id,
                         'content' => $content,
                         'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
@@ -216,8 +235,8 @@ class TypeController extends Controller
                     DB::beginTransaction();
                     event(new MasterDataEvent($update));
                     $insert = [
-                        'params' => 'Insert History Create or Update Type',
-                        'type_id' => $request->edit_id,
+                        'params' => 'Insert History Create or Update Sub Type',
+                        'type_sub_id' => $request->edit_id,
                         'type_history' => 'Update',
                         'content' => json_encode($content),
                         'author_id' => auth()->user()->id,
@@ -227,7 +246,7 @@ class TypeController extends Controller
                     DB::commit();
                     return response()->json([
                         'status' => 'success',
-                        'message' => 'Data Type berhasil diubah!'
+                        'message' => 'Data Sub Type berhasil diubah!'
                     ]);
                 } catch (\Throwable $err) {
                     DB::rollBack();
@@ -239,18 +258,22 @@ class TypeController extends Controller
             }
         }
         $id = $request->id;
-        $data = DB::table('type')->where('id', $id)->first();
+        $data = DB::table('type_sub as ts')
+            ->join('type as t', 't.id', '=', 'ts.type_id')
+            ->where('ts.id', $id)
+            ->select('ts.*', 't.nama as nama_type')
+            ->first();
         return response()->json($data);
     }
 
-    public function deleteType(Request $request)
+    public function deleteSType(Request $request)
     {
         try {
             $id = $request->id;
-            $history = DB::table('type')->where('id', $id)->first();
+            $history = DB::table('type_sub')->where('id', $id)->first();
             $content = [
-                'kode_type' => $history->kode,
-                'nama_type' => $history->nama
+                'kode_sub_type' => $history->kode,
+                'nama_sub_type' => $history->nama
             ];
             // Check Relasi
             // $relation = DB::table('penerbitan_naskah')->where('kelompok_buku_id', $id)->first();
@@ -261,8 +284,8 @@ class TypeController extends Controller
             //     ]);
             // }
             $insert = [
-                'params' => 'Insert History Delete Type',
-                'type_id' => $id,
+                'params' => 'Insert History Delete Sub Type',
+                'type_sub_id' => $id,
                 'type_history' => 'Delete',
                 'deleted_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                 'content' => json_encode($content),
@@ -271,7 +294,7 @@ class TypeController extends Controller
             event(new MasterDataEvent($insert));
             return response()->json([
                 'status' => 'success',
-                'message' => 'Berhasil hapus data type!'
+                'message' => 'Berhasil hapus data sub type!'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -282,16 +305,16 @@ class TypeController extends Controller
         }
     }
 
-    public function typeTelahDihapus(Request $request)
+    public function sTypeTelahDihapus(Request $request)
     {
         if ($request->ajax()) {
-            $data = DB::table('type')->whereNotNull('deleted_at')->orderBy('nama', 'asc')->get();
+            $data = DB::table('type_sub')->whereNotNull('deleted_at')->orderBy('nama', 'asc')->get();
             $start = 1;
             return DataTables::of($data)
                 ->addColumn('no', function () use (&$start) {
                     return $start++;
                 })
-                ->addColumn('nama_type', function ($data) {
+                ->addColumn('nama_stype', function ($data) {
                     return $data->nama;
                 })
                 ->addColumn('tgl_dibuat', function ($data) {
@@ -317,9 +340,9 @@ class TypeController extends Controller
                     }
                 })
                 ->addColumn('action', function ($data) {
-                    if (Gate::allows('do_delete', 'hapus-type')) {
+                    if (Gate::allows('do_delete', 'hapus-sub-type')) {
                         $btn = '<a href="#"
-                        class="d-block btn btn-sm btn_ResType btn-dark btn-icon""
+                        class="d-block btn btn-sm btn_ResSType btn-dark btn-icon""
                         data-toggle="tooltip" title="Restore Data"
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
@@ -330,7 +353,7 @@ class TypeController extends Controller
                 })
                 ->rawColumns([
                     'no',
-                    'nama_type',
+                    'nama_stype',
                     'tgl_dibuat',
                     'dibuat_oleh',
                     'dihapus_pada',
@@ -340,23 +363,23 @@ class TypeController extends Controller
                 ->make(true);
         }
 
-        return view('master_data.type.telah_dihapus', [
-            'title' => 'Type Telah Dihapus',
+        return view('master_data.sub_type.telah_dihapus', [
+            'title' => 'Sub Type Telah Dihapus',
         ]);
     }
 
-    public function restoreType(Request $request)
+    public function restoreSType(Request $request)
     {
         try {
             $id = $request->id;
-            $restored = DB::table('type')->where('id', $id)->first();
+            $restored = DB::table('type_sub')->where('id', $id)->first();
             $content = [
-                'kode_type' => $restored->kode,
-                'nama_type' => $restored->nama
+                'kode_sub_type' => $restored->kode,
+                'nama_sub_type' => $restored->nama
             ];
             $insert = [
-                'params' => 'Insert History Restored Type',
-                'type_id' => $id,
+                'params' => 'Insert History Restored Sub Type',
+                'type_sub_id' => $id,
                 'type_history' => 'Restore',
                 'restored_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                 'content' => json_encode($content),
@@ -365,7 +388,7 @@ class TypeController extends Controller
             event(new MasterDataEvent($insert));
             return response()->json([
                 'status' => 'success',
-                'message' => 'Berhasil mengembalikan type!'
+                'message' => 'Berhasil mengembalikan sub type!'
             ]);
         } catch (\Throwable $err) {
             DB::rollBack();
@@ -376,17 +399,17 @@ class TypeController extends Controller
         }
     }
 
-    public function lihatHistoryType(Request $request)
+    public function lihatHistorySType(Request $request)
     {
         if ($request->ajax()) {
             $html = '';
             $id = $request->id;
-            $data = DB::table('type_history as th')
-                ->join('type as t', 't.id', '=', 'th.type_id')
-                ->join('users as u', 'u.id', '=', 'th.author_id')
-                ->where('th.type_id', $id)
-                ->select('th.*', 'u.nama')
-                ->orderBy('th.id', 'desc')
+            $data = DB::table('type_sub_history as tsh')
+                ->join('type_sub as ts', 'ts.id', '=', 'tsh.type_sub_id')
+                ->join('users as u', 'u.id', '=', 'tsh.author_id')
+                ->where('tsh.type_sub_id', $id)
+                ->select('tsh.*', 'u.nama')
+                ->orderBy('tsh.id', 'desc')
                 ->paginate(2);
 
             foreach ($data as $d) {
@@ -395,7 +418,7 @@ class TypeController extends Controller
                     case 'Create':
                         $html .= '<span class="ticket-item" id="newAppend">
                         <div class="ticket-title">
-                            <span><span class="bullet"></span> Type <b class="text-dark">' . $content->nama_type  . '</b> dengan kode <b class="text-dark">' . $content->kode_type . '</b> ditambahkan .</span>
+                            <span><span class="bullet"></span> Sub Type <b class="text-dark">' . $content->nama_sub_type  . '</b> dengan kode <b class="text-dark">' . $content->kode_sub_type . '</b> ditambahkan .</span>
                         </div>
                         <div class="ticket-info">
                             <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -405,9 +428,12 @@ class TypeController extends Controller
                         </span>';
                         break;
                     case 'Update':
+                        $typeHistory = DB::table('type')->where('id', $content->type_id_history)->first();
+                        $typeNew = DB::table('type')->where('id', $content->type_id_new)->first();
                         $html .= '<span class="ticket-item" id="newAppend">
                             <div class="ticket-title">
-                                <span><span class="bullet"></span> Type <b class="text-dark">' . $content->nama_type_history . '</b> diubah menjadi <b class="text-dark">' . $content->nama_type_new . '</b>.</span>
+                                <span class="d-block"><span class="bullet"></span> Type <b class="text-dark">' . $typeHistory->nama . '</b> diubah menjadi <b class="text-dark">' . $typeNew->nama . '</b>.</span>
+                                <span><span class="bullet"></span> Sub Type <b class="text-dark">' . $content->nama_sub_type_history . '</b> diubah menjadi <b class="text-dark">' . $content->nama_sub_type_new . '</b>.</span>
                             </div>
                             <div class="ticket-info">
                                 <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -419,7 +445,7 @@ class TypeController extends Controller
                     case 'Delete':
                         $html .= '<span class="ticket-item" id="newAppend">
                             <div class="ticket-title">
-                                <span><span class="bullet"></span> Data Type dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                <span><span class="bullet"></span> Data Sub Type dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
                             </div>
                             <div class="ticket-info">
                                 <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -431,7 +457,7 @@ class TypeController extends Controller
                     case 'Restore':
                         $html .= '<span class="ticket-item" id="newAppend">
                                 <div class="ticket-title">
-                                    <span><span class="bullet"></span> Data Type direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                    <span><span class="bullet"></span> Data Sub Type direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
                                 </div>
                                 <div class="ticket-info">
                                     <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>

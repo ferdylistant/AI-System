@@ -18,7 +18,7 @@
             <div class="section-header-back">
                 <button class="btn btn-icon" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
             </div>
-            <h1>Data Type Yang Telah Dihapus</h1>
+            <h1>Data Sub Type Yang Telah Dihapus</h1>
         </div>
 
         <div class="section-body">
@@ -27,7 +27,7 @@
                     <div class="card card-danger">
                         <div class="card-body">
                             <div class="col-12 table-responsive">
-                                <table class="table table-striped" id="tb_Type" style="width:100%">
+                                <table class="table table-striped" id="tb_SType" style="width:100%">
                                 </table>
                             </div>
                         </div>
@@ -53,7 +53,7 @@
 @section('jsNeeded')
     <script>
         $(function() {
-            let tableDelType = $('#tb_Type').DataTable({
+            let tableDelSType = $('#tb_SType').DataTable({
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -63,7 +63,7 @@
                     lengthMenu: '_MENU_ items/page',
                 },
                 ajax: {
-                    url: "{{ url('master/type/type-telah-dihapus') }}",
+                    url: "{{ url('master/sub-type/sub-type-telah-dihapus') }}",
                 },
                 columns: [{
                         data: 'no',
@@ -71,9 +71,9 @@
                         title: 'No'
                     },
                     {
-                        data: 'nama_type',
-                        name: 'nama_type',
-                        title: 'Nama Type'
+                        data: 'nama_stype',
+                        name: 'nama_stype',
+                        title: 'Nama Sub Type'
                     },
                     {
                         data: 'tgl_dibuat',
@@ -105,51 +105,51 @@
                 ]
             });
 
-            // Restore Type Start
+            // Restore Sub Type Start
             $(document).ready(function() {
-                function ajaxRestoreType(data) {
+                function ajaxRestoreSType(data) {
                     $.ajax({
                         type: "POST",
                         url: window.location.origin +
-                            "/master/type/restore",
+                            "/master/sub-type/restore",
                         data: data,
                         beforeSend: function() {
-                            $(".btn_ResType")
+                            $(".btn_ResSType")
                                 .prop("disabled", true)
                                 .addClass("btn-progress");
                         },
                         success: function(result) {
                             if (result.status == "success") {
-                                tableDelType.ajax.reload();
+                                tableDelSType.ajax.reload();
                                 notifToast(result.status, result.message);
                             }
                         },
                         error: function(err) {},
                         complete: function() {
-                            $(".btn_ResType")
+                            $(".btn_ResSType")
                                 .prop("disabled", true)
                                 .removeClass("btn-progress");
                         },
                     });
                 }
-                $(document).on("click", ".btn_ResType", function(e) {
+                $(document).on("click", ".btn_ResSType", function(e) {
                     let nama = $(this).data("nama"),
                         id = $(this).data("id");
                     swal({
-                        text: "Kembalikan data type (" + nama + ")?",
+                        text: "Kembalikan data sub type (" + nama + ")?",
                         icon: "warning",
                         buttons: true,
                         dangerMode: true,
                     }).then((confirm_) => {
                         if (confirm_) {
-                            ajaxRestoreType({
+                            ajaxRestoreSType({
                                 id: id
                             })
                         }
                     });
                 });
             });
-            // Restore Type End
+            // Restore Sub Type End
         })
     </script>
 @endsection
