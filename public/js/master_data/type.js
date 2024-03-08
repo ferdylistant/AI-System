@@ -105,6 +105,8 @@ $(function () {
                     tableType.ajax.reload();
                     data.trigger("reset");
                     $("#md_AddType").modal("hide");
+                } else if(result.status == "error") {
+                    notifToast(result.status, result.errors.nama_type);
                 } else {
                     notifToast(result.status, result.message);
                 }
@@ -195,6 +197,8 @@ $(function () {
                     notifToast(result.status, result.message);
                     $("#md_EditType").modal("hide");
                     tableType.ajax.reload();
+                } else if(result.status == "error") {
+                    notifToast(result.status, result.errors.edit_nama);
                 } else {
                     notifToast(result.status, result.message);
                 }

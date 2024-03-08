@@ -517,22 +517,6 @@ class MasterDataListener
                 ]);
                 DB::commit();
                 break;
-            case 'Create Type':
-                $res = DB::table('type')->insert([
-                    'kode' => $data['content']['kode_type'],
-                    'nama' => $data['content']['nama_type'],
-                    'created_by' => $data['content']['created_by']
-                ]);
-                break;
-            case 'Update Type':
-                $res = DB::table('type')
-                    ->where('id', $data['id'])
-                    ->update([
-                        'nama' => $data['content']['nama_type_new'],
-                        'updated_by' => $data['content']['updated_by'],
-                        'updated_at' => $data['updated_at']
-                    ]);
-                break;
             case 'Insert History Delete Harga Jual':
                 DB::beginTransaction();
                 $res = DB::table('pj_st_master_harga_jual')->where('id', $data['master_harga_jual_id'])->update([
@@ -619,16 +603,23 @@ class MasterDataListener
                     'modified_at' => $data['modified_at']
                 ]);
                 break;
-            case 'Insert History Create Type':
-                $res = DB::table('type_history')->insert([
-                    'type_id' => $data['type_id'],
-                    'type_history' => $data['type_history'],
-                    'content' => $data['content'],
-                    'author_id' => $data['author_id'],
-                    'modified_at' => $data['modified_at']
+            case 'Create Type':
+                $res = DB::table('type')->insert([
+                    'kode' => $data['content']['kode_type'],
+                    'nama' => $data['content']['nama_type'],
+                    'created_by' => $data['content']['created_by']
                 ]);
                 break;
-            case 'Insert History Update Type':
+            case 'Update Type':
+                $res = DB::table('type')
+                    ->where('id', $data['id'])
+                    ->update([
+                        'nama' => $data['content']['nama_type_new'],
+                        'updated_by' => $data['content']['updated_by'],
+                        'updated_at' => $data['updated_at']
+                    ]);
+                break;
+            case 'Insert History Create or Update Type':
                 $res = DB::table('type_history')->insert([
                     'type_id' => $data['type_id'],
                     'type_history' => $data['type_history'],

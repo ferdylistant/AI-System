@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables;
 
 class TypeController extends Controller
@@ -103,6 +104,18 @@ class TypeController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
+                $validator = Validator::make($request->all(), [
+                    'nama_type' => 'required|string|unique:type,nama'
+                ], [
+                    'unique' => 'Type sudah terdaftar!'
+                ]);
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'errors' => $validator->errors()
+                    ]);
+                }
+
                 try {
                     $last = DB::table('type')->orderBy('created_at', 'desc')->first();
                     if (is_null($last)) {
@@ -123,7 +136,7 @@ class TypeController extends Controller
                     DB::beginTransaction();
                     event(new MasterDataEvent($input));
                     $insert = [
-                        'params' => 'Insert History Create Type',
+                        'params' => 'Insert History Create or Update Type',
                         'type_id' => DB::getPdo()->lastInsertId(),
                         'type_history' => 'Create',
                         'content' => json_encode($content),
@@ -174,6 +187,18 @@ class TypeController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
+                $validator = Validator::make($request->all(), [
+                    'edit_nama' => 'required|string|unique:type,nama,' . $request->edit_id
+                ], [
+                    'unique' => 'Type sudah terdaftar!'
+                ]);
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'errors' => $validator->errors()
+                    ]);
+                }
+
                 try {
                     $history = DB::table('type')->where('id', $request->edit_id)->first();
                     $content = [
@@ -191,7 +216,7 @@ class TypeController extends Controller
                     DB::beginTransaction();
                     event(new MasterDataEvent($update));
                     $insert = [
-                        'params' => 'Insert History Update Type',
+                        'params' => 'Insert History Create or Update Type',
                         'type_id' => $request->edit_id,
                         'type_history' => 'Update',
                         'content' => json_encode($content),
@@ -214,9 +239,7 @@ class TypeController extends Controller
             }
         }
         $id = $request->id;
-        $data = DB::table('type')
-            ->where('id', $id)
-            ->first();
+        $data = DB::table('type')->where('id', $id)->first();
         return response()->json($data);
     }
 
@@ -230,7 +253,7 @@ class TypeController extends Controller
                 'nama_type' => $history->nama,
                 'deleted_by' => auth()->user()->id
             ];
-            //Check Relasi
+            // Check Relasi
             // $relation = DB::table('penerbitan_naskah')->where('kelompok_buku_id', $id)->first();
             // if (!is_null($relation)) {
             //     return response()->json([
@@ -263,10 +286,7 @@ class TypeController extends Controller
     public function typeTelahDihapus(Request $request)
     {
         if ($request->ajax()) {
-            $data = DB::table('type')
-                ->whereNotNull('deleted_at')
-                ->orderBy('nama', 'asc')
-                ->get();
+            $data = DB::table('type')->whereNotNull('deleted_at')->orderBy('nama', 'asc')->get();
             $start = 1;
             return DataTables::of($data)
                 ->addColumn('no', function () use (&$start) {
