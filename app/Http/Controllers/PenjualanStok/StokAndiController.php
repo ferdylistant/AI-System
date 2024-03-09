@@ -561,7 +561,7 @@ class StokAndiController extends Controller
                 $html .= '<form id="fm_editHarga">
                 <input type="hidden" name="stok_id" value="' . $stok_id . '">
                 <div class="row">';
-                csrf_field();
+                $html .= csrf_field();
                 if (!$hargajualData->isEmpty()) {
                     $hargajualData = (array)collect($hargajualData)->map(function ($item) {
                         return $item->master_harga_jual_id;

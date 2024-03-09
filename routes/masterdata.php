@@ -95,7 +95,6 @@ Route::prefix('master')->group(function () use ($path) {
     Route::match(['get', 'post'], '/golongan/ubah', $path.'\MasterData\GolonganController@updateGolongan')->name('golongan.update');
     Route::post('/golongan/hapus', $path.'\MasterData\GolonganController@deleteGolongan')->name('golongan.delete');
     Route::post('/golongan/restore', $path.'\MasterData\GolonganController@restoreGolongan')->name('golongan.restore');
-    Route::post('/golongan/lihat-history', $path.'\MasterData\GolonganController@lihatHistoryGolongan')->name('golongan.history');
     Route::match(['get','post'],'/golongan/ajax/{cat}', $path.'\MasterData\GolonganController@callAjax');
     //Type
     Route::get('/type', $path.'\MasterData\TypeController@index')->name('type.view');

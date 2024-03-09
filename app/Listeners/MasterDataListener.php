@@ -545,9 +545,8 @@ class MasterDataListener
                 break;
             case 'Create Golongan':
                 $res = DB::table('golongan')->insert([
-                    'id' => $data['id'],
-                    'kode' => $data['kode'],
-                    'nama' => $data['nama_golongan'],
+                    'kode' => $data['content']['kode'],
+                    'nama' => $data['content']['nama'],
                     'created_by' => $data['created_by']
                 ]);
                 break;
@@ -555,26 +554,15 @@ class MasterDataListener
                 $res = DB::table('golongan')
                     ->where('id', $data['id'])
                     ->update([
-                        'nama' => $data['nama'],
+                        'nama' => $data['content']['nama_new'],
                         'updated_by' => $data['updated_by']
                     ]);
                 break;
-            case 'Insert History Create Golongan':
+            case 'Insert History Create or Update Golongan':
                 $res = DB::table('golongan_history')->insert([
-                    'kelompok_buku_id' => $data['kelompok_buku_id'],
+                    'golongan_id' => $data['golongan_id'],
                     'type_history' => $data['type_history'],
-                    'kode' => $data['kode'],
-                    'kelompok_buku_name' => $data['nama_kelompok_buku'],
-                    'author_id' => $data['author_id'],
-                    'modified_at' => $data['modified_at']
-                ]);
-                break;
-            case 'Insert History Update Golongan':
-                $res = DB::table('golongan_history')->insert([
-                    'kelompok_buku_id' => $data['kelompok_buku_id'],
-                    'type_history' => $data['type_history'],
-                    'kelompok_buku_history' => $data['kelompok_buku_history'],
-                    'kelompok_buku_new' => $data['kelompok_buku_new'],
+                    'content' => $data['content'],
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
@@ -586,21 +574,19 @@ class MasterDataListener
                     'deleted_by' => $data['author_id']
                 ]);
                 DB::table('golongan_history')->insert([
-                    'kelompok_buku_id' => $data['kelompok_buku_id'],
+                    'golongan_id' => $data['golongan_id'],
                     'type_history' => $data['type_history'],
                     'deleted_at' => $data['deleted_at'],
                     'author_id' => $data['author_id'],
-                    'modified_at' => $data['modified_at']
                 ]);
                 DB::commit();
                 break;
             case 'Insert History Restored Golongan':
-                $res = DB::table('penerbitan_m_kelompok_buku_history')->insert([
-                    'kelompok_buku_id' => $data['kelompok_buku_id'],
+                $res = DB::table('golongan_history')->insert([
+                    'golongan_id' => $data['golongan_id'],
                     'type_history' => $data['type_history'],
                     'restored_at' => $data['restored_at'],
                     'author_id' => $data['author_id'],
-                    'modified_at' => $data['modified_at']
                 ]);
                 break;
             case 'Create Type':
