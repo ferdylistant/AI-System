@@ -8,6 +8,14 @@ $(function () {
             sSearch: "",
             lengthMenu: "_MENU_ items/page",
         },
+        drawCallback: () => {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('.tooltip-type'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl, {
+                        trigger: 'hover'
+                    })
+                })
+        },
         ajax: {
             url: window.location.origin + "/master/type",
         },
@@ -68,24 +76,92 @@ $(function () {
         }
     };
 
-    // Add Type Start
-    let addValidate = jqueryValidation_(
-        "#fm_addType",
-        {
-            nama_type: {
-                required: true,
-                remote:
-                    window.location.origin +
-                    "/master/type/ajax/check-duplicate-type",
+    // Modal Start
+    function showContentModal(el, type, id, nama) {
+        $.ajax({
+            url: window.location.origin + "/master/type/ajax/" + type,
+            type: "GET",
+            cache: false,
+            data: {
+                id: id,
+                nama: nama
             },
-        },
-        {
-            nama_type: {
-                remote: "Type sudah terdaftar!",
+            success: function (data) {
+                $(el).find("#titleModalType").html(data.title);
+                $(el).find("#contentModalType").html(data.content);
+                $(el).find("#footerModalType").html(data.footer);
+                $(el).removeClass("modal-progress");
+                if (type == "add") {
+                    let valid = jqueryValidation_("#fm_addType", {
+                            nama_type: {
+                                required: true,
+                                remote:
+                                    window.location.origin +
+                                    "/master/type/ajax/check-duplicate-type",
+                            },
+                        },
+                        {
+                            nama_type: {
+                                remote: "Type sudah terdaftar!",
+                            },
+                        }
+                    );
+                } else if (type == "edit") {
+                    let valid = jqueryValidation_("#fm_editType", {
+                        nama_type: {
+                            required: true,
+                        },
+                    });
+                } else if (type == "history") {
+                    $("#load_more").data("id", id);
+                }
             },
-        }
-    );
+            error: function (data) {
+                console.log(data);
+            },
+        })
+    }
 
+    $("#md_Type").on({
+        "shown.bs.modal": function (e) {
+            let type = $(e.relatedTarget).data("type"),
+                id = $(e.relatedTarget).data("id"),
+                nama = $(e.relatedTarget).data("nama"),
+                el = $("#md_Type");
+            showContentModal(el, type, id, nama);
+        },
+        "hidden.bs.modal": function () {
+            $(this).addClass("modal-progress");
+            $(this).find("#contentModalType").html("").change();
+            $(this).find("#titleModalType").html("").change();
+            $(this).find("#footerModalType").html("").change();
+        },
+        "submit": function (e) {
+            e.preventDefault();
+            let ell = $(this).find(':submit').data('el');
+            let el = $(ell);
+            if (el.valid()) {
+                if (ell == "#fm_addType") {
+                    var txt = "Tambah";
+                } else if (ell == "#fm_editType") {
+                    var txt = "Update";
+                }
+                swal({
+                    text: txt + " data type (" + el.find('[name="nama_type"]').val() + ")?",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((confirm_) => {
+                    if (confirm_) {
+                        txt == "Tambah" ? ajaxAddType(el) : ajaxEditType(el);
+                    }
+                });
+            }
+        }
+    });
+    // Modal End
+
+    // Add Type Start
     function ajaxAddType(data) {
         let el = data.get(0);
         $.ajax({
@@ -104,7 +180,7 @@ $(function () {
                     notifToast(result.status, result.message);
                     tableType.ajax.reload();
                     data.trigger("reset");
-                    $("#md_AddType").modal("hide");
+                    $("#md_Type").modal("hide");
                 } else if(result.status == "error") {
                     notifToast(result.status, result.errors.nama_type);
                 } else {
@@ -119,9 +195,12 @@ $(function () {
                         let [key, value] = entry;
                         err[key] = value;
                     });
-                    addValidate.showErrors(err);
+                    valid.showErrors(err);
                 }
-                notifToast("error", err.statusText);
+                notifToast(
+                    "error",
+                    err.responseJSON.message ? err.responseJSON.message : "Data gagal disimpan!"
+                );
             },
             complete: function () {
                 $('button[type="submit"]')
@@ -130,54 +209,9 @@ $(function () {
             },
         });
     }
-
-    $("#fm_addType").on("submit", function (e) {
-        e.preventDefault();
-        if ($(this).valid()) {
-            let nama = $(this).find('[name="nama_type"]').val();
-            swal({
-                text: "Tambah data type (" + nama + ")?",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            }).then((confirm_) => {
-                if (confirm_) {
-                    ajaxAddType($(this));
-                }
-            });
-        }
-        return false;
-    });
     // Add Type End
 
     // Edit Type Start
-    $("#md_EditType").on("shown.bs.modal", function (e) {
-        let id = $(e.relatedTarget).data("id"),
-            form_ = $(this);
-        $.ajax({
-            url: window.location.origin + "/master/type/ubah",
-            data: {
-                id: id,
-            },
-            success: function (result) {
-                Object.entries(result).forEach((entry) => {
-                    let [key, value] = entry;
-                    form_.find('[name="edit_' + key + '"]').val(value);
-                });
-                form_.removeClass("modal-progress");
-            },
-        });
-    });
-
-    $("#md_EditType").on("hidden.bs.modal", function () {
-        $(this).find("form").trigger("reset");
-        $(this).addClass("modal-progress");
-    });
-    let editValidate = jqueryValidation_("#fm_EditType", {
-        edit_nama: {
-            required: true,
-        },
-    });
     function ajaxEditType(data) {
         let el = data.get(0);
 
@@ -195,10 +229,10 @@ $(function () {
             success: function (result) {
                 if (result.status == "success") {
                     notifToast(result.status, result.message);
-                    $("#md_EditType").modal("hide");
+                    $("#md_Type").modal("hide");
                     tableType.ajax.reload();
                 } else if(result.status == "error") {
-                    notifToast(result.status, result.errors.edit_nama);
+                    notifToast(result.status, result.errors.nama_type);
                 } else {
                     notifToast(result.status, result.message);
                 }
@@ -211,9 +245,12 @@ $(function () {
                         let [key, value] = entry;
                         err[key] = value;
                     });
-                    editValidate.showErrors(err);
+                    valid.showErrors(err);
                 }
-                notifToast("error", "Data type gagal disimpan!");
+                notifToast(
+                    "error",
+                    err.responseJSON.message ? err.responseJSON.message : "Data gagal disimpan!"
+                );
             },
             complete: function () {
                 $('button[type="submit"]')
@@ -222,23 +259,6 @@ $(function () {
             },
         });
     }
-
-    $("#fm_EditType").on("submit", function (e) {
-        e.preventDefault();
-        if ($(this).valid()) {
-            let nama = $(this).find('[name="edit_nama"]').val();
-            swal({
-                text: "Ubah data Type (" + nama + ")?",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            }).then((confirm_) => {
-                if (confirm_) {
-                    ajaxEditType($(this));
-                }
-            });
-        }
-    });
     // Edit Type End
 
     // Delete Type Start
@@ -268,7 +288,7 @@ $(function () {
         let nama = $(this).data("nama"),
             id = $(this).data("id");
         swal({
-            text: "Hapus data Type (" + nama + ")?",
+            text: "Hapus data type (" + nama + ")?",
             icon: "warning",
             buttons: true,
             dangerMode: true,
@@ -283,36 +303,15 @@ $(function () {
     // Delete Type End
 
     // History Type Start
-    $("#tb_Type").on("click", ".btn-history", function (e) {
-        e.preventDefault();
-        var id = $(this).data("id");
-        var judul = $(this).data("nama");
-        $.post(
-            window.location.origin + "/master/type/lihat-history",
-            {
-                id: id,
-            },
-            function (data) {
-                $("#titleModalType").html(
-                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Type "' +
-                        judul +
-                        '"'
-                );
-                $("#load_more").data("id", id);
-                $("#dataHistory").html(data);
-                $("#md_TypeHistory").modal("show");
-            }
-        );
-    });
-    $(".load-more").click(function (e) {
+    $("#md_Type").on("click", ".load-more", function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
-        let form = $("#md_TypeHistory");
+        let form = $("#md_Type");
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/master/type/lihat-history",
+            url: window.location.origin + "/master/type/ajax/history",
             data: {
                 id: id,
                 page: page,
@@ -323,25 +322,24 @@ $(function () {
                 form.addClass("modal-progress");
             },
             success: function (response) {
-                if (response.length == 0) {
-                    $(".load-more").attr("disabled", true);
+                if (response.content.length == 0) {
+                    $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
                 } else {
-                    $("#dataHistory").append(response);
+                    $("#dataHistory").append(response.content);
                     $(".thin").animate(
                         { scrollTop: $(".thin").prop("scrollHeight") },
                         800
                     );
                 }
             },
+            error: function (err) {
+                notifToast("error", err.responseJSON.message);
+            },
             complete: function (params) {
                 form.removeClass("modal-progress");
             },
         });
-    });
-    $("#md_TypeHistory").on("hidden.bs.modal", function () {
-        $(".load-more").data("paginate", 2);
-        $(".load-more").attr("disabled", false);
     });
     // History Type End
 });

@@ -103,7 +103,7 @@ Route::prefix('master')->group(function () use ($path) {
     Route::match(['get', 'post'], '/type/ubah', $path.'\MasterData\TypeController@updateType')->name('type.update');
     Route::post('/type/hapus', $path.'\MasterData\TypeController@deleteType')->name('type.delete');
     Route::post('/type/restore', $path.'\MasterData\TypeController@restoreType')->name('type.restore');
-    Route::post('/type/lihat-history', $path.'\MasterData\TypeController@lihatHistoryType')->name('type.history');
+    Route::post('/type/history', $path.'\MasterData\TypeController@showHistoryType')->name('type.history');
     Route::match(['get','post'],'/type/ajax/{cat}', $path.'\MasterData\TypeController@callAjax');
     //Sub Type
     Route::get('/sub-type', $path.'\MasterData\SubTypeController@index')->name('stype.view');

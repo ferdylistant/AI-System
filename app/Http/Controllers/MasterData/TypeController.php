@@ -59,20 +59,20 @@ class TypeController extends Controller
                     if ($historyData->isEmpty()) {
                         return '-';
                     } else {
-                        $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-nama="' . $data->nama . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                        $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 tooltip-type" data-type="history" data-toggle="modal" data-target="#md_Type" data-backdrop="static" data-id="' . $data->id . '" data-nama="' . $data->nama . '" title="' . ucfirst($data->nama) . '"><i class="fas fa-history"></i>&nbsp;History</button>';
                         return $date;
                     }
                 })
                 ->addColumn('action', function ($data) {
                     if (Gate::allows('do_update', 'ubah-type')) {
-                        $btn = '<a href="#" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1"
-                                    data-toggle="modal" data-target="#md_EditType" data-backdrop="static"
+                        $btn = '<a href="#" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1 tooltip-type"
+                                    data-type="edit" data-toggle="modal" data-target="#md_Type" data-backdrop="static"
                                     data-id="' . $data->id . '" data-nama="' . $data->nama . '"
-                                    data-toggle="tooltip" title="Edit Data">
+                                    title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                     }
                     if (Gate::allows('do_delete', 'hapus-type')) {
-                        $btn .= '<a href="#" class="d-block btn btn-sm btn_DelType btn-danger btn-icon mr-1 mt-1"
+                        $btn .= '<a href="#" class="d-block btn btn-sm btn_DelType btn-danger btn-icon mr-1 mt-1 tooltip-type"
                         data-toggle="tooltip" title="Hapus Data"
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-alt"></i></div></a>';
@@ -98,6 +98,29 @@ class TypeController extends Controller
         return view('master_data.type.index', [
             'title' => 'Master Data Type',
         ]);
+    }
+
+    public function callAjax(Request $request)
+    {
+        if ($request->ajax()) {
+            switch ($request->cat) {
+                case 'add':
+                    return $this->showCreateType();
+                    break;
+                case 'edit':
+                    return $this->showEditType($request);
+                    break;
+                case 'history':
+                    return $this->showHistoryType($request);
+                    break;
+                case 'check-duplicate-type':
+                    return $this->checkDuplicateType($request);
+                    break;
+                default:
+                    abort(500);
+                    break;
+            }
+        }
     }
 
     public function createType(Request $request)
@@ -160,35 +183,12 @@ class TypeController extends Controller
         }
     }
 
-    public function callAjax(Request $request)
-    {
-        switch ($request->cat) {
-            case 'check-duplicate-type':
-                return $this->checkDuplicateType($request);
-                break;
-            default:
-                abort(500);
-                break;
-        }
-    }
-
-    protected function checkDuplicateType($request)
-    {
-        $nama = $request->nama_type;
-        $check = DB::table('type')->where('nama', $nama)->exists();
-        $res = TRUE;
-        if ($check) {
-            $res = FALSE;
-        }
-        return response()->json($res, 200);
-    }
-
     public function updateType(Request $request)
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $validator = Validator::make($request->all(), [
-                    'edit_nama' => 'required|string|unique:type,nama,' . $request->edit_id
+                    'nama_type' => 'required|string|unique:type,nama,' . $request->id
                 ], [
                     'unique' => 'Type sudah terdaftar!'
                 ]);
@@ -200,15 +200,15 @@ class TypeController extends Controller
                 }
 
                 try {
-                    $history = DB::table('type')->where('id', $request->edit_id)->first();
+                    $history = DB::table('type')->where('id', $request->id)->first();
                     $content = [
                         'kode_type' => $history->kode,
                         'nama_type_history' => $history->nama,
-                        'nama_type_new' => $request->edit_nama
+                        'nama_type_new' => $request->nama_type
                     ];
                     $update = [
                         'params' => 'Update Type',
-                        'id' => $request->edit_id,
+                        'id' => $request->id,
                         'content' => $content,
                         'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                         'updated_by' => auth()->user()->id
@@ -217,7 +217,7 @@ class TypeController extends Controller
                     event(new MasterDataEvent($update));
                     $insert = [
                         'params' => 'Insert History Create or Update Type',
-                        'type_id' => $request->edit_id,
+                        'type_id' => $request->id,
                         'type_history' => 'Update',
                         'content' => json_encode($content),
                         'author_id' => auth()->user()->id,
@@ -319,7 +319,7 @@ class TypeController extends Controller
                 ->addColumn('action', function ($data) {
                     if (Gate::allows('do_delete', 'hapus-type')) {
                         $btn = '<a href="#"
-                        class="d-block btn btn-sm btn_ResType btn-dark btn-icon""
+                        class="d-block btn btn-sm btn_ResType btn-dark btn-icon"
                         data-toggle="tooltip" title="Restore Data"
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
@@ -376,7 +376,70 @@ class TypeController extends Controller
         }
     }
 
-    public function lihatHistoryType(Request $request)
+    protected function checkDuplicateType($request)
+    {
+        $nama = $request->nama_type;
+        $check = DB::table('type')->where('nama', $nama)->exists();
+        $res = TRUE;
+        if ($check) {
+            $res = FALSE;
+        }
+        return response()->json($res, 200);
+    }
+
+    protected function showCreateType()
+    {
+        $html = '';
+        $html .= '<form id="fm_addType">';
+        $html .= csrf_field();
+        $html .= '<div class="form-group">
+            <label class="col-form-label">Nama Type <span class="text-danger">*</span></label>
+            <input type="text" name="nama_type" class="form-control"
+                placeholder="Nama Type">
+            <div id="err_nama_type"></div>
+        </div>
+        </form>';
+        $footer = '<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+        <button type="submit" class="btn btn-sm btn-success" form="fm_addType" data-el="#fm_addType">Simpan</button>';
+        $title = '<i class="fas fa-plus"></i> Tambah Data Type';
+        return [
+            'content' => $html,
+            'footer' => $footer,
+            'title' => $title
+        ];
+    }
+
+    protected function showEditType($request)
+    {
+        $data = DB::table('type')->where('id', $request->id)->first();
+        $html = '';
+        $html .= '<form id="fm_editType">';
+        $html .= csrf_field();
+        $html .= '<div class="form-group">
+        <input type="hidden" name="id" value="' . $data->id . '">
+            <label class="col-form-label">Kode Type <span class="text-danger">*</span></label>
+            <input type="text" name="kode_type" class="form-control"
+                value="' . $data->kode . '" placeholder="Kode Type" readonly>
+            <div id="err_kode_type"></div>
+        </div>
+        <div class="form-group">
+            <label class="col-form-label">Nama Type <span class="text-danger">*</span></label>
+            <input type="text" name="nama_type" class="form-control"
+                value="' . $data->nama . '" placeholder="Nama Type">
+            <div id="err_nama_type"></div>
+        </div>
+        </form>';
+        $footer = '<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+        <button type="submit" class="btn btn-sm btn-warning" form="fm_editType" data-el="#fm_editType">Update</button>';
+        $title = '<i class="fas fa-edit"></i> Edit Data Type (' . $request->nama . ')';
+        return [
+            'content' => $html,
+            'footer' => $footer,
+            'title' => $title
+        ];
+    }
+
+    public function showHistoryType(Request $request)
     {
         if ($request->ajax()) {
             $html = '';
@@ -389,25 +452,15 @@ class TypeController extends Controller
                 ->orderBy('th.id', 'desc')
                 ->paginate(2);
 
-            foreach ($data as $d) {
-                $content = json_decode($d->content);
-                switch ($d->type_history) {
-                    case 'Create':
-                        $html .= '<span class="ticket-item" id="newAppend">
-                        <div class="ticket-title">
-                            <span><span class="bullet"></span> Type <b class="text-dark">' . $content->nama_type  . '</b> dengan kode <b class="text-dark">' . $content->kode_type . '</b> ditambahkan .</span>
-                        </div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-                        </div>
-                        </span>';
-                        break;
-                    case 'Update':
-                        $html .= '<span class="ticket-item" id="newAppend">
+            if (!$data->isEmpty()) {
+                $html .= '<div class="tickets-list" id="dataHistory">';
+                foreach ($data as $d) {
+                    $content = json_decode($d->content);
+                    switch ($d->type_history) {
+                        case 'Create':
+                            $html .= '<span class="ticket-item" id="newAppend">
                             <div class="ticket-title">
-                                <span><span class="bullet"></span> Type <b class="text-dark">' . $content->nama_type_history . '</b> diubah menjadi <b class="text-dark">' . $content->nama_type_new . '</b>.</span>
+                                <span><span class="bullet"></span> Type <b class="text-dark">' . $content->nama_type  . '</b> dengan kode <b class="text-dark">' . $content->kode_type . '</b> ditambahkan .</span>
                             </div>
                             <div class="ticket-info">
                                 <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -415,23 +468,11 @@ class TypeController extends Controller
                                 <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                             </div>
                             </span>';
-                        break;
-                    case 'Delete':
-                        $html .= '<span class="ticket-item" id="newAppend">
-                            <div class="ticket-title">
-                                <span><span class="bullet"></span> Data Type dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
-                            </div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . ')</div>
-                            </div>
-                            </span>';
-                        break;
-                    case 'Restore':
-                        $html .= '<span class="ticket-item" id="newAppend">
+                            break;
+                        case 'Update':
+                            $html .= '<span class="ticket-item" id="newAppend">
                                 <div class="ticket-title">
-                                    <span><span class="bullet"></span> Data Type direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                    <span><span class="bullet"></span> Type <b class="text-dark">' . $content->nama_type_history . '</b> diubah menjadi <b class="text-dark">' . $content->nama_type_new . '</b>.</span>
                                 </div>
                                 <div class="ticket-info">
                                     <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -439,10 +480,45 @@ class TypeController extends Controller
                                     <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                                 </div>
                                 </span>';
-                        break;
+                            break;
+                        case 'Delete':
+                            $html .= '<span class="ticket-item" id="newAppend">
+                                <div class="ticket-title">
+                                    <span><span class="bullet"></span> Data Type dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                </div>
+                                <div class="ticket-info">
+                                    <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                    <div class="bullet pt-2"></div>
+                                    <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . ')</div>
+                                </div>
+                                </span>';
+                            break;
+                        case 'Restore':
+                            $html .= '<span class="ticket-item" id="newAppend">
+                                    <div class="ticket-title">
+                                        <span><span class="bullet"></span> Data Type direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                    </div>
+                                    <div class="ticket-info">
+                                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                        <div class="bullet pt-2"></div>
+                                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                                    </div>
+                                    </span>';
+                            break;
+                    }
                 }
+                $html .= '</div>';
             }
-            return $html;
+
+            $title = '<i class="fas fa-history"></i> History Type (' . $request->nama . ')';
+            $footer = '<button type="button" class="d-block btn btn-sm btn-outline-primary btn-block load-more" id="load_more"
+        data-paginate="2" data-id="">Load more</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>';
+            return [
+                'content' => $html,
+                'footer' => $footer,
+                'title' => $title
+            ];
         }
     }
 }
