@@ -69,7 +69,7 @@
                 <div class="section-header-button">
                     <div class="card-header-action">
                         <button id="btn_AddSType" class="btn btn-success" data-toggle="modal"
-                            data-target="#md_AddSType" data-backdrop="static">Tambah</button>
+                            data-target="#md_SType" data-backdrop="static" data-type="add">Tambah</button>
                         <a href="{{ route('stype.telah_dihapus') }}" class="btn btn-danger">Sub Type Telah Dihapus</a>
                     </div>
                 </div>
@@ -93,9 +93,11 @@
     </section>
 
     <!-- Modal Sub Type -->
-    @include('master_data.sub_type.include.modal_add_sub_type')
+    @include('master_data.sub_type.include.modal_sub_type')
+
+    {{-- @include('master_data.sub_type.include.modal_add_sub_type')
     @include('master_data.sub_type.include.modal_edit_sub_type')
-    @include('master_data.sub_type.include.modal_history_sub_type')
+    @include('master_data.sub_type.include.modal_history_sub_type') --}}
 @endsection
 
 @section('jsRequired')

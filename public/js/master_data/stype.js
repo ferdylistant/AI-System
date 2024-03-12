@@ -8,6 +8,14 @@ $(function () {
             sSearch: "",
             lengthMenu: "_MENU_ items/page",
         },
+        drawCallback: () => {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('.tooltip-stype'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl, {
+                        trigger: 'hover'
+                    })
+                })
+        },
         ajax: {
             url: window.location.origin + "/master/sub-type",
         },
@@ -73,61 +81,152 @@ $(function () {
         }
     };
 
-    // Add Sub Type Start
-    $(".select-type")
-        .select2({
-            placeholder: "Pilih type",
-        })
-        .on("change", function (e) {
-            if (this.value) {
-                $(this).valid();
-            }
-        });
-    $("#add_type")
-    .select2({
-        placeholder: "Pilih type",
-        ajax: {
-            url: window.location.origin + "/master/sub-type/ajax-select",
+    // Modal Start
+    function showContentModal(el, type, id, nama) {
+        $.ajax({
+            url: window.location.origin + "/master/sub-type/ajax/" + type,
             type: "GET",
-            data: function (params) {
-                var queryParameters = {
-                    term: params.term,
-                };
-                return queryParameters;
+            cache: false,
+            data: {
+                id: id,
+                nama: nama
             },
-            processResults: function (data) {
-                return {
-                    results: $.map(data, function (item) {
-                        return {
-                            text: item.nama,
-                            id: item.id,
-                        };
-                    }),
-                };
+            success: function (data) {
+                $(el).find("#titleModalSubType").html(data.title);
+                $(el).find("#contentModalSubType").html(data.content);
+                $(el).find("#footerModalSubType").html(data.footer);
+                $(el).removeClass("modal-progress");
+                $(".select-type")
+                    .select2({
+                        placeholder: "Pilih type",
+                    })
+                    .on("change", function (e) {
+                        if (this.value) {
+                            $(this).valid();
+                        }
+                    });
+                if (type == "add") {
+                    $("#add_type")
+                        .select2({
+                            placeholder: "Pilih type",
+                            ajax: {
+                                url: window.location.origin + "/master/sub-type/ajax-select",
+                                type: "GET",
+                                data: function (params) {
+                                    var queryParameters = {
+                                        term: params.term,
+                                    };
+                                    return queryParameters;
+                                },
+                                processResults: function (data) {
+                                    return {
+                                        results: $.map(data, function (item) {
+                                            return {
+                                                text: item.nama,
+                                                id: item.id,
+                                            };
+                                        }),
+                                    };
+                                },
+                            },
+                        });
+                    let valid = jqueryValidation_("#fm_addSType", {
+                            nama_type: {
+                                required: true,
+                            },
+                            nama_stype: {
+                                required: true,
+                                remote:
+                                    window.location.origin +
+                                    "/master/sub-type/ajax/check-duplicate-stype",
+                            },
+                        },
+                        {
+                            nama_stype: {
+                                remote: "Sub Type sudah terdaftar!",
+                            },
+                        }
+                    );
+                } else if (type == "edit") {
+                    $("#edit_type")
+                        .select2({
+                            placeholder: "Pilih type",
+                            ajax: {
+                                url: window.location.origin + "/master/sub-type/ajax-select",
+                                type: "GET",
+                                data: function (params) {
+                                    var queryParameters = {
+                                        term: params.term,
+                                    };
+                                    return queryParameters;
+                                },
+                                processResults: function (data) {
+                                    return {
+                                        results: $.map(data, function (item) {
+                                            return {
+                                                text: item.nama,
+                                                id: item.id,
+                                            };
+                                        }),
+                                    };
+                                },
+                            },
+                        });
+                    let valid = jqueryValidation_("#fm_editSType", {
+                        nama_stype: {
+                            required: true,
+                        },
+                    });
+                } else if (type == "history") {
+                    $("#load_more").data("id", id);
+                }
             },
-        },
-    });
+            error: function (data) {
+                console.log(data);
+            },
+        })
+    }
 
-    let addValidate = jqueryValidation_(
-        "#fm_addSType",
-        {
-            nama_type: {
-                required: true,
-            },
-            nama_stype: {
-                required: true,
-                remote:
-                    window.location.origin +
-                    "/master/sub-type/ajax/check-duplicate-stype",
-            },
+    $("#md_SType").on({
+        "shown.bs.modal": function (e) {
+            let type = $(e.relatedTarget).data("type"),
+                id = $(e.relatedTarget).data("id"),
+                nama = $(e.relatedTarget).data("nama"),
+                el = $("#md_SType");
+            showContentModal(el, type, id, nama);
         },
-        {
-            nama_stype: {
-                remote: "Sub Type sudah terdaftar!",
-            },
+        "hidden.bs.modal": function () {
+            $(this).addClass("modal-progress");
+            $(this).find("#contentModalSubType").html("").change();
+            $(this).find("#titleModalSubType").html("").change();
+            $(this).find("#footerModalSubType").html("").change();
+        },
+        "submit": function (e) {
+            e.preventDefault();
+            let ell = $(this).find(':submit').data('el');
+            let el = $(ell);
+            if (el.valid()) {
+                if (ell == "#fm_addSType") {
+                    var txt = "Tambah data sub type (" + el.find('[name="nama_stype"]').val() + ")?";
+                } else if (ell == "#fm_editSType") {
+                    var txt = "Update data sub type (" + el.find('[name="edit_nama"]').val() + ")?";
+                }
+                swal({
+                    text: txt,
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((confirm_) => {
+                    if (confirm_) {
+                        txt == "Tambah" ? ajaxAddSType(el) : ajaxEditSType(el);
+                    }
+                });
+            }
         }
-    );
+    });
+    // Modal End
 
+    // Add Sub Type Start
     function ajaxAddSType(data) {
         let el = data.get(0);
         $.ajax({
@@ -146,7 +245,7 @@ $(function () {
                     notifToast(result.status, result.message);
                     tableSType.ajax.reload();
                     data.trigger("reset");
-                    $("#md_AddSType").modal("hide");
+                    $("#md_SType").modal("hide");
                 } else if(result.status == "error") {
                     notifToast(result.status, result.errors.nama_stype);
                 } else {
@@ -161,9 +260,12 @@ $(function () {
                         let [key, value] = entry;
                         err[key] = value;
                     });
-                    addValidate.showErrors(err);
+                    valid.showErrors(err);
                 }
-                notifToast("error", err.statusText);
+                notifToast(
+                    "error",
+                    err.responseJSON.message ? err.responseJSON.message : "Data gagal disimpan!"
+                );
             },
             complete: function () {
                 $('button[type="submit"]')
@@ -172,53 +274,10 @@ $(function () {
             },
         });
     }
-
-    $("#fm_addSType").on("submit", function (e) {
-        e.preventDefault();
-        if ($(this).valid()) {
-            let nama = $(this).find('[name="nama_stype"]').val();
-            swal({
-                text: "Tambah data sub type (" + nama + ")?",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            }).then((confirm_) => {
-                if (confirm_) {
-                    ajaxAddSType($(this));
-                }
-            });
-        }
-        return false;
-    });
     // Add Sub Type End
 
     // Edit Sub Type Start
-    $("#edit_type")
-    .select2({
-        placeholder: "Pilih type",
-        ajax: {
-            url: window.location.origin + "/master/sub-type/ajax-select",
-            type: "GET",
-            data: function (params) {
-                var queryParameters = {
-                    term: params.term,
-                };
-                return queryParameters;
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data, function (item) {
-                        return {
-                            text: item.nama,
-                            id: item.id,
-                        };
-                    }),
-                };
-            },
-        },
-    });
-
-    $("#md_EditSType").on("shown.bs.modal", function (e) {
+    $("#md_SType").on("shown.bs.modal", function (e) {
         let id = $(e.relatedTarget).data("id"),
             form_ = $(this);
         $.ajax({
@@ -241,16 +300,6 @@ $(function () {
             },
         });
     });
-
-    $("#md_EditSType").on("hidden.bs.modal", function () {
-        $(this).find("form").trigger("reset");
-        $(this).addClass("modal-progress");
-    });
-    let editValidate = jqueryValidation_("#fm_EditSType", {
-        edit_nama: {
-            required: true,
-        },
-    });
     function ajaxEditSType(data) {
         let el = data.get(0);
 
@@ -268,7 +317,7 @@ $(function () {
             success: function (result) {
                 if (result.status == "success") {
                     notifToast(result.status, result.message);
-                    $("#md_EditSType").modal("hide");
+                    $("#md_SType").modal("hide");
                     tableSType.ajax.reload();
                 } else if(result.status == "error") {
                     notifToast(result.status, result.errors.edit_nama);
@@ -284,9 +333,12 @@ $(function () {
                         let [key, value] = entry;
                         err[key] = value;
                     });
-                    editValidate.showErrors(err);
+                    valid.showErrors(err);
                 }
-                notifToast("error", "Data type gagal disimpan!");
+                notifToast(
+                    "error",
+                    err.responseJSON.message ? err.responseJSON.message : "Data gagal disimpan!"
+                );
             },
             complete: function () {
                 $('button[type="submit"]')
@@ -295,23 +347,6 @@ $(function () {
             },
         });
     }
-
-    $("#fm_EditSType").on("submit", function (e) {
-        e.preventDefault();
-        if ($(this).valid()) {
-            let nama = $(this).find('[name="edit_nama"]').val();
-            swal({
-                text: "Ubah data Sub Type (" + nama + ")?",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            }).then((confirm_) => {
-                if (confirm_) {
-                    ajaxEditSType($(this));
-                }
-            });
-        }
-    });
     // Edit Sub Type End
 
     // Delete Sub Type Start

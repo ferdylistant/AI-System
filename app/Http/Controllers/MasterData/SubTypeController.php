@@ -64,20 +64,21 @@ class SubTypeController extends Controller
                     if ($historyData->isEmpty()) {
                         return '-';
                     } else {
-                        $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 btn-history" data-id="' . $data->id . '" data-nama="' . $data->nama . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                        $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 tooltip-stype" data-type="history" data-toggle="modal" data-target="#md_SType" data-backdrop="static" data-id="' . $data->id . '" data-nama="' . $data->nama . '" title="' . ucfirst($data->nama) . '"><i class="fas fa-history"></i>&nbsp;History</button>';
                         return $date;
                     }
                 })
                 ->addColumn('action', function ($data) {
                     if (Gate::allows('do_update', 'ubah-sub-type')) {
-                        $btn = '<a href="#" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1"
-                                    data-toggle="modal" data-target="#md_EditSType" data-backdrop="static"
+                        $btn = '<a href="#" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1 tooltip-stype"
+                                    data-type="edit"
+                                    data-toggle="modal" data-target="#md_SType" data-backdrop="static"
                                     data-id="' . $data->id . '" data-nama="' . $data->nama . '"
-                                    data-toggle="tooltip" title="Edit Data">
+                                    title="Edit Data">
                                     <div><i class="fas fa-edit"></i></div></a>';
                     }
                     if (Gate::allows('do_delete', 'hapus-sub-type')) {
-                        $btn .= '<a href="#" class="d-block btn btn-sm btn_DelSType btn-danger btn-icon mr-1 mt-1"
+                        $btn .= '<a href="#" class="d-block btn btn-sm btn_DelSType btn-danger btn-icon mr-1 mt-1 tooltip-stype"
                         data-toggle="tooltip" title="Hapus Data"
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-alt"></i></div></a>';
@@ -104,6 +105,29 @@ class SubTypeController extends Controller
         return view('master_data.sub_type.index', [
             'title' => 'Master Data Sub Type',
         ]);
+    }
+
+    public function callAjax(Request $request)
+    {
+        if ($request->ajax()) {
+            switch ($request->cat) {
+                case 'add':
+                    return $this->showCreateSType();
+                    break;
+                case 'edit':
+                    return $this->showEditSType($request);
+                    break;
+                case 'history':
+                    return $this->showHistorySType($request);
+                    break;
+                case 'check-duplicate-stype':
+                    return $this->checkDuplicateSType($request);
+                    break;
+                default:
+                    abort(500);
+                    break;
+            }
+        }
     }
 
     public function createSType(Request $request)
@@ -168,44 +192,12 @@ class SubTypeController extends Controller
         }
     }
 
-    public function callAjax(Request $request)
-    {
-        switch ($request->cat) {
-            case 'check-duplicate-stype':
-                return $this->checkDuplicateSType($request);
-                break;
-            default:
-                abort(500);
-                break;
-        }
-    }
-
-    protected function checkDuplicateSType($request)
-    {
-        $nama = $request->nama_stype;
-        $check = DB::table('type_sub')->where('nama', $nama)->exists();
-        $res = TRUE;
-        if ($check) {
-            $res = FALSE;
-        }
-        return response()->json($res, 200);
-    }
-
-    public function ajaxSelect(Request $request)
-    {
-        $data = DB::table('type')
-            ->whereNull('deleted_at')
-            ->where('nama', 'like', '%' . $request->input('term') . '%')
-            ->get();
-        return response()->json($data);
-    }
-
     public function updateSType(Request $request)
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
                 $validator = Validator::make($request->all(), [
-                    'edit_nama' => 'required|string|unique:type_sub,nama,' . $request->edit_id
+                    'edit_nama' => 'required|string|unique:type_sub,nama,' . $request->id
                 ], [
                     'unique' => 'Sub Type sudah terdaftar!'
                 ]);
@@ -217,7 +209,7 @@ class SubTypeController extends Controller
                 }
 
                 try {
-                    $history = DB::table('type_sub')->where('id', $request->edit_id)->first();
+                    $history = DB::table('type_sub')->where('id', $request->id)->first();
                     $content = [
                         'kode_sub_type' => $history->kode,
                         'type_id_history' => $history->type_id,
@@ -227,7 +219,7 @@ class SubTypeController extends Controller
                     ];
                     $update = [
                         'params' => 'Update Sub Type',
-                        'id' => $request->edit_id,
+                        'id' => $request->id,
                         'content' => $content,
                         'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                         'updated_by' => auth()->user()->id
@@ -236,7 +228,7 @@ class SubTypeController extends Controller
                     event(new MasterDataEvent($update));
                     $insert = [
                         'params' => 'Insert History Create or Update Sub Type',
-                        'type_sub_id' => $request->edit_id,
+                        'type_sub_id' => $request->id,
                         'type_history' => 'Update',
                         'content' => json_encode($content),
                         'author_id' => auth()->user()->id,
@@ -342,7 +334,7 @@ class SubTypeController extends Controller
                 ->addColumn('action', function ($data) {
                     if (Gate::allows('do_delete', 'hapus-sub-type')) {
                         $btn = '<a href="#"
-                        class="d-block btn btn-sm btn_ResSType btn-dark btn-icon""
+                        class="d-block btn btn-sm btn_ResSType btn-dark btn-icon"
                         data-toggle="tooltip" title="Restore Data"
                         data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                         <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
@@ -397,6 +389,92 @@ class SubTypeController extends Controller
                 'message' => $err->getMessage()
             ]);
         }
+    }
+
+    protected function checkDuplicateSType($request)
+    {
+        $nama = $request->nama_stype;
+        $check = DB::table('type_sub')->where('nama', $nama)->exists();
+        $res = TRUE;
+        if ($check) {
+            $res = FALSE;
+        }
+        return response()->json($res, 200);
+    }
+
+    public function ajaxSelect(Request $request)
+    {
+        $data = DB::table('type')
+            ->whereNull('deleted_at')
+            ->where('nama', 'like', '%' . $request->input('term') . '%')
+            ->get();
+        return response()->json($data);
+    }
+
+    protected function showCreateSType()
+    {
+        $html = '';
+        $html .= '<form id="fm_addSType">';
+        $html .= csrf_field();
+        $html .= '<div class="form-group">
+                <label class="col-form-label">Type <span class="text-danger">*</span></label>
+                <select id="add_type" name="nama_type" class="form-control select-type">
+                    <option label="Pilih type"></option>
+                </select>
+                <div id="err_nama_type"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Nama Sub Type <span class="text-danger">*</span></label>
+                <input type="text" name="nama_stype" class="form-control"
+                    placeholder="Nama Sub Type">
+                <div id="err_nama_stype"></div>
+            </div>
+        </form>';
+        $footer = '<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+        <button type="submit" class="btn btn-sm btn-success" form="fm_addSType" data-el="#fm_addSType">Simpan</button>';
+        $title = '<i class="fas fa-plus"></i> Tambah Data Type';
+        return [
+            'content' => $html,
+            'footer' => $footer,
+            'title' => $title
+        ];
+    }
+
+    protected function showEditSType($request)
+    {
+        $data = DB::table('type_sub')->where('id', $request->id)->first();
+        $html = '';
+        $html .= '<form id="fm_editSType">';
+        $html .= csrf_field();
+        $html .= '<div class="form-group">
+                <input type="hidden" name="id" value="' . $data->id . '">
+                    <label class="col-form-label">Kode Sub Type <span class="text-danger">*</span></label>
+                    <input type="text" name="kode_stype" class="form-control"
+                        value="' . $data->kode . '" placeholder="Kode Sub Type" readonly>
+                    <div id="err_kode_stype"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Type <span class="text-danger">*</span></label>
+                <select id="edit_type" name="edit_nama_type" class="form-control select-type">
+                    <option label="Pilih type"></option>
+                </select>
+                <div id="err_edit_nama_type"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Nama Sub Type <span class="text-danger">*</span></label>
+                <input type="text" name="edit_nama" class="form-control"
+                    value="' . $data->nama . '" placeholder="Nama Sub Type">
+                <div id="err_edit_nama"></div>
+            </div>
+        </form>';
+        $footer = '<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+        <button type="submit" class="btn btn-sm btn-warning" form="fm_editSType" data-el="#fm_editSType">Update</button>';
+        $title = '<i class="fas fa-edit"></i> Edit Data Type (' . $request->nama . ')';
+        return [
+            'content' => $html,
+            'footer' => $footer,
+            'title' => $title
+        ];
     }
 
     public function lihatHistorySType(Request $request)
