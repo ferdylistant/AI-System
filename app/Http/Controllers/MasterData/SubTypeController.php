@@ -123,6 +123,8 @@ class SubTypeController extends Controller
                 case 'check-duplicate-stype':
                     return $this->checkDuplicateSType($request);
                     break;
+                case 'select':
+                    return $this->ajaxSelect($request);
                 default:
                     abort(500);
                     break;
@@ -402,7 +404,7 @@ class SubTypeController extends Controller
         return response()->json($res, 200);
     }
 
-    public function ajaxSelect(Request $request)
+    public function ajaxSelect($request)
     {
         $data = DB::table('type')
             ->whereNull('deleted_at')
@@ -477,7 +479,7 @@ class SubTypeController extends Controller
         ];
     }
 
-    public function lihatHistorySType(Request $request)
+    public function showHistorySType(Request $request)
     {
         if ($request->ajax()) {
             $html = '';
@@ -490,28 +492,15 @@ class SubTypeController extends Controller
                 ->orderBy('tsh.id', 'desc')
                 ->paginate(2);
 
-            foreach ($data as $d) {
-                $content = json_decode($d->content);
-                switch ($d->type_history) {
-                    case 'Create':
-                        $html .= '<span class="ticket-item" id="newAppend">
-                        <div class="ticket-title">
-                            <span><span class="bullet"></span> Sub Type <b class="text-dark">' . $content->nama_sub_type  . '</b> dengan kode <b class="text-dark">' . $content->kode_sub_type . '</b> ditambahkan .</span>
-                        </div>
-                        <div class="ticket-info">
-                            <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                            <div class="bullet pt-2"></div>
-                            <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
-                        </div>
-                        </span>';
-                        break;
-                    case 'Update':
-                        $typeHistory = DB::table('type')->where('id', $content->type_id_history)->first();
-                        $typeNew = DB::table('type')->where('id', $content->type_id_new)->first();
-                        $html .= '<span class="ticket-item" id="newAppend">
+            if (!$data->isEmpty()) {
+                $html .= '<div class="tickets-list" id="dataHistory">';
+                foreach ($data as $d) {
+                    $content = json_decode($d->content);
+                    switch ($d->type_history) {
+                        case 'Create':
+                            $html .= '<span class="ticket-item" id="newAppend">
                             <div class="ticket-title">
-                                <span class="d-block"><span class="bullet"></span> Type <b class="text-dark">' . $typeHistory->nama . '</b> diubah menjadi <b class="text-dark">' . $typeNew->nama . '</b>.</span>
-                                <span><span class="bullet"></span> Sub Type <b class="text-dark">' . $content->nama_sub_type_history . '</b> diubah menjadi <b class="text-dark">' . $content->nama_sub_type_new . '</b>.</span>
+                                <span><span class="bullet"></span> Sub Type <b class="text-dark">' . $content->nama_sub_type  . '</b> dengan kode <b class="text-dark">' . $content->kode_sub_type . '</b> ditambahkan .</span>
                             </div>
                             <div class="ticket-info">
                                 <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -519,23 +508,14 @@ class SubTypeController extends Controller
                                 <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                             </div>
                             </span>';
-                        break;
-                    case 'Delete':
-                        $html .= '<span class="ticket-item" id="newAppend">
-                            <div class="ticket-title">
-                                <span><span class="bullet"></span> Data Sub Type dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
-                            </div>
-                            <div class="ticket-info">
-                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
-                                <div class="bullet pt-2"></div>
-                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . ')</div>
-                            </div>
-                            </span>';
-                        break;
-                    case 'Restore':
-                        $html .= '<span class="ticket-item" id="newAppend">
+                            break;
+                        case 'Update':
+                            $typeHistory = DB::table('type')->where('id', $content->type_id_history)->first();
+                            $typeNew = DB::table('type')->where('id', $content->type_id_new)->first();
+                            $html .= '<span class="ticket-item" id="newAppend">
                                 <div class="ticket-title">
-                                    <span><span class="bullet"></span> Data Sub Type direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                    <span class="d-block"><span class="bullet"></span> Type <b class="text-dark">' . $typeHistory->nama . '</b> diubah menjadi <b class="text-dark">' . $typeNew->nama . '</b>.</span>
+                                    <span><span class="bullet"></span> Sub Type <b class="text-dark">' . $content->nama_sub_type_history . '</b> diubah menjadi <b class="text-dark">' . $content->nama_sub_type_new . '</b>.</span>
                                 </div>
                                 <div class="ticket-info">
                                     <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
@@ -543,10 +523,44 @@ class SubTypeController extends Controller
                                     <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
                                 </div>
                                 </span>';
-                        break;
+                            break;
+                        case 'Delete':
+                            $html .= '<span class="ticket-item" id="newAppend">
+                                <div class="ticket-title">
+                                    <span><span class="bullet"></span> Data Sub Type dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                </div>
+                                <div class="ticket-info">
+                                    <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                    <div class="bullet pt-2"></div>
+                                    <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . ')</div>
+                                </div>
+                                </span>';
+                            break;
+                        case 'Restore':
+                            $html .= '<span class="ticket-item" id="newAppend">
+                                    <div class="ticket-title">
+                                        <span><span class="bullet"></span> Data Sub Type direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                    </div>
+                                    <div class="ticket-info">
+                                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                        <div class="bullet pt-2"></div>
+                                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                                    </div>
+                                    </span>';
+                            break;
+                    }
                 }
+                $html .= '</div>';
             }
-            return $html;
+            $title = '<i class="fas fa-history"></i> History Sub Type (' . $request->nama . ')';
+            $footer = '<button type="button" class="d-block btn btn-sm btn-outline-primary btn-block load-more" id="load_more"
+        data-paginate="2" data-id="">Load more</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>';
+            return [
+                'content' => $html,
+                'footer' => $footer,
+                'title' => $title
+            ];
         }
     }
 }

@@ -94,10 +94,6 @@
 
     <!-- Modal Sub Type -->
     @include('master_data.sub_type.include.modal_sub_type')
-
-    {{-- @include('master_data.sub_type.include.modal_add_sub_type')
-    @include('master_data.sub_type.include.modal_edit_sub_type')
-    @include('master_data.sub_type.include.modal_history_sub_type') --}}
 @endsection
 
 @section('jsRequired')

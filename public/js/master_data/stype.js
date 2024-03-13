@@ -110,7 +110,7 @@ $(function () {
                         .select2({
                             placeholder: "Pilih type",
                             ajax: {
-                                url: window.location.origin + "/master/sub-type/ajax-select",
+                                url: window.location.origin + "/master/sub-type/ajax/select",
                                 type: "GET",
                                 data: function (params) {
                                     var queryParameters = {
@@ -152,7 +152,7 @@ $(function () {
                         .select2({
                             placeholder: "Pilih type",
                             ajax: {
-                                url: window.location.origin + "/master/sub-type/ajax-select",
+                                url: window.location.origin + "/master/sub-type/ajax/select",
                                 type: "GET",
                                 data: function (params) {
                                     var queryParameters = {
@@ -218,7 +218,7 @@ $(function () {
                     dangerMode: true,
                 }).then((confirm_) => {
                     if (confirm_) {
-                        txt == "Tambah" ? ajaxAddSType(el) : ajaxEditSType(el);
+                        ell == "#fm_addSType" ? ajaxAddSType(el) : ajaxEditSType(el);
                     }
                 });
             }
@@ -376,7 +376,7 @@ $(function () {
         let nama = $(this).data("nama"),
             id = $(this).data("id");
         swal({
-            text: "Hapus data Sub Type (" + nama + ")?",
+            text: "Hapus data sub type (" + nama + ")?",
             icon: "warning",
             buttons: true,
             dangerMode: true,
@@ -391,36 +391,15 @@ $(function () {
     // Delete Sub Type End
 
     // History Type Start
-    $("#tb_SType").on("click", ".btn-history", function (e) {
-        e.preventDefault();
-        var id = $(this).data("id");
-        var judul = $(this).data("nama");
-        $.post(
-            window.location.origin + "/master/sub-type/lihat-history",
-            {
-                id: id,
-            },
-            function (data) {
-                $("#titleModalSType").html(
-                    '<i class="fas fa-history"></i>&nbsp;History Perubahan Sub Type "' +
-                        judul +
-                        '"'
-                );
-                $("#load_more").data("id", id);
-                $("#dataHistory").html(data);
-                $("#md_STypeHistory").modal("show");
-            }
-        );
-    });
-    $(".load-more").click(function (e) {
+    $("#md_SType").on("click", ".load-more", function (e) {
         e.preventDefault();
         var page = $(this).data("paginate");
         var id = $(this).data("id");
-        let form = $("#md_STypeHistory");
+        let form = $("#md_SType");
         $(this).data("paginate", page + 1);
 
         $.ajax({
-            url: window.location.origin + "/master/sub-type/lihat-history",
+            url: window.location.origin + "/master/sub-type/ajax/history",
             data: {
                 id: id,
                 page: page,
@@ -431,25 +410,24 @@ $(function () {
                 form.addClass("modal-progress");
             },
             success: function (response) {
-                if (response.length == 0) {
-                    $(".load-more").attr("disabled", true);
+                if (response.content.length == 0) {
+                    $(".load-more").attr("disabled", true).css("cursor", "not-allowed");
                     notifToast("error", "Tidak ada data lagi");
                 } else {
-                    $("#dataHistory").append(response);
+                    $("#dataHistory").append(response.content);
                     $(".thin").animate(
                         { scrollTop: $(".thin").prop("scrollHeight") },
                         800
                     );
                 }
             },
+            error: function (err) {
+                notifToast("error", err.responseJSON.message);
+            },
             complete: function (params) {
                 form.removeClass("modal-progress");
             },
         });
-    });
-    $("#md_STypeHistory").on("hidden.bs.modal", function () {
-        $(".load-more").data("paginate", 2);
-        $(".load-more").attr("disabled", false);
     });
     // History Sub Type End
 });
