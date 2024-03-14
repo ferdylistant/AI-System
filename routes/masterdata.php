@@ -112,4 +112,12 @@ Route::prefix('master')->group(function () use ($path) {
     Route::post('/sub-type/hapus', $path.'\MasterData\SubTypeController@deleteSType')->name('stype.delete');
     Route::post('/sub-type/restore', $path.'\MasterData\SubTypeController@restoreSType')->name('stype.restore');
     Route::match(['get','post'],'/sub-type/ajax/{cat}', $path.'\MasterData\SubTypeController@callAjax');
+    //Supplier
+    Route::get('/supplier', $path.'\MasterData\SupplierController@index')->name('supplier.view');
+    Route::get('/supplier/supplier-telah-dihapus', $path.'\MasterData\SupplierController@supplierTelahDihapus')->name('supplier.telah_dihapus');
+    Route::post('/supplier/tambah', $path.'\MasterData\SupplierController@createSupplier')->name('supplier.create');
+    Route::match(['get', 'post'], '/supplier/ubah', $path.'\MasterData\SupplierController@updateSupplier')->name('supplier.update');
+    Route::post('/supplier/hapus', $path.'\MasterData\SupplierController@deleteSupplier')->name('supplier.delete');
+    Route::post('/supplier/restore', $path.'\MasterData\SupplierController@restoreSupplier')->name('supplier.restore');
+    Route::match(['get','post'],'/supplier/ajax/{cat}', $path.'\MasterData\SupplierController@callAjax');
 });
