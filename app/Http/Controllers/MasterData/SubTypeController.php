@@ -7,9 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\{DB, Gate, Validator};
 use Yajra\DataTables\DataTables;
 
 class SubTypeController extends Controller
