@@ -123,6 +123,7 @@ class SubTypeController extends Controller
                     break;
                 case 'select':
                     return $this->ajaxSelect($request);
+                    break;
                 default:
                     abort(500);
                     break;

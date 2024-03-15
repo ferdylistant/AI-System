@@ -7,7 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{DB, Gate, Validator};
+use Illuminate\Support\Facades\{DB, Gate, Http, Validator};
+use Ramsey\Uuid\Uuid;
 use Yajra\DataTables\DataTables;
 
 class SupplierController extends Controller
@@ -98,8 +99,11 @@ class SupplierController extends Controller
                 case 'edit':
                     return $this->showEditSupplier($request);
                     break;
-                case 'check-duplicate-kode':
-                    return $this->checkDuplicateKode($request);
+                case 'select-wilayah':
+                    return $this->selectWilayah($request);
+                    break;
+                case 'select-sub-wilayah':
+                    return $this->selectSubWilayah($request);
                     break;
                 default:
                     abort(500);
@@ -112,24 +116,26 @@ class SupplierController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
-                $validator = Validator::make($request->all(), [
-                    'kode_supplier' => 'required|unique:supplier,kode'
-                ], [
-                    'unique' => 'Kode sudah terdaftar!'
-                ]);
-                if ($validator->fails()) {
-                    return response()->json([
-                        'status' => 'error',
-                        'errors' => $validator->errors()
-                    ]);
+                $last = DB::table('supplier')->orderBy('created_at', 'desc')->first();
+                if (is_null($last)) {
+                    $kode = '0001';
+                } else {
+                    $kode = sprintf('%04d', (int)$last->kode + 1);
                 }
 
                 try {
                     $input = [
                         'params' => 'Create Supplier',
-                        'kode_supplier' => $request->kode_supplier,
+                        'id' => Uuid::uuid4()->toString(),
+                        'kode_supplier' => $kode,
                         'nama_supplier' => $request->nama_supplier,
                         'alamat_supplier' => $request->alamat_supplier,
+                        'wilayah_supplier' => explode("-", $request->wilayah_supplier)[0],
+                        'sub_wilayah_supplier' => explode("-", $request->sub_wilayah_supplier)[0],
+                        'telepon_supplier' => $request->telepon_supplier,
+                        'fax_supplier' => $request->fax_supplier,
+                        'kontak_supplier' => $request->kontak_supplier,
+                        'npwp_supplier' => $request->npwp_supplier,
                         'created_by' => auth()->user()->id
                     ];
                     event(new MasterDataEvent($input));
@@ -303,15 +309,21 @@ class SupplierController extends Controller
         }
     }
 
-    protected function checkDuplicateKode($request)
+    public function selectWilayah($request)
     {
-        $kode = $request->kode_supplier;
-        $check = DB::table('supplier')->where('kode', $kode)->exists();
-        $res = TRUE;
-        if ($check) {
-            $res = FALSE;
+        $data = Http::get('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json')->json();
+        if ($request->term) {
+            // $data = Http::get('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json')->where('name','LIKE','%'.$request->term.'%')->json();
+            $data = $data->where('name','LIKE','%'.$request->term.'%')->all();
         }
-        return response()->json($res, 200);
+        // dd($data);
+        return response()->json($data);
+    }
+
+    public function selectSubWilayah($request)
+    {
+        $data = Http::get("https://www.emsifa.com/api-wilayah-indonesia/api/regencies/$request->id.json")->json();
+        return response()->json($data);
     }
 
     protected function showCreateSupplier()
@@ -320,12 +332,6 @@ class SupplierController extends Controller
         $html .= '<form id="fm_addSupplier">';
         $html .= csrf_field();
         $html .= '<div class="form-group">
-                <label class="col-form-label">Kode Supplier <span class="text-danger">*</span></label>
-                <input type="number" name="kode_supplier" class="form-control"
-                    placeholder="Kode Supplier">
-                <div id="err_kode_supplier"></div>
-            </div>
-            <div class="form-group">
                 <label class="col-form-label">Nama Supplier <span class="text-danger">*</span></label>
                 <input type="text" name="nama_supplier" class="form-control"
                     placeholder="Nama Supplier">
@@ -336,6 +342,44 @@ class SupplierController extends Controller
                 <input type="text" name="alamat_supplier" class="form-control"
                     placeholder="Alamat Supplier">
                 <div id="err_alamat_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Wilayah <span class="text-danger">*</span></label>
+                <select id="select_wilayah" name="wilayah_supplier" class="form-control">
+                    <option label="Pilih wilayah"></option>
+                </select>
+                <div id="err_wilayah_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Sub Wilayah <span class="text-danger">*</span></label>
+                <select id="select_sub_wilayah" name="sub_wilayah_supplier" class="form-control select-sub-wilayah">
+                    <option label="Pilih sub wilayah"></option>
+                </select>
+                <div id="err_sub_wilayah_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Telepon <span class="text-danger">*</span></label>
+                <input type="text" name="telepon_supplier" class="form-control"
+                    placeholder="Telepon">
+                <div id="err_telepon_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Fax <span class="text-danger">*</span></label>
+                <input type="text" name="fax_supplier" class="form-control"
+                    placeholder="Fax">
+                <div id="err_fax_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Kontak <span class="text-danger">*</span></label>
+                <input type="text" name="kontak_supplier" class="form-control"
+                    placeholder="Kontak">
+                <div id="err_kontak_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">NPWP <span class="text-danger">*</span></label>
+                <input type="text" name="npwp_supplier" id="npwp" class="form-control"
+                    placeholder="NPWP">
+                <div id="err_npwp_supplier"></div>
             </div>
         </form>';
         $footer = '<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>

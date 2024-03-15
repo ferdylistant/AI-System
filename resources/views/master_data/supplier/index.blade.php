@@ -110,5 +110,6 @@
 @endsection
 
 @section('jsNeeded')
+    <script src="https://unpkg.com/imask"></script>
     <script src="{{ url('js/master_data/supplier.js') }}"></script>
 @endsection

@@ -707,9 +707,16 @@ class MasterDataListener
                 break;
             case 'Create Supplier':
                 $res = DB::table('supplier')->insert([
+                    'id' => $data['id'],
                     'kode' => $data['kode_supplier'],
                     'nama' => $data['nama_supplier'],
                     'alamat' => $data['alamat_supplier'],
+                    'wilayah' => $data['wilayah_supplier'],
+                    'sub_wilayah' => $data['sub_wilayah_supplier'],
+                    'telepon' => $data['telepon_supplier'],
+                    'fax' => $data['fax_supplier'],
+                    'kontak' => $data['kontak_supplier'],
+                    'npwp' => $data['npwp_supplier'],
                     'created_by' => $data['created_by']
                 ]);
                 break;

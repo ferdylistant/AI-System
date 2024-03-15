@@ -86,25 +86,96 @@ $(function () {
                 $(el).find("#contentModalSupplier").html(data.content);
                 $(el).find("#footerModalSupplier").html(data.footer);
                 $(el).removeClass("modal-progress");
+                $(".select-sub-wilayah")
+                .select2({
+                    placeholder: "Pilih sub wilayah",
+                });
+                var npwpElements = document.querySelectorAll('#npwp');
+                var maskNPWP = {
+                    mask: '00.000.000.0-000.000'
+                };
+                npwpElements.forEach(function(element) {
+                    IMask(element, maskNPWP, {reverse: true});
+                });
                 if (type == "add") {
-                    let valid = jqueryValidation_("#fm_addSupplier", {
-                            kode_supplier: {
-                                required: true,
-                                remote:
-                                    window.location.origin +
-                                    "/master/supplier/ajax/check-duplicate-kode",
+                    $("#select_wilayah")
+                    .select2({
+                        placeholder: "Pilih wilayah",
+                        ajax: {
+                            url: window.location.origin + "/master/supplier/ajax/select-wilayah",
+                            type: "GET",
+                            data: function (params) {
+                                var queryParameters = {
+                                    term: params.term,
+                                };
+                                return queryParameters;
                             },
+                            processResults: function (data) {
+                                return {
+                                    results: $.map(data, function (item) {
+                                        return {
+                                            text: item.name,
+                                            id: item.name + "-" + item.id,
+                                        };
+                                    }),
+                                };
+                            },
+                            cache: true,
+                        },
+                    })
+                    .on("change", function (e) {
+                        if (this.value) {
+                            $(this).valid();
+                            $('#select_sub_wilayah').val(null);
+                            $("#select_sub_wilayah")
+                            .select2({
+                                placeholder: "Pilih sub wilayah",
+                                ajax: {
+                                    url: window.location.origin + "/master/supplier/ajax/select-sub-wilayah",
+                                    type: "GET",
+                                    data: {
+                                        id: this.value.split('-')[1]
+                                    },
+                                    processResults: function (data) {
+                                        return {
+                                            results: $.map(data, function (item) {
+                                                return {
+                                                    text: item.name,
+                                                    id: item.name + "-" + item.id,
+                                                };
+                                            }),
+                                        };
+                                    },
+                                    cache: true,
+                                },
+                            });
+                        }
+                    });
+                    let valid = jqueryValidation_("#fm_addSupplier", {
                             nama_supplier: {
                                 required: true,
                             },
                             alamat_supplier: {
                                 required: true,
-                            }
-                        },
-                        {
-                            kode_supplier: {
-                                remote: "Kode sudah terdaftar!",
                             },
+                            wilayah_supplier: {
+                                required: true,
+                            },
+                            sub_wilayah_supplier: {
+                                required: true,
+                            },
+                            telepon_supplier: {
+                                required: true,
+                            },
+                            fax_supplier: {
+                                required: true,
+                            },
+                            kontak_supplier: {
+                                required: true,
+                            },
+                            npwp_supplier: {
+                                required: true,
+                            }
                         }
                     );
                 } else if (type == "edit") {
