@@ -764,6 +764,47 @@ class MasterDataListener
                 ]);
                 DB::commit();
                 break;
+            case 'Create Supplier':
+                $res = DB::table('supplier')->insert([
+                    'id' => $data['id'],
+                    'kode' => $data['kode_supplier'],
+                    'nama' => $data['nama_supplier'],
+                    'alamat' => $data['alamat_supplier'],
+                    'wilayah' => $data['wilayah_supplier'],
+                    'sub_wilayah' => $data['sub_wilayah_supplier'],
+                    'telepon' => $data['telepon_supplier'],
+                    'fax' => $data['fax_supplier'],
+                    'kontak' => $data['kontak_supplier'],
+                    'npwp' => $data['npwp_supplier'],
+                    'created_by' => $data['created_by']
+                ]);
+                break;
+            case 'Update Supplier':
+                $res = DB::table('supplier')->where('id', $data['id'])->update([
+                    'nama' => $data['nama_supplier'],
+                    'alamat' => $data['alamat_supplier'],
+                    'wilayah' => $data['wilayah_supplier'],
+                    'sub_wilayah' => $data['sub_wilayah_supplier'],
+                    'telepon' => $data['telepon_supplier'],
+                    'fax' => $data['fax_supplier'],
+                    'kontak' => $data['kontak_supplier'],
+                    'npwp' => $data['npwp_supplier'],
+                    'updated_at' => $data['updated_at'],
+                    'updated_by' => $data['updated_by']
+                ]);
+                break;
+            case 'Delete Supplier':
+                $res = DB::table('supplier')->where('id', $data['supplier_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['deleted_by']
+                ]);
+                break;
+            case 'Restore Supplier':
+                $res = DB::table('supplier')->where('id', $data['supplier_id'])->update([
+                    'deleted_at' => null,
+                    'deleted_by' => null
+                ]);
+                break;
             default:
                 abort(500);
                 break;
