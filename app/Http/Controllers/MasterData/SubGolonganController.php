@@ -1,0 +1,566 @@
+<?php
+
+namespace App\Http\Controllers\MasterData;
+
+use App\Events\MasterDataEvent;
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\DataTables;
+
+class SubGolonganController extends Controller
+{
+    public function index(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = DB::table('golongan_sub as gs')
+                ->join('golongan as g', 'g.id', '=', 'gs.golongan_id')
+                ->whereNull('gs.deleted_at')
+                ->select('gs.*', 'g.nama as nama_golongan')
+                ->orderBy('gs.kode', 'asc')
+                ->get();
+            $start = 1;
+            return DataTables::of($data)
+                ->addColumn('no', function () use (&$start) {
+                    return $start++;
+                })
+                ->addColumn('kode', function ($data) {
+                    return $data->kode;
+                })
+                ->addColumn('nama_sgolongan', function ($data) {
+                    return $data->nama;
+                })
+                ->addColumn('golongan_id', function ($data) {
+                    return $data->nama_golongan;
+                })
+                ->addColumn('tgl_dibuat', function ($data) {
+                    return Carbon::parse($data->created_at)->translatedFormat('d M Y, H:i');
+                })
+                ->addColumn('dibuat_oleh', function ($data) {
+                    $dataUser = User::where('id', $data->created_by)->first();
+                    return $dataUser->nama;
+                })
+                ->addColumn('diubah_terakhir', function ($data) {
+                    if ($data->updated_at == null) {
+                        return '-';
+                    } else {
+                        return Carbon::parse($data->updated_at)->translatedFormat('d M Y, H:i');
+                    }
+                })
+                ->addColumn('diubah_oleh', function ($data) {
+                    if ($data->updated_by == null) {
+                        return '-';
+                    } else {
+                        $dataUser = User::where('id', $data->updated_by)->first();
+                        return $dataUser->nama;
+                    }
+                })
+                ->addColumn('history', function ($data) {
+                    $historyData = DB::table('golongan_sub_history')->where('golongan_sub_id', $data->id)->get();
+                    if ($historyData->isEmpty()) {
+                        return '-';
+                    } else {
+                        $date = '<button type="button" class="btn btn-sm btn-dark btn-icon mr-1 tooltip-sgolongan" data-type="history" data-toggle="modal" data-target="#md_SGolongan" data-backdrop="static" data-id="' . $data->id . '" data-nama="' . $data->nama . '" title="' . ucfirst($data->nama) . '"><i class="fas fa-history"></i>&nbsp;History</button>';
+                        return $date;
+                    }
+                })
+                ->addColumn('action', function ($data) {
+                    if (Gate::allows('do_update', 'ubah-sub-golongan')) {
+                        $btn = '<a href="#" class="d-block btn btn-sm btn-warning btn-icon mr-1 mt-1 tooltip-sgolongan"
+                                    data-type="edit"
+                                    data-toggle="modal" data-target="#md_SGolongan" data-backdrop="static"
+                                    data-id="' . $data->id . '" data-nama="' . $data->nama . '"
+                                    title="Edit Data">
+                                    <div><i class="fas fa-edit"></i></div></a>';
+                    }
+                    if (Gate::allows('do_delete', 'hapus-sub-golongan')) {
+                        $btn .= '<a href="#" class="d-block btn btn-sm btn_DelSGolongan btn-danger btn-icon mr-1 mt-1 tooltip-sgolongan"
+                        data-toggle="tooltip" title="Hapus Data"
+                        data-id="' . $data->id . '" data-nama="' . $data->nama . '">
+                        <div><i class="fas fa-trash-alt"></i></div></a>';
+                    }
+                    if (!Gate::allows('do_update', 'ubah-sub-golongan') && !Gate::allows('do_delete', 'hapus-sub-golongan')) {
+                        $btn = '<span class="badge badge-dark">No action</span>';
+                    }
+                    return $btn;
+                })
+                ->rawColumns([
+                    'kode',
+                    'nama_sgolongan',
+                    'golongan_id',
+                    'tgl_dibuat',
+                    'dibuat_oleh',
+                    'diubah_terakhir',
+                    'diubah_oleh',
+                    'history',
+                    'action'
+                ])
+                ->make(true);
+        }
+
+        return view('master_data.sub_golongan.index', [
+            'title' => 'Master Data Sub Golongan',
+        ]);
+    }
+
+    public function callAjax(Request $request)
+    {
+        if ($request->ajax()) {
+            switch ($request->cat) {
+                case 'add':
+                    return $this->showCreateSGolongan();
+                    break;
+                case 'edit':
+                    return $this->showEditSGolongan($request);
+                    break;
+                case 'history':
+                    return $this->showHistorySGolongan($request);
+                    break;
+                case 'check-duplicate-sgolongan':
+                    return $this->checkDuplicateSGolongan($request);
+                    break;
+                case 'select':
+                    return $this->ajaxSelect($request);
+                default:
+                    abort(500);
+                    break;
+            }
+        }
+    }
+
+    public function createSGolongan(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->isMethod('POST')) {
+                $validator = Validator::make($request->all(), [
+                    'nama_sgolongan' => 'required',
+                    'nama_sgolongan' => 'required|string|unique:golongan_sub,nama'
+                ], [
+                    'unique' => 'Sub Golongan sudah terdaftar!'
+                ]);
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'errors' => $validator->errors()
+                    ]);
+                }
+
+                try {
+                    $last = DB::table('golongan_sub')->orderBy('created_at', 'desc')->first();
+                    if (is_null($last)) {
+                        $kode = '01';
+                    } else {
+                        $kode = sprintf('%02d', (int)$last->kode + 1);
+                    }
+                    $content = [
+                        'kode_sub_golongan' => $kode,
+                        'nama_sub_golongan' => $request->nama_sgolongan
+                    ];
+                    $input = [
+                        'params' => 'Create Sub Golongan',
+                        'golongan_id' => $request->nama_golongan,
+                        'content' => $content,
+                        'created_by' => auth()->user()->id
+                    ];
+
+                    DB::beginTransaction();
+                    event(new MasterDataEvent($input));
+                    $insert = [
+                        'params' => 'Insert History Create or Update Sub Golongan',
+                        'golongan_sub_id' => DB::getPdo()->lastInsertId(),
+                        'type_history' => 'Create',
+                        'content' => json_encode($content),
+                        'author_id' => auth()->user()->id,
+                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new MasterDataEvent($insert));
+                    DB::commit();
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data sub golongan berhasil ditambahkan!'
+                    ]);
+                } catch (\Throwable $err) {
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $err->getMessage(),
+                    ]);
+                }
+            }
+        }
+    }
+
+    public function updateSGolongan(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->isMethod('POST')) {
+                $validator = Validator::make($request->all(), [
+                    'edit_nama' => 'required|string|unique:golongan_sub,nama,' . $request->id
+                ], [
+                    'unique' => 'Sub Golongan sudah terdaftar!'
+                ]);
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'errors' => $validator->errors()
+                    ]);
+                }
+
+                try {
+                    $history = DB::table('golongan_sub')->where('id', $request->id)->first();
+                    $content = [
+                        'kode_sub_golongan' => $history->kode,
+                        'golongan_id_history' => $history->golongan_id,
+                        'golongan_id_new' => $request->edit_nama_sgolongan ?? $history->golongan_id,
+                        'nama_sub_golongan_history' => $history->nama,
+                        'nama_sub_golongan_new' => $request->edit_nama
+                    ];
+                    $update = [
+                        'params' => 'Update Sub Golongan',
+                        'id' => $request->id,
+                        'content' => $content,
+                        'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                        'updated_by' => auth()->user()->id
+                    ];
+                    DB::beginTransaction();
+                    event(new MasterDataEvent($update));
+                    $insert = [
+                        'params' => 'Insert History Create or Update Sub Golongan',
+                        'golongan_sub_id' => $request->id,
+                        'type_history' => 'Update',
+                        'content' => json_encode($content),
+                        'author_id' => auth()->user()->id,
+                        'modified_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ];
+                    event(new MasterDataEvent($insert));
+                    DB::commit();
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data Sub Golongan berhasil diubah!'
+                    ]);
+                } catch (\Throwable $err) {
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $err->getMessage(),
+                    ]);
+                }
+            }
+        }
+        $id = $request->id;
+        $data = DB::table('golongan_sub as gs')
+            ->join('golongan as g', 'g.id', '=', 'gs.golongan_id')
+            ->where('gs.id', $id)
+            ->select('gs.*', 'g.nama as nama_sgolongan')
+            ->first();
+        return response()->json($data);
+    }
+
+    public function deleteSGolongan(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $history = DB::table('golongan_sub')->where('id', $id)->first();
+            $content = [
+                'kode_sub_golongan' => $history->kode,
+                'nama_sub_golongan' => $history->nama
+            ];
+            // Check Relasi
+            // $relation = DB::table('penerbitan_naskah')->where('kelompok_buku_id', $id)->first();
+            // if (!is_null($relation)) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'Type tidak bisa dihapus karena telah terpakai di naskah yang sedang diproses!'
+            //     ]);
+            // }
+            $insert = [
+                'params' => 'Insert History Delete Sub Golongan',
+                'golongan_sub_id' => $id,
+                'type_history' => 'Delete',
+                'deleted_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'content' => json_encode($content),
+                'author_id' => auth()->user()->id
+            ];
+            event(new MasterDataEvent($insert));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil hapus data sub golongan!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function sGolonganTelahDihapus(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = DB::table('golongan_sub')->whereNotNull('deleted_at')->orderBy('nama', 'asc')->get();
+            $start = 1;
+            return DataTables::of($data)
+                ->addColumn('no', function () use (&$start) {
+                    return $start++;
+                })
+                ->addColumn('nama_sGolongan', function ($data) {
+                    return $data->nama;
+                })
+                ->addColumn('tgl_dibuat', function ($data) {
+                    return Carbon::parse($data->created_at)->translatedFormat('d M Y, H:i');
+                })
+                ->addColumn('dibuat_oleh', function ($data) {
+                    $dataUser = User::where('id', $data->created_by)->first();
+                    return $dataUser->nama;
+                })
+                ->addColumn('dihapus_pada', function ($data) {
+                    if ($data->deleted_at == null) {
+                        return '-';
+                    } else {
+                        return Carbon::parse($data->deleted_at)->translatedFormat('d M Y, H:i');
+                    }
+                })
+                ->addColumn('dihapus_oleh', function ($data) {
+                    if ($data->deleted_by == null) {
+                        return '-';
+                    } else {
+                        $dataUser = User::where('id', $data->deleted_by)->first();
+                        return $dataUser->nama;
+                    }
+                })
+                ->addColumn('action', function ($data) {
+                    if (Gate::allows('do_delete', 'hapus-sub-golongan')) {
+                        $btn = '<a href="#"
+                        class="d-block btn btn-sm btn_ResSGolongan btn-dark btn-icon"
+                        data-toggle="tooltip" title="Restore Data"
+                        data-id="' . $data->id . '" data-nama="' . $data->nama . '">
+                        <div><i class="fas fa-trash-restore-alt"></i> Restore</div></a>';
+                    } else {
+                        $btn = '<span class="badge badge-dark">No action</span>';
+                    }
+                    return $btn;
+                })
+                ->rawColumns([
+                    'no',
+                    'nama_sgolongan',
+                    'tgl_dibuat',
+                    'dibuat_oleh',
+                    'dihapus_pada',
+                    'dihapus_oleh',
+                    'action'
+                ])
+                ->make(true);
+        }
+
+        return view('master_data.sub_golongan.telah_dihapus', [
+            'title' => 'Sub Golongan Telah Dihapus',
+        ]);
+    }
+
+    public function restoreSGolongan(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $restored = DB::table('golongan_sub')->where('id', $id)->first();
+            $content = [
+                'kode_sub_golongan' => $restored->kode,
+                'nama_sub_golongan' => $restored->nama
+            ];
+            $insert = [
+                'params' => 'Insert History Restored Sub Golongan',
+                'golongan_sub_id' => $id,
+                'type_history' => 'Restore',
+                'restored_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
+                'content' => json_encode($content),
+                'author_id' => auth()->user()->id
+            ];
+            event(new MasterDataEvent($insert));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil mengembalikan sub golongan!'
+            ]);
+        } catch (\Throwable $err) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $err->getMessage()
+            ]);
+        }
+    }
+
+    protected function checkDuplicateSGolongan($request)
+    {
+        $nama = $request->nama_sgolongan;
+        $check = DB::table('golongan_sub')->where('nama', $nama)->exists();
+        $res = TRUE;
+        if ($check) {
+            $res = FALSE;
+        }
+        return response()->json($res, 200);
+    }
+
+    public function ajaxSelect($request)
+    {
+        $data = DB::table('golongan')
+            ->whereNull('deleted_at')
+            ->where('nama', 'like', '%' . $request->input('term') . '%')
+            ->get();
+        return response()->json($data);
+    }
+
+    protected function showCreateSGolongan()
+    {
+        $html = '';
+        $html .= '<form id="fm_addSGolongan">';
+        $html .= csrf_field();
+        $html .= '<div class="form-group">
+                <label class="col-form-label">Golongan <span class="text-danger">*</span></label>
+                <select id="add_golongan" name="nama_golongan" class="form-control select-golongan">
+                    <option label="Pilih golongan"></option>
+                </select>
+                <div id="err_nama_golongan"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Nama Sub Golongan <span class="text-danger">*</span></label>
+                <input type="text" name="nama_sgolongan" class="form-control"
+                    placeholder="Nama Sub Golongan">
+                <div id="err_nama_sgolongan"></div>
+            </div>
+        </form>';
+        $footer = '<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+        <button type="submit" class="btn btn-sm btn-success" form="fm_addSGolongan" data-el="#fm_addSGolongan">Simpan</button>';
+        $title = '<i class="fas fa-plus"></i> Tambah Data Sub Golongan';
+        return [
+            'content' => $html,
+            'footer' => $footer,
+            'title' => $title
+        ];
+    }
+
+    protected function showEditSGolongan($request)
+    {
+        $data = DB::table('golongan_sub')->where('id', $request->id)->first();
+        $html = '';
+        $html .= '<form id="fm_editSGolongan">';
+        $html .= csrf_field();
+        $html .= '<div class="form-group">
+                <input type="hidden" name="id" value="' . $data->id . '">
+                    <label class="col-form-label">Kode Sub Golongan <span class="text-danger">*</span></label>
+                    <input type="text" name="kode_sgolongan" class="form-control"
+                        value="' . $data->kode . '" placeholder="Kode Sub Golongan" readonly>
+                    <div id="err_kode_sgolongan"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Golongan <span class="text-danger">*</span></label>
+                <select id="edit_golongan" name="edit_nama_sgolongan" class="form-control select-golongan">
+                    <option label="Pilih golongan"></option>
+                </select>
+                <div id="err_edit_nama_sgolongan"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Nama Sub Golongan <span class="text-danger">*</span></label>
+                <input type="text" name="edit_nama" class="form-control"
+                    value="' . $data->nama . '" placeholder="Nama Sub Golongan">
+                <div id="err_edit_nama"></div>
+            </div>
+        </form>';
+        $footer = '<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+        <button type="submit" class="btn btn-sm btn-warning" form="fm_editSGolongan" data-el="#fm_editSGolongan">Update</button>';
+        $title = '<i class="fas fa-edit"></i> Edit Data Sub Golongan (' . $request->nama . ')';
+        return [
+            'content' => $html,
+            'footer' => $footer,
+            'title' => $title
+        ];
+    }
+
+    public function showHistorySGolongan(Request $request)
+    {
+        if ($request->ajax()) {
+            $html = '';
+            $id = $request->id;
+            $data = DB::table('golongan_sub_history as tsh')
+                ->join('golongan_sub as ts', 'ts.id', '=', 'tsh.golongan_sub_id')
+                ->join('users as u', 'u.id', '=', 'tsh.author_id')
+                ->where('tsh.golongan_sub_id', $id)
+                ->select('tsh.*', 'u.nama')
+                ->orderBy('tsh.id', 'desc')
+                ->paginate(2);
+
+            if (!$data->isEmpty()) {
+                $html .= '<div class="tickets-list" id="dataHistory">';
+                foreach ($data as $d) {
+                    $content = json_decode($d->content);
+                    switch ($d->type_history) {
+                        case 'Create':
+                            $html .= '<span class="ticket-item" id="newAppend">
+                            <div class="ticket-title">
+                                <span><span class="bullet"></span> Sub Golongan <b class="text-dark">' . $content->nama_sub_golongan  . '</b> dengan kode <b class="text-dark">' . $content->kode_sub_golongan . '</b> ditambahkan .</span>
+                            </div>
+                            <div class="ticket-info">
+                                <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                <div class="bullet pt-2"></div>
+                                <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                            </div>
+                            </span>';
+                            break;
+                        case 'Update':
+                            $typeHistory = DB::table('golongan')->where('id', $content->golongan_id_history)->first();
+                            $typeNew = DB::table('golongan')->where('id', $content->golongan_id_new)->first();
+                            $html .= '<span class="ticket-item" id="newAppend">
+                                <div class="ticket-title">
+                                    <span class="d-block"><span class="bullet"></span> Golongan <b class="text-dark">' . $typeHistory->nama . '</b> diubah menjadi <b class="text-dark">' . $typeNew->nama . '</b>.</span>
+                                    <span><span class="bullet"></span> Sub Golongan <b class="text-dark">' . $content->nama_sub_golongan_history . '</b> diubah menjadi <b class="text-dark">' . $content->nama_sub_golongan_new . '</b>.</span>
+                                </div>
+                                <div class="ticket-info">
+                                    <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                    <div class="bullet pt-2"></div>
+                                    <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                                </div>
+                                </span>';
+                            break;
+                        case 'Delete':
+                            $html .= '<span class="ticket-item" id="newAppend">
+                                <div class="ticket-title">
+                                    <span><span class="bullet"></span> Data Sub Golongan dihapus pada <b class="text-dark">' . Carbon::parse($d->deleted_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                </div>
+                                <div class="ticket-info">
+                                    <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                    <div class="bullet pt-2"></div>
+                                    <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l, d M Y, H:i') . ')</div>
+                                </div>
+                                </span>';
+                            break;
+                        case 'Restore':
+                            $html .= '<span class="ticket-item" id="newAppend">
+                                    <div class="ticket-title">
+                                        <span><span class="bullet"></span> Data Sub Golongan direstore pada <b class="text-dark">' . Carbon::parse($d->restored_at)->translatedFormat('l, d M Y, H:i') . '</b>.</span>
+                                    </div>
+                                    <div class="ticket-info">
+                                        <div class="text-muted pt-2">Modified by <a href="' . url('/manajemen-web/user/' . $d->author_id) . '">' . $d->nama . '</a></div>
+                                        <div class="bullet pt-2"></div>
+                                        <div class="pt-2">' . Carbon::createFromFormat('Y-m-d H:i:s', $d->modified_at, 'Asia/Jakarta')->diffForHumans() . ' (' . Carbon::parse($d->modified_at)->translatedFormat('l d M Y, H:i') . ')</div>
+                                    </div>
+                                    </span>';
+                            break;
+                    }
+                }
+                $html .= '</div>';
+            }
+            $title = '<i class="fas fa-history"></i> History Sub Golongan (' . $request->nama . ')';
+            $footer = '<button type="button" class="d-block btn btn-sm btn-outline-primary btn-block load-more" id="load_more"
+        data-paginate="2" data-id="">Load more</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>';
+            return [
+                'content' => $html,
+                'footer' => $footer,
+                'title' => $title
+            ];
+        }
+    }
+}

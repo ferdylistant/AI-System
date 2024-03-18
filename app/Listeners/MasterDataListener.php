@@ -589,6 +589,65 @@ class MasterDataListener
                     'author_id' => $data['author_id'],
                 ]);
                 break;
+            case 'Create Sub Golongan':
+                $res = DB::table('golongan_sub')->insert([
+                    'golongan_id' => $data['golongan_id'],
+                    'kode' => $data['content']['kode_sub_golongan'],
+                    'nama' => $data['content']['nama_sub_golongan'],
+                    'created_by' => $data['created_by']
+                ]);
+                break;
+            case 'Update Sub Golongan':
+                $res = DB::table('golongan_sub')
+                    ->where('id', $data['id'])
+                    ->update([
+                        'golongan_id' => $data['content']['golongan_id_new'],
+                        'nama' => $data['content']['nama_sub_golongan_new'],
+                        'updated_by' => $data['updated_by'],
+                        'updated_at' => $data['updated_at']
+                    ]);
+                break;
+            case 'Insert History Create or Update Sub Golongan':
+                $res = DB::table('golongan_sub_history')->insert([
+                    'golongan_sub_id' => $data['golongan_sub_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id'],
+                    'modified_at' => $data['modified_at']
+                ]);
+                break;
+            case 'Insert History Delete Sub Golongan':
+                DB::beginTransaction();
+                DB::table('golongan_sub')->where('id', $data['golongan_sub_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                $res = DB::table('golongan_sub_history')->insert([
+                    'golongan_sub_id' => $data['golongan_sub_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id'],
+                    'deleted_at' => $data['deleted_at'],
+                    'modified_at' => $data['deleted_at']
+                ]);
+                DB::commit();
+                break;
+            case 'Insert History Restored Sub Golongan':
+                DB::beginTransaction();
+                DB::table('golongan_sub')->where('id', $data['golongan_sub_id'])->update([
+                    'deleted_at' => null,
+                    'deleted_by' => null
+                ]);
+                $res = DB::table('golongan_sub_history')->insert([
+                    'golongan_sub_id' => $data['golongan_sub_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id'],
+                    'restored_at' => $data['restored_at'],
+                    'modified_at' => $data['restored_at']
+                ]);
+                DB::commit();
+                break;
             case 'Create Type':
                 $res = DB::table('type')->insert([
                     'kode' => $data['content']['kode_type'],

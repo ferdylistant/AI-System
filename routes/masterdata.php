@@ -96,6 +96,14 @@ Route::prefix('master')->group(function () use ($path) {
     Route::post('/golongan/hapus', $path.'\MasterData\GolonganController@deleteGolongan')->name('golongan.delete');
     Route::post('/golongan/restore', $path.'\MasterData\GolonganController@restoreGolongan')->name('golongan.restore');
     Route::match(['get','post'],'/golongan/ajax/{cat}', $path.'\MasterData\GolonganController@callAjax');
+    //Sub Golongan
+    Route::get('/sub-golongan', $path.'\MasterData\SubGolonganController@index')->name('sgolongan.view');
+    Route::get('/sub-golongan/sub-golongan-telah-dihapus', $path.'\MasterData\SubGolonganController@sGolonganTelahDihapus')->name('sgolongan.telah_dihapus');
+    Route::match(['get', 'post'], '/sub-golongan/tambah', $path.'\MasterData\SubGolonganController@createSGolongan')->name('sgolongan.create');
+    Route::match(['get', 'post'], '/sub-golongan/ubah', $path.'\MasterData\SubGolonganController@updateSGolongan')->name('sgolongan.update');
+    Route::post('/sub-golongan/hapus', $path.'\MasterData\SubGolonganController@deleteSGolongan')->name('sgolongan.delete');
+    Route::post('/sub-golongan/restore', $path.'\MasterData\SubGolonganController@restoreSGolongan')->name('sgolongan.restore');
+    Route::match(['get','post'],'/sub-golongan/ajax/{cat}', $path.'\MasterData\SubGolonganController@callAjax');
     //Type
     Route::get('/type', $path.'\MasterData\TypeController@index')->name('type.view');
     Route::get('/type/type-telah-dihapus', $path.'\MasterData\TypeController@typeTelahDihapus')->name('type.telah_dihapus');
