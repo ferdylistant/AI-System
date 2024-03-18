@@ -128,4 +128,12 @@ Route::prefix('master')->group(function () use ($path) {
     Route::post('/supplier/hapus', $path.'\MasterData\SupplierController@deleteSupplier')->name('supplier.delete');
     Route::post('/supplier/restore', $path.'\MasterData\SupplierController@restoreSupplier')->name('supplier.restore');
     Route::match(['get','post'],'/supplier/ajax/{cat}', $path.'\MasterData\SupplierController@callAjax');
+    //Satuan
+    Route::get('/satuan', $path.'\MasterData\SatuanController@index')->name('satuan.view');
+    Route::get('/satuan/satuan-telah-dihapus', $path.'\MasterData\SatuanController@satuanTelahDihapus')->name('satuan.telah_dihapus');
+    Route::post('/satuan/tambah', $path.'\MasterData\SatuanController@createSatuan')->name('satuan.create');
+    Route::match(['get', 'post'], '/satuan/ubah', $path.'\MasterData\SatuanController@updateSatuan')->name('satuan.update');
+    Route::post('/satuan/hapus', $path.'\MasterData\SatuanController@deleteSatuan')->name('satuan.delete');
+    Route::post('/satuan/restore', $path.'\MasterData\SatuanController@restoreSatuan')->name('satuan.restore');
+    Route::match(['get','post'],'/satuan/ajax/{cat}', $path.'\MasterData\SatuanController@callAjax');
 });

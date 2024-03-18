@@ -805,6 +805,30 @@ class MasterDataListener
                     'deleted_by' => null
                 ]);
                 break;
+            case 'Create Satuan':
+                $res = DB::table('satuan')->insert([
+                    'nama' => $data['nama_satuan'],
+                    'created_by' => $data['created_by']
+                ]);
+                break;
+            case 'Update Satuan':
+                $res = DB::table('satuan')->where('id', $data['id'])->update([
+                    'nama' => $data['nama_satuan'],
+                    'updated_by' => $data['updated_by']
+                ]);
+                break;
+            case 'Delete Satuan':
+                $res = DB::table('satuan')->where('id', $data['id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['deleted_by']
+                ]);
+                break;
+            case 'Restore Satuan':
+                $res = DB::table('satuan')->where('id', $data['id'])->update([
+                    'deleted_at' => null,
+                    'deleted_by' => null
+                ]);
+                break;
             default:
                 abort(500);
                 break;
