@@ -722,9 +722,14 @@ class MasterDataListener
                 break;
             case 'Update Supplier':
                 $res = DB::table('supplier')->where('id', $data['id'])->update([
-                    'kode' => $data['kode_supplier'],
                     'nama' => $data['nama_supplier'],
                     'alamat' => $data['alamat_supplier'],
+                    'wilayah' => $data['wilayah_supplier'],
+                    'sub_wilayah' => $data['sub_wilayah_supplier'],
+                    'telepon' => $data['telepon_supplier'],
+                    'fax' => $data['fax_supplier'],
+                    'kontak' => $data['kontak_supplier'],
+                    'npwp' => $data['npwp_supplier'],
                     'updated_at' => $data['updated_at'],
                     'updated_by' => $data['updated_by']
                 ]);

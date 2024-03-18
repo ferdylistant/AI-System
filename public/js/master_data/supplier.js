@@ -98,7 +98,7 @@ $(function () {
                     IMask(element, maskNPWP, {reverse: true});
                 });
                 if (type == "add") {
-                    $("#select_wilayah")
+                    $("#add_select_wilayah")
                     .select2({
                         placeholder: "Pilih wilayah",
                         ajax: {
@@ -120,21 +120,25 @@ $(function () {
                                     }),
                                 };
                             },
-                            cache: true,
                         },
                     })
                     .on("change", function (e) {
                         if (this.value) {
                             $(this).valid();
-                            $('#select_sub_wilayah').val(null);
-                            $("#select_sub_wilayah")
+                            let id = this.value.split('-')[1];
+                            $('#add_select_sub_wilayah').val(null);
+                            $("#add_select_sub_wilayah")
                             .select2({
                                 placeholder: "Pilih sub wilayah",
                                 ajax: {
                                     url: window.location.origin + "/master/supplier/ajax/select-sub-wilayah",
                                     type: "GET",
-                                    data: {
-                                        id: this.value.split('-')[1]
+                                    data: function (params) {
+                                        var queryParameters = {
+                                            id,
+                                            term: params.term,
+                                        };
+                                        return queryParameters;
                                     },
                                     processResults: function (data) {
                                         return {
@@ -146,7 +150,6 @@ $(function () {
                                             }),
                                         };
                                     },
-                                    cache: true,
                                 },
                             });
                         }
@@ -179,14 +182,76 @@ $(function () {
                         }
                     );
                 } else if (type == "edit") {
+                    $("#edit_select_wilayah")
+                    .select2({
+                        placeholder: "Pilih wilayah",
+                        ajax: {
+                            url: window.location.origin + "/master/supplier/ajax/select-wilayah",
+                            type: "GET",
+                            data: function (params) {
+                                var queryParameters = {
+                                    term: params.term,
+                                };
+                                return queryParameters;
+                            },
+                            processResults: function (data) {
+                                return {
+                                    results: $.map(data, function (item) {
+                                        return {
+                                            text: item.name,
+                                            id: item.name + "-" + item.id,
+                                        };
+                                    }),
+                                };
+                            },
+                        },
+                    })
+                    .on("change", function (e) {
+                        let id = this.value.split('-')[1];
+                        $('#edit_select_sub_wilayah').val(null);
+                        $("#edit_select_sub_wilayah")
+                        .select2({
+                            placeholder: "Pilih sub wilayah",
+                            ajax: {
+                                url: window.location.origin + "/master/supplier/ajax/select-sub-wilayah",
+                                type: "GET",
+                                data: function (params) {
+                                    var queryParameters = {
+                                        id,
+                                        term: params.term,
+                                    };
+                                    return queryParameters;
+                                },
+                                processResults: function (data) {
+                                    return {
+                                        results: $.map(data, function (item) {
+                                            return {
+                                                text: item.name,
+                                                id: item.name + "-" + item.id,
+                                            };
+                                        }),
+                                    };
+                                },
+                            },
+                        });
+                    });
                     let valid = jqueryValidation_("#fm_editSupplier", {
-                        kode_supplier: {
+                        edit_nama_supplier: {
                             required: true,
                         },
-                        nama_supplier: {
+                        edit_alamat_supplier: {
                             required: true,
                         },
-                        alamat_supplier: {
+                        edit_telepon_supplier: {
+                            required: true,
+                        },
+                        edit_fax_supplier: {
+                            required: true,
+                        },
+                        edit_kontak_supplier: {
+                            required: true,
+                        },
+                        edit_npwp_supplier: {
                             required: true,
                         }
                     });
@@ -218,18 +283,18 @@ $(function () {
             let el = $(ell);
             if (el.valid()) {
                 if (ell == "#fm_addSupplier") {
-                    var txt = "Tambah";
+                    var txt = "Tambah data supplier (" + el.find('[name="nama_supplier"]').val() + ")?";
                 } else if (ell == "#fm_editSupplier") {
-                    var txt = "Update";
+                    var txt = "Update data supplier (" + el.find('[name="edit_nama_supplier"]').val() + ")?";
                 }
                 swal({
-                    text: txt + " data supplier (" + el.find('[name="nama_supplier"]').val() + ")?",
+                    text: txt,
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
                 }).then((confirm_) => {
                     if (confirm_) {
-                        txt == "Tambah" ? ajaxAddSupplier(el) : ajaxEditSupplier(el);
+                        ell == "#fm_addSupplier" ? ajaxAddSupplier(el) : ajaxEditSupplier(el);
                     }
                 });
             }
@@ -257,8 +322,6 @@ $(function () {
                     tableSupplier.ajax.reload();
                     data.trigger("reset");
                     $("#md_Supplier").modal("hide");
-                } else if(result.status == "error") {
-                    notifToast(result.status, result.errors.kode_supplier);
                 } else {
                     notifToast(result.status, result.message);
                 }
@@ -288,6 +351,35 @@ $(function () {
     // Add Supplier End
 
     // Edit Supplier Start
+    $("#md_Supplier").on("shown.bs.modal", function (e) {
+        let id = $(e.relatedTarget).data("id"),
+            form_ = $(this);
+        $.ajax({
+            url: window.location.origin + "/master/supplier/ubah",
+            data: {
+                id: id,
+            },
+            success: function (result) {
+                $("#edit_select_wilayah").select2("trigger", "select", {
+                    data: {
+                        id: result.wilayah,
+                        text: result.wilayah.split('-')[0]
+                    }
+                })
+                $("#edit_select_sub_wilayah").select2("trigger", "select", {
+                    data: {
+                        id: result.sub_wilayah,
+                        text: result.sub_wilayah.split('-')[0]
+                    }
+                })
+                Object.entries(result).forEach((entry) => {
+                    let [key, value] = entry;
+                    form_.find('[name="edit_' + key + '"]').val(value);
+                });
+                form_.removeClass("modal-progress");
+            },
+        });
+    });
     function ajaxEditSupplier(data) {
         let el = data.get(0);
         $.ajax({
@@ -306,8 +398,6 @@ $(function () {
                     notifToast(result.status, result.message);
                     $("#md_Supplier").modal("hide");
                     tableSupplier.ajax.reload();
-                } else if(result.status == "error") {
-                    notifToast(result.status, result.errors.kode_supplier);
                 } else {
                     notifToast(result.status, result.message);
                 }

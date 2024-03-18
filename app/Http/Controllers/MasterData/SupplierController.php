@@ -130,8 +130,8 @@ class SupplierController extends Controller
                         'kode_supplier' => $kode,
                         'nama_supplier' => $request->nama_supplier,
                         'alamat_supplier' => $request->alamat_supplier,
-                        'wilayah_supplier' => explode("-", $request->wilayah_supplier)[0],
-                        'sub_wilayah_supplier' => explode("-", $request->sub_wilayah_supplier)[0],
+                        'wilayah_supplier' => $request->wilayah_supplier,
+                        'sub_wilayah_supplier' => $request->sub_wilayah_supplier,
                         'telepon_supplier' => $request->telepon_supplier,
                         'fax_supplier' => $request->fax_supplier,
                         'kontak_supplier' => $request->kontak_supplier,
@@ -157,25 +157,19 @@ class SupplierController extends Controller
     {
         if ($request->ajax()) {
             if ($request->isMethod('POST')) {
-                $validator = Validator::make($request->all(), [
-                    'kode_supplier' => 'required|unique:supplier,kode,' . $request->id
-                ], [
-                    'unique' => 'Kode sudah terdaftar!'
-                ]);
-                if ($validator->fails()) {
-                    return response()->json([
-                        'status' => 'error',
-                        'errors' => $validator->errors()
-                    ]);
-                }
-
                 try {
+                    $history = DB::table('supplier')->where('id', $request->id)->first();
                     $update = [
                         'params' => 'Update Supplier',
                         'id' => $request->id,
-                        'kode_supplier' => $request->kode_supplier,
-                        'nama_supplier' => $request->nama_supplier,
-                        'alamat_supplier' => $request->alamat_supplier,
+                        'nama_supplier' => $request->edit_nama_supplier,
+                        'alamat_supplier' => $request->edit_alamat_supplier,
+                        'wilayah_supplier' => $request->edit_wilayah_supplier ?? $history->wilayah,
+                        'sub_wilayah_supplier' => $request->edit_sub_wilayah_supplier ?? $history->sub_wilayah,
+                        'telepon_supplier' => $request->edit_telepon_supplier,
+                        'fax_supplier' => $request->edit_fax_supplier,
+                        'kontak_supplier' => $request->edit_kontak_supplier,
+                        'npwp_supplier' => $request->edit_npwp_supplier,
                         'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString(),
                         'updated_by' => auth()->user()->id
                     ];
@@ -312,17 +306,24 @@ class SupplierController extends Controller
     public function selectWilayah($request)
     {
         $data = Http::get('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json')->json();
-        if ($request->term) {
-            // $data = Http::get('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json')->where('name','LIKE','%'.$request->term.'%')->json();
-            $data = $data->where('name','LIKE','%'.$request->term.'%')->all();
+        if ($request->has('term')) {
+            $term = strtolower($request->input('term'));
+            $data = collect($data)->filter(function ($item) use ($term) {
+                return strpos(strtolower($item['name']), $term) !== false;
+            })->values();
         }
-        // dd($data);
         return response()->json($data);
     }
 
     public function selectSubWilayah($request)
     {
         $data = Http::get("https://www.emsifa.com/api-wilayah-indonesia/api/regencies/$request->id.json")->json();
+        if ($request->has('term')) {
+            $term = strtolower($request->input('term'));
+            $data = collect($data)->filter(function ($item) use ($term) {
+                return strpos(strtolower($item['name']), $term) !== false;
+            })->values();
+        }
         return response()->json($data);
     }
 
@@ -345,14 +346,14 @@ class SupplierController extends Controller
             </div>
             <div class="form-group">
                 <label class="col-form-label">Wilayah <span class="text-danger">*</span></label>
-                <select id="select_wilayah" name="wilayah_supplier" class="form-control">
+                <select id="add_select_wilayah" name="wilayah_supplier" class="form-control">
                     <option label="Pilih wilayah"></option>
                 </select>
                 <div id="err_wilayah_supplier"></div>
             </div>
             <div class="form-group">
                 <label class="col-form-label">Sub Wilayah <span class="text-danger">*</span></label>
-                <select id="select_sub_wilayah" name="sub_wilayah_supplier" class="form-control select-sub-wilayah">
+                <select id="add_select_sub_wilayah" name="sub_wilayah_supplier" class="form-control select-sub-wilayah">
                     <option label="Pilih sub wilayah"></option>
                 </select>
                 <div id="err_sub_wilayah_supplier"></div>
@@ -402,20 +403,58 @@ class SupplierController extends Controller
             <div class="form-group">
                 <label class="col-form-label">Kode Supplier <span class="text-danger">*</span></label>
                 <input type="number" name="kode_supplier" class="form-control"
-                    value="' . $data->kode . '" placeholder="Kode Supplier">
+                    value="' . $data->kode . '" placeholder="Kode Supplier" readonly>
                 <div id="err_kode_supplier"></div>
             </div>
             <div class="form-group">
                 <label class="col-form-label">Nama Supplier <span class="text-danger">*</span></label>
-                <input type="text" name="nama_supplier" class="form-control"
+                <input type="text" name="edit_nama_supplier" class="form-control"
                     value="' . $data->nama . '" placeholder="Nama Supplier">
-                <div id="err_nama_supplier"></div>
+                <div id="err_edit_nama_supplier"></div>
             </div>
             <div class="form-group">
                 <label class="col-form-label">Alamat Supplier <span class="text-danger">*</span></label>
-                <input type="text" name="alamat_supplier" class="form-control"
+                <input type="text" name="edit_alamat_supplier" class="form-control"
                     value="' . $data->alamat . '" placeholder="Alamat Supplier">
-                <div id="err_alamat_supplier"></div>
+                <div id="err_edit_alamat_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Wilayah <span class="text-danger">*</span></label>
+                <select id="edit_select_wilayah" name="edit_wilayah_supplier" class="form-control">
+                    <option label="Pilih wilayah"></option>
+                </select>
+                <div id="err_edit_wilayah_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Sub Wilayah <span class="text-danger">*</span></label>
+                <select id="edit_select_sub_wilayah" name="edit_sub_wilayah_supplier" class="form-control select-sub-wilayah">
+                    <option label="Pilih sub wilayah"></option>
+                </select>
+                <div id="err_edit_sub_wilayah_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Telepon <span class="text-danger">*</span></label>
+                <input type="text" name="edit_telepon_supplier" class="form-control"
+                    value="' . $data->telepon . '" placeholder="Telepon">
+                <div id="err_edit_telepon_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Fax <span class="text-danger">*</span></label>
+                <input type="text" name="edit_fax_supplier" class="form-control"
+                    value="' . $data->fax . '" placeholder="Fax">
+                <div id="err_edit_fax_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Kontak <span class="text-danger">*</span></label>
+                <input type="text" name="edit_kontak_supplier" class="form-control"
+                    value="' . $data->kontak . '" placeholder="Kontak">
+                <div id="err_edit_kontak_supplier"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">NPWP <span class="text-danger">*</span></label>
+                <input type="text" name="edit_npwp_supplier" id="npwp" class="form-control"
+                    value="' . $data->npwp . '" placeholder="NPWP">
+                <div id="err_edit_npwp_supplier"></div>
             </div>
         </form>';
         $footer = '<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
