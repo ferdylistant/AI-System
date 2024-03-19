@@ -829,6 +829,57 @@ class MasterDataListener
                     'deleted_by' => null
                 ]);
                 break;
+            case 'Create Rack Pembelian':
+                $res = DB::table('purchase_rack_master')->insert([
+                    'id' => $data['id'],
+                    'nama' => $data['content']['nama_rack'],
+                    'location' => $data['content']['location_rack'],
+                    'created_by' => $data['created_by']
+                ]);
+                break;
+            case 'Update Rack Pembelian':
+                $res = DB::table('purchase_rack_master')->where('id', $data['id'])->update([
+                        'nama' => $data['content']['nama_rack_new'],
+                        'location' => $data['content']['location_rack_new'],
+                        'updated_by' => $data['updated_by']
+                    ]);
+                break;
+            case 'Insert History Create or Update Rack Pembelian':
+                $res = DB::table('purchase_rack_master_history')->insert([
+                    'rack_id' => $data['rack_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id']
+                ]);
+                break;
+            case 'Insert History Delete Rack Pembelian':
+                DB::beginTransaction();
+                DB::table('purchase_rack_master')->where('id', $data['rack_id'])->update([
+                    'deleted_at' => $data['deleted_at'],
+                    'deleted_by' => $data['author_id']
+                ]);
+                $res = DB::table('purchase_rack_master_history')->insert([
+                    'rack_id' => $data['rack_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id']
+                ]);
+                DB::commit();
+                break;
+            case 'Insert History Restored Rack Pembelian':
+                DB::beginTransaction();
+                DB::table('purchase_rack_master')->where('id', $data['rack_id'])->update([
+                    'deleted_at' => null,
+                    'deleted_by' => null
+                ]);
+                $res = DB::table('purchase_rack_master_history')->insert([
+                    'rack_id' => $data['rack_id'],
+                    'type_history' => $data['type_history'],
+                    'content' => $data['content'],
+                    'author_id' => $data['author_id']
+                ]);
+                DB::commit();
+                break;
             default:
                 abort(500);
                 break;

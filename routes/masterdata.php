@@ -136,4 +136,12 @@ Route::prefix('master')->group(function () use ($path) {
     Route::post('/satuan/hapus', $path.'\MasterData\SatuanController@deleteSatuan')->name('satuan.delete');
     Route::post('/satuan/restore', $path.'\MasterData\SatuanController@restoreSatuan')->name('satuan.restore');
     Route::match(['get','post'],'/satuan/ajax/{cat}', $path.'\MasterData\SatuanController@callAjax');
+    //Rack Pembelian
+    Route::get('/rack-pembelian', $path.'\MasterData\RackPembelianController@index')->name('rp.view');
+    Route::get('/rack-pembelian/rack-pembelian-telah-dihapus', $path.'\MasterData\RackPembelianController@rackTelahDihapus')->name('rp.telah_dihapus');
+    Route::post('/rack-pembelian/tambah', $path.'\MasterData\RackPembelianController@createRack')->name('rp.create');
+    Route::match(['get', 'post'], '/rack-pembelian/ubah', $path.'\MasterData\RackPembelianController@updateRack')->name('rp.update');
+    Route::post('/rack-pembelian/hapus', $path.'\MasterData\RackPembelianController@deleteRack')->name('rp.delete');
+    Route::post('/rack-pembelian/restore', $path.'\MasterData\RackPembelianController@restoreRack')->name('rp.restore');
+    Route::match(['get','post'],'/rack-pembelian/ajax/{cat}', $path.'\MasterData\RackPembelianController@callAjax');
 });
