@@ -64,13 +64,13 @@
 @section('content')
     <section class="section">
         <div class="section-header">
-            <h1>Data Rack Pembelian</h1>
-            @if (Gate::allows('do_create', 'tambah-rack-pembelian'))
+            <h1>Data Category Gudang Material</h1>
+            @if (Gate::allows('do_create', 'tambah-category'))
                 <div class="section-header-button">
                     <div class="card-header-action">
-                        <button id="btn_AddRack" class="btn btn-success" data-toggle="modal"
-                            data-target="#md_Rack" data-backdrop="static" data-type="add">Tambah</button>
-                        <a href="{{ route('rp.telah_dihapus') }}" class="btn btn-danger">Rack Telah Dihapus</a>
+                        <button id="btn_AddCategory" class="btn btn-success" data-toggle="modal"
+                            data-target="#md_Category" data-backdrop="static" data-type="add">Tambah</button>
+                        <a href="{{ route('cgm.telah_dihapus') }}" class="btn btn-danger">Category Telah Dihapus</a>
                     </div>
                 </div>
             @endif
@@ -82,7 +82,7 @@
                     <div class="card card-primary">
                         <div class="card-body">
                             <div class="col-12 table-responsive">
-                                <table class="table table-striped" id="tb_Rack" style="width:100%">
+                                <table class="table table-striped" id="tb_Category" style="width:100%">
                                 </table>
                             </div>
                         </div>
@@ -92,8 +92,8 @@
         </div>
     </section>
 
-    <!-- Modal Rack -->
-    @include('master_data.rack_pembelian.include.modal_rack')
+    <!-- Modal Category -->
+    @include('master_data.category_gudang_material.include.modal_category')
 @endsection
 
 @section('jsRequired')
@@ -110,5 +110,5 @@
 @endsection
 
 @section('jsNeeded')
-    <script src="{{ url('js/master_data/rack_pembelian.js') }}"></script>
+    <script src="{{ url('js/master_data/category_gudang_material.js') }}"></script>
 @endsection

@@ -144,4 +144,12 @@ Route::prefix('master')->group(function () use ($path) {
     Route::post('/rack-pembelian/hapus', $path.'\MasterData\RackPembelianController@deleteRack')->name('rp.delete');
     Route::post('/rack-pembelian/restore', $path.'\MasterData\RackPembelianController@restoreRack')->name('rp.restore');
     Route::match(['get','post'],'/rack-pembelian/ajax/{cat}', $path.'\MasterData\RackPembelianController@callAjax');
+    //Category Gudang Material
+    Route::get('/category-gudang-material', $path.'\MasterData\CategoryGudangController@index')->name('cgm.view');
+    Route::get('/category-gudang-material/category-telah-dihapus', $path.'\MasterData\CategoryGudangController@categoryTelahDihapus')->name('cgm.telah_dihapus');
+    Route::post('/category-gudang-material/tambah', $path.'\MasterData\CategoryGudangController@createCategory')->name('cgm.create');
+    Route::match(['get', 'post'], '/category-gudang-material/ubah', $path.'\MasterData\CategoryGudangController@updateCategory')->name('cgm.update');
+    Route::post('/category-gudang-material/hapus', $path.'\MasterData\CategoryGudangController@deleteCategory')->name('cgm.delete');
+    Route::post('/category-gudang-material/restore', $path.'\MasterData\CategoryGudangController@restoreCategory')->name('cgm.restore');
+    Route::match(['get','post'],'/category-gudang-material/ajax/{cat}', $path.'\MasterData\CategoryGudangController@callAjax');
 });
