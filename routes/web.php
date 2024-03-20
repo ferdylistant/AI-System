@@ -42,6 +42,8 @@ Route::middleware(['auth'])->group(function () use ($path) {
     require __DIR__ . '/produksi.php';
     //Penjualan Dan Stok
     require __DIR__ . '/penjualanstok.php';
+    // Purchasing
+    require __DIR__ . '/purchasing.php';
     //API
     Route::post('/update-status-activity', $path . '\ApiController@updateStatusActivity');
     Route::get('/get-layout', $path . '\ApiController@getPosisiLayout');
