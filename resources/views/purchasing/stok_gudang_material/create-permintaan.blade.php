@@ -59,7 +59,22 @@
                                 </ul>
                                 <div class="tab-content" id="myTabContent">
                                     <div class="tab-pane fade show active" id="available" role="tabpanel" aria-labelledby="available-tab">
-                                        isi tab 1
+                                        <form>
+                                            <div class="form-group mb-4">
+                                                <label>Nama Barang: <span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text"><i class="fas fa-flag"></i></div>
+                                                    </div>
+                                                    <select id="namaBarangAvailable" class="form-control select2" name="add_nama_barang_available">
+                                                        <option label="Pilih"></option>
+                                                    </select>
+                                                    <div id="err_add_nama_barang_available"></div>
+                                                </div>
+                                            </div>
+                                            <div id="addValue"></div>
+                                            <button type="button" id="addAvailable" class="btn btn-dark">Tambahkan</button>
+                                        </form>
                                     </div>
                                     <div class="tab-pane fade" id="unavailable" role="tabpanel" aria-labelledby="unavailable-tab">
                                         <form>
@@ -149,15 +164,19 @@
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
-                                <form id="formPermintaan">
+                                <form id="formPermintaan" action="/purchasing/test" method="POST">
                                     {!! csrf_field() !!}
-                                    <input type="hidden" name="test[]">
+                                    <input type="hidden" name="rows" value="0">
+                                    <input type="hidden" name="kode" value="{{ $kode }}">
+                                    <input type="hidden" name="dataKode[]">
+                                    <input type="hidden" name="dataPermintaan[]">
                                     <table id="tb_Permintaan" class="table table-bordered">
                                         <thead class="thead-dark">
                                             <tr>
                                                 <th scope="col">Kode</th>
                                                 <th scope="col">Nama Barang</th>
                                                 <th scope="col">Kuantitas</th>
+                                                <th scope="col"></th>
                                                 <th scope="col">Aksi</th>
                                             </tr>
                                         </thead>
@@ -188,6 +207,34 @@
 
 @section('jsNeeded')
 <script>
+    console.log({{ $kode }})
+    function ajaxSelect(id, item_, oId, oText) {
+        $(`#${id}`).select2({
+            placeholder: "Pilih",
+            ajax: {
+                url: window.location.origin + "/purchasing/stok-gudang-material/ajax/select",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        item_,
+                        term: params.term,
+                    };
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item[oText],
+                                id: item[oId],
+                            };
+                        }),
+                    };
+                },
+            },
+        });
+    }
+
     $(function () {
         $(".select2").select2({
             placeholder: 'Pilih',
@@ -196,14 +243,18 @@
                 $(this).valid();
             }
         });
-        $("#type").select2({
+        ajaxSelect('type', 'type', 'kode', 'nama');
+        ajaxSelect('subType', 'type_sub', 'kode', 'nama');
+        ajaxSelect('golongan', 'type_sub', 'kode', 'nama');
+        ajaxSelect('subGolongan', 'golongan_sub', 'kode', 'nama');
+        ajaxSelect('unit', 'satuan', 'nama', 'nama');
+        $("#namaBarangAvailable").select2({
             placeholder: "Pilih",
             ajax: {
-                url: window.location.origin + "/purchasing/stok-gudang-material/ajax/select",
+                url: window.location.origin + "/purchasing/stok-gudang-material/ajax/select-barang",
                 type: "GET",
                 data: function (params) {
                     var queryParameters = {
-                        item_: 'type',
                         term: params.term,
                     };
                     return queryParameters;
@@ -212,115 +263,57 @@
                     return {
                         results: $.map(data, function (item) {
                             return {
-                                text: item.nama,
-                                id: item.kode,
+                                text: item.nama_stok,
+                                id: item.id,
                             };
                         }),
                     };
                 },
             },
-        });
-        $("#subType").select2({
-            placeholder: "Pilih",
-            ajax: {
-                url: window.location.origin + "/purchasing/stok-gudang-material/ajax/select",
-                type: "GET",
-                data: function (params) {
-                    var queryParameters = {
-                        item_: 'type_sub',
-                        term: params.term,
-                    };
-                    return queryParameters;
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.nama,
-                                id: item.kode,
-                            };
-                        }),
-                    };
-                },
-            },
-        });
-        $("#golongan").select2({
-            placeholder: "Pilih",
-            ajax: {
-                url: window.location.origin + "/purchasing/stok-gudang-material/ajax/select",
-                type: "GET",
-                data: function (params) {
-                    var queryParameters = {
-                        item_: 'golongan',
-                        term: params.term,
-                    };
-                    return queryParameters;
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.nama,
-                                id: item.kode,
-                            };
-                        }),
-                    };
-                },
-            },
-        });
-        $("#subGolongan").select2({
-            placeholder: "Pilih",
-            ajax: {
-                url: window.location.origin + "/purchasing/stok-gudang-material/ajax/select",
-                type: "GET",
-                data: function (params) {
-                    var queryParameters = {
-                        item_: 'golongan_sub',
-                        term: params.term,
-                    };
-                    return queryParameters;
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.nama,
-                                id: item.kode,
-                            };
-                        }),
-                    };
-                },
-            },
-        });
-        $("#unit").select2({
-            placeholder: "Pilih",
-            ajax: {
-                url: window.location.origin + "/purchasing/stok-gudang-material/ajax/select",
-                type: "GET",
-                data: function (params) {
-                    var queryParameters = {
-                        item_: 'satuan',
-                        term: params.term,
-                    };
-                    return queryParameters;
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.nama,
-                                id: item.nama,
-                            };
-                        }),
-                    };
-                },
-            },
+        }).on('change', function(e) {
+            if (this.value) {
+                $(this).valid();
+                let id = this.value;
+                html_ = `<div class="form-group mb-4">
+                    <label>Kuantitas: <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text"><i class="fas fa-flag"></i></div>
+                        </div>
+                        <input type="number" class="form-control" name="add_kuantitas_available" placeholder="Kuantitas">
+                        <div id="err_add_kuantitas_available"></div>
+                    </div>
+                </div>
+                <div class="form-group mb-4">
+                    <label>Unit: <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text"><i class="fas fa-flag"></i></div>
+                        </div>
+                        <select id="unitAvailable" class="form-control select2" name="add_unit_available">
+                            <option label="Pilih"></option>
+                        </select>
+                        <div id="err_add_unit_available"></div>
+                    </div>
+                </div>
+                `;
+                $('#addValue').append(html_);
+                ajaxSelect('unitAvailable', 'satuan', 'nama', 'nama');
+                $("#addAvailable").click(function () {
+                    getBarang(id);
+                });
+            }
         });
     });
 
-    let no = 0;
     $("#addUnavailable").click(function () {
-        no = no + 1;
+        let i = Number($('[name="rows"]').val());
+        let plus = i + 1;
+        $('[name="rows"]').val(plus);
+        let kodeAwal = Number($('[name="kode"]').val());
+        let kodePlus = kodeAwal + 1;
+        $('[name="kode"]').val(kodePlus);
+
         let type = $('[name="add_type"]').val();
         let stype = $('[name="add_subtype"]').val();
         let golongan = $('[name="add_golongan"]').val();
@@ -328,19 +321,141 @@
         let nama = $('[name="add_nama"]').val();
         let qty = $('[name="add_kuantitas"]').val();
         let unit = $('[name="add_unit"]').val();
-        let increment = ('00000' + no).slice(-5);
+        let increment = ('00000' + kodePlus).slice(-5);
 
-        html_ = `<tr>
-            <td><input type="text" value="${type}-${stype}-${golongan}-${sgolongan}-${increment}" class="form-control" readonly></td>
-            <td><input type="text" value="${nama}" class="form-control"></td>
-            <td><input type="text" value="${qty} ${unit}" class="form-control"></td>
-            <td><button class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fa fa-trash"></i></button></td>
-        </tr>`
-        $('#tb_Permintaan').find('tbody').append(html_)
+        addArray(type, stype, golongan, sgolongan, unit);
+        addKode(increment);
+
+        html_ = `<tr id="row[${i}]">
+            <td>${type}-${stype}-${golongan}-${sgolongan}-${increment}</td>
+            <td><input type="text" name="dataNama[]" value="${nama}" class="form-control"></td>
+            <td><input type="number" name="dataQty[]" value="${qty}" class="form-control"></td>
+            <td>${unit}</td>
+            <td><button type="button" class="btn btn-danger btn-sm" data-id="${i}" onclick="removeRow(this, ${i})"><i class="fa fa-trash"></i></button></td>
+        </tr>`;
+        $('#tb_Permintaan').find('tbody').append(html_);
+        resetForm();
     });
 
-    function removeRow(e) {
-        $(e).closest('tr').remove();
+    $('[name="dataPermintaan[]"]').val(JSON.stringify([]))
+    $('[name="dataKode[]"]').val(JSON.stringify([]))
+    function addKode(kode) {
+        let inputKode = kode;
+        let hiddenInput_ = $('[name="dataKode[]"]');
+        let hiddenValues_ = JSON.parse(hiddenInput_.val());
+        hiddenValues_.push(inputKode);
+        hiddenInput_.val(JSON.stringify(hiddenValues_));
+        console.log(hiddenValues_);
     }
+    function addArray(type, stype, golongan, sgolongan, unit) {
+        let inputValue = {
+            type,
+            stype,
+            golongan,
+            sgolongan,
+            unit
+        }
+        let hiddenInput = $('[name="dataPermintaan[]"]');
+        let hiddenValues = JSON.parse(hiddenInput.val());
+        hiddenValues.push(inputValue);
+        hiddenInput.val(JSON.stringify(hiddenValues));
+        console.log(hiddenValues);
+    }
+
+    function resetForm() {
+        $("#type").val(null).trigger('change');
+        $("#subType").val(null).trigger('change');
+        $("#golongan").val(null).trigger('change');
+        $("#subGolongan").val(null).trigger('change');
+        $("[name='add_nama']").val('');
+        $("[name='add_kuantitas']").val('');
+        $("#unit").val(null).trigger('change');
+        $("[name='add_kuantitas_available']").val('');
+        $("#unitAvailable").val(null).trigger('change');
+    }
+
+    function removeRow(element, elementIndex) {
+        let rows = $('[name="rows"]');
+        rows.val(rows.val() - 1);
+        let kodes = $('[name="kode"]');
+        kodes.val(kodes.val() - 1);
+        $(element).closest('tr').remove();
+
+        let k = Number({{ $kode + 1 }});
+        $('#tb_Permintaan').find('tbody tr').each(function (index) {
+            let kode = $(this).find('td').first().text();
+            let val = kode.substring(0, 11);
+            $(this).attr('id', 'row[' + index + ']');
+            $(this).find('td button').attr('data-id', index);
+            $(this).find('td button').attr('onclick', 'removeRow(this, ' + index + ')');
+            $(this).find('td').first().text(val + '-' + ('00000' + k).slice(-5));
+            k = k + 1;
+        });
+        deleteArrayItem('dataKode', elementIndex);
+        deleteArrayItem('dataPermintaan', elementIndex);
+
+        let i = Number({{ $kode + 1 }});
+        let kodeInput = $('[name="dataKode[]"]');
+        let kodeValue = JSON.parse(kodeInput.val());
+        kodeValue.forEach((item, index) => {
+            kodeValue[index] = ('00000' + i).slice(-5);
+            i = i + 1
+        });
+        kodeInput.val(JSON.stringify(kodeValue));
+    }
+
+    function deleteArrayItem(data, index) {
+        let hiddenInput = $(`[name="${data}[]"]`);
+        let hiddenValues = JSON.parse(hiddenInput.val());
+        hiddenValues.splice(index, 1);
+        console.log(hiddenValues);
+        hiddenInput.val(JSON.stringify(hiddenValues));
+    }
+
+    function getBarang(id) {
+        $.ajax({
+            url: window.location.origin + "/purchasing/stok-gudang-material/ajax/get-barang",
+            data: {
+                id: id
+            },
+            success: function(data) {
+                let i = Number($('[name="rows"]').val());
+                let plus = i + 1;
+                $('[name="rows"]').val(plus);
+                let kodeAwal = Number($('[name="kode"]').val());
+                let kodePlus = kodeAwal + 1;
+                $('[name="kode"]').val(kodePlus);
+                let kodeBarang = data.kode;
+                let kodeArray = kodeBarang.split("-");
+
+                let type = kodeArray[0];
+                let stype = kodeArray[1];
+                let golongan = kodeArray[2];
+                let sgolongan = kodeArray[3];
+                let nama = data.nama_stok;
+                let qty = $('[name="add_kuantitas_available"]').val();
+                let unit = $('[name="add_unit_available"]').val();
+                let increment = ('00000' + kodePlus).slice(-5);
+
+                addArray(type, stype, golongan, sgolongan, unit);
+                addKode(increment);
+
+                html_ = `<tr id="row[${i}]">
+                    <td>${type}-${stype}-${golongan}-${sgolongan}-${increment}</td>
+                    <td><input type="text" name="dataNama[]" value="${nama}" class="form-control" readonly></td>
+                    <td><input type="number" name="dataQty[]" value="${qty}" class="form-control"></td>
+                    <td>${unit}</td>
+                    <td><button type="button" class="btn btn-danger btn-sm" data-id="${i}" onclick="removeRow(this, ${i})"><i class="fa fa-trash"></i></button></td>
+                </tr>`;
+                $('#tb_Permintaan').find('tbody').append(html_);
+                resetForm();
+            },
+            error: function(err) {}
+        });
+    }
+
+    // $('#formPermintaan').on('submit', function (e) {
+    //     e.preventDefault();
+    // });
 </script>
 @endsection
