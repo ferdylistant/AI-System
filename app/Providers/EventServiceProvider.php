@@ -28,7 +28,8 @@ use App\Events\{
     UserEvent,
     convertNumberToRoman,
     ProduksiEvent,
-    PenjualanStokEvent
+    PenjualanStokEvent,
+    PurchasingEvent
 };
 use App\Listeners\{
     TrackerListener,
@@ -53,7 +54,8 @@ use App\Listeners\{
     UserListener,
     converNumberToRomanListener,
     ProduksiListener,
-    PenjualanStokListener
+    PenjualanStokListener,
+    PurchasingListener
 };
 
 class EventServiceProvider extends ServiceProvider
@@ -89,6 +91,7 @@ class EventServiceProvider extends ServiceProvider
         convertNumberToRoman::class => [converNumberToRomanListener::class],
         ProduksiEvent::class => [ProduksiListener::class],
         PenjualanStokEvent::class => [PenjualanStokListener::class],
+        PurchasingEvent::class => [PurchasingListener::class]
 
     ];
 

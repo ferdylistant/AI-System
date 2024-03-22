@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Purchasing;
 
+use App\Events\PurchasingEvent;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -101,17 +102,44 @@ class StokGudangMaterialController extends Controller
     public function createPermintaan(Request $request)
     {
         if ($request->ajax()) {
-            if ($request->isMethod('POST')) {}
+            if ($request->isMethod('POST')) {
+                $last = DB::table('purchase_permintaan_gudang')->orderBy('created_at', 'desc')->first();
+                if (is_null($last)) {
+                    $kode = '0001';
+                } else {
+                    $kode = sprintf('%04d', (int)$last->kode_permintaan + 1);
+                }
+                $data = [
+                    'params' => 'Create Permintaan Pembelian',
+                    'id' => Uuid::uuid4()->toString(),
+                    'dataKode' => $request->dataKode,
+                    'dataPermintaan' => json_decode($request->dataPermintaan[0]),
+                    'dataNama' => $request->dataNama,
+                    'dataQty' => $request->dataQty,
+                    'kodePermintaan' => $kode,
+                    'created_by' => auth()->user()->id
+                ];
+
+                try {
+                    event(new PurchasingEvent($data));
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Permintaan Pembelian Berhasil Dibuat!'
+                    ]);
+                } catch (\Throwable $err) {
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $err->getMessage()
+                    ]);
+                }
+            }
         }
 
         $lastKode = DB::table('purchase_gudang_stok')->orderBy('created_at', 'desc')->first();
         $lastKode_ = DB::table('purchase_permintaan_gudang_detail')->orderBy('id', 'desc')->first();
-        if (is_null($lastKode)) {
-            if (is_null($lastKode_)) {
-                $kode = '00001';
-            } else {
-                $kode = substr($lastKode_->kode_barang, -5);
-            }
+        if (is_null($lastKode) && is_null($lastKode_)) {
+            $kode = '00001';
         } else {
             if (is_null($lastKode_)) {
                 $kode = substr($lastKode->kode, -5);
@@ -133,34 +161,25 @@ class StokGudangMaterialController extends Controller
 
     public function test(Request $request)
     {
-        $dataKode = json_decode($request->dataKode[0]);
-        $dataPermintaan = json_decode($request->dataPermintaan[0]);
-        $id = Uuid::uuid4()->toString();
         $last = DB::table('purchase_permintaan_gudang')->orderBy('created_at', 'desc')->first();
         if (is_null($last)) {
             $kode = '0001';
         } else {
             $kode = sprintf('%04d', (int)$last->kode_permintaan + 1);
         }
+        $data = [
+            'params' => 'Create Permintaan Pembelian',
+            'id' => Uuid::uuid4()->toString(),
+            'dataKode' => $request->input('dataKode'),
+            'dataPermintaan' => json_decode($request->dataPermintaan[0]),
+            'dataNama' => $request->input('dataNama'),
+            'dataQty' => $request->input('dataQty'),
+            'kodePermintaan' => $kode,
+            'created_by' => auth()->user()->id
+        ];
 
-        DB::beginTransaction();
         try {
-            DB::table('purchase_permintaan_gudang')->insert([
-                'id' => $id,
-                'kode_permintaan' => $kode,
-                'created_by' => auth()->user()->id,
-            ]);
-            foreach ($request->input('dataNama') as $key => $value) {
-                $satuanId = DB::table('satuan')->where('nama', 'like', '%' . $dataPermintaan[$key]->unit . '%')->first();
-                DB::table('purchase_permintaan_gudang_detail')->insert([
-                    'kode_barang' => $dataPermintaan[$key]->type.'-'.$dataPermintaan[$key]->stype.'-'.$dataPermintaan[$key]->golongan.'-'.$dataPermintaan[$key]->sgolongan.'-'.$dataKode[$key],
-                    'permintaan_id' => $id,
-                    'nama_barang' => $value,
-                    'kuantitas' => $request->input('dataQty')[$key],
-                    'satuan_id' => $satuanId->id,
-                ]);
-            }
-            DB::commit();
+            event(new PurchasingEvent($data));
             return redirect()->route('sgm.create');
         } catch (\Throwable $err) {
             DB::rollBack();
