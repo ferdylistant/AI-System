@@ -87,15 +87,21 @@ class StokGudangMaterialController extends Controller
 
     public function ajaxSelectBarang($request)
     {
-        $data = DB::table('purchase_gudang_stok')
-            ->where('nama_stok', 'like', '%' . $request->input('term') . '%')
+        $data = DB::table('purchase_gudang_stok as pgs')
+            ->where('pgs.nama_stok', 'like', '%' . $request->input('term') . '%')
+            ->join('satuan as s', 's.id', '=', 'pgs.satuan_id')
+            ->select(['pgs.id as id', 'pgs.nama_stok as nama_stok', 's.nama as satuan'])
             ->get();
         return response()->json($data);
     }
 
     public function ajaxGetBarang($request)
     {
-        $data = DB::table('purchase_gudang_stok')->where('id', $request->id)->first();
+        $data = DB::table('purchase_gudang_stok as pgs')
+            ->where('id', $request->id)
+            ->join('satuan as s', 's.id', '=', 'pgs.satuan_id')
+            ->select(['kode', 'nama_stok', 's.nama as satuan'])
+            ->first();
         return $data;
     }
 
@@ -112,10 +118,8 @@ class StokGudangMaterialController extends Controller
                 $data = [
                     'params' => 'Create Permintaan Pembelian',
                     'id' => Uuid::uuid4()->toString(),
-                    'dataKode' => $request->dataKode,
+                    'dataKode' => json_decode($request->dataKode[0]),
                     'dataPermintaan' => json_decode($request->dataPermintaan[0]),
-                    'dataNama' => $request->dataNama,
-                    'dataQty' => $request->dataQty,
                     'kodePermintaan' => $kode,
                     'created_by' => auth()->user()->id
                 ];
@@ -136,8 +140,20 @@ class StokGudangMaterialController extends Controller
             }
         }
 
-        $lastKode = DB::table('purchase_gudang_stok')->orderBy('created_at', 'desc')->first();
-        $lastKode_ = DB::table('purchase_permintaan_gudang_detail')->orderBy('id', 'desc')->first();
+        $lastKode = DB::table('purchase_gudang_stok')
+            ->whereRaw("CAST(SUBSTRING(kode, -5) AS UNSIGNED) = (
+                SELECT MAX(CAST(SUBSTRING(kode, -5) AS UNSIGNED))
+                FROM purchase_gudang_stok
+            )")
+            ->select(['kode'])
+            ->first();
+        $lastKode_ = DB::table('purchase_permintaan_gudang_detail')
+            ->whereRaw("CAST(SUBSTRING(kode_barang, -5) AS UNSIGNED) = (
+                SELECT MAX(CAST(SUBSTRING(kode_barang, -5) AS UNSIGNED))
+                FROM purchase_permintaan_gudang_detail
+            )")
+            ->select(['kode_barang'])
+            ->first();
         if (is_null($lastKode) && is_null($lastKode_)) {
             $kode = '00001';
         } else {
@@ -157,33 +173,5 @@ class StokGudangMaterialController extends Controller
             'title' => 'Tambah Permintaan',
             'kode' => $kode
         ]);
-    }
-
-    public function test(Request $request)
-    {
-        $last = DB::table('purchase_permintaan_gudang')->orderBy('created_at', 'desc')->first();
-        if (is_null($last)) {
-            $kode = '0001';
-        } else {
-            $kode = sprintf('%04d', (int)$last->kode_permintaan + 1);
-        }
-        $data = [
-            'params' => 'Create Permintaan Pembelian',
-            'id' => Uuid::uuid4()->toString(),
-            'dataKode' => $request->input('dataKode'),
-            'dataPermintaan' => json_decode($request->dataPermintaan[0]),
-            'dataNama' => $request->input('dataNama'),
-            'dataQty' => $request->input('dataQty'),
-            'kodePermintaan' => $kode,
-            'created_by' => auth()->user()->id
-        ];
-
-        try {
-            event(new PurchasingEvent($data));
-            return redirect()->route('sgm.create');
-        } catch (\Throwable $err) {
-            DB::rollBack();
-            return $err->getMessage();
-        }
     }
 }

@@ -36,13 +36,13 @@ class PurchasingListener
                     'kode_permintaan' => $data['kodePermintaan'],
                     'created_by' => $data['created_by'],
                 ]);
-                foreach ($data['dataNama'] as $key => $value) {
+                foreach ($data['dataKode'] as $key => $value) {
                     $satuan = DB::table('satuan')->where('nama', 'like', '%' . $data['dataPermintaan'][$key]->unit . '%')->first();
                     DB::table('purchase_permintaan_gudang_detail')->insert([
-                        'kode_barang' => $data['dataPermintaan'][$key]->type.'-'.$data['dataPermintaan'][$key]->stype.'-'.$data['dataPermintaan'][$key]->golongan.'-'.$data['dataPermintaan'][$key]->sgolongan.'-'.$data['dataKode'][$key],
+                        'kode_barang' => $data['dataPermintaan'][$key]->type.'-'.$data['dataPermintaan'][$key]->stype.'-'.$data['dataPermintaan'][$key]->golongan.'-'.$data['dataPermintaan'][$key]->sgolongan.'-'.$value,
                         'permintaan_id' => $data['id'],
-                        'nama_barang' => $value,
-                        'kuantitas' => $data['dataQty'][$key],
+                        'nama_barang' => $data['dataPermintaan'][$key]->nama,
+                        'kuantitas' => $data['dataPermintaan'][$key]->qty,
                         'satuan_id' => $satuan->id,
                     ]);
                 }

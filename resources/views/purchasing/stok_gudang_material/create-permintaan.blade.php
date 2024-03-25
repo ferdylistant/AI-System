@@ -50,7 +50,7 @@
         width: 6px;
     }
 
-    .example-1 {
+    .scroll-container-1 {
         position: relative;
         overflow-y: scroll;
         max-height: 500px;
@@ -99,7 +99,7 @@
                                 </ul>
                                 <div class="tab-content" id="myTabContent">
                                     <div class="tab-pane fade show active" id="available" role="tabpanel" aria-labelledby="available-tab">
-                                        <form id="formAvailable" class="example-1 scrollbar-deep-purple square thin mb-2">
+                                        <form id="formAvailable" class="scroll-container-1 scrollbar-deep-purple square thin mb-2">
                                             <div class="form-group mb-4">
                                                 <label>Nama Barang: <span class="text-danger">*</span></label>
                                                 <div class="input-group">
@@ -123,22 +123,15 @@
                                                 </div>
                                             </div>
                                             <div class="form-group mb-4">
-                                                <label>Unit: <span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text"><i class="fas fa-flag"></i></div>
-                                                    </div>
-                                                    <select id="unitAvailable" class="form-control select2" name="add_unit_available">
-                                                        <option label="Pilih"></option>
-                                                    </select>
-                                                    <div id="err_add_unit_available"></div>
-                                                </div>
+                                                <label class="col-form-label">Unit: <span class="text-danger">*</span></label>
+                                                <input type="text" id="unitAvailable" class="form-control" placeholder="Unit" disabled>
                                             </div>
                                         </form>
-                                        <button type="button" id="addAvailable" form="formAvailable" class="btn btn-dark">Tambahkan</button>
+                                        <div id="errorMessages"></div>
+                                        <button type="submit" form="formAvailable" class="btn btn-dark">Tambahkan</button>
                                     </div>
                                     <div class="tab-pane fade" id="unavailable" role="tabpanel" aria-labelledby="unavailable-tab">
-                                        <form id="formUnavailable" class="example-1 scrollbar-deep-purple square thin mb-2">
+                                        <form id="formUnavailable" class="scroll-container-1 scrollbar-deep-purple square thin mb-2">
                                             <div class="form-group mb-4">
                                                 <label>Tipe: <span class="text-danger">*</span></label>
                                                 <div class="input-group">
@@ -220,7 +213,7 @@
                                                 </div>
                                             </div>
                                         </form>
-                                        <button type="button" id="addUnavailable" form="formUnavailable" class="btn btn-dark">Tambahkan</button>
+                                        <button type="submit" form="formUnavailable" class="btn btn-dark">Tambahkan</button>
                                     </div>
                                 </div>
                             </div>
@@ -228,7 +221,9 @@
                                 <form id="formPermintaan">
                                     {!! csrf_field() !!}
                                     <input type="hidden" name="rows" value="0">
-                                    <input type="hidden" name="kode" value="{{ $kode }}">
+                                    <input type="hidden" name="kode_" value="{{ $kode }}">
+                                    <input type="hidden" name="dataIndex[]" value="[]">
+                                    <input type="hidden" name="dataKode[]" value="[]">
                                     <input type="hidden" name="dataPermintaan[]" value="[]">
                                     <table id="tb_Permintaan" class="table table-bordered">
                                         <thead class="thead-dark">
@@ -242,7 +237,7 @@
                                         <tbody id="tbody"></tbody>
                                     </table>
                                     <div id="submitElement" class="card-footer text-right" hidden>
-                                        <button type="submit" class="btn btn-success" form="formPermintaan">Ajukan</button>
+                                        <button type="submit" class="btn btn-success">Ajukan</button>
                                     </div>
                                 </form>
                             </div>
@@ -266,40 +261,27 @@
 
 @section('jsNeeded')
 <script>
-    // Init Start
     $(function () {
-        $('[name="rows"]').val(0);
-        $('[name="kode"]').val('{{ $kode }}');
-        $('[name="dataPermintaan[]"]').val(JSON.stringify([]));
-
-        let storageRows = localStorage.getItem("rows");
-        let storageKode = localStorage.getItem("kode");
-        let storageDataPermintaan = localStorage.getItem("dataPermintaan");
+        let storageRows = getData("rows");
+        let storageKode = getData("kode_");
+        let storageDataIndex = getData("dataIndex");
+        let storageDataKode = getData("dataKode");
+        let storageDataPermintaan = getData("dataPermintaan");
 
         if (storageDataPermintaan !== null) {
             $('[name="rows"]').val(storageRows);
-            $('[name="kode"]').val(storageKode);
-            $('[name="dataPermintaan[]"]').val(storageDataPermintaan);
-            let items = JSON.parse(storageDataPermintaan);
-            items.forEach(item => {
-                html_ = `<tr id="${item.itemType}">
-                    <input type="hidden" name="dataKode[]" value="${item.increment}">
-                    <td>${item.type}-${item.stype}-${item.golongan}-${item.sgolongan}-${item.increment}</td>
-                    <td><input type="text" name="dataNama[]" value="${item.nama}" class="form-control" ${item.itemType === 'itemAvailable' && 'readonly'}></td>
-                    <td>
-                        <div class="input-group">
-                            <input type="number" class="form-control" name="dataQty[]" value="${item.qty}">
-                            <div class="input-group-append">
-                                <div class="input-group-text">${item.unit}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td><button type="button" class="btn btn-danger btn-sm" data-type="${item.itemType}" onclick="removeRow(this, ${item.index})"><i class="fa fa-trash"></i></button></td>
-                </tr>`;
-                $('#tb_Permintaan').find('tbody').append(html_);
+            if (storageKode !== null) {
+                $('[name="kode_"]').val(storageKode);
+            }
+            $('[name="dataIndex[]"]').val(JSON.stringify(storageDataIndex));
+            $('[name="dataKode[]"]').val(JSON.stringify(storageDataKode));
+            $('[name="dataPermintaan[]"]').val(JSON.stringify(storageDataPermintaan));
+            html_ = '';
+            storageDataPermintaan.forEach((item, index) => {
+                html_ += addTableRow(item.itemType, item.type, item.stype, item.golongan, item.sgolongan, storageDataKode[index], item.nama, item.qty, item.unit, storageDataIndex[index]);
             });
+            $('#tb_Permintaan').find('tbody').append(html_);
         }
-
         checkTable();
 
         $(".select2").select2({
@@ -309,16 +291,16 @@
                 $(this).valid();
             }
         });
-        ajaxSelect('type', 'type', 'kode', 'nama');
-        ajaxSelect('subType', 'type_sub', 'kode', 'nama');
-        ajaxSelect('golongan', 'type_sub', 'kode', 'nama');
-        ajaxSelect('subGolongan', 'golongan_sub', 'kode', 'nama');
-        ajaxSelect('unitUnavailable', 'satuan', 'nama', 'nama');
-        ajaxSelect('unitAvailable', 'satuan', 'nama', 'nama');
+        ajaxSelect('type', 'type', 'kode', 'nama', 'select');
+        ajaxSelect('subType', 'type_sub', 'kode', 'nama', 'select');
+        ajaxSelect('golongan', 'type_sub', 'kode', 'nama', 'select');
+        ajaxSelect('subGolongan', 'golongan_sub', 'kode', 'nama', 'select');
+        ajaxSelect('unitUnavailable', 'satuan', 'nama', 'nama', 'select');
+        // ajaxSelect('namaBarangAvailable', null, 'id', 'nama_stok', 'select-barang');
         $("#namaBarangAvailable").select2({
             placeholder: "Pilih",
             ajax: {
-                url: window.location.origin + "/purchasing/stok-gudang-material/ajax/select-barang",
+                url: "{{ route('sgm.ajax', 'select-barang') }}",
                 type: "GET",
                 data: function (params) {
                     var queryParameters = {
@@ -337,197 +319,243 @@
                     };
                 },
             },
-        }).on('change', function(e) {
-            if (this.value) {
-                $(this).valid();
+        }).on('change', function (e) {
+            // TODO
+            console.log(this);
+        });
+        // $("#namaBarangAvailable").select2().on('change', function(e) {
+        //     console.log(this.value)
+        //     $("#unitAvailable").val();
+        // });
+
+        editPermintaan('dataNama', 'nama');
+        editPermintaan('dataQty', 'qty');
+
+        // Add Table Row Start
+        let availableValidate = jqueryValidation_("#formAvailable", {
+                add_nama_barang_available: {
+                    required: true
+                },
+                add_kuantitas_available: {
+                    required: true
+                }
+            }
+        );
+        $("#formAvailable").on('submit', function (e) {
+            e.preventDefault();
+            if ($("#formAvailable").valid()) {
+                let id = $('[name="add_nama_barang_available"]').val();
+                $.ajax({
+                    url: "{{ route('sgm.ajax', 'get-barang') }}",
+                    data: { id },
+                    success: function(data) {
+                        if ($('#formAvailable').valid()) {
+                            let i = Number($('[name="rows"]').val());
+                            let plus = i + 1;
+                            $('[name="rows"]').val(plus);
+                            setData("rows", plus);
+
+                            let kodeBarang = data.kode;
+                            let kodeArray = kodeBarang.split("-");
+                            let kodeUrut = kodeArray[4];
+
+                            let type = kodeArray[0];
+                            let stype = kodeArray[1];
+                            let golongan = kodeArray[2];
+                            let sgolongan = kodeArray[3];
+                            let nama = data.nama_stok;
+                            let qty = $('[name="add_kuantitas_available"]').val();
+                            let unit = data.satuan;
+                            let increment = ('00000' + kodeUrut).slice(-5);
+                            let itemType = 'itemAvailable';
+
+                            addDataPermintaan(itemType, type, stype, golongan, sgolongan, nama, qty, unit);
+                            html_ = addTableRow(itemType, type, stype, golongan, sgolongan, increment, nama, qty, unit, i);
+                            $('#tb_Permintaan').find('tbody').append(html_);
+                            addDataArray('index', 'dataIndex');
+                            addDataArray('kode', 'dataKode');
+                            checkTable();
+                            resetForm();
+                        }
+                    },
+                    error: function (err) {}
+                });
             }
         });
-    });
-    // Init End
 
-    // Add Table Row Start
-    $("#addAvailable").click(function () {
-        let id = $('[name="add_nama_barang_available"]').val();
-        $.ajax({
-            url: window.location.origin + "/purchasing/stok-gudang-material/ajax/get-barang",
-            data: {
-                id
-            },
-            success: function(data) {
+        let unavailableValidate = jqueryValidation_("#formUnavailable", {
+                add_type_unavailable: {
+                    required: true
+                },
+                add_subtype_unavailable: {
+                    required: true
+                },
+                add_golongan_unavailable: {
+                    required: true
+                },
+                add_subgolongan_unavailable: {
+                    required: true
+                },
+                add_nama_barang_unavailable: {
+                    required: true
+                },
+                add_kuantitas_unavailable: {
+                    required: true
+                },
+                add_unit_unavailable: {
+                    required: true
+                },
+            }
+        );
+        $("#formUnavailable").on('submit', function (e) {
+            e.preventDefault();
+            if ($("#formUnavailable").valid()) {
                 let i = Number($('[name="rows"]').val());
                 let plus = i + 1;
                 $('[name="rows"]').val(plus);
-                localStorage.setItem("rows", plus);
+                setData("rows", plus);
 
-                let kodeBarang = data.kode;
-                let kodeArray = kodeBarang.split("-");
-                let kodeUrut = kodeArray[4];
+                let kodeAwal = Number($('[name="kode_"]').val());
+                let kodePlus = kodeAwal + 1;
+                $('[name="kode_"]').val(kodePlus);
+                setData("kode_", kodePlus);
 
-                let type = kodeArray[0];
-                let stype = kodeArray[1];
-                let golongan = kodeArray[2];
-                let sgolongan = kodeArray[3];
-                let nama = data.nama_stok;
-                let qty = $('[name="add_kuantitas_available"]').val();
-                let unit = $('[name="add_unit_available"]').val();
-                let increment = ('00000' + kodeUrut).slice(-5);
-                let itemType = 'itemAvailable';
+                let type = $('[name="add_type_unavailable"]').val();
+                let stype = $('[name="add_subtype_unavailable"]').val();
+                let golongan = $('[name="add_golongan_unavailable"]').val();
+                let sgolongan = $('[name="add_subgolongan_unavailable"]').val();
+                let nama = $('[name="add_nama_barang_unavailable"]').val();
+                let qty = $('[name="add_kuantitas_unavailable"]').val();
+                let unit = $('[name="add_unit_unavailable"]').val();
+                let increment = ('00000' + kodePlus).slice(-5);
+                let itemType = 'itemUnavailable';
 
-                addArray(type, stype, golongan, sgolongan, unit, nama, qty, increment, i, itemType);
-
-                html_ = `<tr>
-                    <input type="hidden" name="dataKode[]" value="${increment}">
-                    <td>${kodeBarang}</td>
-                    <td><input type="text" name="dataNama[]" value="${nama}" class="form-control" readonly></td>
-                    <td><input type="number" name="dataQty[]" value="${qty}" class="form-control"></td>
-                    <td>${unit}</td>
-                    <td><button type="button" class="btn btn-danger btn-sm" data-type="${itemType}" onclick="removeRow(this, ${i})"><i class="fa fa-trash"></i></button></td>
-                </tr>`;
+                addDataPermintaan(itemType, type, stype, golongan, sgolongan, nama, qty, unit, i);
+                html_ = html_ = addTableRow(itemType, type, stype, golongan, sgolongan, increment, nama, qty, unit, i);;
                 $('#tb_Permintaan').find('tbody').append(html_);
+                addDataArray('index', 'dataIndex');
+                addDataArray('kode', 'dataKode');
                 checkTable();
                 resetForm();
-            },
-            error: function(err) {}
-        });
-    });
-
-    $("#addUnavailable").click(function () {
-        let i = Number($('[name="rows"]').val());
-        let plus = i + 1;
-        $('[name="rows"]').val(plus);
-        localStorage.setItem("rows", plus);
-
-        let kodeAwal = Number($('[name="kode"]').val());
-        let kodePlus = kodeAwal + 1;
-        $('[name="kode"]').val(kodePlus);
-        localStorage.setItem("kode", kodePlus);
-
-        let type = $('[name="add_type_unavailable"]').val();
-        let stype = $('[name="add_subtype_unavailable"]').val();
-        let golongan = $('[name="add_golongan_unavailable"]').val();
-        let sgolongan = $('[name="add_subgolongan_unavailable"]').val();
-        let nama = $('[name="add_nama_barang_unavailable"]').val();
-        let qty = $('[name="add_kuantitas_unavailable"]').val();
-        let unit = $('[name="add_unit_unavailable"]').val();
-        let increment = ('00000' + kodePlus).slice(-5);
-        let itemType = 'itemUnavailable';
-
-        addArray(type, stype, golongan, sgolongan, unit, nama, qty, increment, i, itemType);
-        // addKode(increment);
-
-        html_ = `<tr id="${itemType}">
-            <input type="hidden" name="dataKode[]" value="${increment}">
-            <td>${type}-${stype}-${golongan}-${sgolongan}-${increment}</td>
-            <td><input type="text" name="dataNama[]" value="${nama}" class="form-control"></td>
-            <td><input type="number" name="dataQty[]" value="${qty}" class="form-control"></td>
-            <td>${unit}</td>
-            <td><button type="button" class="btn btn-danger btn-sm" data-type="${itemType}" onclick="removeRow(this, ${i})"><i class="fa fa-trash"></i></button></td>
-        </tr>`;
-        $('#tb_Permintaan').find('tbody').append(html_);
-        checkTable();
-        resetForm();
-    });
-    // Add Table Row End
-
-    // Add Permintaan Pembelian Start
-    $("#formPermintaan").on("submit", function (e) {
-        e.preventDefault();
-        swal({
-            text: "Yakin melakukan permintaan pembelian?",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        }).then((confirm_) => {
-            if (confirm_) {
-                ajaxCreatePermintaan($(this));
             }
         });
+        // Add Table Row End
+
+        // Add Permintaan Pembelian Start
+        $("#formPermintaan").on("submit", function (e) {
+            e.preventDefault();
+            swal({
+                text: "Yakin melakukan permintaan pembelian?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((confirm_) => {
+                if (confirm_) {
+                    ajaxCreatePermintaan($(this));
+                }
+            });
+        });
+
+        function ajaxCreatePermintaan(data) {
+            let el = data.get(0);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('sgm.create') }}",
+                data:  new FormData(el),
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    $('button[type="submit"]')
+                        .prop("disabled", true)
+                        .addClass("btn-progress");
+                },
+                success: function (result) {
+                    if (result.status == "success") {
+                        console.log(result.message);
+                        notifToast(result.status, result.message);
+                        resetTable();
+                        resetForm();
+                    } else {
+                        console.log(result.message);
+                        notifToast(result.status, result.message);
+                    }
+                },
+                error: function (err) {
+                    rs = err.responseJSON.errors;
+                    if (rs != undefined) {
+                        err = {};
+                        Object.entries(rs).forEach((entry) => {
+                            let [key, value] = entry;
+                            err[key] = value;
+                        });
+                        availableValidate.showErrors(err);
+                    }
+                    notifToast("error", err.statusText);
+                },
+                complete: function () {
+                    $('button[type="submit"]')
+                        .prop("disabled", false)
+                        .removeClass("btn-progress");
+                },
+            });
+        }
+        // Add Permintaan Pembelian End
     });
 
-    // let availableValidate = jqueryValidation_(
-    //     "#formPermintaan",
-    //     {
-    //         nama_type: {
-    //             required: true,
-    //             remote:
-    //                 window.location.origin +
-    //                 "/master/type/ajax/check-duplicate-type",
-    //         },
-    //     },
-    //     {
-    //         nama_type: {
-    //             remote: "Type sudah terdaftar!",
-    //         },
-    //     }
-    // );
-
-    function ajaxCreatePermintaan(data) {
-        let el = data.get(0);
-        $.ajax({
-            type: "POST",
-            url: "{{ route('sgm.create') }}",
-            data:  new FormData(el),
-            processData: false,
-            contentType: false,
-            beforeSend: function () {
-                $('button[type="submit"]')
-                    .prop("disabled", true)
-                    .addClass("btn-progress");
-            },
-            success: function (result) {
-                if (result.status == "success") {
-                    console.log(result.message);
-                    notifToast(result.status, result.message);
-                    resetForm();
-                    // tableType.ajax.reload();
-                    // data.trigger("reset");
-                } else {
-                    console.log(result.message);
-                    // notifToast(result.status, result.message);
-                }
-            },
-            error: function (err) {
-                rs = err.responseJSON.errors;
-                if (rs != undefined) {
-                    err = {};
-                    Object.entries(rs).forEach((entry) => {
-                        let [key, value] = entry;
-                        err[key] = value;
-                    });
-                    availableValidate.showErrors(err);
-                }
-                notifToast("error", err.statusText);
-            },
-            complete: function () {
-                $('button[type="submit"]')
-                    .prop("disabled", false)
-                    .removeClass("btn-progress");
-            },
+    // Edit Permintaan Start
+    function editPermintaan(input, field) {
+        $(document).on('change', `input[name="${input}[]"]`, function() {
+            if ($(this).val().trim() !== '') {
+                let index = $(this).closest('tr').find('input[name="index[]"]').val();
+                let item = getData("dataPermintaan");
+                item[index] = {...item[index], [field]: $(this).val()};
+                $('[name="dataPermintaan[]"]').val(JSON.stringify(item));
+                setData("dataPermintaan", item);
+            }
         });
     }
-    // Add Permintaan Pembelian End
+    // Edit Permintaan End
 
-    // Add Array Start
-    function addArray(type, stype, golongan, sgolongan, unit, nama, qty, increment, index, itemType) {
-        let inputValue = {
-            type,
-            stype,
-            golongan,
-            sgolongan,
-            unit,
-            nama,
-            qty,
-            increment,
-            index,
-            itemType
-        }
+    // Add Data Array Start
+    function addDataArray(data, array) {
+        let datas = $(`[name="${data}[]"]`).map(function() {
+            return $(this).val();
+        }).get();
+        $(`[name="${array}[]"]`).val(JSON.stringify(datas));
+        setData(array, datas);
+    }
+    // Add Data Array End
+
+    // Add Data Permintaan Start
+    function addDataPermintaan(itemType, type, stype, golongan, sgolongan, nama, qty, unit) {
+        let inputValue = {itemType, type, stype, golongan, sgolongan, nama, qty, unit}
         let hiddenInput = $('[name="dataPermintaan[]"]');
         let hiddenValues = JSON.parse(hiddenInput.val());
         hiddenValues.push(inputValue);
         hiddenInput.val(JSON.stringify(hiddenValues));
-        localStorage.setItem("dataPermintaan", JSON.stringify(hiddenValues));
+        setData("dataPermintaan", hiddenValues);
     }
-    // Add Array End
+    // Add Data Permintaan End
+
+    // Add Table Row Func Start
+    function addTableRow(itemType, type, stype, golongan, sgolongan, kode, nama, qty, unit, index) {
+    return `<tr id="${itemType}">
+            <input type="hidden" name="index[]" value="${index}">
+            <input type="hidden" name="kode[]" value="${kode}">
+            <td>${type}-${stype}-${golongan}-${sgolongan}-${kode}</td>
+            <td><input type="text" name="dataNama[]" value="${nama}" class="form-control" ${itemType === 'itemAvailable' && 'readonly'}></td>
+            <td>
+                <div class="input-group">
+                    <input type="number" class="form-control" name="dataQty[]" value="${qty}">
+                    <div class="input-group-append">
+                        <div class="input-group-text">${unit}</div>
+                    </div>
+                </div>
+            </td>
+            <td><button type="button" class="btn btn-danger btn-sm" data-type="${itemType}" onclick="removeRow(this)"><i class="fa fa-trash"></i></button></td>
+        </tr>`;
+    }
+    // Add Table Row Func End
 
     // Reset Form Start
     function resetForm() {
@@ -539,35 +567,55 @@
         $("[name='add_kuantitas_unavailable']").val('');
         $("#unitUnavailable").val(null).trigger('change');
         $("[name='add_kuantitas_available']").val('');
-        $("#unitAvailable").val(null).trigger('change');
     }
     // Reset Form End
 
+    // Reset Table Start
+    function resetTable() {
+        localStorage.removeItem("rows");
+        localStorage.removeItem("kode_");
+        localStorage.removeItem("dataIndex");
+        localStorage.removeItem("dataKode");
+        localStorage.removeItem("dataPermintaan");
+        $('#tb_Permintaan').find('tbody').empty();
+        setTimeout(() => {
+            location = "{{ route('sgm.create') }}";
+        }, 2000)
+    }
+    // Reset Table End
+
     // Remove Row Start
-    function removeRow(element, elementIndex) {
+    function removeRow(element) {
         let rows = $('[name="rows"]');
         rows.val(rows.val() - 1);
-        localStorage.setItem("rows", rows.val());
+        setData("rows", rows.val());
 
-        if ($(element).attr('data-type') == 'itemUnavailable') {
-            let kodes = $('[name="kode"]');
-            kodes.val(kodes.val() - 1);
-            localStorage.setItem("kode", kodes.val());
-        }
         $(element).closest('tr').remove();
+        if ($(element).attr('data-type') == 'itemUnavailable') {
+            let kodes = $('[name="kode_"]');
+            kodes.val(kodes.val() - 1);
+            setData("kode_", kodes.val());
+        }
+        if ($('#tbody').html().length === 0) {
+            localStorage.removeItem("kode_");
+            $('[name="kode_"]').val({{ $kode }});
+        }
 
         $('#tb_Permintaan').find('tbody tr').each(function (index) {
-            $(this).find('td button').attr('onclick', 'removeRow(this, ' + index + ')');
+            $(this).find('input[name="index[]"]').val(index);
+            $(this).find('td button').attr('onclick', 'removeRow(this)');
         });
         let k = Number({{ $kode + 1 }});
         $("#tb_Permintaan").find('tbody tr#itemUnavailable').each(function (index) {
             let kode = $(this).find('td').first().text();
             let val = kode.substring(0, 11);
-            $(this).find('input[type="hidden"]').val(('00000' + k).slice(-5));
+            $(this).find('input[name="kode[]"]').val(('00000' + k).slice(-5));
             $(this).find('td').first().text(val + '-' + ('00000' + k).slice(-5));
             k = k + 1;
         });
-        deleteArrayItem('dataPermintaan', elementIndex);
+        deleteArrayItem('dataPermintaan', $(element).closest('tr').find('input[name="index[]"]').val());
+        addDataArray('index', 'dataIndex');
+        addDataArray('kode', 'dataKode');
         checkTable();
     }
     // Remove Row End
@@ -578,7 +626,7 @@
         let hiddenValues = JSON.parse(hiddenInput.val());
         hiddenValues.splice(index, 1);
         hiddenInput.val(JSON.stringify(hiddenValues));
-        localStorage.setItem(data, JSON.stringify(hiddenValues));
+        setData(data, hiddenValues);
     }
     // Delete Array Item End
 
@@ -594,15 +642,15 @@
     // Check Table End
 
     // Ajax Select Start
-    function ajaxSelect(id, item_, oId, oText) {
+    function ajaxSelect(id, item_, oId, oText, ajaxType) {
         $(`#${id}`).select2({
             placeholder: "Pilih",
             ajax: {
-                url: window.location.origin + "/purchasing/stok-gudang-material/ajax/select",
+                url: "{{ route('sgm.ajax', '') }}/" + ajaxType,
                 type: "GET",
                 data: function (params) {
                     var queryParameters = {
-                        item_,
+                        item_: item_ ?? null,
                         term: params.term,
                     };
                     return queryParameters;
@@ -621,5 +669,28 @@
         });
     }
     // Ajax Select End
+
+    // Set Storage Data Start
+    function setData(key, value) {
+        let data = {
+            value,
+            timestamp: new Date().getTime()
+        };
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+    // Set Storage Data End
+
+    // Get Storage Data Start
+    function getData(key) {
+        let dataString = localStorage.getItem(key);
+        if (!dataString) return null;
+        let data = JSON.parse(dataString);
+        if (new Date().getTime() - data.timestamp > 7 * 24 * 60 * 60 * 1000) {
+            resetTable();
+            return null;
+        }
+        return data.value;
+    }
+    // Get Storage Data End
 </script>
 @endsection
