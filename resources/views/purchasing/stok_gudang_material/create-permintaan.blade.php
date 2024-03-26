@@ -115,16 +115,11 @@
                                             <div class="form-group mb-4">
                                                 <label>Kuantitas: <span class="text-danger">*</span></label>
                                                 <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text"><i class="fas fa-flag"></i></div>
-                                                    </div>
                                                     <input type="number" class="form-control" name="add_kuantitas_available" placeholder="Kuantitas">
-                                                    <div id="err_add_kuantitas_available"></div>
+                                                    <div class="input-group-append">
+                                                        <div id="unitAvailable" class="input-group-text">Unit</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="form-group mb-4">
-                                                <label class="col-form-label">Unit: <span class="text-danger">*</span></label>
-                                                <input type="text" id="unitAvailable" class="form-control" placeholder="Unit" disabled>
                                             </div>
                                         </form>
                                         <div id="errorMessages"></div>
@@ -291,12 +286,11 @@
                 $(this).valid();
             }
         });
-        ajaxSelect('type', 'type', 'kode', 'nama', 'select');
-        ajaxSelect('subType', 'type_sub', 'kode', 'nama', 'select');
-        ajaxSelect('golongan', 'type_sub', 'kode', 'nama', 'select');
-        ajaxSelect('subGolongan', 'golongan_sub', 'kode', 'nama', 'select');
-        ajaxSelect('unitUnavailable', 'satuan', 'nama', 'nama', 'select');
-        // ajaxSelect('namaBarangAvailable', null, 'id', 'nama_stok', 'select-barang');
+        ajaxSelect('type', 'type', 'kode', 'nama');
+        ajaxSelect('subType', 'type_sub', 'kode', 'nama');
+        ajaxSelect('golongan', 'type_sub', 'kode', 'nama');
+        ajaxSelect('subGolongan', 'golongan_sub', 'kode', 'nama');
+        ajaxSelect('unitUnavailable', 'satuan', 'nama', 'nama');
         $("#namaBarangAvailable").select2({
             placeholder: "Pilih",
             ajax: {
@@ -320,13 +314,22 @@
                 },
             },
         }).on('change', function (e) {
-            // TODO
-            console.log(this);
+            if (this.value) {
+                $.ajax({
+                    type: "GET",
+                    url: "{{ route('sgm.ajax', 'get-barang') }}",
+                    data: { id: this.value },
+                    success: function(res) {
+                        if (res.status == 'success') {
+                            $("#unitAvailable").text(res.data.satuan);
+                        } else {
+                            notifToast('error', res.message);
+                        }
+                    },
+                    error: function (err) { notifToast('error', err) }
+                });
+            }
         });
-        // $("#namaBarangAvailable").select2().on('change', function(e) {
-        //     console.log(this.value)
-        //     $("#unitAvailable").val();
-        // });
 
         editPermintaan('dataNama', 'nama');
         editPermintaan('dataQty', 'qty');
@@ -346,39 +349,44 @@
             if ($("#formAvailable").valid()) {
                 let id = $('[name="add_nama_barang_available"]').val();
                 $.ajax({
+                    type: "GET",
                     url: "{{ route('sgm.ajax', 'get-barang') }}",
                     data: { id },
-                    success: function(data) {
-                        if ($('#formAvailable').valid()) {
-                            let i = Number($('[name="rows"]').val());
-                            let plus = i + 1;
-                            $('[name="rows"]').val(plus);
-                            setData("rows", plus);
+                    success: function(res) {
+                        if (res.status == 'success') {
+                            if ($('#formAvailable').valid()) {
+                                let i = Number($('[name="rows"]').val());
+                                let plus = i + 1;
+                                $('[name="rows"]').val(plus);
+                                setData("rows", plus);
 
-                            let kodeBarang = data.kode;
-                            let kodeArray = kodeBarang.split("-");
-                            let kodeUrut = kodeArray[4];
+                                let kodeBarang = res.data.kode;
+                                let kodeArray = kodeBarang.split("-");
+                                let kodeUrut = kodeArray[4];
 
-                            let type = kodeArray[0];
-                            let stype = kodeArray[1];
-                            let golongan = kodeArray[2];
-                            let sgolongan = kodeArray[3];
-                            let nama = data.nama_stok;
-                            let qty = $('[name="add_kuantitas_available"]').val();
-                            let unit = data.satuan;
-                            let increment = ('00000' + kodeUrut).slice(-5);
-                            let itemType = 'itemAvailable';
+                                let type = kodeArray[0];
+                                let stype = kodeArray[1];
+                                let golongan = kodeArray[2];
+                                let sgolongan = kodeArray[3];
+                                let nama = res.data.nama_stok;
+                                let qty = $('[name="add_kuantitas_available"]').val();
+                                let unit = res.data.satuan;
+                                let increment = ('00000' + kodeUrut).slice(-5);
+                                let itemType = 'itemAvailable';
 
-                            addDataPermintaan(itemType, type, stype, golongan, sgolongan, nama, qty, unit);
-                            html_ = addTableRow(itemType, type, stype, golongan, sgolongan, increment, nama, qty, unit, i);
-                            $('#tb_Permintaan').find('tbody').append(html_);
-                            addDataArray('index', 'dataIndex');
-                            addDataArray('kode', 'dataKode');
-                            checkTable();
-                            resetForm();
+                                addDataPermintaan(itemType, type, stype, golongan, sgolongan, nama, qty, unit);
+                                html_ = addTableRow(itemType, type, stype, golongan, sgolongan, increment, nama, qty, unit, i);
+                                $('#tb_Permintaan').find('tbody').append(html_);
+                                addDataArray('index', 'dataIndex');
+                                addDataArray('kode', 'dataKode');
+                                checkTable();
+                                resetForm();
+                            }
+                        } else {
+                            notifToast('error', res.message);
                         }
                     },
-                    error: function (err) {}
+                    error: function (err) { notifToast('error', err) }
                 });
             }
         });
@@ -578,11 +586,22 @@
         localStorage.removeItem("dataKode");
         localStorage.removeItem("dataPermintaan");
         $('#tb_Permintaan').find('tbody').empty();
-        setTimeout(() => {
-            location = "{{ route('sgm.create') }}";
-        }, 2000)
+        getLastCode();
     }
     // Reset Table End
+
+    // Get Last Code Start
+    function getLastCode() {
+        $.ajax({
+            type: "GET",
+            url: "{{ route('sgm.ajax', 'get-last-code') }}",
+            success: function(data) {
+                $("[name='kode_']").val(data);
+            },
+            error: function (err) { notifToast('error', err) }
+        });
+    }
+    // Get Last Code End
 
     // Remove Row Start
     function removeRow(element) {
@@ -598,7 +617,7 @@
         }
         if ($('#tbody').html().length === 0) {
             localStorage.removeItem("kode_");
-            $('[name="kode_"]').val({{ $kode }});
+            getLastCode();
         }
 
         $('#tb_Permintaan').find('tbody tr').each(function (index) {
@@ -642,11 +661,11 @@
     // Check Table End
 
     // Ajax Select Start
-    function ajaxSelect(id, item_, oId, oText, ajaxType) {
+    function ajaxSelect(id, item_, oId, oText) {
         $(`#${id}`).select2({
             placeholder: "Pilih",
             ajax: {
-                url: "{{ route('sgm.ajax', '') }}/" + ajaxType,
+                url: "{{ route('sgm.ajax', 'select') }}",
                 type: "GET",
                 data: function (params) {
                     var queryParameters = {

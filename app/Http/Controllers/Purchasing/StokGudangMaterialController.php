@@ -69,6 +69,9 @@ class StokGudangMaterialController extends Controller
                 case 'get-barang':
                     return $this->ajaxGetBarang($request);
                     break;
+                case 'get-last-code':
+                    return $this->ajaxGetLastCode();
+                    break;
                 default:
                     abort(500);
                     break;
@@ -87,22 +90,67 @@ class StokGudangMaterialController extends Controller
 
     public function ajaxSelectBarang($request)
     {
-        $data = DB::table('purchase_gudang_stok as pgs')
-            ->where('pgs.nama_stok', 'like', '%' . $request->input('term') . '%')
-            ->join('satuan as s', 's.id', '=', 'pgs.satuan_id')
-            ->select(['pgs.id as id', 'pgs.nama_stok as nama_stok', 's.nama as satuan'])
+        $data = DB::table('purchase_gudang_stok')
+            ->where('nama_stok', 'like', '%' . $request->input('term') . '%')
+            ->select(['id', 'nama_stok'])
             ->get();
         return response()->json($data);
     }
 
     public function ajaxGetBarang($request)
     {
-        $data = DB::table('purchase_gudang_stok as pgs')
-            ->where('id', $request->id)
-            ->join('satuan as s', 's.id', '=', 'pgs.satuan_id')
-            ->select(['kode', 'nama_stok', 's.nama as satuan'])
+        try {
+            $data = DB::table('purchase_gudang_stok as pgs')
+                ->where('pgs.id', $request->id)
+                ->join('satuan as s', 's.id', '=', 'pgs.satuan_id')
+                ->select(['pgs.kode', 'pgs.nama_stok', 's.nama as satuan'])
+                ->first();
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ]);
+        } catch (\Throwable $err) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $err->getMessage()
+            ]);
+        }
+    }
+
+    public function ajaxGetLastCode()
+    {
+        $lastKode = DB::table('purchase_gudang_stok')
+            ->whereRaw("CAST(SUBSTRING(kode, -5) AS UNSIGNED) = (
+                SELECT MAX(CAST(SUBSTRING(kode, -5) AS UNSIGNED))
+                FROM purchase_gudang_stok
+            )")
+            ->select(['kode'])
             ->first();
-        return $data;
+
+        $lastKode_ = DB::table('purchase_permintaan_gudang_detail')
+            ->whereRaw("CAST(SUBSTRING(kode_barang, -5) AS UNSIGNED) = (
+                SELECT MAX(CAST(SUBSTRING(kode_barang, -5) AS UNSIGNED))
+                FROM purchase_permintaan_gudang_detail
+            )")
+            ->select(['kode_barang'])
+            ->first();
+
+        if (is_null($lastKode) && is_null($lastKode_)) {
+            $kode = '00001';
+        } else {
+            if (is_null($lastKode_)) {
+                $kode = substr($lastKode->kode, -5);
+            } else {
+                $kode1 = substr($lastKode->kode, -5);
+                $kode2 = substr($lastKode_->kode_barang, -5);
+                if ($kode1 > $kode2) {
+                    $kode = $kode1;
+                } else {
+                    $kode = $kode2;
+                }
+            }
+        }
+        return $kode;
     }
 
     public function createPermintaan(Request $request)
@@ -140,38 +188,9 @@ class StokGudangMaterialController extends Controller
             }
         }
 
-        $lastKode = DB::table('purchase_gudang_stok')
-            ->whereRaw("CAST(SUBSTRING(kode, -5) AS UNSIGNED) = (
-                SELECT MAX(CAST(SUBSTRING(kode, -5) AS UNSIGNED))
-                FROM purchase_gudang_stok
-            )")
-            ->select(['kode'])
-            ->first();
-        $lastKode_ = DB::table('purchase_permintaan_gudang_detail')
-            ->whereRaw("CAST(SUBSTRING(kode_barang, -5) AS UNSIGNED) = (
-                SELECT MAX(CAST(SUBSTRING(kode_barang, -5) AS UNSIGNED))
-                FROM purchase_permintaan_gudang_detail
-            )")
-            ->select(['kode_barang'])
-            ->first();
-        if (is_null($lastKode) && is_null($lastKode_)) {
-            $kode = '00001';
-        } else {
-            if (is_null($lastKode_)) {
-                $kode = substr($lastKode->kode, -5);
-            } else {
-                $kode1 = substr($lastKode->kode, -5);
-                $kode2 = substr($lastKode_->kode_barang, -5);
-                if ($kode1 > $kode2) {
-                    $kode = $kode1;
-                } else {
-                    $kode = $kode2;
-                }
-            }
-        }
         return view('purchasing.stok_gudang_material.create-permintaan', [
             'title' => 'Tambah Permintaan',
-            'kode' => $kode
+            'kode' => $this->ajaxGetLastCode()
         ]);
     }
 }
