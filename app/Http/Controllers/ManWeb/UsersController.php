@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\ManWeb;
 
-use App\Events\UserEvent;
-use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{DB, Hash, Gate, Storage};
-use Illuminate\Support\Str;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use App\Events\UserEvent;
+use Carbon\CarbonInterface;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use App\Http\Controllers\Controller;
 
+use Illuminate\Support\Facades\Cache;
 use function PHPUnit\Framework\isNull;
+use Illuminate\Support\Facades\{DB, Hash, Gate, Storage};
 
 class UsersController extends Controller
 {
@@ -347,17 +349,35 @@ class UsersController extends Controller
         $userStatus = $q->status == 1 ? 'Aktif' : 'Tidak Aktif';
 
         if (Gate::allows('do_update', 'ubah-data-user')) {
-            $user = DB::table('users')->whereNull('deleted_at')
-                ->where('id', $id)->first();
+            $user = DB::table('users as u')
+                ->leftJoin('user_job as uj', 'u.id', '=', 'uj.users_id')
+                ->whereNull('u.deleted_at')
+                ->select(DB::raw('u.*, uj.id_karyawan, uj.level_pekerjaan_id, uj.tgl_bergabung, uj.tgl_berakhir, uj.status_pekerjaan, uj.approval_absensi, uj.approval_shift,uj.approval_lembur, uj.approval_izin_kembali, uj.approval_istirahat_telat'))
+                ->where('u.id', $id)->first();
+            $userApproval = DB::table('users')->whereNull('deleted_at')->get();
             $lcab = DB::table('cabang')->whereNull('deleted_at')->get();
             $ldiv = DB::table('divisi')->whereNull('deleted_at')->get();
             $ljab = DB::table('jabatan')->whereNull('deleted_at')->get();
+            $type = DB::select(DB::raw("SHOW COLUMNS FROM users WHERE Field = 'jenis_kelamin'"))[0]->Type;
+            preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+            $jenisKelamin = explode("','", $matches[1]);
+            $type = DB::select(DB::raw("SHOW COLUMNS FROM users WHERE Field = 'agama'"))[0]->Type;
+            preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+            $agamaList = explode("','", $matches[1]);
+            $type = DB::select(DB::raw("SHOW COLUMNS FROM users WHERE Field = 'status_pernikahan'"))[0]->Type;
+            preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+            $statusPernikahan = explode("','", $matches[1]);
+            $type = DB::select(DB::raw("SHOW COLUMNS FROM user_job WHERE Field = 'status_pekerjaan'"))[0]->Type;
+            preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+            $statusPekerjaan = explode("','", $matches[1]);
+            $levelPekerjaan = DB::table('user_job_level_master')->whereNull('deleted_at')->get();
         } else {
             $user = DB::table('users as u')
                 ->leftJoin('cabang as c', 'u.cabang_id', '=', 'c.id')
                 ->leftJoin('divisi as d', 'u.divisi_id', '=', 'd.id')
                 ->leftJoin('jabatan as j', 'u.jabatan_id', '=', 'j.id')
-                ->select(DB::raw('u.*, c.nama as cabang, d.nama as divisi, j.nama as jabatan'))
+                ->leftJoin('user_job as uj', 'u.id', '=', 'uj.users_id')
+                ->select(DB::raw('u.*, c.nama as cabang, d.nama as divisi, j.nama as jabatan, uj.id_karyawan, uj.level_pekerjaan_id, uj.tgl_bergabung, uj.tgl_berakhir, uj.status_pekerjaan, uj.approval_absensi, uj.approval_shift, uj.approval_lembur, uj.approval_izin_kembali, uj.approval_istirahat_telat'))
                 ->whereNull('u.deleted_at')
                 ->where('u.id', $id)
                 ->first();
@@ -380,17 +400,26 @@ class UsersController extends Controller
                 case 'updated_by':
                     return $item != '' ? DB::table('users')->where('id', $item)->first()->nama : '-';
                     break;
+                case 'tgl_berakhir':
+                    return $item != '' ? Carbon::parse($item)->translatedFormat('d F Y') : NULL;
+                    break;
                 default:
                     return $item;
                     break;
             }
         })->all();
-
         if (Gate::allows('do_update', 'ubah-data-user')) {
 
             return view('manweb.users.user-detail', [
                 'btnPrev' => $btnPrev,
-                'user' => (object)$user, 'lcab' => $lcab, 'ldiv' => $ldiv, 'ljab' => $ljab,
+                'user' => (object)$user,
+                'lcab' => $lcab, 'ldiv' => $ldiv, 'ljab' => $ljab,
+                'jenisKelamin' => $jenisKelamin,
+                'statusPernikahan' => $statusPernikahan,
+                'agamaList' => $agamaList,
+                'statusPekerjaan' => $statusPekerjaan,
+                'levelPekerjaan' => $levelPekerjaan,
+                'userApproval' => $userApproval,
                 'userStatus' => $userStatus,
                 'queryStatus' => $q->status,
                 'title' => 'User Detail',
@@ -418,6 +447,9 @@ class UsersController extends Controller
             case 'update-status-user':
                 return $this->updateUserStatus($request);
                 break;
+            case 'update-job':
+                return $this->updateUserJob($request);
+                break;
             case 'delete':
                 return $this->deleteUser($request);
                 break;
@@ -435,6 +467,9 @@ class UsersController extends Controller
                 break;
             case 'check-email':
                 return $this->checkEmail($request);
+                break;
+            case 'check-id-karyawan':
+                return $this->checkIdKaryawan($request);
                 break;
             default:
                 return abort(404);
@@ -561,9 +596,6 @@ class UsersController extends Controller
                     'tempat_lahir' => $request->input('uedit_tempat_lahir'),
                     'alamat' => $request->input('uedit_alamat'),
                     'email' => $request->input('uedit_email'),
-                    'cabang_id' => $request->input('uedit_cabang'),
-                    'divisi_id' => $request->input('uedit_divisi'),
-                    'jabatan_id' => $request->input('uedit_jabatan'),
                     'updated_by' => auth()->id(),
                     'updated_at' => date('Y-m-d H:i:s')
                 ];
@@ -583,12 +615,6 @@ class UsersController extends Controller
                         'alamat_new' => $history->alamat == $request->input('uedit_alamat') ? null : $request->input('uedit_alamat'),
                         'email_his' => $history->email == $request->input('uedit_email') ? null : $history->email,
                         'email_new' => $history->email == $request->input('uedit_email') ? null : $request->input('uedit_email'),
-                        'cabang_id_his' => $history->cabang_id == $request->uedit_cabang ? null : $history->cabang_id,
-                        'cabang_id_new' => $history->cabang_id == $request->input('uedit_cabang') ? null : $request->input('uedit_cabang'),
-                        'divisi_id_his' => $history->divisi_id == $request->input('uedit_divisi') ? null : $history->divisi_id,
-                        'divisi_id_new' => $history->divisi_id == $request->input('uedit_divisi') ? null : $request->input('uedit_divisi'),
-                        'jabatan_id_his' => $history->jabatan_id == $request->input('uedit_jabatan') ? null : $history->jabatan_id,
-                        'jabatan_id_new' => $history->jabatan_id == $request->input('uedit_jabatan') ? null : $request->input('uedit_jabatan'),
                         'updated_by' => auth()->id(),
                         'updated_at' => date('Y-m-d H:i:s')
                     ];
@@ -617,6 +643,55 @@ class UsersController extends Controller
             return abort(500, $e->getMessage());
         }
         return;
+    }
+    protected function updateUserJob($request)
+    {
+        try {
+            $id_karyawan = $request->input('uedit_id_karyawan');
+            $cabang = $request->input('uedit_cabang');
+            $divisi = $request->input('uedit_divisi');
+            $jabatan = $request->input('uedit_jabatan');
+            $tgl_bergabung = is_null($request->input('uedit_tgl_bergabung')) ? $request->input('uedit_tgl_bergabung')
+            : Carbon::createFromFormat('d F Y', $request->input('uedit_tgl_bergabung'))->format('Y-m-d');
+            $tgl_berakhir = is_null($request->input('uedit_tgl_berakhir')) ? $request->input('uedit_tgl_berakhir')
+            : Carbon::createFromFormat('d F Y', $request->input('uedit_tgl_berakhir'))->format('Y-m-d');
+            $status_pekerjaan = $request->input('uedit_status_pekerjaan');
+            $level_pekerjaan = $request->input('uedit_level_pekerjaan_id');
+            $approval_absensi = $request->input('uedit_approval_absensi');
+            $approval_shift = $request->input('uedit_approval_shift');
+            $approval_lembur = $request->input('uedit_approval_lembur');
+            $approval_izin_kembali = $request->input('uedit_approval_izin_kembali');
+            $approval_istirahat_telat = $request->input('uedit_approval_istirahat_telat');
+            $id = $request->uedit_id;
+            DB::beginTransaction();
+            DB::table('users')->where('id',$id)->update([
+                'cabang_id' => $cabang,
+                'divisi_id' => $divisi,
+                'jabatan_id' => $jabatan,
+            ]);
+            $update = [
+                'params' => 'Update User Job',
+                'users_id' => $id,
+                'id_karyawan' => $id_karyawan,
+                'level_pekerjaan_id' => $level_pekerjaan,
+                'status_pekerjaan' => $status_pekerjaan,
+                'tgl_bergabung' => $tgl_bergabung,
+                'tgl_berakhir' => $tgl_berakhir,
+                'approval_absensi' => $approval_absensi,
+                'approval_shift' => $approval_shift,
+                'approval_lembur' => $approval_lembur,
+                'approval_izin_kembali' => $approval_izin_kembali,
+                'approval_istirahat_telat' => $approval_istirahat_telat,
+            ];
+            event(new UserEvent($update));
+            DB::commit();
+            return;
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
     protected function updateUserStatus($request)
     {
@@ -885,12 +960,22 @@ class UsersController extends Controller
     protected function checkEmail($request)
     {
         $email = $request->adduser_email;
-        $check = DB::table('users')->where('email',$email)->exists();
+        $check = DB::table('users')->where('email', $email)->exists();
         $res = TRUE;
         if ($check) {
             $res = FALSE;
         }
-        return response()->json($res,200);
+        return response()->json($res, 200);
+    }
+    protected function  checkIdKaryawan($request)
+    {
+        $id = $request->id;
+        $check = DB::table('user_job')->where('users_id', $id)->exists();
+        $res = TRUE;
+        if ($check) {
+            $res = FALSE;
+        }
+        return response()->json($res, 200);
     }
     public function lihatHistoryUser(Request $request)
     {

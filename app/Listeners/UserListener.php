@@ -39,8 +39,7 @@ class UserListener
                     'divisi_id' => $data['divisi_id'],
                     'jabatan_id' => $data['jabatan_id'],
                     'created_by' => $data['created_by']
-                ]) .
-                    DB::table('users')->get();
+                ]);
                 break;
             case 'Update User':
                 $res = DB::table('users')
@@ -51,9 +50,6 @@ class UserListener
                         'tempat_lahir' => $data['tempat_lahir'],
                         'alamat' => $data['alamat'],
                         'email' => $data['email'],
-                        'cabang_id' => $data['cabang_id'],
-                        'divisi_id' => $data['divisi_id'],
-                        'jabatan_id' => $data['jabatan_id'],
                         'updated_by' => $data['updated_by']
                     ]);
                 break;
@@ -84,12 +80,6 @@ class UserListener
                     'alamat_new' => $data['alamat_new'],
                     'email_his' => $data['email_his'],
                     'email_new' => $data['email_new'],
-                    'cabang_id_his' => $data['cabang_id_his'],
-                    'cabang_id_new' => $data['cabang_id_new'],
-                    'divisi_id_his' => $data['divisi_id_his'],
-                    'divisi_id_new' => $data['divisi_id_new'],
-                    'jabatan_id_his' => $data['jabatan_id_his'],
-                    'jabatan_id_new' => $data['jabatan_id_new'],
                     'author_id' => $data['updated_by'],
                     'modified_at' => $data['updated_at']
                 ]);
@@ -127,6 +117,22 @@ class UserListener
                     'author_id' => $data['author_id'],
                     'modified_at' => $data['modified_at']
                 ]);
+                break;
+            case 'Update User Job':
+                $res = DB::table('user_job')
+                    ->updateOrInsert(['users_id' => $data['users_id']], [
+                        'users_id' => $data['users_id'],
+                        'id_karyawan' => $data['id_karyawan'],
+                        'level_pekerjaan_id' => $data['level_pekerjaan_id'],
+                        'status_pekerjaan' => $data['status_pekerjaan'],
+                        'tgl_bergabung' => $data['tgl_bergabung'],
+                        'tgl_berakhir' => $data['tgl_berakhir'],
+                        'approval_absensi' => $data['approval_absensi'],
+                        'approval_shift' => $data['approval_shift'],
+                        'approval_lembur' => $data['approval_lembur'],
+                        'approval_izin_kembali' => $data['approval_izin_kembali'],
+                        'approval_istirahat_telat' => $data['approval_istirahat_telat']
+                    ]);
                 break;
             default:
                 abort(500);

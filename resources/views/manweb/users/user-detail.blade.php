@@ -15,17 +15,54 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.css" />
     <style>
         .indicator {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background-color: #808080; /* default color for offline */
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #808080;
+            /* default color for offline */
         }
 
         .indicator.away {
-        background-color: #DAA520; /* color for away */
+            background-color: #DAA520;
+            /* color for away */
         }
+
         .indicator.online {
-        background-color: #008000; /* color for online */
+            background-color: #008000;
+            /* color for online */
+        }
+
+        #container-pp {
+            position: relative;
+            margin: -35px -5px 0 30px;
+            width: 100px;
+            height: 100px;
+        }
+
+        .profile-widget .profile-widget-picture {
+            margin: 0 !important;
+        }
+
+        #btn-pp {
+            background-color: #F8F9FA;
+            border-radius: 50%;
+            z-index: 1;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+        }
+
+        #btn-pp:hover {
+            background-color: #999999;
+        }
+
+        #btn-pp input {
+            opacity: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: 1;
+            width: 20px;
+            height: 20px;
         }
     </style>
 @endsection
@@ -45,116 +82,83 @@
             <div class="row">
                 <div class="col-12 col-md-6">
                     <div class="card card-primary profile-widget mt-0">
-                        @if (Auth::user()->can('do_update', 'ubah-data-user') or Auth::id() == $user->id)
-                            @include('manweb.users.fedit-data-user')
-                        @else
-                            @php
-                                $words = explode(' ', $user->nama);
-                                $acronym = '';
-
-                                foreach ($words as $w) {
-                                    $acronym .= mb_substr($w, 0, 1);
-                                }
-                            @endphp
-                            <div class="profile-widget-header">
-                                <a href="{{ asset('storage/users/' . $user->id . '/' . $user->avatar) }}"
-                                    data-magnify="gallery">
-                                    <img alt="{{ Str::upper($acronym) }}"
-                                        src="{{ asset('storage/users/' . $user->id . '/' . $user->avatar) }}"
-                                        class="rounded-circle profile-widget-picture image-output">
-                                </a>
-                            </div>
-                            <div class="profile-widget-description">
-                                <div class="row">
-                                    <div class="col-12 d-flex justify-content-start mb-4">
-                                        @switch($user->status_activity)
-                                            @case('online')
-                                                @php
-                                                    $text = 'Online';
-                                                    $cls = 'online';
-                                                @endphp
-                                                @break
-                                            @case('away')
-                                                @php
-                                                    $text = 'Away';
-                                                    $cls = 'away';
-                                                @endphp
-                                                @break
-                                            @default
-                                                @php
-                                                    $text = 'Offline';
-                                                    $cls = '';
-                                                @endphp
-                                            @endswitch
-                                            <span class="indicator {{$cls}} mt-2 mr-1"></span>
-                                            <span><b>{{$text}}</b></span>
-                                    </div>
-                                    <div class="form-group col-12 mb-4">
-                                        <label>Nama Lengkap: <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" value="{{ $user->nama }}"
-                                            placeholder="Nama Lengkap" readonly>
-                                    </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Tanggal Lahir: </label>
-                                        <input type="text" class="form-control datepicker"
-                                            value="{{ $user->tanggal_lahir }}" placeholder="Hari Bulan Tahun" readonly>
-                                    </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Tempat Lahir: </label>
-                                        <input type="text" class="form-control" value="{{ $user->tempat_lahir }}"
-                                            placeholder="Kota / Daerah Kelahiran" readonly>
-                                    </div>
-                                    <div class="form-group col-12 mb-4">
-                                        <label>Alamat Lengkap: </label>
-                                        <textarea class="form-control" placeholder="Alamat Lengkap" readonly>{{ $user->alamat }}</textarea>
-                                    </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Alamat Email: <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" value="{{ $user->email }}"
-                                            placeholder="Email Aktif" readonly>
-                                    </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Cabang: <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" value="{{ $user->cabang }}" readonly>
-                                    </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Divisi: <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" value="{{ $user->divisi }}" readonly>
-                                    </div>
-                                    <div class="form-group col-12 col-md-6 mb-4">
-                                        <label>Jabatan: <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" value="{{ $user->jabatan }}" readonly>
-                                    </div>
+                        <div id="loadActionUser" class="card-body">
+                            <ul class="nav nav-tabs" id="myTabUser" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="info-personal-tab" data-toggle="tab"
+                                        data-typeget="info-personal" href="#info-personal" role="tab"
+                                        aria-controls="info-personal" aria-selected="true">Info
+                                        Personal</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="info-pekerjaan-tab" data-toggle="tab"
+                                        data-typeget="info-pekerjaan" href="#info-pekerjaan" role="tab"
+                                        aria-controls="info-pekerjaan" aria-selected="true">Info
+                                        Pekerjaan</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="kontak-darurat-tab" data-toggle="tab"
+                                        data-typeget="kontak-darurat" href="#kontak-darurat" role="tab"
+                                        aria-controls="kontak-darurat" aria-selected="false">Info
+                                        Kontak Darurat</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="pendidikan-pengalaman-tab" data-toggle="tab"
+                                        data-typeget="pendidikan-pengalaman" href="#pendidikan-pengalaman" role="tab"
+                                        aria-controls="pendidikan-pengalaman" aria-selected="false">Pendidikan &
+                                        Pengalaman</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="info-payroll-tab" data-toggle="tab" data-typeget="info-payroll"
+                                        href="#info-payroll" role="tab" aria-controls="info-payroll"
+                                        aria-selected="false">Info Payroll</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContentUser">
+                                <div class="tab-pane fade show active" id="info-personal" role="tabpanel"
+                                    aria-labelledby="info-personal-tab">
+                                    @include('manweb.users.fedit-data-user')
+                                </div>
+                                <div class="tab-pane fade" id="info-pekerjaan" role="tabpanel"
+                                    aria-labelledby="info-pekerjaan-tab">
+                                    @include('manweb.users.fedit-data-pekerjaan')
+                                </div>
+                                <div class="tab-pane fade" id="kontak-darurat" role="tabpanel"
+                                    aria-labelledby="kontak-darurat-tab">
+                                    @include('manweb.users.fedit-data-kontak-darurat')
                                 </div>
                             </div>
-                        @endif
+                        </div>
                     </div>
                 </div>
 
                 <div class="col-12 col-md-6">
                     <div class="card card-primary">
                         <div id="loadAction" class="card-body">
-                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <ul class="nav nav-tabs show-nav-setting" id="myTab" role="tablist">
                                 @can('do_update', 'ubah-data-user')
                                     <li class="nav-item">
-                                        <a class="nav-link active" id="access-tab" data-toggle="tab" data-typeget="access-menu" href="#access"
-                                            role="tab" aria-controls="access" aria-selected="true">Access Menu</a>
+                                        <a class="nav-link active" id="access-tab" data-toggle="tab"
+                                            data-typeget="access-menu" href="#access" role="tab" aria-controls="access"
+                                            aria-selected="true">Access Menu</a>
                                     </li>
                                 @endcan
                                 <li class="nav-item">
-                                    <a class="nav-link" id="user-log-tab" data-toggle="tab" data-typeget="user-log" href="#log_user" role="tab"
-                                        aria-controls="log_user" aria-selected="true">User log</a>
+                                    <a class="nav-link" id="user-log-tab" data-toggle="tab" data-typeget="user-log"
+                                        href="#log_user" role="tab" aria-controls="log_user"
+                                        aria-selected="true">User log</a>
                                 </li>
                                 @if (auth()->id() == $user->id)
                                     <li class="nav-item">
                                         <a class="nav-link {{ Auth::user()->cannot('do_update', 'ubah-data-user') ? 'active' : '' }}"
-                                            id="password-tab" data-toggle="tab" data-typeget="password" href="#password" role="tab"
-                                            aria-controls="password" aria-selected="false">Password</a>
+                                            id="password-tab" data-toggle="tab" data-typeget="password" href="#password"
+                                            role="tab" aria-controls="password" aria-selected="false">Password</a>
                                     </li>
                                 @endif
                                 <li class="nav-item">
-                                    <a class="nav-link" id="user-status-tab" data-toggle="tab" data-typeget="user-status" href="#user-status"
-                                        role="tab" aria-controls="user-status" aria-selected="false">User status</a>
+                                    <a class="nav-link" id="user-status-tab" data-toggle="tab"
+                                        data-typeget="user-status" href="#user-status" role="tab"
+                                        aria-controls="user-status" aria-selected="false">User status</a>
                                 </li>
                             </ul>
                             <div class="tab-content" id="myTabContent">
@@ -201,7 +205,8 @@
                                 @endif
                                 <div class="tab-pane fade mt-3" id="user-status" role="tabpanel"
                                     aria-labelledby="user-status-tab">
-                                    <div class="custom-control custom-switch" {{ Auth::user()->cannot('do_update', 'ubah-data-user') ? 'hidden':''}}>
+                                    <div class="custom-control custom-switch"
+                                        {{ Auth::user()->cannot('do_update', 'ubah-data-user') ? 'hidden' : '' }}>
                                         <input type="checkbox" name="proses" class="custom-control-input"
                                             id="userStatus" data-id="{!! $user->id !!}"
                                             {{ $user->status == 1 ? 'checked' : '' }}>
@@ -242,44 +247,46 @@
         </div>
     </section>
     <!-- This is the modal -->
-    <div class="modal" tabindex="-1" role="dialog" aria-labelledby="titleCrop" aria-hidden="true"
-        id="uploadimageModal">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="titleCrop"><span class="fas fa-crop"></span>&nbsp;Crop Photo Profile</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12 text-center">
-                            <input type="hidden" name="id" id="idInModal" value="">
-                            <div id="image_demo"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary crop_image"><i class="fa fa-crop"></i> Crop and
-                        Save</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+<div class="modal" tabindex="-1" role="dialog" aria-labelledby="titleCrop" aria-hidden="true"
+id="uploadimageModal">
+<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="titleCrop"><span class="fas fa-crop"></span>&nbsp;Crop Photo Profile</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <input type="hidden" name="id" id="idInModal" value="">
+                    <div id="image_demo"></div>
                 </div>
             </div>
         </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary crop_image"><i class="fa fa-crop"></i> Crop and
+                Save</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
     </div>
+</div>
+</div>
 @endsection
 
 
 @section('jsRequired')
     <script type="text/javascript" src="{{ asset('vendors/datatables/media/js/jquery.dataTables.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}">
+    </script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/rowreorder/1.2.3/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/responsive/2.2.0/js/dataTables.responsive.min.js"></script>
     <script type="text/javascript" src="{{ asset('vendors/jquery-magnify/dist/jquery.magnify.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}">
+    </script>
     <script type="text/javascript" src="{{ asset('vendors/select2/dist/js/select2.full.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('vendors/hummingbird-treeview/hummingbird-treeview.js') }}"></script>
     <script type="text/javascript" src="{{ asset('vendors/jquery-validation/dist/jquery.validate.js') }}"></script>
@@ -289,262 +296,6 @@
 @endsection
 
 @section('jsNeeded')
+    <script type="text/javascript" src="{{ asset('js/manweb/user-info.js') }}" defer></script>
     <script type="text/javascript" src="{{ asset('js/manweb/user-log.js') }}" defer></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-
-            // Initial
-
-            $('.datepicker').datepicker({
-                format: 'dd MM yyyy'
-            });
-
-            $(".select2").select2({
-                placeholder: 'Pilih',
-            }).on('change', function(e) {
-                if (this.value) {
-                    $(this).valid();
-                }
-            });
-
-            $('#uploadimageModal').on('hidden.bs.modal', function() {
-                $('#image_demo').croppie('destroy');
-            });
-            $('#cover_image').on('change', function() {
-                var id = $(this).data('id');
-                $('#idInModal').val(id);
-                $('#uploadimageModal').modal('show');
-                var boundaryWidth = $('.modal-body').width();
-                var boundaryHeight = boundaryWidth / 2;
-                var viewportWidth = boundaryWidth - (boundaryWidth / 100 * 50);
-                var viewportHeight = boundaryHeight - (boundaryHeight / 100 * 20);
-                $('#image_demo').croppie({
-                    viewport: {
-                        width: viewportWidth,
-                        height: viewportWidth,
-                        type: 'circle'
-                    },
-                    boundary: {
-                        width: boundaryWidth,
-                        height: boundaryHeight
-                    }
-                });
-                var reader = new FileReader();
-                reader.onload = function(event) {
-                    $('#image_demo').croppie('bind', {
-                        url: event.target.result,
-                    });
-                }
-                reader.readAsDataURL(this.files[0]);
-                // $('#uploadimageModal').modal('show');
-            });
-            /// Get button click event and get the current crop image
-            $('.crop_image').click(function(event) {
-                var formData = new FormData();
-                let id = $('[name=id]').val();
-                $('#image_demo').croppie('result', {
-                    type: 'canvas',
-                    size: 'viewport',
-                    format: 'jpeg' | 'png' | 'webp'
-                }).then(function(blob) {
-                    formData.append('cropped_image', blob);
-                    ajaxFormPost(formData, window.location.origin +
-                        "/manajemen-web/user/ajax/save-image/" + id
-                    ); /// Calling my ajax function with my blob data passed to it
-                });
-                $('#uploadimageModal').modal('hide');
-            }); /// Ajax Function
-            function ajaxFormPost(formData, actionURL) {
-                $.ajax({
-                    url: actionURL,
-                    type: 'POST',
-                    data: formData,
-                    cache: false,
-                    async: true,
-                    processData: false,
-                    contentType: false,
-                    timeout: 5000,
-                    beforeSend: function() {
-                        $("#overlay").fadeIn(300);
-                    },
-                    success: function(response) {
-                        // console.log(formData);
-                        // console.log(response);
-                        if (response.status === 'success') {
-                            $('.image-output').attr('src', response.path);
-                        }
-                        notifToast(response.status, response.message);
-                    },
-                    complete: function() {
-                        setTimeout(function() {
-                            $("#overlay").fadeOut(300);
-                        }, 500);
-                    }
-                });
-            }
-            $('[data-magnify]').magnify({
-                resizable: false,
-                title: false,
-                draggable: false,
-                headerToolbar: [
-                    'close'
-                ],
-            });
-            // let editUser = jqueryValidation_('#fm_EditUser', {
-            //     uedit_pp: {
-            //         extension: "jpg,jpeg,png",
-            //         maxsize: 300000,
-            //     },
-            // });
-
-            function ajaxEditUser(data) {
-                let el = data.get(0);
-                // console.log(el);
-                $.ajax({
-                    type: "POST",
-                    url: "{{ url('manajemen-web/user/ajax/update/') }}",
-                    data: new FormData(el),
-                    processData: false,
-                    contentType: false,
-                    beforeSend: function() {
-                        data.closest('.card').addClass('card-progress');
-                    },
-                    success: function(data) {
-                        console.log(data)
-                        notifToast('success', 'Data user berhasil diubah!');
-                    },
-                    error: function(err) {
-                        console.log(err)
-                        rs = err.responseJSON.errors;
-                        if (rs !== undefined) {
-                            err = {};
-                            Object.entries(rs).forEach(entry => {
-                                let [key, value] = entry;
-                                err[key] = value
-                            })
-                            // editUser.showErrors(err);
-                        }
-                        notifToast('error', 'Data user gagal diubah!');
-                    },
-                    complete: function() {
-                        data.closest('.card').removeClass('card-progress');
-                    }
-                })
-
-            }
-
-            // $('.profile-widget').on('change', '[name="uedit_pp"]', function(e) {
-            //     let file = e.currentTarget.files[0];
-            //     $('#container-pp img').attr('src', URL.createObjectURL(file));
-            // })
-            $('.profile-widget').on('submit', '#fm_EditUser', function(e) {
-                e.preventDefault();
-                if ($(this).valid()) {
-                    swal({
-                            text: 'Simpan Perubahan?',
-                            icon: 'warning',
-                            buttons: true,
-                            dangerMode: true,
-                        })
-                        .then((confirm) => {
-                            if (confirm) {
-                                ajaxEditUser($(this));
-                            }
-                        });
-                }
-            });
-
-            $('#form_UpdateAccess').on('submit', function(e) {
-                e.preventDefault();
-                swal({
-                        text: 'Simpan Perubahan Akses?',
-                        icon: 'warning',
-                        buttons: true,
-                        dangerMode: true,
-                    })
-                    .then((confirm) => {
-                        if (confirm) {
-                            $.ajax({
-                                type: 'POST',
-                                url: "{{ url('manajemen-web/user/ajax/update-access') }}",
-                                data: new FormData(this),
-                                processData: false,
-                                contentType: false,
-                                success: function(data) {
-                                    console.log(data);
-                                    notifToast('success', 'Akses berhasil diperbarui.');
-                                },
-                                error: function(err) {
-                                    console.log(err)
-                                    notifToast('error', 'Akses gagal diperbarui.');
-                                }
-                            });
-                        }
-                    });
-            })
-
-            let editPassword = jqueryValidation_('#form_UpdatePassword', {
-                uedit_pwd_old: {
-                    minlength: 6
-                },
-                uedit_pwd_new: {
-                    minlength: 6
-                },
-                uedit_pwd_confirm: {
-                    minlength: 6,
-                    equalTo: "[name='uedit_pwd_new']"
-                }
-            });
-
-            function ajaxEditPassword(data) {
-                let el = data.get(0);
-
-                $.ajax({
-                    type: "POST",
-                    url: "{{ url('manajemen-web/user/ajax/update-password/') }}",
-                    data: new FormData(el),
-                    processData: false,
-                    contentType: false,
-                    beforeSend: function() {
-                        data.closest('.card').addClass('card-progress');
-                    },
-                    success: function(data) {
-                        notifToast('success', 'Password berhasil diubah!', true);
-                    },
-                    error: function(err) {
-                        rs = err.responseJSON.errors;
-                        if (rs !== undefined) {
-                            err = {};
-                            Object.entries(rs).forEach(entry => {
-                                let [key, value] = entry;
-                                err[key] = value
-                            })
-                            editPassword.showErrors(err);
-                        }
-                        notifToast('error', 'Password gagal diubah!');
-                    },
-                    complete: function() {
-                        data.closest('.card').removeClass('card-progress');
-                    }
-                })
-            }
-
-            $('#form_UpdatePassword').on('submit', function(e) {
-                e.preventDefault();
-                if ($(this).valid()) {
-                    swal({
-                            text: 'Ubah Password?',
-                            icon: 'warning',
-                            buttons: true,
-                            dangerMode: true,
-                        })
-                        .then((confirm) => {
-                            if (confirm) {
-                                ajaxEditPassword($(this));
-                            }
-                        });
-                }
-            })
-        });
-    </script>
 @endsection

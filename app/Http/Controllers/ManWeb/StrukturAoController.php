@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Validator};
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use Yajra\DataTables\DataTables;
 
 class StrukturAoController extends Controller
@@ -14,68 +15,97 @@ class StrukturAoController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            if ($request->input('request_') === 'table-cabang') {  // Load Table Cabang
-                $table = DB::table('cabang')
-                    ->whereNull('deleted_at')
-                    ->select('id', 'kode', 'nama', 'telp', 'alamat')
-                    ->get();
+            switch ($request->input('request_')) {
+                case 'table-cabang':
+                    $table = DB::table('cabang')
+                        ->whereNull('deleted_at')
+                        ->select('id', 'kode', 'nama', 'telp', 'alamat')
+                        ->get();
 
-                return Datatables::of($table)
-                    ->addColumn('action', function ($data) {
-                        $btn = '<a href="#" class="btn btn-sm btn-warning btn_EditCabang btn-icon mr-1"
+                    return Datatables::of($table)
+                        ->addColumn('action', function ($data) {
+                            $btn = '<a href="#" class="btn btn-sm btn-warning btn_EditCabang btn-icon mr-1"
                                     data-toggle="modal" data-target="#md_EditCabang" data-backdrop="static"
                                     data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                                     <div><i class="fas fa-edit"></i></div></a>';
-                        $btn .= '<a href="#" class="btn btn-sm btn_DelCabang btn-danger btn-icon"
+                            $btn .= '<a href="#" class="btn btn-sm btn_DelCabang btn-danger btn-icon"
                                     data-id="' . $data->id . '" data-nama="' . $data->nama . '">
                                     <div><i class="fas fa-trash-alt"></i></div></a>';
-                        return $btn;
-                    })
-                    ->make(true);
-            } elseif ($request->input('request_') === 'table-divisi') { // Load Table Divisi
-                $table = DB::table('divisi')
-                    ->whereNull('deleted_at')
-                    ->orderBy('nama', 'ASC')
-                    ->select('id', 'nama')->get();
+                            return $btn;
+                        })
+                        ->make(true);
+                    break;
+                case 'table-job-level':
+                    $table = DB::table('user_job_level_master')
+                        ->whereNull('deleted_at')
+                        ->get();
+                    return Datatables::of($table)
+                        ->addColumn('action', function ($data) {
+                            $btn = '<a href="#" class="btn btn-sm btn-warning btn_EditJobLevel btn-icon mr-1"
+                                    data-toggle="modal" data-target="#md_EditJobLevel" data-backdrop="static"
+                                    data-id="' . $data->id . '" data-nama="' . $data->nama . '">
+                                    <div><i class="fas fa-edit"></i></div></a>';
+                            $btn .= '<a href="#" class="btn btn-sm btn_DelJobLevel btn-danger btn-icon"
+                                    data-id="' . $data->id . '" data-nama="' . $data->nama . '">
+                                    <div><i class="fas fa-trash-alt"></i></div></a>';
+                            return $btn;
+                        })
+                        ->make(true);
+                    break;
+                case 'table-divisi':
+                    $table = DB::table('divisi')
+                        ->whereNull('deleted_at')
+                        ->orderBy('nama', 'ASC')
+                        ->select('id', 'nama')->get();
 
-                return Datatables::of($table)
-                    ->addIndexColumn()
-                    ->addColumn('action', function ($data) {
-                        $btn = '<a href="#" class="btn btn-sm btn-warning btn-icon mr-1" data-tipe="Divisi"
+                    return Datatables::of($table)
+                        ->addIndexColumn()
+                        ->addColumn('action', function ($data) {
+                            $btn = '<a href="#" class="btn btn-sm btn-warning btn-icon mr-1" data-tipe="Divisi"
                                         data-toggle="modal" data-target="#md_EditDivJab" data-backdrop="static"
                                         data-id="' . $data->id . '" data-nama="' . $data->nama . '"">
                                         <div><i class="fas fa-edit"></i></div></a>';
-                        $btn .= '<a href="#" class="btn btn-sm btn-danger btn_DelDivJab btn-icon"
+                            $btn .= '<a href="#" class="btn btn-sm btn-danger btn_DelDivJab btn-icon"
                                         data-id="' . $data->id . '" data-nama="' . $data->nama . '"" data-tipe="Divisi">
                                         <div><i class="fas fa-trash-alt"></i></div></a>';
-                        return $btn;
-                    })
-                    ->make(true);
-            } elseif ($request->input('request_') === 'table-jabatan') { // Load Table Jabatan
-                $table = DB::table('jabatan')
-                    ->whereNull('deleted_at')
-                    ->orderBy('nama', 'ASC')
-                    ->select('id', 'nama')->get();
+                            return $btn;
+                        })
+                        ->make(true);
+                    break;
+                case 'table-jabatan':
+                    $table = DB::table('jabatan')
+                        ->whereNull('deleted_at')
+                        ->orderBy('nama', 'ASC')
+                        ->select('id', 'nama')->get();
 
-                return Datatables::of($table)
-                    ->addIndexColumn()
-                    ->addColumn('action', function ($data) {
-                        $btn = '<a href="#" class="btn btn-sm btn-warning btn-icon mr-1" data-tipe="Jabatan"
+                    return Datatables::of($table)
+                        ->addIndexColumn()
+                        ->addColumn('action', function ($data) {
+                            $btn = '<a href="#" class="btn btn-sm btn-warning btn-icon mr-1" data-tipe="Jabatan"
                                         data-toggle="modal" data-target="#md_EditDivJab" data-backdrop="static"
                                         data-id="' . $data->id . '" data-nama="' . $data->nama . '"">
                                         <div><i class="fas fa-edit"></i></div></a>';
-                        $btn .= '<a href="#" class="btn btn-sm btn-danger btn_DelDivJab btn-icon"
+                            $btn .= '<a href="#" class="btn btn-sm btn-danger btn_DelDivJab btn-icon"
                                         data-id="' . $data->id . '" data-nama="' . $data->nama . '"" data-tipe="Jabatan">
                                         <div><i class="fas fa-trash-alt"></i></div></a>';
-                        return $btn;
-                    })
-                    ->make(true);
-            } elseif ($request->input('request_') === 'cabang') {
-                $result = DB::table('cabang')->whereNull('deleted_at')
-                    ->where('id', $request->input('id'))
-                    ->select('id', 'kode', 'nama', 'telp', 'alamat', 'nama as oldnama')
-                    ->first();
-                return $result;
+                            return $btn;
+                        })
+                        ->make(true);
+                    break;
+                case 'cabang':
+                    $result = DB::table('cabang')->whereNull('deleted_at')
+                        ->where('id', $request->input('id'))
+                        ->select('id', 'kode', 'nama', 'telp', 'alamat', 'nama as oldnama')
+                        ->first();
+                    return $result;
+                    break;
+                case 'job-level':
+                    $result = DB::table('user_job_level_master')->whereNull('deleted_at')
+                        ->where('id', $request->input('id'))
+                        ->select('id', 'nama','nama as oldnama')
+                        ->first();
+                    return $result;
+                    break;
             }
         }
 
@@ -89,6 +119,8 @@ class StrukturAoController extends Controller
         if ($request->act == 'create') {
             if ($request->type == 'cabang') {
                 return $this->addCabang($request);
+            } elseif ($request->type == 'job-level') {
+                return $this->addJobLevel($request);
             } elseif ($request->type == 'divisi' or $request->type == 'jabatan') {
                 return $this->addDivJab($request);
             } else {
@@ -97,6 +129,8 @@ class StrukturAoController extends Controller
         } elseif ($request->act == 'update') {
             if ($request->type == 'cabang') {
                 return $this->editCabang($request);
+            } elseif ($request->type == 'job-level') {
+                return $this->editJobLevel($request);
             } elseif ($request->type == 'divisi' or $request->type == 'jabatan') {
                 return $this->editDivJab($request);
             } else {
@@ -183,6 +217,18 @@ class StrukturAoController extends Controller
         return;
     }
 
+    protected function addJobLevel($request)
+    {
+        $request->validate([
+            'add_nama' => 'required'
+        ]);
+        DB::table('user_job_level_master')->insert([
+            'id' => Uuid::uuid4()->toString(),
+            'nama' => $request->input('add_nama'),
+            'created_by' => auth()->id()
+        ]);
+        return;
+    }
     protected function editCabang($request)
     {
         $request->validate([
@@ -203,6 +249,19 @@ class StrukturAoController extends Controller
         return;
     }
 
+    protected function editJobLevel($request)
+    {
+        $request->validate([
+            'edit_id' => 'required',
+            'edit_nama' => 'required'
+        ]);
+        DB::table('user_job_level_master')->whereNull('deleted_at')
+            ->where('id', $request->input('edit_id'))->update([
+                'nama' => $request->input('edit_nama'),
+                'updated_by' => auth()->id()
+            ]);
+        return;
+    }
     protected function addDivJab($request)
     {
         $request->validate([

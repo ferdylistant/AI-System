@@ -34,6 +34,25 @@
                 </div>
             </div>
             <div class="row">
+                <div class="col-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h4>Data Level Pekerjaan</h4>
+                            <div class="card-header-action">
+                                <button id="btn_AddJobLevel" class="btn btn-success" data-toggle="modal"
+                                    data-target="#md_AddJobLevel" data-backdrop="static">Tambah</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="col-12 table-responsive">
+                                <table id="tb_JobLevel" class="table table-striped" style="width: 100%">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-12 col-md-6">
                     <div class="card card-primary">
                         <div class="card-header">
@@ -174,6 +193,63 @@
             </div>
         </div>
     </div>
+    <!-- Modal Level Pekerjaan -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="md_AddJobLevel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-success">
+
+                </div>
+                <div class="modal-body">
+                    <form id="fm_AddJobLevel">
+                        {!! csrf_field() !!}
+                        <h5 class="modal-title mb-3">#Tambah Level Pekerjaan</h5>
+                        <div class="form-group row mb-4">
+                            <label class="col-form-label text-md-right col-12 col-md-3">Nama <span class="text-danger">*</span></label>
+                            <div class="col-sm-12 col-md-9">
+                                <input type="text" name="add_nama" class="form-control" placeholder="Nama Level Pekerjaan">
+                                <div id="err_add_nama"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer bg-whitesmoke br">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-sm btn-success" form="fm_AddJobLevel">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade modal-progress" tabindex="-1" role="dialog" id="md_EditJobLevel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+
+                </div>
+                <div class="modal-body">
+                    <form id="fm_EditJobLevel">
+                        {!! csrf_field() !!}
+                        <input type="hidden" name="edit_id" class="form-control" value="">
+                        <h5 class="modal-title mb-3">#Ubah Level Pekerjaan</h5>
+                        <div class="form-group row mb-4">
+                            <label class="col-form-label text-md-right col-12 col-md-3">Nama <span class="text-danger">*</span></label>
+                            <div class="col-sm-12 col-md-9">
+                                <input type="hidden" name="edit_oldnama" class="form-control"
+                                    placeholder="Nama Level Pekerjaan">
+                                <input type="text" name="edit_nama" class="form-control" placeholder="Nama Level Pekerjaan">
+                                <div id="err_edit_nama"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer bg-whitesmoke br">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-sm btn-warning" form="fm_EditJobLevel">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Divisi -->
     <div class="modal fade modal-progress" tabindex="-1" role="dialog" id="md_AddDivJab">
@@ -290,6 +366,38 @@
                     },
                 ],
             });
+            let tableJobLevel = $('#tb_JobLevel').DataTable({
+                "bSort": false,
+                "responsive": true,
+                "autoWidth": true,
+                processing: true,
+                serverSide: true,
+                language: {
+                    searchPlaceholder: 'Search...',
+                    sSearch: '',
+                    lengthMenu: '_MENU_ items/page',
+                },
+                ajax: {
+                    url: "{{ url('manajemen-web/struktur-ao') }}",
+                    data: {
+                        "request_": "table-job-level"
+                    }
+                },
+                columns: [
+                    {
+                        data: 'nama',
+                        name: 'nama',
+                        title: 'Nama'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        title: 'Aksi',
+                        searchable: false,
+                        orderable: false
+                    },
+                ],
+            });
 
             let tableDivisi = $('#tb_Divisi').DataTable({
                 "bSort": false,
@@ -393,6 +501,16 @@
                     number: true
                 }
             });
+            let addJobLevel = jqueryValidation_('#fm_AddJobLevel', {
+                add_nama: {
+                    required: true,
+                },
+            });
+            let editJobLevel = jqueryValidation_('#fm_EditJobLevel', {
+                edit_nama: {
+                    required: true,
+                },
+            });
             let addDivJab = jqueryValidation_('#fm_AddDivJab', {
                 add_djnama: {
                     required: true,
@@ -480,6 +598,99 @@
             }
 
             function ajaxDeleteCabang(data) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('manajemen-web/struktur-ao/delete/cabang') }}",
+                    data: data,
+                    beforeSend: function() {
+                        $('.btn_DelCabang').prop('disabled', true).addClass('btn-progress')
+                    },
+                    success: function(result) {
+                        tableCabang.ajax.reload();
+                        notifToast('success', 'Data cabang berhasil dihapus!');
+                    },
+                    error: function(err) {},
+                    complete: function() {
+                        $('.btn_DelCabang').prop('disabled', true).removeClass('btn-progress')
+                    }
+                })
+            }
+
+            function ajaxAddJobLevel(data) {
+                let el = data.get(0);
+                console.log(data)
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('manajemen-web/struktur-ao/create/job-level') }}",
+                    data: new FormData(el),
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function() {
+                        $('button[type="submit"]').prop('disabled', true).
+                        addClass('btn-progress')
+                    },
+                    success: function(result) {
+                        tableJobLevel.ajax.reload();
+                        notifToast('success', 'Data level pekerjaan berhasil disimpan!');
+                        data.trigger('reset');
+                        $("#md_AddJobLevel").modal("hide");
+
+                    },
+                    error: function(err) {
+                        rs = err.responseJSON.errors;
+                        if (rs !== undefined) {
+                            err = {};
+                            Object.entries(rs).forEach(entry => {
+                                let [key, value] = entry;
+                                err[key] = value
+                            })
+                            addJobLevel.showErrors(err);
+                        }
+                        notifToast('error', 'Data level pekerjaan gagal disimpan!');
+                    },
+                    complete: function() {
+                        $('button[type="submit"]').prop('disabled', false).
+                        removeClass('btn-progress')
+                    }
+                })
+            }
+
+            function ajaxEditJobLevel(data) {
+                let el = data.get(0);
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('manajemen-web/struktur-ao/update/job-level') }}",
+                    data: new FormData(el),
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function() {
+                        $('button[type="submit"]').prop('disabled', true).
+                        addClass('btn-progress')
+                    },
+                    success: function(result) {
+                        tableJobLevel.ajax.reload();
+                        notifToast('success', 'Data level pekerjaan berhasil disimpan!');
+                    },
+                    error: function(err) {
+                        rs = err.responseJSON.errors;
+                        if (rs !== undefined) {
+                            err = {};
+                            Object.entries(rs).forEach(entry => {
+                                let [key, value] = entry;
+                                err[key] = value
+                            })
+                            editJobLevel.showErrors(err);
+                        }
+                        notifToast('error', 'Data level pekerjaan gagal disimpan!');
+                    },
+                    complete: function() {
+                        $('button[type="submit"]').prop('disabled', false).
+                        removeClass('btn-progress')
+                    }
+                })
+            }
+            function ajaxDeleteJobLevel(data) {
                 $.ajax({
                     type: "POST",
                     url: "{{ url('manajemen-web/struktur-ao/delete/cabang') }}",
@@ -623,6 +834,23 @@
                         });
                 }
             })
+            $('#fm_AddJobLevel').on('submit', function(e) {
+                e.preventDefault();
+                if ($(this).valid()) {
+                    let jobLevel = $(this).find('[name="add_nama"]').val();
+                    swal({
+                            text: 'Tambah data level pekerjaan (' + jobLevel + ')?',
+                            icon: 'warning',
+                            buttons: true,
+                            dangerMode: true,
+                        })
+                        .then((confirm_) => {
+                            if (confirm_) {
+                                ajaxAddJobLevel($(this))
+                            }
+                        });
+                }
+            })
 
             $('#fm_AddDivJab').on('submit', function(e) {
                 e.preventDefault();
@@ -656,6 +884,24 @@
                         .then((confirm_) => {
                             if (confirm_) {
                                 ajaxEditCabang($(this))
+                            }
+                        });
+
+                }
+            })
+            $('#fm_EditJobLevel').on('submit', function(e) {
+                e.preventDefault();
+                if ($(this).valid()) {
+                    let cabang = $(this).find('[name="edit_oldnama"]').val();
+                    swal({
+                            text: 'Ubah data level pekerjaan (' + cabang + ')?',
+                            icon: 'warning',
+                            buttons: true,
+                            dangerMode: true,
+                        })
+                        .then((confirm_) => {
+                            if (confirm_) {
+                                ajaxEditJobLevel($(this))
                             }
                         });
 
@@ -700,7 +946,29 @@
                     },
                 })
             })
+            $('#md_EditJobLevel').on('shown.bs.modal', function(e) {
+                let id = $(e.relatedTarget).data('id'),
+                    form_ = $(this);
+                $.ajax({
+                    url: "{{ url('manajemen-web/struktur-ao/') }}",
+                    data: {
+                        request_: 'job-level',
+                        id: id
+                    },
+                    success: function(result) {
+                        Object.entries(result).forEach(entry => {
+                            let [key, value] = entry;
+                            form_.find('[name="edit_' + key + '"]').val(value);
+                        });
+                        form_.removeClass('modal-progress');
+                    },
+                })
+            })
             $('#md_EditCabang').on('hidden.bs.modal', function() {
+                $(this).find('form').trigger('reset');
+                $(this).addClass('modal-progress');
+            })
+            $('#md_EditJobLevel').on('hidden.bs.modal', function() {
                 $(this).find('form').trigger('reset');
                 $(this).addClass('modal-progress');
             })
@@ -750,6 +1018,24 @@
                     .then((confirm_) => {
                         if (confirm_) {
                             ajaxDeleteCabang({
+                                id: id
+                            });
+                        }
+                    });
+            })
+            $('#tb_JobLevel').on('click', '.btn_DelJobLevel', function(e) {
+                let cabang = $(this).data('nama'),
+                    id = $(this).data('id');
+
+                swal({
+                        text: 'Hapus data level pekerjaan (' + cabang + ')?',
+                        icon: 'warning',
+                        buttons: true,
+                        dangerMode: true,
+                    })
+                    .then((confirm_) => {
+                        if (confirm_) {
+                            ajaxDeleteJobLevel({
                                 id: id
                             });
                         }
